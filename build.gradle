@@ -1,0 +1,36 @@
+apply plugin: "java"
+
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories{
+	maven{ url "http://maven.aliyun.com/nexus/content/groups/public/"}
+	jcenter()
+	mavenCentral()
+}
+
+ext{
+	//the build number that this plugin is made for
+}
+
+dependencies{
+}
+
+jar{
+	version = null
+	from{
+		configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+	}
+
+manifest {
+			 attributes 'Main-Class': 'io.rukkit.Rukkit'
+		}
+}
+
+tasks.withType(JavaCompile) {  
+	options.encoding = "UTF-8"  
+	options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+	options.compilerArgs << "-Xdiags:verbose" << "-Werror"
+	options.compilerArgs << "-Xlint:deprecation" << "-Werror"
+}

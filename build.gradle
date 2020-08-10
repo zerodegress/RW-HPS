@@ -15,17 +15,17 @@ ext{
 }
 
 dependencies{
+	implementation group: 'io.netty', name: 'netty-all', version: '5.0.0.Alpha2'
 }
 
 jar{
-	version = null
 	from{
 		configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
 	}
 
-manifest {
-			 attributes 'Main-Class': 'io.rukkit.Rukkit'
-		}
+	manifest {
+		attributes 'Main-Class': 'com.github.dr.rwserver.Main'
+	}
 }
 
 tasks.withType(JavaCompile) {  

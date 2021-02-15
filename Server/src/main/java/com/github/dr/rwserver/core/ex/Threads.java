@@ -2,12 +2,17 @@ package com.github.dr.rwserver.core.ex;
 
 import java.util.concurrent.*;
 
+/**
+ * @author Dr
+ */
 public class Threads {
 
-	private static final ExecutorService Core 							= Executors.newFixedThreadPool(3);
-	private static final ScheduledExecutorService Service 				= Executors.newScheduledThreadPool(6);
-	private static final ThreadPoolExecutor Player_Heat_Thread 			= new ThreadPoolExecutor(8,8,1,TimeUnit.MINUTES,new LinkedBlockingDeque<Runnable>(10));
-	private static final ExecutorService singleThreadExecutor 			= Executors.newSingleThreadExecutor();
+	private static final ExecutorService CORE_THREAD 					= Executors.newFixedThreadPool(5);
+	private static final ExecutorService CORE_NET_THREAD 				= Executors.newFixedThreadPool(1);
+	private static final ScheduledExecutorService SERVICE 				= Executors.newScheduledThreadPool(8);
+	private static final ThreadPoolExecutor PLAYER_HEAT_THREAD 			= new ThreadPoolExecutor(8,8,1,TimeUnit.MINUTES, new LinkedBlockingDeque<>(10));
+	private static final ExecutorService SINGLE_THREAD_EXECUTOR 		= Executors.newSingleThreadExecutor();
+	private static final ExecutorService SINGLE_UDP_THREAD_EXECUTOR 		= Executors.newSingleThreadExecutor();
 
 	/*
 	private static ScheduledFuture THREAD_TIME;
@@ -21,28 +26,40 @@ public class Threads {
 	}
 
 	public static void close() {
-		Core.shutdownNow();
-		Service.shutdownNow();
-		Player_Heat_Thread.shutdownNow();
+		CORE_THREAD.shutdownNow();
+		CORE_NET_THREAD.shutdownNow();
+		SERVICE.shutdownNow();
+		PLAYER_HEAT_THREAD.shutdownNow();
+	}
+
+	public static void closeNet() {
+		CORE_NET_THREAD.shutdownNow();
 	}
 
 	public static ScheduledFuture newThreadService(Runnable run,int endTime,TimeUnit timeUnit) {
-		return Service.schedule(run,endTime,timeUnit);
+		return SERVICE.schedule(run,endTime,timeUnit);
 	}
 
 	public static ScheduledFuture newThreadService2(Runnable run,int startTime,int endTime,TimeUnit timeUnit) {
-		return Service.scheduleAtFixedRate(run,startTime,endTime,timeUnit);
+		return SERVICE.scheduleAtFixedRate(run,startTime,endTime,timeUnit);
 	}
 
 	public static void newThreadPlayer1(Runnable run) {
-		singleThreadExecutor.execute(run);
+		SINGLE_THREAD_EXECUTOR.execute(run);
+	}
+	public static void newThreadPlayer2(Runnable run) {
+		SINGLE_UDP_THREAD_EXECUTOR.execute(run);
 	}
 
 	public static void newThreadPlayerHeat(Runnable run) {
-    	Player_Heat_Thread.execute(run);
+		PLAYER_HEAT_THREAD.execute(run);
 	}
 
 	public static void newThreadCore(Runnable run) {
-		Core.execute(run);
+		CORE_THREAD.execute(run);
+	}
+
+	public static void newThreadCoreNet(Runnable run) {
+		CORE_NET_THREAD.execute(run);
 	}
 }

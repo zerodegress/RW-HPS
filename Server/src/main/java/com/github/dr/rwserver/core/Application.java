@@ -1,21 +1,27 @@
 package com.github.dr.rwserver.core;
 
+import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.Settings;
 import com.github.dr.rwserver.net.Administration;
+import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.log.Log;
 
 import java.util.UUID;
 
+import static com.github.dr.rwserver.util.Convert.castSeq;
+import static com.github.dr.rwserver.util.IsUtil.isBlank;
 import static com.github.dr.rwserver.util.RandomUtil.generateStr;
 
 /**
  * @author Dr
  */
-public class Application {
+public final class Application {
     public final Settings settings;
     /** 服务器唯一UUID */
-    public final String serverConnectUuid;
+    public String serverConnectUuid;
     public String serverToken;
-    public final Administration admin;
+    public Seq<String> unitBase64;
+    public Administration admin;
     public boolean upServerList = false;
 
     public String serverName = "RW-HPS";
@@ -23,26 +29,83 @@ public class Application {
 
     public Application() {
         settings = new Settings();
-        admin = new Administration(settings);
         serverToken = generateStr(40);
-        serverConnectUuid = settings.getString("serverConnectUuid", UUID.randomUUID().toString());
     }
 
-    public void save() {
+    public final void load() {
+        admin = new Administration(settings);
+        serverConnectUuid = settings.getString("serverConnectUuid", UUID.randomUUID().toString());
+        unitBase64 = castSeq(settings.getObject("unitBase64", Seq.class,new Seq()),String.class);
+    }
+
+    public final void save() {
         settings.put("serverConnectUuid",serverConnectUuid);
+        settings.putObject("unitBase64",unitBase64);
         admin.save(settings);
         settings.saveData();
+        Data.config.save();
     }
 
-    public long getJavaHeap() {
+    public final long getJavaHeap() {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    public long getJavaTotalMemory() {
+    public final long getJavaTotalMemory() {
         return Runtime.getRuntime().totalMemory();
     }
 
-    public long getJavaFreeMemory() {
+    public final long getJavaFreeMemory() {
         return Runtime.getRuntime().freeMemory();
+    }
+
+    public final String getJavaVendor() {
+        return get("java.vendor");
+    }
+
+    public final String getJavaVersion() {
+        return get("java.version");
+    }
+
+    public final String getOsName() {
+        return get("os.name");
+    }
+
+    public final boolean isJavaVersionAtLeast(final float requiredVersion) {
+        final String version = get("java.version");
+        return (isBlank(version) ? 0f : Float.parseFloat(version)) >= requiredVersion;
+    }
+
+    public final boolean isWindows() {
+        final String os = get("os.name");
+        return (isBlank(os) || os.toLowerCase().contains("windows"));
+    }
+
+    public final long getPid() {
+        return ProcessHandle.current().pid();
+    }
+
+
+    /**
+     * 取得系统属性，如果因为Java安全的限制而失败，则将错误打在Log中，然后返回
+     * @param name  属性名
+     * @return 属性值或null
+     * @see System String
+     * @see System String
+     */
+    private String get(final String name) {
+        String value = null;
+        try {
+            value = System.getProperty(name);
+        } catch (SecurityException e) {
+            Log.error("Security level limit",e);
+        }
+        if (null == value) {
+            try {
+                value = System.getenv(name);
+            } catch (SecurityException e) {
+                Log.error("Security level limit",e);
+            }
+        }
+        return value;
     }
 }

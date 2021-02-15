@@ -5,8 +5,9 @@ import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.util.Events;
-import com.github.dr.rwserver.util.LocaleUtil;
+import com.github.dr.rwserver.util.log.Log;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -16,7 +17,7 @@ import static com.github.dr.rwserver.util.IsUtil.isBlank;
 
 /**
  * @author Dr
- * @Date ?
+ * @Date 2020:?
  */
 public class Vote {
     private final Player player;
@@ -29,10 +30,10 @@ public class Vote {
     private ScheduledFuture countDown;
     private Runnable endYesMsg;
     private Runnable endNoMsg;
-    private boolean isteam = false;
-    private final List<String> playerList = new ArrayList<String>();
+    private Runnable teamVoteIng;
+    private boolean isTeam = false;
+    private final List<String> playerList = new ArrayList<>();
     private int y = 0;
-    private final LocaleUtil localeUtil = Data.localeUtil;
 
     public Vote(Player player, String type, String name){
         this.player = player;
@@ -51,25 +52,37 @@ public class Vote {
 
     public void toVote(Player playerplayer, String playerpick) {
         if (playerList.contains(playerplayer.uuid)) {
-            playerplayer.sendSystemMessage(localeUtil.getinput("vote.rey"));
+            playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.rey"));
             return;
         }
-        if ("y".equals(playerpick)) {
-            if (isteam) {
-                if (playerplayer.site == player.site) {
+        final String accapt = "y";
+        final String noAccapt = "n";
+        if (accapt.equals(playerpick)) {
+            if (isTeam) {
+                if (playerplayer.team == player.team) {
                     y++;
                     playerList.add(playerplayer.uuid);
-                    playerplayer.sendSystemMessage(localeUtil.getinput("vote.y"));
+                    playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.y"));
                 } else {
-                    playerplayer.sendSystemMessage(localeUtil.getinput("vote.team"));
+                    playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.team"));
                 }
             } else {
                 y++;
                 playerList.add(playerplayer.uuid);
-                playerplayer.sendSystemMessage(localeUtil.getinput("vote.y"));
+                playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.y"));
             }
-        } else if ("n".equals(playerpick)) {
-
+        } else if (noAccapt.equals(playerpick)) {
+            if (isTeam) {
+                if (playerplayer.team == player.team) {
+                    playerList.add(playerplayer.uuid);
+                    playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.n"));
+                } else {
+                    playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.team"));
+                }
+            } else {
+                playerList.add(playerplayer.uuid);
+                playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.n"));
+            }
         }
     }
 
@@ -81,80 +94,76 @@ public class Vote {
                 normalDistribution();
                 break;
             case "surrender" :
-                isteam = true;
+                isTeam = true;
                 teamOnly();
                 break;
             case "kick" :
                 target = Data.game.playerData[Integer.parseInt(name)];
                 if(target == null) {
-                    player.sendSystemMessage(localeUtil.getinput("vote.kick.err",name));
+                    player.sendSystemMessage(player.localeUtil.getinput("vote.kick.err",name));
                 } else {
                     if (target.isAdmin) {
-                        player.sendSystemMessage(localeUtil.getinput("vote.err.admin",name));
+                        player.sendSystemMessage(player.localeUtil.getinput("vote.err.admin",name));
+                        clearUp();
                     } else {
                         normalDistribution();
                     }
                 }
                 break;
             default :
-                player.sendSystemMessage(localeUtil.getinput("vote.end.err",type+" "+(isBlank(name)?"":name)));
-                Data.Vote = null;
-                System.gc();
+                player.sendSystemMessage(player.localeUtil.getinput("vote.end.err",type+" "+(isBlank(name)?"":name)));
+                clearUp();
                 break;
         }
     }
 
-    // 正常投票
+    /**
+     * 正常投票
+      */
     private void normalDistribution() {
         require = Data.playerGroup.size();
-        endNoMsg = () -> Call.sendSystemMessage(localeUtil.getinput("vote.done.no",type+" "+(isBlank(name)?"":name), y, require));
-        endYesMsg = () -> Call.sendSystemMessage(localeUtil.getinput("vote.ok"));
-        start(() -> Call.sendSystemMessage(localeUtil.getinput("vote.start",player.name,type+" "+(isBlank(name)?"":name))));
+        endNoMsg = () -> Call.sendSystemMessageLocal("vote.done.no",type+" "+(isBlank(name)?"":name), y, require);
+        endYesMsg = () -> Call.sendSystemMessageLocal("vote.ok");
+        teamVoteIng = () -> Call.sendSystemMessage("vote.ing",reciprocal);
+        start(() -> Call.sendSystemMessage("vote.start",player.name,type+" "+(isBlank(name)?"":name)));
     }
 
-    // 团队投票
+    /**
+     * 团队投票
+     */
     private void teamOnly() {
         Data.playerGroup.eachs(e -> e.team == player.team,p -> require++);
-        endNoMsg = () -> Call.sendSystemTeamMessage(player.team, localeUtil.getinput("vote.done.no", type + " " + (isBlank(name) ? "" : name), y, require));
-        endYesMsg = () -> Call.sendSystemTeamMessage(player.team, localeUtil.getinput("vote.ok"));
-        start(() -> Call.sendSystemTeamMessage(player.team,localeUtil.getinput("vote.start",player.name,type+" "+(isBlank(name)?"":name))));
+        endNoMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.done.no", type + " " + (isBlank(name) ? "" : name), y, require);
+        endYesMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.ok");
+        teamVoteIng = () -> Call.sendSystemTeamMessageLocal(player.team,"vote.ing",reciprocal);
+        start(() -> Call.sendSystemTeamMessageLocal(player.team,"vote.start",player.name,type+" "+(isBlank(name)?"":name)));
     }
 
 
     private void start(Runnable run){
         final int temp = require;
         if(temp == 1){
-            player.sendSystemMessage(localeUtil.getinput("vote.no1"));
+            player.sendSystemMessage("vote.no1");
             require = 1;
         } else if(temp <= 3) {
             require = 2;
         } else {
             require = (int) Math.ceil((double) temp / 2);
         }
-        if (isteam) {
-            reciprocal=60;
-            countDown=Threads.newThreadService2(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            reciprocal = reciprocal-10;
-                            Call.sendSystemMessage(localeUtil.getinput("vote.ing",reciprocal));
-                        }
-                    },
-            10,10, TimeUnit.SECONDS);
+        if (isTeam) {
+            reciprocal = 60;
+            countDown = Threads.newThreadService2(() -> {
+                        reciprocal = reciprocal-10;
+                        teamVoteIng.run();
+            },10,10, TimeUnit.SECONDS);
         }
 
-        voteTime=Threads.newThreadService(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (countDown != null) {
-                            countDown.cancel(true);
-                        }
-                        end();
-                    }
-                },
-        58,TimeUnit.SECONDS);
+        voteTime=Threads.newThreadService(() -> {
+            if (countDown != null) {
+                countDown.cancel(true);
+            }
+            end();
+        },58,TimeUnit.SECONDS);
         playerList.add(player.uuid);
         y++;
         if (playerList.size() >= require) {
@@ -184,19 +193,32 @@ public class Vote {
         } else {
             endNoMsg.run();
         }
+        clearUp();
+    }
+
+    /**
+     * 清理引用
+     */
+    private void clearUp() {
         playerList.clear();
-        isteam = false;
-        // 释放内存
+        target = null;
+        isTeam = false;
         endNoMsg = null;
         endYesMsg = null;
+        teamVoteIng = null;
         countDown=null;
         voteTime=null;
         Data.Vote = null;
+        System.gc();
     }
 
     private void kick() {
-        Call.sendSystemMessage(localeUtil.getinput("kick.player", target.name));
-        target.con.sendKick(localeUtil.getinput("kick.you"));
+        Call.sendSystemMessage("kick.player", target.name);
+        try {
+            target.con.sendKick(target.localeUtil.getinput("kick.you"));
+        } catch (IOException e) {
+            Log.error("[Player] Send Kick Player Error",e);
+        }
     }
 
     private void gameover() {
@@ -204,7 +226,7 @@ public class Vote {
     }
 
     private void surrender() {
-        Data.playerGroup.eachs(e -> e.team == player.team,p -> p.con.surrender());
+        Data.playerGroup.eachs(e -> e.team == player.team,p -> p.con.sendSurrender());
     }
 
 

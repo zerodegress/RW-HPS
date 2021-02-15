@@ -14,6 +14,7 @@ public class Administration {
 
     private Seq<ChatFilter> chatFilters = new Seq<>();
     private NetConnectProtocolData netConnectProtocolData = null;
+    private NetConnectPacketData netConnectPacketData = null;
     public final Seq<String> bannedIPs;
     public final Seq<String> bannedUUIDs;
     public final Seq<String> whitelist;
@@ -70,14 +71,6 @@ public class Administration {
         return playerData.contains(uuid);
     }
 
-    public void setNetConnectProtocol(NetConnectProtocolData protocolData){
-        netConnectProtocolData = protocolData;
-    }
-
-    public NetConnectProtocolData getNetConnectProtocol(){
-        return netConnectProtocolData;
-    }
-
     public interface ChatFilter{
         /**
          * 过滤消息
@@ -86,6 +79,22 @@ public class Administration {
          * @return 过滤后的消息 空字符串表示不应发送该消息
          */
         String filter(Player player, String message);
+    }
+
+    public void setNetConnectProtocol(NetConnectProtocolData protocolData){
+        netConnectProtocolData = protocolData;
+    }
+
+    public NetConnectProtocolData getNetConnectProtocol(){
+        return netConnectProtocolData;
+    }
+
+    public void setNetConnectPacket(NetConnectPacketData packet){
+        netConnectPacketData = packet;
+    }
+
+    public NetConnectPacketData getNetConnectPacket(){
+        return netConnectPacketData;
     }
 
     public static class PlayerInfo {
@@ -124,6 +133,16 @@ public class Administration {
 
         public NetConnectProtocolData(AbstractNetConnect protocol,int version) {
             this.protocol = protocol;
+            this.version = version;
+        }
+    }
+
+    public static class NetConnectPacketData {
+        public final AbstractNetPacket packet;
+        public final int version;
+
+        public NetConnectPacketData(AbstractNetPacket packet,int version) {
+            this.packet = packet;
             this.version = version;
         }
     }

@@ -1,7 +1,9 @@
 package com.github.dr.rwserver.struct;
 
+import com.github.dr.rwserver.func.Cons2;
+import com.github.dr.rwserver.func.Prov;
 import com.github.dr.rwserver.math.Mathf;
-import com.github.dr.rwserver.util.log.exp.VariableException.MapRuntimeException;
+import com.github.dr.rwserver.util.log.exp.VariableException;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -27,7 +29,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
     V[] valueTable;
     int capacity, stashSize;
 
-    private float loadFactor;
+    private final float loadFactor;
     private int hashShift, mask, threshold;
     private int stashCapacity;
     private int pushIterations;
@@ -99,7 +101,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
     }
 
     /**Iterates through key/value pairs.*/
-    public void each(com.github.dr.rwserver.func.Cons2<K, V> cons){
+    public void each(Cons2<K, V> cons){
         for(Entry<K, V> entry : entries()){
             cons.get(entry.key, entry.value);
         }
@@ -325,6 +327,22 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         size++;
     }
 
+    public V getThrow(K key, Prov<? extends RuntimeException> error){
+        if(!containsKey(key)){
+            throw error.get();
+        }
+        return get(key);
+    }
+
+    /** Tries to get the value. If it does not exist, it creates a new instance using the supplier and places it, returning the value.*/
+    public V get(K key, Prov<V> supplier){
+        V val = get(key);
+        if(val == null){
+            put(key, val = supplier.get());
+        }
+        return val;
+    }
+
     /** Get, with a nullable key.*/
     public V getNull(K key){
         return key == null ? null : get(key);
@@ -356,29 +374,6 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
                 index = hash3(hashCode);
                 if(!key.equals(keyTable[index])) {
                     return getStash(key, defaultValue);
-                }
-            }
-        }
-        return valueTable[index];
-    }
-
-    /** Returns the value for the specified key, or the default value if the key is not in the map. */
-    public V addGet(K key, V defaultValue){
-        int hashCode = key.hashCode();
-        int index = hashCode & mask;
-        if(!key.equals(keyTable[index])){
-            index = hash2(hashCode);
-            if(!key.equals(keyTable[index])){
-                index = hash3(hashCode);
-                if(!key.equals(keyTable[index])) {
-                    K[] keyTable = this.keyTable;
-                    for(int i = capacity, n = i + stashSize; i < n; i++) {
-                        if(key.equals(keyTable[i])) {
-                            return valueTable[i];
-                        }
-                    }
-                    put(key,defaultValue);
-                    return defaultValue;
                 }
             }
         }
@@ -825,13 +820,13 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         }
     }
 
-    private static abstract class MapIterator<K, V, I> implements Iterable<I>, Iterator<I>{
+    private static abstract class BaseMapIterator<K, V, I> implements Iterable<I>, Iterator<I>{
         final ObjectMap<K, V> map;
         public boolean hasNext;
         int nextIndex, currentIndex;
         boolean valid = true;
 
-        public MapIterator(ObjectMap<K, V> map){
+        public BaseMapIterator(ObjectMap<K, V> map){
             this.map = map;
             reset();
         }
@@ -871,7 +866,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         }
     }
 
-    public static class Entries<K, V> extends MapIterator<K, V, Entry<K, V>>{
+    public static class Entries<K, V> extends BaseMapIterator<K, V, Entry<K, V>>{
         Entry<K, V> entry = new Entry();
 
         public Entries(ObjectMap<K, V> map){
@@ -885,7 +880,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
                 throw new NoSuchElementException();
             }
             if(!valid) {
-                throw new MapRuntimeException("#iterator() cannot be used nested.");
+                throw new VariableException.ObjectMapRuntimeException("#iterator() cannot be used nested.");
             }
             K[] keyTable = map.keyTable;
             entry.key = keyTable[nextIndex];
@@ -898,7 +893,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         @Override
         public boolean hasNext(){
             if(!valid) {
-                throw new MapRuntimeException("#iterator() cannot be used nested.");
+                throw new VariableException.ObjectMapRuntimeException("#iterator() cannot be used nested.");
             }
             return hasNext;
         }
@@ -909,7 +904,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         }
     }
 
-    public static class Values<V> extends MapIterator<Object, V, V>{
+    public static class Values<V> extends BaseMapIterator<Object, V, V>{
         public Values(ObjectMap<?, V> map){
             super((ObjectMap<Object, V>)map);
         }
@@ -917,7 +912,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         @Override
         public boolean hasNext(){
             if(!valid) {
-                throw new MapRuntimeException("#iterator() cannot be used nested.");
+                throw new VariableException.ObjectMapRuntimeException("#iterator() cannot be used nested.");
             }
             return hasNext;
         }
@@ -928,7 +923,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
                 throw new NoSuchElementException();
             }
             if(!valid) {
-                throw new MapRuntimeException("#iterator() cannot be used nested.");
+                throw new VariableException.ObjectMapRuntimeException("#iterator() cannot be used nested.");
             }
             V value = map.valueTable[nextIndex];
             currentIndex = nextIndex;
@@ -955,7 +950,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         }
     }
 
-    public static class Keys<K> extends MapIterator<K, Object, K>{
+    public static class Keys<K> extends BaseMapIterator<K, Object, K>{
         public Keys(ObjectMap<K, ?> map){
             super((ObjectMap<K, Object>)map);
         }
@@ -963,7 +958,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         @Override
         public boolean hasNext(){
             if(!valid) {
-                throw new MapRuntimeException("#iterator() cannot be used nested.");
+                throw new VariableException.ObjectMapRuntimeException("#iterator() cannot be used nested.");
             }
             return hasNext;
         }
@@ -974,7 +969,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
                 throw new NoSuchElementException();
             }
             if(!valid) {
-                throw new MapRuntimeException("#iterator() cannot be used nested.");
+                throw new VariableException.ObjectMapRuntimeException("#iterator() cannot be used nested.");
             }
             K key = map.keyTable[nextIndex];
             currentIndex = nextIndex;

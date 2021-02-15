@@ -18,6 +18,11 @@ public class GameInputStream {
 		this.stream = new DataInputStream(this.buffer);
     }
 
+    public GameInputStream(byte[] bytes) {
+        this.buffer = new ByteArrayInputStream(bytes);
+        this.stream = new DataInputStream(this.buffer);
+    }
+
     public int readByte() throws IOException {
         return this.stream.readByte();
     }
@@ -28,6 +33,10 @@ public class GameInputStream {
 
     public int readInt() throws IOException {
         return this.stream.readInt();
+    }
+
+    public short readShort() throws IOException {
+        return this.stream.readShort();
     }
 
     public float readFloat() throws IOException {
@@ -59,10 +68,26 @@ public class GameInputStream {
         return arrby;
     }
 
+    public byte[] readStreamBytesNew() throws IOException {
+        int n2;
+        this.readInt();
+        int n3 = this.readInt();
+        byte[] arrby = new byte[n3];
+        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(arrby, i2, n3 - i2)) != -1; i2 += n2) {
+        }
+        return arrby;
+    }
+
     public DataInputStream getDecodeStream(boolean bl) throws IOException{
         this.readString();
         byte[] bytes = readStreamBytes();
         GzipDecoder coder = new GzipDecoder(bl,bytes);
+        return coder.stream;
+    }
+
+    public DataInputStream getStream() throws IOException{
+        byte[] bytes = readStreamBytesNew();
+        GzipDecoder coder = new GzipDecoder(false,bytes);
         return coder.stream;
     }
 

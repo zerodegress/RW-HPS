@@ -1,6 +1,7 @@
 package com.github.dr.rwserver.func;
 
 /**
+ * Boolf 轮询中if判定 Seq专用
  * @author Dr
  */
 public interface Boolf<T>{

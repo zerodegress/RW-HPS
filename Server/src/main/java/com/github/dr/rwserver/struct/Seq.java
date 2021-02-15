@@ -182,6 +182,15 @@ public class Seq<T> implements Iterable<T> {
         }
     }
 
+    public <E extends T> void each(Boolf<? super T> pred,Boolf<? super T> pred2, Cons<E> consumer) {
+        for (int i = 0; i < size; i++) {
+            if(pred.get(items[i]) && pred2.get(items[i])) {
+                consumer.get((E)items[i]);
+                return;
+            }
+        }
+    }
+
     public <E extends T> void eachs(Boolf<? super T> pred, Cons<E> consumer) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i])) {
@@ -883,9 +892,7 @@ public class Seq<T> implements Iterable<T> {
 
         private class SeqIterator implements Iterator<T>{
             int index;
-            boolean done = true;
-
-            {
+            boolean done = true; {
                 iteratorsAllocated ++;
             }
 

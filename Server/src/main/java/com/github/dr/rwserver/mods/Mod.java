@@ -1,6 +1,5 @@
 package com.github.dr.rwserver.mods;
 
-import com.github.dr.rwserver.net.AbstractNetConnect;
 import com.github.dr.rwserver.util.CommandHandler;
 
 /**
@@ -17,10 +16,5 @@ public class Mod {
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 */
     public void registerClientCommands(CommandHandler handler){
-    }
-
-    /** 注册要在服务器端使用的游戏协议 */
-    public AbstractNetConnect registrationAgreement(){
-        return null;
     }
 }

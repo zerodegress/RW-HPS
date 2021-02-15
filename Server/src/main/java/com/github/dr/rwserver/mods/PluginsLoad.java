@@ -1,20 +1,18 @@
 package com.github.dr.rwserver.mods;
 
+import com.github.dr.rwserver.data.json.Json;
 import com.github.dr.rwserver.struct.Seq;
-import com.github.dr.rwserver.util.alone.JSONSerializer;
 import com.github.dr.rwserver.util.file.FileUtil;
-import com.github.dr.rwserver.util.file.ZipFi;
 import com.github.dr.rwserver.util.log.Log;
+import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
 import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
-import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 
 /**
  * @author Dr
@@ -36,21 +34,20 @@ public class PluginsLoad {
         Seq<PluginData> data = new Seq<>();
         Seq<String> dataName = new Seq<>();
         Seq<PluginImportData> dataImport = new Seq<>();
-        LinkedHashMap map = null;
         for (File file : jarFileList) {
-            InputStreamReader imp = new ZipFi(file).getZipInputStream();
-            if (isBlank(imp)) {
-                Log.error("Invalid jar file",file.getName());
-                continue;
-            }
             try {
-                map = (LinkedHashMap) JSONSerializer.deserialize((String) FileUtil.readFileData(false,imp));
-                if (isBlank(map.get("import"))) {
-                    Mod mainMod = loadClass(file,(String) map.get("main"));
-                    data.add(new PluginData(map.get("name"),map.get("author"),map.get("description"),map.get("version"),mainMod));
-                    dataName.add((String) map.get("name"));
+                InputStreamReader imp = new ZipDecoder(file).getZipNameInputStream("plugin.json");
+                if (isBlank(imp)) {
+                    Log.error("Invalid jar file",file.getName());
+                    continue;
+                }
+                Json json = new Json((String) FileUtil.readFileData(false,imp));
+                if (isBlank(json.getData("import"))) {
+                    Mod mainMod = loadClass(file,(String) json.getData("main"));
+                    data.add(new PluginData(json.getData("name"),json.getData("author"),json.getData("description"),json.getData("version"),mainMod));
+                    dataName.add((String) json.getData("name"));
                 } else {
-                    dataImport.add(new PluginImportData(map,file));
+                    dataImport.add(new PluginImportData(json,file));
                 }
             } catch (Exception e) {
                 Log.error("Failed to load",e);
@@ -58,11 +55,11 @@ public class PluginsLoad {
         }
         for (int i=0,count=dataImport.size();i<count;i++) {
             dataImport.each(e -> {
-                if (dataName.contains((String) e.pluginData.get("import"))) {
+                if (dataName.contains((String) e.pluginData.getData("import"))) {
                     try {
-                        Mod mainMod = loadClass(e.file, (String) e.pluginData.get("main"));
-                        data.add(new PluginData(e.pluginData.get("name"),e.pluginData.get("author"),e.pluginData.get("description"),e.pluginData.get("version"),mainMod));
-                        dataName.add((String) e.pluginData.get("name"));
+                        Mod mainMod = loadClass(e.file, (String) e.pluginData.getData("main"));
+                        data.add(new PluginData(e.pluginData.getData("name"),e.pluginData.getData("author"),e.pluginData.getData("description"),e.pluginData.getData("version"),mainMod));
+                        dataName.add((String) e.pluginData.getData("name"));
                         dataImport.remove(e);
                     } catch (Exception err) {
                         Log.error("Failed to load", e);
@@ -80,10 +77,10 @@ public class PluginsLoad {
     }
 
     private static class PluginImportData {
-        public final LinkedHashMap pluginData;
+        public final Json pluginData;
         public final File file;
 
-        public PluginImportData(LinkedHashMap pluginData,File file) {
+        public PluginImportData(Json pluginData,File file) {
             this.pluginData = pluginData;
             this.file = file;
         }

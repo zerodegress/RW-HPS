@@ -16,13 +16,16 @@ import java.io.*;
 @SuppressWarnings("unchecked")
 public class Settings {
     private ObjectMap<String, Object> values = new ObjectMap();
-    protected ObjectMap<Class<?>, TypeSerializer<?>> serializers = new ObjectMap();
+    private ObjectMap<Class<?>, TypeSerializer<?>> serializers = new ObjectMap();
     private ReusableByteInStream byteInputStream = new ReusableByteInStream();
     private ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     private DataOutputStream dataOutput = new DataOutputStream(byteStream);
 
     public Settings() {
         DefaultSerializers.register(this);
+    }
+
+    public void load() {
         loadData();
     }
 
@@ -201,7 +204,6 @@ public class Settings {
                 }
         } catch (Exception e) {
             Log.error("Read Data",e);
-            //throw new RuntimeException();
         }
     }
 
@@ -209,6 +211,7 @@ public class Settings {
         void write(DataOutput param1DataOutput, T param1T) throws IOException;
         T read(DataInput param1DataInput) throws IOException;
     }
+
     public static interface TypeWriter<T> {
         void write(DataOutput param1DataOutput, T param1T) throws IOException;
     }

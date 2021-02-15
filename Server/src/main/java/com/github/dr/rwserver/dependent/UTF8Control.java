@@ -8,8 +8,10 @@ import java.net.URLConnection;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-//Java
 
+/**
+ * @author Google-WEB
+ */
 public class UTF8Control extends ResourceBundle.Control {
     @Override
     public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload) throws IOException {

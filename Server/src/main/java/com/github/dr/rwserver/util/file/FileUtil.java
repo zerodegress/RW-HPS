@@ -8,6 +8,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.dr.rwserver.util.IsUtil.isBlank;
 //Java
 
 /**
@@ -15,20 +17,22 @@ import java.util.List;
  */
 public class FileUtil {
 
-	private static File file;
+	private File file;
 
-	private static String filepath;
+	public static String path = null;
+
+	private String filepath;
 
 	public FileUtil(File file){
-		FileUtil.file = file;
-		FileUtil.filepath = file.getPath();
+		this.file = file;
+		this.filepath = file.getPath();
 		if(!file.exists()) {
 			file.mkdirs();
 		}
 	}
 
-	private FileUtil(String filepath){
-		FileUtil.filepath = filepath;
+	public FileUtil(String filepath){
+		this.filepath = filepath;
 		file = new File(filepath);
 		if(!file.exists()) {
 			file.mkdirs();
@@ -36,8 +40,8 @@ public class FileUtil {
 	}
 
 	private FileUtil(File file, String filepath){
-		FileUtil.file = file;
-		FileUtil.filepath = filepath;
+		this.file = file;
+		this.filepath = filepath;
 		if(!file.exists()) {
 			file.mkdirs();
 		}
@@ -60,17 +64,17 @@ public class FileUtil {
 		try {
 			File directory = new File("");
 			if (null==tofile) {
-                file = new File(directory.getCanonicalPath());
+                file = (isBlank(path)) ? new File(directory.getCanonicalPath()) : new File(path);
             } else {
-				filepath=directory.getCanonicalPath()+to;
+				filepath=(isBlank(path)) ? directory.getCanonicalPath()+to : path + to;
 				file = new File(filepath);
 			}
 		} catch (Exception e) {
 
 			if (null==tofile) {
-                file = new File(System.getProperty("user.dir"));
+                file = (isBlank(path)) ? new File(System.getProperty("user.dir")) : new File(path);
             } else {
-				filepath=System.getProperty("user.dir")+to;
+				filepath= (isBlank(path)) ? System.getProperty("user.dir")+to : path;
 				file = new File(filepath);
 			}
 		}
@@ -205,8 +209,8 @@ public class FileUtil {
 	}
 
 	public Object readFileData(boolean list) {
-		try {
-			return readFileData(list,new InputStreamReader(new FileInputStream(file), "UTF-8"));
+		try(InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "UTF-8")) {
+			return readFileData(list,inputStreamReader);
 		} catch (IOException e) { 
 			e.printStackTrace(); 
 		}

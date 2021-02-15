@@ -2,13 +2,7 @@ package com.github.dr.rwserver.util.encryption;
 
 import com.github.dr.rwserver.data.global.Data;
 
-/**
- * 已不适用 JAVA8
- */
 public class Base64 {
-
-    private final static char[] STR = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'};
-
     /**
      *
      * @param str Base64字符串

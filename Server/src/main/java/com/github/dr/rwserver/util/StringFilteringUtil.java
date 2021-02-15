@@ -57,4 +57,11 @@ public class StringFilteringUtil {
 		}
 		return "";
 	}
+
+	public static String cutting(String str,int i) {
+	    if (str.length() < i) {
+			return str;
+		}
+	    return str.substring(0, i);
+	}
 }

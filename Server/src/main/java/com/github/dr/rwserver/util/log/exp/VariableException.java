@@ -14,6 +14,12 @@ public class VariableException extends RuntimeException {
         }
     }
 
+    public static class ObjectMapRuntimeException extends RuntimeException {
+        public ObjectMapRuntimeException(String info) {
+            super(info);
+        }
+    }
+
     public static class MapRuntimeException extends RuntimeException {
         public MapRuntimeException(String type) {
             super(type);

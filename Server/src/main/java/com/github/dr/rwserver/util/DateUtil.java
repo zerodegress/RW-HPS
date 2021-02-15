@@ -53,7 +53,7 @@ public class DateUtil {
 	 */
     public static String getLocalTimeFromU(long gmt, int fot, boolean format){
 		long utc = getUtcTimeStr();
-		utc = utc + gmt;
+		utc = utc + gmt * 1000L;
 		if (format) {
             return simp((Long.valueOf(utc) * 1000L) / 1000,fot);
         }

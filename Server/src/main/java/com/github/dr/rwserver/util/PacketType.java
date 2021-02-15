@@ -5,7 +5,9 @@ package com.github.dr.rwserver.util;
  * By.Dr
  */
 public class PacketType {
+	public static final int PACKET_SERVER_DEBUG = 2000;
 	//Server Commands
+	
 	
 	public static final int PACKET_REGISTER_CONNECTION = 161;
 	public static final int PACKET_TEAM_LIST = 115;
@@ -27,7 +29,7 @@ public class PacketType {
 	
 	public static final int PACKET_ADD_GAMECOMMAND = 20;
 	public static final int PACKET_TICK = 10;
-	public static final int PACKET_SYNC_CHECKSUM = 35;
+	public static final int PACKET_SYNC = 35;
     public static final int PACKET_START_GAME = 120;
 	public static final int PACKET_PASSWD_ERROR = 113;
 

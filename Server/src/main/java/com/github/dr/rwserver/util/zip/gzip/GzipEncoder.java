@@ -5,14 +5,16 @@ import com.github.dr.rwserver.util.log.Log;
 import java.io.*;
 import java.util.zip.GZIPOutputStream;
 
+import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
+
 /**
  * @author Dr
  */
 public class GzipEncoder {
 	public String str;
-    public ByteArrayOutputStream buffer;
+    public final ByteArrayOutputStream buffer;
     public DataOutputStream stream;
-    private GZIPOutputStream gzip;
+    private GZIPOutputStream gzip = null;
 
     public GzipEncoder(boolean bl){
         this.buffer = new ByteArrayOutputStream();
@@ -43,7 +45,9 @@ public class GzipEncoder {
         try {
             this.stream.flush();
             this.buffer.flush();
-            gzip.close();
+            if (notIsBlank(gzip)) {
+                gzip.close();
+            }
         } catch (Exception e) {
             Log.error("Close Gzip",e);
         }  

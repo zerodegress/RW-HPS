@@ -1,36 +1,34 @@
 package com.github.dr.rwserver.util.log;
 
-import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.util.file.FileUtil;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 
+import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
 import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
-
-//Java
-//Static
 
 /**
  * Log Util
- * @version 1.0 
+ * @author Dr
+ * @version 1.1
  * @date 2020年3月8日星期日 3:54  
  * 练手轮子? :P 
  */
+
+@SuppressWarnings("unused")
 public class Log {
 	/** 默认 WARN */
 	private static int LOG_GRADE = 5;
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+	private static LogPrint<Object> logPrint;
+	private static final StringBuilder LOG_CACHE = new StringBuilder();
+
 
 	private enum Logg {
-		/*
-		 * Log等级 默认为WARN
-		 * 开发时为ALL
-		 */
+		 /* Log等级 默认为WARN */
+		 /* 开发时为ALL */
 		OFF(8),FATAL(7),ERROR(6),WARN(5),INFO(4),DEBUG(3),TRACE(2),ALL(1);
-		private int num;
-		private Logg(int num) {
+		private final int num;
+		Logg(int num) {
 			this.num=num;
 		}
 		private int getLogg() {
@@ -42,11 +40,27 @@ public class Log {
 		Log.LOG_GRADE=Logg.valueOf(log).getLogg();
 	}
 
+	public static void setPrint(boolean system) {
+		logPrint =  system ? System.out::println : LOG_CACHE::append;
+	}
+
+	public static String getLogCache() {
+		String result = LOG_CACHE.toString();
+		LOG_CACHE.delete(0,LOG_CACHE.length());
+		return result;
+	}
+
 	/**
 	 * Log：
-	 * @param tag 标题 默认警告级
-	 * @param e Exception
+	 * tag 标题 默认警告级
 	 */
+
+	public static void skipping(Object e) {
+		logs(9,"SKIPPING",e);
+	}
+	public static void skipping(Object tag, Object e) {
+		logs(9,tag,e);
+	}
 	public static void fatal(Exception e) {
 		log(7,"FATAL",e);
 	}
@@ -59,7 +73,6 @@ public class Log {
 	public static void fatal(Object tag, Object e) {
 		logs(7,tag,e);
 	}
-
 	public static void error(Exception e) {
 		log(6,"ERROR",e);
 	}
@@ -112,11 +125,19 @@ public class Log {
 		logs(3,tag,e);
 	}
 
-	public static void tarce(Exception e) {
-		log(2,"TARCE",e);
+	public static void track(Exception e) {
+		log(2,"TRACK",e);
 	}
-	public static void tarce(Object tag, Exception e) {
+	public static void track(Object tag, Exception e) {
 		log(2,tag,e);
+	}
+
+
+	public static String logs(Exception e) {
+		final StringWriter stringWriter = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(stringWriter);
+		e.printStackTrace(printWriter);
+		return stringWriter.getBuffer().toString();
 	}
 
 	/**
@@ -126,49 +147,23 @@ public class Log {
 	 * @param e Exception
 	 *i>=设置级 即写入文件
 	 */
-	public static String logs(Exception e) {
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-		e.printStackTrace(printWriter);
-		return stringWriter.getBuffer().toString();
-	}
-
 	private static void log(int i, Object tag, Exception e) {
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
+		final StringWriter stringWriter = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(stringWriter);
 		e.printStackTrace(printWriter);
 		logs(i,tag,stringWriter.getBuffer());
 	}
 
 
 	private static void logs(int i, Object tag, Object e) {
-		/*
-		if (i >= 5) {
-			StringBuilder sb = new StringBuilder();
-			StringBuffer error = new StringBuffer(e.toString());
-			String[] lines = error.toString().split(LINE_SEPARATOR);
-			sb.append("UTC ")
-					.append(getLocalTimeFromU(0,1))
-					.append(LINE_SEPARATOR)
-					.append(tag)
-					.append(": ")
-					.append(LINE_SEPARATOR);
-			for (Object line : lines) {
-				sb.append(line)
-					.append(LINE_SEPARATOR);
-			}
-			FileUtil.File(Data.Plugin_Log_Path).toPath("Log.log").writeFile(sb.toString(),true);
-		}
-		*/
 		if(LOG_GRADE>i) {
 			return;
 		}
-		StringBuilder sb = new StringBuilder();
-		StringBuffer error = new StringBuffer(e.toString());
-		String[] lines = error.toString().split(LINE_SEPARATOR);
-		sb.append("UTC ")
-			.append(getLocalTimeFromU(0,1))
-			.append(LINE_SEPARATOR)
+		final StringBuilder sb = new StringBuilder();
+		final String[] lines = e.toString().split(LINE_SEPARATOR);
+		sb.append("UTC [")
+			.append(getLocalTimeFromU(0,1)).append("] ")
+			//.append(LINE_SEPARATOR)
 			.append(tag)
 			.append(": ")
 			.append(LINE_SEPARATOR);
@@ -176,20 +171,36 @@ public class Log {
 			sb.append(line)
 				.append(LINE_SEPARATOR);
 		}
-		System.out.println(sb);
+		logPrint.println(sb);
+	}
+
+	public static void clog(String text) {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("[")
+			.append(getLocalTimeFromU(0,1))
+			.append(" UTC] ")
+			.append(text);
+		text = sb.toString();
+        System.out.println(formatColors(text+"&fr"));
 	}
 
 	public static void clog(String text,Object... obj) {
-		if (obj == null) {
-			System.out.println(text);
-			return;
+		clog(new MessageFormat(text).format(obj));
+	}
+
+	public static String formatColors(String text){
+		for(int i = 0; i < ColorCodes.CODES.length; i++){
+			text = text.replace("&" + ColorCodes.CODES[i], ColorCodes.VALUES[i]);
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("[")
-		  .append(getLocalTimeFromU(0,1))
-		  .append(" UTC] ")
-		  .append(new MessageFormat(text).format(obj));
-        System.out.println(sb.toString());
+		return text;
+	}
+
+	private interface LogPrint<T>{
+		/**
+		 * 接管Log逻辑
+		 * @param t TEXT
+		 */
+		void println(T t);
 	}
 
 

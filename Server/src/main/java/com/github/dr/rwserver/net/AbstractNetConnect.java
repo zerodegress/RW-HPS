@@ -29,9 +29,6 @@ public interface AbstractNetConnect {
 
 
     /**
-     * Import
-     */
-    /**
      * 设置玩家
      * @param player Player
      */
@@ -67,20 +64,17 @@ public interface AbstractNetConnect {
     String getVersion();
 
 
-
-    /**
-     *  # Core
-     */
     /**
      * 获取系统命名的消息包
      * SERVER: ...
-     * @param byteBuf The message
-     * @return ByteBuf
+     * @param text The message
      */
     void sendSystemMessage(String text);
     /**
      * 发送用户名命名的消息
-     * @param      byteBuf     The message
+     * @param msg String
+     * @param sendBy String
+     * @param team Int
      */
     void sendChatMessage(String msg, String sendBy, int team);
     /**
@@ -147,17 +141,6 @@ public interface AbstractNetConnect {
      * 断开连接
      */
     void disconnect();
-    /**
-     * 诱骗客户端发送Save包
-     */
-    void getGameSave();
-
-    /**
-     * 发送重连包
-     * @param packet ByteBuf
-     */
-    void sendGameSave(ByteBuf packet);
-
 
 
     default void reConnect() {
@@ -168,9 +151,17 @@ public interface AbstractNetConnect {
         }
     }
 
+    /**
+     * Debug 特殊开发 暂不开放
+     * @param packet Packet
+     */
     default void debug(Packet packet) {
     }
 
+    /**
+     * Debug 特殊开发 暂不开放
+     * @param str String
+     */
     default void senddebug(String str) {
     }
 }

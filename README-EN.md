@@ -20,7 +20,11 @@ GNU General Public License v3.0
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
   > Email contact : Der-DCT@pm.me or  
 
-
+##Construction
+1. Install JDK 11 +. If you don't know how to do it, check it out. If you already have any version of JDK > = 8, you can do the same.  
+2. Run "gradlew jar"  
+3. Your jar will be in the 'build/libs' directory  
+4. Run your jar to experience high performance server. Please note that this server does not support running in win  
 
 ### Thanks  
 @Miku Inspiration from Rukkit project  

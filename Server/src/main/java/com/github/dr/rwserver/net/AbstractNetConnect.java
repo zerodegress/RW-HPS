@@ -96,12 +96,6 @@ public interface AbstractNetConnect {
      */
     void ping();
     /**
-     * 提取GameSave包
-     * @param packet packet
-     * @return 包
-     */
-    byte[] getGameSaveData(Packet packet) throws IOException;
-    /**
      * 接受语言包
      * @param p Packet
      * @throws IOException Error

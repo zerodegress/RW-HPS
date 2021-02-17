@@ -142,7 +142,7 @@ public class Main {
 		try {
 			DataOutputStream stream = Data.utilData.stream;
 			stream.writeInt(1);
-			Seq<String> list = Convert.castSeq(FileUtil.readFileData(true, new InputStreamReader(Main.class.getResourceAsStream("/unitData"), StandardCharsets.UTF_8)),String.class);
+			Seq<String> list = Convert.castSeq(FileUtil.readFileData(true, new InputStreamReader(Main.class.getResourceAsStream("/unitData"), Data.UTF_8)),String.class);
 			stream.writeInt(list.size());
 			String[] unitdata;
 			for (String str : list) {

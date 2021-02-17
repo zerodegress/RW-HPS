@@ -144,7 +144,7 @@ public class Net {
 			@Override
 			protected void initChannel(SocketChannel socketChannel) throws Exception {
 				ChannelPipeline pipeline = socketChannel.pipeline();
-				pipeline.addLast(new IdleStateHandler(0, 6, 0, TimeUnit.SECONDS));
+				pipeline.addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS));
 				pipeline.addLast(idleStateTrigger);
 				pipeline.addLast(new ByteToMessageDecoder() {
 					private static final int HEADER_SIZE = 8;
@@ -233,6 +233,7 @@ public class Net {
 								ctx.close();
 							}
 							con.setTry();
+							player.con.ping();
 						} else {
 							player.isTry = true;
 							player.con.ping();
@@ -315,9 +316,9 @@ public class Net {
 					case PacketType.PACKET_SERVER_DEBUG:
 						con.debug(p);
 						break;
-					case PacketType.PACKET_SYNC:
-						Data.game.gameSaveCache = p;
-						break;
+					//case PacketType.PACKET_SYNC:
+					//	Data.game.gameSaveCache = p;
+					//	break;
 					default:
 						break;
 				}

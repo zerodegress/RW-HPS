@@ -22,7 +22,7 @@ GNU General Public License v3.0
 
 
 ## 构建
-1.安装JDK 11+。如果你不知道怎么做，就去查。如果您已经有了JDK>=8的任何版本，也可以这样做。  
+1.安装JDK 11+。如果你不知道怎么做，就去查.
 2.运行“gradlew jar”  
 3.您的jar将位于'build/libs'目录中.  
 4.运行您的Jar,体验高性能服务器 请注意 本服务端不支持Win下运行  

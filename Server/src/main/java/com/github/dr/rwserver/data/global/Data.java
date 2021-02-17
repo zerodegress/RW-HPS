@@ -40,8 +40,8 @@ public class Data {
 
 	/** 自定义包名 */
 	public static final String SERVER_ID = "com.corrodinggames.rwhps";
-	public static final String SERVER_CORE_VERSION = "1.4.0.4";
-	public static final int SERVER_CORE_VERSION_INT = 1404;
+	public static final String SERVER_CORE_VERSION = "1.4.0.6";
+	public static final int SERVER_CORE_VERSION_INT = 1406;
 	//public static final int SERVER_VERSION2 = 1.13.6;
 	/** 单位数据缓存 */
 	public static final GzipEncoder utilData = GzipEncoder.getGzipStream("customUnits",false);

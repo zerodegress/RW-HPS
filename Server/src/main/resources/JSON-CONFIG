@@ -24,5 +24,4 @@
     "reConnect": "true",
     "winOrLose": "false",
     "winOrLoseTime": "30000"
-    //deleteLib是否删LibPath下文件
 }

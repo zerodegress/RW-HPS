@@ -117,6 +117,10 @@ public class GameOutputStream {
         this.stream.writeUTF(val);
     }
 
+    public void flushData(GameInputStream inp) throws IOException {
+        this.writeBytes(inp.buffer.readAllBytes());
+    }
+
     public void flushEncodeData(GzipEncoder enc) throws IOException {
         enc.closeGzip();
         this.writeString(enc.str);

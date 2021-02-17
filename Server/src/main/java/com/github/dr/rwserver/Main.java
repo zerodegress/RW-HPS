@@ -12,6 +12,8 @@ import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.mods.PluginsLoad;
 import com.github.dr.rwserver.net.Administration;
+import com.github.dr.rwserver.net.netconnectprotocol.GameVersion151;
+import com.github.dr.rwserver.net.netconnectprotocol.GameVersion151Packet;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.CommandHandler;
 import com.github.dr.rwserver.util.Convert;
@@ -83,10 +85,7 @@ public class Main {
 		data =  new PluginsLoad(FileUtil.File(Data.Plugin_Plugins_Path)).loadJar();
 
 		/* Core Net */
-		//loadNetCore();
-
-		/* Load Save Unit */
-		loadUnitList();
+		loadNetCore();
 
 		/* 按键监听 */
 		Threads.newThreadCore(Main::buttonMonitoring);
@@ -137,33 +136,27 @@ public class Main {
 		}
 	}
 
-	public static void loadUnitList() {
-		if(Data.core.unitBase64.size() > 0) {
-			try {
-				Data.utilData.buffer.reset();
-				DataOutputStream stream = Data.utilData.stream;
-				stream.writeInt(1);
-				stream.writeInt(Data.core.unitBase64.size());
-
-				String[] unitdata = null;
-				for (String str : Data.core.unitBase64) {
-					unitdata = str.split("%#%");
-					stream.writeUTF(unitdata[0]);
-					stream.writeInt(Integer.parseInt(unitdata[1]));
-					stream.writeBoolean(true);
-					if (unitdata.length > 2) {
-						stream.writeBoolean(true);
-						stream.writeUTF(unitdata[2]);
-					} else {
-						stream.writeBoolean(false);
-					}
-					stream.writeLong(0);
-					stream.writeLong(0);
-				}
-				Log.clog("Load Mod Ok.");
-			} catch (Exception exp) {
-				Log.error("[Server] Load Setting Unit List Error",exp);
+	private static void loadNetCore() {
+		Data.core.admin.setNetConnectPacket(new Administration.NetConnectPacketData(new GameVersion151Packet(),151));
+		Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersion151(null,null),151));
+		try {
+			DataOutputStream stream = Data.utilData.stream;
+			stream.writeInt(1);
+			Seq<String> list = Convert.castSeq(FileUtil.readFileData(true, new InputStreamReader(Main.class.getResourceAsStream("/unitData"), StandardCharsets.UTF_8)),String.class);
+			stream.writeInt(list.size());
+			String[] unitdata;
+			for (String str : list) {
+				unitdata = str.split("%#%");
+				stream.writeUTF(unitdata[0]);
+				stream.writeInt(Integer.parseInt(unitdata[1]));
+				stream.writeBoolean(true);
+				stream.writeBoolean(false);
+				stream.writeLong(0);
+				stream.writeLong(0);
 			}
+		} catch (Exception e) {
+			Log.error(e);
 		}
+		Log.clog("Load OK 1.14 Protocol");
 	}
 }

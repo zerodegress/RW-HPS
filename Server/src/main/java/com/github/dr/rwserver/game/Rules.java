@@ -8,6 +8,7 @@ import com.github.dr.rwserver.net.AbstractNetPacket;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.net.Net;
 import com.github.dr.rwserver.struct.OrderedMap;
+import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.log.Log;
@@ -107,13 +108,13 @@ public class Rules {
     public ScheduledFuture team = null;
     public ScheduledFuture winOrLoseCheck = null;
 
-    //public final String subtitle;
+    public final String subtitle;
 
     public OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
 
-        //subtitle = config.readString("subtitle","");
+        subtitle = config.readString("subtitle","");
 
 
         int port = config.readInt("port",5123);
@@ -186,8 +187,9 @@ public class Rules {
     private void checkMaps(FileUtil fileutil) {
         List<File> list = fileutil.getFileList();
         list.forEach(e -> {
-            final String postpone = e.getName().substring(e.getName().lastIndexOf("."));
-            final String name = e.getName().substring(0, e.getName().length()-postpone.length());
+            final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
+            final String postpone = original.substring(original.lastIndexOf("."));
+            final String name = original.substring(0, original.length()-postpone.length());
             switch (postpone) {
                 case ".tmx":
                     try {

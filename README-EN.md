@@ -1,3 +1,8 @@
+## 语言  
+
+[跳转中文](https://github.com/deng-rui/RW-HPS/blob/master/README.md)  
+[TO EN](https://github.com/deng-rui/RW-HPS/blob/master/README-EN.md)  
+
 # RW-HPS  
 Third party rust war server  
 This is a netty based server  

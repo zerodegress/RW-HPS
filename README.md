@@ -1,3 +1,8 @@
+## 语言  
+
+[跳转中文](https://github.com/deng-rui/RW-HPS/blob/master/README.md)  
+[TO EN](https://github.com/deng-rui/RW-HPS/blob/master/README-EN.md)  
+
 # RW-HPS  
 第三方铁锈战争服务器  
 这是一个基于Netty的服务器  

@@ -1,4 +1,4 @@
-## 语言  
+## Language  
 
 [跳转中文](https://github.com/deng-rui/RW-HPS/blob/master/README.md)  
 [TO EN](https://github.com/deng-rui/RW-HPS/blob/master/README-EN.md)  
@@ -45,41 +45,36 @@ GNU General Public License v3.0
 | Currently Allocated 	| BCM2711         | 4G 		| Ubuntu 19.10 	| 500G HHD 	| Java 11    | 6.2.2     |
 
 ## Server Command List
-[2021-02-20 09:42:18 UTC]    clearbanip - 清理被ban的ip  
-[2021-02-20 09:42:18 UTC]    admin <add/remove> <PlayerSite> - 设置admin  
-[2021-02-20 09:42:18 UTC]    clearbanuuid - 清除被ban的uuid   
-[2021-02-20 09:42:18 UTC]    clearbanall - 清空ban  
-[2021-02-20 09:42:18 UTC]    ban <PlayerSerialNumber> - 禁止某人  
-[2021-02-20 09:42:18 UTC]    mute <PlayerSerialNumber> <Time(s)> - 禁言  
-[2021-02-20 09:42:18 UTC]    kick <PlayerSerialNumber> [time] - 踢出  
-[2021-02-20 09:42:18 UTC]    isafk <off/on> - 是否禁止AFK  
-[2021-02-20 09:42:18 UTC]    plugins - 查看插件列表  
-[2021-02-20 09:42:19 UTC]    players - 查看玩家列表   
-[2021-02-20 09:42:19 UTC]    kill <PlayerSerialNumber> - 杀死玩家  
-[2021-02-20 09:42:19 UTC]    clearmuteall - 取消全部禁言  
-[2021-02-20 09:42:19 UTC]    upserverlist - 上传Server到List   
-[2021-02-20 09:42:19 UTC]    cleanunit - 上传Server到List  
-[2021-02-20 09:42:19 UTC]    maps - 取消全部禁言  
-[2021-02-20 09:42:19 UTC]    stop - 停止服务器
 
 | Command 					 | Parameter 																						 | Information 									 |
 |:--- 					 |:--- 																						 |:--- 									 |
-| help 		              |                                                  										 | 获取帮助 		 |
-| start                  |                                                  										 | 开启服务器 						 |
-| say 		      | &lt;文字&gt                                                  										 | 用Server的名义发消息 				 |
-| giveadmin                | &lt;玩家位置&gt; 																 | 转移Admin       		         |
-| restart 			 | 																							 | 重启服务器 				 |
-| gameover 				 |  	 | 重新开始游戏               				 |
-| keys          		 |                                                  										 | 查看服务器已建立的Key              	 |
-| rmkeys          		 |                                                  										 | 删除全部Key               			 |
-| rmkey          		 | &lt;Key&gt;                               	   											 | 删除指定Key               			 |
+| help 		              |                                                  										 | Get help 		 |
+| start                  |                                                  										 | Turn on the server 						 |
+| say 		      | &lt;TEXT&gt;                                                  										 | Send messages in the name of Server 				 |
+| giveadmin                | &lt;PlayerSerialNumber&gt; 																 | Transfer Admin       		         |
+| restart 			 | 																							 | Restart server 				 |
+| gameover 				 |  	 | Restart The Game               				 |
+| clearbanip          		 |                                                  										 | Clean up the banned IP               	 |
+| admin          		 |&lt;add/remove&gt; &lt;PlayerSite&gt;                                                  										 | Set up admin               			 |
+| clearbanuuid          		 |                               	   											 | Clear banned uuid               			 |
+| clearbanall          		 |                               	   											 | Empty ban               			 |
+| ban          		 | &lt;PlayerSerialNumber&gt;                                 	   											 | Ban someone               			 |
+| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Clear banned uuid               			 |
+| kick          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Kick               			 |
+| isafk          		 |  &lt;off/on&gt;                             	   											 | Whether to enable AFK               			 |
+| plugins          		 |                               	   											 | View the list of plugins               			 |
+| players          		 |                               	   											 | View player list               			 |
+| kill          		 | &lt;PlayerSerialNumber&gt;                             	   											 | Kill the player               			 |
+| clearmuteall          		 |                               	   											 | Unmute all               			 |
+| maps          		 |                               	   											 | View Custom Map               			 |
+| stop          		 |                               	   											 | Stop the server               			 |
 
 
 ## Game Command List
 
 | Command 			| Parameter 												 | Information 										 |
 |:---           |:--- 												 |:--- 										 |
-| help      |   | 获取帮助 									 |
+| help      |   | Get help 									 |
 
 ### Thanks  
 @Miku Inspiration from Rukkit project  

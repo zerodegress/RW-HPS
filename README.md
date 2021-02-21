@@ -46,36 +46,28 @@ GNU General Public License v3.0
 | 当前配置 	| BCM2711         | 4G 		| Ubuntu 19.10 	| 500G HHD 	| Java 11    | 6.2.2     |
 
 ## 服务器命令列表
-
-
-[2021-02-20 09:42:18 UTC]    clearbanip - 清理被ban的ip  
-[2021-02-20 09:42:18 UTC]    admin <add/remove> <PlayerSite> - 设置admin  
-[2021-02-20 09:42:18 UTC]    clearbanuuid - 清除被ban的uuid   
-[2021-02-20 09:42:18 UTC]    clearbanall - 清空ban  
-[2021-02-20 09:42:18 UTC]    ban <PlayerSerialNumber> - 禁止某人  
-[2021-02-20 09:42:18 UTC]    mute <PlayerSerialNumber> <Time(s)> - 禁言  
-[2021-02-20 09:42:18 UTC]    kick <PlayerSerialNumber> [time] - 踢出  
-[2021-02-20 09:42:18 UTC]    isafk <off/on> - 是否禁止AFK  
-[2021-02-20 09:42:18 UTC]    plugins - 查看插件列表  
-[2021-02-20 09:42:19 UTC]    players - 查看玩家列表   
-[2021-02-20 09:42:19 UTC]    kill <PlayerSerialNumber> - 杀死玩家  
-[2021-02-20 09:42:19 UTC]    clearmuteall - 取消全部禁言  
-[2021-02-20 09:42:19 UTC]    upserverlist - 上传Server到List   
-[2021-02-20 09:42:19 UTC]    cleanunit - 上传Server到List  
-[2021-02-20 09:42:19 UTC]    maps - 取消全部禁言  
-[2021-02-20 09:42:19 UTC]    stop - 停止服务器  
-
 | 命令 					 | 参数 																						 | 信息 									 |
 |:--- 					 |:--- 																						 |:--- 									 |
 | help 		              |                                                  										 | 获取帮助 		 |
 | start                  |                                                  										 | 开启服务器 						 |
-| say 		      | &lt;文字&gt                                                  										 | 用Server的名义发消息 				 |
-| giveadmin                | &lt;玩家位置&gt; 																 | 转移Admin       		         |
-| restart 			 | 																							 | 重启服务器 				 |
-| gameover 				 |  	 | 重新开始游戏               				 |
-| keys          		 |                                                  										 | 查看服务器已建立的Key              	 |
-| rmkeys          		 |                                                  										 | 删除全部Key               			 |
-| rmkey          		 | &lt;Key&gt;                               	   											 | 删除指定Key               			 |
+| say 		            | &lt;文字&gt;                                                  								| 用Server的名义发消息 				 |
+| giveadmin              | &lt;玩家位置&gt; 																            | 转移Admin       		         |
+| restart 			      | 																						| 重启服务器 				  |
+| gameover 				 |  	                                                                                    | 重新开始游戏               				 |
+| clearbanip          		 |                                                  										 | 清理被ban的ip               	 |
+| admin          		 |&lt;add/remove&gt; &lt;PlayerSite&gt;                                                  										 | 设置admin               			 |
+| clearbanuuid          		 |                               	   											 | 清除被ban的uuid               			 |
+| clearbanall          		 |                               	   											 | 清空ban               			 |
+| ban          		 | &lt;PlayerSerialNumber&gt;                                 	   											 | 禁止某人               			 |
+| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 清除被ban的uuid               			 |
+| kick          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 踢出               			 |
+| isafk          		 |  &lt;off/on&gt;                             	   											 | 是否启用AFK               			 |
+| plugins          		 |                               	   											 | 查看插件列表               			 |
+| players          		 |                               	   											 | 查看玩家列表               			 |
+| kill          		 | &lt;PlayerSerialNumber&gt;                              	   											 | 杀死玩家               			 |
+| clearmuteall          		 |                               	   											 | 取消全部禁言               			 |
+| maps          		 |                               	   											 | 查看Custom Map               			 |
+| stop          		 |                               	   											 | 停止服务器               			 |
 
 
 ## 游戏命令列表

@@ -37,7 +37,7 @@ GNU General Public License v3.0
 | 配置 		| CPU             | 内存 	| 系统 			| 硬盘大小 	| Java      |
 |:--- 		|:---             |:---     |:---           |:---       |:---       |
 | 当前配置 	| BCM2711         | 4G      | Ubuntu 19.10  | 500 HHD  | Java 11   |
-| 最低配置 	| ARMv7 Processor rev 5  | 512M      | ubuntu 16.04+ | 1G HHD  | Java 11   |
+| 最低配置 	| ARMv7 Processor rev 5  | 64M      | Linux~  | 64M HHD  | Java 11   |
 
 ## 构建配置
 

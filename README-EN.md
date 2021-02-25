@@ -35,14 +35,14 @@ GNU General Public License v3.0
 
 | Configure 		| CPU             | RAM 	| SYSTEM 			| Disk 	| Java      |
 |:--- 		|:---             |:---     |:---           |:---       |:---       |
-| Currently Allocated 	| BCM2711         | 4G      | Ubuntu 19.10  | 500 HHD  | Java 11   |
-| Minimum Configuration 	| ARMv7 Processor rev 5  | 64M      | Linux~  | 64M HHD  | Java 11   |
+| Currently Allocated 	| BCM2711         | 4G      | Ubuntu 19.10  | 500 HDD  | Java 11   |
+| Minimum Configuration 	| ARMv7 Processor rev 5  | 64M      | Linux~  | 64M HDD  | Java 11   |
 
 ## Mark Setup
 
 | Configure 		| CPU             | RAM 	| SYSTEM 			| Disk 	| Java      | Gradle    |
 |:--- 		|:---             |:--- 	|:--- 			|:---      	|:---       |:---       |
-| Currently Allocated 	| BCM2711         | 4G 		| Ubuntu 19.10 	| 500G HHD 	| Java 11    | 6.2.2     |
+| Currently Allocated 	| BCM2711         | 4G 		| Ubuntu 19.10 	| 500G HDD 	| Java 11    | 6.2.2     |
 
 ## Server Command List
 

@@ -207,11 +207,15 @@ public class Rules {
                     break;
                 case ".zip":
                     try {
-                        OrderedMap<String,byte[]> data = new ZipDecoder(e).getSpecifiedSuffixInThePackage("tmx");
-                        data.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.customMap,v)));
-                    } catch (IOException ioException) {
-                        Log.error("ZIP READ",ioException);
+                        OrderedMap<String,byte[]> zipTmx = new ZipDecoder(e).getSpecifiedSuffixInThePackage("tmx");
+                        zipTmx.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.customMap,v)));
+                        OrderedMap<String,byte[]> zipSave = new ZipDecoder(e).getSpecifiedSuffixInThePackage("save");
+                        zipSave.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.savedGames,v)));
+                    } catch (Exception exception) {
+                        Log.error("ZIP READ",exception);
                     }
+                    break;
+                default:
                     break;
                 default:
                     break;

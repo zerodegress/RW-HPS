@@ -1,6 +1,8 @@
 package com.github.dr.rwserver.util.zip.zip;
 
+import com.github.dr.rwserver.game.GameMaps;
 import com.github.dr.rwserver.struct.OrderedMap;
+import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.zip.realization.ZipEntry;
 import com.github.dr.rwserver.util.zip.zip.realization.ZipFile;
@@ -47,19 +49,22 @@ public class ZipDecoder {
 
     public OrderedMap<String, byte[]> getSpecifiedSuffixInThePackage(String endWith) {
         final OrderedMap<String,byte[]> data = new OrderedMap<>(8);
-        byte[] buffer = new byte[1024];
         try(ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName("GBK"))) {
             ZipEntry zipEntry;
+            int len;
+            InputStream in;
+            final byte[] buffer = new byte[1024];
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
                 for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
                     zipEntry = (ZipEntry)entries.nextElement();
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
+                    in  =  zipFile.getInputStream(zipEntry);
+                    while ((len = in.read(buffer)) != -1) {
                         byteArrayOutputStream.write(buffer, 0, len);
                     }
                     final String name = zipEntry.getName();
                     if (name.endsWith(endWith)) {
-                        data.put(name.substring(0, name.length()-name.substring(name.lastIndexOf(".")+1).length()),byteArrayOutputStream.toByteArray());
+                        data.put(name.substring(0, name.length()-name.substring(name.lastIndexOf(".")).length()),byteArrayOutputStream.toByteArray());
+                        //FileUtil.File(Data.Plugin_Cache_Path).toPath(name).writeFileByte(byteArrayOutputStream.toByteArray(),false);
                     }
                     byteArrayOutputStream.reset();
                 }
@@ -68,6 +73,44 @@ public class ZipDecoder {
             Log.error(e);
         }
         return data;
+    }
+
+    public Seq<String> GetTheFileNameOfTheSpecifiedSuffixInTheZip(String endWith) {
+        final Seq<String> data = new Seq<>(8);
+        ZipEntry zipEntry;
+        for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
+            zipEntry = (ZipEntry)entries.nextElement();
+            final String name = zipEntry.getName();
+            if (name.endsWith(endWith)) {
+                data.add(name.substring(0, name.length()-name.substring(name.lastIndexOf(".")).length()));
+            }
+        }
+        return data;
+    }
+
+    public byte[] GetTheFileBytesOfTheSpecifiedSuffixInTheZip(final GameMaps.MapData mapData) {
+        try(ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName("GBK"))) {
+            ZipEntry zipEntry;
+            int len;
+            InputStream in;
+            final byte[] buffer = new byte[1024];
+            try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
+                    zipEntry = (ZipEntry)entries.nextElement();
+                    final String name = zipEntry.getName();
+                    if (name.endsWith(mapData.getType()) && name.contains(mapData.mapFile)) {
+                        in  =  zipFile.getInputStream(zipEntry);
+                        while ((len = in.read(buffer)) != -1) {
+                            byteArrayOutputStream.write(buffer, 0, len);
+                        }
+                        return byteArrayOutputStream.toByteArray();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            Log.error(e);
+        }
+        return null;
     }
 
     public InputStreamReader getZipNameInputStream(String name) {

@@ -30,4 +30,20 @@ public class Team {
             }
         }
     }
+
+    public static void amYesPlayerTeam() {
+        for (int i=0,len=Data.game.maxPlayer;i<len;i++) {
+            if (Data.game.playerData[i] != null) {
+                Data.game.playerData[i].team=i;
+            }
+        }
+    }
+
+    public static void amNoPlayerTeam() {
+        for (int i=0,len=Data.game.maxPlayer;i<len;i++) {
+            if (Data.game.playerData[i] != null) {
+                Data.game.playerData[i].team=isTwoTimes((i+1)) ? 1 : 0;
+            }
+        }
+    }
 }

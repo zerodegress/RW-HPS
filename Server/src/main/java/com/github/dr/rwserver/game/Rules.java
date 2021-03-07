@@ -1,6 +1,5 @@
 package com.github.dr.rwserver.game;
 
-import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.io.Packet;
@@ -186,7 +185,7 @@ public class Rules {
     }
 
     public void init() {
-        new CustomEvent();
+        //new CustomEvent();
     }
 
     public void init(int maxPlayer,int port) {
@@ -232,8 +231,8 @@ public class Rules {
                     try {
                         Seq<String> zipTmx = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("tmx");
                         zipTmx.each(zipMapName -> mapsData.put(zipMapName,new GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip , zipMapName, original)));
-                        //OrderedMap<String,byte[]> zipSave = new ZipDecoder(e).getSpecifiedSuffixInThePackage("save");
-                        //zipSave.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.savedGames,v)));
+                        OrderedMap<String,byte[]> zipSave = new ZipDecoder(e).getSpecifiedSuffixInThePackage("save");
+                        zipSave.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.savedGames,v)));
                     } catch (Exception exception) {
                         Log.error("ZIP READ",exception);
                     }

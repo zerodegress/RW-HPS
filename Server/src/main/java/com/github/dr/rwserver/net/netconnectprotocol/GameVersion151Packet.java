@@ -108,7 +108,7 @@ public class GameVersion151Packet implements AbstractNetPacket {
         if (Data.game.maps.mapType == GameMaps.MapType.defaultMap) {
             o.writeString("maps/skirmish/" + Data.game.maps.mapPlayer + Data.game.maps.mapName + ".tmx");
         } else {
-            o.flushMapData(Data.game.maps.mapSize,Data.game.maps.bytesMap);
+            o.flushMapData(Data.game.maps.mapData.mapSize,Data.game.maps.mapData.bytesMap);
             o.writeString("SAVE:" + Data.game.maps.mapName + ".tmx");
         }
         o.writeBoolean(false);

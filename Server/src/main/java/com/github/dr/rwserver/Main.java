@@ -136,7 +136,7 @@ public class Main {
 		}
 	}
 
-	private static void loadNetCore() {
+	public static void loadNetCore() {
 		Data.core.admin.setNetConnectPacket(new Administration.NetConnectPacketData(new GameVersion151Packet(),151));
 		Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersion151(null,null),151));
 		try {

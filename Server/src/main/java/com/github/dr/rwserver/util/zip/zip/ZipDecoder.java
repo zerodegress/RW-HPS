@@ -76,10 +76,15 @@ public class ZipDecoder {
     }
 
     public Seq<String> GetTheFileNameOfTheSpecifiedSuffixInTheZip(String endWith) {
+        // Max 5M
+        final int maxSize = 1024 * 1024 * 5;
         final Seq<String> data = new Seq<>(8);
         ZipEntry zipEntry;
         for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
             zipEntry = (ZipEntry)entries.nextElement();
+            if (zipEntry.getSize() >= maxSize) {
+                continue;
+            }
             final String name = zipEntry.getName();
             if (name.endsWith(endWith)) {
                 data.add(name.substring(0, name.length()-name.substring(name.lastIndexOf(".")).length()));
@@ -98,7 +103,7 @@ public class ZipDecoder {
                 for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
                     zipEntry = (ZipEntry)entries.nextElement();
                     final String name = zipEntry.getName();
-                    if (name.endsWith(mapData.getType()) && name.contains(mapData.mapFile)) {
+                    if (name.endsWith(mapData.getType()) && name.contains(mapData.mapFileName)) {
                         in  =  zipFile.getInputStream(zipEntry);
                         while ((len = in.read(buffer)) != -1) {
                             byteArrayOutputStream.write(buffer, 0, len);

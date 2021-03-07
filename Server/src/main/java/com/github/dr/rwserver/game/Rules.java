@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.game;
 
+import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.io.Packet;
@@ -8,6 +9,7 @@ import com.github.dr.rwserver.net.AbstractNetPacket;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.net.Net;
 import com.github.dr.rwserver.struct.OrderedMap;
+import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
@@ -15,7 +17,6 @@ import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
@@ -86,10 +87,15 @@ public class Rules {
     public boolean oneReadUnitList;
     /** 共享控制 */
     public int sharedControlPlayer = 0;
+    /** Mpa Lock */
+    public boolean mapLock = false;
 
     /** AD */
     public final String enterAd;
     public final String startAd;
+    public final String maxPlayerAd;
+    public final String startPlayerAd;
+    public final String serverUpID;
 
     /* */
     public final boolean webApi;
@@ -100,6 +106,10 @@ public class Rules {
     public final String webApiSslPasswd;
     /* */
     public final boolean deleteLib;
+    public final boolean gameOverUpList;
+    public final boolean passwdCheckApi;
+
+    public boolean lockTeam = false;
 
     public ScheduledFuture afk = null;
     public ScheduledFuture gameOver = null;
@@ -107,6 +117,7 @@ public class Rules {
     public ScheduledFuture ping = null;
     public ScheduledFuture team = null;
     public ScheduledFuture winOrLoseCheck = null;
+    public ScheduledFuture updateList = null;
 
     public final String subtitle;
 
@@ -116,16 +127,22 @@ public class Rules {
 
         subtitle = config.readString("subtitle","");
 
-
         int port = config.readInt("port",5123);
-        init(config.readInt("maxPlayer",10),port);
+        passwd = config.readString("passwd","");
 
         enterAd = config.readString("enterServerAd","");
-        passwd = config.readString("passwd","");
         startAd = config.readString("startAd","");
+        maxPlayerAd = config.readString("maxPlayerAd","");
+        startPlayerAd = config.readString("startPlayerAd","");
+        serverUpID = config.readString("serverUpID","");
+
         if (config.readBoolean("readMap",false)) {
-            checkMaps(FileUtil.File(Data.Plugin_Maps_Path));
-            Log.clog(Data.localeUtil.getinput("server.load.maps"));
+            try {
+                checkMaps();
+                Log.clog(Data.localeUtil.getinput("server.load.maps"));
+            } catch (Exception exp) {
+                Log.debug("Read Error",exp);
+            }
         }
         maxMessageLen = config.readInt("maxMessageLen",40);
         maxUnit = config.readInt("maxUnit",200);
@@ -155,7 +172,8 @@ public class Rules {
 
         deleteLib = config.readBoolean("deleteLib","");
         oneReadUnitList = config.readBoolean("oneReadUnitList",false);
-
+        gameOverUpList = config.readBoolean("gameOverUpList",false);
+        passwdCheckApi = config.readBoolean("passwdCheckApi",false);
 
         /* RWHPS Core */
         Administration.NetConnectProtocolData protocol = Data.core.admin.getNetConnectProtocol();
@@ -163,7 +181,12 @@ public class Rules {
         Administration.NetConnectPacketData packet = Data.core.admin.getNetConnectPacket();
         connectPacket = packet.packet;
         version = protocol.version;
-        
+
+        init(config.readInt("maxPlayer",10),port);
+    }
+
+    public void init() {
+        new CustomEvent();
     }
 
     public void init(int maxPlayer,int port) {
@@ -184,8 +207,8 @@ public class Rules {
         System.gc();
     }
 
-    private void checkMaps(FileUtil fileutil) {
-        List<File> list = fileutil.getFileList();
+    public void checkMaps() {
+        List<File> list = FileUtil.File(Data.Plugin_Maps_Path).getFileList();
         list.forEach(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));
@@ -193,29 +216,27 @@ public class Rules {
             switch (postpone) {
                 case ".tmx":
                     try {
-                        mapsData.put(name,new GameMaps.MapData(GameMaps.MapType.customMap,new FileUtil(e).readFileByte()));
+                        mapsData.put(name,new GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.file, name));
                     } catch (Exception exception) {
-                        Log.error("read tmx Maps",e);
+                        Log.error("read tmx Maps",exception);
                     }
                     break;
                 case ".save":
                     try {
-                        mapsData.put(name,new GameMaps.MapData(GameMaps.MapType.savedGames,new FileUtil(e).readFileByte()));
+                        mapsData.put(name,new GameMaps.MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.file, name));
                     } catch (Exception exception) {
-                        Log.error("read save Maps",e);
+                        Log.error("read save Maps",exception);
                     }
                     break;
                 case ".zip":
                     try {
-                        OrderedMap<String,byte[]> zipTmx = new ZipDecoder(e).getSpecifiedSuffixInThePackage("tmx");
-                        zipTmx.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.customMap,v)));
-                        OrderedMap<String,byte[]> zipSave = new ZipDecoder(e).getSpecifiedSuffixInThePackage("save");
-                        zipSave.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.savedGames,v)));
+                        Seq<String> zipTmx = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("tmx");
+                        zipTmx.each(zipMapName -> mapsData.put(zipMapName,new GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip , zipMapName, original)));
+                        //OrderedMap<String,byte[]> zipSave = new ZipDecoder(e).getSpecifiedSuffixInThePackage("save");
+                        //zipSave.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.savedGames,v)));
                     } catch (Exception exception) {
                         Log.error("ZIP READ",exception);
                     }
-                    break;
-                default:
                     break;
                 default:
                     break;

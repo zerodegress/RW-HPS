@@ -19,6 +19,7 @@ import com.github.dr.rwserver.util.log.Log;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
 import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
@@ -33,7 +34,11 @@ public class ServerCommands {
         handler.<StrCons>register("help", "serverCommands.help", (arg, log) -> {
             log.get("Commands:");
             for(CommandHandler.Command command : handler.getCommandList()){
-                log.get("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + Data.localeUtil.getinput(command.description));
+                if (command.description.startsWith("#")) {
+                    log.get("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + command.description.substring(1));
+                } else {
+                    log.get("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + Data.localeUtil.getinput(command.description));
+                }
             }
         });
 
@@ -45,6 +50,7 @@ public class ServerCommands {
             Log.set(Data.config.readString("log","WARN").toUpperCase());
 
             Data.game = new Rules(Data.config);
+            Data.game.init();
             Data.game.team = Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS);
             Data.game.ping = Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS);
             Threads.newThreadCore(() -> {
@@ -137,17 +143,18 @@ public class ServerCommands {
             }
         });
 
-        handler.<StrCons>register("mute", "<PlayerSerialNumber> <Time(s)>","serverCommands.mute", (arg, log) -> {
+        handler.<StrCons>register("mute", "<PlayerSerialNumber> [Time(s)]","serverCommands.mute", (arg, log) -> {
             int site = Integer.parseInt(arg[0])-1;
             if (Data.game.playerData[site] != null) {
-                Data.game.playerData[site].muteTime = getLocalTimeFromU(Long.parseLong(arg[1])*1000L);
+                //Data.game.playerData[site].muteTime = getLocalTimeFromU(Long.parseLong(arg[1])*1000L);
+                Data.game.playerData[site].muteTime = getLocalTimeFromU(43200*1000L);
             }
         });
 
         handler.<StrCons>register("kick", "<PlayerSerialNumber> [time]", "serverCommands.kick", (arg, log) -> {
             int site = Integer.parseInt(arg[0])-1;
             if (Data.game.playerData[site] != null) {
-                Data.game.playerData[site].kickTime = (arg.length > 1) ? getLocalTimeFromU(Integer.parseInt(arg[1])) : 60;
+                Data.game.playerData[site].kickTime = (arg.length > 1) ? getLocalTimeFromU(Integer.parseInt(arg[1])) : getLocalTimeFromU(60);
                 try {
                     Data.game.playerData[site].con.sendKick(localeUtil.getinput("kick.you"));
                 } catch (IOException e) {
@@ -160,6 +167,10 @@ public class ServerCommands {
             if (Data.game.oneAdmin) {
                 Data.game.isAfk = "on".equals(arg[0]);
             }
+        });
+
+        handler.<StrCons>register("maplock", "<off/on>", "serverCommands.isAfk", (arg, log) -> {
+            Data.game.mapLock = "on".equals(arg[0]);
         });
 
         handler.<StrCons>register("plugins", "serverCommands.plugins", (arg, log) -> {
@@ -205,14 +216,28 @@ public class ServerCommands {
             });
         });
 
-        handler.<StrCons>register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {
-            NetServer.addServerList();
-            /*Threads.newThreadCore(() -> {
-                Data.core.upServerList = true;
-
-                Threads.newThreadService2(NetServer::upServerList,0,1,TimeUnit.MINUTES);
-            });*/
+        handler.<StrCons>register("cleanmods", "serverCommands.cleanmods", (arg, log) -> {
+            Data.core.unitBase64.clear();
+            Data.core.save();
+            Main.loadNetCore();
         });
+
+        handler.<StrCons>register("reloadmaps", "serverCommands.upserverlist", (arg, log) -> {
+            Data.game.mapsData.clear();
+            Data.game.checkMaps();
+        });
+
+        handler.<StrCons>register("maps", "serverCommands.clearmuteall", (arg, log) -> {
+            StringBuilder response = new StringBuilder();
+            final AtomicInteger i = new AtomicInteger(0);
+            Data.game.mapsData.each((k,v) -> {
+                response.append(localeUtil.getinput("maps.info", i.get(),k)).append(LINE_SEPARATOR);
+                i.getAndIncrement();
+            });
+            log.get(response.toString());
+        });
+
+
 
         handler.<StrCons>register("stop", "serverCommands.stop", (arg, log) -> {
             log.get("Stop Server. end");

@@ -8,7 +8,7 @@ import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameMaps;
-import com.github.dr.rwserver.net.GroupNet;
+import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.struct.IntSet;
 import com.github.dr.rwserver.util.CommandHandler;
 import com.github.dr.rwserver.util.Events;
@@ -35,18 +35,22 @@ public class ClientCommands {
 		handler.<Player>register("help", "clientCommands.help", (args, player) -> {
 			StringBuilder str = new StringBuilder(16);
 			for(CommandHandler.Command command : handler.getCommandList()){
-				if ("HIDE".equals(command.description)) {
-					continue;
+				if (command.description.startsWith("#")) {
+					str.append("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + command.description.substring(1));
+				} else {
+					if ("HIDE".equals(command.description)) {
+						continue;
+					}
+					str.append("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + player.localeUtil.getinput(command.description))
+							.append(LINE_SEPARATOR);
 				}
-				str.append("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + player.localeUtil.getinput(command.description))
-					.append(LINE_SEPARATOR);
 			}
 			player.sendSystemMessage(str.toString());
 		});
 
 		handler.<Player>register("map", "<MapNumber...>", "clientCommands.map", (args, player) -> {
 			if (isAdmin(player)) {
-				if (Data.game.isStartGame) {
+				if (Data.game.isStartGame || Data.game.mapLock) {
 					return;
 				}
 				final StringBuilder response = new StringBuilder(args[0]);
@@ -71,8 +75,7 @@ public class ClientCommands {
 					}
 					String name = Data.game.mapsData.keys().toSeq().get(Integer.parseInt(inputMapName));
 					GameMaps.MapData data = Data.game.mapsData.get(name);
-					Data.game.maps.mapSize = data.mapSize;
-					Data.game.maps.bytesMap = data.bytesMap;
+					Data.game.maps.mapData = data;
 					Data.game.maps.mapType = data.mapType;
 					Data.game.maps.mapName = name;
 					Data.game.maps.mapPlayer = "";
@@ -92,6 +95,7 @@ public class ClientCommands {
 			}
 			StringBuilder response = new StringBuilder();
 			final AtomicInteger i = new AtomicInteger(0);
+			response.append(localeUtil.getinput("maps.top"));
 			Data.game.mapsData.each((k,v) -> {
 				response.append(localeUtil.getinput("maps.info", i.get(),k)).append(LINE_SEPARATOR);
 				i.getAndIncrement();
@@ -163,6 +167,11 @@ public class ClientCommands {
 
 		handler.<Player>register("am", "<on/off>", "clientCommands.am", (args, player) -> {
 			Data.game.amTeam = "on".equals(args[0]);
+			if (Data.game.amTeam) {
+				Team.amYesPlayerTeam();
+			} else {
+				Team.amNoPlayerTeam();
+			}
 			player.sendSystemMessage(localeUtil.getinput("server.amTeam",(Data.game.amTeam) ? "开启" : "关闭"));
 		});
 
@@ -296,13 +305,17 @@ public class ClientCommands {
 					Data.game.ping = null;
 				}
 
-				try {
-					GroupNet.broadcast(Data.game.connectPacket.getStartGameByteBuf());
-				} catch (IOException e) {
-					Log.error("Start Error",e);
-					return;
-				}
-				Data.playerGroup.each(e -> e.lastMoveTime = System.currentTimeMillis());
+				Data.game.maps.mapData.readMap();
+				Data.playerGroup.each(e -> {
+					try {
+						e.con.sendStartGame();
+						e.lastMoveTime = System.currentTimeMillis();
+					} catch (IOException err) {
+						Log.error("Start Error",err);
+						return;
+					}
+				});
+
 				if (Data.game.winOrLose) {
 					Data.game.winOrLoseCheck = Threads.newThreadService2(() -> {
 						final long time = System.currentTimeMillis();
@@ -362,6 +375,12 @@ public class ClientCommands {
 				}
 			} else {
 				player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"));
+			}
+		});
+
+		handler.<Player>register("teamlock", "clientCommands.teamlock", (args, player) -> {
+			if (isAdmin(player)) {
+				Data.game.lockTeam = "on".equals(args[0]);
 			}
 		});
 
@@ -435,6 +454,9 @@ public class ClientCommands {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 				return;
 			}
+			if (Data.game.lockTeam) {
+				return;
+			}
 			if (notIsNumeric(args[0]) && notIsNumeric(args[1])) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"));
 				return;
@@ -480,6 +502,9 @@ public class ClientCommands {
 		handler.<Player>register("self_team", "<ToTeamNumber>","HIDE", (args, player) -> {
 			if (Data.game.isStartGame) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
+				return;
+			}
+			if (Data.game.lockTeam) {
 				return;
 			}
 			if (notIsNumeric(args[0])) {

@@ -76,84 +76,10 @@ public class NetServer {
     }
 
     public static void addServerList() {
-        Data.core.serverToken = generateStr(40);
-        final StringBuffer sb = new StringBuffer();
-        final Sha sha = new Sha();
-        final long time = getLocalTimeFromU();
-        final String userId = "u_"+Data.core.serverConnectUuid;
-        sb.append("action=add")
-            .append("&user_id=").append(userId)
-            .append("&game_name=RW-HPS")
-            .append("&_1=").append(time)
-            .append("&tx2=").append(reup(sha,"_"+userId + 5))
-            .append("&tx3=").append(reup(sha,"_"+userId + (5+time)))
-            .append("&game_version=151")
-            .append("&game_version_string=1.14")
-            .append("&game_version_beta=false")
-            .append("&private_token=").append(Data.core.serverToken)
-            .append("&private_token_2=").append(Md5.md5Formant(Md5.md5Formant(Data.core.serverToken)))
-            .append("&confirm=").append(Md5.md5Formant("a"+Md5.md5Formant(Data.core.serverToken)))
-            .append("&password_required=").append(!"".equals(Data.game.passwd))
-            .append("&created_by=").append(Data.core.serverName)
-            .append("&private_ip=10.0.0.1")
-            .append("&port_number=").append(Data.game.port)
-            .append("&game_map=").append(Data.game.maps.mapName)
-            //.append("&game_map=").append(Data.game.subtitle)
-            .append("&game_mode=skirmishMap")
-            .append("&game_status=battleroom")
-            .append("&player_count=").append("1")
-            .append("&max_player_count=").append(Data.game.maxPlayer);
-        boolean S1 = doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface",sb.toString()).contains(Data.core.serverConnectUuid);
-        boolean S4 = doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface",sb.toString()).contains(Data.core.serverConnectUuid);
-        boolean O1 = doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface","action=self_info&port="+Data.game.port+"&id="+userId).contains("true");
-        //doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface","action=self_info&port="+Data.game.port).contains("true");
-        boolean O4 = doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface","action=self_info&port="+Data.game.port+"&id="+userId).contains("true");
-        //doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface","action=self_info&port="+Data.game.port).contains("true");
-
-        if (S1 || S4) {
-            if (S1 && S4) {
-                Log.clog(Data.localeUtil.getinput("err.yesList"));
-            } else {
-                Log.clog(Data.localeUtil.getinput("err.ynList"));
-            }
-        } else {
-            Log.clog(Data.localeUtil.getinput("err.noList"));
-        }
-
-        if (O1 || O4) {
-            Log.clog(Data.localeUtil.getinput("err.yesOpen"));
-        } else {
-            Log.clog(Data.localeUtil.getinput("err.noOpen"));
-        }
+        // OFF INFO
     }
 
     public static void upServerList() {
-        String stat = "battleroom";
-        if (Data.game.isStartGame) {
-            stat = "ingame";
-        }
-        final StringBuffer sb = new StringBuffer();
-        final String userId = "u_"+Data.core.serverConnectUuid;
-        sb.append("action=update")
-            .append("&id=").append(userId)
-            .append("&game_name=RW-HPS")
-            .append("&private_token=").append(Data.core.serverToken)
-            .append("&password_required=").append(!"".equals(Data.game.passwd))
-            .append("&created_by=").append(Data.core.serverName)
-            .append("&private_ip=127.0.0.1")
-            .append("&port_number=").append(Data.game.port)
-            .append("&game_map=").append(Data.game.maps.mapName)
-            //.append("&game_map=").append(Data.game.subtitle)
-            .append("&game_mode=skirmishMap")
-            .append("&game_status=").append(stat)
-            .append("&player_count=").append(Data.playerGroup.size())
-            .append("&max_player_count=").append(Data.game.maxPlayer);
-        doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", sb.toString());
-        doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", sb.toString());
-    }
-
-    private static String reup(Sha sha,String str) {
-        byte[] bytes = sha.sha256Arry(str);
-        return cutting(String.format("%0" + (bytes.length * 2) + "X", new BigInteger(1, bytes)),4);
+        // OFF INFO
     }
 }

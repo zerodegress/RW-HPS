@@ -98,7 +98,6 @@ public class Rules {
 
     /* */
     public final boolean webApi;
-    public final String webUrl;
     public final int webApiPort;
     public final boolean webApiSsl;
     public final String webApiSslKetPath;
@@ -118,14 +117,9 @@ public class Rules {
     public ScheduledFuture winOrLoseCheck = null;
     public ScheduledFuture updateList = null;
 
-    public final String subtitle;
-
     public OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
-
-        subtitle = config.readString("subtitle","");
-
         int port = config.readInt("port",5123);
         passwd = config.readString("passwd","");
 
@@ -163,7 +157,6 @@ public class Rules {
 
 
         webApi = config.readBoolean("webApi",false);
-        webUrl = config.readString("webUrl","");
         webApiPort = config.readInt("webApiPort",0);
         webApiSsl = config.readBoolean("webApiSsl",false);
         webApiSslKetPath = config.readString("webApiSslKetPath",null);
@@ -231,8 +224,6 @@ public class Rules {
                     try {
                         Seq<String> zipTmx = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("tmx");
                         zipTmx.each(zipMapName -> mapsData.put(zipMapName,new GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip , zipMapName, original)));
-                        OrderedMap<String,byte[]> zipSave = new ZipDecoder(e).getSpecifiedSuffixInThePackage("save");
-                        zipSave.each((k,v) -> mapsData.put(k,new GameMaps.MapData(GameMaps.MapType.savedGames,v)));
                     } catch (Exception exception) {
                         Log.error("ZIP READ",exception);
                     }

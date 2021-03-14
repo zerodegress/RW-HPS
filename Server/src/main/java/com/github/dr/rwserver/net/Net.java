@@ -17,9 +17,9 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -109,12 +109,12 @@ public class Net {
 		}
 
 		private void openPort(int port) throws InterruptedException {
-			EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1);
-			EpollEventLoopGroup workerGroup = new EpollEventLoopGroup();
+			NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
+			NioEventLoopGroup workerGroup = new NioEventLoopGroup();
 			try {
 				ServerBootstrap serverBootstrapTcp = new ServerBootstrap();
 				serverBootstrapTcp.group(bossGroup, workerGroup)
-								  .channel(EpollServerSocketChannel.class)
+								  .channel(NioServerSocketChannel .class)
 								  .localAddress(new InetSocketAddress(port))
 								  .childOption(ChannelOption.SO_KEEPALIVE, true)
 								  .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)

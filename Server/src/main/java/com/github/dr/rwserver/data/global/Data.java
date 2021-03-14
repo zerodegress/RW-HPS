@@ -39,7 +39,7 @@ public class Data {
 	 */
 
 	/** 自定义包名 */
-	public static final String SERVER_ID = "com.corrodinggames.rwhps";
+	public static final String SERVER_ID = "com.github.dr.rwserver";
 	public static final String SERVER_CORE_VERSION = "1.5.0.0 DEMO #1";
 	public static final int SERVER_CORE_VERSION_INT = 1500;
 	//public static final int SERVER_VERSION2 = 1.13.6;

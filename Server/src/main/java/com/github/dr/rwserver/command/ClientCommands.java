@@ -304,8 +304,9 @@ public class ClientCommands {
 					Data.game.ping.cancel(true);
 					Data.game.ping = null;
 				}
-
-				Data.game.maps.mapData.readMap();
+				if (Data.game.maps.mapData != null) {
+					Data.game.maps.mapData.readMap();
+				}
 				Data.playerGroup.each(e -> {
 					try {
 						e.con.sendStartGame();

@@ -1,6 +1,7 @@
 package com.github.dr.rwserver.game;
 
 import com.github.dr.rwserver.data.Player;
+import com.github.dr.rwserver.net.AbstractNetConnect;
 
 /**
  * @author Dr
@@ -27,6 +28,19 @@ public class EventType {
 
         public PlayerReJoin(Player player) {
             this.player = player;
+        }
+    }
+
+    /** 玩家连接密码验证.*/
+    public static class PlayerConnectPasswdCheck {
+        public final AbstractNetConnect abstractNetConnect;
+        public final String passwd;
+        public boolean result = false;
+        public String name = "";
+
+        public PlayerConnectPasswdCheck(AbstractNetConnect abstractNetConnect, String passwd) {
+            this.abstractNetConnect = abstractNetConnect;
+            this.passwd = passwd;
         }
     }
 

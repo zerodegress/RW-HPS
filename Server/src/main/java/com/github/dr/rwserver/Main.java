@@ -1,31 +1,32 @@
 package com.github.dr.rwserver;
 
 import com.github.dr.rwserver.command.ClientCommands;
+import com.github.dr.rwserver.command.LogCommands;
 import com.github.dr.rwserver.command.ServerCommands;
 import com.github.dr.rwserver.core.Core;
 import com.github.dr.rwserver.core.Initialization;
 import com.github.dr.rwserver.core.ex.Event;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.dependent.LibraryManager;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
-import com.github.dr.rwserver.mods.PluginsLoad;
 import com.github.dr.rwserver.net.Administration;
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersion151;
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersion151Packet;
+import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
 import com.github.dr.rwserver.struct.Seq;
-import com.github.dr.rwserver.util.CommandHandler;
 import com.github.dr.rwserver.util.Convert;
-import com.github.dr.rwserver.util.Events;
 import com.github.dr.rwserver.util.encryption.Autograph;
 import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
+import com.github.dr.rwserver.util.game.CommandHandler;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,8 +42,6 @@ public class Main {
 	 * TODO 防逆向
 	 * 设置多个检查点, 定期检查, 如果发现问题就加密或混淆部分数据
 	 */
-
-	public static Seq<PluginsLoad.PluginData> data;
 
 	public static void main(String[] args) {
 		Log.set("ALL");
@@ -62,7 +61,7 @@ public class Main {
 
 		FileUtil.path = (args.length > 0) ? Base64.decodeString(args[0]) : null;
 
-		Data.core.settings.loadData();
+		Data.core.settings.load();
 		Data.core.load();
 
 		loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
@@ -72,6 +71,7 @@ public class Main {
 		/* 命令加载 */
 		new ServerCommands(Data.SERVERCOMMAND);
 		new ClientCommands(Data.CLIENTCOMMAND);
+		new LogCommands(Data.LOGCOMMAND);
 		Log.clog(Data.localeUtil.getinput("server.load.command"));
 
 		/* Event加载 */
@@ -82,10 +82,15 @@ public class Main {
 		new Initialization();
 
 		/* Plugin */
-		data =  new PluginsLoad(FileUtil.File(Data.Plugin_Plugins_Path)).loadJar();
+		PluginManage.init(FileUtil.File(Data.Plugin_Plugins_Path));
+		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
+		PluginManage.runRegisterServerCommands(Data.SERVERCOMMAND);
 
 		/* Core Net */
 		loadNetCore();
+
+		/* Load Save Unit */
+		loadUnitList();
 
 		/* 按键监听 */
 		Threads.newThreadCore(Main::buttonMonitoring);
@@ -94,7 +99,7 @@ public class Main {
 		Events.fire(new EventType.ServerLoadEvent());
 
 		/* 初始化Plugin Init */
-		data.each(e -> e.main.init());
+		PluginManage.runInit();
 
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
@@ -137,12 +142,11 @@ public class Main {
 	}
 
 	public static void loadNetCore() {
-		Data.core.admin.setNetConnectPacket(new Administration.NetConnectPacketData(new GameVersion151Packet(),151));
-		Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersion151(null,null),151));
+		Data.core.admin.setNetConnectPacket(new Administration.NetConnectPacketData(new GameVersionPacket(),151));
 		try {
 			DataOutputStream stream = Data.utilData.stream;
 			stream.writeInt(1);
-			Seq<String> list = Convert.castSeq(FileUtil.readFileData(true, new InputStreamReader(Main.class.getResourceAsStream("/unitData"), Data.UTF_8)),String.class);
+			Seq<String> list = Convert.castSeq(FileUtil.readFileData(true, new InputStreamReader(Main.class.getResourceAsStream("/unitData"), StandardCharsets.UTF_8)),String.class);
 			stream.writeInt(list.size());
 			String[] unitdata;
 			for (String str : list) {
@@ -158,5 +162,35 @@ public class Main {
 			Log.error(e);
 		}
 		Log.clog("Load OK 1.14 Protocol");
+	}
+
+	public static void loadUnitList() {
+		if(Data.core.unitBase64.size() > 0) {
+			try {
+				Data.utilData.buffer.reset();
+				DataOutputStream stream = Data.utilData.stream;
+				stream.writeInt(1);
+				stream.writeInt(Data.core.unitBase64.size());
+
+				String[] unitdata;
+				for (String str : Data.core.unitBase64) {
+					unitdata = str.split("%#%");
+					stream.writeUTF(unitdata[0]);
+					stream.writeInt(Integer.parseInt(unitdata[1]));
+					stream.writeBoolean(true);
+					if (unitdata.length > 2) {
+						stream.writeBoolean(true);
+						stream.writeUTF(unitdata[2]);
+					} else {
+						stream.writeBoolean(false);
+					}
+					stream.writeLong(0);
+					stream.writeLong(0);
+				}
+				Log.clog("Load Mod Ok.");
+			} catch (Exception exp) {
+				Log.error("[Server] Load Setting Unit List Error",exp);
+			}
+		}
 	}
 }

@@ -4,8 +4,8 @@ package com.github.dr.rwserver.game;
  * @author Dr
  */
 public class GameCommand {
-    public int sendBy;
-    public byte[] arr;
+    public final int sendBy;
+    public final byte[] arr;
 
     public GameCommand(int sendBy,byte[] arr) {
         this.sendBy = sendBy;

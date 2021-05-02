@@ -6,12 +6,8 @@ import java.util.Arrays;
  * @author Dr
  */
 public class Packet {
-    public byte[] bytes;
-    public int type;
-
-    public Packet(int type) {
-        this.type = type;
-    }
+    public final byte[] bytes;
+    public final int type;
 
     public Packet(int type,byte[] bytes) {
         this.type = type;

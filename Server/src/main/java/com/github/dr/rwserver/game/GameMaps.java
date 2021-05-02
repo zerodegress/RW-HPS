@@ -17,14 +17,14 @@ public class GameMaps {
     public String mapName = "Crossing Large (10p)";
     public String mapPlayer = "[z;p10]";
 
-    public static enum MapType {
+    public enum MapType {
         /**
          * ?
          */
         defaultMap, customMap, savedGames
     }
 
-    public static enum MapFileType {
+    public enum MapFileType {
         /**
          * ?
          */
@@ -73,7 +73,7 @@ public class GameMaps {
         }
 
         public String getType() {
-            return mapType.name().equals("savedGames") ? ".save" : ".tmx";
+            return "savedGames".equals(mapType.name()) ? ".save" : ".tmx";
         }
 
         public void readMap() {
@@ -96,10 +96,14 @@ public class GameMaps {
                     }
                     break;
                 case web:
-                    break;
                 default:
                     break;
             }
+        }
+
+        public void clean() {
+            this.mapSize = 0;
+            this.bytesMap = null;
         }
     }
 }

@@ -173,7 +173,7 @@ public class OrderedMap<K, V> extends ObjectMap<K, V>{
     }
 
     public static class OrderedMapEntries<K, V> extends Entries<K, V>{
-        private Seq<K> keys;
+        private final Seq<K> keys;
 
         public OrderedMapEntries(OrderedMap<K, V> map){
             super(map);
@@ -212,7 +212,7 @@ public class OrderedMap<K, V> extends ObjectMap<K, V>{
     }
 
     public static class OrderedMapKeys<K> extends Keys<K>{
-        private Seq<K> keys;
+        private final Seq<K> keys;
 
         public OrderedMapKeys(OrderedMap<K, ?> map){
             super(map);
@@ -252,7 +252,7 @@ public class OrderedMap<K, V> extends ObjectMap<K, V>{
     }
 
     public static class OrderedMapValues<V> extends Values<V>{
-        private Seq keys;
+        private final Seq keys;
 
         public OrderedMapValues(OrderedMap<?, V> map){
             super(map);

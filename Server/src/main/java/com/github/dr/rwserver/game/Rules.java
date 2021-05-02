@@ -7,6 +7,7 @@ import com.github.dr.rwserver.net.AbstractNetConnect;
 import com.github.dr.rwserver.net.AbstractNetPacket;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.net.Net;
+import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.encryption.Base64;
@@ -16,6 +17,7 @@ import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
@@ -60,16 +62,13 @@ public class Rules {
     /** ？ */
     public Net.NetStartGame natStartGame = null;
     /** 最大发言长度 */
-    public int maxMessageLen;
+    public final int maxMessageLen;
     /** 最大单位数 */
     public final int maxUnit;
     /** AFK */
     public boolean isAfk = true;
     /** only Admin */
-    public boolean oneAdmin;
-    /** TICK */
-    public final int tickTimeA;
-    public final int tickTimeB;
+    public final boolean oneAdmin;
     /** ip多语言支持 */
     public final boolean ipCheckMultiLanguageSupport;
     /** 重连暂停 */
@@ -83,7 +82,7 @@ public class Rules {
     /** 胜负判定时间 */
     public final int winOrLoseTime;
     /** 是否第一次启动读取MOD */
-    public boolean oneReadUnitList;
+    public final boolean oneReadUnitList;
     /** 共享控制 */
     public int sharedControlPlayer = 0;
     /** Mpa Lock */
@@ -98,12 +97,14 @@ public class Rules {
 
     /* */
     public final boolean webApi;
+    public final String webUrl;
     public final int webApiPort;
     public final boolean webApiSsl;
     public final String webApiSslKetPath;
     public final String webApiSslPasswd;
     /* */
     public final boolean deleteLib;
+    public final boolean startRelay;
     public final boolean gameOverUpList;
     public final boolean passwdCheckApi;
 
@@ -117,9 +118,14 @@ public class Rules {
     public ScheduledFuture winOrLoseCheck = null;
     public ScheduledFuture updateList = null;
 
-    public OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
+    public final String subtitle;
+
+    public final OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
+
+        subtitle = config.readString("subtitle","");
+
         int port = config.readInt("port",5123);
         passwd = config.readString("passwd","");
 
@@ -139,13 +145,7 @@ public class Rules {
         }
         maxMessageLen = config.readInt("maxMessageLen",40);
         maxUnit = config.readInt("maxUnit",200);
-        int tick = config.readInt("tickSpeed",0);
-        if (maxPlayer > 10) {
-            tick = 0;
-        }
         Data.core.defIncome = config.readFloat("defIncome",1f);
-        tickTimeA = (tick > 0) ? 100 : 200;
-        tickTimeB = (tick > 0) ? 100 : 150;
         Data.core.serverName = config.readString("serverName","RW-HPS");
         oneAdmin = config.readBoolean("oneAdmin",true);
         ipCheckMultiLanguageSupport = config.readBoolean("iPCheckMultiLanguageSupport",false);
@@ -154,20 +154,26 @@ public class Rules {
         winOrLose = config.readBoolean("winOrLose",false);
         winOrLoseTime = config.readInt("winOrLoseTime",30000);
 
-
-
         webApi = config.readBoolean("webApi",false);
+        webUrl = config.readString("webUrl","");
         webApiPort = config.readInt("webApiPort",0);
         webApiSsl = config.readBoolean("webApiSsl",false);
-        webApiSslKetPath = config.readString("webApiSslKetPath",null);
-        webApiSslPasswd = config.readString("webApiSslPasswd",null);
+        webApiSslKetPath = config.readString("webApiSslKetPath","");
+        webApiSslPasswd = config.readString("webApiSslPasswd","");
 
         deleteLib = config.readBoolean("deleteLib","");
+        startRelay = config.readBoolean("startRelay","");
         oneReadUnitList = config.readBoolean("oneReadUnitList",false);
         gameOverUpList = config.readBoolean("gameOverUpList",false);
         passwdCheckApi = config.readBoolean("passwdCheckApi",false);
 
-        /* RWHPS Core */
+        if (startRelay) {
+            Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionRelay(null),151));
+        } else {
+            Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionServer(null,null),151));
+        }
+
+        /* RW HPS Core */
         Administration.NetConnectProtocolData protocol = Data.core.admin.getNetConnectProtocol();
         connectNet = protocol.protocol;
         Administration.NetConnectPacketData packet = Data.core.admin.getNetConnectPacket();
@@ -178,7 +184,7 @@ public class Rules {
     }
 
     public void init() {
-        //new CustomEvent();
+        new CustomEvent();
     }
 
     public void init(int maxPlayer,int port) {
@@ -190,8 +196,7 @@ public class Rules {
 
     public void re() {
         gameCommandCache.clear();
-        playerData = null;
-        playerData = new Player[maxPlayer];
+        Arrays.fill(playerData, null);
         income = Data.core.defIncome;
         initUnit = 1;
         mist = 2;
@@ -224,6 +229,9 @@ public class Rules {
                     try {
                         Seq<String> zipTmx = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("tmx");
                         zipTmx.each(zipMapName -> mapsData.put(zipMapName,new GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip , zipMapName, original)));
+                        Seq<String> zipSave = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("save");
+                        zipSave.each(zipSaveName -> mapsData.put(zipSaveName,new GameMaps.MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.zip , zipSaveName, original)));
+
                     } catch (Exception exception) {
                         Log.error("ZIP READ",exception);
                     }

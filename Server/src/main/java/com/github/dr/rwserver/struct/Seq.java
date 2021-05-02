@@ -6,11 +6,7 @@ import com.github.dr.rwserver.func.Boolf;
 import com.github.dr.rwserver.func.Cons;
 import com.github.dr.rwserver.util.log.exp.VariableException.ArrayRuntimeException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * 可调整大小，有序或无序的对象数组。如果是无序的，则此类在删除元素时避免了内存复制（最后一个元素移动到删除的元素的位置）。
@@ -148,7 +144,7 @@ public class Seq<T> implements Iterable<T> {
     public static <T> Seq<T> with(Iterable<T> array) {
         Seq<T> out = new Seq<>();
         for(T thing : array) {
-            out.add((T)thing);
+            out.add(thing);
         }
         return out;
     }
@@ -762,7 +758,7 @@ public class Seq<T> implements Iterable<T> {
      * Otherwise use {@link #toArray(Class)} to specify the array type.
      */
     public T[] toArray(){
-        return (T[])toArray(items.getClass().getComponentType());
+        return toArray(items.getClass().getComponentType());
     }
 
     public <V> V[] toArray(Class type){
@@ -812,7 +808,7 @@ public class Seq<T> implements Iterable<T> {
         for(int i = 0; i < n; i++){
             Object o1 = items1[i];
             Object o2 = items2[i];
-            if(!(o1 == null ? o2 == null : o1.equals(o2))) {
+            if(!(Objects.equals(o1, o2))) {
                 return false;
             }
         }
@@ -862,7 +858,8 @@ public class Seq<T> implements Iterable<T> {
     public static class SeqIterable<T> implements Iterable<T>{
         private final Seq<T> array;
         private final boolean allowRemove;
-        private SeqIterator iterator1 = new SeqIterator(), iterator2 = new SeqIterator();
+        private final SeqIterator iterator1 = new SeqIterator();
+        private final SeqIterator iterator2 = new SeqIterator();
 
         public SeqIterable(Seq<T> array){
             this(array, true);

@@ -9,7 +9,6 @@ import java.util.Arrays;
  * avoids a memory copy when removing elements (the last element is moved to the removed element's position).
  * @author Nathan Sweet
  */
-@SuppressWarnings("unchecked")
 public class IntSeq {
     public int[] items;
     public int size;

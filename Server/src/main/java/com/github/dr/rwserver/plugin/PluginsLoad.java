@@ -1,4 +1,4 @@
-package com.github.dr.rwserver.mods;
+package com.github.dr.rwserver.plugin;
 
 import com.github.dr.rwserver.data.json.Json;
 import com.github.dr.rwserver.struct.Seq;
@@ -18,19 +18,18 @@ import static com.github.dr.rwserver.util.IsUtil.isBlank;
  * @author Dr
  */
 public class PluginsLoad {
-
-    final Seq<File> jarFileList = new Seq<>();
-
-    public PluginsLoad(FileUtil f) {
+    public static Seq<PluginData> resultPluginData(FileUtil f) {
+        final Seq<File> jarFileList = new Seq<>();
         List<File> list = f.getFileList();
         for (File file : list) {
             if (file.getName().endsWith("jar")) {
                 jarFileList.add(file);
             }
         }
+        return new PluginsLoad().loadJar(jarFileList);
     }
 
-    public Seq<PluginData> loadJar() {
+    public Seq<PluginData> loadJar(Seq<File> jarFileList) {
         Seq<PluginData> data = new Seq<>();
         Seq<String> dataName = new Seq<>();
         Seq<PluginImportData> dataImport = new Seq<>();
@@ -43,9 +42,9 @@ public class PluginsLoad {
                 }
                 Json json = new Json((String) FileUtil.readFileData(false,imp));
                 if (isBlank(json.getData("import"))) {
-                    Mod mainMod = loadClass(file,(String) json.getData("main"));
-                    data.add(new PluginData(json.getData("name"),json.getData("author"),json.getData("description"),json.getData("version"),mainMod));
-                    dataName.add((String) json.getData("name"));
+                    Plugin mainPlugin = loadClass(file, json.getData("main"));
+                    data.add(new PluginData(json.getData("name"),json.getData("author"),json.getData("description"),json.getData("version"),mainPlugin));
+                    dataName.add(json.getData("name"));
                 } else {
                     dataImport.add(new PluginImportData(json,file));
                 }
@@ -55,11 +54,11 @@ public class PluginsLoad {
         }
         for (int i=0,count=dataImport.size();i<count;i++) {
             dataImport.each(e -> {
-                if (dataName.contains((String) e.pluginData.getData("import"))) {
+                if (dataName.contains(e.pluginData.getData("import"))) {
                     try {
-                        Mod mainMod = loadClass(e.file, (String) e.pluginData.getData("main"));
-                        data.add(new PluginData(e.pluginData.getData("name"),e.pluginData.getData("author"),e.pluginData.getData("description"),e.pluginData.getData("version"),mainMod));
-                        dataName.add((String) e.pluginData.getData("name"));
+                        Plugin mainPlugin = loadClass(e.file, e.pluginData.getData("main"));
+                        data.add(new PluginData(e.pluginData.getData("name"),e.pluginData.getData("author"),e.pluginData.getData("description"),e.pluginData.getData("version"),mainPlugin));
+                        dataName.add(e.pluginData.getData("name"));
                         dataImport.remove(e);
                     } catch (Exception err) {
                         Log.error("Failed to load", e);
@@ -70,10 +69,11 @@ public class PluginsLoad {
         return data;
     }
 
-    private Mod loadClass(File file,String main) throws Exception {
+    private Plugin loadClass(File file,String main) throws Exception {
         URLClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()}, ClassLoader.getSystemClassLoader());
         Class<?> classMain = classLoader.loadClass(main);
-        return (Mod) classMain.getDeclaredConstructor().newInstance();
+        classLoader.close();
+        return (Plugin) classMain.getDeclaredConstructor().newInstance();
     }
 
     private static class PluginImportData {
@@ -88,9 +88,9 @@ public class PluginsLoad {
 
     public static class PluginData {
         public final String name,author,description,version;
-        public final Mod main;
+        public final Plugin main;
 
-        public PluginData(Object name,Object author,Object description,Object version,Mod main) {
+        public PluginData(Object name,Object author,Object description,Object version,Plugin main) {
             this.name           = (String) name;
             this.author         = (String) author;
             this.description    = (String) description;

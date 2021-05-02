@@ -17,7 +17,7 @@ public class IntSet {
     int capacity, stashSize;
     boolean hasZeroValue;
 
-    private float loadFactor;
+    private final float loadFactor;
     private int hashShift, mask, threshold;
     private int stashCapacity;
     private int pushIterations;

@@ -5,7 +5,7 @@ package com.github.dr.rwserver.math;
  */
 public final class Mathf {
 
-    public static Rand random = new Rand();
+    public static final Rand random = new Rand();
 
     /** 获取2的次方. */
     public static int nextPowerOfTwo(int value) {

@@ -10,8 +10,8 @@ import java.io.IOException;
  * @author Dr
  */
 public class GameInputStream {
-	public ByteArrayInputStream buffer;
-    public DataInputStream stream;
+	public final ByteArrayInputStream buffer;
+    public final DataInputStream stream;
 
     public GameInputStream(Packet packet) {
         this.buffer = new ByteArrayInputStream(packet.bytes);
@@ -52,8 +52,7 @@ public class GameInputStream {
     }
 
     public String isReadString() throws IOException {
-        boolean bl = this.readBoolean();
-        if (bl) {
+        if (this.readBoolean()) {
             return this.readString();
         }
         return "";
@@ -93,8 +92,7 @@ public class GameInputStream {
 
     public byte[] getDecodeBytes() throws IOException{
         this.readString();
-        byte[] bytes = readStreamBytes();
-        return bytes;
+        return readStreamBytes();
     }
 
     @Override

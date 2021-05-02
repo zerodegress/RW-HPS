@@ -4,7 +4,7 @@
     "serverName": "RW-HPS",
     "webApiSsl": "false",
     "maxMessageLen": "40",
-    "webApiSslKetPath": "C:\\RWHPS\\dr.jks",
+    "webApiSslKetPath": "C:\\Users\\Administrator\\Desktop\\RWHPS\\dr.jks",
     "startAd": "",
     "defIncome": "1",
     "enterServerAd": "",
@@ -17,6 +17,7 @@
     "tickSpeed": "0",
     "IPCheck": "false",
     "webApi": "false",
+    "runPid": "2012",
     "port": "5123",
     "passwd": "",
     "UDPSupport": "true",
@@ -24,4 +25,7 @@
     "reConnect": "true",
     "winOrLose": "false",
     "winOrLoseTime": "30000"
+    "subtitle": "RW-HPS BETA [CN-ZhaoZhuang-LianTong #1]"
+    //deleteLib是否删LibPath下文件
+    //oneReadUnitList是否读单位
 }

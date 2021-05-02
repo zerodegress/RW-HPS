@@ -7,11 +7,9 @@ import com.github.dr.rwserver.core.NetServer;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.global.Static;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
-import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.net.Net;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
@@ -212,11 +210,6 @@ public class ServerCommands {
             Data.playerGroup.each(e -> {
                 e.muteTime = 0;
             });
-        });
-
-        handler.<StrCons>register("relay", "serverCommands.clearmuteall", (arg, log) -> {
-            Static.relayON=true;
-            Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionRelay(null),151));
         });
 
         handler.<StrCons>register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {

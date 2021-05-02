@@ -167,11 +167,8 @@ public class Rules {
         gameOverUpList = config.readBoolean("gameOverUpList",false);
         passwdCheckApi = config.readBoolean("passwdCheckApi",false);
 
-        if (startRelay) {
-            Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionRelay(null),151));
-        } else {
-            Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionServer(null,null),151));
-        }
+
+        Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionServer(null,null),151));
 
         /* RW HPS Core */
         Administration.NetConnectProtocolData protocol = Data.core.admin.getNetConnectProtocol();
@@ -184,7 +181,6 @@ public class Rules {
     }
 
     public void init() {
-        new CustomEvent();
     }
 
     public void init(int maxPlayer,int port) {

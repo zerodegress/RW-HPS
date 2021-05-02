@@ -23,7 +23,7 @@ GNU General Public License v3.0
 - Development plan: [milestones](https://github.com/deng-rui/RWHPS/milestones)  
 - Discuss:
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
-  > Email contact : Der-DCT@pm.me or  
+  > Email contact : RW-HPS@der.kim  
 
 ## Construction
 1. Install JDK 11 +. If you don't know how to do it, check it out.  

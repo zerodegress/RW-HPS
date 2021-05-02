@@ -19,7 +19,7 @@ GNU General Public License v3.0
 - 开发计划: [milestones](https://github.com/deng-rui/RWHPS/milestones)
 - 讨论:
   > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法.  
-  > 邮件联系 Der-DCT@pm.me  
+  > 邮件联系 RW-HPS@der.kim  
 
 ### 我们被谁使用
 - Tiexiu.xyz

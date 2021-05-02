@@ -63,6 +63,7 @@ class FallbackZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#canEncode(java.lang.String)
      */
+    @Override
     public boolean canEncode(final String name) {
         return true;
     }
@@ -70,6 +71,7 @@ class FallbackZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#encode(java.lang.String)
      */
+    @Override
     public ByteBuffer encode(final String name) throws IOException {
         if (this.charset == null) { // i.e. use default charset, see no-args constructor
             return ByteBuffer.wrap(name.getBytes());
@@ -81,6 +83,7 @@ class FallbackZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#decode(byte[])
      */
+    @Override
     public String decode(final byte[] data) throws IOException {
         if (this.charset == null) { // i.e. use default charset, see no-args constructor
             return new String(data);

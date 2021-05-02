@@ -1,6 +1,5 @@
 package com.github.dr.rwserver.util;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +18,7 @@ public abstract class ReExp {
 
     private Class exception = Exception.class;
 
-    private final Map<Class, String> ClassExpResult = new ConcurrentHashMap<Class, String>();
+    private final Map<Class, String> ClassExpResult = new ConcurrentHashMap<>();
 
     public ReExp setSleepTime(int sleepTime) {
         this.sleepTime = sleepTime;
@@ -83,12 +82,10 @@ public abstract class ReExp {
                     } catch (InterruptedException interruptedException) {
                     }
                 } else {
-                    Iterator it = ClassExpResult.entrySet().iterator();
-                    while(it.hasNext()){
-                        Entry entry = (Entry)it.next();
-                        Class classdata = (Class) entry.getKey();
+                    for (Entry<Class, String> classStringEntry : ClassExpResult.entrySet()) {
+                        Class classdata = (Class) ((Entry) classStringEntry).getKey();
                         if (classdata.isInstance(e)) {
-                            data.result = entry.getValue();
+                            data.result = ((Entry) classStringEntry).getValue();
                             return data;
                         }
                     }
@@ -101,7 +98,7 @@ public abstract class ReExp {
 
     public static class ResultData {
         public Object result = null;
-        public int cout = 0;
+        public int cout;
         public int failures = 0;
         public ResultData(String name,int rq) {
             cout = rq;

@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Convert {
     public static <T> List<T> castList(Object obj, Class<T> clazz) {
-        List<T> result = new ArrayList<T>();
+        List<T> result = new ArrayList<>();
         if(obj instanceof List<?>) {
             for (Object o : (List<?>) obj) {
                 result.add(clazz.cast(o));
@@ -21,7 +21,7 @@ public class Convert {
     }
 
     public static <T> Seq<T> castSeq(Object obj, Class<T> clazz) {
-        Seq<T> result = new Seq<T>();
+        Seq<T> result = new Seq<>();
         if(obj instanceof Seq<?>) {
             for (Object o : (Seq<?>) obj) {
                 result.add(clazz.cast(o));

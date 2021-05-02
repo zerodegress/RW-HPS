@@ -106,6 +106,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
     }
 
     /** {@inheritDoc} */
+    @Override
     public byte[] getCentralDirectoryData() {
         if (data == null) {
             this.assembleData();
@@ -119,6 +120,7 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getCentralDirectoryLength() {
         if (data == null) {
             assembleData();
@@ -127,16 +129,19 @@ public abstract class AbstractUnicodeExtraField implements ZipExtraField {
     }
 
     /** {@inheritDoc} */
+    @Override
     public byte[] getLocalFileDataData() {
         return getCentralDirectoryData();
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getLocalFileDataLength() {
         return getCentralDirectoryLength();
     }
 
     /** {@inheritDoc} */
+    @Override
     public void parseFromLocalFileData(final byte[] buffer, final int offset, final int length)
         throws ZipException {
 

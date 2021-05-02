@@ -33,6 +33,7 @@ public final class JarMarker implements ZipExtraField {
      * The Header-ID.
      * @return the header id
      */
+    @Override
     public ZipShort getHeaderId() {
         return ID;
     }
@@ -42,6 +43,7 @@ public final class JarMarker implements ZipExtraField {
      * Header-ID or length specifier.
      * @return 0
      */
+    @Override
     public ZipShort getLocalFileDataLength() {
         return NULL;
     }
@@ -51,6 +53,7 @@ public final class JarMarker implements ZipExtraField {
      * Header-ID or length specifier.
      * @return 0
      */
+    @Override
     public ZipShort getCentralDirectoryLength() {
         return NULL;
     }
@@ -61,6 +64,7 @@ public final class JarMarker implements ZipExtraField {
      * @return the data
      * @since 1.1
      */
+    @Override
     public byte[] getLocalFileDataData() {
         return NO_BYTES;
     }
@@ -70,6 +74,7 @@ public final class JarMarker implements ZipExtraField {
      * length specifier.
      * @return the data
      */
+    @Override
     public byte[] getCentralDirectoryData() {
         return NO_BYTES;
     }
@@ -82,6 +87,7 @@ public final class JarMarker implements ZipExtraField {
      *
      * @throws ZipException on error
      */
+    @Override
     public void parseFromLocalFileData(byte[] data, int offset, int length)
         throws ZipException {
         if (length != 0) {

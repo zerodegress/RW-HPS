@@ -11,10 +11,7 @@ public class IsUtil {
 	
 
     public static boolean isBlank(Object string) {
-		if (string == null || "".equals(string.toString().trim())) {
-            return true;
-        }
-		return false;
+		return string == null || "".equals(string.toString().trim());
 	}
 
 

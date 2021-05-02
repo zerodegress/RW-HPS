@@ -1,4 +1,4 @@
-package com.github.dr.rwserver.util;
+package com.github.dr.rwserver.util.game;
 
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.Seq;
@@ -197,8 +197,8 @@ public class CommandHandler{
     public interface CommandRunner<T>{
         /**
          * 接收参数
-         * @param args
-         * @param parameter
+         * @param args 命令分片组
+         * @param parameter Run
          */
         void accept(String[] args, T parameter);
     }

@@ -1,11 +1,12 @@
 package com.github.dr.rwserver.util.log;
 
+import com.github.dr.rwserver.util.Time;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 
 import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
-import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
 
 /**
  * Log Util
@@ -162,7 +163,7 @@ public class Log {
 		final StringBuilder sb = new StringBuilder();
 		final String[] lines = e.toString().split(LINE_SEPARATOR);
 		sb.append("UTC [")
-			.append(getLocalTimeFromU(0,1)).append("] ")
+			.append(Time.getUtcMilliFormat(1)).append("] ")
 			//.append(LINE_SEPARATOR)
 			.append(tag)
 			.append(": ")
@@ -177,7 +178,7 @@ public class Log {
 	public static void clog(String text) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("[")
-			.append(getLocalTimeFromU(0,1))
+			.append(Time.getUtcMilliFormat(1))
 			.append(" UTC] ")
 			.append(text);
 		text = sb.toString();

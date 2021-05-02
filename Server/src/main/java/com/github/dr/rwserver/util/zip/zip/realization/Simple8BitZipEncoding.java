@@ -20,7 +20,6 @@
 package com.github.dr.rwserver.util.zip.zip.realization;
 
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +58,7 @@ class Simple8BitZipEncoding implements ZipEncoding {
             this.unicode = unicode;
         }
 
+        @Override
         public int compareTo(final Simple8BitChar a) {
             return this.unicode - a.unicode;
         }
@@ -215,6 +215,7 @@ class Simple8BitZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#canEncode(java.lang.String)
      */
+    @Override
     public boolean canEncode(final String name) {
 
         for (int i = 0; i < name.length(); ++i) {
@@ -232,6 +233,7 @@ class Simple8BitZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#encode(java.lang.String)
      */
+    @Override
     public ByteBuffer encode(final String name) {
         ByteBuffer out = ByteBuffer.allocate(name.length()
                                              + 6 + (name.length() + 1) / 2);
@@ -255,6 +257,7 @@ class Simple8BitZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#decode(byte[])
      */
+    @Override
     public String decode(final byte[] data) throws IOException {
         final char[] ret = new char[data.length];
 

@@ -47,14 +47,14 @@ public class Sha {
 		if (strText != null && strText.length() > 0) {
 			byte[] byteBuffer = toShaArry(strText,strType);
 			StringBuffer strHexString = new StringBuffer();
-			for (int i = 0; i < byteBuffer.length; i++) {
-				String hex = Integer.toHexString(0xff & byteBuffer[i]);
-				if (hex.length() == 1) {
+            for (byte b : byteBuffer) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
                     strHexString.append('0');
                 }
-				strHexString.append(hex);
-				strResult = strHexString.toString();
-			}
+                strHexString.append(hex);
+                strResult = strHexString.toString();
+            }
 		}
 		return strResult;
 	}

@@ -20,19 +20,19 @@ public class GzipEncoder {
         this.buffer = new ByteArrayOutputStream();
         if (bl) {
             try {
-                this.gzip = new GZIPOutputStream((OutputStream)this.buffer);
-                this.stream = new DataOutputStream((OutputStream)new BufferedOutputStream((OutputStream) gzip));
+                this.gzip = new GZIPOutputStream(this.buffer);
+                this.stream = new DataOutputStream(new BufferedOutputStream(gzip));
             } catch (IOException e) {
                 Log.error("GZIP Error",e);
                 //TODO
             }
         } else {
-			this.stream = new DataOutputStream((OutputStream)this.buffer);
+			this.stream = new DataOutputStream(this.buffer);
         }	
     }
 
     public static OutputStream getGzipOutputStream(OutputStream out) throws Exception {
-        return (OutputStream)new BufferedOutputStream((OutputStream)new GZIPOutputStream(out));
+        return new BufferedOutputStream(new GZIPOutputStream(out));
     }
 
     public static GzipEncoder getGzipStream(String key,boolean bl) {

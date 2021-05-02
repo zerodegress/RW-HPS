@@ -44,6 +44,7 @@ public class UnicodeCommentExtraField extends AbstractUnicodeExtraField {
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getHeaderId() {
         return UCOM_ID;
     }

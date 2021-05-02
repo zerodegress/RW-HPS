@@ -1,23 +1,17 @@
 package com.github.dr.rwserver.util;
 
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.util.log.Log;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Dr
  */
 public class ExtractUtil {
 	public static String stringToUtf8(String string) {
-		try {
-			// 用指定编码转换String为byte[]:
-			return new String(string.getBytes("ISO-8859-1"),Data.UTF_8);
-		} catch (UnsupportedEncodingException e) {
-			Log.error("UTF-8",e);
-			return new String(string.getBytes(),Data.UTF_8);
-		}
-    }
+		// 用指定编码转换String为byte[]:
+		return new String(string.getBytes(StandardCharsets.ISO_8859_1),Data.UTF_8);
+	}
 
     /**
      * 合并byte数组
@@ -52,9 +46,9 @@ public class ExtractUtil {
 
 	public static String bytesToHex(byte[] bytes) {
 		StringBuffer sb = new StringBuffer();
-		for(int i = 0; i < bytes.length; i++) {
-			String hex = Integer.toHexString(bytes[i] & 0xFF);
-			if(hex.length() < 2){
+		for (byte aByte : bytes) {
+			String hex = Integer.toHexString(aByte & 0xFF);
+			if (hex.length() < 2) {
 				sb.append(0);
 			}
 			sb.append(hex);

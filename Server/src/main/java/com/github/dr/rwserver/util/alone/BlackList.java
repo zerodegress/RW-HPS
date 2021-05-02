@@ -2,23 +2,22 @@ package com.github.dr.rwserver.util.alone;
 
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.Time;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
-
 public class BlackList {
-    private final Seq<BlackData> blackList = new Seq<BlackData>(false,16);
+    private final Seq<BlackData> blackList = new Seq<>(false, 16);
 
     public BlackList() {
         Threads.newThreadService2(() -> {
-            final long time = getLocalTimeFromU();
-            blackList.each(e -> (e.time<time),b -> blackList.remove(b));
+            final long time = Time.millis();
+            blackList.each(e -> (e.time<time), blackList::remove);
         },0,1, TimeUnit.HOURS);
     }
 
     public void addBlackList(String str) {
-        blackList.add(new BlackData(str,getLocalTimeFromU(3600)));
+        blackList.add(new BlackData(str,Time.getTimeFutureMillis(3600 * 1000L)));
     }
 
     public boolean containsBlackList(String str) {
@@ -26,7 +25,6 @@ public class BlackList {
         blackList.each(e -> {
             if (e.object.equals(str)) {
                 result[0] = true;
-                return;
             }
         });
         return result[0];
@@ -42,7 +40,7 @@ public class BlackList {
 
         @Override
         public boolean equals(Object obj) {
-            return object.equals(obj.toString());
+            return object.toString().equals(obj.toString());
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.github.dr.rwserver.util;
+package com.github.dr.rwserver.util.game;
 
 import com.github.dr.rwserver.func.Cons;
 import com.github.dr.rwserver.struct.ObjectMap;

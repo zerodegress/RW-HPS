@@ -15,7 +15,7 @@ public class Aes {
      * @param content 待加密的内容
      * @param encryptKey 加密密钥
      * @return 加密后的byte[]
-     * @throws Exception
+     * @throws Exception Exception
      */
     public static byte[] aesEncryptToBytes(byte[] content, String encryptKey) throws Exception {
         KeyGenerator kgen = KeyGenerator.getInstance("AES");
@@ -36,7 +36,7 @@ public class Aes {
      * @param encryptBytes 待解密的byte[]
      * @param decryptKey 解密密钥
      * @return 解密后的String
-     * @throws Exception
+     * @throws Exception Exception
      */
     public static byte[] aesDecryptByBytes(byte[] encryptBytes, String decryptKey) throws Exception {
         KeyGenerator kgen = KeyGenerator.getInstance("AES");

@@ -43,6 +43,7 @@ public class UnicodePathExtraField extends AbstractUnicodeExtraField {
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getHeaderId() {
         return UPATH_ID;
     }

@@ -9,6 +9,7 @@ import com.github.dr.rwserver.util.zip.zip.realization.ZipFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipInputStream;
@@ -41,9 +42,9 @@ public class ZipDecoder {
     public ZipDecoder(boolean bl,byte[] bytes) throws IOException {
         this.buffer = new ByteArrayInputStream(bytes);
         if (bl) {
-            this.stream = new DataInputStream((InputStream)new BufferedInputStream((InputStream)new GZIPInputStream((InputStream)this.buffer)));
+            this.stream = new DataInputStream(new BufferedInputStream(new GZIPInputStream(this.buffer)));
         } else {
-            this.stream = new DataInputStream((InputStream)this.buffer);
+            this.stream = new DataInputStream(this.buffer);
         }
     }
 
@@ -120,17 +121,15 @@ public class ZipDecoder {
 
     public InputStreamReader getZipNameInputStream(String name) {
         try {
-            @SuppressWarnings("unchecked")
-            Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zipFile.getEntries();
+            Enumeration<ZipEntry> entries = zipFile.getEntries();
             ZipEntry ze;
             while (entries.hasMoreElements()) {
                 ze = entries.nextElement();
                 if (ze.isDirectory()) {
-                    continue;
                 } else {
                     if (ze.getName() != null) {
                         if (ze.getName().equals(name)) {
-                            return new InputStreamReader(zipFile.getInputStream(ze),"UTF-8");
+                            return new InputStreamReader(zipFile.getInputStream(ze), StandardCharsets.UTF_8);
                         }
                     }
                 }
@@ -142,6 +141,6 @@ public class ZipDecoder {
     }
 
     public static InputStream getZipInputStream(InputStream in) throws Exception {
-        return (InputStream)new BufferedInputStream((InputStream)new ZipInputStream(in));
+        return new BufferedInputStream(new ZipInputStream(in));
     }
 }

@@ -24,6 +24,7 @@ public class PacketType {
 	public static final int PACKET_PLAYER_INFO = 110;
 	public static final int PACKET_DISCONNECT = 111;
 	public static final int PACKET_ACCEPT_START_GAME = 112;
+	public static final int PACKET_ACCEPT_BUTTON_GAME = 20;
 
 	//Game Commands
 	

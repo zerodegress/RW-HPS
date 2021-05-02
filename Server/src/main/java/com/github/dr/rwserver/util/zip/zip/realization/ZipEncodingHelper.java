@@ -133,7 +133,7 @@ public abstract class ZipEncodingHelper {
     static ByteBuffer growBuffer(final ByteBuffer b, final int newCapacity) {
     	prepareBufferForRead(b);
         final int c2 = b.capacity() * 2;
-        final ByteBuffer on = ByteBuffer.allocate(c2 < newCapacity ? newCapacity : c2);
+        final ByteBuffer on = ByteBuffer.allocate(Math.max(c2, newCapacity));
 
         on.put(b);
         return on;

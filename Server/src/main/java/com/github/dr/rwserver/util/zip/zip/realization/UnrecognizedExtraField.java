@@ -30,6 +30,7 @@ public class UnrecognizedExtraField
      * Get the header id.
      * @return the header id
      */
+    @Override
     public ZipShort getHeaderId() {
         return headerId;
     }
@@ -55,6 +56,7 @@ public class UnrecognizedExtraField
      * Get the length of the local data.
      * @return the length of the local data
      */
+    @Override
     public ZipShort getLocalFileDataLength() {
         return new ZipShort(localData.length);
     }
@@ -63,6 +65,7 @@ public class UnrecognizedExtraField
      * Get the local data.
      * @return the local data
      */
+    @Override
     public byte[] getLocalFileDataData() {
         return ZipUtil.copy(localData);
     }
@@ -88,6 +91,7 @@ public class UnrecognizedExtraField
      * If there is no central data, get the local file data length.
      * @return the central data length
      */
+    @Override
     public ZipShort getCentralDirectoryLength() {
         if (centralData != null) {
             return new ZipShort(centralData.length);
@@ -99,6 +103,7 @@ public class UnrecognizedExtraField
      * Get the central data.
      * @return the central data if present, else return the local file data
      */
+    @Override
     public byte[] getCentralDirectoryData() {
         if (centralData != null) {
             return ZipUtil.copy(centralData);
@@ -112,6 +117,7 @@ public class UnrecognizedExtraField
      * @param length the number of bytes to use in the data array.
      * @see ZipExtraField#parseFromLocalFileData(byte[], int, int)
      */
+    @Override
     public void parseFromLocalFileData(byte[] data, int offset, int length) {
         byte[] tmp = new byte[length];
         System.arraycopy(data, offset, tmp, 0, length);
@@ -123,6 +129,7 @@ public class UnrecognizedExtraField
      * @param offset the source location in the data array.
      * @param length the number of bytes to use in the data array.
      */
+    @Override
     public void parseFromCentralDirectoryData(byte[] data, int offset,
                                               int length) {
         byte[] tmp = new byte[length];

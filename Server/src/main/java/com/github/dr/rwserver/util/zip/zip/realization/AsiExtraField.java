@@ -85,6 +85,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @return the value for the header id for this extrafield
      * @since 1.1
      */
+    @Override
     public ZipShort getHeaderId() {
         return HEADER_ID;
     }
@@ -95,6 +96,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @return a <code>ZipShort</code> for the length of the data of this extra field
      * @since 1.1
      */
+    @Override
     public ZipShort getLocalFileDataLength() {
         return new ZipShort(WORD         // CRC
                           + 2         // Mode
@@ -110,6 +112,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @return the centralDirectory length
      * @since 1.1
      */
+    @Override
     public ZipShort getCentralDirectoryLength() {
         return getLocalFileDataLength();
     }
@@ -120,6 +123,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @return get the data
      * @since 1.1
      */
+    @Override
     public byte[] getLocalFileDataData() {
         // CRC will be added later
         byte[] data = new byte[getLocalFileDataLength().getValue() - WORD];
@@ -153,6 +157,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @return the local file data
      * @since 1.1
      */
+    @Override
     public byte[] getCentralDirectoryData() {
         return getLocalFileDataData();
     }
@@ -272,6 +277,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @since 1.1
      * @throws ZipException on error
      */
+    @Override
     public void parseFromLocalFileData(byte[] data, int offset, int length)
         throws ZipException {
 

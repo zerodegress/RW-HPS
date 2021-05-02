@@ -100,16 +100,19 @@ public class Zip64ExtendedInformationExtraField
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getHeaderId() {
         return HEADER_ID;
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getLocalFileDataLength() {
         return new ZipShort(size != null ? 2 * DWORD : 0);
     }
 
     /** {@inheritDoc} */
+    @Override
     public ZipShort getCentralDirectoryLength() {
         return new ZipShort((size != null ? DWORD : 0)
                             + (compressedSize != null ? DWORD : 0)
@@ -118,6 +121,7 @@ public class Zip64ExtendedInformationExtraField
     }
 
     /** {@inheritDoc} */
+    @Override
     public byte[] getLocalFileDataData() {
         if (size != null || compressedSize != null) {
             if (size == null || compressedSize == null) {
@@ -131,6 +135,7 @@ public class Zip64ExtendedInformationExtraField
     }
 
     /** {@inheritDoc} */
+    @Override
     public byte[] getCentralDirectoryData() {
         byte[] data = new byte[getCentralDirectoryLength().getValue()];
         int off = addSizes(data);
@@ -146,6 +151,7 @@ public class Zip64ExtendedInformationExtraField
     }
 
     /** {@inheritDoc} */
+    @Override
     public void parseFromLocalFileData(byte[] buffer, int offset, int length)
         throws ZipException {
         if (length == 0) {
@@ -176,6 +182,7 @@ public class Zip64ExtendedInformationExtraField
     }
 
     /** {@inheritDoc} */
+    @Override
     public void parseFromCentralDirectoryData(byte[] buffer, int offset,
                                               int length)
         throws ZipException {

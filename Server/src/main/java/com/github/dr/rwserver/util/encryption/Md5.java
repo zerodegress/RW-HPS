@@ -3,6 +3,7 @@ package com.github.dr.rwserver.util.encryption;
 import com.github.dr.rwserver.struct.Seq;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -18,19 +19,17 @@ public class Md5 {
             return null;
         }
 		try {
-			byte[] resultByteArray = MessageDigest.getInstance("MD5").digest(input.getBytes("UTF-8"));
+			byte[] resultByteArray = MessageDigest.getInstance("MD5").digest(input.getBytes(StandardCharsets.UTF_8));
 			return byteArrayToHex(resultByteArray);
 		} catch (NoSuchAlgorithmException e) {
 			//Log.error
-		} catch (UnsupportedEncodingException e) {
-
 		}
 		return null;
 	}
 
 	public static String md5Formant(String str) {
 		try {
-			byte[] digest = MessageDigest.getInstance("MD5").digest(str.getBytes("UTF-8"));
+			byte[] digest = MessageDigest.getInstance("MD5").digest(str.getBytes(StandardCharsets.UTF_8));
 			StringBuilder sb = new StringBuilder(digest.length * 2);
 			for (byte b2 : digest) {
 				int b3 = b2 & 0xFF;
@@ -42,8 +41,6 @@ public class Md5 {
 			return sb.toString();
 		} catch (NoSuchAlgorithmException e2) {
 			throw new RuntimeException("MD5 should be supported", e2);
-		} catch (UnsupportedEncodingException e3) {
-			throw new RuntimeException("UTF-8 should be supported", e3);
 		}
 	}
 
@@ -67,8 +64,6 @@ public class Md5 {
 			String result = md5(in);
 			in.close();
 			return result;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -79,17 +74,13 @@ public class Md5 {
 		try {
 			MessageDigest messagedigest = MessageDigest.getInstance("MD5");
 			byte[] buffer = new byte[1024];
-			int read = 0;
+			int read;
 			while ((read = in.read(buffer)) != -1) {
                 messagedigest.update(buffer, 0, read);
             }
 			in.close();
 			return byteArrayToHex(messagedigest.digest());
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (NoSuchAlgorithmException | IOException e) {
 			e.printStackTrace();
 		}
 		return null;

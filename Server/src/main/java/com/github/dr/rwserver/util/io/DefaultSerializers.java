@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.util.io;
 
-import com.github.dr.rwserver.data.global.Settings;
+import com.github.dr.rwserver.util.file.Settings;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.OrderedMap;
@@ -84,9 +84,8 @@ public class DefaultSerializers {
                 }
                 stream.writeUTF(entry.key.getClass().getName());
                 stream.writeUTF(entry.value.getClass().getName());
-                for (ObjectMap.Entries entries = map.entries().iterator(); entries.hasNext(); ) {
-                    Object e = entries.next();
-                    ObjectMap.Entry en = (ObjectMap.Entry)e;
+                for (Object e : map.entries()) {
+                    ObjectMap.Entry en = (ObjectMap.Entry) e;
                     keySer.write(stream, en.key);
                     valSer.write(stream, en.value);
                 }
@@ -140,9 +139,8 @@ public class DefaultSerializers {
                 }
                 stream.writeUTF(entry.key.getClass().getName());
                 stream.writeUTF(entry.value.getClass().getName());
-                for (OrderedMap.Entries entries = map.entries().iterator(); entries.hasNext(); ) {
-                    Object e = entries.next();
-                    OrderedMap.Entry en = (OrderedMap.Entry)e;
+                for (Object e : map.entries()) {
+                    OrderedMap.Entry en = (OrderedMap.Entry) e;
                     keySer.write(stream, en.key);
                     valSer.write(stream, en.value);
                 }

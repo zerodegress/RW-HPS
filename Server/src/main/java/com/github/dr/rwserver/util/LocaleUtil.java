@@ -26,11 +26,9 @@ public class LocaleUtil {
         try {
             if (input !=null){
                 if (params == null){
-                    String result = bundle.getString(input);
-                    return result;
+                    return bundle.getString(input);
                 }else{
-                    String result = new MessageFormat(bundle.getString(input),locale).format(params);
-                    return result;
+                    return new MessageFormat(bundle.getString(input),locale).format(params);
                 }
             }
             //防止使游戏崩溃 CALL..
@@ -52,9 +50,7 @@ public class LocaleUtil {
             return core(input,null);
         }
         Object[] ps = new Object[params.length];
-        for (int i=0;i<params.length;i++) {
-            ps[i] = params[i];
-        }
+        System.arraycopy(params, 0, ps, 0, params.length);
         return core(input,ps);
     }
 

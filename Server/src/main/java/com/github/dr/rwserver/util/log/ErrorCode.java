@@ -65,10 +65,10 @@ public enum ErrorCode {
 	DOES_NOT_SUPPORT_AES_256(50005,"Does not support ASE256");
 	
 	
-	private int errCode;
-	private String errMsg;
+	private final int errCode;
+	private final String errMsg;
 
-    private ErrorCode(int errorCode, String errorMsg) {
+    ErrorCode(int errorCode, String errorMsg) {
 		this.errCode = errorCode;
 		this.errMsg  = errorMsg;
 	}

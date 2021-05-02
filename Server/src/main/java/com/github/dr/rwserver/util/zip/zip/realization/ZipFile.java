@@ -367,24 +367,6 @@ public class ZipFile implements Closeable {
     }
 
     /**
-     * Ensures that the close method of this zipfile is called when
-     * there are no more references to it.
-     * @see #close()
-
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            if (!closed) {
-                System.err.printf("Cleaning up unclosed %s for archive %s%n",
-                    getClass().getSimpleName(), archiveName);
-                close();
-            }
-        } finally {
-            super.finalize();
-        }
-    }*/
-
-    /**
      * Length of a "central directory" entry structure without file
      * name, extra fields or comment.
      */

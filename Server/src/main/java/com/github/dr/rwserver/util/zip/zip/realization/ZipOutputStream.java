@@ -255,7 +255,7 @@ public class ZipOutputStream extends FilterOutputStream {
      *
      * @since 1.14
      */
-    protected byte[] buf = new byte[BUFFER_SIZE];
+    protected final byte[] buf = new byte[BUFFER_SIZE];
 
     // CheckStyle:VisibilityModifier ON
 

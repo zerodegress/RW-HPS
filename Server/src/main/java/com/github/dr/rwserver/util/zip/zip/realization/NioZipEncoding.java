@@ -20,7 +20,6 @@
 package com.github.dr.rwserver.util.zip.zip.realization;
 
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -54,6 +53,7 @@ class NioZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#canEncode(java.lang.String)
      */
+    @Override
     public boolean canEncode(final String name) {
         final CharsetEncoder enc = this.charset.newEncoder();
         enc.onMalformedInput(CodingErrorAction.REPORT);
@@ -65,6 +65,7 @@ class NioZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#encode(java.lang.String)
      */
+    @Override
     public ByteBuffer encode(final String name) {
         final CharsetEncoder enc = this.charset.newEncoder();
 
@@ -111,6 +112,7 @@ class NioZipEncoding implements ZipEncoding {
     /**
      * @see com.github.dr.rwserver.util.zip.zip.realization.ZipEncoding#decode(byte[])
      */
+    @Override
     public String decode(final byte[] data) throws IOException {
         return this.charset.newDecoder()
             .onMalformedInput(CodingErrorAction.REPORT)

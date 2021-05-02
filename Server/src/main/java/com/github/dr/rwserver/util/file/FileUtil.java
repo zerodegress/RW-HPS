@@ -6,6 +6,7 @@ import com.github.dr.rwserver.util.log.Log;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,17 +106,42 @@ public class FileUtil {
 
 	public List<File> getFileList() {
 		File[] array = file.listFiles();
-		List<File> fileList = new ArrayList<File>();
-		for(int i=0;i<array.length;i++){
-			if(!array[i].isDirectory()) {
-                if(array[i].isFile()) {
-                    fileList.add(array[i]);
-                }
-            }
+		List<File> fileList = new ArrayList<>();
+		for (File value : array) {
+			if (!value.isDirectory()) {
+				if (value.isFile()) {
+					fileList.add(value);
+				}
+			}
 		}
 		return fileList;
 	}
-
+/*
+	public List<File> getFileList() {
+		String[] list = file.list();
+		List<File> fileList = new ArrayList<File>();
+		if (list == null) {
+			return fileList;
+		}
+		File file;
+		for (String path : list) {
+			file = new File(new String(path.getBytes(),Data.UTF_8));
+			if(!file.isDirectory() && file.isFile()) {
+				fileList.add(file);
+			} else {
+				try {
+					file = new File(new String(path.getBytes(),"gbk"));
+					if(!file.isDirectory() && file.isFile()) {
+						fileList.add(file);
+					}
+				} catch (UnsupportedEncodingException e) {
+					Log.error("[FILE GBK]",e);
+				}
+			}
+		}
+		return fileList;
+	}
+	*/
 	/**
 	 *
 	 * @param log
@@ -133,7 +159,7 @@ public class FileUtil {
 				Log.error("Mk file",e);
 			}
 		}
-		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file,cover), "UTF-8")) {
+		try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file,cover), StandardCharsets.UTF_8)) {
 			osw.write(log.toString());
 			osw.flush();
 		} catch (Exception e) {
@@ -191,7 +217,7 @@ public class FileUtil {
 
 	public InputStreamReader readInputsStream() {
 		try {
-			return new InputStreamReader(new FileInputStream(file), "UTF-8");
+			return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 		} catch (IOException e) { 
 			e.printStackTrace(); 
 		}
@@ -199,7 +225,7 @@ public class FileUtil {
 	}
 
 	public byte[] readFileByte() throws Exception {
-		ByteBuffer byteBuffer = null;
+		ByteBuffer byteBuffer;
 		try (FileChannel channel = new FileInputStream(file).getChannel()) {
 			byteBuffer = ByteBuffer.allocate((int) channel.size());
 			while ((channel.read(byteBuffer)) > 0) {
@@ -209,17 +235,19 @@ public class FileUtil {
 	}
 
 	public Object readFileData(boolean list) {
-		try(InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), "UTF-8")) {
+		try(InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
 			return readFileData(list,inputStreamReader);
-		} catch (IOException e) { 
-			e.printStackTrace(); 
+		} catch (FileNotFoundException fileNotFoundException) {
+			Log.error("FileNotFoundException");
+		} catch (IOException ioException) {
+			Log.error("Read IO Error",ioException);
 		}
 		return null;
 	}
 
 	public static Object readFileData(boolean list, InputStreamReader isr) {
 		try (BufferedReader br = new BufferedReader(isr)) {
-			String line = null; 
+			String line;
 			if(list){
 				Seq<String> FileContent = new Seq<>();
 				while ((line = br.readLine()) != null) { 
@@ -227,12 +255,12 @@ public class FileUtil {
 				} 
 				return FileContent;
 			} else {
-				String FileContent = "";
+				StringBuilder FileContent = new StringBuilder();
 				while ((line = br.readLine()) != null) { 
-					FileContent += line; 
-					FileContent += "\r\n";
+					FileContent.append(line);
+					FileContent.append("\r\n");
 				}
-				return FileContent;
+				return FileContent.toString();
 			}
 		} catch (IOException e) { 
 			e.printStackTrace(); 

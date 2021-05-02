@@ -45,7 +45,7 @@ public final class GeneralPurposeBit implements Cloneable {
      * Indicates that filenames are written in utf-8.
      *
      * <p>The only reason this is public is that {@link
-     * ZipOutputStream#EFS_FLAG} was public in several versions of
+     * ZipOutputStream # EFS_FLAG} was public in several versions of
      * Apache Ant and we needed a substitute for it.</p>
      */
     public static final int UFT8_NAMES_FLAG = 1 << 11;

@@ -17,7 +17,6 @@ public class Base64 {
     }
     /**
      *
-     * @param str 文字
      * @return 加密后
      */
     public static String encode(byte[] bytes){
@@ -33,7 +32,7 @@ public class Base64 {
             byte[] key= java.util.Base64.getDecoder().decode(val);
             String strs=new String(key);
             String result= java.util.Base64.getEncoder().encodeToString(strs.getBytes());
-            if(result.equals(val)) {
+            if(result.equalsIgnoreCase(val)) {
                 return true;
             }
         } catch(Exception e){

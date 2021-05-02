@@ -1,7 +1,7 @@
 package com.github.dr.rwserver.core;
 
-import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.global.Settings;
+import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.data.plugin.PluginData;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.log.Log;
@@ -16,7 +16,7 @@ import static com.github.dr.rwserver.util.RandomUtil.generateStr;
  * @author Dr
  */
 public final class Application {
-    public final Settings settings;
+    public final PluginData settings;
     /** 服务器唯一UUID */
     public String serverConnectUuid;
     public String serverToken;
@@ -28,22 +28,24 @@ public final class Application {
     public float defIncome = 1f;
 
     public Application() {
-        settings = new Settings();
+        settings = new PluginData();
         serverToken = generateStr(40);
     }
 
     public final void load() {
         admin = new Administration(settings);
-        serverConnectUuid = settings.getString("serverConnectUuid", UUID.randomUUID().toString());
-        unitBase64 = castSeq(settings.getObject("unitBase64", Seq.class,new Seq()),String.class);
+        serverConnectUuid = settings.getData("serverConnectUuid", UUID.randomUUID().toString());
+        unitBase64 = castSeq(settings.getData("unitBase64", new Seq()),String.class);
+
+        Threads.addSavePool(() -> {
+            settings.put("serverConnectUuid",serverConnectUuid);
+            settings.putObject("unitBase64",unitBase64);
+        });
     }
 
-    public final void save() {
-        settings.put("serverConnectUuid",serverConnectUuid);
-        settings.putObject("unitBase64",unitBase64);
-        admin.save(settings);
-        settings.saveData();
-        Data.config.save();
+    public void save() {
+        Threads.runSavePool();
+        settings.save();
     }
 
     public final long getJavaHeap() {

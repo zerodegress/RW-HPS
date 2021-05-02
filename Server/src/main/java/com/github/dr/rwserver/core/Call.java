@@ -3,12 +3,12 @@ package com.github.dr.rwserver.core;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.Static;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameCommand;
 import com.github.dr.rwserver.net.AbstractNetPacket;
-import com.github.dr.rwserver.net.GroupNet;
 import com.github.dr.rwserver.struct.Seq;
-import com.github.dr.rwserver.util.Events;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 
@@ -28,7 +28,7 @@ public class Call {
 
     public static void sendMessage(Player player, String text) {
         try {
-            GroupNet.broadcast(PACKET.getChatMessageByteBuf(text,player.name,player.team));
+            Static.groupNet.broadcast(PACKET.getChatMessageByteBuf(text,player.name,player.team));
         } catch (IOException e) {
             Log.error("[ALL] Send Player Chat Error",e);
         }
@@ -48,7 +48,7 @@ public class Call {
 
     public static void sendSystemMessage(String text) {
         try {
-            GroupNet.broadcast(PACKET.getSystemMessageByteBuf(text));
+            Static.groupNet.broadcast(PACKET.getSystemMessageByteBuf(text));
         } catch (IOException e) {
             Log.error("[ALL] Send System Chat Error",e);
         }
@@ -99,6 +99,10 @@ public class Call {
         });
     }
 
+    public static void disAllPlayer() {
+        Data.playerGroup.each(e -> e.con.disconnect());
+    }
+
     public static void testPreparationPlayer() {
         new Timer().schedule(new RandyTask(), 0, 100);
     }
@@ -118,7 +122,7 @@ public class Call {
                             start = false;
                             Call.sendSystemMessageLocal("start.testNo");
                         }
-                        Data.game.gameTask = Threads.newThreadService2(new SendGameTickCommand(),0,Data.game.tickTimeB, TimeUnit.MILLISECONDS);
+                        Data.game.gameTask = Threads.newThreadService2(new SendGameTickCommand(),0,150, TimeUnit.MILLISECONDS);
                         cancel();
                     }
                 }
@@ -127,7 +131,7 @@ public class Call {
                 start = false;
                 Call.sendSystemMessageLocal("start.testYes");
             }
-            Data.game.gameTask = Threads.newThreadService2(new SendGameTickCommand(),0,Data.game.tickTimeA, TimeUnit.MILLISECONDS);
+            Data.game.gameTask = Threads.newThreadService2(new SendGameTickCommand(),0,200, TimeUnit.MILLISECONDS);
             cancel();
         }
     }
@@ -166,7 +170,7 @@ public class Call {
             if (size == 0) {
                 Threads.newThreadPlayer1(() -> {
                     try {
-                        GroupNet.broadcast(PACKET.getTickByteBuf(time));
+                        Static.groupNet.broadcast(PACKET.getTickByteBuf(time));
                     } catch (IOException e) {
                         Log.error("[ALL] Send Tick Failed",e);
                     }
@@ -175,7 +179,7 @@ public class Call {
                 GameCommand gameCommand = Data.game.gameCommandCache.poll();
                 Threads.newThreadPlayer1(() -> {
                     try {
-                        GroupNet.broadcast(PACKET.getGameTickCommandByteBuf(time,gameCommand));
+                        Static.groupNet.broadcast(PACKET.getGameTickCommandByteBuf(time,gameCommand));
                     } catch (IOException e) {
                         Log.error("[ALL] Send Game Tick Error",e);
                     }
@@ -185,7 +189,7 @@ public class Call {
                 IntStream.range(0, size).mapToObj(i -> Data.game.gameCommandCache.poll()).forEach(comm::add);
                 Threads.newThreadPlayer1(() -> {
                     try {
-                        GroupNet.broadcast(PACKET.getGameTickCommandsByteBuf(time,comm));
+                        Static.groupNet.broadcast(PACKET.getGameTickCommandsByteBuf(time,comm));
                     } catch (IOException e) {
                         Log.error("[ALL] Send Game Ticks Error",e);
                     }

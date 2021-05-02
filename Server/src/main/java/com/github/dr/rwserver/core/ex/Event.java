@@ -1,18 +1,16 @@
 package com.github.dr.rwserver.core.ex;
 
-import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.NetServer;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType.*;
 import com.github.dr.rwserver.net.Administration;
-import com.github.dr.rwserver.util.Events;
+import com.github.dr.rwserver.util.Time;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.io.IOException;
-
-import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
 
 /**
  * @author Dr
@@ -22,7 +20,7 @@ public class Event {
     public Event() {
         Events.on(ServerLoadEvent.class, e -> {
             Data.core.admin.addChatFilter((player, message) -> {
-                if (player.muteTime > getLocalTimeFromU()) {
+                if (player.muteTime > Time.millis()) {
                     return null;
                 }
                 return message;
@@ -33,7 +31,21 @@ public class Event {
             Log.info("bannedIPs",Data.core.admin.bannedIPs);
             Log.info("bannedUUIDs",Data.core.admin.bannedUUIDs);
 
-            Log.clog(Data.localeUtil.getinput("server.loadPlugin", Main.data.size()));
+            //Log.clog(Data.localeUtil.getinput("server.loadPlugin", Main.data.size()));
+        });
+
+        Events.on(PlayerConnectPasswdCheck.class,e -> {
+            if (!"".equals(Data.game.passwd)) {
+                if (!e.passwd.equals(Data.game.passwd)) {
+                    try {
+                        e.abstractNetConnect.sendErrorPasswd();
+                    } catch (IOException ioException) {
+                        Log.debug("Event Passwd",e);
+                    } finally {
+                        e.result = true;
+                    }
+                }
+            }
         });
 
         Events.on(PlayerJoin.class, e -> {
@@ -47,7 +59,7 @@ public class Event {
             }
             if (Data.core.admin.playerDataCache.containsKey(e.player.uuid)) {
                 Administration.PlayerInfo info = Data.core.admin.playerDataCache.get(e.player.uuid);
-                if (info.timesKicked > getLocalTimeFromU()) {
+                if (info.timesKicked > Time.millis()) {
                     try {
                         e.player.con.sendKick(e.player.localeUtil.getinput("kick.you.time"));
                     } catch (IOException ioException) {
@@ -73,6 +85,16 @@ public class Event {
         });
 
         Events.on(GameOverEvent.class, e -> {
+            if (Data.game.updateList != null) {
+                NetServer.removeServerList();
+                Data.game.updateList.cancel(true);
+                Data.game.updateList = null;
+            }
+
+            if (Data.game.maps.mapData != null) {
+                Data.game.maps.mapData.clean();
+            }
+
             NetServer.reLoadServer();
             System.gc();
         });
@@ -95,7 +117,7 @@ public class Event {
                 Call.sendSystemMessage("player.dis",e.player.name);
                 Call.sendTeamData();
             } else {
-                Call.sendSystemMessage("player.disNoStart",e.player.name);
+               Call.sendSystemMessage("player.disNoStart",e.player.name);
             }
         });
 

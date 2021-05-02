@@ -4,7 +4,7 @@ import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType;
-import com.github.dr.rwserver.util.Events;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
 
@@ -60,14 +61,14 @@ public class Vote {
         if (accapt.equals(playerpick)) {
             if (isTeam) {
                 if (playerplayer.team == player.team) {
-                    y++;
+                    this.y++;
                     playerList.add(playerplayer.uuid);
                     playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.y"));
                 } else {
                     playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.team"));
                 }
             } else {
-                y++;
+                this.y++;
                 playerList.add(playerplayer.uuid);
                 playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.y"));
             }
@@ -84,6 +85,7 @@ public class Vote {
                 playerplayer.sendSystemMessage(playerplayer.localeUtil.getinput("vote.n"));
             }
         }
+        inspectEnd();
     }
 
 
@@ -132,7 +134,9 @@ public class Vote {
      * 团队投票
      */
     private void teamOnly() {
-        Data.playerGroup.eachs(e -> e.team == player.team,p -> require++);
+        final AtomicInteger require = new AtomicInteger(0);
+        Data.playerGroup.eachs(e -> e.team == player.team,p -> require.getAndIncrement());
+        this.require = require.get();
         endNoMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.done.no", type + " " + (isBlank(name) ? "" : name), y, require);
         endYesMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.ok");
         teamVoteIng = () -> Call.sendSystemTeamMessageLocal(player.team,"vote.ing",reciprocal);
@@ -150,13 +154,11 @@ public class Vote {
         } else {
             require = (int) Math.ceil((double) temp / 2);
         }
-        if (isTeam) {
-            reciprocal = 60;
-            countDown = Threads.newThreadService2(() -> {
-                        reciprocal = reciprocal-10;
-                        teamVoteIng.run();
-            },10,10, TimeUnit.SECONDS);
-        }
+        reciprocal = 60;
+        countDown = Threads.newThreadService2(() -> {
+                    reciprocal = reciprocal-10;
+                    teamVoteIng.run();
+        },10,10, TimeUnit.SECONDS);
 
         voteTime=Threads.newThreadService(() -> {
             if (countDown != null) {
@@ -165,8 +167,8 @@ public class Vote {
             end();
         },58,TimeUnit.SECONDS);
         playerList.add(player.uuid);
-        y++;
-        if (playerList.size() >= require) {
+        this.y++;
+        if (y >= require) {
             forceEnd();
         } else {
             run.run();
@@ -175,7 +177,7 @@ public class Vote {
 
 
     private void end() {
-        if (playerList.size() >= require) {
+        if (this.y >= require) {
             this.endYesMsg.run();
             switch(type){
                 case "kick" :
@@ -231,11 +233,13 @@ public class Vote {
 
 
     private void inspectEnd() {
-        if (playerList.size() >= require) {
+        if (this.y >= require) {
             if (countDown != null) {
                 countDown.cancel(true);
             }
-            voteTime.cancel(true);
+            if (voteTime != null) {
+                voteTime.cancel(true);
+            }
             end();
         }
     }
@@ -245,7 +249,9 @@ public class Vote {
         if (countDown != null) {
             countDown.cancel(true);
         }
-        voteTime.cancel(true);
+        if (voteTime != null) {
+            voteTime.cancel(true);
+        }
         end();
     }
 }

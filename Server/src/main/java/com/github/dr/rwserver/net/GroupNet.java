@@ -1,7 +1,6 @@
 package com.github.dr.rwserver.net;
 
 import com.github.dr.rwserver.core.ex.Threads;
-import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.log.Log;
 import io.netty.buffer.ByteBuf;
@@ -38,9 +37,6 @@ public class GroupNet {
     }
 
     public void broadcast(Object msg) {
-        if (Data.game.startRelay) {
-            return;
-        }
         broadcast(msg,null);
     }
 

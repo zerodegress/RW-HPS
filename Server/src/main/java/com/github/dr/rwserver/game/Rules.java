@@ -104,7 +104,6 @@ public class Rules {
     public final String webApiSslPasswd;
     /* */
     public final boolean deleteLib;
-    public final boolean startRelay;
     public final boolean gameOverUpList;
     public final boolean passwdCheckApi;
 
@@ -162,7 +161,6 @@ public class Rules {
         webApiSslPasswd = config.readString("webApiSslPasswd","");
 
         deleteLib = config.readBoolean("deleteLib","");
-        startRelay = config.readBoolean("startRelay","");
         oneReadUnitList = config.readBoolean("oneReadUnitList",false);
         gameOverUpList = config.readBoolean("gameOverUpList",false);
         passwdCheckApi = config.readBoolean("passwdCheckApi",false);

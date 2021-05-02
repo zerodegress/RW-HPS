@@ -10,9 +10,10 @@ import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameMaps;
 import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.struct.IntSet;
-import com.github.dr.rwserver.util.CommandHandler;
-import com.github.dr.rwserver.util.Events;
 import com.github.dr.rwserver.util.LocaleUtil;
+import com.github.dr.rwserver.util.Time;
+import com.github.dr.rwserver.util.game.CommandHandler;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.io.IOException;
@@ -22,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
 import static com.github.dr.rwserver.game.GameMaps.MapType;
-import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
 import static com.github.dr.rwserver.util.IsUtil.*;
 
 /**
@@ -36,12 +36,12 @@ public class ClientCommands {
 			StringBuilder str = new StringBuilder(16);
 			for(CommandHandler.Command command : handler.getCommandList()){
 				if (command.description.startsWith("#")) {
-					str.append("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + command.description.substring(1));
+					str.append("   ").append(command.text).append(command.paramText.isEmpty() ? "" : " ").append(command.paramText).append(" - ").append(command.description.substring(1));
 				} else {
 					if ("HIDE".equals(command.description)) {
 						continue;
 					}
-					str.append("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + player.localeUtil.getinput(command.description))
+					str.append("   ").append(command.text).append(command.paramText.isEmpty() ? "" : " ").append(command.paramText).append(" - ").append(player.localeUtil.getinput(command.description))
 							.append(LINE_SEPARATOR);
 				}
 			}
@@ -64,7 +64,6 @@ public class ClientCommands {
 					Data.game.maps.mapName = data[0];
 					Data.game.maps.mapPlayer = data[1];
 					Data.game.maps.mapType = MapType.defaultMap;
-					Call.upDataGameData();
 				} else {
 					if (Data.game.mapsData.size == 0) {
 						return;
@@ -80,8 +79,8 @@ public class ClientCommands {
 					Data.game.maps.mapName = name;
 					Data.game.maps.mapPlayer = "";
 					player.sendSystemMessage(player.localeUtil.getinput("map.custom.info"));
-					Call.upDataGameData();
 				}
+				Call.upDataGameData();
 			}
 		});
 
@@ -200,7 +199,7 @@ public class ClientCommands {
 				}
 				final int site = Integer.parseInt(args[0])-1;
 				if (Data.game.playerData[site] != null) {
-					Data.game.playerData[site].kickTime = getLocalTimeFromU(60);
+					Data.game.playerData[site].kickTime = Time.getTimeFutureMillis(60 * 1000L);
 					try {
 						Data.game.playerData[site].con.sendKick(localeUtil.getinput("kick.you"));
 					} catch (IOException e) {
@@ -287,9 +286,8 @@ public class ClientCommands {
 					player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"));
 					return;
 				}
-				final int type = Integer.parseInt(args[0]);
 				//Data.game.initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
-				Data.game.initUnit = type;
+				Data.game.initUnit = Integer.parseInt(args[0]);
 				Call.upDataGameData();
 			}
 		});
@@ -313,7 +311,6 @@ public class ClientCommands {
 						e.lastMoveTime = System.currentTimeMillis();
 					} catch (IOException err) {
 						Log.error("Start Error",err);
-						return;
 					}
 				});
 
@@ -365,6 +362,10 @@ public class ClientCommands {
 				response.append(" ").append(args[i]);
 			}
 			Call.sendTeamMessage(player.team,player,response.toString());
+		});
+
+		handler.<Player>register("upserverlist", "clientCommands.upserverlist", (args, player)-> {
+			// NO 违反守则(Violation of the code)
 		});
 
 		handler.<Player>register("surrender", "clientCommands.surrender", (args, player) -> {

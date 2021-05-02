@@ -7,14 +7,16 @@ import com.github.dr.rwserver.core.NetServer;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.Static;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.net.Net;
-import com.github.dr.rwserver.util.CommandHandler;
-import com.github.dr.rwserver.util.Events;
 import com.github.dr.rwserver.util.LocaleUtil;
+import com.github.dr.rwserver.util.Time;
+import com.github.dr.rwserver.util.game.CommandHandler;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.io.IOException;
@@ -22,13 +24,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
-import static com.github.dr.rwserver.util.DateUtil.getLocalTimeFromU;
 
 /**
  * @author Dr
  */
 public class ServerCommands {
-    private static LocaleUtil localeUtil = Data.localeUtil;
+    private static final LocaleUtil localeUtil = Data.localeUtil;
 
     public ServerCommands(CommandHandler handler) {
         handler.<StrCons>register("help", "serverCommands.help", (arg, log) -> {
@@ -105,7 +106,6 @@ public class ServerCommands {
 
             boolean add = "add".equals(arg[0]);
 
-            Administration.PlayerInfo target;
             int site = Integer.parseInt(arg[1])-1;
             Player player = Data.game.playerData[site];
             if(player != null){
@@ -114,9 +114,7 @@ public class ServerCommands {
                 }else{
                     Data.core.admin.removeAdmin(player.uuid);
                 }
-                if(player != null) {
-                    player.isAdmin = add;
-                }
+                player.isAdmin = add;
                 try {
                     player.con.sendServerInfo(false);
                 } catch (IOException e) {
@@ -147,14 +145,14 @@ public class ServerCommands {
             int site = Integer.parseInt(arg[0])-1;
             if (Data.game.playerData[site] != null) {
                 //Data.game.playerData[site].muteTime = getLocalTimeFromU(Long.parseLong(arg[1])*1000L);
-                Data.game.playerData[site].muteTime = getLocalTimeFromU(43200*1000L);
+                Data.game.playerData[site].muteTime = Time.getTimeFutureMillis(43200 * 1000L);
             }
         });
 
         handler.<StrCons>register("kick", "<PlayerSerialNumber> [time]", "serverCommands.kick", (arg, log) -> {
             int site = Integer.parseInt(arg[0])-1;
             if (Data.game.playerData[site] != null) {
-                Data.game.playerData[site].kickTime = (arg.length > 1) ? getLocalTimeFromU(Integer.parseInt(arg[1])) : getLocalTimeFromU(60);
+                Data.game.playerData[site].kickTime = (arg.length > 1) ? Time.getTimeFutureMillis(Integer.parseInt(arg[1]) * 1000L) : Time.getTimeFutureMillis(60 * 1000L);
                 try {
                     Data.game.playerData[site].con.sendKick(localeUtil.getinput("kick.you"));
                 } catch (IOException e) {
@@ -174,7 +172,7 @@ public class ServerCommands {
         });
 
         handler.<StrCons>register("plugins", "serverCommands.plugins", (arg, log) -> {
-            Main.data.each(e -> log.get(localeUtil.getinput("plugin.info",e.name,e.description,e.author,e.version)));
+            //Main.data.each(e -> log.get(localeUtil.getinput("plugin.info",e.name,e.description,e.author,e.version)));
         });
 
         handler.<StrCons>register("players", "serverCommands.players", (arg, log) -> {
@@ -214,6 +212,19 @@ public class ServerCommands {
             Data.playerGroup.each(e -> {
                 e.muteTime = 0;
             });
+        });
+
+        handler.<StrCons>register("relay", "serverCommands.clearmuteall", (arg, log) -> {
+            Static.relayON=true;
+            Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionRelay(null),151));
+        });
+
+        handler.<StrCons>register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {
+            // NO 违反守则(Violation of the code)
+        });
+
+        handler.<StrCons>register("upserverlistnew", "serverCommands.upserverlist", (arg, log) -> {
+            // NO 违反守则(Violation of the code)
         });
 
         handler.<StrCons>register("cleanmods", "serverCommands.cleanmods", (arg, log) -> {

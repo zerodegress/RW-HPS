@@ -30,8 +30,8 @@ public class Json {
 
     public Json getArrayData(String str){
         JSONArray rArray = JsonObject.getJSONArray(str);
-        for (int i = 0; i < rArray.size(); i++) {
-            JSONObject r = (JSONObject)rArray.get(i);
+        for (Object o : rArray) {
+            JSONObject r = (JSONObject) o;
             if (notIsBlank(r)) {
                 return new Json(r);
             }
@@ -40,8 +40,7 @@ public class Json {
     }
 
 	public static String toJson(ObjectMap map) {
-		String json = JSONObject.toJSONString(map, SerializerFeature.PrettyFormat);
-		return json;
+        return JSONObject.toJSONString(map, SerializerFeature.PrettyFormat);
 	}
 
 }

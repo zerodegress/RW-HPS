@@ -6,7 +6,7 @@ import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.Seq;
-import com.github.dr.rwserver.util.CommandHandler;
+import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
@@ -34,14 +34,14 @@ public class Data {
 	public static final Charset UTF_8 = StandardCharsets.UTF_8;
 	public static final LocaleUtil localeUtil = new LocaleUtil("zh_CN");
 
-	/** 
+	/*
 	 * 插件默认变量
 	 */
 
 	/** 自定义包名 */
-	public static final String SERVER_ID = "com.github.dr.rwserver";
-	public static final String SERVER_CORE_VERSION = "1.5.0.0 DEMO #1";
-	public static final int SERVER_CORE_VERSION_INT = 1500;
+	public static final String SERVER_ID = "com.corrodinggames.rwhps";
+	public static final String SERVER_CORE_VERSION = "1.5.2.1";
+	public static final int SERVER_CORE_VERSION_INT = 1510;
 	//public static final int SERVER_VERSION2 = 1.13.6;
 	/** 单位数据缓存 */
 	public static final GzipEncoder utilData = GzipEncoder.getGzipStream("customUnits",false);
@@ -51,14 +51,15 @@ public class Data {
 
 	/** 服务端 客户端命令 */
 	public static final CommandHandler SERVERCOMMAND = new CommandHandler("");
+	public static final CommandHandler LOGCOMMAND = new CommandHandler("!");
 	public static final CommandHandler CLIENTCOMMAND = new CommandHandler("/");
 	/** */
-	public static final Map<String,String> MapsMap = new HashMap<String,String>();
+	public static final Map<String,String> MapsMap = new HashMap<>();
 
 	/** 在线玩家 */
-	public static volatile Seq<Player> playerGroup = new Seq<Player>(16);
+	public static final Seq<Player> playerGroup = new Seq<>(16);
 	/** ALL */
-	public static volatile Seq<Player> playerAll = new Seq<Player>(16);
+	public static final Seq<Player> playerAll = new Seq<>(16);
 
 	public static final Application core = new Application();
 	public static final ObjectMap<String,LocaleUtil> localeUtilMap = new ObjectMap<>(8);

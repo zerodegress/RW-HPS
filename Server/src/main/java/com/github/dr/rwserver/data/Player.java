@@ -22,7 +22,7 @@ public final class Player {
 	 * 玩家连接UUID
 	 */
 	public final String uuid;
-	public String name;
+	public final String name;
 	public AbstractNetConnect con;
 	/** is Admin */
 	public boolean isAdmin = false;
@@ -36,8 +36,6 @@ public final class Player {
 	public boolean sharedControl = false;
 	/**  */
 	public boolean start = false;
-	/**  TRY */
-	public volatile boolean isTry = false;
 	/**  */
 	public final LocaleUtil localeUtil;
 	/** 玩家是否死亡 */
@@ -48,6 +46,9 @@ public final class Player {
 	public long kickTime = 0;
 	public long timeTemp;
 	public int ping = 50;
+
+	public long lastMessageTime = 0;
+	public String lastSentMessage = "";
 
 	public boolean noSay = false;
 	public boolean watch = false;
@@ -107,11 +108,11 @@ public final class Player {
 
 		stream.writeBoolean(false);
 
-		/** -1 N/A ; -2 -  ; -99 HOST */
+		/* -1 N/A ; -2 -  ; -99 HOST */
 		stream.writeInt(ping);
 
 		stream.writeLong(System.currentTimeMillis());
-		/** MS */
+		/* MS */
 		stream.writeBoolean(false);
 		stream.writeInt(0);
 

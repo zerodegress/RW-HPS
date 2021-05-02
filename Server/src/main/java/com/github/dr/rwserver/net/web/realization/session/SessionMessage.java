@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SessionMessage {
-    private Map<String, Object> session = new HashMap<>();
+    private final Map<String, Object> session = new HashMap<>();
     private int life;
 
     public int up() {

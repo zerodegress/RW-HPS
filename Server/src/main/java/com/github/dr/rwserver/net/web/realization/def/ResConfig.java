@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResConfig {
-    private static ResConfig CONFIG = new ResConfig();
-    private static Map<String, String> myEntity = new HashMap<>();
+    private static final ResConfig CONFIG = new ResConfig();
+    private static final Map<String, String> myEntity = new HashMap<>();
     private static String control;
 
     private ResConfig() {

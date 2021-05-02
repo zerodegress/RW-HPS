@@ -8,7 +8,7 @@ import java.security.Security;
 
 public class HttpSslContextFactory {
     private static final String PROTOCOL = "SSLv3";//客户端可以指明为SSLv3或者TLSv1.2
-    private static SSLContext sslContext = null;
+    private static SSLContext sslContext;
 
     static {
         String algorithm = Security
@@ -16,7 +16,7 @@ public class HttpSslContextFactory {
         if (algorithm == null) {
             algorithm = "SunX509";
         }
-        SSLContext serverContext = null;
+        SSLContext serverContext;
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
             ks.load(HttpsKeyStore.getKeyStoreStream(), HttpsKeyStore.getKeyStorePassword());

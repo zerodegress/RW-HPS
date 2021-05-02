@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WebSocketManager {
-    private static WebSocketManager webSocketManager = new WebSocketManager();
-    private static Map<Long, ChannelHandlerContext> channelMap = new HashMap<>();
+    private static final WebSocketManager webSocketManager = new WebSocketManager();
+    private static final Map<Long, ChannelHandlerContext> channelMap = new HashMap<>();
 
     public static void register(long key, ChannelHandlerContext arg0) {//注册信道
         Attribute<Long> attribute = arg0.channel().attr(Config.CHANNEL_ID);

@@ -1,7 +1,7 @@
 package com.github.dr.rwserver.net.web.realization.tools;
 import com.github.dr.rwserver.net.web.realization.agreement.ShareMessage;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,17 +27,12 @@ public class ShareAgreement {
 				j++;
 			}
 		}
-		try {
-			String uri = new String(ur, "UTF-8");// url及参数
-			String bodyMessage = new String(body, "UTF-8");// body体
-			//System.out.println("uri==" + uri + ",bodyMessage===" + bodyMessage + ",httpId===" + httpId);
-			message = getPojo(uri, bodyMessage);
-			message.setHttpId(httpId);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return message;
+        String uri = new String(ur, StandardCharsets.UTF_8);// url及参数
+        String bodyMessage = new String(body, StandardCharsets.UTF_8);// body体
+        //System.out.println("uri==" + uri + ",bodyMessage===" + bodyMessage + ",httpId===" + httpId);
+        message = getPojo(uri, bodyMessage);
+        message.setHttpId(httpId);
+        return message;
 	}
 
 	public ShareMessage getPojo(String uri, String bodyMessage) {

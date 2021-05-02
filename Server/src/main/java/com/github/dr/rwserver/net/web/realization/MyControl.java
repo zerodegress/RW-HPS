@@ -34,7 +34,7 @@ public class MyControl extends MySon {
     public UrmAndUrl uri(String uri) {
         UrmAndUrl urmAndUrl = null;
         for (Map.Entry<String, String> entry : urlMap.entrySet()) {
-            if (uri.indexOf(entry.getKey()) > -1) {
+            if (uri.contains(entry.getKey())) {
                 urmAndUrl = new UrmAndUrl();
                 urmAndUrl.setUri(entry.getValue());
                 urmAndUrl.setUrl(entry.getKey());

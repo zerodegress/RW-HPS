@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Pond {
-    private static ExecutorService POOL = Executors.newFixedThreadPool(9);
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(9);
     private static final Pond POD = new Pond();
 
     private Pond() {
@@ -32,9 +32,9 @@ public class Pond {
 }
 
 class Buf implements Runnable {//断线重连
-    private ChannelHandlerContext ch;
-    private byte[] message;
-    private WebSocketBack socketMessage;
+    private final ChannelHandlerContext ch;
+    private final byte[] message;
+    private final WebSocketBack socketMessage;
 
     public Buf(ChannelHandlerContext ch, byte[] message, WebSocketBack socketMessage) {
         this.ch = ch;
@@ -54,9 +54,9 @@ class Buf implements Runnable {//断线重连
 }
 
 class Text implements Runnable {//断线重连
-    private ChannelHandlerContext ch;
-    private String message;
-    private WebSocketBack socketMessage;
+    private final ChannelHandlerContext ch;
+    private final String message;
+    private final WebSocketBack socketMessage;
 
     public Text(ChannelHandlerContext ch, String message, WebSocketBack socketMessage) {
         this.ch = ch;

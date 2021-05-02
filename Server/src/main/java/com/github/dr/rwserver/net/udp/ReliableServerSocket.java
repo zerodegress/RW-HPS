@@ -93,9 +93,9 @@ public class ReliableServerSocket extends ServerSocket {
         }
 
         _serverSock = sock;
-        _backlogSize = (backlog <= 0) ? DEFAULT_BACKLOG_SIZE : backlog;
-        _backlog = new ArrayList<com.github.dr.rwserver.net.udp.ReliableSocket>(_backlogSize);
-        _clientSockTable = new HashMap<SocketAddress, ReliableClientSocket>();
+        int _backlogSize = (backlog <= 0) ? DEFAULT_BACKLOG_SIZE : backlog;
+        _backlog = new ArrayList<>(_backlogSize);
+        _clientSockTable = new HashMap<>();
         _stateListener = new StateListener();
         _timeout = 0;
         _closed = false;
@@ -133,7 +133,7 @@ public class ReliableServerSocket extends ServerSocket {
                 }
             }
 
-            return (Socket) _backlog.remove(0);
+            return _backlog.remove(0);
         }
     }
 
@@ -215,7 +215,7 @@ public class ReliableServerSocket extends ServerSocket {
      */
     private ReliableClientSocket addClientSocket(SocketAddress endpoint) {
         synchronized (_clientSockTable) {
-            ReliableClientSocket sock = (ReliableClientSocket) _clientSockTable.get(endpoint);
+            ReliableClientSocket sock = _clientSockTable.get(endpoint);
 
             if (sock == null) {
                 try {
@@ -240,7 +240,7 @@ public class ReliableServerSocket extends ServerSocket {
      */
     private ReliableClientSocket removeClientSocket(SocketAddress endpoint) {
         synchronized (_clientSockTable) {
-            ReliableClientSocket sock = (ReliableClientSocket) _clientSockTable.remove(endpoint);
+            ReliableClientSocket sock = _clientSockTable.remove(endpoint);
 
             if (_clientSockTable.isEmpty()) {
                 if (isClosed()) {
@@ -252,22 +252,21 @@ public class ReliableServerSocket extends ServerSocket {
         }
     }
 
-    private DatagramSocket _serverSock;
+    private final DatagramSocket _serverSock;
     private int            _timeout;
-    private int            _backlogSize;
     private boolean        _closed;
 
     /*
      * The listen backlog queue.
      */
-    private ArrayList<com.github.dr.rwserver.net.udp.ReliableSocket>      _backlog;
+    private final ArrayList<com.github.dr.rwserver.net.udp.ReliableSocket>      _backlog;
 
     /*
      * A table of active opened client sockets.
      */
-    private HashMap<SocketAddress, ReliableClientSocket>   _clientSockTable;
+    private final HashMap<SocketAddress, ReliableClientSocket>   _clientSockTable;
 
-    private com.github.dr.rwserver.net.udp.ReliableSocketStateListener _stateListener;
+    private final com.github.dr.rwserver.net.udp.ReliableSocketStateListener _stateListener;
 
     private static final int DEFAULT_BACKLOG_SIZE = 50;
 
@@ -302,7 +301,7 @@ public class ReliableServerSocket extends ServerSocket {
                             }
                         }
 
-                        sock = (ReliableClientSocket) _clientSockTable.get(endpoint);
+                        sock = _clientSockTable.get(endpoint);
                     }
 
                     if (sock != null) {
@@ -313,7 +312,6 @@ public class ReliableServerSocket extends ServerSocket {
                     if (isClosed()) {
                         break;
                     }
-                    xcp.printStackTrace();
                 }
             }
         }
@@ -331,7 +329,7 @@ public class ReliableServerSocket extends ServerSocket {
         @Override
         protected void init(DatagramSocket sock, com.github.dr.rwserver.net.udp.ReliableSocketProfile profile)
         {
-            _queue = new ArrayList<Segment>();
+            _queue = new ArrayList<>();
             super.init(sock, profile);
         }
 
@@ -348,7 +346,7 @@ public class ReliableServerSocket extends ServerSocket {
                     }
                 }
 
-                return (Segment) _queue.remove(0);
+                return _queue.remove(0);
             }
         }
 

@@ -4,22 +4,17 @@ package com.github.dr.rwserver.net.web.realization.distribution;
 import com.github.dr.rwserver.net.web.realization.MyControl;
 import com.github.dr.rwserver.net.web.realization.agreement.ShareMessage;
 import com.github.dr.rwserver.net.web.realization.constant.Config;
-import com.github.dr.rwserver.net.web.realization.constant.HttpCode;
 import com.github.dr.rwserver.net.web.realization.i.RequestManager;
 import com.github.dr.rwserver.net.web.realization.tools.ShareAgreement;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledDirectByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.Attribute;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class PlayServer extends SimpleChannelInboundHandler<Object> implements RequestManager {
 	static final String NAME = "$_";
@@ -72,7 +67,7 @@ public class PlayServer extends SimpleChannelInboundHandler<Object> implements R
 	public void response(ChannelHandlerContext ch, Object msg, byte httpCode) throws UnsupportedEncodingException {
 		byte[] lm;
 		if(msg instanceof  String){
-			lm = msg.toString().getBytes("UTF-8");
+			lm = msg.toString().getBytes(StandardCharsets.UTF_8);
 		}else {
 			lm = (byte[]) msg;
 		}

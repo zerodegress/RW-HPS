@@ -46,9 +46,8 @@ public class SuperMap<K, V> {
 		Node<V> left, right;
 		int N;
 		boolean color;
-		private ReentrantReadWriteLock rwl;
-		private AtomicReference<Integer> ato;
-		private int nownub;
+		private final ReentrantReadWriteLock rwl;
+		private final AtomicReference<Integer> ato;
 		private boolean together = false;// 是否处于并发状态
 
 		public boolean isTogether() {
@@ -60,7 +59,7 @@ public class SuperMap<K, V> {
 		}
 
 		public boolean unlock() {
-			nownub = ato.get();
+			int nownub = ato.get();
 			return ato.compareAndSet(nownub, nownub + 1);
 		}
 
@@ -70,7 +69,7 @@ public class SuperMap<K, V> {
 			this.N = N;
 			this.color = color;
 			this.rwl = new ReentrantReadWriteLock();
-			ato = new AtomicReference<Integer>();
+			ato = new AtomicReference<>();
 			ato.set(0);
 		}
 
@@ -86,8 +85,7 @@ public class SuperMap<K, V> {
 		}
 		root = put(root, key, val);
 		root.color = BLACK;
-		boolean bm = root.isTogether();
-		return bm;
+		return root.isTogether();
 	}
 
 	public V get(int key) {
@@ -98,24 +96,27 @@ public class SuperMap<K, V> {
 		do {
 			if (node != null) {
 				ReadLock lock = node.getRwl().readLock();
-				lock.lock();
-				int old = node.key;
-				if (old > key) {
-					node = node.left;
-				} else if (old < key) {
-					node = node.right;
-				} else {
-					// 更新并发值
-					do {
-						if (node.unlock()) {
-							val = node.val;
-							break;
-						}
-					} while (true);
-					val = node.val;
-					bm = false;
+				try {
+					lock.lock();
+					int old = node.key;
+					if (old > key) {
+						node = node.left;
+					} else if (old < key) {
+						node = node.right;
+					} else {
+						// 更新并发值
+						do {
+							if (node.unlock()) {
+								val = node.val;
+								break;
+							}
+						} while (true);
+						val = node.val;
+						bm = false;
+					}
+				} finally {
+					lock.unlock();
 				}
-				lock.unlock();
 			} else {
 				bm = false;
 			}
@@ -147,7 +148,7 @@ public class SuperMap<K, V> {
 
 	private Node<V> put(Node<V> h, int key, V val) {
 		if (h == null) {
-			return new Node<V>(key, val, 1, RED);
+			return new Node<>(key, val, 1, RED);
 		}
 		int old = h.key;
 		if (key > old) {
@@ -176,17 +177,20 @@ public class SuperMap<K, V> {
 			h.setTogether(true);
 		}
 		WriteLock lock = h.getRwl().writeLock();
-		lock.lock();
-		if (isRed(h.right) && !isRed(h.left)) {
-			h = rotateLeft(h);
+		try {
+			lock.lock();
+			if (isRed(h.right) && !isRed(h.left)) {
+				h = rotateLeft(h);
+			}
+			if (isRed(h.left) && isRed(h.left.left)) {
+				h = rotateRight(h);
+			}
+			if (isRed(h.left) && isRed(h.right)) {
+				flipColors(h);
+			}
+		} finally {
+			lock.unlock();
 		}
-		if (isRed(h.left) && isRed(h.left.left)) {
-			h = rotateRight(h);
-		}
-		if (isRed(h.left) && isRed(h.right)) {
-			flipColors(h);
-		}
-		lock.unlock();
 		return h;
 	}
 
@@ -219,27 +223,30 @@ public class SuperMap<K, V> {
 		do {
 			if (node != null) {
 				WriteLock lock = node.getRwl().writeLock();
-				lock.lock();
-				int old = node.key;
-				if (old > key) {
-					if (node.left != null && node.left.key == key) {
-						delete(node.left, node, true);
-						bm = false;
+				try {
+					lock.lock();
+					int old = node.key;
+					if (old > key) {
+						if (node.left != null && node.left.key == key) {
+							delete(node.left, node, true);
+							bm = false;
+						} else {
+							node = node.left;
+						}
+					} else if (old < key) {
+						if (node.right != null && node.right.key == key) {
+							delete(node.right, node, false);
+							bm = false;
+						} else {
+							node = node.right;
+						}
 					} else {
-						node = node.left;
-					}
-				} else if (old < key) {
-					if (node.right != null && node.right.key == key) {
-						delete(node.right, node, false);
+						delete(node, null, true);
 						bm = false;
-					} else {
-						node = node.right;
 					}
-				} else {
-					delete(node, null, true);
-					bm = false;
+				} finally {
+					lock.unlock();
 				}
-				lock.unlock();
 			} else {
 				bm = false;
 			}

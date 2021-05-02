@@ -10,6 +10,7 @@ import com.github.dr.rwserver.net.web.realization.HttpServer;
 import com.github.dr.rwserver.net.web.realization.constant.HttpsSetting;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.util.PacketType;
+import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.alone.BlackList;
 import com.github.dr.rwserver.util.encryption.Sha;
 import com.github.dr.rwserver.util.log.Log;
@@ -17,9 +18,9 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -34,6 +35,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -53,8 +55,7 @@ public class Net {
 
 		public void startGame(int port, String passwd) {
 			if (notIsBlank(passwd)) {
-				byte[] passwdShaArray = new Sha().sha256Arry(passwd);
-				Data.game.passwd = String.format("%0" + (passwdShaArray.length * 2) + "X", new BigInteger(1, passwdShaArray));
+				Data.game.passwd = new BigInteger(1, new Sha().sha256Arry(passwd)).toString(16).toUpperCase(Locale.ROOT);
 			}
 			try {
 				Log.clog(Data.localeUtil.getinput("server.start.open"));
@@ -77,17 +78,16 @@ public class Net {
 										try {
 											DataInputStream in = new DataInputStream(socket.getInputStream());
 											int size = in.readInt();
-											Packet packet = new Packet(in.readInt());
-											packet.bytes = new byte[size];
+											byte[] bytes = new byte[size];
 											int bytesRead = 0;
 											while (bytesRead < size) {
-												int readIn = in.read(packet.bytes, bytesRead, size - bytesRead);
+												int readIn = in.read(bytes, bytesRead, size - bytesRead);
 												if (readIn == -1) {
 													break;
 												}
 												bytesRead += readIn;
 											}
-											typeConnect(conFinal, packet);
+											typeConnect(conFinal, new Packet(in.readInt(),bytes));
 										} catch (Exception e) {
 											Log.error("UDP READ", e);
 											break;
@@ -109,12 +109,15 @@ public class Net {
 		}
 
 		private void openPort(int port) throws InterruptedException {
-			NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
-			NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+			/* boss用来接收进来的连接 */
+			//EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1);
+			EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(1);
+			/* workerGroup用来处理已经被接收的连接 */
+			EpollEventLoopGroup workerGroup = new EpollEventLoopGroup();
 			try {
 				ServerBootstrap serverBootstrapTcp = new ServerBootstrap();
 				serverBootstrapTcp.group(bossGroup, workerGroup)
-								  .channel(NioServerSocketChannel .class)
+								  .channel(EpollServerSocketChannel.class)
 								  .localAddress(new InetSocketAddress(port))
 								  .childOption(ChannelOption.SO_KEEPALIVE, true)
 								  .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -122,6 +125,8 @@ public class Net {
 
 				ChannelFuture channelFutureTcp = serverBootstrapTcp.bind(port).sync();
 				Data.serverChannelB = channelFutureTcp.channel();
+				Data.config.setObject("runPid",Data.core.getPid());
+				Data.config.save();
 				Log.clog(Data.localeUtil.getinput("server.start.openPort"));
 				if (Data.game.webApi) {
 					HttpServer httpServer = new HttpServer();
@@ -209,9 +214,8 @@ public class Net {
 
 			@Override
 			public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-				System.out.println("停止时间是：" + new Date());
+				Log.info("停止时间是：" + new Date());
 				clear(ctx);
-				ctx.close();
 			}
 
 			@Override
@@ -223,21 +227,22 @@ public class Net {
 						AbstractNetConnect con = OVER_MAP.get(channel.remoteAddress());
 						if (con == null) {
 							clear(ctx);
-							ctx.close();
 							return;
 						}
-						Player player = con.getPlayer();
-						if (player.isTry) {
+						if (con.getIsPasswd()) {
+							return;
+						}
+						if (con.getTryBoolean()) {
 							if (con.getTry() >= Data.SERVER_MAX_TRY) {
 								clear(ctx);
-								ctx.close();
 							}
 							con.setTry();
-							player.con.ping();
+							con.ping();
 						} else {
-							player.isTry = true;
-							player.con.ping();
+							con.setTryBolean(true);
+							con.ping();
 						}
+
 					}
 				} else {
 					super.userEventTriggered(ctx, evt);
@@ -280,48 +285,7 @@ public class Net {
 
 		private void typeConnect(AbstractNetConnect con,Packet p) throws Exception {
 			try {
-				switch (p.type) {
-					// 连接服务器
-					case PacketType.PACKET_PREREGISTER_CONNECTION:
-						con.registerConnection(p);
-						break;
-					// 注册用户
-					case PacketType.PACKET_PLAYER_INFO:
-						if (!con.getPlayerInfo(p)) {
-							con.disconnect();
-						}
-						break;
-					case PacketType.PACKET_HEART_BEAT_RESPONSE:
-						Player player = con.getPlayer();
-						player.ping = (int) (System.currentTimeMillis() - player.timeTemp) >> 1;
-						player.isTry = false;
-						//心跳 懒得处理
-						break;
-					// 玩家发送消息
-					case PacketType.PACKET_ADD_CHAT:
-						con.receiveChat(p);
-						break;
-					// 玩家主动断开连接
-					case PacketType.PACKET_DISCONNECT:
-						con.disconnect();
-						break;
-					case PacketType.PACKET_ACCEPT_START_GAME:
-						con.getPlayer().start = true;
-						break;
-					// ?
-					case PacketType.PACKET_ADD_GAMECOMMAND:
-						con.receiveCommand(p);
-						con.getPlayer().lastMoveTime = System.currentTimeMillis();
-						break;
-					case PacketType.PACKET_SERVER_DEBUG:
-						con.debug(p);
-						break;
-					//case PacketType.PACKET_SYNC:
-					//	Data.game.gameSaveCache = p;
-					//	break;
-					default:
-						break;
-				}
+				netRwHps(con,p);
 			} catch (Exception e) {
 				if (con.getTry() >= Data.SERVER_MAX_TRY) {
 					throw e;
@@ -332,13 +296,60 @@ public class Net {
 			}
 		}
 
+		private void netRwHps(final AbstractNetConnect con,final Packet p) throws Exception {
+			if (!Data.game.oneReadUnitList) {
+				if (p.type == PacketType.PACKET_ADD_GAMECOMMAND) {
+					con.receiveCommand(p);
+					con.getPlayer().lastMoveTime = Time.millis();
+				} else {
+					switch (p.type) {
+						// 连接服务器
+						case PacketType.PACKET_PREREGISTER_CONNECTION:
+							con.registerConnection(p);
+							break;
+						// 注册用户
+						case PacketType.PACKET_PLAYER_INFO:
+							if (!con.getPlayerInfo(p)) {
+								con.disconnect();
+							}
+							break;
+						case PacketType.PACKET_HEART_BEAT_RESPONSE:
+							Player player = con.getPlayer();
+							player.ping = (int) (System.currentTimeMillis() - player.timeTemp) >> 1;
+							con.setTryBolean(false);
+							//心跳 懒得处理
+							break;
+						// 玩家发送消息
+						case PacketType.PACKET_ADD_CHAT:
+							con.receiveChat(p);
+							break;
+						// 玩家主动断开连接
+						case PacketType.PACKET_DISCONNECT:
+							con.disconnect();
+							break;
+						case PacketType.PACKET_ACCEPT_START_GAME:
+							con.getPlayer().start = true;
+							break;
+						case PacketType.PACKET_SERVER_DEBUG:
+							con.debug(p);
+							break;
+						case PacketType.PACKET_SYNC:
+							Data.game.gameSaveCache = p;
+							break;
+						default:
+							break;
+					}
+				}
+			}
+		}
+
 		private void clear(ChannelHandlerContext ctx) {
 			Channel channel = ctx.channel();
 			AbstractNetConnect con = OVER_MAP.get(channel.remoteAddress());
 			if (con != null) {
 				try {
-					Player player = con.getPlayer();
 					con.disconnect();
+					ctx.close();
 				} catch (Exception e) {
 					Log.info(e);
 				}

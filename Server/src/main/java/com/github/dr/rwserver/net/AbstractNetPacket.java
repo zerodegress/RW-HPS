@@ -67,6 +67,13 @@ public interface AbstractNetPacket {
      */
     GzipEncoder getTeamDataByteBuf() throws IOException;
     /**
+     * 转换GameSave包
+     * @param packet packet
+     * @return ByteBuf
+     * @throws IOException err
+     */
+    ByteBuf convertGameSaveDataByteBuf(Packet packet) throws IOException;
+    /**
      * 开始游戏
      * @return ByteBuf
      * @throws IOException err

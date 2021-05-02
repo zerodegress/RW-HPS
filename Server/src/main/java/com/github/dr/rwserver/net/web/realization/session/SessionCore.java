@@ -2,13 +2,12 @@ package com.github.dr.rwserver.net.web.realization.session;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.dr.rwserver.net.web.realization.tools.HttpIdCreator;
 
 public class SessionCore {
-    private static SessionCore SESSION = new SessionCore();
-    private static Map<Long, SessionMessage> session = new HashMap<>();
+    private static final SessionCore SESSION = new SessionCore();
+    private static final Map<Long, SessionMessage> session = new HashMap<>();
     public static  SessionCore get(){
         return  SESSION;
     }

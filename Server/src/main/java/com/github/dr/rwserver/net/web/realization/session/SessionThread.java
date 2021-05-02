@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class SessionThread implements Runnable {
-    private Map<Long, SessionMessage> sessionMessageMap = SessionCore.getSessionMessage();
-    private List<Long> sessionList = new ArrayList<>();
+    private final Map<Long, SessionMessage> sessionMessageMap = SessionCore.getSessionMessage();
+    private final List<Long> sessionList = new ArrayList<>();
 
     @Override
     public void run() {

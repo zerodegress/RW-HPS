@@ -1,9 +1,11 @@
 package com.github.dr.rwserver.net;
 
+import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.Player;
-import com.github.dr.rwserver.data.global.Settings;
+import com.github.dr.rwserver.data.plugin.PluginData;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.Time;
 
 import static com.github.dr.rwserver.util.Convert.castSeq;
 
@@ -12,7 +14,7 @@ import static com.github.dr.rwserver.util.Convert.castSeq;
  */
 public class Administration {
 
-    private Seq<ChatFilter> chatFilters = new Seq<>();
+    private final Seq<ChatFilter> chatFilters = new Seq<>();
     private NetConnectProtocolData netConnectProtocolData = null;
     private NetConnectPacketData netConnectPacketData = null;
     public final Seq<String> bannedIPs;
@@ -21,21 +23,30 @@ public class Administration {
     public final Seq<String> playerData;
     public final ObjectMap<String,PlayerInfo> playerDataCache = new ObjectMap<>();
 
-    public Administration(Settings settings){
+    public Administration(PluginData settings){
         addChatFilter((player, message) -> {
+            if(!player.isAdmin){
+                //prevent players from sending the same message twice in the span of 30 seconds
+                if(message.equals(player.lastSentMessage) && Time.getTimeSinceMillis(player.lastMessageTime) < 1000 * 30){
+                    player.sendSystemMessage("您可能不会两次发送相同的消息.");
+                    return null;
+                }
+                player.lastSentMessage = message;
+                player.lastMessageTime = Time.millis();
+            }
             return message;
         });
-        bannedIPs = castSeq(settings.getObject("bannedIPs",Seq.class,new Seq()),String.class);
-        bannedUUIDs = castSeq(settings.getObject("bannedUUIDs",Seq.class,new Seq()),String.class);
-        whitelist = castSeq(settings.getObject("whitelist",Seq.class,new Seq()),String.class);
-        playerData = castSeq(settings.getObject("playerData",Seq.class,new Seq()),String.class);
-    }
+        bannedIPs = castSeq(settings.getData("bannedIPs",new Seq()),String.class);
+        bannedUUIDs = castSeq(settings.getData("bannedUUIDs",new Seq()),String.class);
+        whitelist = castSeq(settings.getData("whitelist",new Seq()),String.class);
+        playerData = castSeq(settings.getData("playerData",new Seq()),String.class);
 
-    public void save(Settings settings) {
-        settings.putObject("bannedIPs",bannedIPs);
-        settings.putObject("bannedUUIDs",bannedUUIDs);
-        settings.putObject("whitelist",whitelist);
-        settings.putObject("playerData",playerData);
+        Threads.addSavePool(() -> {
+            settings.putObject("bannedIPs",bannedIPs);
+            settings.putObject("bannedUUIDs",bannedUUIDs);
+            settings.putObject("whitelist",whitelist);
+            settings.putObject("playerData",playerData);
+        });
     }
 
     /**

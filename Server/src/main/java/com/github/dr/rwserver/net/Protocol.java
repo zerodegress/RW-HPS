@@ -50,11 +50,11 @@ public class Protocol {
         id = generateStr(5);
     }
 
-    public void add() {
+    public void add(final GroupNet groupNet) {
         if (object instanceof Channel) {
-            GroupNet.add((Channel) object);
+            groupNet.add((Channel) object);
         } else if (object instanceof ReliableSocket) {
-            GroupNet.add(this);
+            groupNet.add(this);
         }
     }
 
@@ -62,20 +62,26 @@ public class Protocol {
         protocolType.send(byteBuf);
     }
 
-    public void close() throws IOException {
-        if (object instanceof Channel) {
-            GroupNet.remove((Channel) object);
-            ((Channel) object).close();
-        } else if (object instanceof ReliableSocket) {
-            GroupNet.remove(this);
-            ((ReliableSocket) object).close();
+    public void close(final GroupNet groupNet) throws IOException {
+        if (groupNet != null) {
+            if (object instanceof Channel) {
+                groupNet.remove((Channel) object);
+                ((Channel) object).close();
+            } else if (object instanceof ReliableSocket) {
+                groupNet.remove(this);
+                ((ReliableSocket) object).close();
+            }
         }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         return this.id.equals(((Protocol) o).id);
     }
 

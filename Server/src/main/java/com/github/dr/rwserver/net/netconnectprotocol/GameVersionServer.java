@@ -1,32 +1,30 @@
 package com.github.dr.rwserver.net.netconnectprotocol;
 
 
-import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.Static;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameCommand;
 import com.github.dr.rwserver.io.GameInputStream;
 import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.AbstractNetConnect;
-import com.github.dr.rwserver.net.AbstractNetPacket;
-import com.github.dr.rwserver.net.GroupNet;
-import com.github.dr.rwserver.net.Protocol;
-import com.github.dr.rwserver.util.CommandHandler;
-import com.github.dr.rwserver.util.Events;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.PacketType;
+import com.github.dr.rwserver.util.game.CommandHandler;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import com.ip2location.IPResult;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,39 +37,27 @@ import static com.github.dr.rwserver.util.ExtractUtil.hexToByteArray;
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
 import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 import static com.github.dr.rwserver.util.RandomUtil.generateInt;
-import static com.github.dr.rwserver.util.encryption.Game.connectak;
+import static com.github.dr.rwserver.util.encryption.Game.connectKey;
 
 /**
  * @author Dr
  * @date 2020/9/5 17:02:33
  */
-public class GameVersion151 implements AbstractNetConnect {
+public class GameVersionServer extends GameVersion {
 
     private SocketAddress sockAds;
     private String playerConnectKey;
-    private Player player = null;
-    private int errorTry = 0;
-    private Protocol protocol;
-    private boolean disCheck = true;
-    private final ByteBufAllocator bufAllocator;
+
     private final ReentrantLock sync = new ReentrantLock(true);
 
-    private final AbstractNetPacket PACKET = Data.core.admin.getNetConnectPacket().packet;
-
-    public GameVersion151(SocketAddress sockAds,ByteBufAllocator bufAllocator) {
+    public GameVersionServer(SocketAddress sockAds, ByteBufAllocator bufAllocator) {
         this.sockAds = sockAds;
         this.bufAllocator = bufAllocator;
-        // WARN: 此处易交叉引用
     }
 
     @Override
     public AbstractNetConnect getVersionNet(SocketAddress sockAds,ByteBufAllocator bufAllocator) {
-        return new GameVersion151(sockAds,bufAllocator);
-    }
-
-    @Override
-    public void setPlayer(Player player) {
-        this.player = player;
+        return new GameVersionServer(sockAds,bufAllocator);
     }
 
     @Override
@@ -80,28 +66,7 @@ public class GameVersion151 implements AbstractNetConnect {
     }
 
     @Override
-    public void setTry() {
-        errorTry++;
-    }
-
-    @Override
-    public int getTry() {
-        return errorTry;
-    }
-
-    @Override
-    public void setProtocol(Protocol protocol) {
-        this.protocol = protocol;
-    }
-
-    @Override
-    public String getProtocol() {
-        return protocol.useAgreement;
-    }
-
-    @Override
-    public String getVersion() {
-        return "1.14";
+    public void setCache(Packet packet) {
     }
 
     @Override
@@ -109,20 +74,7 @@ public class GameVersion151 implements AbstractNetConnect {
         if (player.noSay) {
             return;
         }
-        try {
-            sendPacket(PACKET.getSystemMessageByteBuf(msg));
-        } catch (IOException e) {
-            Log.error("[Player] Send System Chat Error",e);
-        }
-    }
-
-    @Override
-    public void sendChatMessage(String msg, String sendBy, int team) {
-        try {
-            sendPacket(PACKET.getChatMessageByteBuf(msg,sendBy,team));
-        } catch (IOException e) {
-            Log.error("[Player] Send Player Chat Error",e);
-        }
+        super.sendSystemMessage(msg);
     }
 
     @Override
@@ -192,15 +144,6 @@ public class GameVersion151 implements AbstractNetConnect {
     }
 
     @Override
-    public void ping() {
-        try {
-            sendPacket(Data.game.connectPacket.getPingByteBuf(player));
-        } catch (IOException e) {
-            errorTry++;
-        }
-    }
-
-    @Override
     public void receiveChat(Packet p) throws IOException {
         GameInputStream stream = new GameInputStream(p);
         String message = stream.readString();
@@ -221,7 +164,6 @@ public class GameVersion151 implements AbstractNetConnect {
             } else {
                 response = Data.CLIENTCOMMAND.handleMessage("/"+message.substring(1), player);
             }
-            //player.sendMessage(player,message);
         }
         if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
             if (message.length() > Data.game.maxMessageLen) {
@@ -348,9 +290,26 @@ public class GameVersion151 implements AbstractNetConnect {
     }
 
     @Override
+    public byte[] getGameSaveData(Packet packet) throws IOException {
+        GameInputStream stream = new GameInputStream(packet);
+        GameOutputStream o = new GameOutputStream(bufAllocator);
+        o.writeByte(stream.readByte());
+        o.writeInt(stream.readInt());
+        o.writeInt(stream.readInt());
+        o.writeFloat(stream.readFloat());
+        o.writeFloat(stream.readFloat());
+        o.writeBoolean(false);
+        o.writeBoolean(false);
+        stream.readBoolean();
+        stream.readBoolean();
+        stream.readString();
+        return stream.readStreamBytes();
+    }
+
+    @Override
     public void sendStartGame() throws IOException {
         sendServerInfo(true);
-        sendPacket(PACKET.getStartGameByteBuf());
+        sendPacket(Data.game.connectPacket.getStartGameByteBuf());
         if (notIsBlank(Data.game.startAd)) {
             sendSystemMessage(Data.game.startAd);
         }
@@ -397,82 +356,98 @@ public class GameVersion151 implements AbstractNetConnect {
         }
     }
 
-
     @Override
     public boolean getPlayerInfo(Packet p) throws IOException {
-        String ip;
-        GameInputStream stream = new GameInputStream(p);
-        stream.readString();
-        stream.readInt();
-        stream.readInt();
-        stream.readInt();
-        String name = stream.readString();
-        Log.debug("name",name);
-        String passwd = stream.isReadString();
-        Log.debug("passwd",passwd);
-        stream.readString();
-        String uuid = stream.readString();
-        Log.debug("uuid",uuid);
-        Log.debug("?",stream.readInt());
-        String token = stream.readString();
-        Log.debug("token",token);
-        if (!token.equals(playerConnectKey)) {
-            sendKick("You Open Mod?");
-            return false;
-        }
-        if (!"".equals(Data.game.passwd)) {
-            if (!passwd.equals(Data.game.passwd)) {
-                sendErrorPasswd();
+        try {
+            String ip;
+            GameInputStream stream = new GameInputStream(p);
+            stream.readString();
+            stream.readInt();
+            stream.readInt();
+            stream.readInt();
+            String name = stream.readString();
+            Log.debug("name", name);
+            String passwd = stream.isReadString();
+            Log.debug("passwd", passwd);
+            stream.readString();
+            String uuid = stream.readString();
+            Log.debug("uuid", uuid);
+            Log.debug("?", stream.readInt());
+            String token = stream.readString();
+            Log.debug("token", token);
+            if (!token.equals(playerConnectKey)) {
+                sendKick("You Open Mod?");
+                return false;
+            }
+            final EventType.PlayerConnectPasswdCheck playerConnectPasswdCheck = new EventType.PlayerConnectPasswdCheck(this, passwd);
+            Events.fire(playerConnectPasswdCheck);
+            if (playerConnectPasswdCheck.result) {
                 return true;
             }
-        }
-        try {
-            String address = sockAds.toString();
-            ip = address.substring(1, address.indexOf(':'));
-        } catch (Exception e) {
-            ip = "127.0.0.1";
+            if (notIsBlank(playerConnectPasswdCheck.name)) {
+                name = playerConnectPasswdCheck.name;
+            }
+            isPasswd = false;
+
+            try {
+                String address = sockAds.toString();
+                ip = address.substring(1, address.indexOf(':'));
+            } catch (Exception e) {
+                ip = "127.0.0.1";
+            }
+
+            AtomicBoolean re = new AtomicBoolean(false);
+            if (Data.game.isStartGame) {
+                Data.playerAll.each(i -> i.uuid.equals(uuid), e -> {
+                    re.set(true);
+                    this.player = e;
+                    player.con = this;
+                    Data.playerGroup.add(e);
+                });
+                if (!re.get()) {
+                    if (isBlank(Data.game.startPlayerAd)) {
+                        sendKick("游戏已经开局 请等待 # The game has started, please wait");
+                    } else {
+                        sendKick(Data.game.startPlayerAd);
+                    }
+                    return false;
+                }
+            } else {
+                if (Data.playerGroup.size() >= Data.game.maxPlayer) {
+                    if (isBlank(Data.game.maxPlayerAd)) {
+                        sendKick("服务器没有位置 # The server has no free location");
+                    } else {
+                        sendKick(Data.game.maxPlayerAd);
+                    }
+                    return false;
+                }
+                LocaleUtil localeUtil = Data.localeUtilMap.get("CN");
+                if (Data.game.ipCheckMultiLanguageSupport) {
+                    IPResult rec = Data.ip2Location.IPQuery(ip);
+                    if (!"OK".equals(rec.getStatus())) {
+                        localeUtil = Data.localeUtilMap.get(rec.getCountryShort());
+                    }
+                }
+                player = Player.addPlayer(this, ip, uuid, name, localeUtil);
+            }
+
+            protocol.add(Static.groupNet);
+            Call.sendTeamData();
+            sendServerInfo(true);
+            Events.fire(new EventType.PlayerJoin(player));
+
+            if (notIsBlank(Data.game.enterAd)) {
+                sendSystemMessage(Data.game.enterAd);
+            }
+            Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name));
+            if (re.get()) {
+                reConnect();
+            }
+            return true;
         } finally {
+            playerConnectKey = null;
             sockAds = null;
         }
-        AtomicBoolean re = new AtomicBoolean(false);
-        if (Data.game.isStartGame) {
-            Data.playerAll.each(i -> i.uuid.equals(uuid),e -> {
-                re.set(true);
-                this.player = e;
-                player.con = this;
-                Data.playerGroup.add(e);
-            });
-            if (!re.get()) {
-                sendKick("游戏已经开局 请等待 # The game has started, please wait");
-                return false;
-            }
-        } else {
-            if (Data.playerGroup.size() >= Data.game.maxPlayer) {
-                sendKick("服务器没有位置 # The server has no free location");
-                return false;
-            }
-            LocaleUtil localeUtil = Data.localeUtilMap.get("CN");
-            if (Data.game.ipCheckMultiLanguageSupport) {
-                IPResult rec = Data.ip2Location.IPQuery(ip);
-                if (!"OK".equals(rec.getStatus())) {
-                    localeUtil = Data.localeUtilMap.get(rec.getCountryShort());
-                }
-            }
-            player = Player.addPlayer(this, ip, uuid, name, localeUtil);
-        }
-        protocol.add();
-        Call.sendTeamData();
-        sendServerInfo(true);
-        Events.fire(new EventType.PlayerJoin(player));
-
-        if (notIsBlank(Data.game.enterAd)) {
-            sendSystemMessage(Data.game.enterAd);
-        }
-        Call.sendSystemMessage(Data.localeUtil.getinput("player.ent",player.name));
-        if (re.get()) {
-            reConnect();
-        }
-        return true;
     }
 
     @Override
@@ -480,7 +455,7 @@ public class GameVersion151 implements AbstractNetConnect {
         // 生成随机Key;
         int keyLen = 6;
         int key = generateInt(keyLen);
-        playerConnectKey = connectak(key);
+        playerConnectKey = connectKey(key);
         GameInputStream stream = new GameInputStream(p);
         // Game Pkg Name
         stream.readString();
@@ -502,41 +477,20 @@ public class GameVersion151 implements AbstractNetConnect {
     /**
      *
      */
-    private void sendErrorPasswd() {
+    @Override
+    public void sendErrorPasswd() {
         try {
             GameOutputStream o = new GameOutputStream(bufAllocator);
             o.writeInt(0);
             sendPacket(o.createPacket(PacketType.PACKET_PASSWD_ERROR));
+            isPasswd = true;
         } catch (Exception e) {
             Log.error("[Player] sendErrorPasswd",e);
         }
     }
 
-    /**
-     * 发送包
-     * @param bb 数据
-     */
-    private void sendPacket(ByteBuf bb) {
-        try {
-            protocol.send(bb);
-        } catch (Exception e) {
-            Log.error("[UDP] SendError - 本消息单独出现无妨 连续多次出现请debug",e);
-            disconnect();
-        }
-    }
-
-    /**
-     * 断开连接
-     */
     @Override
     public void disconnect() {
-        if (!disCheck) {
-            return;
-        }
-        if (isBlank(player)) {
-            return;
-        }
-        disCheck = false;
         Data.playerGroup.remove(player);
         if (!Data.game.isStartGame) {
             Data.playerAll.remove(player);
@@ -546,9 +500,90 @@ public class GameVersion151 implements AbstractNetConnect {
 
         Events.fire(new EventType.PlayerLeave(player));
         try {
-            protocol.close();
+            protocol.close(Static.groupNet);
         } catch (Exception e) {
             Log.error("Close Connect",e);
+        }
+    }
+
+    @Override
+    public void getGameSave() {
+        try {
+            GameOutputStream o = new GameOutputStream(bufAllocator);
+            o.writeByte(0);
+            o.writeInt(0);
+            o.writeInt(0);
+            o.writeFloat(0);
+            o.writeFloat(0);
+            o.writeBoolean(true);
+            o.writeBoolean(false);
+            GzipEncoder gzipEncoder = GzipEncoder.getGzipStream("gameSave",false);
+            DataOutputStream io = gzipEncoder.stream;
+            io.writeUTF("This is RW-HPS!");
+            o.flushEncodeData(gzipEncoder);
+            sendPacket(o.createPacket(35));
+        } catch (Exception e) {
+            Log.error(e);
+        }
+
+
+    }
+
+    @Override
+    public void sendGameSave(ByteBuf packet) {
+        sendPacket(packet);
+    }
+
+    @Override
+    public void reConnect() {
+        try {
+            if (!Data.game.reConnect) {
+                sendKick("不支持重连 # Does not support reconnection");
+                return;
+            }
+            sendPacket(Data.game.connectPacket.getStartGameByteBuf());
+            Data.game.reConnectBreak = true;
+            Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s");
+            final ExecutorService executorService= Executors.newFixedThreadPool(1);
+            Future<String> future = executorService.submit(() -> {
+                if (Data.game.gameSaveCache != null && Data.game.gameSaveCache.type == 0) {
+                    while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
+                        if (Thread.interrupted()) {
+                            return null;
+                        }
+                    }
+                    Static.groupNet.broadcast(Data.game.connectPacket.convertGameSaveDataByteBuf(Data.game.gameSaveCache));
+                    return null;
+                }
+                Data.game.gameSaveCache = new Packet(0,null);
+                Data.playerGroup.each(e -> (!e.uuid.equals(this.player.uuid)) && (!e.con.getTryBoolean()),p -> {
+                    p.con.getGameSave();
+                    while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
+                        if (Thread.interrupted()) {
+                            return;
+                        }
+                    }
+                    try {
+                        Static.groupNet.broadcast(Data.game.connectPacket.convertGameSaveDataByteBuf(Data.game.gameSaveCache));
+                    } catch (IOException e) {
+                        Log.error(e);
+                    }
+                });
+                return null;
+            });
+            try {
+                future.get(30, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                future.cancel(true);
+                Log.error(e);
+                protocol.close(Static.groupNet);
+            } finally {
+                executorService.shutdown();
+                Data.game.gameSaveCache = null;
+                Data.game.reConnectBreak = false;
+            }
+        } catch (Exception e) {
+            Log.error("[Player] Send GameSave ReConnect Error",e);
         }
     }
 }

@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.github.dr.rwserver.net.web.realization.agreement.ShareMessage;
-import com.github.dr.rwserver.net.web.realization.constant.Config;
-import com.github.dr.rwserver.net.web.realization.def.ResConfig;
 
 public class ShareCon {
 	public ShareMessage getShareMessage(String uri, String bodyMessage) {

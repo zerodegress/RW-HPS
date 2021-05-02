@@ -27,17 +27,12 @@ public interface AbstractNetConnect {
     AbstractNetConnect getVersionNet(SocketAddress sockAds, ByteBufAllocator bufAllocator);
 
 
-
-    /**
-     * 设置玩家
-     * @param player Player
-     */
-    void setPlayer(Player player);
     /**
      * 获取玩家
      * @return Player
      */
     Player getPlayer();
+    void setCache(Packet packet);
     /**
      * 尝试次数+1
      */
@@ -47,6 +42,14 @@ public interface AbstractNetConnect {
      * @return 尝试次数
      */
     int getTry();
+    void setTryBolean(boolean tryBolean);
+    boolean getTryBoolean();
+
+    /**
+     * 获取是否在输入密码
+     * @return 值
+     */
+    boolean getIsPasswd();
     /**
      * 设置Protocol
      * @param protocol Protocol
@@ -67,9 +70,9 @@ public interface AbstractNetConnect {
     /**
      * 获取系统命名的消息包
      * SERVER: ...
-     * @param text The message
+     * @param msg The message
      */
-    void sendSystemMessage(String text);
+    void sendSystemMessage(String msg);
     /**
      * 发送用户名命名的消息
      * @param msg String
@@ -96,6 +99,12 @@ public interface AbstractNetConnect {
      */
     void ping();
     /**
+     * 提取GameSave包
+     * @param packet packet
+     * @return 包
+     */
+    byte[] getGameSaveData(Packet packet) throws IOException;
+    /**
      * 接受语言包
      * @param p Packet
      * @throws IOException Error
@@ -117,25 +126,34 @@ public interface AbstractNetConnect {
      * @param gzip GzipPacket
      */
     void sendTeamData(GzipEncoder gzip);
-
     /**
      * 获取玩家的信息并注册
      * @param p Packet包
      * @return 注册状态
      * @throws IOException err
      */
-    boolean getPlayerInfo(Packet p) throws IOException;
+    boolean getPlayerInfo(final Packet p) throws IOException;
     /**
      * 注册连接
      * @param p Packet包
      * @throws IOException err
      */
     void registerConnection(Packet p) throws IOException;
+    void sendErrorPasswd() throws IOException;
     /**
      * 断开连接
      */
     void disconnect();
+    /**
+     * 诱骗客户端发送Save包
+     */
+    void getGameSave();
 
+    /**
+     * 发送重连包
+     * @param packet ByteBuf
+     */
+    void sendGameSave(ByteBuf packet);
 
     default void reConnect() {
         try {
@@ -159,3 +177,4 @@ public interface AbstractNetConnect {
     default void senddebug(String str) {
     }
 }
+

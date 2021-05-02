@@ -201,15 +201,15 @@ public class ReliableSocketProfile {
         }
     }
 
-    private int _maxSendQueueSize;
-    private int _maxRecvQueueSize;
-    private int _maxSegmentSize;
-    private int _maxOutstandingSegs;
-    private int _maxRetrans;
-    private int _maxCumulativeAcks;
-    private int _maxOutOfSequence;
-    private int _maxAutoReset;
-    private int _nullSegmentTimeout;
-    private int _retransmissionTimeout;
-    private int _cumulativeAckTimeout;
+    private final int _maxSendQueueSize;
+    private final int _maxRecvQueueSize;
+    private final int _maxSegmentSize;
+    private final int _maxOutstandingSegs;
+    private final int _maxRetrans;
+    private final int _maxCumulativeAcks;
+    private final int _maxOutOfSequence;
+    private final int _maxAutoReset;
+    private final int _nullSegmentTimeout;
+    private final int _retransmissionTimeout;
+    private final int _cumulativeAckTimeout;
 }

@@ -135,12 +135,12 @@ public class Timer extends Thread {
         notify();
     }
 
-    private Runnable _task;
+    private final Runnable _task;
     private long     _delay;
     private long     _period;
     private boolean  _canceled;
     private boolean  _scheduled;
     private boolean  _reset;
     private boolean  _stopped;
-    private Object   _lock = new Object();
+    private final Object   _lock = new Object();
 }

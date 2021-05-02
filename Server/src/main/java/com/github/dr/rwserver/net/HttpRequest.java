@@ -11,6 +11,7 @@ import java.net.URLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.zip.GZIPInputStream;
 
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
 
@@ -37,7 +38,7 @@ public class HttpRequest {
 		} catch (Exception e) {
 			Log.error("HTTP GET Error",e);
 		}
-		return (String) response.body();
+		return response.body();
 	}
 
 	public static String doPost(String url, String param) {
@@ -45,40 +46,60 @@ public class HttpRequest {
 	}
 
 	public static String doPost(String url, String param,String usAg) {
-		java.net.http.HttpResponse<String> response = null;
-		java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-				.uri(URI.create(url))
-				.setHeader("User-Agent", usAg)
-				.POST(java.net.http.HttpRequest.BodyPublishers.ofString(param))
-				.build();
-		try {
-			response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-		} catch (Exception e) {
-			Log.error("HTTP Post Error",e);
+		StringBuilder result = new StringBuilder();
+		PrintWriter out = null;
+		BufferedReader in = null;
+		String line;
+		try{
+			URL realUrl = new URL(url);
+			HttpURLConnection conn =  (HttpURLConnection)realUrl.openConnection();
+			conn.setRequestProperty("accept", "*/*");
+			conn.addRequestProperty("Accept-Charset", "UTF-8");
+			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+			conn.setRequestProperty("connection", "Keep-Alive");
+			conn.setRequestProperty("User-Agent",usAg);
+			conn.setRequestProperty("Accept-Encoding", "gzip,deflate");
+			conn.setDoOutput(true);
+			conn.setDoInput(true);
+			out = new PrintWriter(conn.getOutputStream());
+			out.print(param);
+			out.flush();
+			String contentEncoding = conn.getContentEncoding();
+			if (null != contentEncoding && contentEncoding.contains("gzip")) {
+				GZIPInputStream gzipInputStream = new GZIPInputStream(conn.getInputStream());
+				in = new BufferedReader(new InputStreamReader(gzipInputStream));
+				while ((line = in.readLine()) != null) {
+					result.append(line);
+				}
+			} else {
+				in = new BufferedReader(new InputStreamReader(conn.getInputStream(),Data.UTF_8));
+				while ((line = in.readLine()) != null) {
+					result.append("\n").append(line);
+				}
+			}
+			//Log.info("POST",result.toString());
+		} catch (IOException e) {
+			Log.error("doPost!",e);
+		} finally{
+			if(out != null) {
+				out.close();
+			}
+			if(in != null) {
+				try{
+					in.close();
+				} catch (IOException e) {
+					in = null;
+				}
+			}
 		}
-		return (String) response.body();
+		return result.toString();
 	}
 
 	public static String doPostRw(String url, String param) {
-		/*
-		java.net.http.HttpResponse<String> response = null;
-		java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-				.uri(URI.create(url))
-				.setHeader("User-Agent", "rw android 151 zh")
-				.setHeader("Language", "zh")
-				.POST(java.net.http.HttpRequest.BodyPublishers.ofString(param))
-				.build();
-		try {
-			response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
-		} catch (Exception e) {
-			Log.error("HTTP Post Error",e);
-		}
-		Log.info("POST CODE",response.statusCode());
-		return (String) response.body();
-		 */
 		final StringBuilder result = new StringBuilder();
 		PrintWriter out = null;
 		BufferedReader in = null;
+		String line;
 		try {
 			URL realUrl = new URL(url);
 			URLConnection conn = realUrl.openConnection();
@@ -91,8 +112,8 @@ public class HttpRequest {
 			out.print(param);
 			out.flush();
 			in = new BufferedReader(new InputStreamReader(conn.getInputStream(), Data.UTF_8));
-			while (in.readLine() != null) {
-				result.append(Data.LINE_SEPARATOR + Data.LINE_SEPARATOR);
+			while ((line = in.readLine()) != null) {
+				result.append(line);
 			}
 		} catch (IOException e) {
 			Log.error("doPost!", e);

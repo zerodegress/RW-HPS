@@ -61,7 +61,7 @@ public class HttpServer {
 }
 
 class Em extends ChannelInitializer<SocketChannel> {
-    private WebSocketBack webSocketBack;
+    private final WebSocketBack webSocketBack;
 
     Em(WebSocketBack webSocketBack) {
         this.webSocketBack = webSocketBack;

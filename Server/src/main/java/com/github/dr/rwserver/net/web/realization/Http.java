@@ -18,13 +18,13 @@ import io.netty.util.ReferenceCountUtil;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Http extends SimpleChannelInboundHandler<Object> implements RequestManager {
     private WebSocketServerHandshaker handshaker;
-    private WebSocketBack webSocketBack;
+    private final WebSocketBack webSocketBack;
     private HttpPostRequestDecoder httpDecoder;
     private String uri;
     private static final HttpDataFactory factory = new DefaultHttpDataFactory(true);
@@ -50,12 +50,12 @@ public class Http extends SimpleChannelInboundHandler<Object> implements Request
             request = (HttpRequest) msg;
             uri = request.uri();
             String methodName = request.method().name();
-            if (methodName.equals("OPTIONS")) {
+            if ("OPTIONS".equals(methodName)) {
                 response(arg0, null, HttpCode.OK);
             } else {
                 String contentType = request.headers().get("Content-Type");
                 // System.out.println(contentType);
-                if (contentType != null && contentType.indexOf("multipart/form-data") > -1) {
+                if (contentType != null && contentType.contains("multipart/form-data")) {
                     if (request.method().equals(HttpMethod.POST)) {
                         httpDecoder = new HttpPostRequestDecoder(factory, request);
                         httpDecoder.setDiscardThreshold(0);
@@ -96,9 +96,8 @@ public class Http extends SimpleChannelInboundHandler<Object> implements Request
 
     private List<FileAndName> writeChunk(ChannelHandlerContext ctx) throws IOException {
         List<InterfaceHttpData> postList = httpDecoder.getBodyHttpDatas();
-        List<FileAndName> fileAndNames = new ArrayList<FileAndName>();
-        for (int i = 0; i < postList.size(); i++) {
-            InterfaceHttpData data = postList.get(i);
+        List<FileAndName> fileAndNames = new ArrayList<>();
+        for (InterfaceHttpData data : postList) {
             if (data != null) {
                 FileAndName fileAndName = new FileAndName();
                 fileAndName.setName(data.getName());
@@ -140,7 +139,7 @@ public class Http extends SimpleChannelInboundHandler<Object> implements Request
             byte[] body = new byte[fu.readableBytes()];
             // 将缓存区内容读取到字节数组中
             fu.readBytes(body);
-            String bodys = new String(body, "UTF-8");
+            String bodys = new String(body, StandardCharsets.UTF_8);
             ShareMessage message = share.getShareMessage(msg.uri(), bodys);
             boolean bm = control.my(message, this, arg0);
             if (!bm) {
@@ -163,41 +162,36 @@ public class Http extends SimpleChannelInboundHandler<Object> implements Request
 
     @Override
     public void response(ChannelHandlerContext ch, Object msg, byte httpCode) {
-        try {
-            FullHttpResponse response;
-            switch (httpCode) {
-                case HttpCode.NOT_FOUND:
-                    response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
-                    break;
-                case HttpCode.SERVER_ERROR:
-                    response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
-                    //break;
-                default:
-                    byte[] lm = null;
-                    if (msg != null) {
-                        if (msg instanceof String) {
-                            lm = msg.toString().getBytes("UTF-8");
-                        } else {
-                            lm = (byte[]) msg;
-                        }
+        FullHttpResponse response;
+        switch (httpCode) {
+            case HttpCode.NOT_FOUND:
+                response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
+                break;
+            case HttpCode.SERVER_ERROR:
+                response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+                //break;
+            default:
+                byte[] lm = null;
+                if (msg != null) {
+                    if (msg instanceof String) {
+                        lm = msg.toString().getBytes(StandardCharsets.UTF_8);
+                    } else {
+                        lm = (byte[]) msg;
                     }
-                    response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-                    response.headers().set("CONTENT_TYPE", "text/html;charset=UTF-8");
-                    response.headers().set("Access-Control-Allow-Origin", "*");
-                    response.headers().set("Access-Control-Allow-Headers", "authorization, content-type");
-                    response.headers().set("Access-Control-Allow-Methods", "POST");
+                }
+                response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+                response.headers().set("CONTENT_TYPE", "text/html;charset=UTF-8");
+                response.headers().set("Access-Control-Allow-Origin", "*");
+                response.headers().set("Access-Control-Allow-Headers", "authorization, content-type");
+                response.headers().set("Access-Control-Allow-Methods", "POST");
 
-                    if (lm != null) {
-                        ByteBuf bu = response.content();
-                        bu.writeBytes(lm);
-                    }
-                    break;
-            }
-            ch.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+                if (lm != null) {
+                    ByteBuf bu = response.content();
+                    bu.writeBytes(lm);
+                }
+                break;
         }
+        ch.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     private void handleWebSocketFrame(ChannelHandlerContext ch, WebSocketFrame frame, WebSocketBack webSocketBack) throws Exception {

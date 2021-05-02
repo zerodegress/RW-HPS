@@ -1,6 +1,5 @@
 package com.github.dr.rwserver.net.web.realization;
 
-import com.github.dr.rwserver.net.web.realization.agreement.ShareMessage;
 import com.github.dr.rwserver.net.web.realization.def.ResConfig;
 import com.github.dr.rwserver.net.web.realization.def.UrmAndUrl;
 import com.github.dr.rwserver.net.web.realization.i.RequestManager;
@@ -38,7 +37,7 @@ public class MyData extends MySon {
     public UrmAndUrl uri(String uri) {
         UrmAndUrl urmAndUrl = null;
         for (Map.Entry<String, String> entry : urlMap.entrySet()) {
-            if (uri.indexOf(entry.getKey()) > -1) {
+            if (uri.contains(entry.getKey())) {
                 urmAndUrl = new UrmAndUrl();
                 urmAndUrl.setUri(entry.getValue());
                 urmAndUrl.setUrl(entry.getKey());

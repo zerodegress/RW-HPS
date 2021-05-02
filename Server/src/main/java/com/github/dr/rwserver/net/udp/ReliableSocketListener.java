@@ -12,20 +12,20 @@ public interface ReliableSocketListener {
     /**
      * Invoked when a data packet is sent.
      */
-    public void packetSent();
+    void packetSent();
 
     /**
      * Invoked when a data packet is retransmitted.
      */
-    public void packetRetransmitted();
+    void packetRetransmitted();
 
     /**
      * Invoked when a data packet is received in-order.
      */
-    public void packetReceivedInOrder();
+    void packetReceivedInOrder();
 
     /**
      * Invoked when a out of sequence data packet is received.
      */
-    public void packetReceivedOutOfOrder();
+    void packetReceivedOutOfOrder();
 }

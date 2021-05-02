@@ -11,7 +11,6 @@ import java.util.jar.JarInputStream;
  * @author Dr
  */
 public class NetClassLoader extends ClassLoader {
-    private final JarInputStream jarInputStream;
     private final Map<String, ByteBuffer> entryMap;
 
     public NetClassLoader(String src) throws IOException {
@@ -23,15 +22,14 @@ public class NetClassLoader extends ClassLoader {
     }
 
     public NetClassLoader(InputStream is) throws IOException {
-        jarInputStream = new JarInputStream(is);
+        JarInputStream jarInputStream = new JarInputStream(is);
         entryMap = new HashMap<>();
         JarEntry entry;
         while((entry = jarInputStream.getNextJarEntry()) != null) {
             String name = entry.getName();
             byte[] bytes = getBytes(jarInputStream);
             if (name.endsWith(".class")) {
-                byte[] debytes = bytes;
-                ByteBuffer buffer = ByteBuffer.wrap(debytes);
+                ByteBuffer buffer = ByteBuffer.wrap(bytes);
                 entryMap.put(name, buffer);
             } else {
                 ByteBuffer buffer = ByteBuffer.wrap(bytes);

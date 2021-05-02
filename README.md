@@ -13,6 +13,7 @@ GNU General Public License v3.0
 
 #### Game protocols that will not be supported
 - Server List -> ADD List, Update List, Remove List  
+- Money related, such as value-added services  
 
 **All development is for learning, do not use for illegal purposes**  
 

@@ -142,8 +142,8 @@ public class LibraryManager {
     }
 
     private static class ImportData {
-        String downUrl;
-        File downFile;
+        final String downUrl;
+        final File downFile;
         public ImportData(String downUrl,String downFile) {
             this.downUrl = downUrl;
             this.downFile = new File(downFile);

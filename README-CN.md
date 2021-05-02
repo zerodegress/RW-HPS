@@ -9,6 +9,7 @@ GNU General Public License v3.0
 
 #### 不会支持的游戏协议
 - 列表相关，如ADD List, Update List, Remove List  
+- 金钱相关，如增值服务    
 
 **一切开发旨在学习，请勿用于非法用途**  
 
@@ -19,6 +20,11 @@ GNU General Public License v3.0
 - 讨论:
   > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法.  
   > 邮件联系 Der-DCT@pm.me  
+
+### 我们被谁使用
+- Tiexiu.xyz
+    - (new) [rw.tiexiu.xyz](https://rw.tiexiu.xyz)  
+    - (old) [sfe.tiexiu.xyz](https://sfe.tiexiu.xyz)  
 
 
 ## 构建

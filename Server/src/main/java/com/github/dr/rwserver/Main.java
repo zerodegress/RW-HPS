@@ -64,8 +64,6 @@ public class Main {
 		Data.core.settings.load();
 		Data.core.load();
 
-		loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
-
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
 
 		/* 命令加载 */
@@ -103,20 +101,6 @@ public class Main {
 
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
-	}
-
-	private static void loadCoreJar(String libPath) {
-		LibraryManager lib;
-		if (notIsBlank(libPath)) {
-			lib = new LibraryManager(libPath);
-		} else {
-			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
-		}
-		lib.importLib("io.netty","netty-all","4.1.59.Final");
-		lib.importLib("com.ip2location","ip2location-java","8.5.0");
-		lib.importLib("com.alibaba","fastjson","1.2.58");
-		lib.loadToClassLoader();
-		lib.removeOldLib();
 	}
 
 	@SuppressWarnings("InfiniteLoopStatement")

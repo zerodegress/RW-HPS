@@ -1,4 +1,4 @@
-sourceCompatibility = 15// for the IDE support
+sourceCompatibility = 11// for the IDE support
 
 dependencies {
     //compile project(":LibraryManager")

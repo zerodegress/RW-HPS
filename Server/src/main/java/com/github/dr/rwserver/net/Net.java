@@ -230,17 +230,14 @@ public class Net {
 							return;
 						}
 						if (con.getIsPasswd()) {
-							return;
-						}
-						if (con.getTryBoolean()) {
-							if (con.getTry() >= Data.SERVER_MAX_TRY) {
+							/* 60s无反应判定close */
+							if (Time.concurrentMillis() > (con.getLastReceivedTime()+60 * 1000L)) {
 								clear(ctx);
 							}
-							con.setTry();
-							con.ping();
 						} else {
-							con.setTryBolean(true);
-							con.ping();
+							if (Time.concurrentMillis() > (con.getLastReceivedTime()+180 * 1000L)) {
+								clear(ctx);
+							}
 						}
 
 					}
@@ -298,6 +295,8 @@ public class Net {
 
 		private void netRwHps(final AbstractNetConnect con,final Packet p) throws Exception {
 			if (!Data.game.oneReadUnitList) {
+				// CPU分支预测
+				con.setLastReceivedTime(Time.concurrentMillis());
 				if (p.type == PacketType.PACKET_ADD_GAMECOMMAND) {
 					con.receiveCommand(p);
 					con.getPlayer().lastMoveTime = Time.millis();

@@ -8,6 +8,7 @@ subprojects {
 
 	ext{
 		//the build number that this plugin is made for
+
 	}
 
 	jar{

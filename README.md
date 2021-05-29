@@ -15,7 +15,19 @@ GNU General Public License v3.0
 - Server List -> ADD List, Update List, Remove List  
 - Money related, such as value-added services  
 
-**All development is for learning, do not use for illegal purposes**  
+**All development is for learning, do not use for illegal purposes** 
+
+`RW-HPS` is open sourced under the `GPLv3` agreement. For the healthy development of the entire community，We **highly recommended**you do the following：
+
+- **Indirect contact (including but not limited to using `Http API` or cross-process technology and bytecode modification) to `RW-HPS` software using `GPLv3` open source**
+- **For personal use, please join the server to use from RW-HPS**
+- **Do not encourage, do not support all commercial use*
+
+### Derivative software needs to declare and quote
+
+- If the software package released by RW-HPS is quoted without modifying RW-HPS, the derivative project shall mention the use of RW-HPS in any part of the description。
+- If the RW-HPS source code is modified and then released，**Or refer to the internal implementation of RW-HPS to release another project**，Then the derivative project must be**article head**or 'RW-HPS' related information**first Appearance**s position**clearly stated**from This Warehouse (`https://github.com/deng-rui/RW-HPS`)。Don’t distort or hide the fact that it’s free and open source。
+
 
 ## Start
 - Development documentation: [docs](docs/README.md)  

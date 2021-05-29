@@ -13,6 +13,17 @@ GNU General Public License v3.0
 
 **一切开发旨在学习，请勿用于非法用途**  
 
+`RW-HPS` 采用 `GPLv3` 协议开源。为了整个社区的良性发展，我们**强烈建议**您做到以下几点：
+
+- **间接接触（包括但不限于使用 `Http API` 或 跨进程技术 以及字节码修改）到 `RW-HPS` 的软件使用 `GPLv3` 开源**
+- **个人使用请加入服务端使用自RW-HPS**
+- **不鼓励，不支持一切商业使用**
+
+### 衍生软件需声明引用
+
+- 若引用 RW-HPS 发布的软件包而不修改 RW-HPS，则衍生项目需在描述的任意部位提及使用 RW-HPS。
+- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/deng-rui/RW-HPS`)。不得扭曲或隐藏免费且开源的事实。
+
 ## 开始
 - 开发文档: [docs](docs/README.md)
 - 更新日志: [release](https://github.com/deng-rui/RWHPS/releases)
@@ -25,7 +36,8 @@ GNU General Public License v3.0
 - Tiexiu.xyz
     - (new) [rw.tiexiu.xyz](https://rw.tiexiu.xyz)  
     - (old) [sfe.tiexiu.xyz](https://sfe.tiexiu.xyz)  
-
+- 非官方RELAYCN
+    - RelayCN Unofficial relay.der.kim
 
 ## 构建
 1.安装JDK 11+。如果你不知道怎么做，就去查.  

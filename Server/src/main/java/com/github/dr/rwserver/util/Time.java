@@ -3,11 +3,16 @@ package com.github.dr.rwserver.util;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Dr
  */
 public class Time {
+    /** 高并发下的效率提升 */
+    private static final CurrentTimeMillisClock INSTANCE = new CurrentTimeMillisClock();
+
     /** @return 系统计时器的当前值，以纳秒为单位. */
     public static long nanos(){
         return System.nanoTime();
@@ -16,6 +21,11 @@ public class Time {
     /** @return 当前时间与1970年1月1日午夜之间的差值（以毫秒为单位）. */
     public static long millis(){
         return System.currentTimeMillis();
+    }
+
+    /** @return 当前时间与1970年1月1日午夜之间的差值（以毫秒为单位）. */
+    public static long concurrentMillis(){
+        return INSTANCE.now;
     }
 
     /**
@@ -64,4 +74,22 @@ public class Time {
         cal.add(Calendar.MILLISECOND, -(zoneOffset + dstOffset));
         return cal.getTimeInMillis();
     }
+
+    private static class CurrentTimeMillisClock {
+        private volatile long now;
+
+        private CurrentTimeMillisClock() {
+            this.now = System.currentTimeMillis();
+            scheduleTick();
+        }
+
+        private void scheduleTick() {
+            new ScheduledThreadPoolExecutor(1, runnable -> {
+                Thread thread = new Thread(runnable, "current-time-millis");
+                thread.setDaemon(true);
+                return thread;
+            }).scheduleAtFixedRate(() -> now = System.currentTimeMillis(), 100, 100, TimeUnit.MILLISECONDS);
+        }
+    }
 }
+

@@ -11,6 +11,7 @@ import com.github.dr.rwserver.io.GameInputStream;
 import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.AbstractNetConnect;
+import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.PacketType;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -47,6 +48,8 @@ public class GameVersionServer extends GameVersion {
 
     private SocketAddress sockAds;
     private String playerConnectKey;
+    private long time = 0;
+    private boolean isDis = false;
 
     private final ReentrantLock sync = new ReentrantLock(true);
 
@@ -67,6 +70,16 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public void setCache(Packet packet) {
+    }
+
+    @Override
+    public void setLastReceivedTime(long time) {
+        this.time = time;
+    }
+
+    @Override
+    public long getLastReceivedTime() {
+        return time;
     }
 
     @Override
@@ -491,11 +504,20 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public void disconnect() {
+        if (this.isDis) {
+            return;
+        }
+        this.isDis = true;
+
         Data.playerGroup.remove(player);
-        if (!Data.game.isStartGame) {
-            Data.playerAll.remove(player);
-            player.clear();
-            Data.game.playerData[player.site] = null;
+
+        if (IsUtil.notIsBlank(player)) {
+            Data.playerGroup.remove(player);
+            if (!Data.game.isStartGame) {
+                Data.playerAll.remove(player);
+                player.clear();
+                Data.game.playerData[player.site] = null;
+            }
         }
 
         Events.fire(new EventType.PlayerLeave(player));

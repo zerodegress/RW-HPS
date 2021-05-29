@@ -9,7 +9,6 @@ import com.github.dr.rwserver.core.ex.Event;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.plugin.PluginManage;
-import com.github.dr.rwserver.dependent.LibraryManager;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.net.Administration;
@@ -17,7 +16,6 @@ import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.Convert;
 import com.github.dr.rwserver.util.encryption.Autograph;
-import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -30,8 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 
 /**
  * @author Dr
@@ -58,8 +54,6 @@ public class Main {
 			Log.skipping("The server was modified and refused to start");
 			Core.mandatoryExit();
 		}
-
-		FileUtil.path = (args.length > 0) ? Base64.decodeString(args[0]) : null;
 
 		Data.core.settings.load();
 		Data.core.load();

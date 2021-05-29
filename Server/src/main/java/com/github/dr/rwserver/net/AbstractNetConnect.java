@@ -33,6 +33,8 @@ public interface AbstractNetConnect {
      */
     Player getPlayer();
     void setCache(Packet packet);
+    void setLastReceivedTime(long time);
+    long getLastReceivedTime();
     /**
      * 尝试次数+1
      */

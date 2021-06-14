@@ -15,6 +15,7 @@ public class PacketType {
 	public static final int PACKET_SEND_CHAT = 141;
 	public static final int PACKET_SERVER_INFO = 106;
 	public static final int PACKET_KICK = 150;
+	public static final int PACKET_SYNCCHECKSUM_STATUS = 31;
 	public static final int PACKET_A = 30;
 	//Client Commands
 	

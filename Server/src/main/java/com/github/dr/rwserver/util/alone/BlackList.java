@@ -40,7 +40,13 @@ public class BlackList {
 
         @Override
         public boolean equals(Object obj) {
-            return object.toString().equals(obj.toString());
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            return object.equals(obj.toString());
         }
     }
 }

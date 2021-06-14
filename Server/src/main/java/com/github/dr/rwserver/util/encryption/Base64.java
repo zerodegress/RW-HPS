@@ -30,8 +30,8 @@ public class Base64 {
     public static boolean isBase64(String val) {
         try {
             byte[] key= java.util.Base64.getDecoder().decode(val);
-            String strs=new String(key);
-            String result= java.util.Base64.getEncoder().encodeToString(strs.getBytes());
+            String str=new String(key);
+            String result= java.util.Base64.getEncoder().encodeToString(str.getBytes());
             if(result.equalsIgnoreCase(val)) {
                 return true;
             }

@@ -58,10 +58,10 @@ public class StringFilteringUtil {
 		return "";
 	}
 
-	public static String cutting(String str,int i) {
-	    if (str.length() < i) {
+	public static String cutting(String str,int length) {
+	    if (str.length() < length) {
 			return str;
 		}
-	    return str.substring(0, i);
+	    return str.substring(0, length);
 	}
 }

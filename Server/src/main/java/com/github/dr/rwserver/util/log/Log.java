@@ -162,6 +162,18 @@ public class Log {
 		}
 		final StringBuilder sb = new StringBuilder();
 		final String[] lines = e.toString().split(LINE_SEPARATOR);
+
+		int i1;
+		StackTraceElement stack[] = new Throwable().getStackTrace();;
+		for (i1=0; i1 < stack.length; i1++) {
+			StackTraceElement ste=stack[i1];
+			final String className= ste.getClassName()+"."+ste.getMethodName();
+			if (!className.contains("com.github.dr.rwserver.util.log.Log")) {
+				sb.append("[").append(ste.getFileName()).append("] : ")
+					.append(ste.getMethodName()).append(" : ").append(ste.getLineNumber()).append(LINE_SEPARATOR);
+				break;
+			}
+		}
 		sb.append("UTC [")
 			.append(Time.getUtcMilliFormat(1)).append("] ")
 			//.append(LINE_SEPARATOR)
@@ -176,12 +188,11 @@ public class Log {
 	}
 
 	public static void clog(String text) {
-		final StringBuilder sb = new StringBuilder();
-		sb.append("[")
-			.append(Time.getUtcMilliFormat(1))
-			.append(" UTC] ")
-			.append(text);
-		text = sb.toString();
+        String sb = "[" +
+                Time.getUtcMilliFormat(1) +
+                " UTC] " +
+                text;
+        text = sb;
         System.out.println(formatColors(text+"&fr"));
 	}
 

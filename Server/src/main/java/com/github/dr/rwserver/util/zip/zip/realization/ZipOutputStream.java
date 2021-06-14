@@ -1558,12 +1558,6 @@ public class ZipOutputStream extends FilterOutputStream {
             ze.getExtraField(Zip64ExtendedInformationExtraField
                              .HEADER_ID);
         if (z64 == null) {
-            /*
-              System.err.println("Adding z64 for " + ze.getName()
-              + ", method: " + ze.getMethod()
-              + " (" + (ze.getMethod() == STORED) + ")"
-              + ", raf: " + (raf != null));
-            */
             z64 = new Zip64ExtendedInformationExtraField();
         }
 

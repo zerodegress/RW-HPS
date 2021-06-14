@@ -18,15 +18,15 @@ public class Aes {
      * @throws Exception Exception
      */
     public static byte[] aesEncryptToBytes(byte[] content, String encryptKey) throws Exception {
-        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
         random.setSeed(encryptKey.getBytes());
 
-        kgen.init(128, random);
+        keyGenerator.init(128, random);
 
         Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));
+        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(keyGenerator.generateKey().getEncoded(), "AES"));
 
         return cipher.doFinal(content);
     }
@@ -39,15 +39,15 @@ public class Aes {
      * @throws Exception Exception
      */
     public static byte[] aesDecryptByBytes(byte[] encryptBytes, String decryptKey) throws Exception {
-        KeyGenerator kgen = KeyGenerator.getInstance("AES");
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 
         SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
         random.setSeed(decryptKey.getBytes());
         
-        kgen.init(128, random);
+        keyGenerator.init(128, random);
 
         Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyGenerator.generateKey().getEncoded(), "AES"));
 
         return cipher.doFinal(encryptBytes);
     }

@@ -215,7 +215,7 @@ public class CommandHandler{
         }
     }
 
-    public class CommandResponse{
+    public static class CommandResponse{
         public final ResponseType type;
         public final Command command;
         public final String runCommand;

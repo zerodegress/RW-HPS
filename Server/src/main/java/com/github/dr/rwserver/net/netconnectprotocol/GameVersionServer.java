@@ -505,9 +505,9 @@ public class GameVersionServer extends GameVersion {
                 player.clear();
                 Data.game.playerData[player.site] = null;
             }
+            Events.fire(new EventType.PlayerLeave(player));
         }
-
-        Events.fire(new EventType.PlayerLeave(player));
+        
         try {
             connectionAgreement.close(Static.groupNet);
         } catch (Exception e) {

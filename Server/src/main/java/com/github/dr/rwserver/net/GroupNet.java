@@ -1,6 +1,5 @@
 package com.github.dr.rwserver.net;
 
-import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.log.Log;
 import io.netty.buffer.ByteBuf;
@@ -11,13 +10,17 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Dr
  */
 public class GroupNet {
     private final ChannelGroup CHANNEL_GROUP = new DefaultChannelGroup("ChannelGroups", GlobalEventExecutor.INSTANCE);
-    private final Seq<Protocol> PROTOCOL = new Seq<>(8);
+    private final ExecutorService SINGLE_TCP_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
+    private final ExecutorService SINGLE_UDP_THREAD_EXECUTOR = Executors.newSingleThreadExecutor();
+    private final Seq<ConnectionAgreement> PROTOCOL = new Seq<>(8);
 
     public GroupNet(long a) {
     }
@@ -30,10 +33,10 @@ public class GroupNet {
     }
     /**
      * 加入一个用户到群发列表
-     * @param protocol UDP通道
+     * @param connectionAgreement UDP通道
      */
-    public void add(Protocol protocol) {
-        PROTOCOL.add(protocol);
+    public void add(ConnectionAgreement connectionAgreement) {
+        PROTOCOL.add(connectionAgreement);
     }
 
     public void broadcast(Object msg) {
@@ -46,7 +49,8 @@ public class GroupNet {
          */
     public void broadcast(Object msg,final String str) {
         final ByteBuf byteBuf = ((ByteBuf) msg).copy();
-        Threads.newThreadPlayer2(() -> {
+        SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.writeAndFlush(msg));
+        SINGLE_UDP_THREAD_EXECUTOR.execute(() -> {
             PROTOCOL.each(e -> {
                 try {
                     e.send(byteBuf);
@@ -61,7 +65,6 @@ public class GroupNet {
             });
             ReferenceCountUtil.release(byteBuf);
         });
-        CHANNEL_GROUP.writeAndFlush(msg);
     }
 
     /**
@@ -74,10 +77,10 @@ public class GroupNet {
 
     /**
      * 删除一个UDP通道
-     * @param protocol Protocol
+     * @param connectionAgreement Protocol
      */
-    public void remove(Protocol protocol) {
-        PROTOCOL.remove(protocol);
+    public void remove(ConnectionAgreement connectionAgreement) {
+        PROTOCOL.remove(connectionAgreement);
     }
 
     /**
@@ -86,5 +89,9 @@ public class GroupNet {
      */
     public ChannelGroup flush() {
         return CHANNEL_GROUP.flush();
+    }
+
+    public void disconnect() {
+        CHANNEL_GROUP.disconnect();
     }
 }

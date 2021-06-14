@@ -68,9 +68,9 @@ public class Net {
 								final SocketAddress sockAds = socket.getRemoteSocketAddress();
 								AbstractNetConnect con = OVER_MAP.get(sockAds);
 								if (con == null) {
-									con = Data.game.connectNet.getVersionNet(sockAds,null);
+									con = Data.game.connectNet.getVersionNet(null);
 									OVER_MAP.put(sockAds, con);
-									con.setProtocol(new Protocol(socket));
+									con.setConnectionAgreement(new ConnectionAgreement(socket));
 								}
 								final AbstractNetConnect conFinal = con;
 								group.execute(() -> {
@@ -78,6 +78,7 @@ public class Net {
 										try {
 											DataInputStream in = new DataInputStream(socket.getInputStream());
 											int size = in.readInt();
+											int type = in.readInt();
 											byte[] bytes = new byte[size];
 											int bytesRead = 0;
 											while (bytesRead < size) {
@@ -87,7 +88,7 @@ public class Net {
 												}
 												bytesRead += readIn;
 											}
-											typeConnect(conFinal, new Packet(in.readInt(),bytes));
+											typeConnect(null,conFinal, new Packet(type,bytes));
 										} catch (Exception e) {
 											Log.error("UDP READ", e);
 											break;
@@ -102,6 +103,7 @@ public class Net {
 					});
 				}
 				this.openPort(port);
+
 			} catch (Exception e) {
 				Log.error("Net START", e);
 				Core.exit();
@@ -149,7 +151,7 @@ public class Net {
 			@Override
 			protected void initChannel(SocketChannel socketChannel) throws Exception {
 				ChannelPipeline pipeline = socketChannel.pipeline();
-				pipeline.addLast(new IdleStateHandler(0, 3, 0, TimeUnit.SECONDS));
+				pipeline.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
 				pipeline.addLast(idleStateTrigger);
 				pipeline.addLast(new ByteToMessageDecoder() {
 					private static final int HEADER_SIZE = 8;
@@ -245,6 +247,7 @@ public class Net {
 					super.userEventTriggered(ctx, evt);
 				}
 			}
+
 		}
 
 		final class NewServerHandler extends SimpleChannelInboundHandler<Object> {
@@ -256,14 +259,14 @@ public class Net {
 					final SocketAddress sockAds = channel.remoteAddress();
 					AbstractNetConnect con = OVER_MAP.get(sockAds);
 					if (con == null) {
-						con = Data.game.connectNet.getVersionNet(sockAds,ctx.alloc());
+						con = Data.game.connectNet.getVersionNet(ctx.alloc());
 						OVER_MAP.put(sockAds, con);
-						con.setProtocol(new Protocol(channel));
+						con.setConnectionAgreement(new ConnectionAgreement(channel));
 					}
 					final AbstractNetConnect finalCon = con;
 					ctx.executor().execute(() -> {
 						try {
-							typeConnect(finalCon, p);
+							typeConnect(channel,finalCon, p);
 						} catch (Exception e) {
 							clear(ctx);
 						} finally {
@@ -280,7 +283,7 @@ public class Net {
 			}
 		}
 
-		private void typeConnect(AbstractNetConnect con,Packet p) throws Exception {
+		private void typeConnect(Channel channel,AbstractNetConnect con,Packet p) throws Exception {
 			try {
 				netRwHps(con,p);
 			} catch (Exception e) {
@@ -294,7 +297,6 @@ public class Net {
 		}
 
 		private void netRwHps(final AbstractNetConnect con,final Packet p) throws Exception {
-			if (!Data.game.oneReadUnitList) {
 				// CPU分支预测
 				con.setLastReceivedTime(Time.concurrentMillis());
 				if (p.type == PacketType.PACKET_ADD_GAMECOMMAND) {
@@ -315,7 +317,6 @@ public class Net {
 						case PacketType.PACKET_HEART_BEAT_RESPONSE:
 							Player player = con.getPlayer();
 							player.ping = (int) (System.currentTimeMillis() - player.timeTemp) >> 1;
-							con.setTryBolean(false);
 							//心跳 懒得处理
 							break;
 						// 玩家发送消息
@@ -338,7 +339,6 @@ public class Net {
 						default:
 							break;
 					}
-				}
 			}
 		}
 

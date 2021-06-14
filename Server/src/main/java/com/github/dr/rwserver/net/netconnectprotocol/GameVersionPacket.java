@@ -101,22 +101,23 @@ public class GameVersionPacket implements AbstractNetPacket {
 
     @Override
     public ByteBuf convertGameSaveDataByteBuf(Packet packet) throws IOException {
-        GameInputStream stream = new GameInputStream(packet);
-        GameOutputStream o = new GameOutputStream();
-        o.writeByte(stream.readByte());
-        o.writeInt(stream.readInt());
-        o.writeInt(stream.readInt());
-        o.writeFloat(stream.readFloat());
-        o.writeFloat(stream.readFloat());
-        o.writeBoolean(false);
-        o.writeBoolean(false);
-        stream.readBoolean();
-        stream.readBoolean();
-        stream.readString();
-        byte[] bytes = stream.readStreamBytes();
-        o.writeString("gameSave");
-        o.flushMapData(bytes.length,bytes);
-        return o.createPacket(35);
+        try (GameInputStream stream = new GameInputStream(packet)) {
+            GameOutputStream o = new GameOutputStream();
+            o.writeByte(stream.readByte());
+            o.writeInt(stream.readInt());
+            o.writeInt(stream.readInt());
+            o.writeFloat(stream.readFloat());
+            o.writeFloat(stream.readFloat());
+            o.writeBoolean(false);
+            o.writeBoolean(false);
+            stream.readBoolean();
+            stream.readBoolean();
+            stream.readString();
+            byte[] bytes = stream.readStreamBytes();
+            o.writeString("gameSave");
+            o.flushMapData(bytes.length, bytes);
+            return o.createPacket(35);
+        }
     }
 
     @Override

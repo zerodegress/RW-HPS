@@ -8,7 +8,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 
 /**
  * @author Dr
@@ -21,10 +20,10 @@ public interface AbstractNetConnect {
 
     /**
      * 获取版本协议
-     * @param sockAds SocketAds
+     * @param bufAllocator ByteBufAllocator
      * @return 协议
      */
-    AbstractNetConnect getVersionNet(SocketAddress sockAds, ByteBufAllocator bufAllocator);
+    AbstractNetConnect getVersionNet(ByteBufAllocator bufAllocator);
 
 
     /**
@@ -33,8 +32,8 @@ public interface AbstractNetConnect {
      */
     Player getPlayer();
     void setCache(Packet packet);
-    void setLastReceivedTime(long time);
-    long getLastReceivedTime();
+    String getIp();
+    String getName();
     /**
      * 尝试次数+1
      */
@@ -44,7 +43,7 @@ public interface AbstractNetConnect {
      * @return 尝试次数
      */
     int getTry();
-    void setTryBolean(boolean tryBolean);
+    void setTryBoolean(boolean tryBoolean);
     boolean getTryBoolean();
 
     /**
@@ -52,16 +51,18 @@ public interface AbstractNetConnect {
      * @return 值
      */
     boolean getIsPasswd();
+    void setLastReceivedTime(long time);
+    long getLastReceivedTime();
     /**
-     * 设置Protocol
-     * @param protocol Protocol
+     * 设置ConnectionAgreement
+     * @param connectionAgreement ConnectionAgreement
      */
-    void setProtocol(Protocol protocol);
+    void setConnectionAgreement(ConnectionAgreement connectionAgreement);
     /**
      * 获取连接协议
      * @return 协议
      */
-    String getProtocol();
+    String getConnectionAgreement();
     /**
      * 服务端可支持的版本
      * @return 版本号

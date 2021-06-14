@@ -26,7 +26,6 @@ import io.netty.util.ReferenceCountUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -45,22 +44,19 @@ import static com.github.dr.rwserver.util.encryption.Game.connectKey;
  * @date 2020/9/5 17:02:33
  */
 public class GameVersionServer extends GameVersion {
-
-    private SocketAddress sockAds;
     private String playerConnectKey;
     private long time = 0;
     private boolean isDis = false;
 
     private final ReentrantLock sync = new ReentrantLock(true);
 
-    public GameVersionServer(SocketAddress sockAds, ByteBufAllocator bufAllocator) {
-        this.sockAds = sockAds;
+    public GameVersionServer(ByteBufAllocator bufAllocator) {
         this.bufAllocator = bufAllocator;
     }
 
     @Override
-    public AbstractNetConnect getVersionNet(SocketAddress sockAds,ByteBufAllocator bufAllocator) {
-        return new GameVersionServer(sockAds,bufAllocator);
+    public AbstractNetConnect getVersionNet(ByteBufAllocator bufAllocator) {
+        return new GameVersionServer(bufAllocator);
     }
 
     @Override
@@ -372,7 +368,6 @@ public class GameVersionServer extends GameVersion {
     @Override
     public boolean getPlayerInfo(Packet p) throws IOException {
         try {
-            String ip;
             GameInputStream stream = new GameInputStream(p);
             stream.readString();
             stream.readInt();
@@ -402,13 +397,6 @@ public class GameVersionServer extends GameVersion {
             }
             isPasswd = false;
 
-            try {
-                String address = sockAds.toString();
-                ip = address.substring(1, address.indexOf(':'));
-            } catch (Exception e) {
-                ip = "127.0.0.1";
-            }
-
             AtomicBoolean re = new AtomicBoolean(false);
             if (Data.game.isStartGame) {
                 Data.playerAll.each(i -> i.uuid.equals(uuid), e -> {
@@ -436,15 +424,15 @@ public class GameVersionServer extends GameVersion {
                 }
                 LocaleUtil localeUtil = Data.localeUtilMap.get("CN");
                 if (Data.game.ipCheckMultiLanguageSupport) {
-                    IPResult rec = Data.ip2Location.IPQuery(ip);
+                    IPResult rec = Data.ip2Location.IPQuery(connectionAgreement.ip);
                     if (!"OK".equals(rec.getStatus())) {
                         localeUtil = Data.localeUtilMap.get(rec.getCountryShort());
                     }
                 }
-                player = Player.addPlayer(this, ip, uuid, name, localeUtil);
+                player = Player.addPlayer(this, uuid, name, localeUtil);
             }
 
-            protocol.add(Static.groupNet);
+            connectionAgreement.add(Static.groupNet);
             Call.sendTeamData();
             sendServerInfo(true);
             Events.fire(new EventType.PlayerJoin(player));
@@ -459,7 +447,6 @@ public class GameVersionServer extends GameVersion {
             return true;
         } finally {
             playerConnectKey = null;
-            sockAds = null;
         }
     }
 
@@ -522,7 +509,7 @@ public class GameVersionServer extends GameVersion {
 
         Events.fire(new EventType.PlayerLeave(player));
         try {
-            protocol.close(Static.groupNet);
+            connectionAgreement.close(Static.groupNet);
         } catch (Exception e) {
             Log.error("Close Connect",e);
         }
@@ -598,7 +585,7 @@ public class GameVersionServer extends GameVersion {
             } catch (Exception e) {
                 future.cancel(true);
                 Log.error(e);
-                protocol.close(Static.groupNet);
+                connectionAgreement.close(Static.groupNet);
             } finally {
                 executorService.shutdown();
                 Data.game.gameSaveCache = null;

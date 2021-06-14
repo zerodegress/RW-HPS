@@ -15,21 +15,23 @@ import static com.github.dr.rwserver.util.RandomUtil.generateStr;
  * @author Dr
  * @date 2021年2月2日星期二 06:31:11
  */
-public class Protocol {
+public class ConnectionAgreement {
     private final ProtocolType<ByteBuf> protocolType;
     private final Object object;
-    public final String useAgreement;
     private final OutputStream socketStream;
+    public final String useAgreement;
+    public final String ip;
     public final String id;
 
     /**
      * TCP Send
      * @param channel Netty-Channel
      */
-    public Protocol(Channel channel) {
+    public ConnectionAgreement(Channel channel) {
         protocolType = channel::writeAndFlush;
         object = channel;
         useAgreement = "TCP";
+        ip = convertIp(channel.remoteAddress().toString());
         socketStream = null;
         id = null;
     }
@@ -39,7 +41,7 @@ public class Protocol {
      * @param socket Socket
      * @throws IOException Error
      */
-    public Protocol(Socket socket) throws IOException {
+    public ConnectionAgreement(Socket socket) throws IOException {
         socketStream = socket.getOutputStream();
         protocolType = (msg) -> {
             socketStream.write(msg.array());
@@ -47,6 +49,7 @@ public class Protocol {
         };
         object = socket;
         useAgreement = "UDP";
+        ip = convertIp(socket.getRemoteSocketAddress().toString());
         id = generateStr(5);
     }
 
@@ -82,12 +85,16 @@ public class Protocol {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return this.id.equals(((Protocol) o).id);
+        return this.id.equals(((ConnectionAgreement) o).id);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    private String convertIp(final String ipString) {
+        return ipString.substring(1, ipString.indexOf(':'));
     }
 
     private interface ProtocolType<T>{

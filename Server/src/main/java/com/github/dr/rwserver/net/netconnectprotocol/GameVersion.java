@@ -4,8 +4,9 @@ import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.AbstractNetConnect;
+import com.github.dr.rwserver.net.ConnectionAgreement;
 import com.github.dr.rwserver.net.GroupNet;
-import com.github.dr.rwserver.net.Protocol;
+import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import io.netty.buffer.ByteBuf;
@@ -16,15 +17,27 @@ import java.io.IOException;
 public abstract class GameVersion implements AbstractNetConnect {
     protected int errorTry = 0;
     protected boolean isPasswd = false;
+    protected long lastReceivedTime = Time.concurrentMillis();
+    protected volatile boolean isDis = false;
     protected volatile boolean isTry = false;
     protected Player player = null;
 
-    protected Protocol protocol;
+    protected ConnectionAgreement connectionAgreement;
     protected ByteBufAllocator bufAllocator;
 
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    @Override
+    public String getIp() {
+        return connectionAgreement.ip;
+    }
+
+    @Override
+    public String getName() {
+        return "";
     }
 
     @Override
@@ -38,8 +51,8 @@ public abstract class GameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void setTryBolean(boolean tryBolean) {
-        this.isTry = tryBolean;
+    public void setTryBoolean(boolean tryBoolean) {
+        this.isTry = tryBoolean;
     }
 
     @Override
@@ -53,13 +66,24 @@ public abstract class GameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void setProtocol(Protocol protocol) {
-        this.protocol = protocol;
+    public void setLastReceivedTime(final long time) {
+        this.isTry = false;
+        this.lastReceivedTime = time;
     }
 
     @Override
-    public String getProtocol() {
-        return protocol.useAgreement;
+    public long getLastReceivedTime() {
+        return lastReceivedTime;
+    }
+
+    @Override
+    public void setConnectionAgreement(ConnectionAgreement connectionAgreement) {
+        this.connectionAgreement = connectionAgreement;
+    }
+
+    @Override
+    public String getConnectionAgreement() {
+        return connectionAgreement.useAgreement;
     }
 
     @Override
@@ -151,7 +175,7 @@ public abstract class GameVersion implements AbstractNetConnect {
 
     protected void close(final GroupNet groupNet) {
         try {
-            protocol.close(groupNet);
+            connectionAgreement.close(groupNet);
         } catch (Exception e) {
             Log.error("Close Connect",e);
         }
@@ -173,7 +197,7 @@ public abstract class GameVersion implements AbstractNetConnect {
      */
     protected void sendPacket(ByteBuf bb) {
         try {
-            protocol.send(bb);
+            connectionAgreement.send(bb);
         } catch (Exception e) {
             Log.error("[UDP] SendError - 本消息单独出现无妨 连续多次出现请debug",e);
             disconnect();

@@ -15,10 +15,6 @@ import java.util.Objects;
  */
 public final class Player {
 	/**
-	 * 玩家 Ip
-	 */
-	public final String ip;
-	/**
 	 * 玩家连接UUID
 	 */
 	public final String uuid;
@@ -55,16 +51,15 @@ public final class Player {
 
 	private final AbstractNetPacket PACKET = Data.game.connectPacket;
 
-	public Player(AbstractNetConnect con, final String ip, final String uuid, final String name, final LocaleUtil localeUtil) {
+	public Player(AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
 		this.con = con;
-		this.ip = ip;
 		this.uuid = uuid;
 		this.name = name;
 		this.localeUtil = localeUtil;
 	}
 
-	public static Player addPlayer(AbstractNetConnect con, final String ip, final String uuid, final String name, final LocaleUtil localeUtil) {
-		Player player = new Player(con, ip, uuid, name, localeUtil);
+	public static Player addPlayer(AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
+		Player player = new Player(con, uuid, name, localeUtil);
 		if (Data.game.oneAdmin) {
 			if (Data.playerGroup.size() == 0) {
 				player.isAdmin = true;

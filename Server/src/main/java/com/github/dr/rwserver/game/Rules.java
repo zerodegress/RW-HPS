@@ -166,7 +166,7 @@ public class Rules {
         passwdCheckApi = config.readBoolean("passwdCheckApi",false);
 
 
-        Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionServer(null,null),151));
+        Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionServer(null),151));
 
         /* RW HPS Core */
         Administration.NetConnectProtocolData protocol = Data.core.admin.getNetConnectProtocol();

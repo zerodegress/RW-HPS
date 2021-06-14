@@ -3,13 +3,14 @@ package com.github.dr.rwserver.io;
 import com.github.dr.rwserver.util.zip.gzip.GzipDecoder;
 
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 
 /**
  * @author Dr
  */
-public class GameInputStream {
+public class GameInputStream implements Closeable {
 	public final ByteArrayInputStream buffer;
     public final DataInputStream stream;
 
@@ -61,20 +62,20 @@ public class GameInputStream {
     public byte[] readStreamBytes() throws IOException {
         int n2;
         int n3 = this.readInt();
-        byte[] arrby = new byte[n3];
-        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(arrby, i2, n3 - i2)) != -1; i2 += n2) {
+        byte[] bytes = new byte[n3];
+        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(bytes, i2, n3 - i2)) != -1; i2 += n2) {
         }
-        return arrby;
+        return bytes;
     }
 
     public byte[] readStreamBytesNew() throws IOException {
         int n2;
         this.readInt();
         int n3 = this.readInt();
-        byte[] arrby = new byte[n3];
-        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(arrby, i2, n3 - i2)) != -1; i2 += n2) {
+        byte[] bytes = new byte[n3];
+        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(bytes, i2, n3 - i2)) != -1; i2 += n2) {
         }
-        return arrby;
+        return bytes;
     }
 
     public DataInputStream getDecodeStream(boolean bl) throws IOException{
@@ -91,8 +92,12 @@ public class GameInputStream {
     }
 
     public byte[] getDecodeBytes() throws IOException{
-        this.readString();
-        return readStreamBytes();
+        try {
+            this.readString();
+            return readStreamBytes();
+        } finally {
+            close();
+        }
     }
 
     @Override
@@ -101,5 +106,11 @@ public class GameInputStream {
                 "buffer=" + buffer +
                 ", stream=" + stream +
                 '}';
+    }
+
+    @Override
+    public void close() throws IOException {
+        buffer.close();
+        stream.close();
     }
 }

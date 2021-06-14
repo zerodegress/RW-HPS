@@ -123,7 +123,7 @@ public class Event {
 
         Events.on(PlayerBanEvent.class,e -> {
             Data.core.admin.bannedUUIDs.add(e.player.uuid);
-            Data.core.admin.bannedIPs.add(e.player.ip);
+            Data.core.admin.bannedIPs.add(e.player.con.getIp());
             try {
                 e.player.con.sendKick(e.player.localeUtil.getinput("kick.ban"));
             } catch (IOException ioException) {
@@ -135,7 +135,7 @@ public class Event {
         Events.on(PlayerUnbanEvent.class,e -> {});
 
         Events.on(PlayerIpBanEvent.class,e -> {
-            Data.core.admin.bannedIPs.add(e.player.ip);
+            Data.core.admin.bannedIPs.add(e.player.con.getIp());
             try {
                 e.player.con.sendKick("kick.ban");
             } catch (IOException ioException) {

@@ -44,6 +44,8 @@ public class GameOutputStream {
             return byteBuf;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            close();
         }
     }
 
@@ -60,6 +62,8 @@ public class GameOutputStream {
             return gameOutputStream.createPacket();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            close();
         }
     }
 
@@ -82,6 +86,20 @@ public class GameOutputStream {
             return byteBuf;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            close();
+        }
+    }
+
+    public Packet createPackets(int type) {
+        try {
+            this.stream.flush();
+            this.buffer.flush();
+            return new Packet(type,this.buffer.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            close();
         }
     }
 
@@ -134,5 +152,15 @@ public class GameOutputStream {
         this.stream.write(bytes);
     }
 
-
+    private void close() {
+        try {
+            this.buffer.close();
+        } catch (IOException e) {
+        } finally {
+            try {
+                this.stream.close();
+            } catch (IOException e) {
+            }
+        }
+    }
 }

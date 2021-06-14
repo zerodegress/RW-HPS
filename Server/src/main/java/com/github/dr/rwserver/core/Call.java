@@ -168,32 +168,26 @@ public class Call {
             }
             final int size = Data.game.gameCommandCache.size();
             if (size == 0) {
-                Threads.newThreadPlayer1(() -> {
-                    try {
-                        Static.groupNet.broadcast(PACKET.getTickByteBuf(time));
-                    } catch (IOException e) {
-                        Log.error("[ALL] Send Tick Failed",e);
-                    }
-                });
+                try {
+                    Static.groupNet.broadcast(PACKET.getTickByteBuf(time));
+                } catch (IOException e) {
+                    Log.error("[ALL] Send Tick Failed",e);
+                }
             } else if (size == 1 ) {
                 GameCommand gameCommand = Data.game.gameCommandCache.poll();
-                Threads.newThreadPlayer1(() -> {
-                    try {
-                        Static.groupNet.broadcast(PACKET.getGameTickCommandByteBuf(time,gameCommand));
-                    } catch (IOException e) {
-                        Log.error("[ALL] Send Game Tick Error",e);
-                    }
-                });
+                try {
+                    Static.groupNet.broadcast(PACKET.getGameTickCommandByteBuf(time,gameCommand));
+                } catch (IOException e) {
+                    Log.error("[ALL] Send Game Tick Error",e);
+                }
             } else {
                 Seq<GameCommand> comm = new Seq<>(size);
                 IntStream.range(0, size).mapToObj(i -> Data.game.gameCommandCache.poll()).forEach(comm::add);
-                Threads.newThreadPlayer1(() -> {
-                    try {
-                        Static.groupNet.broadcast(PACKET.getGameTickCommandsByteBuf(time,comm));
-                    } catch (IOException e) {
-                        Log.error("[ALL] Send Game Ticks Error",e);
-                    }
-                });
+                try {
+                    Static.groupNet.broadcast(PACKET.getGameTickCommandsByteBuf(time,comm));
+                } catch (IOException e) {
+                    Log.error("[ALL] Send Game Ticks Error",e);
+                }
             }
         }
     }

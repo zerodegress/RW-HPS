@@ -185,9 +185,9 @@ public class ServerCommands {
                         .append(" / ")
                         .append("ID: ").append(player.uuid)
                         .append(" / ")
-                        .append("IP: ").append(player.ip)
+                        .append("IP: ").append(player.con.getIp())
                         .append(" / ")
-                        .append("Protocol: ").append(player.con.getProtocol())
+                        .append("Protocol: ").append(player.con.getConnectionAgreement())
                         .append(" / ")
                         .append("Admin: ").append(player.isAdmin);
                 }

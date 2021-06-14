@@ -6,10 +6,15 @@
 
 **抱歉 暂无**
 
+## 贡献
+感谢你来到这里和你对 RW-HPS 做的所有贡献  
+RW-HPS 欢迎一切形式的代码贡献。你可以通过以下几种途径向 RW-HPS 贡献  
+
 ## 运行
-因为我的行为,导致Server运行必须要自己搞Config.json   
-那么,你可以在项目的根下找到Config.json,下载他,放到jar同目录的data/下  
-就可以java -jar了  
+[直接运行](https://github.com/deng-rui/RW-HPS/blob/master/docs/run/Run.md)
+
+[使用Docker容器](https://github.com/deng-rui/RW-HPS/blob/master/docker/README.md)
++ Docker容器实现来自[@yiyungent](https://github.com/yiyungent)  
 
 修改port请在Config.json内修改(需要重新启动jar)    
 

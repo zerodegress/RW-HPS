@@ -6,8 +6,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.util.log.Log;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,11 +31,7 @@ public final class LoadConfig {
 
     public void reLoadConfig() {
         if(!fileUtil.exists()) {
-            try {
-                Files.copy(this.getClass().getResourceAsStream("/Config.json"), fileUtil.getFile().toPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return;
         }
         JSONObject  jsonObject = JSONObject.parseObject(fileUtil.readFileData(false).toString(), Feature.OrderedField);
         //json对象转Map

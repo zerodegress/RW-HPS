@@ -3,7 +3,7 @@ name: 错误报告
 about: 创建报告以帮助我们改进
 title: ''
 labels: 错误
-assignees: ''
+assignees: deng-rui
 
 ---
 

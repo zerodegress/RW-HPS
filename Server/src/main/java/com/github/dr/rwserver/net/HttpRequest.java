@@ -49,8 +49,7 @@ public class HttpRequest {
 				.addHeader("User-Agent",USER_AGENT)
 				.post(formBody.build())
 				.build();
-		try {
-			Response response = client.newCall(request).execute();
+		try (Response response = client.newCall(request).execute()) {
 			if (!response.isSuccessful()) {
 				Log.error("Unexpected code",new IOException());
 			}
@@ -74,8 +73,7 @@ public class HttpRequest {
 				.addHeader("Language","zh")
 				.post(formBody.build())
 				.build();
-		try {
-			Response response = client.newCall(request).execute();
+		try (Response response = client.newCall(request).execute()) {
 			if (!response.isSuccessful()) {
 				Log.error("Unexpected code",new IOException());
 			}
@@ -88,12 +86,11 @@ public class HttpRequest {
 
 	public static boolean downUrl(final String url,final File file) {
 		FileOutputStream output = null;
-		try {
 			Request request   = new Request.Builder()
 					.url(url)
 					.addHeader("User-Agent",USER_AGENT)
 					.build();
-			Response response = client.newCall(request).execute();
+		try (Response response = client.newCall(request).execute()) {
 			if ( !response.isSuccessful() ) {
 				throw new FileNotFoundException();
 			}

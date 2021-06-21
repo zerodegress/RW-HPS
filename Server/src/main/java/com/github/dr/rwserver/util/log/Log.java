@@ -134,7 +134,7 @@ public class Log {
 	}
 
 
-	public static String logs(Exception e) {
+	private static String logs(Exception e) {
 		final StringWriter stringWriter = new StringWriter();
 		final PrintWriter printWriter = new PrintWriter(stringWriter);
 		e.printStackTrace(printWriter);

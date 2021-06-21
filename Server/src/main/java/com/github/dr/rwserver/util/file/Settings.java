@@ -30,11 +30,11 @@ public class Settings {
     }
 
     public void saveData() {
-        saveValues(FileUtil.File(Data.Plugin_Data_Path).toPath("Setting.bin"));
+        saveValues(FileUtil.file(Data.Plugin_Data_Path).toPath("Setting.bin"));
     }
 
     public void loadData() {
-        loadValues(FileUtil.File(Data.Plugin_Data_Path).toPath("Setting.bin"));
+        loadValues(FileUtil.file(Data.Plugin_Data_Path).toPath("Setting.bin"));
     }
 
     public float getFloat(String name, float def) {

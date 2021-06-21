@@ -20,17 +20,18 @@ public final class LoadConfig {
     private final FileUtil fileUtil;
 
     public LoadConfig(String file,boolean isFile) {
-        fileUtil = isFile ? FileUtil.File(file) : new FileUtil(file);
+        fileUtil = isFile ? FileUtil.file(file) : new FileUtil(file);
         reLoadConfig();
     }
 
     public LoadConfig(String file,String name) {
-        fileUtil = FileUtil.File(file).toPath(name);
+        fileUtil = FileUtil.file(file).toPath(name);
         reLoadConfig();
     }
 
     public void reLoadConfig() {
-        if(!fileUtil.exists()) {
+        if (!fileUtil.exists()) {
+            Log.error("NO Config.Json Use default configuration");
             return;
         }
         JSONObject  jsonObject = JSONObject.parseObject(fileUtil.readFileData(false).toString(), Feature.OrderedField);

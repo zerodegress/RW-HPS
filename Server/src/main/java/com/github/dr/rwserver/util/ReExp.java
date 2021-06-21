@@ -98,7 +98,7 @@ public abstract class ReExp {
 
     public static class ResultData {
         public Object result = null;
-        public int cout;
+        public final int cout;
         public int failures = 0;
         public ResultData(String name,int rq) {
             cout = rq;

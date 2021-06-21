@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Static helper functions for robustly encoding filenames in zip files.
+ * NetStaticData helper functions for robustly encoding filenames in zip files.
  * @author Apache
  */
 public abstract class ZipEncodingHelper {

@@ -17,7 +17,7 @@ public class ExtraFieldUtils {
     private static final int WORD = 4;
 
     /**
-     * Static registry of known extra fields.
+     * NetStaticData registry of known extra fields.
      *
      * @since 1.1
      */

@@ -25,19 +25,19 @@ public class ExtractUtil {
 
 	public static byte[] hexToByteArray(String inHex){
     	inHex = inHex.replace(" ","");
-		int hexlen = inHex.length();
+		int hexLength = inHex.length();
 		byte[] result;
-		if (hexlen % 2 != 1) {
+		if (hexLength % 2 != 1) {
 			//偶数
-			result = new byte[(hexlen/2)];
+			result = new byte[(hexLength/2)];
 		} else {
 			//奇数
-			hexlen++;
-			result = new byte[(hexlen/2)];
+			hexLength++;
+			result = new byte[(hexLength/2)];
 			inHex="0"+inHex;
 		}
 		int j=0;
-		for (int i = 0; i < hexlen; i+=2){
+		for (int i = 0; i < hexLength; i+=2){
 			result[j]=(byte)Integer.parseInt(inHex.substring(i,i+2),16);
 			j++;
 		}

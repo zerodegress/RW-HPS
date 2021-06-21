@@ -48,23 +48,23 @@ public class FileUtil {
 		}
 	}
 
-	public static FileUtil File() {
-		return File(null);
+	public static FileUtil file() {
+		return file(null);
 	}
 
-	public static FileUtil File(String tofile) {
+	public static FileUtil file(String toFile) {
 		File file;
 		String filepath = null;
-		String to = tofile;
-		if (null!=tofile) {
+		String to = toFile;
+		if (null!=toFile) {
 			final String pth = "/";
-            if(!pth.equals(String.valueOf(tofile.charAt(0)))) {
-                to = "/" + tofile;
+            if(!pth.equals(String.valueOf(toFile.charAt(0)))) {
+                to = "/" + toFile;
             }
         }
 		try {
 			File directory = new File("");
-			if (null==tofile) {
+			if (null==toFile) {
                 file = (isBlank(path)) ? new File(directory.getCanonicalPath()) : new File(path);
             } else {
 				filepath=(isBlank(path)) ? directory.getCanonicalPath()+to : path + to;
@@ -72,7 +72,7 @@ public class FileUtil {
 			}
 		} catch (Exception e) {
 
-			if (null==tofile) {
+			if (null==toFile) {
                 file = (isBlank(path)) ? new File(System.getProperty("user.dir")) : new File(path);
             } else {
 				filepath= (isBlank(path)) ? System.getProperty("user.dir")+to : path;
@@ -249,18 +249,18 @@ public class FileUtil {
 		try (BufferedReader br = new BufferedReader(isr)) {
 			String line;
 			if(list){
-				Seq<String> FileContent = new Seq<>();
+				Seq<String> fileContent = new Seq<>();
 				while ((line = br.readLine()) != null) { 
-					FileContent.add(line);
+					fileContent.add(line);
 				} 
-				return FileContent;
+				return fileContent;
 			} else {
-				StringBuilder FileContent = new StringBuilder();
+				StringBuilder fileContent = new StringBuilder();
 				while ((line = br.readLine()) != null) { 
-					FileContent.append(line);
-					FileContent.append("\r\n");
+					fileContent.append(line);
+					fileContent.append("\r\n");
 				}
-				return FileContent.toString();
+				return fileContent.toString();
 			}
 		} catch (IOException e) { 
 			e.printStackTrace(); 

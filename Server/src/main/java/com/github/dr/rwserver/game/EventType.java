@@ -1,7 +1,7 @@
 package com.github.dr.rwserver.game;
 
 import com.github.dr.rwserver.data.Player;
-import com.github.dr.rwserver.net.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.AbstractNetConnect;
 
 /**
  * @author Dr

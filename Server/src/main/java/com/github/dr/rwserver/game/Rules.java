@@ -1,26 +1,28 @@
 package com.github.dr.rwserver.game;
 
+import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.AbstractNetConnect;
-import com.github.dr.rwserver.net.AbstractNetPacket;
-import com.github.dr.rwserver.net.Administration;
-import com.github.dr.rwserver.net.Net;
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.encryption.Base64;
+import com.github.dr.rwserver.util.encryption.Sha;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Dr
@@ -28,11 +30,6 @@ import java.util.concurrent.ScheduledFuture;
 public class Rules {
     /** 端口 */
     public int port = 5123;
-    /** 支持版本 */
-    public final int version;
-    /** 协议 */
-    public final AbstractNetConnect connectNet;
-    public final AbstractNetPacket connectPacket;
     /** 是否已启动游戏 */
     public boolean isStartGame = false;
     /** 倍数 */
@@ -52,15 +49,13 @@ public class Rules {
     /** 共享控制 */
     public boolean sharedControl = false;
     /** 密码 */
-    public String passwd;
+    public final String passwd;
     /** 按键包缓存 */
     public final LinkedBlockingQueue<GameCommand> gameCommandCache = new LinkedBlockingQueue<>();
     /** 混战分配 */
     public boolean amTeam = false;
     /** 队伍数据 */
     public volatile Player[] playerData;
-    /** ？ */
-    public Net.NetStartGame natStartGame = null;
     /** 最大发言长度 */
     public final int maxMessageLen;
     /** 最大单位数 */
@@ -81,8 +76,6 @@ public class Rules {
     public final boolean winOrLose;
     /** 胜负判定时间 */
     public final int winOrLoseTime;
-    /** 是否第一次启动读取MOD */
-    public final boolean oneReadUnitList;
     /** 共享控制 */
     public int sharedControlPlayer = 0;
     /** Mpa Lock */
@@ -104,8 +97,6 @@ public class Rules {
     public final String webApiSslPasswd;
     /* */
     public final boolean deleteLib;
-    public final boolean gameOverUpList;
-    public final boolean passwdCheckApi;
 
     public boolean lockTeam = false;
 
@@ -115,18 +106,14 @@ public class Rules {
     public ScheduledFuture ping = null;
     public ScheduledFuture team = null;
     public ScheduledFuture winOrLoseCheck = null;
-    public ScheduledFuture updateList = null;
-
-    public final String subtitle;
 
     public final OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
 
-        subtitle = config.readString("subtitle","");
-
         int port = config.readInt("port",5123);
-        passwd = config.readString("passwd","");
+        String passwdCache = config.readString("passwd","");
+        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, new Sha().sha256Arry(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
 
         enterAd = config.readString("enterServerAd","");
         startAd = config.readString("startAd","");
@@ -161,24 +148,22 @@ public class Rules {
         webApiSslPasswd = config.readString("webApiSslPasswd","");
 
         deleteLib = config.readBoolean("deleteLib","");
-        oneReadUnitList = config.readBoolean("oneReadUnitList",false);
-        gameOverUpList = config.readBoolean("gameOverUpList",false);
-        passwdCheckApi = config.readBoolean("passwdCheckApi",false);
 
+        if (config.readBoolean("autoReLoadMap",false)) {
+            Threads.newThreadService2(() -> {
+                if (IsUtil.notIsBlank(Data.game) && !Data.game.isStartGame) {
+                    Data.game.mapsData.clear();
+                    Data.game.checkMaps();
+                }
+            },0,1, TimeUnit.MINUTES);
+        }
 
-        Data.core.admin.setNetConnectProtocol(new Administration.NetConnectProtocolData(new GameVersionServer(null),151));
-
-        /* RW HPS Core */
-        Administration.NetConnectProtocolData protocol = Data.core.admin.getNetConnectProtocol();
-        connectNet = protocol.protocol;
-        Administration.NetConnectPacketData packet = Data.core.admin.getNetConnectPacket();
-        connectPacket = packet.packet;
-        version = protocol.version;
 
         init(config.readInt("maxPlayer",10),port);
     }
 
     public void init() {
+        new CustomEvent();
     }
 
     public void init(int maxPlayer,int port) {
@@ -199,7 +184,7 @@ public class Rules {
     }
 
     public void checkMaps() {
-        List<File> list = FileUtil.File(Data.Plugin_Maps_Path).getFileList();
+        List<File> list = FileUtil.file(Data.Plugin_Maps_Path).getFileList();
         list.forEach(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));

@@ -77,7 +77,7 @@ public class GameMaps {
         }
 
         public void readMap() {
-            FileUtil fileUtil = FileUtil.File(Data.Plugin_Maps_Path);
+            FileUtil fileUtil = FileUtil.file(Data.Plugin_Maps_Path);
             switch (mapFileType) {
                 case file:
                     try {

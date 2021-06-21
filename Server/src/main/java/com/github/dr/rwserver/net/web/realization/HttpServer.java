@@ -26,7 +26,7 @@ public class HttpServer {
         if (rootUrl != null && maxLength > 0) {
             ScanControl scanControl = new ScanControl();
             try {
-                Config.setMessage_Max(maxLength);
+                Config.setMessageMax(maxLength);
                 Config.setRootUrl(rootUrl);
                 Config.setWebSocketUrl(webSocektUrl);
                 scanControl.start(rootUrl);

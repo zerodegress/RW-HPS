@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MyData extends MySon {
-    Map<String, String> urlMap = ResConfig.get().getMyEntity();
+    final Map<String, String> urlMap = ResConfig.get().getMyEntity();
 
     public boolean my(List<FileAndName> fileAndNames, RequestManager http, ChannelHandlerContext ch, String url) {
         Class<?> c;
@@ -20,8 +20,6 @@ public class MyData extends MySon {
             if (uri != null) {
                 c = Class.forName(uri.getUri());
                 setMyboss(c);
-                //System.out.println("uri=="+uri.getUrl());
-                //System.out.println("shareuri=="+share.getUri());
                 String urm = url.substring(uri.getUrl().length() - 1);
                 isRight = data(fileAndNames, http, ch, urm);
             } else {

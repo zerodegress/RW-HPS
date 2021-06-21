@@ -317,7 +317,7 @@ public class ReliableServerSocket extends ServerSocket {
         }
     }
 
-    public class ReliableClientSocket extends com.github.dr.rwserver.net.udp.ReliableSocket {
+    public static class ReliableClientSocket extends com.github.dr.rwserver.net.udp.ReliableSocket {
         public ReliableClientSocket(DatagramSocket sock,
                                     SocketAddress endpoint)
             throws IOException

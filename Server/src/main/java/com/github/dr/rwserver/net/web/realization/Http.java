@@ -128,7 +128,7 @@ public class Http extends SimpleChannelInboundHandler<Object> implements Request
                 arg0.close();
                 return;
             }
-            if (msg.content().readableBytes() > Config.getMessage_Max()) {
+            if (msg.content().readableBytes() > Config.getMessageMax()) {
                 arg0.close();
                 System.out.println("请求体过长");
                 return;

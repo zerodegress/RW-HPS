@@ -8,7 +8,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.Map;
 
 public class MyControl extends MySon {
-    Map<String, String> urlMap = ResConfig.get().getMyEntity();
+    final Map<String, String> urlMap = ResConfig.get().getMyEntity();
 
     public boolean my(ShareMessage share, RequestManager http, ChannelHandlerContext ch) {
         Class<?> c;

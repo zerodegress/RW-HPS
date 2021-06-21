@@ -4,7 +4,7 @@ import io.netty.util.AttributeKey;
 
 public class Config {
     private static byte[] POINTER;//分隔符
-    private static int Message_Max;//信息包最大长度
+    private static int MessageMax;//信息包最大长度
     private static String rootUrl;//根路径
     private static String webSocketUrl;//websocketURL
     private static int fileMaxLength = 6553666;//文件最大长度
@@ -35,19 +35,19 @@ public class Config {
         Config.rootUrl = rootUrl;
     }
 
-    public static byte[] getPOINTER() {
+    public static byte[] getPointer() {
         return POINTER;
     }
 
-    public static void setPOINTER(String POINTER) {
-        Config.POINTER = POINTER.getBytes();
+    public static void setPointer(String pointer) {
+        Config.POINTER = pointer.getBytes();
     }
 
-    public static int getMessage_Max() {
-        return Message_Max;
+    public static int getMessageMax() {
+        return MessageMax;
     }
 
-    public static void setMessage_Max(int message_Max) {
-        Message_Max = message_Max;
+    public static void setMessageMax(int messageMax) {
+        MessageMax = messageMax;
     }
 }

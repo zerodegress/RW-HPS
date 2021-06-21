@@ -40,7 +40,7 @@ public class SuperMap<K, V> {
 	private static final boolean BLACK = false;
 	private Node<V> root;
 
-	private class Node<V> {
+	private static class Node<V> {
 		int key;
 		V val;
 		Node<V> left, right;

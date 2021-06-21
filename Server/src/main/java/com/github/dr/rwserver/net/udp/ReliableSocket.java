@@ -787,40 +787,6 @@ public class ReliableSocket extends Socket {
     }
 
     /**
-     * Adds the specified listener to this socket. If the listener
-     * has already been registered, this method does nothing.
-     *
-     * @param listener the listener to add.
-     */
-    public void addListener(ReliableSocketListener listener) {
-        if (listener == null) {
-            throw new NullPointerException("listener");
-        }
-
-        synchronized (_listeners) {
-            if (!_listeners.contains(listener)) {
-                _listeners.add(listener);
-            }
-        }
-    }
-
-    /**
-     * Removes the specified listener from this socket. This is
-     * harmless if the listener was not previously registered.
-     *
-     * @param listener the listener to remove.
-     */
-    public void removeListener(ReliableSocketListener listener) {
-        if (listener == null) {
-            throw new NullPointerException("listener");
-        }
-
-        synchronized (_listeners) {
-            _listeners.remove(listener);
-        }
-    }
-
-    /**
      * Adds the specified state listener to this socket. If the listener
      * has already been registered, this method does nothing.
      *
@@ -950,14 +916,6 @@ public class ReliableSocket extends Socket {
         }
 
         sendSegment(segment);
-
-        if (segment instanceof DATSegment) {
-            synchronized (_listeners) {
-                for (ReliableSocketListener l : _listeners) {
-                    l.packetSent();
-                }
-            }
-        }
     }
 
     /**
@@ -978,14 +936,6 @@ public class ReliableSocket extends Socket {
         }
 
         sendSegment(segment);
-
-        if (segment instanceof DATSegment) {
-             synchronized (_listeners) {
-                 for (ReliableSocketListener l : _listeners) {
-                     l.packetRetransmitted();
-                 }
-             }
-        }
     }
 
     /**
@@ -1292,14 +1242,6 @@ public class ReliableSocket extends Socket {
                         _inSeqRecvQueue.add(segment);
                     }
 
-                    if (segment instanceof DATSegment) {
-                        synchronized (_listeners) {
-                            for (ReliableSocketListener l : _listeners) {
-                                l.packetReceivedInOrder();
-                            }
-                        }
-                    }
-
                     checkRecvQueues();
                 }
                 else {
@@ -1327,14 +1269,6 @@ public class ReliableSocket extends Socket {
                 }
 
                 _counters.incOutOfSequenceCounter();
-
-                if (segment instanceof DATSegment) {
-                    synchronized (_listeners) {
-                        for (ReliableSocketListener l : _listeners) {
-                            l.packetReceivedOutOfOrder();
-                        }
-                    }
-                }
             }
 
             if (inSequence && (segment instanceof RSTSegment ||
@@ -1555,7 +1489,7 @@ public class ReliableSocket extends Socket {
             _nullSegmentTimer.destroy();
 
             try {
-                Thread.sleep(_profile.nullSegmentTimeout() * 2);
+                Thread.sleep(_profile.nullSegmentTimeout() * 2L);
             }
             catch (InterruptedException xcp) {
                 xcp.printStackTrace();
@@ -1627,7 +1561,6 @@ public class ReliableSocket extends Socket {
     private final Object  _closeLock = new Object();
     private final Object  _resetLock = new Object();
 
-    private final ArrayList<ReliableSocketListener> _listeners = new ArrayList<>();
     private final ArrayList<ReliableSocketStateListener> _stateListeners = new ArrayList<>();
 
     /* RUDP connection parameters */
@@ -1704,7 +1637,7 @@ public class ReliableSocket extends Socket {
      * -----------------------------------------------------------------------
      */
 
-    private class Counters {
+    private static class Counters {
         public Counters()
         {
         }

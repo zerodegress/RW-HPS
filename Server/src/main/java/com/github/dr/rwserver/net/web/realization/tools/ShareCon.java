@@ -19,9 +19,7 @@ public class ShareCon {
 			}
 		}
 		// 将每一个/后面的第一个字母大写
-		// String[] urs = uri.split("/");
-		// System.out.println("end uri==" + uri);
-		ShareMessage share = new ShareMessage();
+        ShareMessage share = new ShareMessage();
 		share.setBody(bodyMessage);
 		share.setUri(uri);
 		share.setParams(map);

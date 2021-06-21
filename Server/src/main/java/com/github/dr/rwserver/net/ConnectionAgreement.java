@@ -1,11 +1,12 @@
 package com.github.dr.rwserver.net;
 
+import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.udp.ReliableSocket;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Objects;
 
@@ -16,11 +17,12 @@ import static com.github.dr.rwserver.util.RandomUtil.generateStr;
  * @date 2021年2月2日星期二 06:31:11
  */
 public class ConnectionAgreement {
-    private final ProtocolType<ByteBuf> protocolType;
+    private final ProtocolType<Packet> protocolType;
     private final Object object;
-    private final OutputStream socketStream;
+    private final DataOutputStream socketStream;
     public final String useAgreement;
     public final String ip;
+    public final int localPort;
     public final String id;
 
     /**
@@ -32,6 +34,7 @@ public class ConnectionAgreement {
         object = channel;
         useAgreement = "TCP";
         ip = convertIp(channel.remoteAddress().toString());
+        localPort = ((InetSocketAddress) channel.localAddress()).getPort();
         socketStream = null;
         id = null;
     }
@@ -42,14 +45,17 @@ public class ConnectionAgreement {
      * @throws IOException Error
      */
     public ConnectionAgreement(Socket socket) throws IOException {
-        socketStream = socket.getOutputStream();
+        socketStream = new DataOutputStream(socket.getOutputStream());
         protocolType = (msg) -> {
-            socketStream.write(msg.array());
+            socketStream.writeInt(msg.bytes.length);
+            socketStream.writeInt(msg.type);
+            socketStream.write(msg.bytes);
             socketStream.flush();
         };
         object = socket;
         useAgreement = "UDP";
         ip = convertIp(socket.getRemoteSocketAddress().toString());
+        localPort = socket.getLocalPort();
         id = generateStr(5);
     }
 
@@ -61,8 +67,8 @@ public class ConnectionAgreement {
         }
     }
 
-    public void send(ByteBuf byteBuf) throws IOException {
-        protocolType.send(byteBuf);
+    public void send(Packet packet) throws IOException {
+        protocolType.send(packet);
     }
 
     public void close(final GroupNet groupNet) throws IOException {

@@ -7,12 +7,11 @@ import com.github.dr.rwserver.game.GameMaps;
 import com.github.dr.rwserver.io.GameInputStream;
 import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.AbstractNetPacket;
+import com.github.dr.rwserver.net.core.AbstractNetPacket;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.PacketType;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 
@@ -21,12 +20,12 @@ import java.io.IOException;
  */
 public class GameVersionPacket implements AbstractNetPacket {
     @Override
-    public ByteBuf getSystemMessageByteBuf(String msg) throws IOException {
+    public Packet getSystemMessageByteBuf(String msg) throws IOException {
         return getChatMessageByteBuf(msg,"SERVER",5);
     }
 
     @Override
-    public ByteBuf getChatMessageByteBuf(String msg, String sendBy, int team) throws IOException {
+    public Packet getChatMessageByteBuf(String msg, String sendBy, int team) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeString(msg);
         o.writeByte(3);
@@ -38,7 +37,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public ByteBuf getPingByteBuf(Player player) throws IOException {
+    public Packet getPingByteBuf(Player player) throws IOException {
         player.timeTemp = System.currentTimeMillis();
         GameOutputStream o = new GameOutputStream();
         o.writeLong(1000L);
@@ -47,7 +46,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public ByteBuf getTickByteBuf(int tick) throws IOException {
+    public Packet getTickByteBuf(int tick) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeInt(tick);
         o.writeInt(0);
@@ -55,7 +54,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public ByteBuf getGameTickCommandByteBuf(int tick, GameCommand cmd) throws IOException {
+    public Packet getGameTickCommandByteBuf(int tick, GameCommand cmd) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeInt(tick);
         o.writeInt(1);
@@ -66,7 +65,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public ByteBuf getGameTickCommandsByteBuf(int tick, Seq<GameCommand> cmd) throws IOException {
+    public Packet getGameTickCommandsByteBuf(int tick, Seq<GameCommand> cmd) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeInt(tick);
         o.writeInt(cmd.size());
@@ -100,7 +99,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public ByteBuf convertGameSaveDataByteBuf(Packet packet) throws IOException {
+    public Packet convertGameSaveDataByteBuf(Packet packet) throws IOException {
         try (GameInputStream stream = new GameInputStream(packet)) {
             GameOutputStream o = new GameOutputStream();
             o.writeByte(stream.readByte());
@@ -121,7 +120,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public ByteBuf getStartGameByteBuf() throws IOException {
+    public Packet getStartGameByteBuf() throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeByte(0);
         // 0->本地 1->自定义 2->保存的游戏
@@ -134,5 +133,22 @@ public class GameVersionPacket implements AbstractNetPacket {
         }
         o.writeBoolean(false);
         return o.createPacket(PacketType.PACKET_START_GAME);
+    }
+
+    @Override
+    public String getPacketMapName(byte[] bytes) throws IOException {
+        try (GameInputStream stream = new GameInputStream(bytes)) {
+            stream.readString();
+            stream.readInt();
+            stream.readInt();
+            return stream.readString();
+        }
+    }
+
+    @Override
+    public Packet getExitByteBuf() throws IOException {
+        GameOutputStream o = new GameOutputStream();
+        o.writeString("exited");
+        return o.createPackets(111);
     }
 }

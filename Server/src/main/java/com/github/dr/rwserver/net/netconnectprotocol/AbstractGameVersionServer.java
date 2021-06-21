@@ -4,13 +4,13 @@ package com.github.dr.rwserver.net.netconnectprotocol;
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.global.Static;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameCommand;
 import com.github.dr.rwserver.io.GameInputStream;
 import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.PacketType;
@@ -19,9 +19,6 @@ import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import com.ip2location.IPResult;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.util.ReferenceCountUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -43,20 +40,18 @@ import static com.github.dr.rwserver.util.encryption.Game.connectKey;
  * @author Dr
  * @date 2020/9/5 17:02:33
  */
-public class GameVersionServer extends GameVersion {
+public class AbstractGameVersionServer extends AbstractGameVersion {
+
     private String playerConnectKey;
-    private long time = 0;
-    private boolean isDis = false;
 
     private final ReentrantLock sync = new ReentrantLock(true);
 
-    public GameVersionServer(ByteBufAllocator bufAllocator) {
-        this.bufAllocator = bufAllocator;
+    public AbstractGameVersionServer(final String uuid) {
     }
 
     @Override
-    public AbstractNetConnect getVersionNet(ByteBufAllocator bufAllocator) {
-        return new GameVersionServer(bufAllocator);
+    public AbstractNetConnect getVersionNet(final String uuid) {
+        return new AbstractGameVersionServer(uuid);
     }
 
     @Override
@@ -65,17 +60,8 @@ public class GameVersionServer extends GameVersion {
     }
 
     @Override
-    public void setCache(Packet packet) {
-    }
-
-    @Override
-    public void setLastReceivedTime(long time) {
-        this.time = time;
-    }
-
-    @Override
-    public long getLastReceivedTime() {
-        return time;
+    public String getVersion() {
+        return "1.14 RW-HPS";
     }
 
     @Override
@@ -88,9 +74,9 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public void sendServerInfo(boolean utilData) throws IOException {
-        GameOutputStream o = new GameOutputStream(bufAllocator);
+        GameOutputStream o = new GameOutputStream();
         o.writeString(Data.SERVER_ID);
-        o.writeInt(Data.game.version);
+        o.writeInt(NetStaticData.protocolData.getGameNetVersion());
         /* 地图 */
         o.writeInt(Data.game.maps.mapType.ordinal());
         o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName);
@@ -146,7 +132,7 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public void sendKick(String reason) throws IOException {
-        GameOutputStream o = new GameOutputStream(bufAllocator);
+        GameOutputStream o = new GameOutputStream();
         o.writeString(reason);
         sendPacket(o.createPacket(PacketType.PACKET_KICK));
         disconnect();
@@ -154,49 +140,50 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public void receiveChat(Packet p) throws IOException {
-        GameInputStream stream = new GameInputStream(p);
-        String message = stream.readString();
-        CommandHandler.CommandResponse response = null;
+        try (GameInputStream stream = new GameInputStream(p)) {
+            String message = stream.readString();
+            CommandHandler.CommandResponse response = null;
 
-        Log.clog("[{0}]: {1}",player.name,message);
+            Log.clog("[{0}]: {1}", player.name, message);
 
-        if (player.isAdmin && Data.game.afk != null) {
-            Data.game.afk.cancel(true);
-            Data.game.afk = null;
-            Call.sendMessage(player,Data.localeUtil.getinput("afk.clear",player.name));
-        }
-
-        if (message.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
-            int strEnd = Math.min(message.length(), 3);
-            if ("qc".equals(message.substring(1,strEnd))) {
-                response = Data.CLIENTCOMMAND.handleMessage("/"+message.substring(5), player);
-            } else {
-                response = Data.CLIENTCOMMAND.handleMessage("/"+message.substring(1), player);
+            if (player.isAdmin && Data.game.afk != null) {
+                Data.game.afk.cancel(true);
+                Data.game.afk = null;
+                Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name));
             }
-        }
-        if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-            if (message.length() > Data.game.maxMessageLen) {
-                sendSystemMessage(Data.localeUtil.getinput("message.maxLen"));
-                return;
-            }
-            message = Data.core.admin.filterMessage(player,message);
-            if (message == null) {
-                return;
-            }
-            Events.fire(new EventType.PlayerChatEvent(player, message));
-            Call.sendMessage(player,message);
-        } else {
-            if(response.type != CommandHandler.ResponseType.valid){
-                String text;
 
-                if(response.type == CommandHandler.ResponseType.manyArguments){
-                    text = "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText;
-                }else if(response.type == CommandHandler.ResponseType.fewArguments){
-                    text = "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText;
-                }else{
-                    text = "Unknown command. Check .help";
+            if (message.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
+                int strEnd = Math.min(message.length(), 3);
+                if ("qc".equals(message.substring(1, strEnd))) {
+                    response = Data.CLIENTCOMMAND.handleMessage("/" + message.substring(5), player);
+                } else {
+                    response = Data.CLIENTCOMMAND.handleMessage("/" + message.substring(1), player);
                 }
-                player.sendSystemMessage(text);
+            }
+            if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                if (message.length() > Data.game.maxMessageLen) {
+                    sendSystemMessage(Data.localeUtil.getinput("message.maxLen"));
+                    return;
+                }
+                message = Data.core.admin.filterMessage(player, message);
+                if (message == null) {
+                    return;
+                }
+                Events.fire(new EventType.PlayerChatEvent(player, message));
+                Call.sendMessage(player, message);
+            } else {
+                if (response.type != CommandHandler.ResponseType.valid) {
+                    String text;
+
+                    if (response.type == CommandHandler.ResponseType.manyArguments) {
+                        text = "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText;
+                    } else if (response.type == CommandHandler.ResponseType.fewArguments) {
+                        text = "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText;
+                    } else {
+                        text = "Unknown command. Check .help";
+                    }
+                    player.sendSystemMessage(text);
+                }
             }
         }
     }
@@ -204,11 +191,10 @@ public class GameVersionServer extends GameVersion {
     @Override
     public void receiveCommand(Packet p) throws IOException {
         sync.lock();
-        try {
+        try (GameInputStream in = new GameInputStream(new GameInputStream(p).getDecodeBytes())) {
             byte[] bytes;
             //if (Data.game.sharedControl) {
-            GameInputStream in = new GameInputStream(new GameInputStream(p).getDecodeBytes());
-            GameOutputStream o = new GameOutputStream(bufAllocator);
+            GameOutputStream o = new GameOutputStream();
             o.writeByte(in.readByte());
             final boolean boolean1 = in.readBoolean();
             o.writeBoolean(boolean1);
@@ -281,15 +267,12 @@ public class GameVersionServer extends GameVersion {
             in.readShort();
             o.writeShort((short) Data.game.sharedControlPlayer);
             o.flushData(in);
-            ByteBuf buf = o.createPacket();
-            bytes = new byte[buf.readableBytes()];
-            buf.duplicate().readBytes(bytes);
-            ReferenceCountUtil.release(buf);
+            Packet packet = o.createPacket();
         //} else {
         //    bytes = inData.getDecodeBytes();
         //}
 
-        GameCommand cmd = new GameCommand(player.site, bytes);
+        GameCommand cmd = new GameCommand(player.site, packet.bytes);
         Data.game.gameCommandCache.offer(cmd);
         } catch (Exception e) {
             Log.error(e);
@@ -300,25 +283,26 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public byte[] getGameSaveData(Packet packet) throws IOException {
-        GameInputStream stream = new GameInputStream(packet);
-        GameOutputStream o = new GameOutputStream(bufAllocator);
-        o.writeByte(stream.readByte());
-        o.writeInt(stream.readInt());
-        o.writeInt(stream.readInt());
-        o.writeFloat(stream.readFloat());
-        o.writeFloat(stream.readFloat());
-        o.writeBoolean(false);
-        o.writeBoolean(false);
-        stream.readBoolean();
-        stream.readBoolean();
-        stream.readString();
-        return stream.readStreamBytes();
+        try (GameInputStream stream = new GameInputStream(packet)) {
+            GameOutputStream o = new GameOutputStream();
+            o.writeByte(stream.readByte());
+            o.writeInt(stream.readInt());
+            o.writeInt(stream.readInt());
+            o.writeFloat(stream.readFloat());
+            o.writeFloat(stream.readFloat());
+            o.writeBoolean(false);
+            o.writeBoolean(false);
+            stream.readBoolean();
+            stream.readBoolean();
+            stream.readString();
+            return stream.readStreamBytes();
+        }
     }
 
     @Override
     public void sendStartGame() throws IOException {
         sendServerInfo(true);
-        sendPacket(Data.game.connectPacket.getStartGameByteBuf());
+        sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGameByteBuf());
         if (notIsBlank(Data.game.startAd)) {
             sendSystemMessage(Data.game.startAd);
         }
@@ -327,7 +311,7 @@ public class GameVersionServer extends GameVersion {
     @Override
     public void sendTeamData(GzipEncoder gzip) {
         try {
-            GameOutputStream o = new GameOutputStream(bufAllocator);
+            GameOutputStream o = new GameOutputStream();
             /* 玩家位置 */
             o.writeInt(player.site);
             o.writeBoolean(Data.game.isStartGame);
@@ -367,8 +351,7 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public boolean getPlayerInfo(Packet p) throws IOException {
-        try {
-            GameInputStream stream = new GameInputStream(p);
+        try (GameInputStream stream = new GameInputStream(p)) {
             stream.readString();
             stream.readInt();
             stream.readInt();
@@ -432,7 +415,7 @@ public class GameVersionServer extends GameVersion {
                 player = Player.addPlayer(this, uuid, name, localeUtil);
             }
 
-            connectionAgreement.add(Static.groupNet);
+            connectionAgreement.add(NetStaticData.groupNet);
             Call.sendTeamData();
             sendServerInfo(true);
             Events.fire(new EventType.PlayerJoin(player));
@@ -456,22 +439,23 @@ public class GameVersionServer extends GameVersion {
         int keyLen = 6;
         int key = generateInt(keyLen);
         playerConnectKey = connectKey(key);
-        GameInputStream stream = new GameInputStream(p);
-        // Game Pkg Name
-        stream.readString();
-        // 返回都是1 有啥用
-        stream.readInt();
-        stream.readInt();
-        stream.readInt();
-        GameOutputStream o = new GameOutputStream(bufAllocator);
-        o.writeString(Data.SERVER_ID);
-        o.writeInt(1);
-        o.writeInt(Data.game.version);
-        o.writeInt(Data.game.version);
-        o.writeString("com.corrodinggames.rts.server");
-        o.writeString(Data.core.serverConnectUuid);
-        o.writeInt(key);
-        sendPacket(o.createPacket(PacketType.PACKET_REGISTER_CONNECTION));
+        try (GameInputStream stream = new GameInputStream(p)) {
+            // Game Pkg Name
+            stream.readString();
+            // 返回都是1 有啥用
+            stream.readInt();
+            stream.readInt();
+            stream.readInt();
+            GameOutputStream o = new GameOutputStream();
+            o.writeString(Data.SERVER_ID);
+            o.writeInt(1);
+            o.writeInt(NetStaticData.protocolData.getGameNetVersion());
+            o.writeInt(NetStaticData.protocolData.getGameNetVersion());
+            o.writeString("com.corrodinggames.rts.server");
+            o.writeString(Data.core.serverConnectUuid);
+            o.writeInt(key);
+            sendPacket(o.createPacket(PacketType.PACKET_REGISTER_CONNECTION));
+        }
     }
 
     /**
@@ -480,7 +464,7 @@ public class GameVersionServer extends GameVersion {
     @Override
     public void sendErrorPasswd() {
         try {
-            GameOutputStream o = new GameOutputStream(bufAllocator);
+            GameOutputStream o = new GameOutputStream();
             o.writeInt(0);
             sendPacket(o.createPacket(PacketType.PACKET_PASSWD_ERROR));
             isPasswd = true;
@@ -491,13 +475,10 @@ public class GameVersionServer extends GameVersion {
 
     @Override
     public void disconnect() {
-        if (this.isDis) {
+        if (super.isDis) {
             return;
         }
-        this.isDis = true;
-
-        Data.playerGroup.remove(player);
-
+        super.isDis = true;
         if (IsUtil.notIsBlank(player)) {
             Data.playerGroup.remove(player);
             if (!Data.game.isStartGame) {
@@ -507,9 +488,9 @@ public class GameVersionServer extends GameVersion {
             }
             Events.fire(new EventType.PlayerLeave(player));
         }
-        
+
         try {
-            connectionAgreement.close(Static.groupNet);
+            connectionAgreement.close(NetStaticData.groupNet);
         } catch (Exception e) {
             Log.error("Close Connect",e);
         }
@@ -518,7 +499,7 @@ public class GameVersionServer extends GameVersion {
     @Override
     public void getGameSave() {
         try {
-            GameOutputStream o = new GameOutputStream(bufAllocator);
+            GameOutputStream o = new GameOutputStream();
             o.writeByte(0);
             o.writeInt(0);
             o.writeInt(0);
@@ -539,7 +520,7 @@ public class GameVersionServer extends GameVersion {
     }
 
     @Override
-    public void sendGameSave(ByteBuf packet) {
+    public void sendGameSave(Packet packet) {
         sendPacket(packet);
     }
 
@@ -550,21 +531,11 @@ public class GameVersionServer extends GameVersion {
                 sendKick("不支持重连 # Does not support reconnection");
                 return;
             }
-            sendPacket(Data.game.connectPacket.getStartGameByteBuf());
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGameByteBuf());
             Data.game.reConnectBreak = true;
             Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s");
             final ExecutorService executorService= Executors.newFixedThreadPool(1);
             Future<String> future = executorService.submit(() -> {
-                if (Data.game.gameSaveCache != null && Data.game.gameSaveCache.type == 0) {
-                    while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
-                        if (Thread.interrupted()) {
-                            return null;
-                        }
-                    }
-                    Static.groupNet.broadcast(Data.game.connectPacket.convertGameSaveDataByteBuf(Data.game.gameSaveCache));
-                    return null;
-                }
-                Data.game.gameSaveCache = new Packet(0,null);
                 Data.playerGroup.each(e -> (!e.uuid.equals(this.player.uuid)) && (!e.con.getTryBoolean()),p -> {
                     p.con.getGameSave();
                     while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
@@ -573,7 +544,7 @@ public class GameVersionServer extends GameVersion {
                         }
                     }
                     try {
-                        Static.groupNet.broadcast(Data.game.connectPacket.convertGameSaveDataByteBuf(Data.game.gameSaveCache));
+                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataByteBuf(Data.game.gameSaveCache));
                     } catch (IOException e) {
                         Log.error(e);
                     }
@@ -585,7 +556,7 @@ public class GameVersionServer extends GameVersion {
             } catch (Exception e) {
                 future.cancel(true);
                 Log.error(e);
-                connectionAgreement.close(Static.groupNet);
+                connectionAgreement.close(NetStaticData.groupNet);
             } finally {
                 executorService.shutdown();
                 Data.game.gameSaveCache = null;

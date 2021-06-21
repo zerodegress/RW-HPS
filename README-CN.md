@@ -22,12 +22,12 @@ GNU General Public License v3.0
 ### 衍生软件需声明引用
 
 - 若引用 RW-HPS 发布的软件包而不修改 RW-HPS，则衍生项目需在描述的任意部位提及使用 RW-HPS。
-- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/deng-rui/RW-HPS`)。不得扭曲或隐藏免费且开源的事实。
+- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/RW-HPS/RW-HPS`)。不得扭曲或隐藏免费且开源的事实。
 
 ## 开始
-- 开发文档: [docs](docs/README.md)
-- 更新日志: [release](https://github.com/deng-rui/RWHPS/releases)
-- 开发计划: [milestones](https://github.com/deng-rui/RWHPS/milestones)
+- 开发文档: [docs](https://github.com/RW-HPS/RW-HPS/wiki)
+- 更新日志: [release](https://github.com/RW-HPS/RW-HPS/releases)
+- 开发计划: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - 讨论:
   > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法.  
   > 邮件联系 RW-HPS@der.kim  

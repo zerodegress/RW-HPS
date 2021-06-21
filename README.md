@@ -1,6 +1,6 @@
 ## Language(语言)  
 
-[跳转中文介绍](https://github.com/deng-rui/RW-HPS/blob/master/README-CN.md)  
+[跳转中文介绍](https://github.com/RW-HPS/RW-HPS/blob/master/README-CN.md)  
 
 # RW-HPS  
 Third party rust war server  
@@ -26,13 +26,13 @@ GNU General Public License v3.0
 ### Derivative software needs to declare and quote
 
 - If the software package released by RW-HPS is quoted without modifying RW-HPS, the derivative project shall mention the use of RW-HPS in any part of the description。
-- If the RW-HPS source code is modified and then released，**Or refer to the internal implementation of RW-HPS to release another project**，Then the derivative project must be**article head**or 'RW-HPS' related information**first Appearance**s position**clearly stated**from This Warehouse (`https://github.com/deng-rui/RW-HPS`)。Don’t distort or hide the fact that it’s free and open source。
+- If the RW-HPS source code is modified and then released，**Or refer to the internal implementation of RW-HPS to release another project**，Then the derivative project must be**article head**or 'RW-HPS' related information**first Appearance**s position**clearly stated**from This Warehouse (`https://github.com/RW-HPS/RW-HPS`)。Don’t distort or hide the fact that it’s free and open source。
 
 
 ## Start
-- Development documentation: [docs](docs/README.md)  
-- Update log: [release](https://github.com/deng-rui/RWHPS/releases)  
-- Development plan: [milestones](https://github.com/deng-rui/RWHPS/milestones)  
+- Development documentation: [docs](https://github.com/RW-HPS/RW-HPS/wiki)  
+- Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)  
+- Development plan: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)  
 - Discuss:
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
   > Email contact : RW-HPS@der.kim  

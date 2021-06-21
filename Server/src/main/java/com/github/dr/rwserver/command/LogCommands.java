@@ -7,5 +7,8 @@ import com.github.dr.rwserver.util.game.CommandHandler;
  */
 public class LogCommands {
 	public LogCommands(CommandHandler handler) {
+        /*
+          内部使用 NULL DATA
+         */
     }
 }

@@ -7,10 +7,13 @@ import com.github.dr.rwserver.core.NetServer;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
-import com.github.dr.rwserver.net.Net;
+import com.github.dr.rwserver.net.game.StartNet;
+import com.github.dr.rwserver.net.netconnectprotocol.AbstractGameVersionServer;
+import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -52,10 +55,24 @@ public class ServerCommands {
             Data.game.init();
             Data.game.team = Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS);
             Data.game.ping = Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS);
+            NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
+            NetStaticData.protocolData.setNetConnectProtocol(new AbstractGameVersionServer(null),151);
             Threads.newThreadCore(() -> {
-                Data.game.natStartGame = new Net.NetStartGame();
-                Data.game.natStartGame.startGame(Data.game.port, Data.game.passwd);
+                StartNet startNet = new StartNet();
+                NetStaticData.startNet.add(startNet);
+                startNet.openPort(5123);
             });
+            if (Data.config.readBoolean("UDPSupport",false)) {
+                Threads.newThreadCore(() -> {
+                    try {
+                        StartNet startNet = new StartNet();
+                        NetStaticData.startNet.add(startNet);
+                        startNet.startUdp(5123);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
         });
 
         handler.<StrCons>register("say", "<text...>","serverCommands.say", (arg, log) -> {
@@ -213,11 +230,11 @@ public class ServerCommands {
         });
 
         handler.<StrCons>register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {
-            // NO 违反守则(Violation of the code)
+            log.get("违反守则 禁止提供");
         });
 
         handler.<StrCons>register("upserverlistnew", "serverCommands.upserverlist", (arg, log) -> {
-            // NO 违反守则(Violation of the code)
+            log.get("违反守则 禁止提供");
         });
 
         handler.<StrCons>register("cleanmods", "serverCommands.cleanmods", (arg, log) -> {
@@ -226,9 +243,11 @@ public class ServerCommands {
             Main.loadNetCore();
         });
 
-        handler.<StrCons>register("reloadmaps", "serverCommands.upserverlist", (arg, log) -> {
+        handler.<StrCons>register("reloadmaps", "serverCommands.reloadmaps", (arg, log) -> {
+            int size = Data.game.mapsData.size;
             Data.game.mapsData.clear();
             Data.game.checkMaps();
+            log.get("Reload {0}:{1}",size,Data.game.mapsData.size);
         });
 
         handler.<StrCons>register("maps", "serverCommands.clearmuteall", (arg, log) -> {
@@ -240,8 +259,6 @@ public class ServerCommands {
             });
             log.get(response.toString());
         });
-
-
 
         handler.<StrCons>register("stop", "serverCommands.stop", (arg, log) -> {
             log.get("Stop Server. end");

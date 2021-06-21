@@ -185,7 +185,7 @@ public class ClientCommands {
 			}
 		});
 
-		handler.<Player>register("status", "clientCommands.status", (args, player) -> player.sendSystemMessage(player.localeUtil.getinput("status.version",Data.playerGroup.size(),Data.core.admin.bannedIPs.size(),Data.SERVER_CORE_VERSION)));
+		handler.<Player>register("status", "clientCommands.status", (args, player) -> player.sendSystemMessage(player.localeUtil.getinput("status.version",Data.playerGroup.size(),Data.core.admin.bannedIPs.size(),Data.SERVER_CORE_VERSION,player.con.getVersion())));
 
 		handler.<Player>register("kick", "<PlayerSerialNumber>", "clientCommands.kick", (args, player) -> {
 			if (Data.game.isStartGame) {
@@ -350,9 +350,6 @@ public class ClientCommands {
 				Data.game.sharedControlPlayer = int3;
 				Call.testPreparationPlayer();
 				Events.fire(new EventType.GameStartEvent());
-				if (Data.core.upServerList) {
-					NetServer.upServerList();
-				}
 			}
 		});
 
@@ -362,10 +359,6 @@ public class ClientCommands {
 				response.append(" ").append(args[i]);
 			}
 			Call.sendTeamMessage(player.team,player,response.toString());
-		});
-
-		handler.<Player>register("upserverlist", "clientCommands.upserverlist", (args, player)-> {
-			// NO 违反守则(Violation of the code)
 		});
 
 		handler.<Player>register("surrender", "clientCommands.surrender", (args, player) -> {

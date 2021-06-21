@@ -1,9 +1,10 @@
 package com.github.dr.rwserver.data;
 
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.game.Team;
-import com.github.dr.rwserver.net.AbstractNetConnect;
-import com.github.dr.rwserver.net.AbstractNetPacket;
+import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.AbstractNetPacket;
 import com.github.dr.rwserver.util.LocaleUtil;
 
 import java.io.DataOutputStream;
@@ -49,7 +50,7 @@ public final class Player {
 	public boolean noSay = false;
 	public boolean watch = false;
 
-	private final AbstractNetPacket PACKET = Data.game.connectPacket;
+	private final AbstractNetPacket PACKET = NetStaticData.protocolData.abstractNetPacket;
 
 	public Player(AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
 		this.con = con;

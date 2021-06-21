@@ -1,12 +1,11 @@
 package com.github.dr.rwserver.net;
 
+import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.log.Log;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
@@ -48,12 +47,11 @@ public class GroupNet {
          * @param msg 消息
          */
     public void broadcast(Object msg,final String str) {
-        final ByteBuf byteBuf = ((ByteBuf) msg).copy();
         SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.writeAndFlush(msg));
         SINGLE_UDP_THREAD_EXECUTOR.execute(() -> {
             PROTOCOL.each(e -> {
                 try {
-                    e.send(byteBuf);
+                    e.send((Packet) msg);
                 } catch (IOException ioException) {
                     PROTOCOL.remove(e);
                     try {
@@ -63,7 +61,6 @@ public class GroupNet {
                     }
                 }
             });
-            ReferenceCountUtil.release(byteBuf);
         });
     }
 

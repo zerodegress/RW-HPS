@@ -8,14 +8,16 @@ import com.github.dr.rwserver.core.Initialization;
 import com.github.dr.rwserver.core.ex.Event;
 import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.data.plugin.PluginManage;
+import com.github.dr.rwserver.dependent.LibraryManager;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
-import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.Convert;
 import com.github.dr.rwserver.util.encryption.Autograph;
+import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -28,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 
 /**
  * @author Dr
@@ -55,6 +59,8 @@ public class Main {
 			Core.mandatoryExit();
 		}
 
+		FileUtil.path = (args.length > 0) ? Base64.decodeString(args[0]) : null;
+
 		Data.core.settings.load();
 		Data.core.load();
 
@@ -74,7 +80,7 @@ public class Main {
 		new Initialization();
 
 		/* Plugin */
-		PluginManage.init(FileUtil.File(Data.Plugin_Plugins_Path));
+		PluginManage.init(FileUtil.file(Data.Plugin_Plugins_Path));
 		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
 		PluginManage.runRegisterServerCommands(Data.SERVERCOMMAND);
 
@@ -95,6 +101,20 @@ public class Main {
 
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
+	}
+
+	private static void loadCoreJar(String libPath) {
+		LibraryManager lib;
+		if (notIsBlank(libPath)) {
+			lib = new LibraryManager(libPath);
+		} else {
+			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
+		}
+		lib.importLib("io.netty","netty-all","4.1.65.Final");
+		lib.importLib("com.ip2location","ip2location-java","8.5.0");
+		lib.importLib("com.alibaba","fastjson","1.2.58");
+		lib.loadToClassLoader();
+		lib.removeOldLib();
 	}
 
 	@SuppressWarnings("InfiniteLoopStatement")
@@ -120,7 +140,7 @@ public class Main {
 	}
 
 	public static void loadNetCore() {
-		Data.core.admin.setNetConnectPacket(new Administration.NetConnectPacketData(new GameVersionPacket(),151));
+		NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacket(),"2.0.0");
 		try {
 			DataOutputStream stream = Data.utilData.stream;
 			stream.writeInt(1);

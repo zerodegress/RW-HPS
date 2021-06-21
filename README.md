@@ -35,13 +35,11 @@ GNU General Public License v3.0
 - Development plan: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)  
 - Discuss:
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
-  > Email contact : RW-HPS@der.kim  
-
-## Construction
-1. Install JDK 11 +. If you don't know how to do it, check it out.  
-2. Run "gradlew jar"  
-3. Your jar will be in the 'build/libs' directory  
-4. Run your jar to experience high performance server.  
+  > Email contact: dr@der.kim  
+  > Tencent QQ Group: 901913920 (GPLv3)
+- Mirroring:
+  > [Github](https://github.com/RW-HPS/RW-HPS)  
+  > [Gitee](https://gitee.com/derdct/RW-HPS)
 
 ## Run
 
@@ -79,6 +77,7 @@ GNU General Public License v3.0
 | kill          		 | &lt;PlayerSerialNumber&gt;                             	   											 | Kill the player               			 |
 | clearmuteall          		 |                               	   											 | Unmute all               			 |
 | maps          		 |                               	   											 | View Custom Map               			 |
+| reloadmaps          		 |                               	   											 | Reload map               			 |
 | stop          		 |                               	   											 | Stop the server               			 |
 
 

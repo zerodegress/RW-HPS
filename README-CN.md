@@ -29,21 +29,19 @@ GNU General Public License v3.0
 - 更新日志: [release](https://github.com/RW-HPS/RW-HPS/releases)
 - 开发计划: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - 讨论:
-  > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法.  
-  > 邮件联系 RW-HPS@der.kim  
+  > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法  
+  > 邮件联系: dr@der.kim  
+  > Tencent QQ Group: 901913920 (GPLv3)  
+- 镜像:
+  > [Github](https://github.com/RW-HPS/RW-HPS)  
+  > [Gitee](https://gitee.com/derdct/RW-HPS)  
 
 ### 我们被谁使用
 - Tiexiu.xyz
     - (new) [rw.tiexiu.xyz](https://rw.tiexiu.xyz)  
     - (old) [sfe.tiexiu.xyz](https://sfe.tiexiu.xyz)  
 - 非官方RELAYCN
-    - RelayCN Unofficial relay.der.kim
-
-## 构建
-1.安装JDK 11+。如果你不知道怎么做，就去查.  
-2.运行“gradlew jar”  
-3.您的jar将位于'build/libs'目录中.  
-4.运行您的Jar,体验高性能服务器 
+    - [RelayCN-Unofficial] relay.der.kim
 
 ## 运行配置
 
@@ -80,6 +78,7 @@ GNU General Public License v3.0
 | kill          		 | &lt;PlayerSerialNumber&gt;                              	   											 | 杀死玩家               			 |
 | clearmuteall          		 |                               	   											 | 取消全部禁言               			 |
 | maps          		 |                               	   											 | 查看Custom Map               			 |
+| reloadmaps          		 |                               	   											 | 重新加载地图               			 |
 | stop          		 |                               	   											 | 停止服务器               			 |
 
 

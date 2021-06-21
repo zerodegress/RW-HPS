@@ -1,15 +1,10 @@
 package com.github.dr.rwserver.io;
 
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-
-import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 
 /**
  * @author Dr
@@ -17,31 +12,12 @@ import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 public class GameOutputStream {
 	final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 	final DataOutputStream stream = new DataOutputStream(buffer);
-	final ByteBufAllocator bufAllocator;
 
-    public GameOutputStream() {
-        this.bufAllocator = null;
-    }
-
-	public GameOutputStream(ByteBufAllocator bufAllocator) {
-	    this.bufAllocator = bufAllocator;
-    }
-
-    public ByteBuf createPacket() {
+    public Packet createPacket() {
         try {
             this.stream.flush();
             this.buffer.flush();
-            byte[] bytes = this.buffer.toByteArray();
-            int len = bytes.length;
-            /* 不申请堆外内存 易OOM  (其实是读写慢啦) */
-            ByteBuf byteBuf;
-            if (notIsBlank(bufAllocator)) {
-                byteBuf = bufAllocator.buffer(len,len);
-            } else {
-                byteBuf = Unpooled.buffer(len,len);
-            }
-            byteBuf.writeBytes(bytes);
-            return byteBuf;
+            return new Packet(0,buffer.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -49,41 +25,11 @@ public class GameOutputStream {
         }
     }
 
-    public ByteBuf createPacket(String str) {
+	public Packet createPacket(int type) {
         try {
             this.stream.flush();
             this.buffer.flush();
-            byte[] bytes = this.buffer.toByteArray();
-            int len = bytes.length;
-            GameOutputStream gameOutputStream = new GameOutputStream(bufAllocator);
-            gameOutputStream.writeString(str);
-            gameOutputStream.writeInt(len);
-            gameOutputStream.writeBytes(bytes);
-            return gameOutputStream.createPacket();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            close();
-        }
-    }
-
-	public ByteBuf createPacket(int type) {
-        try {
-            this.stream.flush();
-            this.buffer.flush();
-            byte[] bytes = this.buffer.toByteArray();
-            int len = bytes.length + 8;
-            /* 不申请堆外内存 易OOM */
-            ByteBuf byteBuf;
-            if (notIsBlank(bufAllocator)) {
-                byteBuf = bufAllocator.buffer(len,len);
-            } else {
-                byteBuf = Unpooled.buffer(len,len);
-            }
-            byteBuf.writeInt(bytes.length);
-            byteBuf.writeInt(type);
-            byteBuf.writeBytes(bytes);
-            return byteBuf;
+            return new Packet(type,this.buffer.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

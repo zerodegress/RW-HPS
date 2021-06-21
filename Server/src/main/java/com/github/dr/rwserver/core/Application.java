@@ -22,7 +22,6 @@ public final class Application {
     public String serverToken;
     public Seq<String> unitBase64;
     public Administration admin;
-    public boolean upServerList = false;
 
     public String serverName = "RW-HPS";
     public float defIncome = 1f;

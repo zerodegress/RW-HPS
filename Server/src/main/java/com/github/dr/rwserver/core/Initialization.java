@@ -1,11 +1,25 @@
 package com.github.dr.rwserver.core;
 
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.json.Json;
+import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.ReExp;
+import com.github.dr.rwserver.util.encryption.Aes;
+import com.github.dr.rwserver.util.encryption.Base64;
+import com.github.dr.rwserver.util.encryption.Md5;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
+import com.github.dr.rwserver.util.log.exp.FileException;
+import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 import com.ip2location.IP2Location;
 
+import java.io.File;
 import java.io.IOException;
+
+import static com.github.dr.rwserver.net.HttpRequest.doGet;
+import static com.github.dr.rwserver.util.Convert.castSeq;
+import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
+import static com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate;
 
 /**
  * @author Dr
@@ -13,7 +27,7 @@ import java.io.IOException;
 public class Initialization {
 
     public Initialization() {
-    	initMaps();
+		initMaps();
 
 		loadLang();
 
@@ -77,7 +91,7 @@ public class Initialization {
 		}
 		try {
 			Data.ip2Location = new IP2Location();
-			Data.ip2Location.Open(FileUtil.File(Data.Plugin_Data_Path).toPath("IP.bin").getPath(), true);
+			Data.ip2Location.Open(FileUtil.file(Data.Plugin_Data_Path).toPath("IP.bin").getPath(), true);
 		} catch (IOException e) {
 			Log.error("IP-LOAD ERR",e);
 		}

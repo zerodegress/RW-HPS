@@ -85,12 +85,6 @@ public class Event {
         });
 
         Events.on(GameOverEvent.class, e -> {
-            if (Data.game.updateList != null) {
-                NetServer.removeServerList();
-                Data.game.updateList.cancel(true);
-                Data.game.updateList = null;
-            }
-
             if (Data.game.maps.mapData != null) {
                 Data.game.maps.mapData.clean();
             }

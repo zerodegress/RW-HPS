@@ -9,9 +9,9 @@ import java.util.concurrent.*;
  */
 public class Threads {
 
-	private static final ExecutorService CORE_THREAD 					= Executors.newFixedThreadPool(5);
+	private static final ExecutorService CORE_THREAD 					= Executors.newFixedThreadPool(6);
 	private static final ExecutorService CORE_NET_THREAD 				= Executors.newFixedThreadPool(1);
-	private static final ScheduledExecutorService SERVICE 				= Executors.newScheduledThreadPool(8);
+	private static final ScheduledExecutorService SERVICE 				= Executors.newScheduledThreadPool(10);
 	private static final ThreadPoolExecutor PLAYER_HEAT_THREAD 			= new ThreadPoolExecutor(8,8,1,TimeUnit.MINUTES, new LinkedBlockingDeque<>(10));
 	private static final Seq<Runnable> SAVE_POOL 						= new Seq<>();
 

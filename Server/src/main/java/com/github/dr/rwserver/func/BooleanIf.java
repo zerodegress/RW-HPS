@@ -4,14 +4,14 @@ package com.github.dr.rwserver.func;
  * Boolf 轮询中if判定 Seq专用
  * @author Dr
  */
-public interface Boolf<T>{
+public interface BooleanIf<T>{
     boolean get(T t);
 
-    default Boolf<T> and(Boolf<T> pred){
+    default BooleanIf<T> and(BooleanIf<T> pred){
         return t -> get(t) && pred.get(t);
     }
 
-    default Boolf<T> or(Boolf<T> pred){
+    default BooleanIf<T> or(BooleanIf<T> pred){
         return t -> get(t) || pred.get(t);
     }
 }

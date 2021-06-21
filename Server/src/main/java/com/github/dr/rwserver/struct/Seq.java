@@ -2,7 +2,7 @@ package com.github.dr.rwserver.struct;
 
 import com.github.dr.rwserver.math.Mathf;
 import com.github.dr.rwserver.math.Rand;
-import com.github.dr.rwserver.func.Boolf;
+import com.github.dr.rwserver.func.BooleanIf;
 import com.github.dr.rwserver.func.Cons;
 import com.github.dr.rwserver.util.log.exp.VariableException.ArrayRuntimeException;
 
@@ -159,7 +159,7 @@ public class Seq<T> implements Iterable<T> {
         return list;
     }
 
-    public <E extends T> void neach(Boolf<? super T> pred, Cons<E> consumer, Runnable run) {
+    public <E extends T> void neach(BooleanIf<? super T> pred, Cons<E> consumer, Runnable run) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i])) {
                 consumer.get((E)items[i]);
@@ -169,7 +169,7 @@ public class Seq<T> implements Iterable<T> {
         run.run();
     }
 
-    public <E extends T> void each(Boolf<? super T> pred, Cons<E> consumer) {
+    public <E extends T> void each(BooleanIf<? super T> pred, Cons<E> consumer) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i])) {
                 consumer.get((E)items[i]);
@@ -178,7 +178,7 @@ public class Seq<T> implements Iterable<T> {
         }
     }
 
-    public <E extends T> void each(Boolf<? super T> pred,Boolf<? super T> pred2, Cons<E> consumer) {
+    public <E extends T> void each(BooleanIf<? super T> pred, BooleanIf<? super T> pred2, Cons<E> consumer) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i]) && pred2.get(items[i])) {
                 consumer.get((E)items[i]);
@@ -187,7 +187,7 @@ public class Seq<T> implements Iterable<T> {
         }
     }
 
-    public <E extends T> void eachs(Boolf<? super T> pred, Cons<E> consumer) {
+    public <E extends T> void eachs(BooleanIf<? super T> pred, Cons<E> consumer) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i])) {
                 consumer.get((E)items[i]);
@@ -375,7 +375,7 @@ public class Seq<T> implements Iterable<T> {
         items[second] = firstValue;
     }
 
-    public T find(Boolf<T> predicate){
+    public T find(BooleanIf<T> predicate){
         for(int i = 0; i < size; i++){
             if(predicate.get(items[i])){
                 return items[i];

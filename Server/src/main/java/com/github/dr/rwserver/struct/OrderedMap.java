@@ -6,11 +6,11 @@ import java.util.NoSuchElementException;
 
 /**
  * {@link ObjectMap}也使用插入顺序将密钥存储在{@link Seq}中
- * {@link #entries（）}，{@ link #keys（）}和{@link #values（）}上的迭代是有序的，并且比无序映射要快
- * 还可以使用{@link #orderedKeys（）}
+ * {@link #entries()}，{@link #keys()}和{@link #values()}上的迭代是有序的，并且比无序映射要快
+ * 还可以使用{@link #orderedKeys()}
  * 访问键并更改顺序。有一些额外的放置和删除开销
  * 如果将用于与ObjectMap相比具有更快的迭代速度并且顺序实际上并不重要
- * 则可以通过将{@link OrderedMap＃orderedKeys（）}的{@link Seq＃ordered}设置为false来大大减少删除期间的复制。
+ * 则可以通过将{@link OrderedMap＃orderedKeys()}的{@link Seq＃ordered}设置为false来大大减少删除期间的复制。
  * @author Nathan Sweet
  */
 @SuppressWarnings("unchecked")

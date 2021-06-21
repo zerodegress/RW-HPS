@@ -15,8 +15,6 @@ import static com.github.dr.rwserver.util.Convert.castSeq;
 public class Administration {
 
     private final Seq<ChatFilter> chatFilters = new Seq<>();
-    private NetConnectProtocolData netConnectProtocolData = null;
-    private NetConnectPacketData netConnectPacketData = null;
     public final Seq<String> bannedIPs;
     public final Seq<String> bannedUUIDs;
     public final Seq<String> whitelist;
@@ -26,7 +24,7 @@ public class Administration {
     public Administration(PluginData settings){
         addChatFilter((player, message) -> {
             if(!player.isAdmin){
-                //prevent players from sending the same message twice in the span of 30 seconds
+                //防止玩家在 30 秒内两次发送相同的消息
                 if(message.equals(player.lastSentMessage) && Time.getTimeSinceMillis(player.lastMessageTime) < 1000 * 30){
                     player.sendSystemMessage("您可能不会两次发送相同的消息.");
                     return null;
@@ -92,22 +90,6 @@ public class Administration {
         String filter(Player player, String message);
     }
 
-    public void setNetConnectProtocol(NetConnectProtocolData protocolData){
-        netConnectProtocolData = protocolData;
-    }
-
-    public NetConnectProtocolData getNetConnectProtocol(){
-        return netConnectProtocolData;
-    }
-
-    public void setNetConnectPacket(NetConnectPacketData packet){
-        netConnectPacketData = packet;
-    }
-
-    public NetConnectPacketData getNetConnectPacket(){
-        return netConnectPacketData;
-    }
-
     public static class PlayerInfo {
         public final String uuid;
         public long timesKicked = 0;
@@ -135,26 +117,6 @@ public class Administration {
             this.admin = admin;
             this.timesKicked = timesKicked;
             this.timeMute = timeMute;
-        }
-    }
-
-    public static class NetConnectProtocolData {
-        public final AbstractNetConnect protocol;
-        public final int version;
-
-        public NetConnectProtocolData(AbstractNetConnect protocol,int version) {
-            this.protocol = protocol;
-            this.version = version;
-        }
-    }
-
-    public static class NetConnectPacketData {
-        public final AbstractNetPacket packet;
-        public final int version;
-
-        public NetConnectPacketData(AbstractNetPacket packet,int version) {
-            this.packet = packet;
-            this.version = version;
         }
     }
 }

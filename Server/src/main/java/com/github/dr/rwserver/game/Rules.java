@@ -4,6 +4,7 @@ import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
@@ -95,8 +96,6 @@ public class Rules {
     public final boolean webApiSsl;
     public final String webApiSslKetPath;
     public final String webApiSslPasswd;
-    /* */
-    public final boolean deleteLib;
 
     public boolean lockTeam = false;
 
@@ -107,9 +106,13 @@ public class Rules {
     public ScheduledFuture team = null;
     public ScheduledFuture winOrLoseCheck = null;
 
+    public final String subtitle;
+
     public final OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
+
+        subtitle = config.readString("subtitle","");
 
         int port = config.readInt("port",5123);
         String passwdCache = config.readString("passwd","");
@@ -146,8 +149,6 @@ public class Rules {
         webApiSsl = config.readBoolean("webApiSsl",false);
         webApiSslKetPath = config.readString("webApiSslKetPath","");
         webApiSslPasswd = config.readString("webApiSslPasswd","");
-
-        deleteLib = config.readBoolean("deleteLib","");
 
         if (config.readBoolean("autoReLoadMap",false)) {
             Threads.newThreadService2(() -> {

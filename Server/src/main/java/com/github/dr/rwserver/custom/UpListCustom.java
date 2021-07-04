@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.custom;
 
+import com.github.dr.rwserver.data.global.Data;
+
 public class UpListCustom {
-    //private static final String tk = Data.config.readString("tonken","");
 }

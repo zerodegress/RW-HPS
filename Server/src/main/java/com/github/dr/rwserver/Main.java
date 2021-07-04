@@ -61,8 +61,10 @@ public class Main {
 
 		FileUtil.path = (args.length > 0) ? Base64.decodeString(args[0]) : null;
 
-		Data.core.settings.load();
+		//Data.core.settings.load();
 		Data.core.load();
+
+		//loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
 
@@ -81,6 +83,7 @@ public class Main {
 
 		/* Plugin */
 		PluginManage.init(FileUtil.file(Data.Plugin_Plugins_Path));
+		PluginManage.runOnEnable();
 		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
 		PluginManage.runRegisterServerCommands(Data.SERVERCOMMAND);
 

@@ -14,6 +14,5 @@ public class NetStaticData {
     public static final GroupNet groupNet = new GroupNet(Time.nanos());
     public static final BlackList blackList = new BlackList();
     public static final ProtocolData protocolData = new ProtocolData();
-
     public static Seq<StartNet> startNet = new Seq<>(4);
 }

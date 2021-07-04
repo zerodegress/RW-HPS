@@ -5,14 +5,19 @@ package com.github.dr.rwserver.data.plugin;
  * Plugin的Data代理
  * @author Dr
  */
-public class Value<T> {
+class Value<T> {
     private T data;
 
-    public T getData() {
+    protected Value(T data) {
+        this.data = data;
+    }
+
+    protected T getData() {
         return data;
     }
 
-    public void setData(T data) {
+    protected Value<T> setData(T data) {
         this.data = data;
+        return this;
     }
 }

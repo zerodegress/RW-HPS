@@ -41,10 +41,10 @@ public class Data {
 	/** 自定义包名 */
 	public static final String SERVER_ID = "com.corrodinggames.rwhps";
 	public static final String SERVER_CORE_VERSION = "1.2.0";
+	public static final int SERVER_CORE_VERSION_INT = 200;
 	/** 单位数据缓存 */
 	public static final GzipEncoder utilData = GzipEncoder.getGzipStream("customUnits",false);
 	/** */
-	public static final int SERVER_MAX_TRY = 3;
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
 	/** 服务端 客户端命令 */

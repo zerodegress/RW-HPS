@@ -74,9 +74,11 @@ public class ConnectionAgreement {
     public void close(final GroupNet groupNet) throws IOException {
         if (groupNet != null) {
             if (object instanceof Channel) {
+                ((Channel) object).close();
                 groupNet.remove((Channel) object);
                 ((Channel) object).close();
             } else if (object instanceof ReliableSocket) {
+                socketStream.close();
                 groupNet.remove(this);
                 ((ReliableSocket) object).close();
             }

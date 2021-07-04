@@ -25,7 +25,6 @@ public interface AbstractNetConnect {
      */
     AbstractNetConnect getVersionNet(final String uuid);
 
-
     /**
      * 获取玩家
      * @return Player

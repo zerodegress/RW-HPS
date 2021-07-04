@@ -7,8 +7,6 @@ import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.Time;
 
-import static com.github.dr.rwserver.util.Convert.castSeq;
-
 /**
  * @author Dr
  */
@@ -21,7 +19,7 @@ public class Administration {
     public final Seq<String> playerData;
     public final ObjectMap<String,PlayerInfo> playerDataCache = new ObjectMap<>();
 
-    public Administration(PluginData settings){
+    public Administration(PluginData pluginData){
         addChatFilter((player, message) -> {
             if(!player.isAdmin){
                 //防止玩家在 30 秒内两次发送相同的消息
@@ -34,16 +32,17 @@ public class Administration {
             }
             return message;
         });
-        bannedIPs = castSeq(settings.getData("bannedIPs",new Seq()),String.class);
-        bannedUUIDs = castSeq(settings.getData("bannedUUIDs",new Seq()),String.class);
-        whitelist = castSeq(settings.getData("whitelist",new Seq()),String.class);
-        playerData = castSeq(settings.getData("playerData",new Seq()),String.class);
+
+        bannedIPs = pluginData.getData("bannedIPs",new Seq<String>());
+        bannedUUIDs = pluginData.getData("bannedUUIDs",new Seq<String>());
+        whitelist = pluginData.getData("whitelist",new Seq<String>());
+        playerData = pluginData.getData("playerData",new Seq<String>());
 
         Threads.addSavePool(() -> {
-            settings.putObject("bannedIPs",bannedIPs);
-            settings.putObject("bannedUUIDs",bannedUUIDs);
-            settings.putObject("whitelist",whitelist);
-            settings.putObject("playerData",playerData);
+            pluginData.setData("bannedIPs",bannedIPs);
+            pluginData.setData("bannedUUIDs",bannedUUIDs);
+            pluginData.setData("whitelist",whitelist);
+            pluginData.setData("playerData",playerData);
         });
     }
 

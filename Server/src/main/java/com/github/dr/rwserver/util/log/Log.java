@@ -207,6 +207,10 @@ public class Log {
 		return text;
 	}
 
+	public static void testPrint(Object object) {
+		Log.info(object);
+	}
+
 	private interface LogPrint<T>{
 		/**
 		 * 接管Log逻辑

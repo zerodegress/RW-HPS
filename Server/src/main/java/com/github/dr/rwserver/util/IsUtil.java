@@ -14,9 +14,12 @@ public class IsUtil {
 		return string == null || "".equals(string.toString().trim());
 	}
 
-
     public static boolean notIsBlank(Object string) {
 		return !isBlank(string);
+	}
+
+	public static String isBlankDefaultResult(Object string) {
+    	return isBlank(string) ? "" : string.toString();
 	}
 
 	public static boolean isNumeric(String string) {

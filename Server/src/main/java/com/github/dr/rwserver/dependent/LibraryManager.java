@@ -13,7 +13,7 @@ import java.net.URLClassLoader;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import static com.github.dr.rwserver.net.HttpRequest.downUrl;
+import static com.github.dr.rwserver.net.HttpRequestOkHttp.downUrl;
 import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 
 /**
@@ -21,10 +21,11 @@ import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
  */
 public class LibraryManager {
 	private static Instrumentation inst = null;
+    private static final Seq<File> load = new Seq<>();
+
     private final String URL;
     private final String PATH;
     private final Seq<ImportData> dependencies = new Seq<>();
-    private final Seq<File> load = new Seq<>();
 
 
     /** JRE将在启动main()之前调用方法 */
@@ -32,10 +33,15 @@ public class LibraryManager {
         LibraryManager.inst = inst;
     }
 
+    /**
+     * 使用AiLiYun下载
+     * @param path 保存路径
+     */
     public LibraryManager(String path) {
         URL = "https://maven.aliyun.com/nexus/content/groups/public";
         this.PATH = path;
     }
+
 
     public LibraryManager(boolean china,String path) {
         if (china) {

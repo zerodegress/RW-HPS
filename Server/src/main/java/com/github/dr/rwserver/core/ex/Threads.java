@@ -1,6 +1,7 @@
 package com.github.dr.rwserver.core.ex;
 
 import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.threads.ThreadFactoryName;
 
 import java.util.concurrent.*;
 
@@ -9,17 +10,12 @@ import java.util.concurrent.*;
  */
 public class Threads {
 
-	private static final ExecutorService CORE_THREAD 					= Executors.newFixedThreadPool(6);
+	private static final ExecutorService CORE_THREAD 					= new ThreadPoolExecutor(6, 6, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), ThreadFactoryName.nameThreadFactory("Core-"));
 	private static final ExecutorService CORE_NET_THREAD 				= Executors.newFixedThreadPool(1);
 	private static final ScheduledExecutorService SERVICE 				= Executors.newScheduledThreadPool(10);
 	private static final ThreadPoolExecutor PLAYER_HEAT_THREAD 			= new ThreadPoolExecutor(8,8,1,TimeUnit.MINUTES, new LinkedBlockingDeque<>(10));
 	private static final Seq<Runnable> SAVE_POOL 						= new Seq<>();
 
-	/*
-	private static ScheduledFuture THREAD_TIME;
-	Player_Thread.shutdown();
-	Player_Thread = new ThreadPoolExecutor(Data.game.maxPlayer,Data.game.maxPlayer,1, TimeUnit.MINUTES,new LinkedBlockingDeque<Runnable>(20));
-	 */
 
 
 	public static void playerThread() {

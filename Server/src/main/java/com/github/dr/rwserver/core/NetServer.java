@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @author Dr
  */
 public class NetServer {
+
     public static void closeServer() {
         if (Data.game != null) {
             NetStaticData.startNet.each(StartNet::stop);

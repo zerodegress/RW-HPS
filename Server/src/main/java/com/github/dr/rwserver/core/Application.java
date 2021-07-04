@@ -1,14 +1,16 @@
 package com.github.dr.rwserver.core;
 
 import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.plugin.PluginData;
+import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.net.Administration;
 import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.util.UUID;
 
-import static com.github.dr.rwserver.util.Convert.castSeq;
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
 import static com.github.dr.rwserver.util.RandomUtil.generateStr;
 
@@ -16,7 +18,7 @@ import static com.github.dr.rwserver.util.RandomUtil.generateStr;
  * @author Dr
  */
 public final class Application {
-    public final PluginData settings;
+    public final PluginData pluginData;
     /** 服务器唯一UUID */
     public String serverConnectUuid;
     public String serverToken;
@@ -27,24 +29,26 @@ public final class Application {
     public float defIncome = 1f;
 
     public Application() {
-        settings = new PluginData();
+        pluginData = new PluginData();
         serverToken = generateStr(40);
     }
 
     public final void load() {
-        admin = new Administration(settings);
-        serverConnectUuid = settings.getData("serverConnectUuid", UUID.randomUUID().toString());
-        unitBase64 = castSeq(settings.getData("unitBase64", new Seq()),String.class);
+        pluginData.setFileUtil(FileUtil.file(Data.Plugin_Data_Path).toPath("Settings.bin"));
+        admin = new Administration(pluginData);
+        serverConnectUuid = pluginData.getData("serverConnectUuid", UUID.randomUUID().toString());
+        unitBase64 = pluginData.getData("unitBase64", new Seq<String>());
 
         Threads.addSavePool(() -> {
-            settings.put("serverConnectUuid",serverConnectUuid);
-            settings.putObject("unitBase64",unitBase64);
+            pluginData.setData("serverConnectUuid",serverConnectUuid);
+            pluginData.setData("unitBase64",unitBase64);
         });
     }
 
     public void save() {
         Threads.runSavePool();
-        settings.save();
+        pluginData.save();
+        PluginManage.runOnDisable();
     }
 
     public final long getJavaHeap() {

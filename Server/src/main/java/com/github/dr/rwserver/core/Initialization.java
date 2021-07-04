@@ -16,7 +16,7 @@ import com.ip2location.IP2Location;
 import java.io.File;
 import java.io.IOException;
 
-import static com.github.dr.rwserver.net.HttpRequest.doGet;
+import static com.github.dr.rwserver.net.HttpRequestOkHttp.doGet;
 import static com.github.dr.rwserver.util.Convert.castSeq;
 import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 import static com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate;

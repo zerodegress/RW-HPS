@@ -60,22 +60,12 @@ public class GameInputStream implements Closeable {
     }
 
     public byte[] readStreamBytes() throws IOException {
-        int n2;
-        int n3 = this.readInt();
-        byte[] bytes = new byte[n3];
-        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(bytes, i2, n3 - i2)) != -1; i2 += n2) {
-        }
-        return bytes;
+        return this.buffer.readNBytes(this.readInt());
     }
 
     public byte[] readStreamBytesNew() throws IOException {
-        int n2;
         this.readInt();
-        int n3 = this.readInt();
-        byte[] bytes = new byte[n3];
-        for (int i2 = 0; i2 < n3 && (n2 = this.stream.read(bytes, i2, n3 - i2)) != -1; i2 += n2) {
-        }
-        return bytes;
+        return readStreamBytes();
     }
 
     public DataInputStream getDecodeStream(boolean bl) throws IOException{

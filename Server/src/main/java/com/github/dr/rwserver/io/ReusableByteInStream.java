@@ -19,7 +19,8 @@ public class ReusableByteInStream extends ByteArrayInputStream {
         this.count = bytes.length;
         this.mark = 0;
         this.buf = bytes;
-        }
+    }
+
     public void setBytes(byte[] bytes, int offset, int length) {
         this.buf = bytes;
         this.pos = offset;

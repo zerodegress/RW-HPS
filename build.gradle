@@ -14,6 +14,7 @@ ext{
 }
 
 dependencies {
+ implementation 'com.github.jitpack:gradle-simple:1.0'
 	//compile project(":LibraryManager")
 	implementation group: 'io.netty', name: 'netty-all', version: '4.1.59.Final'
 	implementation group: 'com.ip2location', name: 'ip2location-java', version: '8.5.0'

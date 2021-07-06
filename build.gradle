@@ -1,45 +1,42 @@
-apply plugin: "java"
-
-sourceCompatibility = 11
-
-repositories{
-	maven{ url "http://maven.aliyun.com/nexus/content/groups/public/"}
-	mavenCentral()
-	maven{ url 'https://jitpack.io' }
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:3.2.0"
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+    }
 }
 
-ext{
-	//the build number that this plugin is made for
-
-}
-
-dependencies {
- implementation 'com.github.jitpack:gradle-simple:1.0'
-	//compile project(":LibraryManager")
-	implementation group: 'io.netty', name: 'netty-all', version: '4.1.59.Final'
-	implementation group: 'com.ip2location', name: 'ip2location-java', version: '8.5.0'
-	implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.58'
-	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1'
-	//compileOnly group: 'com.github.oshi', name: 'oshi-core', version: '5.5.0'
-}
-
-jar{
-	manifest {
-		attributes 'Main-Class': 'com.github.dr.rwserver.Main'
-		attributes 'Launcher-Agent-Class': 'com.github.dr.rwserver.dependent.LibraryManager'
+subprojects {
+    apply plugin: "java"
+	repositories{
+		maven{ url "http://maven.aliyun.com/nexus/content/groups/public/"}
+		mavenCentral()
+		google()
+        		jcenter()
+		maven{ url 'https://jitpack.io' }
 	}
 
-	from{
-		configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+
+	ext{
+		//the build number that this plugin is made for
+
+	}
+
+	jar{
+		from{
+			configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
+		}
+	}
+
+	tasks.withType(JavaCompile) {
+		options.encoding = "UTF-8"
+		options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+		options.compilerArgs << "-Xdiags:verbose" << "-Werror"
+		options.compilerArgs << "-Xlint:deprecation" << "-Werror"
 	}
 }
-
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
-	options.compilerArgs << "-Xlint:unchecked" << "-Werror"
-	options.compilerArgs << "-Xdiags:verbose" << "-Werror"
-	options.compilerArgs << "-Xlint:deprecation" << "-Werror"
-}
-
 	//implementation group: 'io.netty', name: 'netty-all', version: '5.0.0.Alpha2'
 	//implementation group: 'io.netty', name: 'netty-all', version: '4.1.51.Final'

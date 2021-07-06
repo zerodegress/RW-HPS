@@ -61,14 +61,14 @@ public class ServerCommands {
             Threads.newThreadCore(() -> {
                 StartNet startNet = new StartNet();
                 NetStaticData.startNet.add(startNet);
-                startNet.openPort(5123);
+                startNet.openPort(Data.game.port);
             });
             if (Data.config.readBoolean("UDPSupport",false)) {
                 Threads.newThreadCore(() -> {
                     try {
                         StartNet startNet = new StartNet();
                         NetStaticData.startNet.add(startNet);
-                        startNet.startUdp(5123);
+                        startNet.startUdp(Data.game.port);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

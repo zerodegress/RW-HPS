@@ -1,5 +1,4 @@
-apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.RW-HPS'
+apply plugin: 'com.android.library'
 
 sourceCompatibility = 11 // for the IDE support
 
@@ -27,4 +26,16 @@ task classesJar(type: Jar) {
 
 artifacts {
     archives classesJar
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.RW-HPS'
+                artifactId = ''RW-HPS''
+            }
+        }
+    }
 }

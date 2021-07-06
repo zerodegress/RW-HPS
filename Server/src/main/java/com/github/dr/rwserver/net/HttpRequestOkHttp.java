@@ -63,15 +63,17 @@ public class HttpRequestOkHttp {
 
 
 	private static String getHttpResultString(Request request) {
+		String result = "";
 		try (Response response = CLIENT.newCall(request).execute()) {
 			if (!response.isSuccessful()) {
 				Log.error("Unexpected code",new IOException());
 			}
-			return Objects.requireNonNull(response.body()).string();
+			result = Objects.requireNonNull(response.body()).string();
+			Objects.requireNonNull(response.body()).close();
 		} catch (IOException e) {
 			Log.error(e);
 		}
-		return "";
+		return result;
 	}
 
 	public static String doPostRw(String url, String param) {

@@ -1,6 +1,7 @@
 plugins {
     id 'maven-publish'
 }
+group = 'com.github.RW-HPS'
 
 dependencies {
 	implementation group: 'io.netty', name: 'netty-all', version: '4.1.59.Final'

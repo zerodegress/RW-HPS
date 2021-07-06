@@ -15,6 +15,11 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.nio.AbstractNioChannel;
+import io.netty.channel.nio.AbstractNioMessageChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.socket.nio.*;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -31,14 +36,30 @@ public class StartNet {
     private final StartGameNetTcp starta = new StartGameNetTcp(this);
     protected final OrderedMap<String, AbstractNetConnect> OVER_MAP = new OrderedMap<>(16);
 
+    /**
+     * 在指定端口启动Game Server
+     * @param port 端口
+     */
+    // 不想过多if 但runClass的都是可控
+    @SuppressWarnings("unchecked")
     public void openPort(int port) {
-        /* boss用来接收进来的连接 */
-        EpollEventLoopGroup bossGroup = new EpollEventLoopGroup(4);
-        EpollEventLoopGroup workerGroup = new EpollEventLoopGroup();
+        EventLoopGroup bossGroup;
+        EventLoopGroup workerGroup;
+        Class runClass;
+        if (Data.core.isWindows()) {
+            bossGroup = new NioEventLoopGroup(4);
+            workerGroup = new NioEventLoopGroup();
+            runClass = NioServerSocketChannel.class;
+            Log.clog("运行在Windows 或许效率会略低");
+        } else {
+            bossGroup = new EpollEventLoopGroup(4);
+            workerGroup = new EpollEventLoopGroup();
+            runClass = EpollServerSocketChannel.class;
+        }
         try {
             ServerBootstrap serverBootstrapTcp = new ServerBootstrap();
             serverBootstrapTcp.group(bossGroup, workerGroup)
-                    .channel(EpollServerSocketChannel.class)
+                    .channel(runClass)
                     .localAddress(new InetSocketAddress(port))
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)

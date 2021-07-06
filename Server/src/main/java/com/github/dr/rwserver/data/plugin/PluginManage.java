@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.data.plugin;
 
+import com.github.dr.rwserver.func.Cons;
 import com.github.dr.rwserver.plugin.PluginsLoad;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.file.FileUtil;
@@ -7,6 +8,10 @@ import com.github.dr.rwserver.util.game.CommandHandler;
 
 public class PluginManage {
     private static Seq<PluginsLoad.PluginData> pluginData;
+
+    public static void run(Cons<PluginsLoad.PluginData> cons) {
+        pluginData.each(cons::get);
+    }
 
     public static void init(final FileUtil fileUtil) {
         pluginData = PluginsLoad.resultPluginData(fileUtil);

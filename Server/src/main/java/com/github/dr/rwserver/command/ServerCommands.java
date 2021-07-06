@@ -8,6 +8,7 @@ import com.github.dr.rwserver.core.ex.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
+import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
@@ -187,7 +188,7 @@ public class ServerCommands {
         });
 
         handler.<StrCons>register("plugins", "serverCommands.plugins", (arg, log) -> {
-            //Main.data.each(e -> log.get(localeUtil.getinput("plugin.info",e.name,e.description,e.author,e.version)));
+            PluginManage.run(e -> log.get(localeUtil.getinput("plugin.info",e.name,e.description,e.author,e.version)));
         });
 
         handler.<StrCons>register("players", "serverCommands.players", (arg, log) -> {

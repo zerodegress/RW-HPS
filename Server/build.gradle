@@ -1,6 +1,6 @@
-apply plugin: 'com.android.library'
-
-sourceCompatibility = 11 // for the IDE support
+plugins {
+    id 'maven-publish'
+}
 
 dependencies {
 	implementation group: 'io.netty', name: 'netty-all', version: '4.1.59.Final'
@@ -18,24 +18,4 @@ jar{
 	from(rootDir) {
 		include "Config.json"
 	}
-}
-
-task classesJar(type: Jar) {
-    from "$buildDir/intermediates/classes/release"
-}
-
-artifacts {
-    archives classesJar
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.github.RW-HPS'
-                artifactId = ''RW-HPS''
-            }
-        }
-    }
 }

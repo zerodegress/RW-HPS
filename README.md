@@ -2,10 +2,21 @@
 
 [跳转中文介绍](https://github.com/RW-HPS/RW-HPS/blob/master/README-CN.md)  
 
-# RW-HPS  
+# RW-HPS
+![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
+![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
+[![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
+
+
+## Statement
+### All development is for learning, please do not use it for illegal purposes
+- RW-HPS Is completely free and open source software, only for learning and entertainment purposes
+- RW-HPS Will not be forced to charge fees in any way, or impose material conditions on users
+
+## Present
 Third party rust war server  
 This is a netty based server  
-It aims to provide better game experience for players as a high performance and high availability server  
+It aims to provide better game experience for players as a high performance and high availability server
 
 ### Licenses
 Used in this project  
@@ -36,8 +47,10 @@ GNU General Public License v3.0
 - Discuss:
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
   > Email contact: dr@der.kim  
-  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)  
+  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)
   > Telegram: [RW-HPS](https://t.me/RW_HPS)
+  >> Tencent QQ: A modern messaging software used by all Chinese netizens.
+  >> *RW-HPS No donation items*
 - Mirroring:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
   > [Gitee](https://gitee.com/derdct/RW-HPS)

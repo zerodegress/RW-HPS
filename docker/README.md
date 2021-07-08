@@ -22,7 +22,7 @@ docker run -d --restart=always -v ~/rw-hps/docker:/app/data -p 5123:5123 --name 
 # 注意
 
 这里是将 `宿主机` 的 `~/rw-hps/docker` 挂载到 `容器内` 的 `/app/data`,   
-也就是说 宿主机 `~/rw-hps/docker` 相当于 `data` 目录，成功启动容器后，会生成 `plugins  Setting.bin`
+也就是说 宿主机 `~/rw-hps/docker` 相当于 `data` 目录，成功启动容器后，会生成 `plugins Setting.bin Config.json`
 
 
 # 补充

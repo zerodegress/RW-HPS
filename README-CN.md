@@ -1,9 +1,19 @@
-# RW-HPS  
+# RW-HPS
+![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
+![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
+[![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)
+
+## 声明
+### 一切开发旨在学习，请勿用于非法用途
+- RW-HPS 是完全免费且开放源代码的软件，仅供学习和娱乐用途使用
+- RW-HPS 不会通过任何方式强制收取费用，或对使用者提出物质条件
+
+## 介绍
 第三方铁锈战争服务器  
 这是一个基于Netty的服务器  
 旨在作为一个高性能 高可用的服务器 为玩家提供更好的游戏体验
 
-### Licenses
+### 许可证
 本服务端遵守  
 GNU General Public License v3.0
 
@@ -32,7 +42,8 @@ GNU General Public License v3.0
   > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法  
   > 邮件联系: dr@der.kim  
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)  
-  > Telegram: [RW-HPS](https://t.me/RW_HPS)
+  > Telegram: [RW-HPS](https://t.me/RW_HPS  )
+  >> *RW-HPS 没有任何的捐赠项目*
 - 镜像:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
   > [Gitee](https://gitee.com/derdct/RW-HPS)  

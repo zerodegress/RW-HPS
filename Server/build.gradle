@@ -1,7 +1,9 @@
 plugins {
     id 'maven-publish'
 }
-group = 'com.github.RW-HPS'
+
+sourceCompatibility=11
+targetCompatibility=11
 
 dependencies {
 	implementation group: 'io.netty', name: 'netty-all', version: '4.1.59.Final'
@@ -15,10 +17,6 @@ jar{
 		 attributes 'Main-Class': 'com.github.dr.rwserver.Main'
 		 attributes 'Launcher-Agent-Class': 'com.github.dr.rwserver.dependent.LibraryManager'
 	}
-
-	from(rootDir) {
-		include "Config.json"
-	}
 }
 
 publishing {
@@ -26,8 +24,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'com.github.RW-HPS'
             artifactId = 'RW-HPS'
-            version = '1.2.1'
-
+            version = '1.0.0'
             from components.java
         }
     }

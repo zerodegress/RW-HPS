@@ -1,7 +1,8 @@
 package com.github.dr.rwserver.data.plugin;
 
-import com.github.dr.rwserver.util.file.FileUtil;
-
+/**
+ * @author Dr
+ */
 public class AutoSavePluginData extends AbstractPluginData {
     public AutoSavePluginData() {
     }

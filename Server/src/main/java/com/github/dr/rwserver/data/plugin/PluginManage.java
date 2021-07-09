@@ -2,14 +2,22 @@ package com.github.dr.rwserver.data.plugin;
 
 import com.github.dr.rwserver.func.Cons;
 import com.github.dr.rwserver.plugin.PluginsLoad;
+import com.github.dr.rwserver.plugin.event.AbstractEvent;
 import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.game.CommandHandler;
 
 public class PluginManage {
-    private static Seq<PluginsLoad.PluginData> pluginData;
+    private static final PluginEventManage pluginEventManage = new PluginEventManage();
+    private static Seq<PluginsLoad.PluginLoadData> pluginData;
 
-    public static void run(Cons<PluginsLoad.PluginData> cons) {
+
+    public static int getLoadSize() {
+        return pluginData.size();
+    }
+
+    public static void run(Cons<PluginsLoad.PluginLoadData> cons) {
         pluginData.each(cons::get);
     }
 
@@ -34,7 +42,12 @@ public class PluginManage {
 
     /** 注册事件 -4 */
     public static void runRegisterEvents(){
-        pluginData.each(e -> e.main.registerEvents());
+        pluginData.each(e -> {
+            AbstractEvent abstractEvent = e.main.registerEvents();
+            if (IsUtil.notIsBlank(abstractEvent)) {
+                PluginEventManage.add(abstractEvent);
+            }
+        });
     }
 
     /** 创建所有插件并注册命令后调用 -5 */
@@ -48,10 +61,7 @@ public class PluginManage {
     }
 
     public static void removePlugin(final String name) {
-        pluginData.each(e -> {
-            if (e.name.equalsIgnoreCase(name)) {
-                pluginData.remove(e);
-            }
-        });
+        pluginData.each(e -> e.name.equalsIgnoreCase(name),pluginData::remove);
+        // TOOD 完全卸载Plugn
     }
 }

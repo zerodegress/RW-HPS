@@ -2,45 +2,82 @@ package com.github.dr.rwserver.data.plugin;
 
 import com.github.dr.rwserver.io.ReusableByteInStream;
 import com.github.dr.rwserver.struct.ObjectMap;
+import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.SerializerTypeAll;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
+import com.github.dr.rwserver.util.log.exp.VariableException;
 import com.github.dr.rwserver.util.zip.gzip.GzipDecoder;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
+/**
+ * [PluginData] 的默认实现. 使用 '{@link AbstractPluginData#setData}' 自带创建 [Value] 并跟踪其改动.
+ * 实现注意
+ * 此类型处于实验性阶段. 使用其中定义的属性和函数是安全的, 但将来可能会新增成员抽象函数.
+ * @author Dr
+ */
 @SuppressWarnings("unchecked")
 class AbstractPluginData {
-    private static final ObjectMap<Class<?>, SerializerTypeAll.TypeSerializer<?>> serializers = new ObjectMap<>();
-    private final ObjectMap<String, Value<?>> PLUGIN_DATA = new ObjectMap<>();
+    private static final ObjectMap<Class<?>, SerializerTypeAll.TypeSerializer<?>> SERIALIZERS = new ObjectMap<>();
+    private final OrderedMap<String, Value<?>> PLUGIN_DATA = new OrderedMap<>();
     private final ReusableByteInStream byteInputStream = new ReusableByteInStream();
     private final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     private final DataOutputStream dataOutput = new DataOutputStream(byteStream);
     private FileUtil fileUtil;
 
     static {
-        DefaultSerializers.registrationBasis();
-        DefaultSerializers.signUpForAdvanced();
+        DefaultSerializers.register();
     }
 
     public AbstractPluginData() {
     }
 
+    /**
+     * 这个 [PluginData] 保存时使用的文件.
+     * @param fileUtil FileUtil
+     */
     public void setFileUtil(FileUtil fileUtil) {
         this.fileUtil = fileUtil;
     }
 
-    public <T> void setData(String name,T data) {
-        PLUGIN_DATA.put(name,new Value<T>(data));
+    /**
+     * 向PluginData中加入一个value
+     * @param name value的名字
+     * @param data 需要存储的数据
+     * @param <T> data的类
+     */
+    public <T> void setData(String name,@NotNull final T data) {
+        if (SERIALIZERS.containsKey(data.getClass())) {
+            PLUGIN_DATA.put(name, new Value<>(data));
+        } else {
+            throw new VariableException.ObjectMapRuntimeException("UNSUPPORTED_SERIALIZATION");
+        }
     }
 
+    /**
+     * 向PluginData中获取一个value
+     * @param name value的名字
+     * @param <T> data的类
+     * @return value
+     */
     public <T> T getData(String name) {
         return (T) PLUGIN_DATA.get(name).getData();
     }
 
-    public <T> T getData(String name,T data) {
-        return (T) PLUGIN_DATA.get(name,new Value<T>(data)).getData();
+    /**
+     * 向PluginData中获取一个value
+     * @param name value的名字
+     * @param data 默认返回的数据
+     * @param <T> data的类
+     * @return value
+     */
+    public <T> T getData(String name,@NotNull final T data) {
+        return (T) PLUGIN_DATA.get(name, () -> {
+            return new Value<>(data);
+        }).getData();
     }
 
     public void read() {
@@ -53,19 +90,19 @@ class AbstractPluginData {
                 byte type = stream.readByte();
                 switch (type) {
                     case 0:
-                        PLUGIN_DATA.put(key, new Value<Boolean>(stream.readBoolean()));
+                        PLUGIN_DATA.put(key, new Value<>(stream.readBoolean()));
                         break;
                     case 1:
-                        PLUGIN_DATA.put(key, new Value<Integer>(stream.readInt()));
+                        PLUGIN_DATA.put(key, new Value<>(stream.readInt()));
                         break;
                     case 2:
-                        PLUGIN_DATA.put(key, new Value<Long>(stream.readLong()));
+                        PLUGIN_DATA.put(key, new Value<>(stream.readLong()));
                         break;
                     case 3:
-                        PLUGIN_DATA.put(key, new Value<Float>(stream.readFloat()));
+                        PLUGIN_DATA.put(key, new Value<>(stream.readFloat()));
                         break;
                     case 4:
-                        PLUGIN_DATA.put(key, new Value<String>(stream.readUTF()));
+                        PLUGIN_DATA.put(key, new Value<>(stream.readUTF()));
                         break;
                     case 5:
                         /* 把String转为Class,来进行反序列化 */
@@ -75,6 +112,8 @@ class AbstractPluginData {
                         stream.read(bytes);
                         PLUGIN_DATA.put(key, new Value<>(getObject(classCache,bytes)));
                         break;
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + type);
                 }
             }
         } catch (Exception e) {
@@ -125,16 +164,16 @@ class AbstractPluginData {
         }
     }
 
-    protected static SerializerTypeAll.TypeSerializer getSerializer(Class type) {
-        return serializers.get(type);
+    protected static SerializerTypeAll.TypeSerializer getSerializer(Class<?> type) {
+        return SERIALIZERS.get(type);
     }
 
     protected static <T> void setSerializer(Class<?> type, SerializerTypeAll.TypeSerializer<T> ser) {
-        serializers.put(type, ser);
+        SERIALIZERS.put(type, ser);
     }
 
     protected static <T> void setSerializer(Class<T> type, final SerializerTypeAll.TypeWriter<T> writer, final SerializerTypeAll.TypeReader<T> reader) {
-        serializers.put(type, new SerializerTypeAll.TypeSerializer<T>() {
+        SERIALIZERS.put(type, new SerializerTypeAll.TypeSerializer<T>() {
             @Override
             public void write(DataOutput stream, T object) throws IOException {
                 writer.write(stream, object);
@@ -147,11 +186,11 @@ class AbstractPluginData {
     }
 
     private  <T> T getObject(Class<T> type, byte[] bytes) {
-        if (!serializers.containsKey(type)) {
+        if (!SERIALIZERS.containsKey(type)) {
             Log.error(new IllegalArgumentException("Type " + type + " does not have a serializer registered!"));
             return null;
         }
-        SerializerTypeAll.TypeSerializer serializer = serializers.get(type);
+        SerializerTypeAll.TypeSerializer<?> serializer = SERIALIZERS.get(type);
         try {
             this.byteInputStream.setBytes(bytes);
             Object obj = serializer.read(new DataInputStream(byteInputStream));
@@ -169,11 +208,11 @@ class AbstractPluginData {
     }
 
     private byte[] putBytes(Object value, Class<?> type) throws IOException {
-        if (!serializers.containsKey(type)) {
+        if (!SERIALIZERS.containsKey(type)) {
             Log.error(new IllegalArgumentException("Type " + type + " does not have a serializer registered!"));
         }
         this.byteStream.reset();
-        SerializerTypeAll.TypeSerializer<Object> serializer = (SerializerTypeAll.TypeSerializer)serializers.get(type);
+        SerializerTypeAll.TypeSerializer<Object> serializer = (SerializerTypeAll.TypeSerializer)SERIALIZERS.get(type);
         serializer.write(this.dataOutput, value);
         return this.byteStream.toByteArray();
     }

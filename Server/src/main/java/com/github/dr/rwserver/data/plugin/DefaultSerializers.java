@@ -15,7 +15,13 @@ import java.io.IOException;
  */
 @SuppressWarnings("unchecked")
 class DefaultSerializers {
-    public static void registrationBasis() {
+    protected static void register() {
+        registrationBasis();
+        registerMap();
+        registerCustomClass();
+    }
+
+    private static void registrationBasis() {
         AbstractPluginData.setSerializer(String.class, new SerializerTypeAll.TypeSerializer<String>() {
             @Override
             public void write(DataOutput stream, String object) throws IOException {
@@ -26,9 +32,53 @@ class DefaultSerializers {
                 return stream.readUTF();
             }
         });
+
+        AbstractPluginData.setSerializer(Integer.class, new SerializerTypeAll.TypeSerializer<Integer>() {
+            @Override
+            public void write(DataOutput stream, Integer object) throws IOException {
+                stream.writeInt(object);
+            }
+            @Override
+            public Integer read(DataInput stream) throws IOException {
+                return stream.readInt();
+            }
+        });
+
+        AbstractPluginData.setSerializer(Float.class, new SerializerTypeAll.TypeSerializer<Float>() {
+            @Override
+            public void write(DataOutput stream, Float object) throws IOException {
+                stream.writeFloat(object);
+            }
+            @Override
+            public Float read(DataInput stream) throws IOException {
+                return stream.readFloat();
+            }
+        });
+
+        AbstractPluginData.setSerializer(Long.class, new SerializerTypeAll.TypeSerializer<Long>() {
+            @Override
+            public void write(DataOutput stream, Long object) throws IOException {
+                stream.writeLong(object);
+            }
+            @Override
+            public Long read(DataInput stream) throws IOException {
+                return stream.readLong();
+            }
+        });
+
+        AbstractPluginData.setSerializer(Boolean.class, new SerializerTypeAll.TypeSerializer<Boolean>() {
+            @Override
+            public void write(DataOutput stream, Boolean object) throws IOException {
+                stream.writeBoolean(object);
+            }
+            @Override
+            public Boolean read(DataInput stream) throws IOException {
+                return stream.readBoolean();
+            }
+        });
     }
 
-    public static void signUpForAdvanced() {
+    private static void registerMap() {
         AbstractPluginData.setSerializer(Seq.class, new SerializerTypeAll.TypeSerializer<Seq>() {
             @Override
             public void write(DataOutput stream, Seq object) throws IOException {
@@ -177,11 +227,13 @@ class DefaultSerializers {
                 }
             }
         });
+    }
 
+    private static void registerCustomClass() {
         AbstractPluginData.setSerializer(Administration.PlayerInfo.class, new SerializerTypeAll.TypeSerializer<Administration.PlayerInfo>() {
             @Override
             public void write(DataOutput stream, Administration.PlayerInfo object) throws IOException {
-                AbstractPluginData.getSerializer(String.class).write(stream, object.uuid);
+                AbstractPluginData.getSerializer(String.class).write(stream,object.uuid);
                 stream.writeLong(object.timesKicked);
                 stream.writeLong(object.timesJoined);
                 stream.writeLong(object.timeMute);

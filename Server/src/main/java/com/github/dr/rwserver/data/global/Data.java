@@ -1,7 +1,7 @@
 package com.github.dr.rwserver.data.global;
 
 import com.github.dr.rwserver.core.Application;
-import com.github.dr.rwserver.core.ex.Vote;
+import com.github.dr.rwserver.command.ex.Vote;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.struct.ObjectMap;
@@ -40,7 +40,7 @@ public class Data {
 
 	/** 自定义包名 */
 	public static final String SERVER_ID = "com.corrodinggames.rwhps";
-	public static final String SERVER_CORE_VERSION = "1.2.0";
+	public static final String SERVER_CORE_VERSION = "1.3.0-M1";
 	public static final int SERVER_CORE_VERSION_INT = 200;
 	/** 单位数据缓存 */
 	public static final GzipEncoder utilData = GzipEncoder.getGzipStream("customUnits",false);

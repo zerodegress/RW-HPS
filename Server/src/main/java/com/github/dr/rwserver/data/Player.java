@@ -1,10 +1,8 @@
 package com.github.dr.rwserver.data;
 
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
-import com.github.dr.rwserver.net.core.AbstractNetPacket;
 import com.github.dr.rwserver.util.LocaleUtil;
 
 import java.io.DataOutputStream;
@@ -15,10 +13,9 @@ import java.util.Objects;
  * @author Administrator
  */
 public final class Player {
-	/**
-	 * 玩家连接UUID
-	 */
+	/** 玩家连接UUID */
 	public final String uuid;
+	/** 玩家名字 */
 	public final String name;
 	public AbstractNetConnect con;
 	/** is Admin */
@@ -49,8 +46,6 @@ public final class Player {
 
 	public boolean noSay = false;
 	public boolean watch = false;
-
-	private final AbstractNetPacket PACKET = NetStaticData.protocolData.abstractNetPacket;
 
 	public Player(AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
 		this.con = con;

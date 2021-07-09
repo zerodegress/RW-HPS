@@ -343,6 +343,15 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         return val;
     }
 
+    /** 尝试获取值。如果它不存在返回值.*/
+    public V getNoPut(K key, Prov<V> supplier){
+        V val = get(key);
+        if(val == null){
+            return supplier.get();
+        }
+        return val;
+    }
+
     /** Get, with a nullable key.*/
     public V getNull(K key){
         return key == null ? null : get(key);

@@ -187,7 +187,7 @@ public class Seq<T> implements Iterable<T> {
         }
     }
 
-    public <E extends T> void eachs(BooleanIf<? super T> pred, Cons<E> consumer) {
+    public <E extends T> void eachBooleanIfs(BooleanIf<? super T> pred, Cons<E> consumer) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i])) {
                 consumer.get((E)items[i]);

@@ -62,7 +62,10 @@ public enum ErrorCode {
 	INVALID_ENCRYPTION(50002,"Invalid encryption"),
 	ILLEGAL_OPERATION(50003,"Illegal operation"),
 	UNSUPPORTED_ENCRYPTION(50004,"Unsupported encryption"),
-	DOES_NOT_SUPPORT_AES_256(50005,"Does not support ASE256");
+	DOES_NOT_SUPPORT_AES_256(50005,"Does not support ASE256"),
+
+	/*变量层*/
+	UNSUPPORTED_SERIALIZATION(60001,"Unsupported serialization");
 	
 	
 	private final int errCode;

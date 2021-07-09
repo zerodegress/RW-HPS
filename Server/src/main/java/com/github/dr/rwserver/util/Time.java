@@ -28,6 +28,11 @@ public class Time {
         return INSTANCE.now;
     }
 
+    /** @return 当前时间与1970年1月1日午夜之间的差值（以秒为单位）. */
+    public static int concurrentSecond(){
+        return (int) (INSTANCE.now/1000);
+    }
+
     /**
      * 获取自上次以来经过的纳秒数
      * @param prevTime - 必须是纳秒

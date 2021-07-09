@@ -10,9 +10,12 @@ import java.security.NoSuchAlgorithmException;
 import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 //Java
 
+/**
+ * @author Dr
+ */
 public class Md5 {
 
-	private static final char[] hexDigits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd','e', 'f' };
+	private static final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd','e', 'f' };
 
 	public static String md5(String input) {
 		if (input == null) {
@@ -90,8 +93,8 @@ public class Md5 {
 		char[] resultCharArray = new char[byteArray.length * 2];
 		int index = 0;
 		for (byte b : byteArray) {
-			resultCharArray[index++] = hexDigits[b >>> 4 & 0xf];
-			resultCharArray[index++] = hexDigits[b & 0xf];
+			resultCharArray[index++] = HEX_DIGITS[b >>> 4 & 0xf];
+			resultCharArray[index++] = HEX_DIGITS[b & 0xf];
 		}
 		return new String(resultCharArray);
 

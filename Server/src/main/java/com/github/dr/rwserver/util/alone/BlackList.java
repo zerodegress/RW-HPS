@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.util.alone;
 
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.Time;
 
@@ -13,7 +13,7 @@ public class BlackList {
         Threads.newThreadService2(() -> {
             final long time = Time.millis();
             blackList.each(e -> (e.time<time), blackList::remove);
-        },0,1, TimeUnit.HOURS);
+        },0,1, TimeUnit.HOURS,"BlackListCheck");
     }
 
     public void addBlackList(String str) {

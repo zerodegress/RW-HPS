@@ -5,6 +5,7 @@ import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.util.log.Log;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,35 +52,35 @@ public final class LoadConfig {
 	}
 
     public String readString(String input) {
-        return readString(input,null);
+        return readString(input,"");
     }
 
-    public String readString(String input,Object def) {
+    public String readString(String input,@NotNull Object def) {
         String str = load(input,def);
         return isBlank(str) ? "" : str;
     }
 
-    public int readInt(String input,Object def) {
+    public int readInt(String input,@NotNull Object def) {
         String str = load(input,def);
         return Integer.parseInt(str);
     }
 
-    public boolean readBoolean(String input,Object def) {
+    public boolean readBoolean(String input,@NotNull Object def) {
         String str = load(input,def);
         return Boolean.parseBoolean(str);
     }
 
-    public float readFloat(String input,Object def) {
+    public float readFloat(String input,@NotNull Object def) {
         String str = load(input,def);
         return Float.parseFloat(str);
     }
 
-    public long readLong(String input,Object def) {
+    public long readLong(String input,@NotNull Object def) {
         String str = load(input,def);
         return Long.parseLong(str);
     }
 
-    public void setObject(String input,Object key) {
+    public void setObject(String input,@NotNull Object key) {
         data.put(input,key.toString());
     }
 

@@ -10,7 +10,7 @@ public class VariableException extends RuntimeException {
 
     public static class ArrayRuntimeException extends RuntimeException {
         public ArrayRuntimeException(String type) {
-            super(type);
+            super(com.github.dr.rwserver.util.log.ErrorCode.valueOf(type).getError());
         }
     }
 
@@ -22,7 +22,7 @@ public class VariableException extends RuntimeException {
 
     public static class MapRuntimeException extends RuntimeException {
         public MapRuntimeException(String type) {
-            super(type);
+            super(com.github.dr.rwserver.util.log.ErrorCode.valueOf(type).getError());
         }
     }
 }

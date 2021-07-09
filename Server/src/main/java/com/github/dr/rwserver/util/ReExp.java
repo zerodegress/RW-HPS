@@ -16,7 +16,7 @@ public abstract class ReExp {
 
     private boolean isException = true;
 
-    private Class exception = Exception.class;
+    private Class<Exception> exception = Exception.class;
 
     private final Map<Class, String> ClassExpResult = new ConcurrentHashMap<>();
 
@@ -30,7 +30,7 @@ public abstract class ReExp {
         return this;
     }
 
-    public ReExp setException(Class exception) {
+    public ReExp setException(Class<Exception> exception) {
         this.isException = true;
         this.exception = exception;
         return this;

@@ -19,9 +19,6 @@ import static com.github.dr.rwserver.util.IsUtil.isBlank;
  */
 public class CustomEvent {
     public CustomEvent() {
-        /*
-        自定义区域
-         */
     }
 }
 

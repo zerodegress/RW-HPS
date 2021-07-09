@@ -7,8 +7,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
 //Java
@@ -17,35 +15,35 @@ import static com.github.dr.rwserver.util.IsUtil.isBlank;
  * @author Dr
  */
 public class FileUtil {
-
-	private File file;
-
+	/**
+	 * 默认的地址前缀
+	 * 如果不为null将会直接使用path而不是使用jar运行时位置
+	 */
 	public static String path = null;
 
+	/** 内部的File */
+	private File file;
+
+	/** 当前操作的文件 */
 	private String filepath;
 
 	public FileUtil(File file){
 		this.file = file;
 		this.filepath = file.getPath();
-		if(!file.exists()) {
-			file.mkdirs();
-		}
+		this.mkdir();
 	}
 
 	public FileUtil(String filepath){
 		this.filepath = filepath;
 		file = new File(filepath);
-		if(!file.exists()) {
-			file.mkdirs();
-		}
+		this.mkdir();
+
 	}
 
 	private FileUtil(File file, String filepath){
 		this.file = file;
 		this.filepath = filepath;
-		if(!file.exists()) {
-			file.mkdirs();
-		}
+		this.mkdir();
 	}
 
 	public static FileUtil file() {
@@ -82,12 +80,12 @@ public class FileUtil {
 		return new FileUtil(file,filepath);
 	}
 
-	public boolean exists() {
-		return (file.exists());
-	}
-
 	public File getFile() {
 		return file;
+	}
+
+	public boolean exists() {
+		return file.exists();
 	}
 
 	public String getPath() {
@@ -104,9 +102,9 @@ public class FileUtil {
 		return this;
 	}
 
-	public List<File> getFileList() {
+	public Seq<File> getFileList() {
 		File[] array = file.listFiles();
-		List<File> fileList = new ArrayList<>();
+		Seq<File> fileList = new Seq<>();
 		for (File value : array) {
 			if (!value.isDirectory()) {
 				if (value.isFile()) {
@@ -115,6 +113,12 @@ public class FileUtil {
 			}
 		}
 		return fileList;
+	}
+
+	public Seq<File> getFileListNotNullSize() {
+		Seq<File> list = new Seq<>();
+		getFileList().eachBooleanIfs(e -> (e.length() > 0),list::add);
+		return list;
 	}
 /*
 	public List<File> getFileList() {
@@ -266,6 +270,10 @@ public class FileUtil {
 			e.printStackTrace(); 
 		}
 		return null;
+	}
+
+	private boolean mkdir() {
+		return file.mkdirs();
 	}
 
 }

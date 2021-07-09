@@ -164,7 +164,7 @@ public class Log {
 		final String[] lines = e.toString().split(LINE_SEPARATOR);
 
 		int i1;
-		StackTraceElement stack[] = new Throwable().getStackTrace();;
+		StackTraceElement[] stack = new Throwable().getStackTrace();
 		for (i1=0; i1 < stack.length; i1++) {
 			StackTraceElement ste=stack[i1];
 			final String className= ste.getClassName()+"."+ste.getMethodName();
@@ -188,11 +188,10 @@ public class Log {
 	}
 
 	public static void clog(String text) {
-        String sb = "[" +
-                Time.getUtcMilliFormat(1) +
-                " UTC] " +
-                text;
-        text = sb;
+		text = "[" +
+				Time.getUtcMilliFormat(1) +
+				" UTC] " +
+				text;
         System.out.println(formatColors(text+"&fr"));
 	}
 

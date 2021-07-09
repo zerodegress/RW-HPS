@@ -56,7 +56,7 @@ public class ZipDecoder {
             InputStream in;
             final byte[] buffer = new byte[1024];
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-                for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
+                for(Enumeration<ZipEntry> entries = zipFile.getEntries(); entries.hasMoreElements();){
                     zipEntry = (ZipEntry)entries.nextElement();
                     in  =  zipFile.getInputStream(zipEntry);
                     while ((len = in.read(buffer)) != -1) {
@@ -81,7 +81,7 @@ public class ZipDecoder {
         final int maxSize = 1024 * 1024 * 5;
         final Seq<String> data = new Seq<>(8);
         ZipEntry zipEntry;
-        for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
+        for(Enumeration<ZipEntry> entries = zipFile.getEntries(); entries.hasMoreElements();){
             zipEntry = (ZipEntry)entries.nextElement();
             if (zipEntry.getSize() >= maxSize) {
                 continue;
@@ -101,7 +101,7 @@ public class ZipDecoder {
             InputStream in;
             final byte[] buffer = new byte[1024];
             try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-                for(Enumeration entries = zipFile.getEntries();entries.hasMoreElements();){
+                for(Enumeration<ZipEntry> entries = zipFile.getEntries(); entries.hasMoreElements();){
                     zipEntry = (ZipEntry)entries.nextElement();
                     final String name = zipEntry.getName();
                     if (name.endsWith(mapData.getType()) && name.contains(mapData.mapFileName)) {

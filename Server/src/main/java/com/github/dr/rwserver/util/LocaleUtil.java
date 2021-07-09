@@ -66,11 +66,6 @@ public class LocaleUtil {
 
     private String core(String input,Object[] params) {
         String[] lang = lg;
-        /*
-        if(isBlank(lg)) {
-            lang = Config.SERVER_LANGUAGE.split("_");
-        }
-        */
         if (params == null) {
             return language(lang[0],lang[1],input,null);
         }

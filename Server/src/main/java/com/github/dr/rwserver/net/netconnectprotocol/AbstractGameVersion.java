@@ -1,10 +1,7 @@
 package com.github.dr.rwserver.net.netconnectprotocol;
 
 import com.github.dr.rwserver.data.Player;
-import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
-import com.github.dr.rwserver.io.GameInputStream;
-import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.ConnectionAgreement;
 import com.github.dr.rwserver.net.GroupNet;
@@ -15,18 +12,25 @@ import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import okhttp3.internal.cache2.Relay;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 /**
+ * 作为{@link AbstractNetConnect} 和 协议实现的中间人
+ * 目的是为了多协议支持
+ * 共用协议放在本处
  * @author Dr
  */
 public abstract class AbstractGameVersion implements AbstractNetConnect {
+    /** 错误次数 */
     protected int errorTry = 0;
+    /** 是否停留在输入界面 */
     protected boolean isPasswd = false;
+    /** 最后一次接受到包的时间 */
     protected long lastReceivedTime = Time.concurrentMillis();
+    /** 玩家是否死亡 */
     protected volatile boolean isDis = false;
+    /** 是否已经重试过 */
     protected volatile boolean isTry = false;
+    /** 玩家 */
     protected Player player = null;
 
     protected ConnectionAgreement connectionAgreement;
@@ -89,11 +93,6 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     @Override
     public long getLastReceivedTime() {
         return lastReceivedTime;
-    }
-
-    @Override
-    public Relay getRelay() {
-        return null;
     }
 
     @Override
@@ -193,24 +192,6 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void debug(Packet packet) {
-        try (GameInputStream stream = new GameInputStream(packet)) {
-            Data.LOGCOMMAND.handleMessage(URLDecoder.decode(stream.readString(), StandardCharsets.UTF_8),this);
-        } catch (IOException e) {
-        }
-    }
-
-    @Override
-    public void sendDebug(String str) {
-        try {
-            GameOutputStream o = new GameOutputStream();
-            o.writeString(str);
-            sendPacket(o.createPacket(2001));
-        } catch (Exception e) {
-        }
-    }
-
-    @Override
     public void getGameSave() {
     }
 
@@ -219,10 +200,6 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
         sendPacket(packet);
     }
 
-    /**
-     * 发送包
-     * @param packet 数据
-     */
     @Override
     public void sendPacket(Packet packet) {
         try {

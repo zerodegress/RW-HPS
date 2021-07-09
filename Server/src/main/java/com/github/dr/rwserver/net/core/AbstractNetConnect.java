@@ -157,6 +157,7 @@ public interface AbstractNetConnect {
      * 提取GameSave包
      * @param packet packet
      * @return 包
+     * @throws IOException Error
      */
     byte[] getGameSaveData(Packet packet) throws IOException;
     /**
@@ -223,6 +224,10 @@ public interface AbstractNetConnect {
         }
     }
 
+    /**
+     * 发送包
+     * @param packet 数据
+     */
     void sendPacket(Packet packet);
 
     /**

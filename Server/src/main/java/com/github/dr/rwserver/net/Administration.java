@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.net;
 
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.plugin.PluginData;
 import com.github.dr.rwserver.struct.ObjectMap;
@@ -33,10 +33,10 @@ public class Administration {
             return message;
         });
 
-        bannedIPs = pluginData.getData("bannedIPs",new Seq<String>());
-        bannedUUIDs = pluginData.getData("bannedUUIDs",new Seq<String>());
-        whitelist = pluginData.getData("whitelist",new Seq<String>());
-        playerData = pluginData.getData("playerData",new Seq<String>());
+        bannedIPs = pluginData.getData("bannedIPs", new Seq<>());
+        bannedUUIDs = pluginData.getData("bannedUUIDs", new Seq<>());
+        whitelist = pluginData.getData("whitelist", new Seq<>());
+        playerData = pluginData.getData("playerData", new Seq<>());
 
         Threads.addSavePool(() -> {
             pluginData.setData("bannedIPs",bannedIPs);
@@ -48,7 +48,7 @@ public class Administration {
 
     /**
      * 添加聊天过滤器。这将改变每个玩家的聊天消息
-     * 此功能可用于实现宣誓过滤器和特殊命令之类的功能
+     * 此功能可用于实现过滤器和特殊命令之类的功能
      * 请注意，未过滤命令
      */
     public void addChatFilter(ChatFilter filter){

@@ -9,8 +9,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 
-import java.util.Date;
-
 import static com.github.dr.rwserver.net.game.TimeoutDetection.checkTimeoutDetection;
 
 @ChannelHandler.Sharable
@@ -25,17 +23,10 @@ class AcceptorIdleStateTrigger extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelActive();
     }
-/*
-			@Override
-			public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-				Log.info("停止时间是A：" + new Date());
-				clear(ctx);
-			}
-*/
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        Log.info("停止时间是：" + new Date());
+        Log.debug("断开一个链接",ctx.channel().id().asLongText());
         startNet.clear(ctx);
     }
 

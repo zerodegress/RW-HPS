@@ -24,18 +24,13 @@ class TimeoutDetection {
         }
         if (abstractNetConnect.getIsPasswd()) {
             /* 60s无反应判定close */
-            if (Time.concurrentMillis() > (abstractNetConnect.getLastReceivedTime()+60 * 1000L)) {
-                return true;
-            }
+            return Time.concurrentMillis() > (abstractNetConnect.getLastReceivedTime() + 60 * 1000L);
         } else {
-            if (Time.concurrentMillis() > (abstractNetConnect.getLastReceivedTime()+180 * 1000L)) {
-                return true;
-            }
+            return Time.concurrentMillis() > (abstractNetConnect.getLastReceivedTime() + 180 * 1000L);
         }
-        return false;
     }
 
-    private class CheckTime implements Runnable {
+    private static class CheckTime implements Runnable {
         private final StartNet startNet;
 
         private CheckTime(StartNet startNet) {

@@ -4,6 +4,7 @@ import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.udp.ReliableServerSocket;
+import com.github.dr.rwserver.net.udp.ReliableSocket;
 import com.github.dr.rwserver.net.web.realization.HttpServer;
 import com.github.dr.rwserver.net.web.realization.constant.HttpsSetting;
 import com.github.dr.rwserver.struct.OrderedMap;
@@ -15,15 +16,11 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.nio.AbstractNioChannel;
-import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.channel.socket.nio.*;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 /**
  * @author Dr
@@ -116,7 +113,7 @@ public class StartNet {
         try (ReliableServerSocket serverSocket = new ReliableServerSocket(port)) {
             this.serverSocket = serverSocket;
             do {
-                final Socket socket = serverSocket.accept();
+                final ReliableSocket socket = (ReliableSocket) serverSocket.accept();
                 startGameNetUdp.run((ReliableServerSocket.ReliableClientSocket) socket);
             } while (true);
         } catch (Exception ignored) {
@@ -142,12 +139,8 @@ public class StartNet {
         Channel channel = ctx.channel();
         AbstractNetConnect con = OVER_MAP.get(channel.id().asLongText());
         if (con != null) {
-            try {
-                con.disconnect();
-                ctx.close();
-            } catch (Exception e) {
-                Log.info(e);
-            }
+            con.disconnect();
+            ctx.close();
         }
         OVER_MAP.remove(channel.id().asLongText());
     }

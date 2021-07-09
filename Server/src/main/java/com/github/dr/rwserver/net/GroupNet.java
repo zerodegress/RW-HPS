@@ -49,7 +49,7 @@ public class GroupNet {
          */
     public void broadcast(Object msg,final String str) {
         SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.writeAndFlush(msg));
-        SINGLE_UDP_THREAD_EXECUTOR.execute(() -> {
+        SINGLE_UDP_THREAD_EXECUTOR.execute(() ->
             PROTOCOL.each(e -> {
                 try {
                     e.send((Packet) msg);
@@ -61,8 +61,7 @@ public class GroupNet {
                         Log.error("[Server] UDP GrepNet Error Close", e);
                     }
                 }
-            });
-        });
+            }));
     }
 
     /**

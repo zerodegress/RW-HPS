@@ -1,6 +1,9 @@
 package com.github.dr.rwserver.net.netconnectprotocol;
 
+
+import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.core.Call;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
@@ -13,6 +16,7 @@ import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.PacketType;
+import com.github.dr.rwserver.util.encryption.Game;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
@@ -37,18 +41,18 @@ import static com.github.dr.rwserver.util.encryption.Game.connectKey;
  * @author Dr
  * @date 2020/9/5 17:02:33
  */
-public class AbstractGameVersionServer extends AbstractGameVersion {
+public class GameVersionServer extends AbstractGameVersion {
 
     private String playerConnectKey;
 
     private final ReentrantLock sync = new ReentrantLock(true);
 
-    public AbstractGameVersionServer(final String uuid) {
+    public GameVersionServer(final String uuid) {
     }
 
     @Override
     public AbstractNetConnect getVersionNet(final String uuid) {
-        return new AbstractGameVersionServer(uuid);
+        return new GameVersionServer(uuid);
     }
 
     @Override
@@ -143,9 +147,8 @@ public class AbstractGameVersionServer extends AbstractGameVersion {
 
             Log.clog("[{0}]: {1}", player.name, message);
 
-            if (player.isAdmin && Data.game.afk != null) {
-                Data.game.afk.cancel(true);
-                Data.game.afk = null;
+            if (player.isAdmin && Threads.getIfScheduledFutureData("AfkCountdown")) {
+                Threads.removeScheduledFutureData("AfkCountdown");
                 Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name));
             }
 
@@ -363,11 +366,13 @@ public class AbstractGameVersionServer extends AbstractGameVersion {
             Log.debug("?", stream.readInt());
             String token = stream.readString();
             Log.debug("token", token);
+            /*
             if (!token.equals(playerConnectKey)) {
                 sendKick("You Open Mod?");
                 return false;
             }
-            final EventType.PlayerConnectPasswdCheck playerConnectPasswdCheck = new EventType.PlayerConnectPasswdCheck(this, passwd);
+             */
+            final EventType.PlayerConnectPasswdCheckEvent playerConnectPasswdCheck = new EventType.PlayerConnectPasswdCheckEvent(this, passwd);
             Events.fire(playerConnectPasswdCheck);
             if (playerConnectPasswdCheck.result) {
                 return true;
@@ -415,7 +420,7 @@ public class AbstractGameVersionServer extends AbstractGameVersion {
             connectionAgreement.add(NetStaticData.groupNet);
             Call.sendTeamData();
             sendServerInfo(true);
-            Events.fire(new EventType.PlayerJoin(player));
+            Events.fire(new EventType.PlayerJoinEvent(player));
 
             if (notIsBlank(Data.game.enterAd)) {
                 sendSystemMessage(Data.game.enterAd);
@@ -483,7 +488,7 @@ public class AbstractGameVersionServer extends AbstractGameVersion {
                 player.clear();
                 Data.game.playerData[player.site] = null;
             }
-            Events.fire(new EventType.PlayerLeave(player));
+            Events.fire(new EventType.PlayerLeaveEvent(player));
         }
 
         try {
@@ -528,6 +533,7 @@ public class AbstractGameVersionServer extends AbstractGameVersion {
                 sendKick("不支持重连 # Does not support reconnection");
                 return;
             }
+            super.isDis = false;
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGameByteBuf());
             Data.game.reConnectBreak = true;
             Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s");

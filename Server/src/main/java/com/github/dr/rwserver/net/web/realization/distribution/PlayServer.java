@@ -41,25 +41,13 @@ public class PlayServer extends SimpleChannelInboundHandler<Object> implements R
 		Attribute<Long> attribute = ctx.channel().attr(Config.HTTP_ID);
 		attribute.set(shareMessage.getHttpId());
 		boolean bm = control.my(shareMessage, this, ctx);
-		/*if (!bm) {// 返回404
-			WayMessage wayMessage = new WayMessage();
-			wayMessage.setType(404);
-			wayMessage.setHttpId(shareMessage.getHttpId());
-			String way = JSONObject.toJSONString(wayMessage);
-			response(ctx, way);
-		}*/
-		
+
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		//做集中抛错处理
 	    long httpId =	ctx.channel().attr(Config.HTTP_ID).get();
-	    /*WayMessage wayMessage = new WayMessage();
-	    wayMessage.setHttpId(httpId);
-	    wayMessage.setType(500);
-	    String way = JSONObject.toJSONString(wayMessage);
-		response(ctx, way);*/
 		super.exceptionCaught(ctx, cause);
 	}
 

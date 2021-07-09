@@ -5,13 +5,13 @@ import com.github.dr.rwserver.command.LogCommands;
 import com.github.dr.rwserver.command.ServerCommands;
 import com.github.dr.rwserver.core.Core;
 import com.github.dr.rwserver.core.Initialization;
-import com.github.dr.rwserver.core.ex.Event;
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.dependent.LibraryManager;
 import com.github.dr.rwserver.func.StrCons;
+import com.github.dr.rwserver.game.Event;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
 import com.github.dr.rwserver.struct.Seq;
@@ -42,7 +42,6 @@ public class Main {
 	 * TODO 防逆向
 	 * 设置多个检查点, 定期检查, 如果发现问题就加密或混淆部分数据
 	 */
-
 	public static void main(String[] args) {
 		Log.set("ALL");
 		Log.setPrint(true);
@@ -59,12 +58,7 @@ public class Main {
 			Core.mandatoryExit();
 		}
 
-		FileUtil.path = (args.length > 0) ? Base64.decodeString(args[0]) : null;
-
-		//Data.core.settings.load();
 		Data.core.load();
-
-		//loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
 
@@ -86,6 +80,7 @@ public class Main {
 		PluginManage.runOnEnable();
 		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
 		PluginManage.runRegisterServerCommands(Data.SERVERCOMMAND);
+		PluginManage.runRegisterEvents();
 
 		/* Core Net */
 		loadNetCore();
@@ -102,22 +97,10 @@ public class Main {
 		/* 初始化Plugin Init */
 		PluginManage.runInit();
 
+		Log.clog("Load Plugin Jar {0}",PluginManage.getLoadSize());
+
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
-	}
-
-	private static void loadCoreJar(String libPath) {
-		LibraryManager lib;
-		if (notIsBlank(libPath)) {
-			lib = new LibraryManager(libPath);
-		} else {
-			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
-		}
-		lib.importLib("io.netty","netty-all","4.1.65.Final");
-		lib.importLib("com.ip2location","ip2location-java","8.5.0");
-		lib.importLib("com.alibaba","fastjson","1.2.58");
-		lib.loadToClassLoader();
-		lib.removeOldLib();
 	}
 
 	@SuppressWarnings("InfiniteLoopStatement")

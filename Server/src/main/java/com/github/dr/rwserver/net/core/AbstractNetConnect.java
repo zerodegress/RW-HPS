@@ -96,12 +96,6 @@ public interface AbstractNetConnect {
     long getLastReceivedTime();
 
     /**
-     * 获取Relay的协议 无则为null
-     * @return Relay
-     */
-    Relay getRelay();
-
-    /**
      * 设置ConnectionAgreement
      * @param connectionAgreement ConnectionAgreement
      */

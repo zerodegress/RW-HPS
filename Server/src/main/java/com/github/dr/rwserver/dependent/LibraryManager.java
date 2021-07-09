@@ -10,7 +10,6 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
 import java.util.jar.JarFile;
 
 import static com.github.dr.rwserver.net.HttpRequestOkHttp.downUrl;
@@ -139,12 +138,8 @@ public class LibraryManager {
 
     public final void removeOldLib() {
         FileUtil fileUtil = new FileUtil(new File(PATH));
-        List<File> list =  fileUtil.getFileList();
-        for (File file : list) {
-            if (!load.contains(file)) {
-                file.delete();
-            }
-        }
+        Seq<File> list =  fileUtil.getFileList();
+        list.eachBooleanIfs(e -> !load.contains(e),File::delete);
     }
 
     private static class ImportData {

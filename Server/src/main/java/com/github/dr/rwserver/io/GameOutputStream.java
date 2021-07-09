@@ -1,8 +1,8 @@
 package com.github.dr.rwserver.io;
 
+import com.github.dr.rwserver.io.output.DisableSyncByteArrayOutputStream;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
@@ -10,9 +10,8 @@ import java.io.IOException;
  * @author Dr
  */
 public class GameOutputStream {
-	final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+	final DisableSyncByteArrayOutputStream buffer = new DisableSyncByteArrayOutputStream();
 	final DataOutputStream stream = new DataOutputStream(buffer);
-
     public Packet createPacket() {
         try {
             this.stream.flush();

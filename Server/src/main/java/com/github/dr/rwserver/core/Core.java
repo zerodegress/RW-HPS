@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.core;
 
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 
 /**

@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.core;
 
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.plugin.PluginData;
 import com.github.dr.rwserver.data.plugin.PluginManage;
@@ -37,7 +37,7 @@ public final class Application {
         pluginData.setFileUtil(FileUtil.file(Data.Plugin_Data_Path).toPath("Settings.bin"));
         admin = new Administration(pluginData);
         serverConnectUuid = pluginData.getData("serverConnectUuid", UUID.randomUUID().toString());
-        unitBase64 = pluginData.getData("unitBase64", new Seq<String>());
+        unitBase64 = pluginData.getData("unitBase64", new Seq<>());
 
         Threads.addSavePool(() -> {
             pluginData.setData("serverConnectUuid",serverConnectUuid);
@@ -46,8 +46,11 @@ public final class Application {
     }
 
     public void save() {
+        // 先执行自己的保存
         Threads.runSavePool();
+        // 保存自己
         pluginData.save();
+        // 保存Plugin
         PluginManage.runOnDisable();
     }
 

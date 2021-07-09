@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.core;
 
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
@@ -35,11 +35,11 @@ public class Call {
     }
 
     public static void sendTeamMessage(int team,Player player, String text) {
-        Data.playerGroup.eachs(e -> e.team == team,p -> p.sendMessage(player,"[TEAM] "+text));
+        Data.playerGroup.eachBooleanIfs(e -> e.team == team, p -> p.sendMessage(player,"[TEAM] "+text));
     }
 
     public static void sendSystemTeamMessageLocal(int team,String text, Object... obj) {
-        Data.playerGroup.eachs(e -> e.team == team,p -> p.sendSystemMessage("[TEAM] "+p.localeUtil.getinput(text,obj)));
+        Data.playerGroup.eachBooleanIfs(e -> e.team == team, p -> p.sendSystemMessage("[TEAM] "+p.localeUtil.getinput(text,obj)));
     }
 
     public static void sendSystemMessage(String text) {
@@ -118,7 +118,7 @@ public class Call {
                             start = false;
                             Call.sendSystemMessageLocal("start.testNo");
                         }
-                        Data.game.gameTask = Threads.newThreadService2(new SendGameTickCommand(),0,150, TimeUnit.MILLISECONDS);
+                        Threads.newThreadService2(new SendGameTickCommand(),0,150, TimeUnit.MILLISECONDS,"GameTask");
                         cancel();
                     }
                 }
@@ -127,7 +127,7 @@ public class Call {
                 start = false;
                 Call.sendSystemMessageLocal("start.testYes");
             }
-            Data.game.gameTask = Threads.newThreadService2(new SendGameTickCommand(),0,200, TimeUnit.MILLISECONDS);
+            Threads.newThreadService2(new SendGameTickCommand(),0,150, TimeUnit.MILLISECONDS,"GameTask");
             cancel();
         }
     }
@@ -153,13 +153,13 @@ public class Call {
                 }
                 if (gameOver) {
                     gameOver = false;
-                    Data.game.gameOver = Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent()),1, TimeUnit.MINUTES);
+                    Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent()),1, TimeUnit.MINUTES,"Gameover");
                 }
             } else {
-                if (Data.game.gameOver != null) {
+                if (Threads.getIfScheduledFutureData("Gameover")) {
                     oneSay = true;
-                    Data.game.gameOver.cancel(true);
                     gameOver = true;
+                    Threads.removeScheduledFutureData("Gameover");
                 }
             }
             final int size = Data.game.gameCommandCache.size();

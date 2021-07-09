@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.game;
 
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
@@ -19,10 +19,8 @@ import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -77,6 +75,8 @@ public class Rules {
     public final boolean winOrLose;
     /** 胜负判定时间 */
     public final int winOrLoseTime;
+    /** 是否第一次启动读取MOD */
+    public boolean oneReadUnitList;
     /** 共享控制 */
     public int sharedControlPlayer = 0;
     /** Mpa Lock */
@@ -96,15 +96,10 @@ public class Rules {
     public final boolean webApiSsl;
     public final String webApiSslKetPath;
     public final String webApiSslPasswd;
-
+    /* */
     public boolean lockTeam = false;
-
-    public ScheduledFuture afk = null;
-    public ScheduledFuture gameOver = null;
-    public ScheduledFuture gameTask = null;
-    public ScheduledFuture ping = null;
-    public ScheduledFuture team = null;
-    public ScheduledFuture winOrLoseCheck = null;
+    /* */
+    public final int startMinPlayerSize;
 
     public final String subtitle;
 
@@ -150,15 +145,8 @@ public class Rules {
         webApiSslKetPath = config.readString("webApiSslKetPath","");
         webApiSslPasswd = config.readString("webApiSslPasswd","");
 
-        if (config.readBoolean("autoReLoadMap",false)) {
-            Threads.newThreadService2(() -> {
-                if (IsUtil.notIsBlank(Data.game) && !Data.game.isStartGame) {
-                    Data.game.mapsData.clear();
-                    Data.game.checkMaps();
-                }
-            },0,1, TimeUnit.MINUTES);
-        }
-
+        startMinPlayerSize = config.readInt("startMinPlayerSize",0);
+        autoLoadOrUpdate(config);
 
         init(config.readInt("maxPlayer",10),port);
     }
@@ -185,8 +173,8 @@ public class Rules {
     }
 
     public void checkMaps() {
-        List<File> list = FileUtil.file(Data.Plugin_Maps_Path).getFileList();
-        list.forEach(e -> {
+        Seq<File> list = FileUtil.file(Data.Plugin_Maps_Path).getFileListNotNullSize();
+        list.each(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));
             final String name = original.substring(0, original.length()-postpone.length());
@@ -220,5 +208,16 @@ public class Rules {
                     break;
             }
         });
+    }
+
+    private void autoLoadOrUpdate(LoadConfig config) {
+        if (config.readBoolean("autoReLoadMap",false)) {
+            Threads.newThreadService2(() -> {
+                if (IsUtil.notIsBlank(Data.game) && !Data.game.isStartGame) {
+                    Data.game.mapsData.clear();
+                    Data.game.checkMaps();
+                }
+            },0,1, TimeUnit.MINUTES,"AutoReLoadMap");
+        }
     }
 }

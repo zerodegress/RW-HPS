@@ -2,14 +2,13 @@ package com.github.dr.rwserver.command;
 
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.NetServer;
-import com.github.dr.rwserver.core.ex.Threads;
-import com.github.dr.rwserver.core.ex.Vote;
+import com.github.dr.rwserver.core.thread.Threads;
+import com.github.dr.rwserver.command.ex.Vote;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameMaps;
 import com.github.dr.rwserver.game.Team;
-import com.github.dr.rwserver.struct.IntSet;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -21,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dr.rwserver.command.BetaGame.CheckGameWin;
 import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
 import static com.github.dr.rwserver.game.GameMaps.MapType;
 import static com.github.dr.rwserver.util.IsUtil.*;
@@ -114,7 +114,7 @@ public class ClientCommands {
 					player.sendSystemMessage(localeUtil.getinput("err.startGame"));
 					return;
 				}
-				if (Data.game.afk != null) {
+				if (Threads.getIfScheduledFutureData("AfkCountdown")) {
 					return;
 				}
 				AtomicBoolean admin = new AtomicBoolean(true);
@@ -125,13 +125,13 @@ public class ClientCommands {
 					Call.sendSystemMessageLocal("afk.end.noAdmin",player.name);
 					return;
 				}
-				Data.game.afk = Threads.newThreadService(() -> Data.playerGroup.each(p -> p.isAdmin, i -> {
+				Threads.newThreadService(() -> Data.playerGroup.each(p -> p.isAdmin, i -> {
 					i.isAdmin = false;
 					player.isAdmin = true;
 					Call.upDataGameData();
 					Call.sendSystemMessageLocal("afk.end.ok",player.name);
-					Data.game.afk = null;
-				}),30, TimeUnit.SECONDS);
+					Threads.removeScheduledFutureData("AfkCountdown");
+				}),30, TimeUnit.SECONDS,"AfkCountdown");
 				Call.sendMessageLocal(player,"afk.start",player.name);
 			}
 		});
@@ -294,13 +294,16 @@ public class ClientCommands {
 
 		handler.<Player>register("start", "clientCommands.start", (args, player) -> {
 			if (isAdmin(player)) {
-				if (Data.game.afk != null) {
-					Data.game.afk.cancel(true);
+				if (Threads.getIfScheduledFutureData("AfkCountdown")) {
+					Threads.removeScheduledFutureData("AfkCountdown");
 					Call.sendMessageLocal(player, "afk.clear", player.name);
 				}
-				if (Data.game.ping != null) {
-					Data.game.ping.cancel(true);
-					Data.game.ping = null;
+				if (Data.game.startMinPlayerSize > Data.playerGroup.size()) {
+					player.sendSystemMessage(player.localeUtil.getinput("start.playerNo",Data.game.startMinPlayerSize));
+					return;
+				}
+				if (Threads.getIfScheduledFutureData("GamePing")) {
+					Threads.removeScheduledFutureData("GamePing");
 				}
 				if (Data.game.maps.mapData != null) {
 					Data.game.maps.mapData.readMap();
@@ -315,27 +318,7 @@ public class ClientCommands {
 				});
 
 				if (Data.game.winOrLose) {
-					Data.game.winOrLoseCheck = Threads.newThreadService2(() -> {
-						final long time = System.currentTimeMillis();
-						final int time2 = Data.game.winOrLoseTime >> 2;
-						IntSet intSet = new IntSet(16);
-						Data.playerGroup.each(e -> {
-							if (!e.dead) {
-								long breakTime = time-e.lastMoveTime;
-								if (breakTime > Data.game.winOrLoseTime) {
-									e.con.sendSurrender();
-								} else if (breakTime > time2) {
-									e.sendSystemMessage(e.localeUtil.getinput("winOrLose.time"));
-								}
-								intSet.add(e.team);
-							}
-						});
-						if (intSet.size <= 1) {
-							final int winTeam = intSet.iterator().next();
-							Data.playerGroup.eachs(p -> (p.team == winTeam),c -> Log.info(c.name));
-							Events.fire(new EventType.GameOverEvent());
-						}
-					},10,10, TimeUnit.SECONDS);
+					//CheckGameWin();
 				}
 				Data.game.isStartGame = true;
 				int int3 = 0;
@@ -417,6 +400,7 @@ public class ClientCommands {
 				}
 				int oldSite = Integer.parseInt(args[0])-1;
 				int newSite = Integer.parseInt(args[1])-1;
+				//int newSite = 0;
 				int team = Integer.parseInt(args[2]);
 				if (oldSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
 					final Player od = Data.game.playerData[oldSite];
@@ -424,7 +408,7 @@ public class ClientCommands {
 						if (Data.game.playerData[newSite] == null) {
 							Data.game.playerData[oldSite] = null;
 							od.site = newSite;
-							if (team >-1) {
+							if (team > -1) {
 								od.team = team;
 							}
 							Data.game.playerData[newSite] = od;

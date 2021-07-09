@@ -4,7 +4,7 @@ import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.Core;
 import com.github.dr.rwserver.core.NetServer;
-import com.github.dr.rwserver.core.ex.Threads;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
@@ -13,7 +13,7 @@ import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.net.game.StartNet;
-import com.github.dr.rwserver.net.netconnectprotocol.AbstractGameVersionServer;
+import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
 import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
@@ -54,10 +54,10 @@ public class ServerCommands {
 
             Data.game = new Rules(Data.config);
             Data.game.init();
-            Data.game.team = Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS);
-            Data.game.ping = Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS);
+            Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
+            Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
-            NetStaticData.protocolData.setNetConnectProtocol(new AbstractGameVersionServer(null),151);
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(null),151);
             Threads.newThreadCore(() -> {
                 StartNet startNet = new StartNet();
                 NetStaticData.startNet.add(startNet);
@@ -228,14 +228,6 @@ public class ServerCommands {
             Data.playerGroup.each(e -> {
                 e.muteTime = 0;
             });
-        });
-
-        handler.<StrCons>register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {
-            log.get("违反守则 禁止提供");
-        });
-
-        handler.<StrCons>register("upserverlistnew", "serverCommands.upserverlist", (arg, log) -> {
-            log.get("违反守则 禁止提供");
         });
 
         handler.<StrCons>register("cleanmods", "serverCommands.cleanmods", (arg, log) -> {

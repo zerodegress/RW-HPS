@@ -5,8 +5,6 @@ import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.LocaleUtil;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -81,46 +79,6 @@ public final class Player {
 
 	public final void clear() {
 		con = null;
-	}
-
-	public final void writePlayer(DataOutputStream stream) throws IOException {
-		if (Data.game.isStartGame) {
-			stream.writeByte(site);
-			stream.writeInt(ping);
-			stream.writeBoolean(Data.game.sharedControl);
-			stream.writeBoolean(sharedControl);
-			return;
-		}
-		stream.writeByte(site);
-		stream.writeInt(credits);
-		stream.writeInt(team);
-		stream.writeBoolean(true);
-		stream.writeUTF(name);
-
-		stream.writeBoolean(false);
-
-		/* -1 N/A ; -2 -  ; -99 HOST */
-		stream.writeInt(ping);
-
-		stream.writeLong(System.currentTimeMillis());
-		/* MS */
-		stream.writeBoolean(false);
-		stream.writeInt(0);
-
-		stream.writeInt(site);
-		stream.writeByte(0);
-		/* 共享控制 */
-		stream.writeBoolean(Data.game.sharedControl);
-		/* 是否掉线 */
-		stream.writeBoolean(sharedControl);
-		/* 是否投降 */
-		stream.writeBoolean(false);
-		stream.writeBoolean(false);
-		stream.writeInt(-9999);
-
-		stream.writeBoolean(false);
-		// 延迟后显示 （HOST)
-		stream.writeInt(isAdmin ? 1 : 0);
 	}
 
 	@Override

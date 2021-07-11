@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.dr.rwserver.struct.ObjectMap;
 
+import java.util.Map;
+
 import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 //Json
 //写的越久，BUG越多，伤痕越疼，脾气越差/-活得越久 故事越多 伤痕越疼，脾气越差
@@ -20,13 +22,17 @@ public class Json {
         this.JsonObject = JSONObject.parseObject(json);
     }
 
-    public Json(JSONObject JsonObject) {
-        this.JsonObject = JsonObject;
+    public Json(JSONObject jsonObject) {
+        this.JsonObject = jsonObject;
     }
 
 	public String getData(String str){
 		return JsonObject.getString(str);
 	}
+
+	public Map<String, Object> getInnerMap() {
+        return JsonObject.getInnerMap();
+    }
 
     public Json getArrayData(String str){
         JSONArray rArray = JsonObject.getJSONArray(str);
@@ -39,7 +45,7 @@ public class Json {
         return null;
     }
 
-	public static String toJson(ObjectMap map) {
+	public static String toJson(ObjectMap<String,String> map) {
         return JSONObject.toJSONString(map, SerializerFeature.PrettyFormat);
 	}
 

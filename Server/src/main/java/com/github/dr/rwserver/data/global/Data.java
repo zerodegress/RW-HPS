@@ -32,15 +32,13 @@ public class Data {
 	public static final String Plugin_Plugins_Path 				= "/data/plugins";
 
 	public static final Charset UTF_8 = StandardCharsets.UTF_8;
-	public static final LocaleUtil localeUtil = new LocaleUtil("zh_CN");
-
 	/*
 	 * 插件默认变量
 	 */
 
 	/** 自定义包名 */
-	public static final String SERVER_ID = "com.corrodinggames.rwhps";
-	public static final String SERVER_CORE_VERSION = "1.3.0-M1";
+	public static final String SERVER_ID = "com.github.dr.rwhps";
+	public static final String SERVER_CORE_VERSION = "1.3.0-DEV1+M2";
 	public static final int SERVER_CORE_VERSION_INT = 200;
 	/** 单位数据缓存 */
 	public static final GzipEncoder utilData = GzipEncoder.getGzipStream("customUnits",false);
@@ -68,6 +66,7 @@ public class Data {
     /**
 	 * 可控变量
 	 */
+	public static LocaleUtil localeUtil = new LocaleUtil("zh_CN");
 
 	public static Rules game;
 	public static Vote Vote = null;

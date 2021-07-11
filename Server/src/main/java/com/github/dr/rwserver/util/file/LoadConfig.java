@@ -1,8 +1,8 @@
 package com.github.dr.rwserver.util.file;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.github.dr.rwserver.data.json.Json;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.util.log.Log;
 import org.jetbrains.annotations.NotNull;
@@ -35,10 +35,9 @@ public final class LoadConfig {
             Log.error("NO Config.Json Use default configuration");
             return;
         }
-        JSONObject  jsonObject = JSONObject.parseObject(fileUtil.readFileData(false).toString(), Feature.OrderedField);
+        Json json = new Json(fileUtil.readFileData(false).toString());
         //json对象转Map
-        Map<String,Object> map = jsonObject.getInnerMap();
-        map.forEach((k,v) -> data.put(k,v.toString()));
+        json.getInnerMap().forEach((k,v) -> data.put(k,v.toString()));
     }
 
 	private String load(String input, Object def) {

@@ -41,6 +41,12 @@ public class PluginsLoad {
                     continue;
                 }
                 Json json = new Json((String) FileUtil.readFileData(false,imp));
+
+                if (!new GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
+                    Log.warn("Plugin版本不兼容 Plugin名字为: ",json.getData("name"));
+                    continue;
+                }
+
                 if (isBlank(json.getData("import"))) {
                     Plugin mainPlugin = loadClass(file, json.getData("main"));
                     data.add(new PluginLoadData(json.getData("name"),json.getData("author"),json.getData("description"),json.getData("version"),mainPlugin));
@@ -96,7 +102,7 @@ public class PluginsLoad {
             this.description    = (String) description;
             this.version        = (String) version;
             this.main           = main;
-            this.main.getPluginData().setFileUtil(new FileUtil(Data.Plugin_Plugins_Path).toPath(this.name).toPath(this.name+".bin"));
+            main.getPluginData().setFileUtil(FileUtil.file(Data.Plugin_Plugins_Path).toPath(this.name).toPath(this.name+".bin"));
         }
     }
 }

@@ -41,13 +41,10 @@ public class Plugin {
 
     /** Server退出时执行 可以进行Plugin的数据保存 -6 */
     public void onDisable() {
+        pluginData.save();
     }
 
     protected final PluginData getPluginData() {
         return pluginData;
-    }
-
-    protected final void save() {
-        pluginData.save();
     }
 }

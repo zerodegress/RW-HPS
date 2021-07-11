@@ -29,7 +29,7 @@ public interface AbstractEvent {
      * @return String[0]=密码是否正确(Boolean) String[1]=你可以给他设置一个名字
      */
     default String[] registerPlayerConnectPasswdCheckEvent(AbstractNetConnect abstractNetConnect, String passwd) {
-        return new String[]{"false","RW-HPS!"};
+        return new String[]{"false",""};
     }
 
     /**

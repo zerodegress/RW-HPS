@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dr.rwserver.command.BetaGame.CheckGameWin;
 import static com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR;
 import static com.github.dr.rwserver.game.GameMaps.MapType;
 import static com.github.dr.rwserver.util.IsUtil.*;
@@ -286,6 +285,7 @@ public class ClientCommands {
 					player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"));
 					return;
 				}
+				// 设置为9 玩家开始无单位
 				//Data.game.initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
 				Data.game.initUnit = Integer.parseInt(args[0]);
 				Call.upDataGameData();
@@ -317,9 +317,6 @@ public class ClientCommands {
 					}
 				});
 
-				if (Data.game.winOrLose) {
-					//CheckGameWin();
-				}
 				Data.game.isStartGame = true;
 				int int3 = 0;
 				for (int i = 0; i < Data.game.maxPlayer; i++) {

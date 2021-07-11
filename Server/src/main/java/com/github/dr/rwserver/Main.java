@@ -48,8 +48,7 @@ public class Main {
 		Logger.getLogger("io.netty").setLevel(Level.OFF);
 
 		System.out.println(Data.localeUtil.getinput("server.login"));
-
-		Log.clog(Data.localeUtil.getinput("server.hi"));
+		Log.clog("Load ing...");
 
 		/* 防止修改签名 */
 		/* CP #1 */
@@ -59,6 +58,10 @@ public class Main {
 		}
 
 		Data.core.load();
+
+		new Initialization();
+
+		Log.clog(Data.localeUtil.getinput("server.hi"));
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
 
@@ -72,10 +75,7 @@ public class Main {
 		new Event();
 		Log.clog(Data.localeUtil.getinput("server.load.events"));
 
-		/* 初始化插件 */
-		new Initialization();
-
-		/* Plugin */
+		/* 初始化Plugin */
 		PluginManage.init(FileUtil.file(Data.Plugin_Plugins_Path));
 		PluginManage.runOnEnable();
 		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
@@ -97,7 +97,7 @@ public class Main {
 		/* 初始化Plugin Init */
 		PluginManage.runInit();
 
-		Log.clog("Load Plugin Jar {0}",PluginManage.getLoadSize());
+		Log.clog("Load Plugin Jar : {0}",PluginManage.getLoadSize());
 
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);

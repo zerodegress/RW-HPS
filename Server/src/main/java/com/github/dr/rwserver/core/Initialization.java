@@ -27,12 +27,17 @@ import static com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate;
 public class Initialization {
 
     public Initialization() {
+		loadLang();
+
 		initMaps();
 
-		loadLang();
 
 		Runtime.getRuntime().addShutdownHook(new ExitHandler());
     }
+
+    private void initServerLanguage() {
+		boolean isChina = doGet("https://api.data.der.kim/getCountry.php").contains("中国");
+	}
 
 	private void initMaps() {
 		Data.MapsMap.put("Beachlanding(2p)[byhxyy]","Beach landing (2p) [by hxyy]@[p2]");

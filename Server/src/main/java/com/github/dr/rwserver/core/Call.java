@@ -24,7 +24,7 @@ public class Call {
 
     public static void sendMessage(Player player, String text) {
         try {
-            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getChatMessageByteBuf(text,player.name,player.team));
+            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(text,player.name,player.team));
         } catch (IOException e) {
             Log.error("[ALL] Send Player Chat Error",e);
         }
@@ -44,7 +44,7 @@ public class Call {
 
     public static void sendSystemMessage(String text) {
         try {
-            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getSystemMessageByteBuf(text));
+            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket(text));
         } catch (IOException e) {
             Log.error("[ALL] Send System Chat Error",e);
         }
@@ -63,7 +63,7 @@ public class Call {
             return;
         }
         try {
-            GzipEncoder enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataByteBuf();
+            GzipEncoder enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket();
             Data.playerGroup.each(e -> e.con.sendTeamData(enc));
         } catch (IOException e) {
             Log.error("[ALL] Send Team Error",e);
@@ -165,14 +165,14 @@ public class Call {
             final int size = Data.game.gameCommandCache.size();
             if (size == 0) {
                 try {
-                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getTickByteBuf(time));
+                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getTickPacket(time));
                 } catch (IOException e) {
                     Log.error("[ALL] Send Tick Failed",e);
                 }
             } else if (size == 1 ) {
                 GameCommand gameCommand = Data.game.gameCommandCache.poll();
                 try {
-                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandByteBuf(time,gameCommand));
+                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandPacket(time,gameCommand));
                 } catch (IOException e) {
                     Log.error("[ALL] Send Game Tick Error",e);
                 }
@@ -180,7 +180,7 @@ public class Call {
                 Seq<GameCommand> comm = new Seq<>(size);
                 IntStream.range(0, size).mapToObj(i -> Data.game.gameCommandCache.poll()).forEach(comm::add);
                 try {
-                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandsByteBuf(time,comm));
+                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandsPacket(time,comm));
                 } catch (IOException e) {
                     Log.error("[ALL] Send Game Ticks Error",e);
                 }

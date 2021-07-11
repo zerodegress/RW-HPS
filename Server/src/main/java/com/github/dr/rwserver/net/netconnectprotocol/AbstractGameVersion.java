@@ -9,7 +9,6 @@ import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-import okhttp3.internal.cache2.Relay;
 
 import java.io.IOException;
 
@@ -34,11 +33,6 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     protected Player player = null;
 
     protected ConnectionAgreement connectionAgreement;
-
-    @Override
-    public Player getPlayer() {
-        return player;
-    }
 
     @Override
     public String getIp() {
@@ -113,7 +107,7 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     @Override
     public void sendSystemMessage(String msg) {
         try {
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getSystemMessageByteBuf(msg));
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket(msg));
         } catch (IOException e) {
             Log.error("[Player] Send System Chat Error",e);
         }
@@ -122,7 +116,7 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     @Override
     public void sendChatMessage(String msg, String sendBy, int team) {
         try {
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessageByteBuf(msg,sendBy,team));
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(msg,sendBy,team));
         } catch (IOException e) {
             Log.error("[Player] Send Player Chat Error",e);
         }
@@ -143,7 +137,7 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     @Override
     public void ping() {
         try {
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getPingByteBuf(player));
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getPingPacket(player));
         } catch (IOException e) {
             errorTry++;
         }

@@ -13,6 +13,7 @@ import com.github.dr.rwserver.util.PacketType;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -20,12 +21,12 @@ import java.io.IOException;
  */
 public class GameVersionPacket implements AbstractNetPacket {
     @Override
-    public Packet getSystemMessageByteBuf(String msg) throws IOException {
-        return getChatMessageByteBuf(msg,"SERVER",5);
+    public Packet getSystemMessagePacket(String msg) throws IOException {
+        return getChatMessagePacket(msg,"SERVER",5);
     }
 
     @Override
-    public Packet getChatMessageByteBuf(String msg, String sendBy, int team) throws IOException {
+    public Packet getChatMessagePacket(String msg, String sendBy, int team) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeString(msg);
         o.writeByte(3);
@@ -37,7 +38,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet getPingByteBuf(Player player) throws IOException {
+    public Packet getPingPacket(Player player) throws IOException {
         player.timeTemp = System.currentTimeMillis();
         GameOutputStream o = new GameOutputStream();
         o.writeLong(1000L);
@@ -46,7 +47,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet getTickByteBuf(int tick) throws IOException {
+    public Packet getTickPacket(int tick) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeInt(tick);
         o.writeInt(0);
@@ -54,7 +55,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet getGameTickCommandByteBuf(int tick, GameCommand cmd) throws IOException {
+    public Packet getGameTickCommandPacket(int tick, GameCommand cmd) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeInt(tick);
         o.writeInt(1);
@@ -65,7 +66,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet getGameTickCommandsByteBuf(int tick, Seq<GameCommand> cmd) throws IOException {
+    public Packet getGameTickCommandsPacket(int tick, Seq<GameCommand> cmd) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeInt(tick);
         o.writeInt(cmd.size());
@@ -79,7 +80,7 @@ public class GameVersionPacket implements AbstractNetPacket {
 
 
     @Override
-    public GzipEncoder getTeamDataByteBuf() throws IOException {
+    public GzipEncoder getTeamDataPacket() throws IOException {
         GzipEncoder enc = GzipEncoder.getGzipStream("teams",true);
         for (int i = 0; i < Data.game.maxPlayer; i++) {
             try {
@@ -89,7 +90,7 @@ public class GameVersionPacket implements AbstractNetPacket {
                 } else {
                     enc.stream.writeBoolean(true);
                     enc.stream.writeInt(0);
-                    player.writePlayer(enc.stream);
+                    writePlayer(player, enc.stream);
                 }
             } catch (Exception e) {
                 Log.error("[ALL/Player] Get Server Team Info",e);
@@ -99,7 +100,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet convertGameSaveDataByteBuf(Packet packet) throws IOException {
+    public Packet convertGameSaveDataPacket(Packet packet) throws IOException {
         try (GameInputStream stream = new GameInputStream(packet)) {
             GameOutputStream o = new GameOutputStream();
             o.writeByte(stream.readByte());
@@ -120,7 +121,7 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet getStartGameByteBuf() throws IOException {
+    public Packet getStartGamePacket() throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeByte(0);
         // 0->本地 1->自定义 2->保存的游戏
@@ -146,9 +147,60 @@ public class GameVersionPacket implements AbstractNetPacket {
     }
 
     @Override
-    public Packet getExitByteBuf() throws IOException {
+    public Packet getExitPacket() throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeString("exited");
         return o.createPackets(111);
+    }
+
+    @Override
+    public void writePlayer(Player player, DataOutputStream stream) throws IOException {
+        if (Data.game.isStartGame) {
+            stream.writeByte(player.site);
+            stream.writeInt(player.ping);
+            stream.writeBoolean(Data.game.sharedControl);
+            stream.writeBoolean(player.sharedControl);
+            return;
+        }
+        stream.writeByte(player.site);
+        stream.writeInt(Data.game.credits);
+        stream.writeInt(player.team);
+        stream.writeBoolean(true);
+        stream.writeUTF(player.name);
+
+        stream.writeBoolean(false);
+
+        /* -1 N/A ; -2 -  ; -99 HOST */
+        stream.writeInt(player.ping);
+
+        stream.writeLong(System.currentTimeMillis());
+        /* MS */
+        stream.writeBoolean(false);
+        stream.writeInt(0);
+
+        stream.writeInt(player.site);
+        stream.writeByte(0);
+        /* 共享控制 */
+        stream.writeBoolean(Data.game.sharedControl);
+        /* 是否掉线 */
+        stream.writeBoolean(player.sharedControl);
+        /* 是否投降 */
+        stream.writeBoolean(false);
+        stream.writeBoolean(false);
+        stream.writeInt(-9999);
+
+        stream.writeBoolean(false);
+        // 延迟后显示 （HOST)
+        stream.writeInt(player.isAdmin ? 1 : 0);
+    }
+
+    @Override
+    public Packet getPlayerConnectPacket() {
+        return null;
+    }
+
+    @Override
+    public Packet getPlayerRegisterPacket(String name, String uuid, String passwd, int key) {
+        return null;
     }
 }

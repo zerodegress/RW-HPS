@@ -35,4 +35,5 @@ class StartGameNetTcp extends ChannelInitializer<SocketChannel> {
         pipeline.addLast(new PacketEncoder());
         pipeline.addLast(newServerHandler);
     }
+
 }

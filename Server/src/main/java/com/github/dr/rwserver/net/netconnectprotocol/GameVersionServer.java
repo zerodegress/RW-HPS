@@ -169,8 +169,8 @@ public class GameVersionServer extends AbstractGameVersion {
                 if (message == null) {
                     return;
                 }
-                Events.fire(new EventType.PlayerChatEvent(player, message));
                 Call.sendMessage(player, message);
+                Events.fire(new EventType.PlayerChatEvent(player, message));
             } else {
                 if (response.type != CommandHandler.ResponseType.valid) {
                     String text;
@@ -302,7 +302,7 @@ public class GameVersionServer extends AbstractGameVersion {
     @Override
     public void sendStartGame() throws IOException {
         sendServerInfo(true);
-        sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGameByteBuf());
+        sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket());
         if (notIsBlank(Data.game.startAd)) {
             sendSystemMessage(Data.game.startAd);
         }
@@ -534,7 +534,7 @@ public class GameVersionServer extends AbstractGameVersion {
                 return;
             }
             super.isDis = false;
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGameByteBuf());
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket());
             Data.game.reConnectBreak = true;
             Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s");
             final ExecutorService executorService= Executors.newFixedThreadPool(1);
@@ -547,7 +547,7 @@ public class GameVersionServer extends AbstractGameVersion {
                         }
                     }
                     try {
-                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataByteBuf(Data.game.gameSaveCache));
+                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(Data.game.gameSaveCache));
                     } catch (IOException e) {
                         Log.error(e);
                     }

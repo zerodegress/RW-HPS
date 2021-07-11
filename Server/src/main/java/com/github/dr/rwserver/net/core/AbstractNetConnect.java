@@ -5,7 +5,7 @@ import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.ConnectionAgreement;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-import okhttp3.internal.cache2.Relay;
+import org.intellij.lang.annotations.JdkConstants;
 
 import java.io.IOException;
 

@@ -64,4 +64,29 @@ public class StringFilteringUtil {
 		}
 	    return str.substring(0, length);
 	}
+	public static final class StringMatcherData {
+		private final Matcher matcher;
+
+		public StringMatcherData(String patternString,String text) {
+			this.matcher = Pattern.compile(patternString).matcher(text);
+		}
+
+		public String getString(int position) {
+			final String result = matcher.group(position);
+			return IsUtil.notIsBlank(result) ? result : "";
+		}
+
+		public int getInt(int position) {
+			final String result = matcher.group(position);
+			return IsUtil.notIsBlank(result) ? Integer.parseInt(result) : 0;
+		}
+
+		public String getStringNoError(int position) {
+			try {
+				final String result = matcher.group(position);
+				return IsUtil.notIsBlank(result) ? result : "";
+			} catch (Exception e) {}
+			return "";
+		}
+	}
 }

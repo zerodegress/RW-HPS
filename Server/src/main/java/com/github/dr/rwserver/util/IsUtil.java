@@ -38,4 +38,32 @@ public class IsUtil {
 	public static boolean isPowerOfTwo(int n) {
 		return n > 0 && (n & (n-1)) == 0;
 	}
+
+	public static boolean inTwoNumbers(double min,double b,double max) {
+    	return Math.max(min, b) == Math.min(b, max);
+	}
+
+	public static boolean inTwoNumbersNoSE(double min,double b,double max) {
+    	if (doubleToLong(min) != doubleToLong(b) && doubleToLong(max) != doubleToLong(b)) {
+    		return inTwoNumbers(min,b,max);
+		}
+    	return false;
+	}
+
+	public static boolean inTwoNumbersNoSrE(double min,double b,double max,boolean start) {
+		if (start) {
+			if (doubleToLong(max) != doubleToLong(b)) {
+				return inTwoNumbers(min,b,max);
+			}
+		} else {
+			if (doubleToLong(min) != doubleToLong(b)) {
+				return inTwoNumbers(min,b,max);
+			}
+		}
+		return false;
+	}
+
+	private static long doubleToLong(double d) {
+    	return Double.doubleToLongBits(d);
+	}
 }

@@ -135,7 +135,6 @@ public class Call {
     private static class SendGameTickCommand implements Runnable {
         private int time = 0;
         private boolean oneSay = true;
-        private boolean gameOver = true;
         @Override
         public void run() {
             if (Data.game.reConnectBreak) {
@@ -150,19 +149,16 @@ public class Call {
                 if (oneSay) {
                     oneSay = false;
                     Call.sendSystemMessageLocal("gameOver.oneMin");
-                }
-                if (gameOver) {
-                    gameOver = false;
                     Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent()),1, TimeUnit.MINUTES,"Gameover");
                 }
             } else {
                 if (Threads.getIfScheduledFutureData("Gameover")) {
                     oneSay = true;
-                    gameOver = true;
                     Threads.removeScheduledFutureData("Gameover");
                 }
             }
             final int size = Data.game.gameCommandCache.size();
+
             if (size == 0) {
                 try {
                     NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getTickPacket(time));

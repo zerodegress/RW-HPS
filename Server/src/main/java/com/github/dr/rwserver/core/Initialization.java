@@ -29,8 +29,9 @@ public class Initialization {
     public Initialization() {
 		loadLang();
 
-		initMaps();
+		//initServerLanguage();
 
+		initMaps();
 
 		Runtime.getRuntime().addShutdownHook(new ExitHandler());
     }

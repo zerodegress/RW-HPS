@@ -7,6 +7,7 @@ import com.github.dr.rwserver.plugin.event.AbstractEvent;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.threads.GetNewThredPool;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -17,7 +18,7 @@ class PluginEventManage {
     protected PluginEventManage() {
         registerEventAll();
     }
-    protected static void add(final AbstractEvent abstractEvent) {
+    protected static void add(@NotNull final AbstractEvent abstractEvent) {
         pluginEventData.add(abstractEvent);
     }
 

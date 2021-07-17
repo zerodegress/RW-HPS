@@ -2,6 +2,7 @@ package com.github.dr.rwserver.io;
 
 import com.github.dr.rwserver.io.output.DisableSyncByteArrayOutputStream;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.io.IOException;
 public class GameOutputStream {
 	final DisableSyncByteArrayOutputStream buffer = new DisableSyncByteArrayOutputStream();
 	final DataOutputStream stream = new DataOutputStream(buffer);
+
+    @NotNull
     public Packet createPacket() {
         try {
             this.stream.flush();
@@ -24,6 +27,7 @@ public class GameOutputStream {
         }
     }
 
+    @NotNull
 	public Packet createPacket(int type) {
         try {
             this.stream.flush();
@@ -36,6 +40,7 @@ public class GameOutputStream {
         }
     }
 
+    @NotNull
     public Packet createPackets(int type) {
         try {
             this.stream.flush();
@@ -52,7 +57,7 @@ public class GameOutputStream {
         this.stream.writeByte(val);
     }
 
-    public void writeBytes(byte[] val) throws IOException {
+    public void writeBytes(@NotNull byte[] val) throws IOException {
         this.buffer.writeBytes(val);
     }
 
@@ -76,15 +81,15 @@ public class GameOutputStream {
         this.stream.writeLong(val);
     }
 
-    public void writeString(String val) throws IOException {
+    public void writeString(@NotNull String val) throws IOException {
         this.stream.writeUTF(val);
     }
 
-    public void flushData(GameInputStream inp) throws IOException {
-        this.writeBytes(inp.buffer.readAllBytes());
+    public void flushData(@NotNull GameInputStream inputStream) throws IOException {
+        inputStream.buffer.transferTo(this.buffer);
     }
 
-    public void flushEncodeData(GzipEncoder enc) throws IOException {
+    public void flushEncodeData(@NotNull GzipEncoder enc) throws IOException {
         enc.closeGzip();
         this.writeString(enc.str);
         this.writeInt(enc.buffer.size());
@@ -92,7 +97,7 @@ public class GameOutputStream {
         stream.flush();
     }
 
-    public void flushMapData(int mapSize,byte[] bytes) throws IOException {
+    public void flushMapData(int mapSize, @NotNull byte[] bytes) throws IOException {
         this.writeInt(mapSize);
         this.stream.write(bytes);
     }

@@ -63,7 +63,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
             }
 
             currentBufferIndex++;
-            currentBuffer = IOUtils.byteArray(newBufferSize);
+            currentBuffer = new byte[newBufferSize];
             buffers.add(currentBuffer);
         }
     }
@@ -89,7 +89,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @param off 起始偏移
      * @param len 要写入的字节数
      */
-    protected void writeImpl(final byte[] b, final int off, final int len) {
+    protected void writeImpl(@NotNull final byte[] b, final int off, final int len) {
         final int newCount = count + len;
         int remaining = len;
         int inBufferPos = count - filledBufferSum;
@@ -133,7 +133,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @return 从输入流读取的总字节数(和写入这个流的字节数)
      * @throws IOException 如果在读取输入流时发生IO错误
      */
-    public abstract int write(final InputStream in) throws IOException;
+    public abstract int write(@NotNull final InputStream in) throws IOException;
 
     /**
      * 将指定输入流的全部内容写入这个字节流 输入流中的字节直接读入到这个流的内部缓冲区.
@@ -141,7 +141,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @return 从输入流读取的总字节数(和写入这个流的字节数)
      * @throws IOException 如果在读取输入流时发生IO错误
      */
-    protected int writeImpl(final InputStream in) throws IOException {
+    protected int writeImpl(@NotNull final InputStream in) throws IOException {
         int readCount = 0;
         int inBufferPos = count - filledBufferSum;
         int n = in.read(currentBuffer, inBufferPos, currentBuffer.length - inBufferPos);
@@ -205,7 +205,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @throws IOException 如果发生IO错误，例如流已关闭
      * @see java.io.ByteArrayOutputStream#writeTo(OutputStream)
      */
-    public abstract void writeTo(final OutputStream out) throws IOException;
+    public abstract void writeTo(@NotNull final OutputStream out) throws IOException;
 
     /**
      * 将此字节流的全部内容写入指定的输出流。
@@ -213,7 +213,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @throws IOException 如果发生IO错误，例如流已关闭
      * @see java.io.ByteArrayOutputStream#writeTo(OutputStream)
      */
-    protected void writeToImpl(final OutputStream out) throws IOException {
+    protected void writeToImpl(@NotNull final OutputStream out) throws IOException {
         int remaining = count;
         for (final byte[] buf : buffers) {
             final int c = Math.min(buf.length, remaining);
@@ -242,7 +242,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
         if (remaining == 0) {
             return IOUtils.EMPTY_BYTE_ARRAY;
         }
-        final byte[] newBuf = IOUtils.byteArray(remaining);
+        final byte[] newBuf = new byte[remaining];
         int pos = 0;
         for (final byte[] buf : buffers) {
             final int c = Math.min(buf.length, remaining);
@@ -275,7 +275,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @throws UnsupportedEncodingException 如果不支持编码 就会抛出这个异常
      * @see java.io.ByteArrayOutputStream#toString()
      */
-    public String toString(final String enc) throws UnsupportedEncodingException {
+    public String toString(@NotNull final String enc) throws UnsupportedEncodingException {
         return new String(toByteArray(), enc);
     }
 
@@ -285,7 +285,7 @@ public abstract class AbstractByteArrayOutputStream extends OutputStream {
      * @return 字节数组转字符串的内容
      * @see java.io.ByteArrayOutputStream#toString()
      */
-    public String toString(final Charset charset) {
+    public String toString(@NotNull final Charset charset) {
         return new String(toByteArray(), charset);
     }
 

@@ -35,4 +35,6 @@ public class PacketType {
     public static final int PACKET_START_GAME = 120;
 	public static final int PACKET_PASSWD_ERROR = 113;
 
+
+
 }

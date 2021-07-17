@@ -62,7 +62,7 @@ public class ByteArrayOutputStream extends AbstractByteArrayOutputStream {
     }
 
     @Override
-    public synchronized int write(final InputStream in) throws IOException {
+    public synchronized int write(@NotNull final InputStream in) throws IOException {
         return writeImpl(in);
     }
 
@@ -77,7 +77,7 @@ public class ByteArrayOutputStream extends AbstractByteArrayOutputStream {
     }
 
     @Override
-    public synchronized void writeTo(final OutputStream out) throws IOException {
+    public synchronized void writeTo(@NotNull final OutputStream out) throws IOException {
         writeToImpl(out);
     }
 

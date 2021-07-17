@@ -54,7 +54,7 @@ public class DisableSyncByteArrayOutputStream extends AbstractByteArrayOutputStr
     }
 
     @Override
-    public int write(final InputStream in) throws IOException {
+    public int write(@NotNull final InputStream in) throws IOException {
         return writeImpl(in);
     }
 
@@ -69,7 +69,7 @@ public class DisableSyncByteArrayOutputStream extends AbstractByteArrayOutputStr
     }
 
     @Override
-    public void writeTo(final OutputStream out) throws IOException {
+    public void writeTo(@NotNull final OutputStream out) throws IOException {
         writeToImpl(out);
     }
 

@@ -4,6 +4,8 @@ import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.LocaleUtil;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -69,11 +71,11 @@ public final class Player {
 		return player;
 	}
 
-	public final void sendSystemMessage(final String text) {
+	public final void sendSystemMessage(@NotNull @Nls final String text) {
 		con.sendSystemMessage(text);
 	}
 
-	public final void sendMessage(Player player, String text) {
+	public final void sendMessage(Player player, @NotNull @Nls String text) {
 		con.sendChatMessage(text, player.name, player.team);
 	}
 

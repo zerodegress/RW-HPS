@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.dr.rwserver.struct.ObjectMap;
+import com.github.dr.rwserver.struct.Seq;
 
 import java.util.Map;
 
@@ -43,6 +44,18 @@ public class Json {
             }
         }
         return null;
+    }
+
+    public Seq<Json> getArraySeqData() {
+        final Seq<Json> result = new Seq<>();
+        JSONArray rArray = JsonObject.getJSONArray("result");
+        for (Object o : rArray) {
+            JSONObject r = (JSONObject) o;
+            if (notIsBlank(r)) {
+                result.add(new Json(r));
+            }
+        }
+        return result;
     }
 
 	public static String toJson(ObjectMap<String,String> map) {

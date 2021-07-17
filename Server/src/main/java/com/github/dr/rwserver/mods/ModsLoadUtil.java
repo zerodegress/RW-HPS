@@ -7,7 +7,6 @@ import com.github.dr.rwserver.util.alone.annotations.DidNotFinish;
  * @author Dr
  */
 @DidNotFinish
-@Deprecated(forRemoval = false)
 class ModsLoadUtil {
     protected static void checkName(String paramString) {
         String str = paramString;

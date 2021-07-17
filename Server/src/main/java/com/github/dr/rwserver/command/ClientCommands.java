@@ -285,7 +285,6 @@ public class ClientCommands {
 					player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"));
 					return;
 				}
-				// 设置为9 玩家开始无单位
 				//Data.game.initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
 				Data.game.initUnit = Integer.parseInt(args[0]);
 				Call.upDataGameData();

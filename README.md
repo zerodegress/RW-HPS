@@ -50,7 +50,6 @@ GNU General Public License v3.0
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)  
   > Telegram Group: [RW-HPS](https://t.me/RW_HPS)  
   >> Tencent QQ: A modern messaging software used by all Chinese netizens.  
-  >> *RW-HPS No donation items*  
 - Mirroring:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
   > [Gitee](https://gitee.com/derdct/RW-HPS)
@@ -100,6 +99,13 @@ GNU General Public License v3.0
 | Command 			| Parameter 												 | Information 										 |
 |:---           |:--- 												 |:--- 										 |
 | help      |   | Get help 									 |
+
+## Sponsor
+RW-HPS is an open source project authorized by GPL V3, which is free to use. However, the amount of work required to maintain and develop new features for the project is not sustainable without appropriate funding.  
+Please note that sponsorship is entirely voluntary. Sponsors are not privileged and can use all features without sponsorship.
+
+We receive donations through the following channels：
++ [爱发电](https://afdian.net/@derdct)
 
 ### Thanks  
 @Miku Inspiration from Rukkit project  

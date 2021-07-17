@@ -43,7 +43,6 @@ GNU General Public License v3.0
   > 邮件联系: dr@der.kim  
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)    
   > Telegram Group: [RW-HPS](https://t.me/RW_HPS)  
-  >> *RW-HPS 没有任何的捐赠项目*  
 - 镜像:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
   > [Gitee](https://gitee.com/derdct/RW-HPS)  
@@ -100,7 +99,14 @@ GNU General Public License v3.0
 |:---           |:--- 												 |:--- 										 |
 | help      |   | 获取帮助 									 |
 
-### 鸣谢  
+## 赞助
+RW-HPS是GPL v3授权的开放源码项目，完全免费使用。然而，如果没有适当的资金支持，为项目维护和开发新功能所需的工作量是不可持续的。  
+请注意，赞助是全自愿的。赞助者不会获得特权，不赞助也可以使用全部的功能。
+
+我们通过以下渠道接受捐赠：  
++ [爱发电](https://afdian.net/@derdct)
+
+## 鸣谢  
 @Miku 的RUKKIT项目带来的启发  
 @Tiexiu.xyz 提供计算支持  
 @Aunken 的ARC/Mindustry项目提供底层设想  

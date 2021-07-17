@@ -103,6 +103,9 @@ public class PluginsLoad {
             this.version        = (String) version;
             this.main           = main;
             main.getPluginData().setFileUtil(FileUtil.file(Data.Plugin_Plugins_Path).toPath(this.name).toPath(this.name+".bin"));
+            try {
+                main.getPluginData().read();
+            } catch (Exception e) {}
         }
     }
 }

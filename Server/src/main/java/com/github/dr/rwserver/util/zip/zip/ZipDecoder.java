@@ -62,9 +62,39 @@ public class ZipDecoder {
                     while ((len = in.read(buffer)) != -1) {
                         byteArrayOutputStream.write(buffer, 0, len);
                     }
-                    final String name = zipEntry.getName();
+                    final String nameCache = zipEntry.getName();
+                    final String name = nameCache.split("/")[nameCache.split("/").length-1];
                     if (name.endsWith(endWith)) {
                         data.put(name.substring(0, name.length()-name.substring(name.lastIndexOf(".")).length()),byteArrayOutputStream.toByteArray());
+                        //FileUtil.File(Data.Plugin_Cache_Path).toPath(name).writeFileByte(byteArrayOutputStream.toByteArray(),false);
+                    }
+                    byteArrayOutputStream.reset();
+                }
+            }
+        } catch (IOException e) {
+            Log.error(e);
+        }
+        return data;
+    }
+
+    public OrderedMap<String, byte[]> getSpecifiedSuffixInThePackageAllFileName(String endWith) {
+        final OrderedMap<String,byte[]> data = new OrderedMap<>(8);
+        try(ZipInputStream zis = new ZipInputStream(new FileInputStream(file), Charset.forName("GBK"))) {
+            ZipEntry zipEntry;
+            int len;
+            InputStream in;
+            final byte[] buffer = new byte[1024];
+            try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                for(Enumeration<ZipEntry> entries = zipFile.getEntries(); entries.hasMoreElements();){
+                    zipEntry = (ZipEntry)entries.nextElement();
+                    in  =  zipFile.getInputStream(zipEntry);
+                    while ((len = in.read(buffer)) != -1) {
+                        byteArrayOutputStream.write(buffer, 0, len);
+                    }
+                    final String nameCache = zipEntry.getName();
+                    final String name = nameCache.split("/")[nameCache.split("/").length-1];
+                    if (name.endsWith(endWith)) {
+                        data.put(name,byteArrayOutputStream.toByteArray());
                         //FileUtil.File(Data.Plugin_Cache_Path).toPath(name).writeFileByte(byteArrayOutputStream.toByteArray(),false);
                     }
                     byteArrayOutputStream.reset();

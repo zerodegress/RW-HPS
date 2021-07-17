@@ -103,24 +103,48 @@ public class Main {
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
 	}
 
+	private static void loadCoreJar(String libPath) {
+		LibraryManager lib;
+		if (notIsBlank(libPath)) {
+			lib = new LibraryManager(libPath);
+		} else {
+			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
+		}
+		lib.importLib("io.netty","netty-all","4.1.65.Final");
+		lib.importLib("com.ip2location","ip2location-java","8.5.0");
+		lib.importLib("com.alibaba","fastjson","1.2.58");
+		//lib.importLib("org.quartz-scheduler","quartz","2.3.2");
+
+		//lib.importLib("com.github.oshi","oshi-core","5.5.0");
+		//lib.importLib("net.java.dev.jna","jna","5.7.0");
+		//lib.importLib("org.slf4j","slf4j-api","1.7.30");
+		lib.loadToClassLoader();
+		lib.removeOldLib();
+	}
+
 	@SuppressWarnings("InfiniteLoopStatement")
 	private static void buttonMonitoring() {
 		Scanner scanner = new Scanner(System.in);
 		while (true) {
-			String str = scanner.nextLine();
-			CommandHandler.CommandResponse response = Data.SERVERCOMMAND.handleMessage(str,(StrCons) Log::clog);
-			if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
-				if (response.type != CommandHandler.ResponseType.valid) {
-					String text;
-					if (response.type == CommandHandler.ResponseType.manyArguments) {
-						text = "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText;
-					} else if (response.type == CommandHandler.ResponseType.fewArguments) {
-						text = "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText;
-					} else {
-						text = "Unknown command. Check help";
+			try {
+				String str = scanner.nextLine();
+				CommandHandler.CommandResponse response = Data.SERVERCOMMAND.handleMessage(str, (StrCons) Log::clog);
+				if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
+					if (response.type != CommandHandler.ResponseType.valid) {
+						String text;
+						if (response.type == CommandHandler.ResponseType.manyArguments) {
+							text = "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText;
+						} else if (response.type == CommandHandler.ResponseType.fewArguments) {
+							text = "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText;
+						} else {
+							text = "Unknown command. Check help";
+						}
+						Log.clog(text);
 					}
-					Log.clog(text);
 				}
+			} catch (Exception e) {
+				Log.clog("Error");
+				//e.printStackTrace();
 			}
 		}
 	}

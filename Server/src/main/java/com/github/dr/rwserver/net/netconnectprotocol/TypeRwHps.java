@@ -7,10 +7,11 @@ import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.util.PacketType;
 import com.github.dr.rwserver.util.Time;
+import org.jetbrains.annotations.NotNull;
 
 public class TypeRwHps implements TypeConnect {
     @Override
-    public void typeConnect(AbstractNetConnect con, Packet packet) throws Exception {
+    public void typeConnect(@NotNull AbstractNetConnect con, @NotNull Packet packet) throws Exception {
         con.setLastReceivedTime();
         if (packet.type == PacketType.PACKET_ADD_GAMECOMMAND) {
             con.receiveCommand(packet);
@@ -55,6 +56,7 @@ public class TypeRwHps implements TypeConnect {
         }
     }
 
+    @NotNull
     @Override
     public String getVersion() {
         return "2.0.0";

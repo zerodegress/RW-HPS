@@ -1,7 +1,6 @@
 package com.github.dr.rwserver.net.game;
 
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.ConnectionAgreement;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.util.log.Log;
@@ -31,7 +30,6 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            //Log.error(ctx.channel().id().asLongText());
             if (msg instanceof Packet) {
                 final Packet p = (Packet) msg;
                 final Channel channel = ctx.channel();
@@ -39,7 +37,7 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
                 if (con == null) {
                     con = abstractNetConnect.getVersionNet(channel.id().asLongText());
                     startNet.OVER_MAP.put(channel.id().asLongText(), con);
-                    con.setConnectionAgreement(new ConnectionAgreement(channel));
+                    con.setConnectionAgreement(new ConnectionAgreement(ctx,channel,startNet));
                 }
                 final AbstractNetConnect finalCon = con;
                 ctx.executor().execute(() -> {
@@ -47,14 +45,20 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
                         typeConnect.typeConnect(finalCon, p);
                     } catch (Exception e) {
                         Log.debug(e);
-                        startNet.clear(ctx);
+                        finalCon.disconnect();
                     } finally {
                         ReferenceCountUtil.release(msg);
                     }
                 });
             }
         } catch (Exception ss) {
-            Log.error((ss));
+            Log.error(ss);
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.close();
+        Log.error(cause);
     }
 }

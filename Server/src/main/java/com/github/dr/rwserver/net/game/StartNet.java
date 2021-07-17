@@ -137,13 +137,19 @@ public class StartNet {
 
     public void clear(ChannelHandlerContext ctx) {
         Channel channel = ctx.channel();
-        AbstractNetConnect con = OVER_MAP.get(channel.id().asLongText());
-        if (con != null) {
-            con.disconnect();
-            ctx.close();
+        try {
+            AbstractNetConnect con = OVER_MAP.get(channel.id().asLongText());
+            if (con != null) {
+                con.disconnect();
+            } else {
+                channel.close();
+                ctx.close();
+            }
+        } finally {
+            OVER_MAP.remove(channel.id().asLongText());
         }
-        OVER_MAP.remove(channel.id().asLongText());
     }
+
 
     public void updateNet() {
         if (IsUtil.notIsBlank(starta)) {

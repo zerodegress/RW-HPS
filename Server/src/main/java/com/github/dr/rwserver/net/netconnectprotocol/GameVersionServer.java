@@ -22,6 +22,7 @@ import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import com.ip2location.IPResult;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.concurrent.ExecutorService;
@@ -66,7 +67,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void sendSystemMessage(String msg) {
+    public void sendSystemMessage(@NotNull String msg) {
         if (player.noSay) {
             return;
         }
@@ -132,7 +133,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void sendKick(String reason) throws IOException {
+    public void sendKick(@NotNull String reason) throws IOException {
         GameOutputStream o = new GameOutputStream();
         o.writeString(reason);
         sendPacket(o.createPacket(PacketType.PACKET_KICK));
@@ -140,7 +141,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void receiveChat(Packet p) throws IOException {
+    public void receiveChat(@NotNull Packet p) throws IOException {
         try (GameInputStream stream = new GameInputStream(p)) {
             String message = stream.readString();
             CommandHandler.CommandResponse response = null;
@@ -189,7 +190,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void receiveCommand(Packet p) throws IOException {
+    public void receiveCommand(@NotNull Packet p) throws IOException {
         sync.lock();
         try (GameInputStream in = new GameInputStream(new GameInputStream(p).getDecodeBytes())) {
             byte[] bytes;
@@ -282,7 +283,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public byte[] getGameSaveData(Packet packet) throws IOException {
+    public byte[] getGameSaveData(@NotNull Packet packet) throws IOException {
         try (GameInputStream stream = new GameInputStream(packet)) {
             GameOutputStream o = new GameOutputStream();
             o.writeByte(stream.readByte());
@@ -309,7 +310,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void sendTeamData(GzipEncoder gzip) {
+    public void sendTeamData(@NotNull GzipEncoder gzip) {
         try {
             GameOutputStream o = new GameOutputStream();
             /* 玩家位置 */
@@ -350,12 +351,12 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public boolean getPlayerInfo(Packet p) throws IOException {
+    public boolean getPlayerInfo(@NotNull Packet p) throws IOException {
         try (GameInputStream stream = new GameInputStream(p)) {
             stream.readString();
-            stream.readInt();
-            stream.readInt();
-            stream.readInt();
+            Log.debug(stream.readInt());
+            Log.debug(stream.readInt());
+            Log.debug(stream.readInt());
             String name = stream.readString();
             Log.debug("name", name);
             String passwd = stream.isReadString();
@@ -436,7 +437,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void registerConnection(Packet p) throws IOException {
+    public void registerConnection(@NotNull Packet p) throws IOException {
         // 生成随机Key;
         int keyLen = 6;
         int key = generateInt(keyLen);
@@ -491,11 +492,7 @@ public class GameVersionServer extends AbstractGameVersion {
             Events.fire(new EventType.PlayerLeaveEvent(player));
         }
 
-        try {
-            connectionAgreement.close(NetStaticData.groupNet);
-        } catch (Exception e) {
-            Log.error("Close Connect",e);
-        }
+        super.close(NetStaticData.groupNet);
     }
 
     @Override
@@ -522,7 +519,7 @@ public class GameVersionServer extends AbstractGameVersion {
     }
 
     @Override
-    public void sendGameSave(Packet packet) {
+    public void sendGameSave(@NotNull Packet packet) {
         sendPacket(packet);
     }
 

@@ -1,16 +1,23 @@
 package com.github.dr.rwserver.net.netconnectprotocol;
 
 import com.github.dr.rwserver.data.Player;
+import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
+import com.github.dr.rwserver.io.GameInputStream;
+import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.ConnectionAgreement;
 import com.github.dr.rwserver.net.GroupNet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
+import okhttp3.internal.cache2.Relay;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 作为{@link AbstractNetConnect} 和 协议实现的中间人
@@ -105,7 +112,7 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void sendSystemMessage(String msg) {
+    public void sendSystemMessage(@NotNull String msg) {
         try {
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket(msg));
         } catch (IOException e) {
@@ -114,7 +121,7 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void sendChatMessage(String msg, String sendBy, int team) {
+    public void sendChatMessage(@NotNull String msg, String sendBy, int team) {
         try {
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(msg,sendBy,team));
         } catch (IOException e) {
@@ -131,7 +138,7 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void sendKick(String reason) throws IOException {
+    public void sendKick(@NotNull String reason) throws IOException {
     }
 
     @Override
@@ -144,16 +151,16 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public byte[] getGameSaveData(Packet packet) throws IOException {
+    public byte[] getGameSaveData(@NotNull Packet packet) throws IOException {
         return null;
     }
 
     @Override
-    public void receiveChat(Packet p) throws IOException {
+    public void receiveChat(@NotNull Packet p) throws IOException {
     }
 
     @Override
-    public void receiveCommand(Packet p) throws IOException {
+    public void receiveCommand(@NotNull Packet p) throws IOException {
     }
 
     @Override
@@ -161,16 +168,16 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void sendTeamData(GzipEncoder gzip) {
+    public void sendTeamData(@NotNull GzipEncoder gzip) {
     }
 
     @Override
-    public boolean getPlayerInfo(Packet p) throws IOException {
+    public boolean getPlayerInfo(@NotNull Packet p) throws IOException {
         return false;
     }
 
     @Override
-    public void registerConnection(Packet p) throws IOException {
+    public void registerConnection(@NotNull Packet p) throws IOException {
     }
 
     @Override
@@ -190,12 +197,12 @@ public abstract class AbstractGameVersion implements AbstractNetConnect {
     }
 
     @Override
-    public void sendGameSave(Packet packet) {
+    public void sendGameSave(@NotNull Packet packet) {
         sendPacket(packet);
     }
 
     @Override
-    public void sendPacket(Packet packet) {
+    public void sendPacket(@NotNull Packet packet) {
         try {
             connectionAgreement.send(packet);
         } catch (Exception e) {

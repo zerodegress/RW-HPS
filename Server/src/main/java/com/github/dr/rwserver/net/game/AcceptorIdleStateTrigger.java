@@ -45,5 +45,4 @@ class AcceptorIdleStateTrigger extends ChannelInboundHandlerAdapter {
             super.userEventTriggered(ctx, evt);
         }
     }
-
 }

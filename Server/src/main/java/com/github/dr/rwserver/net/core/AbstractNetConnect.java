@@ -2,10 +2,13 @@ package com.github.dr.rwserver.net.core;
 
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.ConnectionAgreement;
+import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
+import okhttp3.internal.cache2.Relay;
 import org.intellij.lang.annotations.JdkConstants;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -23,7 +26,7 @@ public interface AbstractNetConnect {
      * @param uuid uuid
      * @return 协议
      */
-    AbstractNetConnect getVersionNet(final String uuid);
+    AbstractNetConnect getVersionNet(String uuid);
 
     /**
      * 获取玩家
@@ -119,14 +122,14 @@ public interface AbstractNetConnect {
      * SERVER: ...
      * @param msg The message
      */
-    void sendSystemMessage(String msg);
+    void sendSystemMessage(@NotNull @Nls String msg);
     /**
      * 发送用户名命名的消息
      * @param msg String
      * @param sendBy String
      * @param team Int
      */
-    void sendChatMessage(String msg, String sendBy, int team);
+    void sendChatMessage(@NotNull @Nls String msg, String sendBy, int team);
     /**
      * 发送服务器消息
      * @param utilData 是否发送UnitData
@@ -142,7 +145,7 @@ public interface AbstractNetConnect {
      * @param reason 发送原因
      * @throws IOException Error
      */
-    void sendKick(String reason) throws IOException;
+    void sendKick(@NotNull @Nls String reason) throws IOException;
     /**
      * Ping
      */
@@ -153,19 +156,19 @@ public interface AbstractNetConnect {
      * @return 包
      * @throws IOException Error
      */
-    byte[] getGameSaveData(Packet packet) throws IOException;
+    byte[] getGameSaveData(@NotNull Packet packet) throws IOException;
     /**
      * 接受语言包
      * @param p Packet
      * @throws IOException Error
      */
-    void receiveChat(Packet p) throws IOException;
+    void receiveChat(@NotNull Packet p) throws IOException;
     /**
      * 接受位移包
      * @param p Packet
      * @throws IOException Error
      */
-    void receiveCommand(Packet p) throws IOException;
+    void receiveCommand(@NotNull Packet p) throws IOException;
     /**
      * 发送游戏开始包
      * @throws IOException Error
@@ -175,20 +178,21 @@ public interface AbstractNetConnect {
      * 发送队伍包
      * @param gzip GzipPacket
      */
-    void sendTeamData(GzipEncoder gzip);
+    void sendTeamData(@NotNull GzipEncoder gzip);
     /**
      * 获取玩家的信息并注册
      * @param p Packet包
      * @return 注册状态
      * @throws IOException err
      */
-    boolean getPlayerInfo(final Packet p) throws IOException;
+    @JdkConstants.BoxLayoutAxis
+    boolean getPlayerInfo(@NotNull Packet p) throws IOException;
     /**
      * 注册连接
      * @param p Packet包
      * @throws IOException err
      */
-    void registerConnection(Packet p) throws IOException;
+    void registerConnection(@NotNull Packet p) throws IOException;
 
     /**
      * 密码错误
@@ -208,7 +212,7 @@ public interface AbstractNetConnect {
      * 发送重连包
      * @param packet ByteBuf
      */
-    void sendGameSave(Packet packet);
+    void sendGameSave(@NotNull Packet packet);
 
     default void reConnect() {
         try {
@@ -222,20 +226,20 @@ public interface AbstractNetConnect {
      * 发送包
      * @param packet 数据
      */
-    void sendPacket(Packet packet);
+    void sendPacket(@NotNull Packet packet);
 
     /**
      * Debug 特殊开发 暂不开放
      * @param packet Packet
      */
-    default void debug(Packet packet) {
+    default void debug(@NotNull Packet packet) {
     }
 
     /**
      * Debug 特殊开发 暂不开放
      * @param str String
      */
-    default void sendDebug(String str) {
+    default void sendDebug(@NotNull String str) {
     }
 }
 

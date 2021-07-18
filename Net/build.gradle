@@ -5,15 +5,14 @@ plugins {
 sourceCompatibility=11
 targetCompatibility=11
 
-/*
+
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.github.RW-HPS.RW-HPS'
+            groupId = 'com.github.RW-HPS'
             artifactId = 'Net'
             version = '1.0.0'
             from components.java
         }
     }
 }
-*/

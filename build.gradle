@@ -1,23 +1,8 @@
-buildscript {
-    repositories {
-        jcenter()
-		google()
-		maven{ url 'https://jitpack.io' }
-	}
-    dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0' //指定classpath
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
 subprojects {
     apply plugin: "java"
 	repositories{
-		maven{ url "http://maven.aliyun.com/nexus/content/groups/public/"}
+		maven{ url "https://maven.aliyun.com/nexus/content/groups/public/"}
 		mavenCentral()
-		google()
-        jcenter()
 		maven{ url 'https://jitpack.io' }
 	}
 
@@ -29,6 +14,10 @@ subprojects {
 
 	jar{
 		from{
+			exclude 'META-INF/LICENSE.txt'
+			exclude 'META-INF/LICENSE'
+			exclude 'META-INF/license.txt'
+
 			configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
 		}
 	}

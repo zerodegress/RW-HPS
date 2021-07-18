@@ -22,8 +22,8 @@ jar{
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId = 'com.github.RW-HPS'
-            artifactId = 'RW-HPS.Server'
+            groupId = 'com.github.RW-HPS.RW-HPS'
+            artifactId = 'Server'
             version = '1.0.0'
             from components.java
         }

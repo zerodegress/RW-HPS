@@ -23,7 +23,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.github.RW-HPS'
-            artifactId = 'Server'
+            artifactId = 'RW-HPS.Server'
             version = '1.0.0'
             from components.java
         }

@@ -106,8 +106,5 @@ RW-HPS是GPL v3授权的开放源码项目，完全免费使用。然而，如�
 我们通过以下渠道接受捐赠：  
 + [爱发电](https://afdian.net/@derdct)
 
-## 鸣谢  
-@Miku 的RUKKIT项目带来的启发  
-@Tiexiu.xyz 提供计算支持  
-@Aunken 的ARC/Mindustry项目提供底层设想  
-@Apache 的org.apache.tools.zip
+## 感谢
+[Thanks](https://github.com/RW-HPS/RW-HPS/blob/master/Thanks-CN.md)

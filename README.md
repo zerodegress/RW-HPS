@@ -107,8 +107,5 @@ Please note that sponsorship is entirely voluntary. Sponsors are not privileged 
 We receive donations through the following channels：
 + [爱发电](https://afdian.net/@derdct)
 
-### Thanks  
-@Miku Inspiration from Rukkit project  
-@Tiexiu.xyz Provide computing support  
-@Aunken ARC/Mindustry The project provides the underlying vision  
-@Apache org.apache.tools.zip  
+## Thanks
+[Thanks](https://github.com/RW-HPS/RW-HPS/blob/master/Thanks.md)

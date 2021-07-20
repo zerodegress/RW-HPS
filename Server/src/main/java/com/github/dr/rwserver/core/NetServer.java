@@ -41,9 +41,6 @@ public class NetServer {
         if (Threads.getIfScheduledFutureData("GameTask")) {
             Threads.removeScheduledFutureData("GameTask");
         }
-        if (Threads.getIfScheduledFutureData("Gameover")) {
-            Threads.removeScheduledFutureData("Gameover");
-        }
         if (Threads.getIfScheduledFutureData("GamePing")) {
             Threads.removeScheduledFutureData("GamePing");
         }

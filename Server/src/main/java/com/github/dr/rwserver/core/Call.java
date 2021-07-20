@@ -139,6 +139,7 @@ public class Call {
         public void run() {
             // 检测人数是否符合Gameover
             if (Data.playerGroup.size() == 0) {
+                Threads.removeScheduledFutureData("Gameover");
                 Events.fire(new EventType.GameOverEvent());
                 return;
             }
@@ -149,7 +150,7 @@ public class Call {
                     Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent()),1, TimeUnit.MINUTES,"Gameover");
                 }
             } else {
-                if (Threads.getIfScheduledFutureData("Gameover")) {
+                if (!oneSay) {
                     oneSay = true;
                     Threads.removeScheduledFutureData("Gameover");
                 }

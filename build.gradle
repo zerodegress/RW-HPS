@@ -9,7 +9,6 @@ subprojects {
 
 	ext{
 		//the build number that this plugin is made for
-
 	}
 
 	jar{
@@ -17,6 +16,8 @@ subprojects {
 			exclude 'META-INF/LICENSE.txt'
 			exclude 'META-INF/LICENSE'
 			exclude 'META-INF/license.txt'
+			exclude 'META-INF/license.txt'
+			exclude 'META-INF/NOTICE.txt'
 
 			configurations.runtimeClasspath.collect{it.isDirectory() ? it : zipTree(it)}
 		}
@@ -29,5 +30,3 @@ subprojects {
 		options.compilerArgs << "-Xlint:deprecation" << "-Werror"
 	}
 }
-	//implementation group: 'io.netty', name: 'netty-all', version: '5.0.0.Alpha2'
-	//implementation group: 'io.netty', name: 'netty-all', version: '4.1.51.Final'

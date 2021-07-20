@@ -137,10 +137,7 @@ public class Call {
         private boolean oneSay = true;
         @Override
         public void run() {
-            if (Data.game.reConnectBreak) {
-                return;
-            }
-            time += 10;
+            // 检测人数是否符合Gameover
             if (Data.playerGroup.size() == 0) {
                 Events.fire(new EventType.GameOverEvent());
                 return;
@@ -157,6 +154,12 @@ public class Call {
                     Threads.removeScheduledFutureData("Gameover");
                 }
             }
+
+            if (Data.game.reConnectBreak) {
+                return;
+            }
+            time += 10;
+
             final int size = Data.game.gameCommandCache.size();
 
             if (size == 0) {

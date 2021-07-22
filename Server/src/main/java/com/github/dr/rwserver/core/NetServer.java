@@ -38,15 +38,10 @@ public class NetServer {
     }
 
     public static void reLoadServer() {
-        if (Threads.getIfScheduledFutureData("GameTask")) {
-            Threads.removeScheduledFutureData("GameTask");
-        }
-        if (Threads.getIfScheduledFutureData("GamePing")) {
-            Threads.removeScheduledFutureData("GamePing");
-        }
-        if (Threads.getIfScheduledFutureData("GameWinOrLoseCheck")) {
-            Threads.removeScheduledFutureData("GameWinOrLoseCheck");
-        }
+        Threads.removeScheduledFutureData("GameTask");
+        Threads.removeScheduledFutureData("GamePing");
+        Threads.removeScheduledFutureData("GameWinOrLoseCheck");
+        Threads.removeScheduledFutureData("Gameover");
         Call.killAllPlayer();
         Data.playerGroup.clear();
         Data.playerAll.clear();
@@ -54,7 +49,7 @@ public class NetServer {
         Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
         Data.game.isStartGame = false;
         FileUtil fileUtil = FileUtil.file(Data.Plugin_Log_Path).toPath("Log.txt");
-        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
+        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 2 * 1024 * 1024);
 
         Log.clog("Server Gameover completed");
     }

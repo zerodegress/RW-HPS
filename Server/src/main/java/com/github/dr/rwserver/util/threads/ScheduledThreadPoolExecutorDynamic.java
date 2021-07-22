@@ -17,6 +17,12 @@ public class ScheduledThreadPoolExecutorDynamic extends ScheduledThreadPoolExecu
     }
 
     @Override
+    public ScheduledFuture<?> schedule(Runnable command, long end, TimeUnit unit) {
+        dynamicCorePoolSize(this);
+        return super.schedule(command, end, unit);
+    }
+
+    @Override
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
         dynamicCorePoolSize(this);
         return super.scheduleAtFixedRate(command, initialDelay, period, unit);

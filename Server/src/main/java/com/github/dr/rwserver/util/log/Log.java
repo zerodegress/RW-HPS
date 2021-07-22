@@ -160,6 +160,7 @@ public class Log {
 		if(LOG_GRADE>i) {
 			return;
 		}
+
 		final StringBuilder sb = new StringBuilder();
 		final String[] lines = e.toString().split(LINE_SEPARATOR);
 
@@ -183,6 +184,10 @@ public class Log {
 		for (Object line : lines) {
 			sb.append(line)
 				.append(LINE_SEPARATOR);
+		}
+
+		if (i > 5) {
+			LOG_CACHE.append(sb);
 		}
 		logPrint.println(sb);
 	}

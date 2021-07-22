@@ -38,7 +38,7 @@ public class Data {
 
 	/** 自定义包名 */
 	public static final String SERVER_ID = "com.github.dr.rwserver";
-	public static final String SERVER_CORE_VERSION = "1.3.2";
+	public static final String SERVER_CORE_VERSION = "1.3.3";
 	public static final int SERVER_CORE_VERSION_INT = 200;
 	/** 单位数据缓存 */
 	public static final GzipEncoder utilData = GzipEncoder.getGzipStream("customUnits",false);

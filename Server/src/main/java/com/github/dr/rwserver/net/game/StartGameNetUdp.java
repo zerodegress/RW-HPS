@@ -45,9 +45,8 @@ class StartGameNetUdp {
         AbstractNetConnect con = startNet.OVER_MAP.get(sockAds.toString());
 
         if (con == null) {
-            con = abstractNetConnect.getVersionNet(sockAds.toString());
+            con = abstractNetConnect.getVersionNet(new ConnectionAgreement(socket,startNet));
             startNet.OVER_MAP.put(sockAds.toString(), con);
-            con.setConnectionAgreement(new ConnectionAgreement(socket,startNet));
         }
 
         final AbstractNetConnect conFinal = con;

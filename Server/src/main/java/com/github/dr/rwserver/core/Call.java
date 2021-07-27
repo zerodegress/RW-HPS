@@ -113,9 +113,9 @@ public class Call {
             Data.playerGroup.each(p -> {
                 if (!p.start) {
                     loadTime += 1;
+                    start = false;
                     if (loadTime > loadTimeMaxTry) {
                         if (start) {
-                            start = false;
                             Call.sendSystemMessageLocal("start.testNo");
                         }
                         Threads.newThreadService2(new SendGameTickCommand(),0,150, TimeUnit.MILLISECONDS,"GameTask");
@@ -139,7 +139,6 @@ public class Call {
         public void run() {
             // 检测人数是否符合Gameover
             if (Data.playerGroup.size() == 0) {
-                Threads.removeScheduledFutureData("Gameover");
                 Events.fire(new EventType.GameOverEvent());
                 return;
             }
@@ -150,7 +149,7 @@ public class Call {
                     Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent()),1, TimeUnit.MINUTES,"Gameover");
                 }
             } else {
-                if (!oneSay) {
+                if (Threads.getIfScheduledFutureData("Gameover")) {
                     oneSay = true;
                     Threads.removeScheduledFutureData("Gameover");
                 }

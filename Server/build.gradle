@@ -49,7 +49,18 @@ publishing {
             version = '1.0.0'
             from components.java
 
-			pom { x -> pom(x)}
+			pom.withXml {
+				def pomStringBuilder = asString()
+				pomStringBuilder.setLength(0)
+				// The platform POM needs its artifact ID replaced with the artifact ID of the root module:
+				def platformPomString = platformPomBuilder.toString()
+				platformPomString.eachLine { line ->
+					if (!line.contains("<!--")) { // Remove the Gradle module metadata marker as it will be added anew
+						pomStringBuilder.append(line.replace(platformPublication.artifactId, artifactId))
+						pomStringBuilder.append("\n")
+					}
+				}
+			}
         }
     }
 }

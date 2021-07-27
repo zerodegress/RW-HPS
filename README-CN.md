@@ -5,6 +5,14 @@
 
 ### **目前处于Kt重写状态 欢迎进行重写并提交Pr**
 
+## 这是什么
+这个一个基于铁锈战争的服务器,你可以在任何Linux的设备上运行它,只需要安装Java
+### 它可以做什么
+你可以在这台服务器上进行许许多多有趣的事情,你在原版的游戏上能干的事情它大部分都能干  
+你在原版游戏上干不了的东西,它也可以干  
+你还可以写出Plugin来扩展服务器的功能  
+你也可以自定义你的协议实现
+
 ## 声明
 ### 一切开发旨在学习，请勿用于非法用途
 - RW-HPS 是完全免费且开放源代码的软件，仅供学习和娱乐用途使用
@@ -36,6 +44,13 @@ GNU General Public License v3.0
 - 若引用 RW-HPS 发布的软件包而不修改 RW-HPS，则衍生项目需在描述的任意部位提及使用 RW-HPS。
 - 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/RW-HPS/RW-HPS`)。不得扭曲或隐藏免费且开源的事实。
 
+
+## 协议支持
+
+<details>
+  <summary>支持的协议列表</summary>
+</details>
+
 ## 开始
 - 开发文档: [docs](https://github.com/RW-HPS/RW-HPS/wiki)
 - 更新日志: [release](https://github.com/RW-HPS/RW-HPS/releases)
@@ -43,7 +58,7 @@ GNU General Public License v3.0
 - 讨论:
   > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法  
   > 邮件联系: dr@der.kim  
-  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)    
+  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)    
   > Telegram Group: [RW-HPS](https://t.me/RW_HPS)  
 - 镜像:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
@@ -60,16 +75,12 @@ GNU General Public License v3.0
 
 | 配置 		| CPU             | 内存 	| 系统 			| 硬盘大小 	| Java      |
 |:--- 		|:---             |:---     |:---           |:---       |:---       |
-| 当前配置 	| BCM2711         | 4G      | Ubuntu 19.10  | 500 HDD  | Java 11   |
+| 建议配置 	| ARMv7 Processor rev 5 +   | 128MB      | Linux~  | 64MB HDD  | Java 11   |
 | 最低配置 	| ARMv7 Processor rev 5  | 64M      | Linux~  | 64M HDD  | Java 11   |
 
-## 构建配置
-
-| 配置 		| CPU             | 内存 	| 系统 			| 硬盘大小 	| Java      | Gradle    |
-|:--- 		|:---             |:--- 	|:--- 			|:---      	|:---       |:---       |
-| 当前配置 	| BCM2711         | 4G 		| Ubuntu 19.10 	| 500G HDD 	| Java 11    | 6.2.2     |
-
 ## 服务器命令列表
+<details>
+  <summary>服务器命令列表</summary>
 | 命令 					 | 参数 																						 | 信息 									 |
 |:--- 					 |:--- 																						 |:--- 									 |
 | help 		              |                                                  										 | 获取帮助 		 |
@@ -93,13 +104,15 @@ GNU General Public License v3.0
 | maps          		 |                               	   											 | 查看Custom Map               			 |
 | reloadmaps          		 |                               	   											 | 重新加载地图               			 |
 | stop          		 |                               	   											 | 停止服务器               			 |
-
+</details>
 
 ## 游戏命令列表
-
+<details>
+  <summary>客户端命令列表</summary>
 | 命令 			| 参数 												 | 信息 										 |
 |:---           |:--- 												 |:--- 										 |
 | help      |   | 获取帮助 									 |
+</details>
 
 ## 赞助
 RW-HPS是GPL v3授权的开放源码项目，完全免费使用。然而，如果没有适当的资金支持，为项目维护和开发新功能所需的工作量是不可持续的。  

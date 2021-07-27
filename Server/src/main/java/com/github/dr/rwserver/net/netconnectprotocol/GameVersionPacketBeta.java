@@ -19,7 +19,7 @@ import java.io.IOException;
 /**
  * @author Dr
  */
-public class GameVersionPacket implements AbstractNetPacket {
+public class GameVersionPacketBeta implements AbstractNetPacket {
     @Override
     public Packet getSystemMessagePacket(String msg) throws IOException {
         return getChatMessagePacket(msg,"SERVER",5);
@@ -60,7 +60,7 @@ public class GameVersionPacket implements AbstractNetPacket {
         o.writeInt(tick);
         o.writeInt(1);
         GzipEncoder enc = GzipEncoder.getGzipStream("c", false);
-        enc.stream.write(cmd.arr);
+        enc.stream.write(cmd.getArr());
         o.flushEncodeData(enc);
         return o.createPacket(10);
     }
@@ -72,7 +72,7 @@ public class GameVersionPacket implements AbstractNetPacket {
         o.writeInt(cmd.size());
         for (GameCommand c : cmd) {
             GzipEncoder enc = GzipEncoder.getGzipStream("c", false);
-            enc.stream.write(c.arr);
+            enc.stream.write(c.getArr());
             o.flushEncodeData(enc);
         }
         return o.createPacket(10);
@@ -192,6 +192,13 @@ public class GameVersionPacket implements AbstractNetPacket {
         stream.writeBoolean(false);
         // 延迟后显示 （HOST)
         stream.writeInt(player.isAdmin ? 1 : 0);
+
+        stream.writeInt(1);
+        stream.writeInt(0);
+        stream.writeInt(0);
+        stream.writeInt(0);
+        stream.writeInt(0);
+
     }
 
     @Override

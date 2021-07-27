@@ -1,7 +1,6 @@
 package com.github.dr.rwserver.net.netconnectprotocol;
 
 
-import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
@@ -13,10 +12,10 @@ import com.github.dr.rwserver.io.GameInputStream;
 import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.PacketType;
-import com.github.dr.rwserver.util.encryption.Game;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
@@ -24,7 +23,9 @@ import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import com.ip2location.IPResult;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -42,18 +43,19 @@ import static com.github.dr.rwserver.util.encryption.Game.connectKey;
  * @author Dr
  * @date 2020/9/5 17:02:33
  */
-public class GameVersionServer extends AbstractGameVersion {
+public class GameVersionServerBeta extends AbstractGameVersion {
 
     private String playerConnectKey;
 
     private final ReentrantLock sync = new ReentrantLock(true);
 
-    public GameVersionServer(final String uuid) {
+    public GameVersionServerBeta(ConnectionAgreement connectionAgreement) {
+        super(connectionAgreement);
     }
 
     @Override
-    public AbstractNetConnect getVersionNet(final String uuid) {
-        return new GameVersionServer(uuid);
+    public AbstractNetConnect getVersionNet(ConnectionAgreement connectionAgreement) {
+        return new GameVersionServerBeta(connectionAgreement);
     }
 
     @Override
@@ -130,14 +132,6 @@ public class GameVersionServer extends AbstractGameVersion {
             Data.game.gameCommandCache.offer(cmd);
             Call.sendSystemMessage(Data.localeUtil.getinput("player.surrender",player.name));
         } catch (Exception ignored) {}
-    }
-
-    @Override
-    public void sendKick(@NotNull String reason) throws IOException {
-        GameOutputStream o = new GameOutputStream();
-        o.writeString(reason);
-        sendPacket(o.createPacket(PacketType.PACKET_KICK));
-        disconnect();
     }
 
     @Override
@@ -381,7 +375,7 @@ public class GameVersionServer extends AbstractGameVersion {
             if (notIsBlank(playerConnectPasswdCheck.name)) {
                 name = playerConnectPasswdCheck.name;
             }
-            isPasswd = false;
+            this.setInputPassword(false);
 
             AtomicBoolean re = new AtomicBoolean(false);
             if (Data.game.isStartGame) {
@@ -470,7 +464,7 @@ public class GameVersionServer extends AbstractGameVersion {
             GameOutputStream o = new GameOutputStream();
             o.writeInt(0);
             sendPacket(o.createPacket(PacketType.PACKET_PASSWD_ERROR));
-            isPasswd = true;
+            setInputPassword(true);
         } catch (Exception e) {
             Log.error("[Player] sendErrorPasswd",e);
         }

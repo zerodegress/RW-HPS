@@ -19,8 +19,10 @@ import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
  * @author Dr
  */
 public class LibraryManager {
+
 	private static Instrumentation inst = null;
-    private static final Seq<File> load = new Seq<>();
+	private static final Seq<File> loadEnd = new Seq<>();
+    private final Seq<File> load = new Seq<>();
 
     private final String URL;
     private final String PATH;
@@ -48,7 +50,7 @@ public class LibraryManager {
         } else {
             URL = "https://repo1.maven.org/maven2";
         }
-        this.PATH = FileUtil.file(path).getPath();
+        this.PATH = FileUtil.toFolder(path).getPath();
     }
 
     /**
@@ -64,6 +66,7 @@ public class LibraryManager {
                 load.each(e -> {
                     try {
                         f.invoke(ClassLoader.getSystemClassLoader(), e.toURI().toURL());
+                        loadEnd.add(e);
                         Log.info("Load Lib Jar",e.getName());
                     } catch (Exception classLoad) {
                         Log.error("Jar 1.8 Load",classLoad);
@@ -73,6 +76,7 @@ public class LibraryManager {
                 load.each(e -> {
                     try {
                         inst.appendToSystemClassLoaderSearch(new JarFile(e));
+                        loadEnd.add(e);
                         Log.info("Load Lib Jar",e.getName());
                     } catch (Exception classLoad) {
                         Log.error("Jar 1.8+ Load",classLoad);
@@ -139,7 +143,7 @@ public class LibraryManager {
     public final void removeOldLib() {
         FileUtil fileUtil = new FileUtil(new File(PATH));
         Seq<File> list =  fileUtil.getFileList();
-        list.eachBooleanIfs(e -> !load.contains(e),File::delete);
+        list.eachBooleanIfs(e -> !loadEnd.contains(e),File::delete);
     }
 
     private static class ImportData {

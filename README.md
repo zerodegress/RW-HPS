@@ -7,6 +7,8 @@
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
 [![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
 
+### **It is currently in KT rewriting status. Welcome to rewrite and submit pr**
+
 
 ## Statement
 ### All development is for learning, please do not use it for illegal purposes

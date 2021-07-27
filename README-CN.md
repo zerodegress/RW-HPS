@@ -3,6 +3,8 @@
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
 [![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)
 
+### **目前处于Kt重写状态 欢迎进行重写并提交Pr**
+
 ## 声明
 ### 一切开发旨在学习，请勿用于非法用途
 - RW-HPS 是完全免费且开放源代码的软件，仅供学习和娱乐用途使用

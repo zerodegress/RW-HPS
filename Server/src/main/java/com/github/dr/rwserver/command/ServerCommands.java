@@ -12,6 +12,7 @@ import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
+import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.net.game.StartNet;
 import com.github.dr.rwserver.net.netconnectprotocol.*;
 import com.github.dr.rwserver.plugin.center.PluginCenter;
@@ -82,9 +83,15 @@ public class ServerCommands {
             Data.game.init();
             Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
             Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
+
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
-            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(null),151);
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(new ConnectionAgreement()),151);
             NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacket(),"2.0.0");
+/*
+            NetStaticData.protocolData.setTypeConnect(new TypeRwHpsBeta());
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServerBeta(null),157);
+            NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacketBeta(),"3.0.0");*/
+            //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
             Threads.newThreadCore(() -> {
                 StartNet startNet = new StartNet();
                 NetStaticData.startNet.add(startNet);

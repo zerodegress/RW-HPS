@@ -261,9 +261,7 @@ public class ClientCommands {
 			}
 		});
 
-		handler.<Player>register("addai", "HIDE", (args, player) -> {
-			player.sendSystemMessage(player.localeUtil.getinput("err.nosupr"));
-		});
+		handler.<Player>register("addai", "HIDE", (args, player) -> player.sendSystemMessage(player.localeUtil.getinput("err.nosupr")));
 
 		handler.<Player>register("fog", "<type>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
@@ -316,6 +314,9 @@ public class ClientCommands {
 					}
 				});
 
+				if (Data.game.winOrLose) {
+
+				}
 				Data.game.isStartGame = true;
 				int int3 = 0;
 				for (int i = 0; i < Data.game.maxPlayer; i++) {

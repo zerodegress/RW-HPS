@@ -1,5 +1,9 @@
 package com.github.dr.rwserver.util;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.net.InetAddress;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -7,7 +11,9 @@ import java.util.regex.Pattern;
  */
 public class IsUtil {
 
-	private final static Pattern PATTERN = Pattern.compile("[0-9]*");
+	private static final Pattern PATTERN = Pattern.compile("[0-9]*");
+	private static final Pattern IPV4_PATTERN = Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$");
+	private static final int IPV4_MAX_OCTET_VALUE = 255;
 	
 
     public static boolean isBlank(Object string) {
@@ -22,12 +28,12 @@ public class IsUtil {
     	return isBlank(string) ? "" : string.toString();
 	}
 
-	public static boolean isNumeric(String string) {
+	public static boolean isNumeric(@NotNull final String string) {
 		return PATTERN.matcher(string).matches();
 	}
 
 
-    public static boolean notIsNumeric(String string) {
+    public static boolean notIsNumeric(@NotNull final String string) {
 		return !isNumeric(string);
 	}
 
@@ -63,7 +69,39 @@ public class IsUtil {
 		return false;
 	}
 
-	private static long doubleToLong(double d) {
+	public static boolean isDomainName(@NotNull final String domain) {
+    	try {
+			isIPv4Address(InetAddress.getByName(domain).getHostAddress());
+			return true;
+		} catch (Exception e) {
+    		return false;
+		}
+	}
+
+	public static boolean isIPv4Address(@NotNull final String name) {
+		final Matcher m = IPV4_PATTERN.matcher(name);
+		if (!m.matches() || m.groupCount() != 4) {
+			return false;
+		}
+
+		// 验证地址子组是否合法
+		for (int i = 1; i <= 4; i++) {
+			final String ipSegment = m.group(i);
+			final int iIpSegment = Integer.parseInt(ipSegment);
+			if (iIpSegment > IPV4_MAX_OCTET_VALUE) {
+				return false;
+			}
+
+			if (ipSegment.length() > 1 && ipSegment.startsWith("0")) {
+				return false;
+			}
+
+		}
+
+		return true;
+	}
+
+	public static long doubleToLong(double d) {
     	return Double.doubleToLongBits(d);
 	}
 }

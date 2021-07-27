@@ -10,6 +10,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/**
+ * 链式Switch
+ * @author Dr
+ */
 public class Switch<T> {
 
     /**
@@ -79,13 +83,12 @@ public class Switch<T> {
      * 判断输入是否存在给定的一群值中
      *
      * @param values 给定的一群值
-     * @return 当前 Switch 实例
      */
     @SuppressWarnings("unchecked")
-    protected Switch<T> isIn(T... values) {
+    protected void isIn(T... values) {
         Objects.requireNonNull(values);
 
-        return when(e -> {
+        when(e -> {
             // 不直接使用 Arrays.asList(values).contains(e)，提升效率
             for (T value : values) {
                 if (Objects.equals(e, value)) {
@@ -155,9 +158,8 @@ public class Switch<T> {
 
         @Override
         @SafeVarargs
-        public final ConsumptionSwitch<T> isIn(T... values) {
+        public final void isIn(T... values) {
             super.isIn(values);
-            return this;
         }
 
         @Override
@@ -231,9 +233,8 @@ public class Switch<T> {
 
         @Override
         @SafeVarargs
-        public final EvaluationSwitch<I, O> isIn(I... values) {
+        public final void isIn(I... values) {
             super.isIn(values);
-            return this;
         }
 
         @Override

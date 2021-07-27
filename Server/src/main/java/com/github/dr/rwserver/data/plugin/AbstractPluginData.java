@@ -4,6 +4,7 @@ import com.github.dr.rwserver.io.ReusableByteInStream;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.SerializerTypeAll;
+import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.log.exp.VariableException;
@@ -75,12 +76,13 @@ class AbstractPluginData {
      * @return value
      */
     public <T> T getData(String name,@NotNull final T data) {
-        return (T) PLUGIN_DATA.get(name, () -> {
-            return new Value<>(data);
-        }).getData();
+        return (T) PLUGIN_DATA.get(name, () -> new Value<>(data)).getData();
     }
 
     public void read() {
+        if (IsUtil.isBlank(fileUtil) || fileUtil.notExists() || fileUtil.length() < 1) {
+            return;
+        }
         try (DataInputStream stream = new DataInputStream(GzipDecoder.getGzipInputStream(fileUtil.getInputsStream()))) {
             int amount = stream.readInt();
 
@@ -116,12 +118,18 @@ class AbstractPluginData {
                         throw new IllegalStateException("Unexpected value: " + type);
                 }
             }
+        } catch (EOFException e) {
+            // 忽略
+            Log.warn("数据文件为空 若第一次启动可忽略");
         } catch (Exception e) {
             Log.error("Read Data",e);
         }
     }
 
     public void save() {
+        if (IsUtil.isBlank(fileUtil) || fileUtil.notExists()) {
+            return;
+        }
         try(DataOutputStream stream = new DataOutputStream(GzipEncoder.getGzipOutputStream(fileUtil.writeByteOutputStream(false)))){
             stream.writeInt(PLUGIN_DATA.size);
 

@@ -1,224 +1,243 @@
-package com.github.dr.rwserver.net.core;
+package com.github.dr.rwserver.net.core
 
-import com.github.dr.rwserver.data.Player;
-import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.game.ConnectionAgreement;
-import com.github.dr.rwserver.util.log.Log;
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-import okhttp3.internal.cache2.Relay;
-import org.intellij.lang.annotations.JdkConstants;
-import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
+import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.net.game.ConnectionAgreement
+import com.github.dr.rwserver.util.log.Log
+import org.jetbrains.annotations.Nls
+import kotlin.Throws
+import java.io.IOException
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import okhttp3.internal.cache2.Relay
+import org.intellij.lang.annotations.JdkConstants.BoxLayoutAxis
 
 /**
+ * 只提供接口 不实现
+ * 作为游戏CoreNet的实现 为GameServer提供多样的版本支持
  * @author Dr
  * @date 2020/9/5 13:31
  */
-public interface AbstractNetConnect {
+interface AbstractNetConnect {
     /*
      * TODO : AntiCheats
      */
-
     /**
      * 获取版本协议
-     * @param uuid uuid
+     * @param connectionAgreement ConnectionAgreement连接
      * @return 协议
      */
-    AbstractNetConnect getVersionNet(String uuid);
+    fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect
 
     /**
      * 获取玩家
      * @return Player
      */
-    Player getPlayer();
+    val player: Player?
 
     /**
      * 设置一个缓存数据包
      * @param packet v包
      */
-    void setCache(Packet packet);
+    fun setCache(packet: Packet)
+
+    /**
+     * 设置一个缓存数据包
+     * @param packet v包
+     */
+    fun setCacheA(packet: Packet)
 
     /**
      * 获取连接IP
      * @return IP
      */
-    String getIp();
+    val ip: String
 
     /**
      * 获取使用的本地端口
      * @return Port
      */
-    int getPort();
+    val port: Int
 
     /**
      * 获取玩家名字
      * @return 玩家名字
      */
-    String getName();
+    val name: String
 
     /**
      * 尝试次数+1
      */
-    void setTry();
+    fun setTry()
 
     /**
      * 获取尝试次数
      * @return 尝试次数
      */
-    int getTry();
+    val `try`: Int
 
     /**
      * 设置尝试
-     * @param tryBoolean 状态
-     */
-    void setTryBoolean(boolean tryBoolean);
-
-    /**
+     * //@param getTryBoolean 状态
      * 获取尝试状态
      * @return Boolean
      */
-    boolean getTryBoolean();
+    var tryBoolean: Boolean
 
     /**
      * 获取是否在输入密码
      * @return 值
      */
-    boolean getIsPasswd();
+    val inputPassword: Boolean
 
     /**
      * 设置最后的接受数据时间
      */
-    void setLastReceivedTime();
+    fun setLastReceivedTime()
 
     /**
      * 获取最后的发言时间
      * @return Time
      */
-    long getLastReceivedTime();
-
-    /**
-     * 设置ConnectionAgreement
-     * @param connectionAgreement ConnectionAgreement
-     */
-    void setConnectionAgreement(ConnectionAgreement connectionAgreement);
+    val lastReceivedTime: Long
 
     /**
      * 获取连接协议
      * @return 协议
      */
-    String getConnectionAgreement();
+    fun getConnectionAgreement(): String
 
     /**
      * 服务端可支持的版本
      * @return 版本号
      */
-    String getVersion();
-
+    val version: String
 
     /**
      * 获取系统命名的消息包
      * SERVER: ...
      * @param msg The message
      */
-    void sendSystemMessage(@NotNull @Nls String msg);
+    fun sendSystemMessage(@Nls msg: String)
+
     /**
      * 发送用户名命名的消息
      * @param msg String
      * @param sendBy String
      * @param team Int
      */
-    void sendChatMessage(@NotNull @Nls String msg, String sendBy, int team);
+    fun sendChatMessage(@Nls msg: String, sendBy: String, team: Int)
+
     /**
      * 发送服务器消息
      * @param utilData 是否发送UnitData
      * @throws IOException Error
      */
-    void sendServerInfo(boolean utilData) throws IOException;
+    @Throws(IOException::class)
+    fun sendServerInfo(utilData: Boolean)
+
     /**
      * 自杀
      */
-    void sendSurrender();
+    fun sendSurrender()
+
     /**
      * 踢出玩家
      * @param reason 发送原因
      * @throws IOException Error
      */
-    void sendKick(@NotNull @Nls String reason) throws IOException;
+    @Throws(IOException::class)
+    fun sendKick(@Nls reason: String)
+
     /**
      * Ping
      */
-    void ping();
+    fun ping()
+
     /**
      * 提取GameSave包
      * @param packet packet
      * @return 包
      * @throws IOException Error
      */
-    byte[] getGameSaveData(@NotNull Packet packet) throws IOException;
+    @Throws(IOException::class)
+    fun getGameSaveData(packet: Packet): ByteArray
+
     /**
      * 接受语言包
      * @param p Packet
      * @throws IOException Error
      */
-    void receiveChat(@NotNull Packet p) throws IOException;
+    @Throws(IOException::class)
+    fun receiveChat(p: Packet)
+
     /**
      * 接受位移包
      * @param p Packet
      * @throws IOException Error
      */
-    void receiveCommand(@NotNull Packet p) throws IOException;
+    @Throws(IOException::class)
+    fun receiveCommand(p: Packet)
+
     /**
      * 发送游戏开始包
      * @throws IOException Error
      */
-    void sendStartGame() throws IOException;
+    @Throws(IOException::class)
+    fun sendStartGame()
+
     /**
      * 发送队伍包
      * @param gzip GzipPacket
      */
-    void sendTeamData(@NotNull GzipEncoder gzip);
+    fun sendTeamData(gzip: GzipEncoder)
+
     /**
      * 获取玩家的信息并注册
      * @param p Packet包
      * @return 注册状态
      * @throws IOException err
      */
-    @JdkConstants.BoxLayoutAxis
-    boolean getPlayerInfo(@NotNull Packet p) throws IOException;
+    @BoxLayoutAxis
+    @Throws(IOException::class)
+    fun getPlayerInfo(p: Packet): Boolean
+
     /**
      * 注册连接
      * @param p Packet包
      * @throws IOException err
      */
-    void registerConnection(@NotNull Packet p) throws IOException;
+    @Throws(IOException::class)
+    fun registerConnection(p: Packet)
 
     /**
      * 密码错误
      * @throws IOException err
      */
-    void sendErrorPasswd() throws IOException;
+    @Throws(IOException::class)
+    fun sendErrorPasswd()
+
     /**
      * 断开连接
      */
-    void disconnect();
+    fun disconnect()
+
     /**
      * 诱骗客户端发送Save包
      */
-    void getGameSave();
+    fun getGameSave()
 
     /**
      * 发送重连包
      * @param packet ByteBuf
      */
-    void sendGameSave(@NotNull Packet packet);
+    fun sendGameSave(packet: Packet)
 
-    default void reConnect() {
+
+    fun reConnect() {
         try {
-            sendKick("不支持重连");
-        } catch (IOException e) {
-            Log.error("(",e);
+            sendKick("不支持重连")
+        } catch (e: IOException) {
+            Log.error("(", e)
         }
     }
 
@@ -226,20 +245,17 @@ public interface AbstractNetConnect {
      * 发送包
      * @param packet 数据
      */
-    void sendPacket(@NotNull Packet packet);
+    fun sendPacket(packet: Packet)
 
     /**
      * Debug 特殊开发 暂不开放
      * @param packet Packet
      */
-    default void debug(@NotNull Packet packet) {
-    }
+    fun debug(packet: Packet) {}
 
     /**
      * Debug 特殊开发 暂不开放
      * @param str String
      */
-    default void sendDebug(@NotNull String str) {
-    }
+    fun sendDebug(str: String) {}
 }
-

@@ -1,18 +1,19 @@
-package com.github.dr.rwserver.net.core;
+package com.github.dr.rwserver.net.core
 
-import com.github.dr.rwserver.data.Player;
-import com.github.dr.rwserver.game.GameCommand;
-import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.struct.Seq;
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-
-import java.io.DataOutputStream;
-import java.io.IOException;
+import kotlin.Throws
+import java.io.IOException
+import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.game.GameCommand
+import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.struct.Seq
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import java.io.DataOutputStream
 
 /**
+ * 获取包 转换包 理论上全版本通用 但是部分版本需要特殊覆盖实现
  * @author Dr
  */
-public interface AbstractNetPacket {
+interface AbstractNetPacket {
     /**
      * 获取系统命名的消息包
      * SERVER: ...
@@ -20,7 +21,9 @@ public interface AbstractNetPacket {
      * @return Packet
      * @throws IOException err
      */
-    Packet getSystemMessagePacket(String msg) throws IOException;
+    @Throws(IOException::class)
+    fun getSystemMessagePacket(msg: String): Packet
+
     /**
      * 发送用户名命名的消息
      * @param      msg     The message
@@ -29,21 +32,27 @@ public interface AbstractNetPacket {
      * @return Packet
      * @throws IOException err
      */
-    Packet getChatMessagePacket(String msg, String sendBy, int team) throws IOException;
+    @Throws(IOException::class)
+    fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet
+
     /**
      * Ping
      * @param player Player
      * @return Packet
      * @throws IOException err
      */
-    Packet getPingPacket(Player player) throws IOException;
+    @Throws(IOException::class)
+    fun getPingPacket(player: Player): Packet
+
     /**
      * 获取时刻包
      * @param tick Tick
      * @return Packet
      * @throws IOException err
      */
-    Packet getTickPacket(int tick) throws IOException;
+    @Throws(IOException::class)
+    fun getTickPacket(tick: Int): Packet
+
     /**
      * 获取时刻包
      * @param tick Tick
@@ -51,7 +60,9 @@ public interface AbstractNetPacket {
      * @return Packet
      * @throws IOException err
      */
-    Packet getGameTickCommandPacket(int tick, GameCommand cmd) throws IOException;
+    @Throws(IOException::class)
+    fun getGameTickCommandPacket(tick: Int, cmd: GameCommand): Packet
+
     /**
      * 获取时刻包
      * @param tick Tick
@@ -59,53 +70,65 @@ public interface AbstractNetPacket {
      * @return Packet
      * @throws IOException err
      */
-    Packet getGameTickCommandsPacket(int tick, Seq<GameCommand> cmd) throws IOException;
+    @Throws(IOException::class)
+    fun getGameTickCommandsPacket(tick: Int, cmd: Seq<GameCommand>): Packet
+
     /**
      * 获取队伍包
      * @return 队伍包
      * @throws IOException err
      */
-    GzipEncoder getTeamDataPacket() throws IOException;
+    @Throws(IOException::class)
+    fun getTeamDataPacket(): GzipEncoder
+
     /**
      * 转换GameSave包
      * @param packet packet
      * @return Packet
      * @throws IOException err
      */
-    Packet convertGameSaveDataPacket(Packet packet) throws IOException;
+    @Throws(IOException::class)
+    fun convertGameSaveDataPacket(packet: Packet): Packet
+
     /**
      * 开始游戏
      * @return Packet
      * @throws IOException err
      */
-    Packet getStartGamePacket() throws IOException;
+    @Throws(IOException::class)
+    fun getStartGamePacket(): Packet
+
     /**
      * 获取包中的地图名
      * @param bytes Packet.bytes
      * @return 地图名
      * @throws IOException err
      */
-    String getPacketMapName(byte[] bytes) throws IOException;
+    @Throws(IOException::class)
+    fun getPacketMapName(bytes: ByteArray): String
 
     /**
      * 退出
      * @return Packet
      * @throws IOException err
      */
-    Packet getExitPacket() throws IOException;
+    @Throws(IOException::class)
+    fun getExitPacket(): Packet
 
     /**
      * 写入玩家的数据
      * @param player Player
      * @param stream Data流
      */
-    void writePlayer(Player player, DataOutputStream stream) throws IOException ;
+    @Throws(IOException::class)
+    fun writePlayer(player: Player, stream: DataOutputStream)
 
     /**
      * 获取连接包
      * @return Packet
      */
-    Packet getPlayerConnectPacket();
+    @Throws(IOException::class)
+    fun getPlayerConnectPacket(): Packet
 
     /**
      * 获取注册包
@@ -115,6 +138,6 @@ public interface AbstractNetPacket {
      * @param key Server Register Key
      * @return Packet
      */
-    Packet getPlayerRegisterPacket(String name,String uuid,String passwd,int key);
-
+    @Throws(IOException::class)
+    fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String, key: Int): Packet
 }

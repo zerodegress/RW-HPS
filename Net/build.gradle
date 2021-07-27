@@ -15,12 +15,17 @@ publishing {
             from components.java
 
             pom.withXml {
-                asNode().dependencies.'*'.findAll() {
-                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
-                        dep.name == it.artifactId.text()
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.implementation.allDependencies.each {
+                    // 避免出现空节点或 artifactId=unspecified 的节点
+                    if (it.group != null && (it.name != null && "unspecified" != it.name) && it.version != null) {
+                        println it.toString()
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                        dependencyNode.appendNode('scope', 'implementation')
                     }
-                }.each() {
-                    it.scope*.value = 'implementation'
                 }
             }
         }

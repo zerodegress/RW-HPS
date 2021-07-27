@@ -5,10 +5,10 @@ import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
-import com.github.dr.rwserver.util.Convert;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.alone.annotations.DidNotFinish;
 import com.github.dr.rwserver.util.file.FileUtil;
+import com.github.dr.rwserver.util.io.IoReadConversion;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
@@ -20,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +35,7 @@ import static com.github.dr.rwserver.mods.ModsLoadUtil.checkForInclusion;
 @Deprecated(forRemoval = false)
 public class ModsLoad {
     public ModsLoad(FileUtil fileUtil) throws Exception {
-        Seq<String> list = Convert.castSeq(FileUtil.readFileData(true, new InputStreamReader(Main.class.getResourceAsStream("/unitData-114"), StandardCharsets.UTF_8)),String.class);
+        Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData-114")));
         Seq<String> lll = new Seq<>();
         list.each(e -> {
             lll.add(e.split("%#%")[1]);
@@ -100,8 +101,8 @@ public class ModsLoad {
         private LinkedHashMap<String,String> global;
         private LinkedHashMap<String,String> define;
 
-        private ModsData(InputStreamReader inputStreamReader) throws IOException {
-            readModFile(new BufferedReader(inputStreamReader));
+        private ModsData(InputStream inputStream) throws IOException {
+            readModFile(IoReadConversion.streamBufferRead(inputStream));
         }
 
         private ModsData(byte[] bytes) throws IOException {

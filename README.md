@@ -9,6 +9,14 @@
 
 ### **It is currently in KT rewriting status. Welcome to rewrite and submit pr**
 
+## what is it?
+This is a server based on the Rusted Warfare . You can run it on any Linux device, just install Java
+### What can it do
+You can do a lot of interesting things on this server  
+It can do most of the things you can do in a normal game  
+You can do what you can't do in the original game  
+You can also write plugin to expand the function of the server  
+You can also customize your protocol implementation
 
 ## Statement
 ### All development is for learning, please do not use it for illegal purposes
@@ -39,8 +47,34 @@ GNU General Public License v3.0
 ### Derivative software needs to declare and quote
 
 - If the software package released by RW-HPS is quoted without modifying RW-HPS, the derivative project shall mention the use of RW-HPS in any part of the description。
-- If the RW-HPS source code is modified and then released，**Or refer to the internal implementation of RW-HPS to release another project**，Then the derivative project must be**article head**or 'RW-HPS' related information**first Appearance**s position**clearly stated**from This Warehouse (`https://github.com/RW-HPS/RW-HPS`)。Don’t distort or hide the fact that it’s free and open source。
+- If the RW-HPS source code is modified and then released，**Or refer to the internal implementation of RW-HPS to release another project**，Then the derivative project must be**article head**or 'RW-HPS' related information**first Appearance**s position**clearly stated**from This Warehouse (`https://github.com/RW-HPS/RW-HPS`) Don’t distort or hide the fact that it’s free and open source。
 
+## Protocol support
+
+<details>
+  <summary>Protocol support List</summary>  
+
+**Message**
+- Team Chat
+- All Chat
+- Map location
+- Forbidden words
+
+**Game**
+- Unit movement
+- Game reconnection
+- Custom map
+
+**Ex**
+- Loading plugins
+- Player jump server(TODO)
+- Map generation unit(TODO)
+
+**Other**
+- BanUUID
+- BanIP
+
+</details>
 
 ## Start
 - Development documentation: [docs](https://github.com/RW-HPS/RW-HPS/wiki)  
@@ -49,7 +83,7 @@ GNU General Public License v3.0
 - Discuss:
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
   > Email contact: dr@der.kim  
-  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (GPLv3)  
+  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)  
   > Telegram Group: [RW-HPS](https://t.me/RW_HPS)  
   >> Tencent QQ: A modern messaging software used by all Chinese netizens.  
 - Mirroring:
@@ -60,16 +94,12 @@ GNU General Public License v3.0
 
 | Configure 		| CPU             | RAM 	| SYSTEM 			| Disk 	| Java      |
 |:--- 		|:---             |:---     |:---           |:---       |:---       |
-| Currently Allocated 	| BCM2711         | 4G      | Ubuntu 19.10  | 500 HDD  | Java 11   |
+| Recommended Configuration 	| ARMv7 Processor rev 5 +  | 128MB      | Linux~  | 64M HDD  | Java 11   |
 | Minimum Configuration 	| ARMv7 Processor rev 5  | 64M      | Linux~  | 64M HDD  | Java 11   |
 
-## Mark Setup
-
-| Configure 		| CPU             | RAM 	| SYSTEM 			| Disk 	| Java      | Gradle    |
-|:--- 		|:---             |:--- 	|:--- 			|:---      	|:---       |:---       |
-| Currently Allocated 	| BCM2711         | 4G 		| Ubuntu 19.10 	| 500G HDD 	| Java 11    | 6.2.2     |
-
 ## Server Command List
+<details>
+  <summary>Server Command List</summary>  
 
 | Command 					 | Parameter 																						 | Information 									 |
 |:--- 					 |:--- 																						 |:--- 									 |
@@ -94,13 +124,19 @@ GNU General Public License v3.0
 | maps          		 |                               	   											 | View Custom Map               			 |
 | reloadmaps          		 |                               	   											 | Reload map               			 |
 | stop          		 |                               	   											 | Stop the server               			 |
+Sorry, maybe more commands have not been added because the document has no time to update
+</details>
 
 
 ## Game Command List
+<details>
+  <summary>Game Command List</summary>  
 
 | Command 			| Parameter 												 | Information 										 |
 |:---           |:--- 												 |:--- 										 |
 | help      |   | Get help 									 |
+There are many commands not shown here. I suggest you test them yourself
+</details>
 
 ## Sponsor
 RW-HPS is an open source project authorized by GPL V3, which is free to use. However, the amount of work required to maintain and develop new features for the project is not sustainable without appropriate funding.  

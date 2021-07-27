@@ -42,13 +42,34 @@ GNU General Public License v3.0
 ### 衍生软件需声明引用
 
 - 若引用 RW-HPS 发布的软件包而不修改 RW-HPS，则衍生项目需在描述的任意部位提及使用 RW-HPS。
-- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/RW-HPS/RW-HPS`)。不得扭曲或隐藏免费且开源的事实。
+- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/RW-HPS/RW-HPS`) 不得扭曲或隐藏免费且开源的事实。
 
 
 ## 协议支持
 
 <details>
-  <summary>支持的协议列表</summary>
+  <summary>支持的协议列表</summary>  
+
+**消息相关**
+- 团队消息
+- 群发消息
+- 地图位置
+- 禁言
+
+**游戏相关**
+- 单位移动
+- 游戏重连
+- 自定义地图
+
+**扩展功能**
+- 加载插件
+- 玩家跳转服务器(TODO)
+- 地图生成单位
+
+**其他**
+- BanUUID
+- BanIP
+
 </details>
 
 ## 开始
@@ -80,7 +101,8 @@ GNU General Public License v3.0
 
 ## 服务器命令列表
 <details>
-  <summary>服务器命令列表</summary>
+  <summary>服务器命令列表</summary>  
+
 | 命令 					 | 参数 																						 | 信息 									 |
 |:--- 					 |:--- 																						 |:--- 									 |
 | help 		              |                                                  										 | 获取帮助 		 |
@@ -104,14 +126,18 @@ GNU General Public License v3.0
 | maps          		 |                               	   											 | 查看Custom Map               			 |
 | reloadmaps          		 |                               	   											 | 重新加载地图               			 |
 | stop          		 |                               	   											 | 停止服务器               			 |
+抱歉 或许有更多的命令没有被加入 因为文档没有时间更新  
 </details>
 
 ## 游戏命令列表
 <details>
-  <summary>客户端命令列表</summary>
+  <summary>客户端命令列表</summary>  
+
 | 命令 			| 参数 												 | 信息 										 |
 |:---           |:--- 												 |:--- 										 |
 | help      |   | 获取帮助 									 |
+这里的命令我建议自己在服务端测试 不多写  
+抱歉 或许有更多的命令没有被加入 因为文档没有时间更新  
 </details>
 
 ## 赞助

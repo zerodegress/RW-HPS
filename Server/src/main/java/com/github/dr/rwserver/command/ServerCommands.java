@@ -39,6 +39,20 @@ public class ServerCommands {
         registerCorex(handler);
         registerInfo(handler);
         registerPlayerCommand(handler);
+
+        handler.<StrCons>register("log", "[a...]","serverCommands.exit", (arg, log) -> {
+            Data.LOGCOMMAND.handleMessage(arg[0],null);
+        });
+
+        handler.<StrCons>register("logg", "<1> <2>","serverCommands.exit", (arg, log) -> {
+            Data.LOGCOMMAND.handleMessage(arg[0]+" "+arg[1],null);
+        });
+
+        handler.<StrCons>register("kc", "<1>","serverCommands.exit", (arg, log) -> {
+            int site = Integer.parseInt(arg[0])-1;
+            Player player = Data.game.playerData[site];
+            player.con.disconnect();
+        });
     }
 
     private void registerCore(CommandHandler handler) {
@@ -92,6 +106,40 @@ public class ServerCommands {
             NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServerBeta(null),157);
             NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacketBeta(),"3.0.0");*/
             //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
+            Threads.newThreadCore(() -> {
+                StartNet startNet = new StartNet();
+                NetStaticData.startNet.add(startNet);
+                startNet.openPort(Data.game.port);
+            });
+            if (Data.config.readBoolean("UDPSupport",false)) {
+                Threads.newThreadCore(() -> {
+                    try {
+                        StartNet startNet = new StartNet();
+                        NetStaticData.startNet.add(startNet);
+                        startNet.startUdp(Data.game.port);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+
+        handler.<StrCons>register("startffa", "serverCommands.start", (arg, log) -> {
+            if (Data.serverChannelB != null) {
+                log.get("The server is not closed, please close");
+                return;
+            }
+            Log.set(Data.config.readString("log","WARN").toUpperCase());
+
+            Data.game = new Rules(Data.config);
+
+            Data.game.init();
+            Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
+            Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
+
+            NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
+            NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacket(),"2.0.0");
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(new ConnectionAgreement()),151);
             Threads.newThreadCore(() -> {
                 StartNet startNet = new StartNet();
                 NetStaticData.startNet.add(startNet);

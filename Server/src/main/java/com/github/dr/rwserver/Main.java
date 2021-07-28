@@ -72,6 +72,8 @@ public class Main {
 		//Data.core.settings.load();
 		Data.core.load();
 
+		//loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
+
 		Log.clog(Data.localeUtil.getinput("server.hi"));
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
@@ -89,7 +91,7 @@ public class Main {
 		Log.clog(Data.localeUtil.getinput("server.load.events"));
 
 		/* 初始化Plugin */
-		PluginManage.init(FileUtil.toFolder(Data.Plugin_Plugins_Path));
+		PluginManage.init(FileUtil.getFolder(Data.Plugin_Plugins_Path));
 		PluginManage.runOnEnable();
 		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
 		PluginManage.runRegisterServerCommands(Data.SERVERCOMMAND);
@@ -112,8 +114,33 @@ public class Main {
 
 		Log.clog("Load Plugin Jar : {0}",PluginManage.getLoadSize());
 
+
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
+	}
+
+	private static void loadCoreJar(String libPath) {
+		LibraryManager lib;
+		if (notIsBlank(libPath)) {
+			lib = new LibraryManager(libPath);
+		} else {
+			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
+		}
+		lib.importLib("io.netty","netty-all","4.1.66.Final");
+		lib.importLib("com.ip2location","ip2location-java","8.5.0");
+		lib.importLib("com.alibaba","fastjson","1.2.58");
+		//lib.importLib("org.bouncycastle","bcprov-jdk15on","1.69");
+		loadKtJar(lib);
+		//lib.importLib("org.quartz-scheduler","quartz","2.3.2");
+		//lib.importLib("com.github.oshi","oshi-core","5.5.0");
+		//lib.importLib("net.java.dev.jna","jna","5.7.0");
+		//lib.importLib("org.slf4j","slf4j-api","1.7.30");
+		lib.loadToClassLoader();
+		lib.removeOldLib();
+	}
+
+	private static void loadKtJar(LibraryManager lib) {
+		//lib.importLib("org.jetbrains.kotlin","bkotlin-stdlib","1.5.21");
 	}
 
 	@SuppressWarnings("InfiniteLoopStatement")
@@ -137,7 +164,7 @@ public class Main {
 					}
 				}
 			} catch (Exception e) {
-				//Log.clog("Error");
+				Log.clog("Error");
 				//e.printStackTrace();
 			}
 		}

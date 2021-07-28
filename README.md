@@ -114,7 +114,7 @@ GNU General Public License v3.0
 | clearbanuuid          		 |                               	   											 | Clear banned uuid               			 |
 | clearbanall          		 |                               	   											 | Empty ban               			 |
 | ban          		 | &lt;PlayerSerialNumber&gt;                                 	   											 | Ban someone               			 |
-| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Clear banned uuid               			 |
+| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Forbid sb from speaking               			 |
 | kick          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Kick               			 |
 | isafk          		 |  &lt;off/on&gt;                             	   											 | Whether to enable AFK               			 |
 | plugins          		 |                               	   											 | View the list of plugins               			 |

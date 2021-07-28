@@ -116,7 +116,7 @@ GNU General Public License v3.0
 | clearbanuuid          		 |                               	   											 | 清除被ban的uuid               			 |
 | clearbanall          		 |                               	   											 | 清空ban               			 |
 | ban          		 | &lt;PlayerSerialNumber&gt;                                 	   											 | 禁止某人               			 |
-| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 清除被ban的uuid               			 |
+| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 禁言某人               			 |
 | kick          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 踢出               			 |
 | isafk          		 |  &lt;off/on&gt;                             	   											 | 是否启用AFK               			 |
 | plugins          		 |                               	   											 | 查看插件列表               			 |

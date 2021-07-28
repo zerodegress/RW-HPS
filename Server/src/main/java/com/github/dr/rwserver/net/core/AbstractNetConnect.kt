@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nls
 import kotlin.Throws
 import java.io.IOException
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
-import okhttp3.internal.cache2.Relay
 import org.intellij.lang.annotations.JdkConstants.BoxLayoutAxis
 
 /**
@@ -190,6 +189,17 @@ interface AbstractNetConnect {
      * @param gzip GzipPacket
      */
     fun sendTeamData(gzip: GzipEncoder)
+
+    /**
+     * Server类型
+     * @param msg RelayID
+     */
+    fun sendRelayServerType(msg: String)
+
+    /**
+     * 类型回复
+     */
+    fun sendRelayServerTypeReply(packet: Packet)
 
     /**
      * 获取玩家的信息并注册

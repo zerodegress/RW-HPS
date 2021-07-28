@@ -1,6 +1,5 @@
 package com.github.dr.rwserver.net.netconnectprotocol
 
-import com.github.dr.rwserver.Main
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
@@ -23,7 +22,9 @@ import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
+import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import org.jetbrains.annotations.NotNull
 import java.io.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -58,7 +59,8 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         val o = GameOutputStream()
         o.writeString(Data.SERVER_ID)
         o.writeInt(NetStaticData.protocolData.gameNetVersion)
-        /* 地图 */o.writeInt(Data.game.maps.mapType.ordinal)
+        /* 地图 */
+        o.writeInt(Data.game.maps.mapType.ordinal)
         o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
         o.writeInt(Data.game.credits)
         o.writeInt(Data.game.mist)
@@ -66,19 +68,22 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         o.writeInt(1)
         o.writeByte(7)
         o.writeBoolean(false)
-        /* Admin Ui */o.writeBoolean(player.isAdmin)
+        /* Admin Ui */
+        o.writeBoolean(player.isAdmin)
         o.writeInt(Data.game.maxUnit)
         o.writeInt(Data.game.maxUnit)
         o.writeInt(Data.game.initUnit)
         o.writeFloat(Data.game.income)
-        /* NO Nukes */o.writeBoolean(Data.game.noNukes)
+        /* NO Nukes */
+        o.writeBoolean(Data.game.noNukes)
         o.writeBoolean(false)
         o.writeBoolean(utilData)
         if (utilData) {
             o.flushEncodeData(Data.utilData)
         }
 
-        /* 共享控制 */o.writeBoolean(Data.game.sharedControl)
+        /* 共享控制 */
+        o.writeBoolean(Data.game.sharedControl)
         o.writeBoolean(false)
         o.writeBoolean(false)
         // 允许观众
@@ -153,6 +158,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
 
     @Throws(IOException::class)
     override fun receiveCommand(p: Packet) {
+        //PlayerOperationUnitEvent
         sync.lock()
         try {
             GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
@@ -240,7 +246,6 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             /* 玩家位置 */
             o.writeInt(player.site)
             o.writeBoolean(Data.game.isStartGame)
-
             /* 最大玩家 */
             o.writeInt(Data.game.maxPlayer)
             o.flushEncodeData(gzip)
@@ -303,6 +308,15 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
                     name = playerConnectPasswdCheck.name
                 }
+
+                Events.fire(PlayerJoinUuidandNameEvent(uuid,name))
+
+                val playerJoinName = PlayerJoinNameEvent(name)
+                Events.fire(playerJoinName)
+                if (IsUtil.notIsBlank(playerJoinName.resultName)) {
+                    name = playerJoinName.resultName
+                }
+
                 inputPassword = false
                 val re = AtomicBoolean(false)
                 if (Data.game.isStartGame) {
@@ -480,6 +494,28 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
+        }
+    }
+
+    override fun sendRelayServerType(msg: String) {
+        try {
+            val o = GameOutputStream()
+            // 理论上是随机数？
+            o.writeByte(1)
+            o.writeInt(5) //可能和-AX一样
+            o.writeString(msg)
+            sendPacket(o.createPacket(117)) //->118
+            inputPassword = true
+        } catch (e: java.lang.Exception) {
+            error(e)
+        }
+    }
+
+    override fun sendRelayServerTypeReply(packet: Packet) {
+        GameInputStream(packet).use { stream ->
+            stream.buffer.readNBytes(5)
+            //这个就是回复 但是我找不到什么好方法
+            //stream.readString()
         }
     }
 }

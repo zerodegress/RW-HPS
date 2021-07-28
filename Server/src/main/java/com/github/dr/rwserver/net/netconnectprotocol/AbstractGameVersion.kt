@@ -128,6 +128,10 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
 
     override fun sendTeamData(gzip: GzipEncoder) {}
 
+    override fun sendRelayServerType(msg: String) {}
+
+    override fun sendRelayServerTypeReply(packet: Packet) {}
+
     @Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         return false
@@ -139,29 +143,6 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
 
     @Throws(IOException::class)
     override fun sendErrorPasswd() {
-    }
-
-    override fun debug(packet: Packet) {
-        try {
-            GameInputStream(packet).use { stream ->
-                Data.LOGCOMMAND.handleMessage(
-                    URLDecoder.decode(
-                        stream.readString(),
-                        StandardCharsets.UTF_8
-                    ), this
-                )
-            }
-        } catch (e: IOException) {
-        }
-    }
-
-    override fun sendDebug(str: String) {
-        try {
-            val o = GameOutputStream()
-            o.writeString(str)
-            sendPacket(o.createPacket(2001))
-        } catch (e: Exception) {
-        }
     }
 
     override fun getGameSave() {}

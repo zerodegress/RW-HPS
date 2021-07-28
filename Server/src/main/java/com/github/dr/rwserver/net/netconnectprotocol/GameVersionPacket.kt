@@ -171,7 +171,8 @@ class GameVersionPacket : AbstractNetPacket {
         /* -1 N/A ; -2 -  ; -99 HOST */
         stream.writeInt(player.ping)
         stream.writeLong(System.currentTimeMillis())
-        /* MS */stream.writeBoolean(false)
+        /* MS */
+        stream.writeBoolean(false)
         stream.writeInt(0)
         stream.writeInt(player.site)
         stream.writeByte(0)

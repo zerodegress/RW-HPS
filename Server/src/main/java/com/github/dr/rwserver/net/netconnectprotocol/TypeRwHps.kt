@@ -31,6 +31,9 @@ class TypeRwHps : TypeConnect {
                 PacketType.PACKET_ACCEPT_START_GAME -> con.player!!.start = true
                 PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
                 PacketType.PACKET_SYNC -> Data.game.gameSaveCache = packet
+
+                118 -> con.sendRelayServerTypeReply(packet)
+
                 else -> {
                 }
             }

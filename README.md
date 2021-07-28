@@ -10,7 +10,7 @@
 ### **It is currently in KT rewriting status. Welcome to rewrite and submit pr**
 
 ## what is it?
-This is a server based on the Rusted Warfare . You can run it on any Linux device, just install Java
+This is a server based on the Rusted Warfare . You can run it on any device that can run Java 11
 ### What can it do
 You can do a lot of interesting things on this server  
 It can do most of the things you can do in a normal game  

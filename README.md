@@ -139,7 +139,7 @@ There are many commands not shown here. I suggest you test them yourself
 </details>
 
 ## Sponsor
-RW-HPS is an open source project authorized by GPL V3, which is free to use. However, the amount of work required to maintain and develop new features for the project is not sustainable without appropriate funding.  
+RW-HPS is an open source project authorized by AGPL V3, which is free to use. However, the amount of work required to maintain and develop new features for the project is not sustainable without appropriate funding.  
 Please note that sponsorship is entirely voluntary. Sponsors are not privileged and can use all features without sponsorship.
 
 We receive donations through the following channels：

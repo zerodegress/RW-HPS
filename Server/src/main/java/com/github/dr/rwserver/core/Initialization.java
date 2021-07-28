@@ -106,7 +106,7 @@ public class Initialization {
 		}
 		try {
 			Data.ip2Location = new IP2Location();
-			Data.ip2Location.Open(FileUtil.toFolder(Data.Plugin_Data_Path).toPath("IP.bin").getPath(), true);
+			Data.ip2Location.Open(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("IP.bin").getPath(), true);
 		} catch (IOException e) {
 			Log.error("IP-LOAD ERR",e);
 		}

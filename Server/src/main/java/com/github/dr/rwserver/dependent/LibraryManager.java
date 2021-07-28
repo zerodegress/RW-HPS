@@ -50,7 +50,7 @@ public class LibraryManager {
         } else {
             URL = "https://repo1.maven.org/maven2";
         }
-        this.PATH = FileUtil.toFolder(path).getPath();
+        this.PATH = FileUtil.getFolder(path).getPath();
     }
 
     /**

@@ -7,6 +7,7 @@ import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.alone.annotations.DidNotFinish;
+import com.github.dr.rwserver.util.alone.annotations.NeedHelp;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.io.IoReadConversion;
 import com.github.dr.rwserver.util.log.Log;
@@ -31,6 +32,7 @@ import static com.github.dr.rwserver.mods.ModsLoadUtil.checkForInclusion;
  * Mods加载
  * @author Dr
  */
+@NeedHelp
 @DidNotFinish
 @Deprecated(forRemoval = false)
 public class ModsLoad {

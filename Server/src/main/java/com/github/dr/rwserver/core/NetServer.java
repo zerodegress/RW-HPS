@@ -58,7 +58,7 @@ public class NetServer {
         Data.game.re();
         Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
         Data.game.isStartGame = false;
-        FileUtil fileUtil = FileUtil.toFolder(Data.Plugin_Log_Path).toPath("Log.txt");
+        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
         fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
 
         Log.clog("Server Gameover completed");

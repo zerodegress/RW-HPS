@@ -58,4 +58,16 @@ class EventType {
 
     /** 玩家被解banIp  */
     class PlayerIpUnbanEvent(val ip: String)
+
+    /** 玩家加入时的名字过滤 */
+    class PlayerJoinNameEvent(val name: String) {
+        @JvmField
+        var resultName = ""
+    }
+
+    /** 玩家操作单位事件 */
+    class PlayerOperationUnitEvent(val player: Player, val playerUnit: EventLambdaType.PlayerUnit)
+
+    /** 玩家进入的UUID/NAME */
+    class PlayerJoinUuidandNameEvent(val uuid: String,val  name: String)
 }

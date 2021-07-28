@@ -172,7 +172,7 @@ public class Rules {
     }
 
     public void checkMaps() {
-        Seq<File> list = FileUtil.toFolder(Data.Plugin_Maps_Path).getFileListNotNullSize();
+        Seq<File> list = FileUtil.getFolder(Data.Plugin_Maps_Path).getFileListNotNullSize();
         list.each(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));

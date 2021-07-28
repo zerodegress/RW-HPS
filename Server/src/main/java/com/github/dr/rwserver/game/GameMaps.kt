@@ -1,7 +1,7 @@
 package com.github.dr.rwserver.game
 
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.util.file.FileUtil.Companion.toFolder
+import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder
 
@@ -85,17 +85,17 @@ class GameMaps {
          * 读取地图到内部bytes
          */
         fun readMap() {
-            val fileUtil = toFolder(Data.Plugin_Maps_Path)
+            val fileUtil = getFolder(Data.Plugin_Maps_Path)
             when (mapFileType) {
                 MapFileType.file -> try {
-                    bytesMap = fileUtil.toPath(mapFileName + type).readFileByte()
+                    bytesMap = fileUtil.toFile(mapFileName + type).readFileByte()
                     mapSize = bytesMap!!.size
                 } catch (e: Exception) {
                     error("Read Map Bytes Error", e)
                 }
                 MapFileType.zip -> try {
                     bytesMap =
-                        ZipDecoder(fileUtil.toPath(zipFileName!!).file).getTheFileBytesOfTheSpecifiedSuffixInTheZip(this)
+                        ZipDecoder(fileUtil.toFile(zipFileName!!).file).getTheFileBytesOfTheSpecifiedSuffixInTheZip(this)
                     mapSize = bytesMap!!.size
                 } catch (e: Exception) {
                     error("Read Map Bytes Error", e)

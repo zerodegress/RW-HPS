@@ -7,14 +7,16 @@ sourceCompatibility=11
 targetCompatibility=11
 
 dependencies {
-	implementation group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
-	implementation group: 'com.ip2location', name: 'ip2location-java', version: '8.5.0'
-	implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.58'
-	implementation (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
+	// Gradle : compileOnly -> implementation
+	// compileOnly is Test
+	compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
+	compileOnly group: 'com.ip2location', name: 'ip2location-java', version: '8.5.0'
+	compileOnly group: 'com.alibaba', name: 'fastjson', version: '1.2.58'
+	compileOnly (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
 		exclude group: "org.jetbrains.kotlin"
 	}
-	implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
-	implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
+	compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
+	compileOnly group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
 	//implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.69'
 
 }

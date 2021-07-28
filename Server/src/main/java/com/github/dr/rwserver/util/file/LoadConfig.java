@@ -21,12 +21,12 @@ public final class LoadConfig {
     private final FileUtil fileUtil;
 
     public LoadConfig(String file,boolean isFile) {
-        fileUtil = isFile ? FileUtil.toFolder(file) : new FileUtil(file);
+        fileUtil = isFile ? FileUtil.getFolder(file) : new FileUtil(file);
         reLoadConfig();
     }
 
     public LoadConfig(String file,String name) {
-        fileUtil = FileUtil.toFolder(file).toPath(name);
+        fileUtil = FileUtil.getFolder(file).toFile(name);
         reLoadConfig();
     }
 

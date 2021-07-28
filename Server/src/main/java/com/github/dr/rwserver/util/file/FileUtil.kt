@@ -1,19 +1,42 @@
 package com.github.dr.rwserver.util.file
 
-import com.github.dr.rwserver.func.VoidCons
+import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.file.FileStream.Companion.readFileListString
+import com.github.dr.rwserver.util.file.FileStream.Companion.readFileString
 import com.github.dr.rwserver.util.io.IoOutConversion.fileToOutStream
 import com.github.dr.rwserver.util.io.IoOutConversion.fileToStream
 import com.github.dr.rwserver.util.io.IoRead.readFileToByteArray
 import com.github.dr.rwserver.util.io.IoReadConversion.fileToReadStream
 import com.github.dr.rwserver.util.io.IoReadConversion.fileToStream
-import com.github.dr.rwserver.util.io.IoReadConversion.streamBufferRead
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
 import java.io.*
 
 /**
+ * FileUtil()均代指实例 FileUtil. 代指静态方法
+ * 推荐使用教程
+ * FileUtil.getFile(文件名) 因为不会创建文件 同时 位置和Jar同目录
+ * FileUtil.getFolder(文件夹名) 因为不会创建文件 只会创建目录
+ * FileUtil.getFolder(文件夹名).toFile(文件名) 只会创建目录
+ *
+ *
+ * FileUtil的三个实例什么都不会做 也不会创建目录和文件
+ * 如果需要先目录再文件 那么用FileUtil.toFolder(文件夹名).toFile(文件名)
+ * 如果需要先进入多个目录 那么用FileUtil.toFolder(文件夹名).toFolder(文件夹名)
+ *
+ * 只有使用FileUtil().read/Write时才会进行文件创建
+ *
+ * 注意:
+ * FileUtil.toFolder初始目录是Server.jar的目录或者Main提交的参数目录
+ * toFolder只是起一个进入作用
+ * FileUtil().mkdir()会创建文件夹并尝试创建文件
+ * FileUtil().createNewFile()会尝试创建文件
+ * 欢迎提交修改
+ */
+/**
+ * Server文件处理核心
  * @author Dr
  */
 class FileUtil {
@@ -26,25 +49,26 @@ class FileUtil {
     constructor(file: File) {
         this.file = file
         this.path = file.path
-        mkdir()
     }
 
     constructor(filepath: String) {
         this.path = filepath
         file = File(filepath)
-        mkdir()
     }
 
     private constructor(file: File, filepath: String) {
         this.file = file
         this.path = filepath
-        mkdir()
     }
 
     private constructor(file: File, filepath: String, a: String) {
         this.file = file
         this.path = filepath
         file.mkdirs()
+    }
+
+    fun exists(): Boolean {
+        return file.exists()
     }
 
     fun notExists(): Boolean {
@@ -55,9 +79,19 @@ class FileUtil {
         return file.length()
     }
 
-    fun toPath(filename: String): FileUtil {
+    fun toFile(filename: String): FileUtil {
         //info(this.path + "/" + filename)
         return FileUtil(File(this.path + "/" + filename))
+    }
+
+    fun toFolder(filename: String): FileUtil {
+        var to = this.path
+        if ("/" == filename[0].toString()) {
+            to += filename.substring(1, filename.length)
+        } else {
+            this.path + "/" + filename
+        }
+        return FileUtil(File(to),to,"")
     }
 
     val fileList: Seq<File>
@@ -76,6 +110,7 @@ class FileUtil {
             }
             return fileList
         }
+
     val fileListNotNullSize: Seq<File>
         get() {
             val list = Seq<File>()
@@ -89,6 +124,7 @@ class FileUtil {
      * @param cover 是否尾部写入
      */
     fun writeFile(log: Any, cover: Boolean) {
+        mkdir()
         try {
             fileToOutStream(file, cover).use { osw ->
                 osw.write(log.toString())
@@ -100,6 +136,7 @@ class FileUtil {
     }
 
     fun writeFileByte(bytes: ByteArray, cover: Boolean) {
+        mkdir()
         try {
             BufferedOutputStream(FileOutputStream(file, cover)).use { osw ->
                 osw.write(bytes)
@@ -111,25 +148,31 @@ class FileUtil {
     }
 
     @Throws(Exception::class)
-    fun writeByteOutputStream(cover: Boolean): OutputStream {
+    fun writeByteOutputStream(cover: Boolean): FileOutputStream {
+        mkdir()
         return fileToStream(file, cover)
     }
 
-    @get:Throws(IOException::class)
-    val inputsStream: FileInputStream
-        get() = fileToStream(file)
+    @Throws(IOException::class)
+    fun getInputsStream(): FileInputStream {
+        mkdir()
+        return fileToStream(file)
+    }
 
     @Throws(IOException::class)
     fun readInputsStream(): InputStreamReader {
+        mkdir()
         return fileToReadStream(file)
     }
 
     @Throws(Exception::class)
     fun readFileByte(): ByteArray {
+        mkdir()
         return readFileToByteArray(file)
     }
 
     fun readFileStringData(): String {
+        mkdir()
         try {
             FileInputStream(file).use { fileInputStream -> return readFileString(fileInputStream) }
         } catch (fileNotFoundException: FileNotFoundException) {
@@ -141,6 +184,7 @@ class FileUtil {
     }
 
     fun readFileListStringData(): Seq<String> {
+        mkdir()
         try {
             FileInputStream(file).use { fileInputStream -> return readFileListString(fileInputStream) }
         } catch (fileNotFoundException: FileNotFoundException) {
@@ -151,8 +195,27 @@ class FileUtil {
         return Seq()
     }
 
-    private fun mkdir() {
+    fun mkdir() {
         file.parentFile.mkdirs()
+
+        if (file.isDirectory) {
+            return
+        }
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile()
+            } catch (e: IOException) {
+                Log.error("Mk file", e)
+            }
+        }
+    }
+
+    fun createNewFile() {
+        if (file.isDirectory) {
+            return
+        }
+
         if (!file.exists()) {
             try {
                 file.createNewFile()
@@ -193,9 +256,14 @@ class FileUtil {
             }
         }
 
+        /**
+         * 进入目录
+         * @param toFile String?
+         * @return FileUtil
+         */
         @JvmStatic
 		@JvmOverloads
-        fun toFolder(toFile: String? = null): FileUtil {
+        fun getFolder(toFile: String? = null): FileUtil {
             val filepath: String
             var to = toFile
             if (null != toFile) {
@@ -216,32 +284,28 @@ class FileUtil {
         }
 
         @JvmStatic
-        fun readFileString(inputStream: InputStream): String {
-            val result = StringBuilder()
-            readFileData(inputStream) { e: String ->
-                result.append(e).append("\r\n")
-            }
-            return result.toString()
+        fun getFile(toFile: String): FileUtil {
+            return FileUtil(File(defaultFilePath + toFile))
         }
 
         @JvmStatic
-		fun readFileListString(inputStream: InputStream): Seq<String> {
-            val result = Seq<String>()
-            readFileData(inputStream) { value: String -> result.add(value) }
-            return result
+        fun getTempFile(prefix: String): FileUtil {
+            return getFolder(Data.Plugin_Cache_Path).toFile(prefix)
         }
 
-        private fun readFileData(inputStream: InputStream, voidCons: VoidCons<String>) {
-            try {
-                streamBufferRead(inputStream).use { br ->
-                    var line: String?
-                    while (br.readLine().also { line = it } != null) {
-                        voidCons[line]
-                    }
-                }
-            } catch (e: IOException) {
-                error("[Read File] Error", e)
-            }
+        @JvmStatic
+        fun getTempDirectory(prefix: String): FileUtil {
+            return getFolder(Data.Plugin_Cache_Path).toFolder(prefix)
+        }
+
+        @JvmStatic
+        fun readFileString(inputStream: InputStream): String {
+            return FileStream.readFileString(inputStream)
+        }
+
+        @JvmStatic
+        fun readFileListString(inputStream: InputStream): Seq<String> {
+            return FileStream.readFileListString(inputStream)
         }
     }
 }

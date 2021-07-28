@@ -42,6 +42,8 @@ class AbstractPluginData {
      */
     public void setFileUtil(FileUtil fileUtil) {
         this.fileUtil = fileUtil;
+        fileUtil.createNewFile();
+        this.read();
     }
 
     /**

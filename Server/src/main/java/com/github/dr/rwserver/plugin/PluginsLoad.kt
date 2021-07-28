@@ -116,7 +116,7 @@ class PluginsLoad {
 
         init {
             main.pluginData.setFileUtil(
-                FileUtil.toFolder(Data.Plugin_Plugins_Path).toPath(this.name).toPath(this.name + ".bin")
+                FileUtil.getFolder(Data.Plugin_Plugins_Path).toFile(this.name).toFile(this.name + ".bin")
             )
             try {
                 main.pluginData.read()

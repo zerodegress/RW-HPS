@@ -65,7 +65,7 @@ public class PluginCenter {
             if (!new GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
                 log.get("Plugin版本不兼容 Plugin名字为: {0}",json.getData("name"));
             } else {
-                downUrl(url+json.getData("name")+".jar", FileUtil.toFolder(Data.Plugin_Plugins_Path).toPath(json.getData("name")+".jar").getFile());
+                downUrl(url+json.getData("name")+".jar", FileUtil.getFolder(Data.Plugin_Plugins_Path).toFile(json.getData("name")+".jar").getFile());
                 log.get("安装完成 请重启服务器");
             }
         });

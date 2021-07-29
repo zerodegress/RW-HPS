@@ -84,7 +84,8 @@ GNU General Public License v3.0
   > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
   > Email contact: dr@der.kim  
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)  
-  > Telegram Group: [RW-HPS](https://t.me/RW_HPS)  
+  > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>  
+  > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)
   >> Tencent QQ: A modern messaging software used by all Chinese netizens.  
 - Mirroring:
   > [Github](https://github.com/RW-HPS/RW-HPS)  

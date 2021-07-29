@@ -80,7 +80,8 @@ GNU General Public License v3.0
   > 在 GitHub Discussions 提出的问题会收到回复, 也欢迎分享你基于项目的新想法  
   > 邮件联系: dr@der.kim  
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)    
-  > Telegram Group: [RW-HPS](https://t.me/RW_HPS)  
+  > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>  
+  > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)
 - 镜像:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
   > [Gitee](https://gitee.com/derdct/RW-HPS)  

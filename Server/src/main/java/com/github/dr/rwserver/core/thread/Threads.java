@@ -42,11 +42,12 @@ public class Threads {
 	 * @param timeUnit 时间单位
 	 */
 	public static void newThreadService(Runnable run,int endTime,TimeUnit timeUnit,String nameID) {
-		ScheduledFutureData.put(nameID,SERVICE.schedule(run,endTime,timeUnit));
+		final ScheduledFuture<?> sub = ScheduledFutureData.put(nameID, SERVICE.schedule(run, endTime, timeUnit));
 	}
 
 	public static void newThreadService2(Runnable run,int startTime,int endTime,TimeUnit timeUnit,String nameID) {
-		ScheduledFutureData.put(nameID,SERVICE.scheduleAtFixedRate(run,startTime,endTime,timeUnit));
+		final ScheduledFuture<?> sub = ScheduledFutureData.put(nameID, SERVICE.scheduleAtFixedRate(run, startTime, endTime, timeUnit));
+		SERVICE.cancelSchedule(sub);
 	}//!Threads.getIfScheduledFutureData("AfkCountdown")
 
 	public static void removeScheduledFutureData(String name) {

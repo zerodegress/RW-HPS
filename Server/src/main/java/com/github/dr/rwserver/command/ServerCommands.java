@@ -13,7 +13,8 @@ import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.net.game.StartNet;
-import com.github.dr.rwserver.net.netconnectprotocol.*;
+import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
+import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -263,6 +264,23 @@ public class ServerCommands {
 
         handler.<StrCons>register("exit", "serverCommands.exit", (arg, log) -> {
             Core.exit();
+        });
+        handler.<StrCons>register("msg", "<text>","serverCommands.say", (arg, log) -> {
+            if(Data.playerGroup.isEmpty()) Log.clog("没有玩家");
+            else {
+                Data.playerGroup.each(e -> e.sendSystemMessage(arg[0]));
+                Log.clog("已发送信息 "+arg[0]);
+            }
+        });
+
+        handler.<StrCons>register("timer", "<f/n>","serverCommands.timer", (arg, log) -> {
+            if(Threads.getIfScheduledFutureData("play-time")){
+                if(!"-f".equals(arg[0])){
+                    Log.clog("游戏计时线任务存在，使用 -f 覆盖");
+                    return;
+                }
+            }
+            GameTimeLapse.curr.refresh();
         });
     }
 }

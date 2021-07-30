@@ -9,15 +9,15 @@ import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.data.plugin.PluginManage;
-import com.github.dr.rwserver.dependent.LibraryManager;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.Event;
 import com.github.dr.rwserver.game.EventType;
+import com.github.dr.rwserver.net.game.YouXiBan;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
+import com.github.dr.rwserver.plugin.UpList;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.Convert;
 import com.github.dr.rwserver.util.encryption.Autograph;
-import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -30,8 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
 
 /**
  * @author Dr
@@ -98,9 +96,12 @@ public class Main {
 		PluginManage.runInit();
 
 		Log.clog("Load Plugin Jar : {0}",PluginManage.getLoadSize());
-
 		/* 默认直接启动服务器 */
+		new YouXiBan().registerServerCommands(Data.SERVERCOMMAND);
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
+		new UpList().registerServerCommands(Data.SERVERCOMMAND);
+		Data.SERVERCOMMAND.handleMessage("upserverlist",(StrCons) Log::clog);
+		Data.SERVERCOMMAND.handleMessage("timer n",(StrCons) Log::clog);
 	}
 
 	@SuppressWarnings("InfiniteLoopStatement")

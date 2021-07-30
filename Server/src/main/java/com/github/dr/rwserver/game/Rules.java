@@ -4,7 +4,6 @@ import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
@@ -134,7 +133,7 @@ public class Rules {
         oneAdmin = config.readBoolean("oneAdmin",true);
         ipCheckMultiLanguageSupport = config.readBoolean("iPCheckMultiLanguageSupport",false);
 
-        reConnect = config.readBoolean("reConnect",false);
+        reConnect = config.readBoolean("reConnect",true);
         winOrLose = config.readBoolean("winOrLose",false);
         winOrLoseTime = config.readInt("winOrLoseTime",30000);
 

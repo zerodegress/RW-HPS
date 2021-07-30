@@ -60,7 +60,7 @@ public class Time {
     }
 
     public static String getUtcMilliFormat(int fot) {
-        return format(getUtcTime(),fot);
+        return format(System.currentTimeMillis(),fot);
     }
 
     private static String format(final long gmt, final int fot){

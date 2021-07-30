@@ -1,7 +1,6 @@
 package com.github.dr.rwserver.net.netconnectprotocol;
 
 
-import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
@@ -15,15 +14,17 @@ import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
+import com.github.dr.rwserver.util.MyIp;
 import com.github.dr.rwserver.util.PacketType;
-import com.github.dr.rwserver.util.encryption.Game;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
 import com.ip2location.IPResult;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -136,6 +137,12 @@ public class GameVersionServer extends AbstractGameVersion {
         GameOutputStream o = new GameOutputStream();
         o.writeString(reason);
         sendPacket(o.createPacket(PacketType.PACKET_KICK));
+        Log.clog("被踢 导致断开:");
+        try{
+            Log.clog(getPlayer().name);
+        }catch (Exception e){
+
+        }
         disconnect();
     }
 
@@ -425,7 +432,8 @@ public class GameVersionServer extends AbstractGameVersion {
             if (notIsBlank(Data.game.enterAd)) {
                 sendSystemMessage(Data.game.enterAd);
             }
-            Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name));
+            sendSystemMessage("重连地址："+ MyIp.myIpv4 + ":"+ Data.game.port);
+//            Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name));
             if (re.get()) {
                 reConnect();
             }

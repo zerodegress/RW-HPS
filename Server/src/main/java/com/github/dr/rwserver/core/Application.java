@@ -25,7 +25,7 @@ public final class Application {
     public Seq<String> unitBase64;
     public Administration admin;
 
-    public String serverName = "RW-HPS";
+    public String serverName = "m3ua";
     public float defIncome = 1f;
 
     public Application() {

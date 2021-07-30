@@ -139,6 +139,12 @@ public class StartNet {
         Channel channel = ctx.channel();
         AbstractNetConnect con = OVER_MAP.get(channel.id().asLongText());
         if (con != null) {
+            Log.clog("超时未写出.. 导致断开:");
+            try{
+                Log.clog(con.getPlayer().name);
+            }catch (RuntimeException e){
+
+            }
             con.disconnect();
             ctx.close();
         }

@@ -75,6 +75,12 @@ class StartGameNetUdp {
                     return;
                 }
             }
+            Log.clog("socket 关闭 导致断开:");
+            try{
+                Log.clog(conFinal.getPlayer().name);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             conFinal.disconnect();
             startNet.OVER_MAP.remove(sockAds.toString());
         });

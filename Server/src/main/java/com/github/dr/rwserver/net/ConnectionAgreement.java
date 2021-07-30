@@ -30,6 +30,7 @@ public class ConnectionAgreement {
      * @param channel Netty-Channel
      */
     public ConnectionAgreement(Channel channel) {
+        channel.pipeline();
         protocolType = channel::writeAndFlush;
         object = channel;
         useAgreement = "TCP";

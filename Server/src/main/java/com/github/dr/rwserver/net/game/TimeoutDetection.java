@@ -2,6 +2,7 @@ package com.github.dr.rwserver.net.game;
 
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.Time;
+import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.threads.ThreadFactoryName;
 
 import java.util.concurrent.*;
@@ -40,6 +41,11 @@ class TimeoutDetection {
         public void run() {
             startNet.OVER_MAP.each((k,v) -> {
                 if (checkTimeoutDetection(startNet,v)) {
+                    Log.clog("超时断开 导致断开:");
+                    try{
+                        Log.clog(v.getPlayer().name);
+                    }catch (Exception e){
+                    }
                     v.disconnect();
                     startNet.OVER_MAP.remove(k);
                 }

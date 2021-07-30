@@ -2,7 +2,6 @@ package com.github.dr.rwserver.game;
 
 import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.NetServer;
-import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType.*;
@@ -112,7 +111,7 @@ public class Event {
                 Call.sendSystemMessage("player.dis",e.player.name);
                 Call.sendTeamData();
             } else {
-               Call.sendSystemMessage("player.disNoStart",e.player.name);
+//               Call.sendSystemMessage("player.disNoStart",e.player.name);
             }
         });
 

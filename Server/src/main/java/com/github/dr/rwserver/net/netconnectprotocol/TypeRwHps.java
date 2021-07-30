@@ -7,6 +7,7 @@ import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.util.PacketType;
 import com.github.dr.rwserver.util.Time;
+import com.github.dr.rwserver.util.log.Log;
 
 public class TypeRwHps implements TypeConnect {
     @Override
@@ -24,6 +25,12 @@ public class TypeRwHps implements TypeConnect {
                 // 注册用户
                 case PacketType.PACKET_PLAYER_INFO:
                     if (!con.getPlayerInfo(packet)) {
+                        Log.clog("注册断开 导致断开:");
+                        try{
+                            Log.clog(con.getPlayer().name);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                         con.disconnect();
                     }
                     break;
@@ -38,6 +45,11 @@ public class TypeRwHps implements TypeConnect {
                     break;
                 // 玩家主动断开连接
                 case PacketType.PACKET_DISCONNECT:
+                    Log.clog("主动断开:");
+                    try{
+                        Log.clog(con.getPlayer().name);
+                    }catch (Exception e){
+                    }
                     con.disconnect();
                     break;
                 case PacketType.PACKET_ACCEPT_START_GAME:

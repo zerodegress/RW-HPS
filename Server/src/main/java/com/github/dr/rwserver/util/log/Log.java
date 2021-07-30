@@ -1,5 +1,7 @@
 package com.github.dr.rwserver.util.log;
 
+import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.net.game.KongZhi;
 import com.github.dr.rwserver.util.Time;
 
 import java.io.PrintWriter;
@@ -193,6 +195,8 @@ public class Log {
 				" UTC] " +
 				text;
         System.out.println(formatColors(text+"&fr"));
+        if(null!= Data.config)
+		KongZhi.broadCast(text);
 	}
 
 	public static void clog(String text,Object... obj) {

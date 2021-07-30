@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>铁锈战争控制台</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/table.js"></script>
+    <style>
+        *{
+            margin: 0 auto;
+        }
+        .btn{
+            background-color: rgba(175, 248, 219, 0.53);
+            transition: 1s linear;
+            box-shadow:1px 3px 10px 2px rgb(144 144 144 / 29%);
+            height: 50px;
+            line-height: 50px;
+            font-size: 20px;
+            color: #250a57;
+            padding: 5px 8px;
+            user-select: none;
+        }
+        .des{
+            background-color: rgb(248, 175, 247);
+            transition: 1s linear;
+            box-shadow:1px 3px 10px 2px rgb(144 144 144 / 29%);
+
+            color: #250a57;
+            padding: 5px 8px;
+            user-select: none;
+        }
+        .para{
+            background-color: rgb(238, 87, 147);
+            transition: 1s linear;
+            box-shadow:1px 3px 10px 2px rgb(144 144 144 / 29%);
+            color: #250a57;
+            padding: 5px 8px;
+            user-select: none;
+        }
+        .btn:hover{
+            background-color: #7fffc8;
+            transition: 1s linear;
+            cursor: pointer;
+            user-select: none;
+        }
+        .des:hover{
+            background-color: #e735a9;
+            transition: 1s linear;
+            cursor: pointer;
+            user-select: none;
+        }
+        .bord-with{
+            width: 810px;
+        }
+        .board{
+
+            color: #dbe6f8;
+            padding: 10px;
+        }
+        #cmTab{
+            width: 600px;
+            display: inline-block;
+            border-left: 3px solid #ababab;
+            background-color: #f0f8ffaa;
+        }
+        .cmdEl{
+            margin: 0 3px;
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            font-size: 15px;
+        }
+        .block-cover div{
+            background-color:#333333aa;
+            transition: 1s linear;
+        }
+           input:focus{
+               outline: 0;
+               border: 1px solid #c5ff00;
+               box-shadow: 2px 2px 5px 4px #aaaaaa1a;
+               transition: 0.5s linear;
+           }
+           input {
+               height: 19px;
+               /*很关键：将默认的select选择框样式清除*/
+               appearance: none;
+               -moz-appearance: none;
+               -webkit-appearance: none;
+               padding: 5px 8px;
+               box-shadow: 2px 2px 5px 4px #5555551a;
+               border: 1px solid #9cc318;
+               border-radius: 0;
+               transition: 0.5s linear;
+               color: #494949;
+           }
+           .darken{
+               background-color: #5555552a;
+               transition: 0.5s linear;
+           }
+           .darken:hover{
+               background-color: #aaaaaa2a;
+               transition: 0.5s linear;
+           }
+    </style>
+</head>
+<body background="https://i.loli.net/2021/07/23/lHmwVns1AQxqXOC.jpg">
+<div class="bord-with">
+    <div style="width: 200px;display: inline-block">
+        <form id="form" class="bord-with">
+            <input id="a" name="a" style="height: 27px" type="password"/>
+            <br>
+            <span class="btn" onclick="connect()">连接</span>
+            <br>
+            <input id="b" name="b" style="height: 27px"/>
+        </form>
+        <span class="btn" onclick="doCmd()">发送命令</span>
+        <span class="btn" onclick="clearBoard()">清除日志</span>
+        <div id="backInfo"></div>
+    </div>
+    <span style="background-color: #7f7f7f;width: 20px"></span>
+    <div id="cmTab">
+    </div>
+</div>
+<div id="playStat" style="background-color: #dbe6f840;border-top: 5px solid #6c5c5c8c;">
+    <div style="height: 50px;width: 550px">
+        <span class="btn" style="font-size: 16px;"  onclick="sendServerMsg()">发送服务器消息</span>
+        <input id="pMsg" style="display: block;float: left;margin: 10px;"/>
+        <span id="playTime" class="des" style="height: 30px;"></span>
+    </div>
+    <div style="height: 10px"></div>
+    <div id="playerTable">
+    </div>
+    <div style="height: 30px"></div>
+</div>
+<div id="boardWra">
+    <div class="board" id="board">
+        <p>服务器信息：</p>
+    </div>
+</div>
+<script>
+    let a=axios;
+    styleAttach();
+    let pick=new Object();
+    pick.s=false;
+    pick.for='';
+
+
+    let isCon=false;
+    let backInfo = document.getElementById("backInfo");
+    let board = document.getElementById("board");
+    let playStartTime=new Date().getTime();
+    let isGameStart=false;
+    let playTimeDom=document.getElementById("playTime");
+    function boardGoing(str){
+        let el = document.createElement("p");
+        el.innerText=str;
+        el.style.backgroundColor=colorWalkS(266,50,0.3,40,90)
+        board.prepend(el);
+    }
+    function clearBoard(){
+        board.innerText="..."
+    }
+    let ws;
+    function connect(){
+        if(ws&&ws.isConnected) {
+            boardGoing("已连接")
+            return;
+        }
+        if(document.getElementById("a").value.length<1)  {
+            backInfo.innerText="请输入密码接入"
+            return
+        }
+        ws= new WebSocket("ws://"+location.host+"/ws")
+        ws.onopen=function (){
+            msgSend("-rc")
+            boardGoing("已连接")
+            setTimeout(()=>msgSend("-ts"),1000)
+            isCon=true
+        }
+        ws.onmessage=function (e){
+            if(e.data.indexOf("-c ")>-1){
+              cmdList(e.data)
+            }else if(e.data.indexOf("-ts")==0){
+                let playStat = document.getElementById("playerTable");
+                playStat.innerText=""
+                let dm=e.data.substr(3);
+                let data = JSON.parse(dm);
+                isGameStart=data.isGameStart
+                if(data.sTime!=0) playStartTime=data.sTime
+                addTable(playStat,data.players,"lovTab",1,doPickCmd,
+                    function (r,c,el){
+                        el.style.backgroundColor=r[5]==0?'#7dc6ff':'#d904ff'
+                    }
+                )
+            }
+            else boardGoing(e.data)
+        }
+        ws.onclose=function (){
+            boardGoing("已断开")
+            isCon=false
+        }
+    }
+    function doPickCmd(v){
+        if(pick.s==true){
+            document.body.style.cursor="default";
+            pick.s=false;
+            msgSend(pick.for+" "+v);
+            pick.for='';
+            releaseBlock();
+        }
+    }
+    function cmdList(data){
+        let cmdList=data.substr(3)
+        cmdList=cmdList.replaceAll("<","[")
+        cmdList=cmdList.replaceAll(">","]")
+        let cmdL = JSON.parse(cmdList);
+        let cmdTab = document.getElementById("cmTab");
+        cmdTab.innerText=""
+        cmdL.forEach(x=>{
+            let a = document.createElement("div");
+            a.classList.add("cmdEl")
+            let h = document.createElement("span");
+            h.classList.add("btn")
+            h.style.fontSize="15px"
+            h.innerText=x.h
+            let d = document.createElement("span");
+            d.classList.add("des")
+            d.innerText=x.d
+            let p = document.createElement("span");
+            p.classList.add("para")
+            p.innerHTML=x.p
+            cmdTab.append(a)
+            a.append(h);a.append(d);a.append(p);
+            if(x.p.length<1) {
+                h.onclick=function (e){
+                    e.stopPropagation();
+                    let co=document.getElementById("b");
+                    let c=document.getElementById("b").value;
+                    co.value=x.h;
+                    doCmd()
+                    co.value=c;
+                }
+            }else{
+                if(x.p.indexOf("PlayerSerialNumber")>-1){
+                    d.onclick=function (e){
+                        e.stopPropagation();
+                        if(pick.s==true) return;
+                        document.body.style.cursor="crosshair"
+                        pick.s=true;
+                        pick.for=x.h;
+                        blockOther(document.querySelector("#playerTable > table"))
+                    }
+                }
+                h.onclick=function (e){
+                    e.stopPropagation();
+                    document.getElementById("b").value=x.h
+                }
+            }
+        })
+    }
+    function doCmd(){
+        let ab=new Object()
+        ab.a=document.getElementById("a").value;
+        ab.b=document.getElementById("b").value;
+        ws.send("-p"+ab.a+" -1 "+ab.b);
+    }
+    function drag(obj){
+        obj.onmousedown = function(e){
+            if(e.target!=obj) return;
+            if(obj.style.position!="fixed"&&obj.style.position!="absolute"){
+                obj.rep=obj.style.position;
+                let h=obj.offsetTop;
+                let l=obj.offsetLeft;
+                obj.style.position="absolute"
+                obj.style.top=h+"px";
+                obj.style.left=l+"px";
+            }
+            var divX = e.clientX - this.offsetLeft;
+            var divY = e.clientY - this.offsetTop;
+            document.onmousemove = function(e){
+                var disX = e.clientX - divX;
+                var disY = e.clientY - divY;
+                obj.style.top = disY + "px";
+                obj.style.left = disX + "px";
+                document.onmouseup = function(e){
+                    document.onmousedown = document.onmousemove = null;
+                    if(e.pageY<20){obj.style.position=obj.rep;}
+                }
+            }
+        }
+    }
+    drag(document.getElementById("cmTab"))
+    function sendServerMsg(){
+        let pMsg = document.getElementById("pMsg").value;
+        if(pMsg.length>0){
+            msgSend("msg "+pMsg);
+        }
+    }
+    setInterval(()=>{
+        if(isCon)
+        if(isGameStart)  playTimeDom.innerText= '游戏已开始:'+formatTime((new Date().getTime()-playStartTime))
+        else playTimeDom.innerText="战役室:"+formatTime((new Date().getTime()-playStartTime))
+    },1000)
+    setInterval(()=>{
+       if(isCon) {
+          ws.send("-p1 -3 0")
+       }
+    },5000)
+    function msgSend(m){
+        let c=document.getElementById("b").value;
+        document.getElementById("b").value=m;
+        doCmd()
+        document.getElementById("b").value=c;
+    }
+
+    function formatTime(t){
+        let h=parseInt(t/(1000*60*60));
+        return (0==h?"":h+"时")+parseInt(t/(1000*60)%60)+"分"+parseInt((t/1000)%60)+"秒"
+    }
+</script>
+</body>
+</html>

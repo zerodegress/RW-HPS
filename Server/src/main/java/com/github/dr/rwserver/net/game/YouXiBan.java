@@ -62,6 +62,9 @@ public class YouXiBan extends Plugin {
                 });
             }
         });
+        handler.<StrCons>register("config", "<key> <value>","serverCommands.config", (arg, log) -> {
+            Data.config.setConfig(arg[0],arg[1]);
+        });
     }
     private void gameStartSchema() throws IllegalAccessException {
         StartNet startNet = new StartNet();

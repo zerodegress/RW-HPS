@@ -58,7 +58,6 @@ public class Main {
 		Data.core.load();
 
 		new Initialization();
-
 		Log.clog(Data.localeUtil.getinput("server.hi"));
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");

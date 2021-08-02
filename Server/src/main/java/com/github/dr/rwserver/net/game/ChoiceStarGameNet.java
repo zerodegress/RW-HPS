@@ -34,6 +34,7 @@ public class ChoiceStarGameNet extends StartGameNetTcp{
         super(startNet);
     }
     private final KongZhi wsHandler=new KongZhi();
+    private final Divider divider=new Divider();
     private static Map<String,byte[]> res=new HashMap<>();
     private final static String WS_URI="/ws";
     private SocketChannel socketChannel;
@@ -78,12 +79,13 @@ public class ChoiceStarGameNet extends StartGameNetTcp{
     public void initChannel(SocketChannel ch) throws Exception {
 //        ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
         this.socketChannel=ch;
-        ch.pipeline().addLast(new Divider());
+        ch.pipeline().addLast(divider);
     }
     void superInitChannel() throws Exception {
         super.initChannel(socketChannel);
     };
 
+    @Sharable
     class Divider extends ChannelInboundHandlerAdapter {
         private boolean isHttpReq(String head){
             return (
@@ -111,7 +113,6 @@ public class ChoiceStarGameNet extends StartGameNetTcp{
             if(isHttpReq(headS)){
                 if(headS.startsWith("GET "+WS_URI)){
                     ctx.pipeline().addLast(
-                            new LoggingHandler(LogLevel.INFO),
                             new IdleStateHandler(10,0,0),
                             new ChannelDuplexHandler(){
                             @Override
@@ -130,8 +131,7 @@ public class ChoiceStarGameNet extends StartGameNetTcp{
                     );
                     ctx.channel().pipeline().addLast(wsHandler);
                 }else {
-                    ctx.channel().pipeline().addLast(
-                            new LoggingHandler(LogLevel.INFO),new HttpServerCodec());
+                    ctx.channel().pipeline().addLast(new HttpServerCodec());
                     ctx.channel().pipeline().addLast(new SimpleChannelInboundHandler<HttpRequest>() {
                         @Override
                         protected void channelRead0(ChannelHandlerContext ctx, HttpRequest msg) throws Exception {

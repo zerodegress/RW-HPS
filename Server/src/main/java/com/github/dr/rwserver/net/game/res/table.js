@@ -120,11 +120,6 @@ function blockOther(obj){
         x.onclick=releaseBlock;
     })
 }
-
-
-
-
-
 function styleAttach(){
     let sty=document.createElement("style");
     sty.innerHTML=styleSheet

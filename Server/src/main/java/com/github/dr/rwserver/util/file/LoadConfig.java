@@ -17,6 +17,7 @@ import static com.github.dr.rwserver.util.IsUtil.isBlank;
  */
 public final class LoadConfig {
 
+
     private final OrderedMap<String, String> data = new OrderedMap<>();
     private final FileUtil fileUtil;
 
@@ -40,6 +41,9 @@ public final class LoadConfig {
         json.getInnerMap().forEach((k,v) -> data.put(k,v.toString()));
     }
 
+    public void setConfig(String k,String v) {
+       this.data.put(k,v);
+    }
 	private String load(String input, Object def) {
         String result = data.get(input);
         if (result == null) {
@@ -88,5 +92,8 @@ public final class LoadConfig {
         data.each(map::put);
         fileUtil.writeFile(JSONObject.toJSONString(map, SerializerFeature.PrettyFormat),false);
         Log.clog("SAVE CONFIG OK");
+    }
+    public OrderedMap<String, String> getData() {
+        return data;
     }
 }

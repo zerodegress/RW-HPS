@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>铁锈战争控制台</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="/table.js"></script>
+    <script src="table.js"></script>
+    <script src="mican.min.js"></script>
     <style>
         *{
             margin: 0 auto;
@@ -110,6 +111,7 @@
             <input id="a" name="a" style="height: 27px" type="password"/>
             <br>
             <span class="btn" onclick="connect()">连接</span>
+            <span class="btn" onclick="setCan()">参数设置</span>
             <br>
             <input id="b" name="b" style="height: 27px"/>
         </form>
@@ -132,7 +134,7 @@
     </div>
     <div style="height: 30px"></div>
 </div>
-<div id="boardWra">
+<div id="boardWra" style="background-color: #6495eded">
     <div class="board" id="board">
         <p>服务器信息：</p>
     </div>
@@ -192,7 +194,7 @@
                         el.style.backgroundColor=r[5]==0?'#7dc6ff':'#d904ff'
                     }
                 )
-            }
+            }else if(e.data.startsWith("-gf ")) initServerCan(e.data);
             else boardGoing(e.data)
         }
         ws.onclose=function (){
@@ -264,7 +266,7 @@
         ab.b=document.getElementById("b").value;
         ws.send("-p"+ab.a+" -1 "+ab.b);
     }
-    function drag(obj){
+    function drag0(obj){
         obj.onmousedown = function(e){
             if(e.target!=obj) return;
             if(obj.style.position!="fixed"&&obj.style.position!="absolute"){
@@ -289,7 +291,7 @@
             }
         }
     }
-    drag(document.getElementById("cmTab"))
+    drag0(document.getElementById("cmTab"))
     function sendServerMsg(){
         let pMsg = document.getElementById("pMsg").value;
         if(pMsg.length>0){
@@ -316,6 +318,60 @@
     function formatTime(t){
         let h=parseInt(t/(1000*60*60));
         return (0==h?"":h+"时")+parseInt(t/(1000*60)%60)+"分"+parseInt((t/1000)%60)+"秒"
+    }
+    //参数设置
+    let serverCan=new Object()
+    serverCan.show=true
+    function getter(n){
+        return serverCan.config[n];
+    }
+    function setter(n,v){
+        msgSend("config "+n+" "+v)
+        serverCan.config[n]=v
+    }
+    function flushAll(){
+        msgSend("-sf"+JSON.stringify(serverCan.config))
+    }
+
+    function initServerCan(configString){
+        let config=JSON.parse(configString.substring(4),(k,v)=>{
+        if(v=="true") return true;
+        if(v=="false") return false;
+        if(v=="") return "";
+        let vv=new Number(v);
+        if(!isNaN(vv)) return vv;
+        return v;
+        })
+        console.log(config)
+        let miList=[]
+        for(let i in config){
+            if(config[i] instanceof Number) {
+                miList.push([i,i,LX.prop,0,10000,1])
+            }
+            else if(typeof config[i] =="boolean") {
+                miList.push([i,i,LX.bl])
+            }else{
+                miList.push([i,i,LX.wb])
+            }
+        }
+        serverCan.miList=miList
+        serverCan.config=config
+        MiCan(miList,setter,getter,'服务器参数面板')
+    }
+    function setCan(){
+        if(!serverCan.config){
+            msgSend("-gf")
+            setTimeout(() => {
+                let start=new Date().getTime();
+                while(!serverCan.config&&new Date().getTime()-start<10*1000){}
+                if(new Date().getTime()-start>=10*1000) {
+                    console.log("超时未响应")
+                }
+            }, 100);
+        }else{
+            if(serverCan.show) {xiaoshi(ban);serverCan.show=false}
+            else {xianshi(ban);serverCan.show=true}
+        }
     }
 </script>
 </body>

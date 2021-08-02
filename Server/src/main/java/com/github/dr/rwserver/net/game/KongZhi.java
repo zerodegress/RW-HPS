@@ -1,17 +1,22 @@
 package com.github.dr.rwserver.net.game;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.dr.rwserver.command.GameTimeLapse;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.func.StrCons;
+import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.log.Log;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.Mapping;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -79,14 +84,27 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         });
         conn.writeAndFlush(new TextWebSocketFrame("-c "+ JSONObject.toJSONString(cmdList)));
     }
+    @SuppressWarnings("unchecked")
     private void handleCmd(ChannelHandlerContext conn,String message){
         if(message.startsWith("-rc")) sendCmd(conn);
         else if(message.equals("-ts")) {
             conn.writeAndFlush(new TextWebSocketFrame(gameStateInfo()));
-        }else {
+        }else if(message.equals("-gf")){
+            conn.writeAndFlush(new TextWebSocketFrame("-gf "+getServerConfigString()));
+        }else if(message.startsWith("-sf")){
+            Map<String,String> map = new Gson().fromJson(message.replace("-sf ", ""), Map.class);
+            map.forEach((k,v)->Data.config.getData().put(k,v));
+        }
+        else {
             Log.clog("接收到游戏板消息："+message);
             Data.SERVERCOMMAND.handleMessage(message,(StrCons) Log::clog);
         }
+    }
+    private String getServerConfigString(){
+        OrderedMap<String, String> data = Data.config.getData();
+        final Map<String,String> map = new HashMap<>();
+        data.each(map::put);
+        return JSONObject.toJSONString(map, SerializerFeature.PrettyFormat);
     }
     public static String gameStateInfo(){
         ArrayList<List<String>> players = new ArrayList<>();

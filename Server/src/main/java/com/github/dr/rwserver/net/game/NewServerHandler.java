@@ -47,6 +47,7 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
                         typeConnect.typeConnect(finalCon, p);
                     } catch (Exception e) {
                         Log.debug(e);
+                        Log.error("未正确处理包，断开"+ctx.channel());
                         startNet.clear(ctx);
                     } finally {
                         ReferenceCountUtil.release(msg);

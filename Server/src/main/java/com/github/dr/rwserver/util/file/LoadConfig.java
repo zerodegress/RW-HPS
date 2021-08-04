@@ -17,7 +17,7 @@ import static com.github.dr.rwserver.util.IsUtil.isBlank;
  */
 public final class LoadConfig {
 
-    private final OrderedMap<String, String> data = new OrderedMap<>();
+    private final OrderedMap<String, Object> data = new OrderedMap<>();
     private final FileUtil fileUtil;
 
     public LoadConfig(String file,boolean isFile) {
@@ -40,15 +40,15 @@ public final class LoadConfig {
         json.getInnerMap().forEach((k,v) -> data.put(k,v.toString()));
     }
 
-	private String load(String input, Object def) {
-        String result = data.get(input);
+    private String load(String input, Object def) {
+        Object result = data.get(input);
         if (result == null) {
             Log.clog("NO KEY- Please check the file",input);
-            data.put(input,def.toString());
+            data.put(input,def);
             return def.toString();
         }
-        return result;
-	}
+        return result.toString();
+    }
 
     public String readString(String input) {
         return readString(input,"");
@@ -59,22 +59,22 @@ public final class LoadConfig {
         return isBlank(str) ? "" : str;
     }
 
-    public int readInt(String input,@NotNull Object def) {
+    public int readInt(String input, int def) {
         String str = load(input,def);
         return Integer.parseInt(str);
     }
 
-    public boolean readBoolean(String input,@NotNull Object def) {
+    public boolean readBoolean(String input,boolean def) {
         String str = load(input,def);
         return Boolean.parseBoolean(str);
     }
 
-    public float readFloat(String input,@NotNull Object def) {
+    public float readFloat(String input,float def) {
         String str = load(input,def);
         return Float.parseFloat(str);
     }
 
-    public long readLong(String input,@NotNull Object def) {
+    public long readLong(String input,long def) {
         String str = load(input,def);
         return Long.parseLong(str);
     }
@@ -84,7 +84,7 @@ public final class LoadConfig {
     }
 
     public void save() {
-        final Map<String,String> map = new HashMap<>();
+        final Map<String,Object> map = new HashMap<>();
         data.each(map::put);
         fileUtil.writeFile(JSONObject.toJSONString(map, SerializerFeature.PrettyFormat),false);
         Log.clog("SAVE CONFIG OK");

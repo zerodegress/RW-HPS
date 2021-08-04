@@ -22,21 +22,21 @@ public final class LoadConfig {
     private final FileUtil fileUtil;
 
     public LoadConfig(String file,boolean isFile) {
-        fileUtil = isFile ? FileUtil.file(file) : new FileUtil(file);
+        fileUtil = isFile ? FileUtil.getFolder(file) : new FileUtil(file);
         reLoadConfig();
     }
 
     public LoadConfig(String file,String name) {
-        fileUtil = FileUtil.file(file).toPath(name);
+        fileUtil = FileUtil.getFolder(file).toFile(name);
         reLoadConfig();
     }
 
     public void reLoadConfig() {
-        if (!fileUtil.exists()) {
+        if (fileUtil.notExists() || fileUtil.readFileStringData().isEmpty()) {
             Log.error("NO Config.Json Use default configuration");
             return;
         }
-        Json json = new Json(fileUtil.readFileData(false).toString());
+        Json json = new Json(fileUtil.readFileStringData());
         //json对象转Map
         json.getInnerMap().forEach((k,v) -> data.put(k,v.toString()));
     }

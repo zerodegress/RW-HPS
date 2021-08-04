@@ -18,9 +18,12 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.Attribute;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+
+import static com.github.dr.rwserver.net.game.NewServerHandler.NETTY_CHANNEL_KEY;
 
 /**
  * @author Dr
@@ -131,19 +134,28 @@ public class StartNet {
                 null, null);
     }
 
+
+
     public void stop() {
         connectChannel.each(ChannelOutboundInvoker::close);
     }
 
     public void clear(ChannelHandlerContext ctx) {
         Channel channel = ctx.channel();
-        AbstractNetConnect con = OVER_MAP.get(channel.id().asLongText());
-        if (con != null) {
-            con.disconnect();
-            ctx.close();
+        try {
+            Attribute<AbstractNetConnect> attr = channel.attr(NETTY_CHANNEL_KEY);
+            AbstractNetConnect con = attr.get();
+            if (con != null) {
+                con.disconnect();
+            } else {
+                channel.close();
+                ctx.close();
+            }
+        } finally {
+            OVER_MAP.remove(channel.id().asLongText());
         }
-        OVER_MAP.remove(channel.id().asLongText());
     }
+
 
     public void updateNet() {
         if (IsUtil.notIsBlank(starta)) {

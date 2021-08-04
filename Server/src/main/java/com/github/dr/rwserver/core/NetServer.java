@@ -25,6 +25,8 @@ import static com.github.dr.rwserver.util.StringFilteringUtil.cutting;
  */
 public class NetServer {
 
+    static String userId;
+
     public static void closeServer() {
         if (Data.game != null) {
             NetStaticData.startNet.each(StartNet::stop);
@@ -41,14 +43,14 @@ public class NetServer {
         if (Threads.getIfScheduledFutureData("GameTask")) {
             Threads.removeScheduledFutureData("GameTask");
         }
-        if (Threads.getIfScheduledFutureData("Gameover")) {
-            Threads.removeScheduledFutureData("Gameover");
-        }
         if (Threads.getIfScheduledFutureData("GamePing")) {
             Threads.removeScheduledFutureData("GamePing");
         }
         if (Threads.getIfScheduledFutureData("GameWinOrLoseCheck")) {
             Threads.removeScheduledFutureData("GameWinOrLoseCheck");
+        }
+        if (Threads.getIfScheduledFutureData("Gameover")) {
+            Threads.removeScheduledFutureData("Gameover");
         }
         Call.killAllPlayer();
         Data.playerGroup.clear();
@@ -56,7 +58,7 @@ public class NetServer {
         Data.game.re();
         Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
         Data.game.isStartGame = false;
-        FileUtil fileUtil = FileUtil.file(Data.Plugin_Log_Path).toPath("Log.txt");
+        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
         fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
 
         Log.clog("Server Gameover completed");

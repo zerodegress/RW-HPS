@@ -3,7 +3,10 @@ package com.github.dr.rwserver.data;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -69,12 +72,25 @@ public final class Player {
 		return player;
 	}
 
-	public final void sendSystemMessage(final String text) {
+	public final void sendSystemMessage(@NotNull @Nls final String text) {
 		con.sendSystemMessage(text);
 	}
 
-	public final void sendMessage(Player player, String text) {
+	public final void sendMessage(Player player, @NotNull @Nls String text) {
 		con.sendChatMessage(text, player.name, player.team);
+	}
+
+	/**
+	 * 玩家在本地服务器的数据转移到新的服务器
+	 * 此时 本地服务器只做转发 玩家数据与本地无关 玩家将不存在{@link Data}的PlayerGroup和PlayerAll中
+	 * 玩家 ⇄ 本地服务器 ⇄ 新服务器
+	 * @param ip
+	 * @param port
+	 */
+	public final void playerJumpsToAnotherServer(@NotNull final String ip,final int port) {
+		if (!IsUtil.isDomainName(ip)) {
+			throw new RuntimeException("Error Domain");
+		}
 	}
 
 	public final void clear() {

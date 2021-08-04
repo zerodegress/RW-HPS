@@ -24,6 +24,7 @@ public final class Application {
     public String serverToken;
     public Seq<String> unitBase64;
     public Administration admin;
+    public boolean upServerList = false;
 
     public String serverName = "m3ua";
     public float defIncome = 1f;
@@ -34,7 +35,7 @@ public final class Application {
     }
 
     public final void load() {
-        pluginData.setFileUtil(FileUtil.file(Data.Plugin_Data_Path).toPath("Settings.bin"));
+        pluginData.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"));
         admin = new Administration(pluginData);
         serverConnectUuid = pluginData.getData("serverConnectUuid", UUID.randomUUID().toString());
         unitBase64 = pluginData.getData("unitBase64", new Seq<>());

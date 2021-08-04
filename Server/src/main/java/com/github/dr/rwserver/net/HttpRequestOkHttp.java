@@ -17,7 +17,7 @@ import java.util.Objects;
 public class HttpRequestOkHttp {
 
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36";
-	private static final OkHttpClient CLIENT = new OkHttpClient();
+	private static final OkHttpClient CLIENT = new OkHttpClient();;
 
 
 	public static String doGet(final String url) {
@@ -88,6 +88,7 @@ public class HttpRequestOkHttp {
 				.url(url)
 				.addHeader("User-Agent","rw android 151 zh")
 				.addHeader("Language","zh")
+				.addHeader("Connection","close")
 				.post(formBody.build())
 				.build();
 		return getHttpResultString(request);

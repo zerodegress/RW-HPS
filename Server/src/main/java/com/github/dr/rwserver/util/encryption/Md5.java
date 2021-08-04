@@ -15,89 +15,89 @@ import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
  */
 public class Md5 {
 
-	private static final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd','e', 'f' };
+    private static final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd','e', 'f' };
 
-	public static String md5(String input) {
-		if (input == null) {
+    public static String md5(String input) {
+        if (input == null) {
             return null;
         }
-		try {
-			byte[] resultByteArray = MessageDigest.getInstance("MD5").digest(input.getBytes(StandardCharsets.UTF_8));
-			return byteArrayToHex(resultByteArray);
-		} catch (NoSuchAlgorithmException e) {
-			//Log.error
-		}
-		return null;
-	}
+        try {
+            byte[] resultByteArray = MessageDigest.getInstance("MD5").digest(input.getBytes(StandardCharsets.UTF_8));
+            return byteArrayToHex(resultByteArray);
+        } catch (NoSuchAlgorithmException e) {
+            //Log.error
+        }
+        return null;
+    }
 
-	public static String md5Formant(String str) {
-		try {
-			byte[] digest = MessageDigest.getInstance("MD5").digest(str.getBytes(StandardCharsets.UTF_8));
-			StringBuilder sb = new StringBuilder(digest.length * 2);
-			for (byte b2 : digest) {
-				int b3 = b2 & 0xFF;
-				if (b3 < 16) {
-					sb.append('0');
-				}
-				sb.append(Integer.toHexString(b3));
-			}
-			return sb.toString();
-		} catch (NoSuchAlgorithmException e2) {
-			throw new RuntimeException("MD5 should be supported", e2);
-		}
-	}
+    public static String md5Formant(String str) {
+        try {
+            byte[] digest = MessageDigest.getInstance("MD5").digest(str.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(digest.length * 2);
+            for (byte b2 : digest) {
+                int b3 = b2 & 0xFF;
+                if (b3 < 16) {
+                    sb.append('0');
+                }
+                sb.append(Integer.toHexString(b3));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e2) {
+            throw new RuntimeException("MD5 should be supported", e2);
+        }
+    }
 
-	public static Seq<String> md5(Seq<File> list) {
-		Seq<String> result = new Seq<>();
-		list.each(e -> {
-			String md5 = md5(e);
-			if (notIsBlank(md5)) {
-				result.add(md5);
-			}
-		});
-		return result;
-	}
+    public static Seq<String> md5(Seq<File> list) {
+        Seq<String> result = new Seq<>();
+        list.each(e -> {
+            String md5 = md5(e);
+            if (notIsBlank(md5)) {
+                result.add(md5);
+            }
+        });
+        return result;
+    }
 
-	public static String md5(File file) {
-		try {
-			if (!file.isFile()) {
+    public static String md5(File file) {
+        try {
+            if (!file.isFile()) {
                 return null;
             }
-			FileInputStream in = new FileInputStream(file);
-			String result = md5(in);
-			in.close();
-			return result;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+            FileInputStream in = new FileInputStream(file);
+            String result = md5(in);
+            in.close();
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	public static String md5(InputStream in) {
-		try {
-			MessageDigest messagedigest = MessageDigest.getInstance("MD5");
-			byte[] buffer = new byte[1024];
-			int read;
-			while ((read = in.read(buffer)) != -1) {
+    public static String md5(InputStream in) {
+        try {
+            MessageDigest messagedigest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
                 messagedigest.update(buffer, 0, read);
             }
-			in.close();
-			return byteArrayToHex(messagedigest.digest());
-		} catch (NoSuchAlgorithmException | IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+            in.close();
+            return byteArrayToHex(messagedigest.digest());
+        } catch (NoSuchAlgorithmException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	private static String byteArrayToHex(byte[] byteArray) {
-		char[] resultCharArray = new char[byteArray.length * 2];
-		int index = 0;
-		for (byte b : byteArray) {
-			resultCharArray[index++] = HEX_DIGITS[b >>> 4 & 0xf];
-			resultCharArray[index++] = HEX_DIGITS[b & 0xf];
-		}
-		return new String(resultCharArray);
+    private static String byteArrayToHex(byte[] byteArray) {
+        char[] resultCharArray = new char[byteArray.length * 2];
+        int index = 0;
+        for (byte b : byteArray) {
+            resultCharArray[index++] = HEX_DIGITS[b >>> 4 & 0xf];
+            resultCharArray[index++] = HEX_DIGITS[b & 0xf];
+        }
+        return new String(resultCharArray);
 
-	}
+    }
 
 }

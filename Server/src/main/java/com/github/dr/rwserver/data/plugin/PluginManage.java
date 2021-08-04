@@ -5,8 +5,10 @@ import com.github.dr.rwserver.plugin.PluginsLoad;
 import com.github.dr.rwserver.plugin.event.AbstractEvent;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.IsUtil;
+import com.github.dr.rwserver.util.alone.annotations.DidNotFinish;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.game.CommandHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class PluginManage {
     private static final PluginEventManage pluginEventManage = new PluginEventManage();
@@ -17,11 +19,11 @@ public class PluginManage {
         return pluginData.size();
     }
 
-    public static void run(Cons<PluginsLoad.PluginLoadData> cons) {
+    public static void run(@NotNull Cons<PluginsLoad.PluginLoadData> cons) {
         pluginData.each(cons::get);
     }
 
-    public static void init(final FileUtil fileUtil) {
+    public static void init(@NotNull final FileUtil fileUtil) {
         pluginData = PluginsLoad.resultPluginData(fileUtil);
     }
 
@@ -31,12 +33,12 @@ public class PluginManage {
     }
 
     /** 注册要在服务器端使用的任何命令，例如从控制台 -2 */
-    public static void runRegisterServerCommands(CommandHandler handler){
+    public static void runRegisterServerCommands(@NotNull CommandHandler handler){
         pluginData.each(e -> e.main.registerServerCommands(handler));
     }
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3 */
-    public static void runRegisterClientCommands(CommandHandler handler){
+    public static void runRegisterClientCommands(@NotNull CommandHandler handler){
         pluginData.each(e -> e.main.registerClientCommands(handler));
     }
 
@@ -60,7 +62,8 @@ public class PluginManage {
         pluginData.each(e -> e.main.onDisable());
     }
 
-    public static void removePlugin(final String name) {
+    @DidNotFinish
+    public static void removePlugin(@NotNull final String name) {
         pluginData.each(e -> e.name.equalsIgnoreCase(name),pluginData::remove);
         // TOOD 完全卸载Plugn
     }

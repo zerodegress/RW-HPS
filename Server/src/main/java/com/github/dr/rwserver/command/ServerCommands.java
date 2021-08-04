@@ -12,7 +12,10 @@ import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.Rules;
+import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.net.game.StartNet;
+import com.github.dr.rwserver.net.netconnectprotocol.*;
+import com.github.dr.rwserver.plugin.center.PluginCenter;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
 import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
 import com.github.dr.rwserver.util.LocaleUtil;
@@ -34,6 +37,27 @@ public class ServerCommands {
     private static final LocaleUtil localeUtil = Data.localeUtil;
 
     public ServerCommands(CommandHandler handler) {
+        registerCore(handler);
+        registerCorex(handler);
+        registerInfo(handler);
+        registerPlayerCommand(handler);
+
+        handler.<StrCons>register("log", "[a...]","serverCommands.exit", (arg, log) -> {
+            Data.LOGCOMMAND.handleMessage(arg[0],null);
+        });
+
+        handler.<StrCons>register("logg", "<1> <2>","serverCommands.exit", (arg, log) -> {
+            Data.LOGCOMMAND.handleMessage(arg[0]+" "+arg[1],null);
+        });
+
+        handler.<StrCons>register("kc", "<1>","serverCommands.exit", (arg, log) -> {
+            int site = Integer.parseInt(arg[0])-1;
+            Player player = Data.game.playerData[site];
+            player.con.disconnect();
+        });
+    }
+
+    private void registerCore(CommandHandler handler) {
         handler.<StrCons>register("help", "serverCommands.help", (arg, log) -> {
             log.get("Commands:");
             for(CommandHandler.Command command : handler.getCommandList()){
@@ -43,6 +67,24 @@ public class ServerCommands {
                     log.get("   " + command.text + (command.paramText.isEmpty() ? "" : " ") + command.paramText + " - " + Data.localeUtil.getinput(command.description));
                 }
             }
+        });
+
+        handler.<StrCons>register("stop", "serverCommands.stop", (arg, log) -> {
+            log.get("Stop Server. end");
+            NetServer.closeServer();
+        });
+
+        handler.<StrCons>register("version","serverCommands.version", (arg, log) -> {
+            log.get(localeUtil.getinput("status.versionS",Data.core.getJavaHeap()/1024/1024,Data.SERVER_CORE_VERSION));
+        });
+
+        handler.<StrCons>register("exit", "serverCommands.exit", (arg, log) -> {
+            Core.exit();
+        });
+
+        handler.<StrCons>register("restart", "serverCommands.restart", (arg, log) -> {
+            NetServer.closeServer();
+            Data.SERVERCOMMAND.handleMessage("start");
         });
 
         handler.<StrCons>register("start", "serverCommands.start", (arg, log) -> {
@@ -56,8 +98,15 @@ public class ServerCommands {
             Data.game.init();
             Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
             Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
+
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
-            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(null),151);
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(new ConnectionAgreement()),151);
+            NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacket(),"2.0.0");
+/*
+            NetStaticData.protocolData.setTypeConnect(new TypeRwHpsBeta());
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServerBeta(null),157);
+            NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacketBeta(),"3.0.0");*/
+            //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
             Threads.newThreadCore(() -> {
                 StartNet startNet = new StartNet();
                 NetStaticData.startNet.add(startNet);
@@ -76,30 +125,87 @@ public class ServerCommands {
             }
         });
 
-        handler.<StrCons>register("say", "<text...>","serverCommands.say", (arg, log) -> {
-            StringBuilder response = new StringBuilder(arg[0]);
-            for(int i=1,lens=arg.length;i<lens;i++) {
-                response.append(" ").append(arg[i]);
+        handler.<StrCons>register("startffa", "serverCommands.start", (arg, log) -> {
+            if (Data.serverChannelB != null) {
+                log.get("The server is not closed, please close");
+                return;
             }
-            Call.sendSystemMessage(response.toString().replace("<>",""));
-        });
+            Log.set(Data.config.readString("log","WARN").toUpperCase());
 
-        handler.<StrCons>register("giveadmin", "<PlayerSerialNumber...>","serverCommands.giveadmin", (arg, log) -> {
-            Data.playerGroup.each(p -> p.isAdmin,i -> {
-                Player player = Data.game.playerData[Integer.parseInt(arg[0])-1];
-                if (player != null) {
-                    i.isAdmin = false;
-                    player.isAdmin = true;
-                    Call.upDataGameData();
-                    Call.sendMessage(player,localeUtil.getinput("give.ok",player.name));
-                }
+            Data.game = new Rules(Data.config);
+
+            Data.game.init();
+            Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
+            Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
+
+            NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
+            NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacket(),"2.0.0");
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(new ConnectionAgreement()),151);
+            Threads.newThreadCore(() -> {
+                StartNet startNet = new StartNet();
+                NetStaticData.startNet.add(startNet);
+                startNet.openPort(Data.game.port);
             });
+            if (Data.config.readBoolean("UDPSupport",false)) {
+                Threads.newThreadCore(() -> {
+                    try {
+                        StartNet startNet = new StartNet();
+                        NetStaticData.startNet.add(startNet);
+                        startNet.startUdp(Data.game.port);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        });
+    }
+
+    private void registerInfo(CommandHandler handler) {
+        handler.<StrCons>register("plugins", "serverCommands.plugins", (arg, log) -> {
+            PluginManage.run(e -> log.get(localeUtil.getinput("plugin.info",e.name,e.description,e.author,e.version)));
         });
 
-        handler.<StrCons>register("restart", "serverCommands.restart", (arg, log) -> {
-            NetServer.closeServer();
-            Data.SERVERCOMMAND.handleMessage("start");
+        handler.<StrCons>register("players", "serverCommands.players", (arg, log) -> {
+            if(Data.playerGroup.size() == 0){
+                log.get("No players are currently in the server.");
+            }else{
+                log.get("Players: {0}", Data.playerGroup.size());
+                StringBuilder data = new StringBuilder();
+                for(Player player : Data.playerGroup){
+                    data.append(LINE_SEPARATOR)
+                            .append(player.name)
+                            .append(" / ")
+                            .append("ID: ").append(player.uuid)
+                            .append(" / ")
+                            .append("IP: ").append(player.con.getIp())
+                            .append(" / ")
+                            .append("Protocol: ").append(player.con.getConnectionAgreement())
+                            .append(" / ")
+                            .append("Admin: ").append(player.isAdmin);
+                }
+                log.get(data.toString());
+            }
         });
+
+        handler.<StrCons>register("maps", "serverCommands.clearmuteall", (arg, log) -> {
+            StringBuilder response = new StringBuilder();
+            final AtomicInteger i = new AtomicInteger(0);
+            Data.game.mapsData.each((k,v) -> {
+                response.append(localeUtil.getinput("maps.info", i.get(),k)).append(LINE_SEPARATOR);
+                i.getAndIncrement();
+            });
+            log.get(response.toString());
+        });
+    }
+
+    private void registerPlayerCommand(CommandHandler handler) {
+        handler.<StrCons>register("say", "<text...>","serverCommands.say", (arg, log) -> {
+        StringBuilder response = new StringBuilder(arg[0]);
+        for(int i=1,lens=arg.length;i<lens;i++) {
+            response.append(" ").append(arg[i]);
+        }
+        Call.sendSystemMessage(response.toString().replace("<>",""));
+    });
 
         handler.<StrCons>register("gameover", "serverCommands.gameover", (arg, log) -> {
             Events.fire(new EventType.GameOverEvent());
@@ -187,32 +293,6 @@ public class ServerCommands {
             Data.game.mapLock = "on".equals(arg[0]);
         });
 
-        handler.<StrCons>register("plugins", "serverCommands.plugins", (arg, log) -> {
-            PluginManage.run(e -> log.get(localeUtil.getinput("plugin.info",e.name,e.description,e.author,e.version)));
-        });
-
-        handler.<StrCons>register("players", "serverCommands.players", (arg, log) -> {
-            if(Data.playerGroup.size() == 0){
-                log.get("No players are currently in the server.");
-            }else{
-                log.get("Players: {0}", Data.playerGroup.size());
-                StringBuilder data = new StringBuilder();
-                for(Player player : Data.playerGroup){
-                    data.append(LINE_SEPARATOR)
-                        .append(player.name)
-                        .append(" / ")
-                        .append("ID: ").append(player.uuid)
-                        .append(" / ")
-                        .append("IP: ").append(player.con.getIp())
-                        .append(" / ")
-                        .append("Protocol: ").append(player.con.getConnectionAgreement())
-                        .append(" / ")
-                        .append("Admin: ").append(player.isAdmin);
-                }
-                log.get(data.toString());
-            }
-        });
-
         handler.<StrCons>register("kill", "<PlayerSerialNumber>", "serverCommands.kill", (arg, log) -> {
             if (Data.game.isStartGame) {
                 int site = Integer.parseInt(arg[0])-1;
@@ -222,6 +302,18 @@ public class ServerCommands {
             } else {
                 log.get(localeUtil.getinput("err.noStartGame"));
             }
+        });
+
+        handler.<StrCons>register("giveadmin", "<PlayerSerialNumber...>","serverCommands.giveadmin", (arg, log) -> {
+            Data.playerGroup.each(p -> p.isAdmin,i -> {
+                Player player = Data.game.playerData[Integer.parseInt(arg[0])-1];
+                if (player != null) {
+                    i.isAdmin = false;
+                    player.isAdmin = true;
+                    Call.upDataGameData();
+                    Call.sendMessage(player,localeUtil.getinput("give.ok",player.name));
+                }
+            });
         });
 
         handler.<StrCons>register("clearmuteall", "serverCommands.clearmuteall", (arg, log) -> {
@@ -242,28 +334,11 @@ public class ServerCommands {
             Data.game.checkMaps();
             log.get("Reload {0}:{1}",size,Data.game.mapsData.size);
         });
+    }
 
-        handler.<StrCons>register("maps", "serverCommands.clearmuteall", (arg, log) -> {
-            StringBuilder response = new StringBuilder();
-            final AtomicInteger i = new AtomicInteger(0);
-            Data.game.mapsData.each((k,v) -> {
-                response.append(localeUtil.getinput("maps.info", i.get(),k)).append(LINE_SEPARATOR);
-                i.getAndIncrement();
-            });
-            log.get(response.toString());
-        });
-
-        handler.<StrCons>register("stop", "serverCommands.stop", (arg, log) -> {
-            log.get("Stop Server. end");
-            NetServer.closeServer();
-        });
-
-        handler.<StrCons>register("version","serverCommands.version", (arg, log) -> {
-            log.get(localeUtil.getinput("status.versionS",Data.core.getJavaHeap()/1024/1024,Data.SERVER_CORE_VERSION));
-        });
-
-        handler.<StrCons>register("exit", "serverCommands.exit", (arg, log) -> {
-            Core.exit();
+    private void registerCorex(CommandHandler handler) {
+        handler.<StrCons>register("plugin","<TEXT...>", "serverCommands.upserverlist", (arg, log) -> {
+            PluginCenter.pluginCenter.command(arg[0],log);
         });
         handler.<StrCons>register("msg", "<text>","serverCommands.say", (arg, log) -> {
             if(Data.playerGroup.isEmpty()) Log.clog("没有玩家");

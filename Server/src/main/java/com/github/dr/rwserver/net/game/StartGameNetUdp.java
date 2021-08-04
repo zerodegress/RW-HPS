@@ -2,7 +2,6 @@ package com.github.dr.rwserver.net.game;
 
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.ConnectionAgreement;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.net.udp.ReliableServerSocket;
@@ -46,9 +45,8 @@ class StartGameNetUdp {
         AbstractNetConnect con = startNet.OVER_MAP.get(sockAds.toString());
 
         if (con == null) {
-            con = abstractNetConnect.getVersionNet(sockAds.toString());
+            con = abstractNetConnect.getVersionNet(new ConnectionAgreement(socket,startNet));
             startNet.OVER_MAP.put(sockAds.toString(), con);
-            con.setConnectionAgreement(new ConnectionAgreement(socket));
         }
 
         final AbstractNetConnect conFinal = con;

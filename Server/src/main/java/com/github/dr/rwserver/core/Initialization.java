@@ -1,13 +1,27 @@
 package com.github.dr.rwserver.core;
 
+import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.json.Json;
+import com.github.dr.rwserver.struct.Seq;
+import com.github.dr.rwserver.util.LocaleUtil;
+import com.github.dr.rwserver.util.ReExp;
+import com.github.dr.rwserver.util.encryption.Aes;
+import com.github.dr.rwserver.util.encryption.Base64;
+import com.github.dr.rwserver.util.encryption.Md5;
 import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
+import com.github.dr.rwserver.util.log.exp.FileException;
+import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 import com.ip2location.IP2Location;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.github.dr.rwserver.net.HttpRequestOkHttp.doGet;
+import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
+import static com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate;
 
 /**
  * @author Dr
@@ -15,16 +29,24 @@ import static com.github.dr.rwserver.net.HttpRequestOkHttp.doGet;
 public class Initialization {
 
     public Initialization() {
+		//update();
 		loadLang();
 
 		initMaps();
 
+		//downPlugin();
+
+		//loadIpBin();
 
 		Runtime.getRuntime().addShutdownHook(new ExitHandler());
     }
 
+    public void startInit() {
+		initServerLanguage();
+	}
+
     private void initServerLanguage() {
-		boolean isChina = doGet("https://api.data.der.kim/getCountry.php").contains("中国");
+		boolean isChina = doGet("https://ip.tool.lu").contains("中国");
 	}
 
 	private void initMaps() {
@@ -64,7 +86,7 @@ public class Initialization {
 		Data.MapsMap.put("ManyIslands(8p)","Many Islands (8p)@[p8]");
 		Data.MapsMap.put("RandomIslands(8p)","Random Islands (8p)@[p8]");
 		Data.MapsMap.put("Tornadoeye(8p)[byhxyy]","Tornado eye (8p) [by hxyy]@[p8]");
-		Data.MapsMap.put("两岸(8p)","两岸 (8p)@[p8]");
+		Data.MapsMap.put("TwoSides(8p)","Two Sides (8p)@[p8]");
 		Data.MapsMap.put("Volcano(8p)","Volcano (8p)@[p8]");
 		Data.MapsMap.put("VolcanoCrater(8p)","Volcano Crater(8p)@[p8]");
 		Data.MapsMap.put("TwoSidesRemake(10p)","Two Sides Remake (10p)@[z;p10]");
@@ -72,7 +94,7 @@ public class Initialization {
 		Data.MapsMap.put("ManyIslandsLarge(10p)","Many Islands Large (10p)@[z;p10]");
 		Data.MapsMap.put("CrossingLarge(10p)","Crossing Large (10p)@[z;p10]");
 		Data.MapsMap.put("Kingdoms(10p)[byVulkan]","Kingdoms (10p) [by Vulkan]@[z;p10]");
-		Data.MapsMap.put("LargeLavaDivide(10p)","Large Lava Divide z;p10]");
+		Data.MapsMap.put("LargeLavaDivide(10p)","Large Lava Divide (10p)@[z;p10]");
 		Data.MapsMap.put("EnclosedIsland(10p)","Enclosed Island (10p)@[z;p10]");
 		Data.MapsMap.put("TwoLargeIslands(10p)","Two_Large_Islands_(10p)@[z;p10]");
 		Data.MapsMap.put("Wetlands(10p)","Wetlands (10p)@[z;p10]");
@@ -84,14 +106,15 @@ public class Initialization {
 		}
 		try {
 			Data.ip2Location = new IP2Location();
-			Data.ip2Location.Open(FileUtil.file(Data.Plugin_Data_Path).toPath("IP.bin").getPath(), true);
+			Data.ip2Location.Open(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("IP.bin").getPath(), true);
 		} catch (IOException e) {
 			Log.error("IP-LOAD ERR",e);
 		}
 	}
 
 	private void loadLang() {
-		Data.localeUtilMap.put("CN",Data.localeUtil);
+		Data.localeUtilMap.put("CN",new LocaleUtil(Objects.requireNonNull(Main.class.getResourceAsStream("/bundles/GA_zh_CN.properties"))));
+		Data.localeUtil = Data.localeUtilMap.get("CN");
 	}
 
 	static class ExitHandler extends Thread {

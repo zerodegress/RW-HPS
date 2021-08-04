@@ -110,7 +110,7 @@ public class Rules {
 
         int port = config.readInt("port",5123);
         String passwdCache = config.readString("passwd","");
-        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, new Sha().sha256Arry(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
+        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, new Sha().sha256Array(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
 
         enterAd = config.readString("enterServerAd","");
         startAd = config.readString("startAd","");
@@ -168,11 +168,10 @@ public class Rules {
         initUnit = 1;
         mist = 2;
         sharedControl = false;
-        System.gc();
     }
 
     public void checkMaps() {
-        Seq<File> list = FileUtil.file(Data.Plugin_Maps_Path).getFileListNotNullSize();
+        Seq<File> list = FileUtil.getFolder(Data.Plugin_Maps_Path).getFileListNotNullSize();
         list.each(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));
@@ -194,9 +193,9 @@ public class Rules {
                     break;
                 case ".zip":
                     try {
-                        Seq<String> zipTmx = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("tmx");
+                        Seq<String> zipTmx = new ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("tmx");
                         zipTmx.each(zipMapName -> mapsData.put(zipMapName,new GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip , zipMapName, original)));
-                        Seq<String> zipSave = new ZipDecoder(e).GetTheFileNameOfTheSpecifiedSuffixInTheZip("save");
+                        Seq<String> zipSave = new ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("save");
                         zipSave.each(zipSaveName -> mapsData.put(zipSaveName,new GameMaps.MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.zip , zipSaveName, original)));
 
                     } catch (Exception exception) {

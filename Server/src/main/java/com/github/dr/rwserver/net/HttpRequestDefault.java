@@ -29,7 +29,7 @@ public class HttpRequestDefault {
                 if (conn.getResponseCode() == 301 || conn.getResponseCode() == 302) {
                     final String newUrl = conn.getHeaderField("Location");
                     if (IsUtil.isBlank(newUrl)) {
-                        Log.error("Download Fail: Empty Redirect");
+                        Log.error("Download Fail: Empty Redirect",url);
                         return false;
                     }
                     conn.disconnect();

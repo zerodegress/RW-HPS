@@ -5,6 +5,7 @@ import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.EventType;
+import com.github.dr.rwserver.util.alone.annotations.NeedToRefactor;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 
@@ -17,9 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.dr.rwserver.util.IsUtil.isBlank;
 
 /**
+ * Vote 但是是测试的 需要重构
  * @author Dr
  * @Date 2020:?
  */
+@NeedToRefactor
 public class Vote {
     private final Player player;
     private Player target;

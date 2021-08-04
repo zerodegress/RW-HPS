@@ -39,7 +39,7 @@ public class YouXiBan extends Plugin {
             Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
             Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
-            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(null),151);
+            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(new ConnectionAgreement()),151);
             Threads.newThreadCore(() -> {
                 try{
                     gameStartSchema();

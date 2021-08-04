@@ -44,9 +44,9 @@ object Threads {
      * @param timeUnit 时间单位
      * @param nameId NameID
      */
-	@JvmStatic
-	fun newThreadService(run: Runnable, endTime: Int, timeUnit: TimeUnit, nameId: String) {
-        SCHEDULED_FUTURE_DATA.put(nameId, SERVICE.schedule(run, endTime.toLong(), timeUnit))
+    @JvmStatic
+    fun newThreadService(run: Runnable, endTime: Int, timeUnit: TimeUnit, nameId: String) {
+        SCHEDULED_FUTURE_DATA.put(nameId, SERVICE.schedule(run, endTime.toLong(), timeUnit))?.cancel(false);
         //Log.error((SERVICE as ScheduledThreadPoolExecutor).getQueue().size)
     }
 
@@ -60,7 +60,7 @@ object Threads {
      */
 	@JvmStatic
 	fun newThreadService2(run: Runnable, startTime: Int, endTime: Int, timeUnit: TimeUnit, nameId: String) {
-        SCHEDULED_FUTURE_DATA.put(nameId, SERVICE.scheduleAtFixedRate(run, startTime.toLong(), endTime.toLong(), timeUnit))
+        SCHEDULED_FUTURE_DATA.put(nameId, SERVICE.scheduleAtFixedRate(run, startTime.toLong(), endTime.toLong(), timeUnit))?.cancel(false);
         //Log.error((SERVICE as ScheduledThreadPoolExecutor).getQueue().size)
     }
 

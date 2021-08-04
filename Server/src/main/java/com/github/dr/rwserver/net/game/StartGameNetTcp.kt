@@ -8,7 +8,7 @@ import io.netty.handler.timeout.IdleStateHandler
 import java.util.concurrent.TimeUnit
 
 @Sharable
-internal class StartGameNetTcp(startNet: StartNet) : ChannelInitializer<SocketChannel>() {
+open class StartGameNetTcp(startNet: StartNet) : ChannelInitializer<SocketChannel>() {
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger(startNet)
     private var newServerHandler: NewServerHandler = NewServerHandler(
         startNet,

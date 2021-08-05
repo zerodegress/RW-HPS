@@ -2,9 +2,9 @@ package com.github.dr.rwserver.net.game;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.github.dr.rwserver.command.GameTimeLapse;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.func.StrCons;
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.game.CommandHandler;
@@ -114,6 +114,7 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         fieldName.add("队伍");
         fieldName.add("管理");
         fieldName.add("游戏状态");
+        fieldName.add("组");
         fieldName.add("连接地址");
         players.add(fieldName);
         Data.playerGroup.forEach(p->{
@@ -124,14 +125,15 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             player.add(p.ping+"");
             player.add(p.team+"");
             player.add(p.isAdmin+"");
-            player.add(Data.game.isStartGame?p.dead?"已被击败":"比赛中":"战役室");
+            player.add(GroupGame.games.get(p.groupId).isStartGame?p.dead?"已被击败":"比赛中":"战役室");
+            player.add(p.groupId+"");
             player.add(p.con.getIp()+":"+p.con.getPort());
             players.add(player);
         });
         HashMap<String,Object> data = new HashMap<>();
-        data.put("sTime", GameTimeLapse.getStartTime()+"");
+        data.put("sTime",System.currentTimeMillis());
         data.put("players",players);
-        data.put("isGameStart",Data.game.isStartGame);
+        data.put("isGameStart",false);
         return "-ts"+JSONObject.toJSONString(data);
     }
     public static void broadCast(String msg){

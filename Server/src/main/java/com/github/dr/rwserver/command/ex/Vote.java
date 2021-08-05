@@ -125,10 +125,10 @@ public class Vote {
       */
     private void normalDistribution() {
         require = Data.playerGroup.size();
-        endNoMsg = () -> Call.sendSystemMessageLocal("vote.done.no",type+" "+(isBlank(name)?"":name), y, require);
-        endYesMsg = () -> Call.sendSystemMessageLocal("vote.ok");
-        teamVoteIng = () -> Call.sendSystemMessage("vote.ing",reciprocal);
-        start(() -> Call.sendSystemMessage("vote.start",player.name,type+" "+(isBlank(name)?"":name)));
+        endNoMsg = () -> Call.sendSystemMessageLocal("vote.done.no",player.groupId,type+" "+(isBlank(name)?"":name), y, require);
+        endYesMsg = () -> Call.sendSystemMessageLocal("vote.ok",player.groupId);
+        teamVoteIng = () -> Call.sendSystemMessage("vote.ing",player.groupId,reciprocal);
+        start(() -> Call.sendSystemMessage("vote.start",player.groupId,player.name,type+" "+(isBlank(name)?"":name)));
     }
 
     /**
@@ -136,12 +136,12 @@ public class Vote {
      */
     private void teamOnly() {
         final AtomicInteger require = new AtomicInteger(0);
-        Data.playerGroup.eachBooleanIfs(e -> e.team == player.team, p -> require.getAndIncrement());
+        Data.playerGroup.eachBooleanIfs(e -> e.team == player.team&&e.groupId==player.groupId, p -> require.getAndIncrement());
         this.require = require.get();
-        endNoMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.done.no", type + " " + (isBlank(name) ? "" : name), y, require);
-        endYesMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.ok");
+        endNoMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.done.no", player.groupId,type + " " + (isBlank(name) ? "" : name), y, require);
+        endYesMsg = () -> Call.sendSystemTeamMessageLocal(player.team, "vote.ok",player.groupId);
         teamVoteIng = () -> Call.sendSystemTeamMessageLocal(player.team,"vote.ing",reciprocal);
-        start(() -> Call.sendSystemTeamMessageLocal(player.team,"vote.start",player.name,type+" "+(isBlank(name)?"":name)));
+        start(() -> Call.sendSystemTeamMessageLocal(player.team,"vote.start",player.groupId,player.name,type+" "+(isBlank(name)?"":name)));
     }
 
 
@@ -214,7 +214,7 @@ public class Vote {
     }
 
     private void kick() {
-        Call.sendSystemMessage("kick.player", target.name);
+        Call.sendSystemMessage("kick.player",player.groupId, target.name);
         try {
             target.con.sendKick(target.localeUtil.getinput("kick.you"));
         } catch (IOException e) {
@@ -223,7 +223,7 @@ public class Vote {
     }
 
     private void gameover() {
-        Events.fire(new EventType.GameOverEvent());
+        Events.fire(new EventType.GameOverEvent(player.groupId));
     }
 
     private void surrender() {

@@ -79,7 +79,7 @@ interface AbstractNetPacket {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun getTeamDataPacket(): GzipEncoder
+    fun getTeamDataPacket(gid:Int): GzipEncoder
 
     /**
      * 转换GameSave包
@@ -96,7 +96,7 @@ interface AbstractNetPacket {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun getStartGamePacket(): Packet
+    fun getStartGamePacket(gid: Int): Packet
 
     /**
      * 获取包中的地图名

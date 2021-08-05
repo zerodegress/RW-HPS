@@ -97,7 +97,7 @@ object Time {
             "dd-MM-yyyy HH:mm:ss",
             "MM-dd-yyyy HH:mm:ss"
         )
-        return SimpleDateFormat(ft[fot]).format(Date(gmt))
+        return SimpleDateFormat(ft[fot]).format(Date())
     }
 
     private class CurrentTimeMillisClock() {

@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.net;
 
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.struct.Seq;
@@ -7,7 +8,6 @@ import com.github.dr.rwserver.util.log.Log;
 import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class GroupNet {
         if(gid==-1) SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.writeAndFlush(msg));
         else
         SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.stream()
-                .filter(channel -> (int)channel.attr(AttributeKey.valueOf("gid")).get()==gid)
+                .filter(channel -> channel.attr(GroupGame.G_KEY).get().groupId==gid)
                 .forEach(x->x.writeAndFlush(msg)));
         SINGLE_UDP_THREAD_EXECUTOR.execute(() ->
             PROTOCOL.each(e -> {

@@ -2,6 +2,7 @@ package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.io.GameInputStream
@@ -78,11 +79,11 @@ class GameVersionPacket : AbstractNetPacket {
     }
 
     @Throws(IOException::class)
-    override fun getTeamDataPacket(): GzipEncoder {
+    override fun getTeamDataPacket(gid:Int): GzipEncoder {
         val enc = GzipEncoder.getGzipStream("teams", true)
-        for (i in 0 until Data.game.maxPlayer) {
+        for (i in 0 until Data.game.gMaxPlayer) {
             try {
-                val player = Data.game.playerData[i]
+                val player = GroupGame.games.get(gid)?.playerData?.get(i)
                 if (player == null) {
                     enc.stream.writeBoolean(false)
                 } else {
@@ -120,16 +121,16 @@ class GameVersionPacket : AbstractNetPacket {
 
     // 0->本地 1->自定义 2->保存的游戏
     @Throws(IOException::class)
-    override fun getStartGamePacket(): Packet {
+    override fun getStartGamePacket(gid: Int): Packet {
         val o = GameOutputStream()
         o.writeByte(0)
         // 0->本地 1->自定义 2->保存的游戏
-        o.writeInt(Data.game.maps.mapType.ordinal)
-        if (Data.game.maps.mapType == GameMaps.MapType.defaultMap) {
-            o.writeString("maps/skirmish/" + Data.game.maps.mapPlayer + Data.game.maps.mapName + ".tmx")
+        GroupGame.games.get(gid)?.maps?.mapType?.let { o.writeInt(it.ordinal) }
+        if (GroupGame.games.get(gid)?.maps?.mapType  == GameMaps.MapType.defaultMap) {
+            o.writeString("maps/skirmish/" + GroupGame.games.get(gid)!!.maps.mapPlayer + GroupGame.games.get(gid)!!.maps.mapName + ".tmx")
         } else {
-            o.flushMapData(Data.game.maps.mapData!!.mapSize, Data.game.maps.mapData!!.bytesMap!!)
-            o.writeString("SAVE:" + Data.game.maps.mapName + ".tmx")
+            o.flushMapData(GroupGame.games.get(gid)?.maps?.mapData!!.mapSize, GroupGame.games.get(gid)?.maps?.mapData!!.bytesMap!!)
+            o.writeString("SAVE:" + GroupGame.games.get(gid)!!.maps.mapName + ".tmx")
         }
         o.writeBoolean(false)
         return o.createPacket(PacketType.PACKET_START_GAME)
@@ -154,15 +155,15 @@ class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun writePlayer(player: Player, stream: DataOutputStream) {
-        if (Data.game.isStartGame) {
+        if (GroupGame.games.get(player.groupId)?.isStartGame == true) {
             stream.writeByte(player.site)
             stream.writeInt(player.ping)
-            stream.writeBoolean(Data.game.sharedControl)
+            stream.writeBoolean(GroupGame.games.get(player.groupId)!!.sharedControl)
             stream.writeBoolean(player.sharedControl)
             return
         }
         stream.writeByte(player.site)
-        stream.writeInt(Data.game.credits)
+        stream.writeInt(GroupGame.gU(player.groupId).credits)
         stream.writeInt(player.team)
         stream.writeBoolean(true)
         stream.writeUTF(player.name)
@@ -177,7 +178,7 @@ class GameVersionPacket : AbstractNetPacket {
         stream.writeInt(player.site)
         stream.writeByte(0)
         /* 共享控制 */
-        stream.writeBoolean(Data.game.sharedControl)
+        stream.writeBoolean(GroupGame.gU(player.groupId).sharedControl)
         /* 是否掉线 */
         stream.writeBoolean(player.sharedControl)
         /* 是否投降 */

@@ -3,22 +3,11 @@ package com.github.dr.rwserver.core;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
-import com.github.dr.rwserver.data.json.Json;
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.net.game.StartNet;
-import com.github.dr.rwserver.util.Time;
-import com.github.dr.rwserver.util.encryption.Md5;
-import com.github.dr.rwserver.util.encryption.Sha;
-import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
 
-import java.math.BigInteger;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import static com.github.dr.rwserver.net.HttpRequestOkHttp.doPost;
-import static com.github.dr.rwserver.net.HttpRequestOkHttp.doPostRw;
-import static com.github.dr.rwserver.util.RandomUtil.generateStr;
-import static com.github.dr.rwserver.util.StringFilteringUtil.cutting;
 
 /**
  * @author Dr
@@ -39,27 +28,26 @@ public class NetServer {
         }
     }
 
-    public static void reLoadServer() {
-        if (Threads.getIfScheduledFutureData("GameTask")) {
-            Threads.removeScheduledFutureData("GameTask");
+    public static void reLoadServer(int gid) {
+        if (Threads.getIfScheduledFutureData("GameTask"+gid)) {
+            Threads.removeScheduledFutureData("GameTask"+gid);
         }
-        if (Threads.getIfScheduledFutureData("GamePing")) {
-            Threads.removeScheduledFutureData("GamePing");
-        }
-        if (Threads.getIfScheduledFutureData("GameWinOrLoseCheck")) {
-            Threads.removeScheduledFutureData("GameWinOrLoseCheck");
-        }
-        if (Threads.getIfScheduledFutureData("Gameover")) {
-            Threads.removeScheduledFutureData("Gameover");
-        }
-        Call.killAllPlayer();
-        Data.playerGroup.clear();
-        Data.playerAll.clear();
-        Data.game.re();
+//        if (Threads.getIfScheduledFutureData("GamePing"+gid)) {
+//            Threads.removeScheduledFutureData("GamePing");
+//        }
+//        if (Threads.getIfScheduledFutureData("GameWinOrLoseCheck")) {
+//            Threads.removeScheduledFutureData("GameWinOrLoseCheck");
+//        }
+//        if (Threads.getIfScheduledFutureData("Gameover"+gid)) {
+//            Threads.removeScheduledFutureData("Gameover"+gid);
+//        }
+        Call.killPlayers(gid);
+        GroupGame.removePlayer(Data.playerAll,gid);
+        GroupGame.removePlayer(Data.playerGroup,gid);
+        GroupGame.games.get(gid).re();
         Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
-        Data.game.isStartGame = false;
-        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
-        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
+//        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
+//        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
 
         Log.clog("Server Gameover completed");
     }

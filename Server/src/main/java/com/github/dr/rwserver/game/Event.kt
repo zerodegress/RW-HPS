@@ -6,6 +6,7 @@ import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.net.Administration.PlayerInfo
 import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.plugin.event.AbstractEvent
@@ -79,28 +80,28 @@ class Event : AbstractEvent {
                 p.isAdmin = true
                 Call.upDataGameData()
                 player.isAdmin = false
-                Call.sendSystemMessage("give.ok", p.name)
+                Call.sendSystemMessage("give.ok",player.groupId, p.name)
             } catch (ignored: IndexOutOfBoundsException) {
             }
         }
         Data.core.admin.playerDataCache.put(player.uuid, PlayerInfo(player.uuid, player.kickTime, player.muteTime))
 
-        if (Data.game.isStartGame) {
+        if (GroupGame.games[player.groupId]?.isStartGame == true) {
             player.sharedControl = true
             var int3 = 0
-            for (i in 0 until Data.game.maxPlayer) {
-                val player1 = Data.game.playerData[i]
+            for (i in 0 until Data.game.gMaxPlayer) {
+                val player1 = GroupGame.gU(player.groupId).playerData[i]
                 if (player1 != null) {
                     if (player1.sharedControl || Data.game.sharedControl) {
                         int3 = int3 or 1 shl i
                     }
                 }
             }
-            Data.game.sharedControlPlayer = int3
-            Call.sendSystemMessage("player.dis", player.name)
-            Call.sendTeamData()
+            GroupGame.games.get(player.groupId)?.sharedControlPlayer =int3
+            Call.sendSystemMessage("player.dis",player.groupId, player.name)
+            Call.sendTeamData(player.groupId)
         } else {
-            Call.sendSystemMessage("player.disNoStart", player.name)
+            Call.sendSystemMessage("player.disNoStart",player.groupId, player.name)
         }
     }
 
@@ -108,11 +109,11 @@ class Event : AbstractEvent {
         Data.core.admin.playerDataCache.clear()
     }
 
-    override fun registerGameOverEvent() {
-        if (Data.game.maps.mapData != null) {
-            Data.game.maps.mapData!!.clean()
+    override fun registerGameOverEvent(gid:Int) {
+        if (GroupGame.games.get(gid)?.maps?.mapData != null) {
+            GroupGame.games.get(gid)?.maps!!.mapData!!.clean()
         }
-        NetServer.reLoadServer()
+        NetServer.reLoadServer(gid)
         System.gc()
     }
 
@@ -124,7 +125,7 @@ class Event : AbstractEvent {
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
-        Call.sendSystemMessage("ban.yes", player.name)
+        Call.sendSystemMessage("ban.yes",player.groupId, player.name)
     }
 
     override fun registerPlayerIpBanEvent(player: Player) {
@@ -134,6 +135,6 @@ class Event : AbstractEvent {
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
-        Call.sendSystemMessage("ban.yes", player.name)
+        Call.sendSystemMessage("ban.yes",player.groupId, player.name)
     }
 }

@@ -52,7 +52,7 @@ interface AbstractEvent {
     fun registerGameStartEvent() {}
 
     /** 结束游戏 [异步-ASync]  */
-    fun registerGameOverEvent() {}
+    fun registerGameOverEvent(gid:Int) {}
 
     /** 玩家被ban [异步-ASync]  */
     fun registerPlayerBanEvent(player: Player) {}

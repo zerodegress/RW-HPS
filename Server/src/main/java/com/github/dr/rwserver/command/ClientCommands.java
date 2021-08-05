@@ -1,11 +1,11 @@
 package com.github.dr.rwserver.command;
 
-import com.github.dr.rwserver.core.Call;
-import com.github.dr.rwserver.core.NetServer;
-import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.command.ex.Vote;
+import com.github.dr.rwserver.core.Call;
+import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameMaps;
 import com.github.dr.rwserver.game.Team;
@@ -49,7 +49,7 @@ public class ClientCommands {
 
 		handler.<Player>register("map", "<MapNumber...>", "clientCommands.map", (args, player) -> {
 			if (isAdmin(player)) {
-				if (Data.game.isStartGame || Data.game.mapLock) {
+				if ( GroupGame.games.get(player.groupId).isStartGame ||  GroupGame.games.get(player.groupId).mapLock) {
 					return;
 				}
 				final StringBuilder response = new StringBuilder(args[0]);
@@ -60,23 +60,23 @@ public class ClientCommands {
 				final String mapPlayer = Data.MapsMap.get(inputMapName);
 				if (mapPlayer != null) {
 					String[] data = mapPlayer.split("@");
-					Data.game.maps.mapName = data[0];
-					Data.game.maps.mapPlayer = data[1];
-					Data.game.maps.mapType = MapType.defaultMap;
+					 GroupGame.games.get(player.groupId).maps.mapName = data[0];
+					 GroupGame.games.get(player.groupId).maps.mapPlayer = data[1];
+					 GroupGame.games.get(player.groupId).maps.mapType = MapType.defaultMap;
 				} else {
-					if (Data.game.mapsData.size == 0) {
+					if ( GroupGame.games.get(player.groupId).mapsData.size == 0) {
 						return;
 					}
 					if (notIsNumeric(inputMapName)) {
 						player.sendSystemMessage(localeUtil.getinput("err.noNumber"));
 						return;
 					}
-					String name = Data.game.mapsData.keys().toSeq().get(Integer.parseInt(inputMapName));
-					GameMaps.MapData data = Data.game.mapsData.get(name);
-					Data.game.maps.mapData = data;
-					Data.game.maps.mapType = data.mapType;
-					Data.game.maps.mapName = name;
-					Data.game.maps.mapPlayer = "";
+					String name =  GroupGame.games.get(player.groupId).mapsData.keys().toSeq().get(Integer.parseInt(inputMapName));
+					GameMaps.MapData data =  GroupGame.games.get(player.groupId).mapsData.get(name);
+					 GroupGame.games.get(player.groupId).maps.mapData = data;
+					 GroupGame.games.get(player.groupId).maps.mapType = data.mapType;
+					 GroupGame.games.get(player.groupId).maps.mapName = name;
+					 GroupGame.games.get(player.groupId).maps.mapPlayer = "";
 					player.sendSystemMessage(player.localeUtil.getinput("map.custom.info"));
 				}
 				Call.upDataGameData();
@@ -84,17 +84,17 @@ public class ClientCommands {
 		});
 
 		handler.<Player>register("maps", "[page]", "clientCommands.maps", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.sendSystemMessage(localeUtil.getinput("err.startGame"));
 				return;
 			}
-			if (Data.game.mapsData.size == 0) {
+			if ( GroupGame.games.get(player.groupId).mapsData.size == 0) {
 				return;
 			}
 			StringBuilder response = new StringBuilder();
 			final AtomicInteger i = new AtomicInteger(0);
 			response.append(localeUtil.getinput("maps.top"));
-			Data.game.mapsData.each((k,v) -> {
+			 GroupGame.games.get(player.groupId).mapsData.each((k,v) -> {
 				response.append(localeUtil.getinput("maps.info", i.get(),k)).append(LINE_SEPARATOR);
 				i.getAndIncrement();
 			});
@@ -102,14 +102,14 @@ public class ClientCommands {
 		});
 
 		handler.<Player>register("afk", "clientCommands.afk", (args, player) -> {
-			if (!Data.game.isAfk) {
+			if (! GroupGame.games.get(player.groupId).isAfk) {
 				player.sendSystemMessage(localeUtil.getinput("ban.comm","afk"));
 				return;
 			}
 			if (player.isAdmin) {
 				player.sendSystemMessage(localeUtil.getinput("afk.adminNo"));
 			} else {
-				if (Data.game.isStartGame) {
+				if ( GroupGame.games.get(player.groupId).isStartGame) {
 					player.sendSystemMessage(localeUtil.getinput("err.startGame"));
 					return;
 				}
@@ -118,17 +118,17 @@ public class ClientCommands {
 				}
 				AtomicBoolean admin = new AtomicBoolean(true);
 				Data.playerGroup.each(p -> p.isAdmin,e -> admin.set(false));
-				if (admin.get()&&Data.game.oneAdmin)  {
+				if (admin.get()&& GroupGame.games.get(player.groupId).oneAdmin)  {
 					player.isAdmin = true;
 					Call.upDataGameData();
-					Call.sendSystemMessageLocal("afk.end.noAdmin",player.name);
+					Call.sendSystemMessageLocal("afk.end.noAdmin",player.groupId,player.name);
 					return;
 				}
 				Threads.newThreadService(() -> Data.playerGroup.each(p -> p.isAdmin, i -> {
 					i.isAdmin = false;
 					player.isAdmin = true;
 					Call.upDataGameData();
-					Call.sendSystemMessageLocal("afk.end.ok",player.name);
+					Call.sendSystemMessageLocal("afk.end.ok",player.groupId,player.name);
 					Threads.removeScheduledFutureData("AfkCountdown");
 				}),30, TimeUnit.SECONDS,"AfkCountdown");
 				Call.sendMessageLocal(player,"afk.start",player.name);
@@ -137,7 +137,7 @@ public class ClientCommands {
 
 		handler.<Player>register("give", "<PlayerSerialNumber>", "clientCommands.give", (args, player) -> {
 			if (isAdmin(player)) {
-				if (Data.game.isStartGame) {
+				if ( GroupGame.games.get(player.groupId).isStartGame) {
 					player.sendSystemMessage(localeUtil.getinput("err.startGame"));
 					return;
 				}
@@ -146,7 +146,7 @@ public class ClientCommands {
 					return;
 				}
 				final int playerSite = Integer.parseInt(args[0])-1;
-				final Player newAdmin = Data.game.playerData[playerSite];
+				final Player newAdmin =  GroupGame.games.get(player.groupId).playerData[playerSite];
 				if (notIsBlank(newAdmin)) {
 					player.isAdmin = false;
 					newAdmin.isAdmin = true;
@@ -164,22 +164,22 @@ public class ClientCommands {
 		});
 
 		handler.<Player>register("am", "<on/off>", "clientCommands.am", (args, player) -> {
-			Data.game.amTeam = "on".equals(args[0]);
-			if (Data.game.amTeam) {
+			 GroupGame.games.get(player.groupId).amTeam = "on".equals(args[0]);
+			if ( GroupGame.games.get(player.groupId).amTeam) {
 				Team.amYesPlayerTeam();
 			} else {
 				Team.amNoPlayerTeam();
 			}
-			player.sendSystemMessage(localeUtil.getinput("server.amTeam",(Data.game.amTeam) ? "开启" : "关闭"));
+			player.sendSystemMessage(localeUtil.getinput("server.amTeam",( GroupGame.games.get(player.groupId).amTeam) ? "开启" : "关闭"));
 		});
 
 		handler.<Player>register("income", "<income>", "clientCommands.income", (args, player) -> {
 			if (isAdmin(player)) {
-				if (Data.game.isStartGame) {
+				if ( GroupGame.games.get(player.groupId).isStartGame) {
 					player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 					return;
 				}
-				Data.game.income = Float.parseFloat(args[0]);
+				 GroupGame.games.get(player.groupId).income = Float.parseFloat(args[0]);
 				Call.upDataGameData();
 			}
 		});
@@ -187,7 +187,7 @@ public class ClientCommands {
 		handler.<Player>register("status", "clientCommands.status", (args, player) -> player.sendSystemMessage(player.localeUtil.getinput("status.version",Data.playerGroup.size(),Data.core.admin.bannedIPs.size(),Data.SERVER_CORE_VERSION,player.con.getVersion())));
 
 		handler.<Player>register("kick", "<PlayerSerialNumber>", "clientCommands.kick", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 				return;
 			}
@@ -197,10 +197,10 @@ public class ClientCommands {
 					return;
 				}
 				final int site = Integer.parseInt(args[0])-1;
-				if (Data.game.playerData[site] != null) {
-					Data.game.playerData[site].kickTime = Time.getTimeFutureMillis(60 * 1000L);
+				if ( GroupGame.games.get(player.groupId).playerData[site] != null) {
+					 GroupGame.games.get(player.groupId).playerData[site].kickTime = Time.getTimeFutureMillis(60 * 1000L);
 					try {
-						Data.game.playerData[site].con.sendKick(localeUtil.getinput("kick.you"));
+						 GroupGame.games.get(player.groupId).playerData[site].con.sendKick(localeUtil.getinput("kick.you"));
 					} catch (IOException e) {
 						Log.error("[Player] Send Kick Player Error",e);
 					}
@@ -220,31 +220,31 @@ public class ClientCommands {
 				}
 				switch (Integer.parseInt(args[0])) {
 					case 0:
-						Data.game.credits = 1;
+						 GroupGame.games.get(player.groupId).credits = 1;
 						break;
 					case 1000:
-						Data.game.credits = 2;
+						 GroupGame.games.get(player.groupId).credits = 2;
 						break;
 					case 2000:
-						Data.game.credits = 3;
+						 GroupGame.games.get(player.groupId).credits = 3;
 						break;
 					case 5000:
-						Data.game.credits = 4;
+						 GroupGame.games.get(player.groupId).credits = 4;
 						break;
 					case 10000:
-						Data.game.credits = 5;
+						 GroupGame.games.get(player.groupId).credits = 5;
 						break;
 					case 50000:
-						Data.game.credits = 6;
+						 GroupGame.games.get(player.groupId).credits = 6;
 						break;
 					case 100000:
-						Data.game.credits = 7;
+						 GroupGame.games.get(player.groupId).credits = 7;
 						break;
 					case 200000:
-						Data.game.credits = 8;
+						 GroupGame.games.get(player.groupId).credits = 8;
 						break;
 					case 4000:
-						Data.game.credits = 0;
+						 GroupGame.games.get(player.groupId).credits = 0;
 						break;
 					default:
 						break;
@@ -256,7 +256,7 @@ public class ClientCommands {
 
 		handler.<Player>register("nukes", "<boolean>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
-				Data.game.noNukes = !Boolean.parseBoolean(args[0]);
+				 GroupGame.games.get(player.groupId).noNukes = !Boolean.parseBoolean(args[0]);
 				Call.upDataGameData();
 			}
 		});
@@ -265,14 +265,14 @@ public class ClientCommands {
 
 		handler.<Player>register("fog", "<type>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
-				Data.game.mist = "off".equals(args[0]) ? 0 : "basic".equals(args[0]) ? 1 : 2;
+				 GroupGame.games.get(player.groupId).mist = "off".equals(args[0]) ? 0 : "basic".equals(args[0]) ? 1 : 2;
 				Call.upDataGameData();
 			}
 		});
 
 		handler.<Player>register("sharedcontrol", "<boolean>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
-				Data.game.sharedControl = Boolean.parseBoolean(args[0]);
+				 GroupGame.games.get(player.groupId).sharedControl = Boolean.parseBoolean(args[0]);
 				Call.upDataGameData();
 			}
 		});
@@ -283,8 +283,8 @@ public class ClientCommands {
 					player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"));
 					return;
 				}
-				//Data.game.initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
-				Data.game.initUnit = Integer.parseInt(args[0]);
+				// GroupGame.games.get(player.groupId).initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
+				 GroupGame.games.get(player.groupId).initUnit = Integer.parseInt(args[0]);
 				Call.upDataGameData();
 			}
 		});
@@ -295,17 +295,17 @@ public class ClientCommands {
 					Threads.removeScheduledFutureData("AfkCountdown");
 					Call.sendMessageLocal(player, "afk.clear", player.name);
 				}
-				if (Data.game.startMinPlayerSize > Data.playerGroup.size()) {
-					player.sendSystemMessage(player.localeUtil.getinput("start.playerNo",Data.game.startMinPlayerSize));
+				if ( GroupGame.games.get(player.groupId).startMinPlayerSize > GroupGame.playerGroup(player.groupId).size()) {
+					player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", GroupGame.games.get(player.groupId).startMinPlayerSize));
 					return;
 				}
-				if (Threads.getIfScheduledFutureData("GamePing")) {
-					Threads.removeScheduledFutureData("GamePing");
+//				if (Threads.getIfScheduledFutureData("GamePing")) {
+//					Threads.removeScheduledFutureData("GamePing");
+//				}
+				if ( GroupGame.games.get(player.groupId).maps.mapData != null) {
+					 GroupGame.games.get(player.groupId).maps.mapData.readMap();
 				}
-				if (Data.game.maps.mapData != null) {
-					Data.game.maps.mapData.readMap();
-				}
-				Data.playerGroup.each(e -> {
+				Data.playerGroup.eachBooleanIfs(p->p.groupId==player.groupId,e -> {
 					try {
 						e.con.sendStartGame();
 						e.lastMoveTime = System.currentTimeMillis();
@@ -314,22 +314,22 @@ public class ClientCommands {
 					}
 				});
 
-				if (Data.game.winOrLose) {
+				if ( GroupGame.games.get(player.groupId).winOrLose) {
 
 				}
-				Data.game.isStartGame = true;
+				GroupGame.games.get(player.groupId).isStartGame = true;
 				int int3 = 0;
-				for (int i = 0; i < Data.game.maxPlayer; i++) {
-					Player player1 = Data.game.playerData[i];
+				for (int i = 0; i <  GroupGame.games.get(player.groupId).gMaxPlayer; i++) {
+					Player player1 =  GroupGame.games.get(player.groupId).playerData[i];
 					if (player1 != null) {
-						if (player1.sharedControl || Data.game.sharedControl) {
+						if (player1.sharedControl ||  GroupGame.games.get(player.groupId).sharedControl) {
 							int3 = (int3 | 1 << i);
 						}
 					}
 				}
-				Data.game.sharedControlPlayer = int3;
-				Call.testPreparationPlayer();
-				Events.fire(new EventType.GameStartEvent());
+				GroupGame.games.get(player.groupId).sharedControlPlayer = int3;
+				Call.testPreparationPlayer(player.groupId);
+				Events.fire(new EventType.GameStartEvent(player.groupId));
 			}
 		});
 
@@ -342,7 +342,7 @@ public class ClientCommands {
 		});
 
 		handler.<Player>register("surrender", "clientCommands.surrender", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				if (isBlank(Data.Vote)) {
 					Data.Vote = new Vote(player,"surrender");
 				} else {
@@ -355,12 +355,12 @@ public class ClientCommands {
 
 		handler.<Player>register("teamlock", "clientCommands.teamlock", (args, player) -> {
 			if (isAdmin(player)) {
-				Data.game.lockTeam = "on".equals(args[0]);
+				 GroupGame.games.get(player.groupId).lockTeam = "on".equals(args[0]);
 			}
 		});
 
 		handler.<Player>register("killme", "clientCommands.killMe", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.con.sendSurrender();
 			} else {
 				player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"));
@@ -386,7 +386,7 @@ public class ClientCommands {
 		});
 
 		handler.<Player>register("move", "<PlayerSerialNumber> <ToSerialNumber> <?>","HIDE", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 				return;
 			}
@@ -399,38 +399,38 @@ public class ClientCommands {
 				int newSite = Integer.parseInt(args[1])-1;
 				//int newSite = 0;
 				int team = Integer.parseInt(args[2]);
-				if (oldSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
-					final Player od = Data.game.playerData[oldSite];
+				if (oldSite <  GroupGame.games.get(player.groupId).maxPlayer && newSite <  GroupGame.games.get(player.groupId).maxPlayer) {
+					final Player od =  GroupGame.games.get(player.groupId).playerData[oldSite];
 					if (newSite > -2) {
-						if (Data.game.playerData[newSite] == null) {
-							Data.game.playerData[oldSite] = null;
+						if ( GroupGame.games.get(player.groupId).playerData[newSite] == null) {
+							 GroupGame.games.get(player.groupId).playerData[oldSite] = null;
 							od.site = newSite;
 							if (team > -1) {
 								od.team = team;
 							}
-							Data.game.playerData[newSite] = od;
+							 GroupGame.games.get(player.groupId).playerData[newSite] = od;
 						} else {
-							final Player nw = Data.game.playerData[newSite];
+							final Player nw =  GroupGame.games.get(player.groupId).playerData[newSite];
 							od.site = newSite;
 							nw.site = oldSite;
 							if (team >-1) {
 								od.team = team;
 							}
-							Data.game.playerData[newSite] = od;
-							Data.game.playerData[oldSite] = nw;
+							 GroupGame.games.get(player.groupId).playerData[newSite] = od;
+							 GroupGame.games.get(player.groupId).playerData[oldSite] = nw;
 						}
 					}
-					Call.sendTeamData();
+					Call.sendTeamData(player.groupId);
 				}
 			}
 		});
 
 		handler.<Player>register("self_move", "<ToSerialNumber> <?>","HIDE", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 				return;
 			}
-			if (Data.game.lockTeam) {
+			if ( GroupGame.games.get(player.groupId).lockTeam) {
 				return;
 			}
 			if (notIsNumeric(args[0]) && notIsNumeric(args[1])) {
@@ -439,21 +439,21 @@ public class ClientCommands {
 			}
 			int newSite = Integer.parseInt(args[0])-1;
 			int team = Integer.parseInt(args[1]);
-			if (newSite < Data.game.maxPlayer) {
-				if (Data.game.playerData[newSite] == null) {
-					Data.game.playerData[player.site] = null;
+			if (newSite <  GroupGame.games.get(player.groupId).maxPlayer) {
+				if ( GroupGame.games.get(player.groupId).playerData[newSite] == null) {
+					 GroupGame.games.get(player.groupId).playerData[player.site] = null;
 					player.site = newSite;
 					if (team >-1) {
 						player.team = team;
 					}
-					Data.game.playerData[newSite] = player;
-					Call.sendTeamData();
+					 GroupGame.games.get(player.groupId).playerData[newSite] = player;
+					Call.sendTeamData(player.groupId);
 				}
 			}
 		});
 
 		handler.<Player>register("team", "<PlayerSiteNumber> <ToTeamNumber>","HIDE", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 				return;
 			}
@@ -464,23 +464,23 @@ public class ClientCommands {
 				}
 				int playerSite = Integer.parseInt(args[0])-1;
 				int newSite = Integer.parseInt(args[1])-1;
-				if (playerSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
+				if (playerSite <  GroupGame.games.get(player.groupId).maxPlayer && newSite <  GroupGame.games.get(player.groupId).maxPlayer) {
 					if (newSite > -1) {
-						if (notIsBlank(Data.game.playerData[playerSite])) {
-							Data.game.playerData[playerSite].team = newSite;
+						if (notIsBlank( GroupGame.games.get(player.groupId).playerData[playerSite])) {
+							 GroupGame.games.get(player.groupId).playerData[playerSite].team = newSite;
 						}
 					}
-					Call.sendTeamData();
+					Call.sendTeamData(player.groupId);
 				}
 			}
 		});
 
 		handler.<Player>register("self_team", "<ToTeamNumber>","HIDE", (args, player) -> {
-			if (Data.game.isStartGame) {
+			if ( GroupGame.games.get(player.groupId).isStartGame) {
 				player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 				return;
 			}
-			if (Data.game.lockTeam) {
+			if ( GroupGame.games.get(player.groupId).lockTeam) {
 				return;
 			}
 			if (notIsNumeric(args[0])) {
@@ -488,9 +488,9 @@ public class ClientCommands {
 				return;
 			}
 			int newSite = Integer.parseInt(args[0])-1;
-			if (newSite < Data.game.maxPlayer) {
+			if (newSite < GroupGame.games.get(player.groupId).maxPlayer) {
 				player.team = newSite;
-				Call.sendTeamData();
+				Call.sendTeamData(player.groupId);
 			}
 		});
 

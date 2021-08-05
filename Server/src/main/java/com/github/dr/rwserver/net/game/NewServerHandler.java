@@ -1,9 +1,15 @@
 package com.github.dr.rwserver.net.game;
 
+import com.github.dr.rwserver.core.Call;
+import com.github.dr.rwserver.core.thread.Threads;
+import com.github.dr.rwserver.data.Player;
+import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.ga.GroupGame;
+import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
+import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -12,6 +18,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @ChannelHandler.Sharable
 class NewServerHandler extends SimpleChannelInboundHandler<Object> {
@@ -93,7 +102,19 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        int gid = (int) ctx.channel().attr(AttributeKey.valueOf(GroupGame.GID)).get();
+        if(ctx.channel().hasAttr(GroupGame.G_KEY)) {
+            Player player= ctx.channel().attr(GroupGame.G_KEY).get();
+            int gid=player.groupId;
+            if(GroupGame.games.get(gid).isStartGame){
+                List<Player> players = GroupGame.playersByGid(Data.playerGroup, gid);
+                if(players.isEmpty()){
+                    Events.fire(new EventType.GameOverEvent(gid));
+                }else if (players.size()==1){
+                    Call.sendSystemMessageLocal("gameOver.oneMin",gid);
+                    Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent(gid)),1, TimeUnit.MINUTES,"Gameover"+gid);
+                }
+            }
+        }
 
         super.channelInactive(ctx);
     }

@@ -90,10 +90,12 @@ internal class PluginEventManage {
                 }
             }
             /* ASync */
-            Events.on(GameOverEvent::class.java) { _: GameOverEvent? ->
+            Events.on(GameOverEvent::class.java) { g: GameOverEvent? ->
                 executorService.execute {
                     pluginEventData.each { obj: AbstractEvent ->
-                        obj.registerGameOverEvent()
+                        if (g != null) {
+                            obj.registerGameOverEvent(g.groupId)
+                        }
                     }
                 }
             }

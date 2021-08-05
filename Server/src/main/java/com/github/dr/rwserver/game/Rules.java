@@ -169,6 +169,7 @@ public class Rules {
         initUnit = 1;
         mist = 2;
         sharedControl = false;
+        isStartGame=false;
     }
 
     public void checkMaps() {
@@ -212,9 +213,9 @@ public class Rules {
     private void autoLoadOrUpdate(LoadConfig config) {
         if (config.readBoolean("autoReLoadMap",false)) {
             Threads.newThreadService2(() -> {
-                if (IsUtil.notIsBlank(Data.game) && !Data.game.isStartGame) {
-                    Data.game.mapsData.clear();
-                    Data.game.checkMaps();
+                if (IsUtil.notIsBlank(this) && !this.isStartGame) {
+                    this.mapsData.clear();
+                    this.checkMaps();
                 }
             },0,1, TimeUnit.MINUTES,"AutoReLoadMap");
         }

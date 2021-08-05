@@ -1,5 +1,7 @@
 package com.github.dr.rwserver.net.game
 
+import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
 import com.github.dr.rwserver.net.udp.ReliableSocket
@@ -43,7 +45,10 @@ class ConnectionAgreement {
         localPort = (channel.localAddress() as InetSocketAddress).port
         id = generateStr(5)
     }
-
+    fun  bindPlayer(p: Player){
+        val c:Channel= objectOutStream as Channel;
+        c.attr(GroupGame.G_KEY).set(p);
+    }
     /**
      * UDP Send
      * @param socket Socket

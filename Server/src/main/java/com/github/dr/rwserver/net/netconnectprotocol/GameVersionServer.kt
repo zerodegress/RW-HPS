@@ -6,6 +6,9 @@ import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
+import com.github.dr.rwserver.func.BooleanIf
+import com.github.dr.rwserver.func.Cons
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.game.EventType.*
 import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.io.GameInputStream
@@ -13,10 +16,7 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
-import com.github.dr.rwserver.util.ExtractUtil
-import com.github.dr.rwserver.util.IsUtil
-import com.github.dr.rwserver.util.PacketType
-import com.github.dr.rwserver.util.RandomUtil
+import com.github.dr.rwserver.util.*
 import com.github.dr.rwserver.util.encryption.Game
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
@@ -24,6 +24,7 @@ import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import com.ip2location.IPResult
 import org.jetbrains.annotations.NotNull
 import java.io.*
 import java.util.concurrent.Executors
@@ -318,31 +319,25 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 }
 
                 inputPassword = false
+
+                if (Data.playerGroup.size() >= Data.game.maxPlayer) {
+                    if (IsUtil.isBlank(Data.game.maxPlayerAd)) {
+                        sendKick("服务器没有位置 # The server has no free location")
+                    } else {
+                        sendKick(Data.game.maxPlayerAd)
+                    }
+                    return false
+                }
                 val re = AtomicBoolean(false)
-                if (Data.game.isStartGame) {
-                    Data.playerAll.each({ i: Player -> i.uuid == uuid }) { e: Player ->
-                        re.set(true)
-                        this.player = e
-                        player.con = this
-                        Data.playerGroup.add(e)
-                    }
-                    if (!re.get()) {
-                        if (IsUtil.isBlank(Data.game.startPlayerAd)) {
-                            sendKick("游戏已经开局 请等待 # The game has started, please wait")
-                        } else {
-                            sendKick(Data.game.startPlayerAd)
-                        }
-                        return false
-                    }
-                } else {
-                    if (Data.playerGroup.size() >= Data.game.maxPlayer) {
-                        if (IsUtil.isBlank(Data.game.maxPlayerAd)) {
-                            sendKick("服务器没有位置 # The server has no free location")
-                        } else {
-                            sendKick(Data.game.maxPlayerAd)
-                        }
-                        return false
-                    }
+                Data.playerAll.each(
+                    { i: Player -> i.uuid == uuid }
+                ) { e: Player? ->
+                    re.set(true)
+                    player = e!!
+                    player.con = this
+                    Data.playerGroup.add(e)
+                }
+                if (!re.get()) {
                     var localeUtil = Data.localeUtilMap["CN"]
                     if (Data.game.ipCheckMultiLanguageSupport) {
                         val rec = Data.ip2Location.IPQuery(connectionAgreement.ip)
@@ -350,7 +345,8 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                             localeUtil = Data.localeUtilMap[rec.countryShort]
                         }
                     }
-                    player = Player.addPlayer(this, uuid, name, localeUtil)
+                    if (GroupGame.prePlayers().size > Data.game.gMaxPlayer) GroupGame.incrId()
+                    player = Player.addPlayer(GroupGame.currId, this, uuid, name, localeUtil)
                 }
                 connectionAgreement.add(NetStaticData.groupNet)
                 Call.sendTeamData()
@@ -473,7 +469,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                         NetStaticData.groupNet.broadcast(
                             NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
                                 Data.game.gameSaveCache
-                            )
+                            ),-1
                         )
                     } catch (e: IOException) {
                         Log.error(e)

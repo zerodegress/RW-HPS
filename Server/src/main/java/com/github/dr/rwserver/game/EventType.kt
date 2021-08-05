@@ -45,7 +45,7 @@ class EventType {
     class GameStartEvent
 
     /** 结束游戏  */
-    class GameOverEvent
+    class GameOverEvent(val groupId:Int)
 
     /** 玩家被ban  */
     class PlayerBanEvent(val player: Player)

@@ -6,6 +6,8 @@ import com.github.dr.rwserver.util.Time.getUtcMilliFormat
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.MessageFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Log Util
@@ -19,7 +21,7 @@ object Log {
     private var LOG_GRADE = 5
     private lateinit var logPrint: LogPrint<Any>
     private val LOG_CACHE = StringBuilder()
-
+    private var timeFormat=SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss")
     @JvmStatic
 	fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()
@@ -211,7 +213,7 @@ object Log {
     fun clog(text: String) {
         var text = text
         text = "[" +
-                getUtcMilliFormat(1) +
+                timeFormat.format(Date()) +
                 " UTC] " +
                 text
         println(formatColors("$text&fr"))

@@ -207,8 +207,8 @@ public class ServerCommands {
         Call.sendSystemMessage(response.toString().replace("<>",""));
     });
 
-        handler.<StrCons>register("gameover", "serverCommands.gameover", (arg, log) -> {
-            Events.fire(new EventType.GameOverEvent());
+        handler.<StrCons>register("gameover", "<gid>","serverCommands.gameover", (arg, log) -> {
+            Events.fire(new EventType.GameOverEvent(Integer.parseInt(arg[0])));
         });
 
         handler.<StrCons>register("clearbanip", "serverCommands.clearbanip", (arg, log) -> {
@@ -355,7 +355,7 @@ public class ServerCommands {
                     return;
                 }
             }
-            GameTimeLapse.curr.refresh();
+//            GameTimeLapse.curr.refresh();
         });
     }
 }

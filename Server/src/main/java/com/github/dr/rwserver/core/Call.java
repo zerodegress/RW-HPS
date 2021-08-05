@@ -24,7 +24,7 @@ public class Call {
 
     public static void sendMessage(Player player, String text) {
         try {
-            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(text,player.name,player.team));
+            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(text,player.name,player.team),player.groupId);
         } catch (IOException e) {
             Log.error("[ALL] Send Player Chat Error",e);
         }

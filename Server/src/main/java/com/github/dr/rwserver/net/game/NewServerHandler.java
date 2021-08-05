@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.net.game;
 
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
@@ -88,6 +89,13 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
         } catch (Exception ss) {
             Log.error(ss);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        int gid = (int) ctx.channel().attr(AttributeKey.valueOf(GroupGame.GID)).get();
+
+        super.channelInactive(ctx);
     }
 
     @Override

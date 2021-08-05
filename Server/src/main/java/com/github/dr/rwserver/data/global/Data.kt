@@ -77,4 +77,5 @@ object Data {
     lateinit var Vote: Vote
     @JvmField
 	var serverChannelB: Channel? = null
+
 }

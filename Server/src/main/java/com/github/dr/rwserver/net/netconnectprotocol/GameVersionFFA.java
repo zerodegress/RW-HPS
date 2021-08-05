@@ -5,6 +5,7 @@ import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameCommand;
 import com.github.dr.rwserver.io.GameInputStream;
@@ -640,32 +641,22 @@ public class GameVersionFFA extends AbstractGameVersion {
             }
             setInputPassword(false);
 
-
+            if (Data.playerGroup.size() >= Data.game.maxPlayer) {
+                if (isBlank(Data.game.maxPlayerAd)) {
+                    sendKick("服务器没有位置 # The server has no free location");
+                } else {
+                    sendKick(Data.game.maxPlayerAd);
+                }
+                return false;
+            }
             AtomicBoolean re = new AtomicBoolean(false);
-            if (Data.game.isStartGame) {
-                Data.playerAll.each(i -> i.uuid.equals(uuid), e -> {
-                    re.set(true);
-                    this.player = e;
-                    player.con = this;
-                    Data.playerGroup.add(e);
-                });
-                if (!re.get()) {
-                    if (isBlank(Data.game.startPlayerAd)) {
-                        sendKick("游戏已经开局 请等待 # The game has started, please wait");
-                    } else {
-                        sendKick(Data.game.startPlayerAd);
-                    }
-                    return false;
-                }
-            } else {
-                if (Data.playerGroup.size() >= Data.game.maxPlayer) {
-                    if (isBlank(Data.game.maxPlayerAd)) {
-                        sendKick("服务器没有位置 # The server has no free location");
-                    } else {
-                        sendKick(Data.game.maxPlayerAd);
-                    }
-                    return false;
-                }
+            Data.playerAll.each(i -> i.uuid.equals(uuid), e -> {
+                re.set(true);
+                this.player = e;
+                player.con = this;
+                Data.playerGroup.add(e);
+            });
+            if(!re.get()){
                 LocaleUtil localeUtil = Data.localeUtilMap.get("CN");
                 if (Data.game.ipCheckMultiLanguageSupport) {
                     IPResult rec = Data.ip2Location.IPQuery(connectionAgreement.ip);
@@ -673,8 +664,12 @@ public class GameVersionFFA extends AbstractGameVersion {
                         localeUtil = Data.localeUtilMap.get(rec.getCountryShort());
                     }
                 }
-                player = Player.addPlayer(this, uuid, name, localeUtil);
+
+                if(GroupGame.prePlayers().size()>Data.game.gMaxPlayer) GroupGame.incrId();
+                player = Player.addPlayer(GroupGame.currId,this, uuid, name, localeUtil);
             }
+
+
 
             connectionAgreement.add(NetStaticData.groupNet);
             Call.sendTeamData();
@@ -807,11 +802,11 @@ public class GameVersionFFA extends AbstractGameVersion {
                             return;
                         }
                     }
-                    try {
-                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(Data.game.gameSaveCache));
-                    } catch (IOException e) {
-                        Log.error(e);
-                    }
+//                    try {
+//                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(Data.game.gameSaveCache));
+//                    } catch (IOException e) {
+//                        Log.error(e);
+//                    }
                 });
                 return null;
             });

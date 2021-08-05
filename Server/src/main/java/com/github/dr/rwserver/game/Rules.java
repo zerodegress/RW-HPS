@@ -36,6 +36,7 @@ public class Rules {
     public int credits = 0;
     /** 最大玩家 */
     public int maxPlayer;
+    public int gMaxPlayer=10;
     /** 地图数据 */
     public final GameMaps maps = new GameMaps();
     /** nukes */

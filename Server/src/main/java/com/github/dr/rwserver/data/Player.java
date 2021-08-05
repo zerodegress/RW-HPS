@@ -14,6 +14,7 @@ import java.util.Objects;
  * @author Administrator
  */
 public final class Player {
+	public final int groupId;
 	/** 玩家连接UUID */
 	public final String uuid;
 	/** 玩家名字 */
@@ -48,15 +49,16 @@ public final class Player {
 	public boolean noSay = false;
 	public boolean watch = false;
 
-	public Player(AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
+	public Player(int groupId, AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
+		this.groupId = groupId;
 		this.con = con;
 		this.uuid = uuid;
 		this.name = name;
 		this.localeUtil = localeUtil;
 	}
 
-	public static Player addPlayer(AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
-		Player player = new Player(con, uuid, name, localeUtil);
+	public static Player addPlayer(int groupId,AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
+		Player player = new Player(groupId, con, uuid, name, localeUtil);
 		if (Data.game.oneAdmin) {
 			if (Data.playerGroup.size() == 0) {
 				player.isAdmin = true;

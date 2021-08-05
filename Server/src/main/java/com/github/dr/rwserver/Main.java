@@ -121,8 +121,8 @@ public class Main {
 		new YouXiBan().registerServerCommands(Data.SERVERCOMMAND);
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
 		new UpList().registerServerCommands(Data.SERVERCOMMAND);
-		Data.SERVERCOMMAND.handleMessage("upserverlist",(StrCons) Log::clog);
-		Data.SERVERCOMMAND.handleMessage("timer n",(StrCons) Log::clog);
+//		Data.SERVERCOMMAND.handleMessage("upserverlist",(StrCons) Log::clog);
+//		Data.SERVERCOMMAND.handleMessage("timer n",(StrCons) Log::clog);
 	}
 
 	private static void loadCoreJar(String libPath) {

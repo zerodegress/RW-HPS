@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GroupGame {
 
-    public static final AttributeKey<Player> G_KEY=AttributeKey.valueOf("gid");
+    public static final AttributeKey<Integer> G_KEY=AttributeKey.valueOf("gid");
 
     private static int currId=0;
 

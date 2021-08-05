@@ -166,9 +166,9 @@ public class ClientCommands {
 		handler.<Player>register("am", "<on/off>", "clientCommands.am", (args, player) -> {
 			 GroupGame.games.get(player.groupId).amTeam = "on".equals(args[0]);
 			if ( GroupGame.games.get(player.groupId).amTeam) {
-				Team.amYesPlayerTeam();
+				Team.amYesPlayerTeam(player.groupId);
 			} else {
-				Team.amNoPlayerTeam();
+				Team.amNoPlayerTeam(player.groupId);
 			}
 			player.sendSystemMessage(localeUtil.getinput("server.amTeam",( GroupGame.games.get(player.groupId).amTeam) ? "开启" : "关闭"));
 		});

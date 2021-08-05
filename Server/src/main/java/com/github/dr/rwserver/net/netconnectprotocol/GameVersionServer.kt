@@ -348,16 +348,15 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                         }
                     }
                     player = Player.addPlayer(GroupGame.newPlayerGroupId(), this, uuid, name, localeUtil)
-                    connectionAgreement.bindPlayer(player);
                 }
-                connectionAgreement.add(NetStaticData.groupNet)
+                connectionAgreement.add(NetStaticData.groupNet,player.groupId)
                 Call.sendTeamData(player.groupId)
                 sendServerInfo(true)
                 Events.fire(PlayerJoinEvent(player))
                 if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).enterAd)) {
                     sendSystemMessage(GroupGame.gU(player.groupId).enterAd)
                 }
-                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name),player.groupId)
+//                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name),player.groupId)
                 if (re.get()) {
                     reConnect()
                 }
@@ -454,42 +453,42 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 sendKick("不支持重连 # Does not support reconnection")
                 return
             }
-//            super.isDis = false
-//            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket())
-//            GroupGame.gU(player.groupId).reConnectBreak = true
-//            Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s",player.groupId)
-//            val executorService = Executors.newFixedThreadPool(1)
-//            val future = executorService.submit<String?> {
-//                GroupGame.playerGroup(player.groupId).forEach({ e: Player -> e.uuid != this.player.uuid && !e.con.tryBoolean }) { p: Player ->
-//                    p.con.getGameSave()
-//                    while (GroupGame.gU(player.groupId).gameSaveCache == null || GroupGame.gU(player.groupId).gameSaveCache.type == 0) {
-//                        if (Thread.interrupted()) {
-//                            return@forEach
-//                        }
-//                    }
-//                    try {
-//                        NetStaticData.groupNet.broadcast(
-//                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
-//                                GroupGame.gU(player.groupId).gameSaveCache
-//                            ),-1
-//                        )
-//                    } catch (e: IOException) {
-//                        Log.error(e)
-//                    }
-//                }
-//                null
-//            }
-//            try {
-//                future[30, TimeUnit.SECONDS]
-//            } catch (e: Exception) {
-//                future.cancel(true)
-//                Log.error(e)
-//                connectionAgreement.close(NetStaticData.groupNet)
-//            } finally {
-//                executorService.shutdown()
-//                GroupGame.gU(player.groupId).gameSaveCache = null
-//                GroupGame.gU(player.groupId).reConnectBreak = false
-//            }
+            super.isDis = false
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket(player.groupId))
+            GroupGame.gU(player.groupId).reConnectBreak = true
+            Call.sendSystemMessage(player.name+"重连中...",player.groupId)
+            val executorService = Executors.newFixedThreadPool(1)
+            val future = executorService.submit<String?> {
+                Data.playerGroup.each({ e: Player ->e.groupId==player.groupId&& e.uuid != this.player.uuid && !e.con.tryBoolean }) { p: Player ->
+                    p.con.getGameSave()
+                    while (GroupGame.gU(player.groupId).gameSaveCache == null || GroupGame.gU(player.groupId).gameSaveCache.type == 0) {
+                        if (Thread.interrupted()) {
+                            return@each
+                        }
+                    }
+                    try {
+                        NetStaticData.groupNet.broadcast(
+                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
+                                GroupGame.gU(player.groupId).gameSaveCache
+                            ),player.groupId
+                        )
+                    } catch (e: IOException) {
+                        Log.error(e)
+                    }
+                }
+                null
+            }
+            try {
+                future[30, TimeUnit.SECONDS]
+            } catch (e: Exception) {
+                future.cancel(true)
+                Log.error(e)
+                connectionAgreement.close(NetStaticData.groupNet)
+            } finally {
+                executorService.shutdown()
+                GroupGame.gU(player.groupId).gameSaveCache = null
+                GroupGame.gU(player.groupId).reConnectBreak = false
+            }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
         }

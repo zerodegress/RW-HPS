@@ -52,7 +52,7 @@ public class GroupNet {
         if(gid==-1) SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.writeAndFlush(msg));
         else
         SINGLE_TCP_THREAD_EXECUTOR.execute(() -> CHANNEL_GROUP.stream()
-                .filter(channel -> channel.attr(GroupGame.G_KEY).get().groupId==gid)
+                .filter(channel -> channel.attr(GroupGame.G_KEY).get()==gid)
                 .forEach(x->x.writeAndFlush(msg)));
         SINGLE_UDP_THREAD_EXECUTOR.execute(() ->
             PROTOCOL.each(e -> {

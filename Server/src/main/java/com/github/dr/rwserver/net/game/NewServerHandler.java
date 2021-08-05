@@ -4,9 +4,11 @@ import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.io.Packet;
+import com.github.dr.rwserver.net.GroupNet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.util.game.Events;
@@ -102,9 +104,11 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if(ctx.channel().hasAttr(NETTY_CHANNEL_KEY)){
+            ctx.channel().attr(NETTY_CHANNEL_KEY).get().disconnect();
+        }
         if(ctx.channel().hasAttr(GroupGame.G_KEY)) {
-            Player player= ctx.channel().attr(GroupGame.G_KEY).get();
-            int gid=player.groupId;
+            int gid=ctx.channel().attr(GroupGame.G_KEY).get();
             if(GroupGame.games.get(gid).isStartGame){
                 List<Player> players = GroupGame.playersByGid(Data.playerGroup, gid);
                 if(players.isEmpty()){

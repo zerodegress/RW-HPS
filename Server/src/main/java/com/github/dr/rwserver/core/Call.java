@@ -178,7 +178,7 @@ public class Call {
                     Log.error("[ALL] Send Tick Failed",e);
                 }
             } else if (size == 1 ) {
-                GameCommand gameCommand = Data.game.gameCommandCache.poll();
+                GameCommand gameCommand =GroupGame.gU(gid).gameCommandCache.poll();
                 try {
                     NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandPacket(time,gameCommand),gid);
                 } catch (IOException e) {
@@ -186,7 +186,7 @@ public class Call {
                 }
             } else {
                 Seq<GameCommand> comm = new Seq<>(size);
-                IntStream.range(0, size).mapToObj(i -> Data.game.gameCommandCache.poll()).forEach(comm::add);
+                IntStream.range(0, size).mapToObj(i -> GroupGame.gU(gid).gameCommandCache.poll()).forEach(comm::add);
                 try {
                     NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandsPacket(time,comm),gid);
                 } catch (IOException e) {

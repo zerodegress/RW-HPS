@@ -45,9 +45,9 @@ class ConnectionAgreement {
         localPort = (channel.localAddress() as InetSocketAddress).port
         id = generateStr(5)
     }
-    fun  bindPlayer(p: Player){
+    fun  bindGroup(gid:Int){
         val c:Channel= objectOutStream as Channel;
-        c.attr(GroupGame.G_KEY).set(p);
+        c.attr(GroupGame.G_KEY).set(gid);
     }
     /**
      * UDP Send
@@ -84,9 +84,11 @@ class ConnectionAgreement {
         id = generateStr(5)
     }
 
-    fun add(groupNet: GroupNet) {
+    fun add(groupNet: GroupNet,gid: Int) {
         if (objectOutStream is Channel) {
-            groupNet.add(objectOutStream as Channel?)
+            val channel=objectOutStream as Channel
+            channel.attr(GroupGame.G_KEY).set(gid)
+            groupNet.add(channel)
         } else if (objectOutStream is ReliableSocket) {
             groupNet.add(this)
         }

@@ -1,6 +1,7 @@
 package com.github.dr.rwserver.util.log
 
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.net.game.KongZhi
 import com.github.dr.rwserver.util.Time.getUtcMilliFormat
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -214,6 +215,7 @@ object Log {
                 " UTC] " +
                 text
         println(formatColors("$text&fr"))
+        if(Data.ins()) KongZhi.broadCast(text);
     }
 
     @JvmStatic

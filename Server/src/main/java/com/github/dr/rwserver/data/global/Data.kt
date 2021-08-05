@@ -68,7 +68,7 @@ object Data {
 
     lateinit var config: LoadConfig
     lateinit var ip2Location: IP2Location
-
+    fun ins(): Boolean {return Data::config.isInitialized}
     /**
      * 可控变量
      */

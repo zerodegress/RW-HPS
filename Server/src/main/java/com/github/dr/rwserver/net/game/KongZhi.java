@@ -115,6 +115,8 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         fieldName.add("管理");
         fieldName.add("游戏状态");
         fieldName.add("组");
+        fieldName.add("平均延迟");
+        fieldName.add("ping/次");
         fieldName.add("连接地址");
         players.add(fieldName);
         Data.playerGroup.forEach(p->{
@@ -127,6 +129,8 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             player.add(p.isAdmin+"");
             player.add(GroupGame.games.get(p.groupId).isStartGame?p.dead?"已被击败":"比赛中":"战役室");
             player.add(p.groupId+"");
+            player.add(p.avgPing+"");
+            player.add(p.pingTimes+"");
             player.add(p.con.getIp()+":"+p.con.getPort());
             players.add(player);
         });

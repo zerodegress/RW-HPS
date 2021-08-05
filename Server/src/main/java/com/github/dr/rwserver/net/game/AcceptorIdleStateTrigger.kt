@@ -18,6 +18,7 @@ internal class AcceptorIdleStateTrigger(private val startNet: StartNet) : Channe
     override fun channelInactive(ctx: ChannelHandlerContext) {
         debug("断开一个链接", ctx.channel().id().asLongText())
         startNet.clear(ctx)
+        ctx.fireChannelInactive()
     }
 
     @Throws(Exception::class)

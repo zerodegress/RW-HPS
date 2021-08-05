@@ -119,7 +119,6 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
                 }
             }
         }
-
         super.channelInactive(ctx);
     }
 

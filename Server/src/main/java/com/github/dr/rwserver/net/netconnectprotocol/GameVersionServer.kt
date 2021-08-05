@@ -6,8 +6,6 @@ import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
-import com.github.dr.rwserver.func.BooleanIf
-import com.github.dr.rwserver.func.Cons
 import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.game.EventType.*
 import com.github.dr.rwserver.game.GameCommand
@@ -16,7 +14,10 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
-import com.github.dr.rwserver.util.*
+import com.github.dr.rwserver.util.ExtractUtil
+import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.PacketType
+import com.github.dr.rwserver.util.RandomUtil
 import com.github.dr.rwserver.util.encryption.Game
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
@@ -24,11 +25,10 @@ import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
-import com.ip2location.IPResult
-import org.jetbrains.annotations.NotNull
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.min
@@ -358,7 +358,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 }
 //                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name),player.groupId)
                 if (re.get()) {
-                    reConnect()
+                   return reConnect()
                 }
                 return true
             }
@@ -447,50 +447,77 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         sendPacket(packet)
     }
 
-    override fun reConnect() {
+    override fun  reConnect() :Boolean{
         try {
             if (!GroupGame.gU(player.groupId).reConnect) {
                 sendKick("不支持重连 # Does not support reconnection")
-                return
+                return false;
             }
             super.isDis = false
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket(player.groupId))
             GroupGame.gU(player.groupId).reConnectBreak = true
             Call.sendSystemMessage(player.name+"重连中...",player.groupId)
-            val executorService = Executors.newFixedThreadPool(1)
-            val future = executorService.submit<String?> {
-                Data.playerGroup.each({ e: Player ->e.groupId==player.groupId&& e.uuid != this.player.uuid && !e.con.tryBoolean }) { p: Player ->
-                    p.con.getGameSave()
-                    while (GroupGame.gU(player.groupId).gameSaveCache == null || GroupGame.gU(player.groupId).gameSaveCache.type == 0) {
-                        if (Thread.interrupted()) {
-                            return@each
-                        }
-                    }
-                    try {
-                        NetStaticData.groupNet.broadcast(
-                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
-                                GroupGame.gU(player.groupId).gameSaveCache
-                            ),player.groupId
-                        )
-                    } catch (e: IOException) {
-                        Log.error(e)
+//            val executorService = Executors.newFixedThreadPool(1)
+//            val future = executorService.submit<String?> {
+//                Data.playerGroup.each({ e: Player ->e.groupId==player.groupId&& e.uuid != this.player.uuid && !e.con.tryBoolean }) { p: Player ->
+//                    p.con.getGameSave()
+//                    while (GroupGame.gU(player.groupId).gameSaveCache == null || GroupGame.gU(player.groupId).gameSaveCache.type == 0) {
+//                        if (Thread.interrupted()) {
+//                            return@each
+//                        }
+//                    }
+//                    try {
+//                        NetStaticData.groupNet.broadcast(
+//                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
+//                                GroupGame.gU(player.groupId).gameSaveCache
+//                            ),player.groupId
+//                        )
+//                    } catch (e: IOException) {
+//                        Log.error(e)
+//                    }
+//                }
+//                null
+//            }
+            try {
+//                future[30, TimeUnit.SECONDS]
+                val iterator: Iterator<Player> = Data.playerGroup.iterator()
+                var p = iterator.next()
+                while (iterator.hasNext()) {
+                    val next = iterator.next()
+                    if (player.groupId==next.groupId&&next.avgPing < p.avgPing&&player!=next) {
+                        p = next
                     }
                 }
-                null
-            }
-            try {
-                future[30, TimeUnit.SECONDS]
+                p.con.getGameSave()
+                if(p==player) return false
+                var time:Long=System.currentTimeMillis()
+                while (GroupGame.gU(player.groupId).gameSaveCache == null || GroupGame.gU(player.groupId).gameSaveCache.type == 0) {
+                    if(System.currentTimeMillis()-time>18*1000) return false;
+                }
+                try {
+                    NetStaticData.groupNet.broadcast(
+                        NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
+                            GroupGame.gU(player.groupId).gameSaveCache
+                        ),player.groupId
+                    )
+                    return true;
+                } catch (e: IOException) {
+                    Log.error(e)
+                    return false
+                }
             } catch (e: Exception) {
-                future.cancel(true)
+//                future.cancel(true)
                 Log.error(e)
                 connectionAgreement.close(NetStaticData.groupNet)
+                return false
             } finally {
-                executorService.shutdown()
+//                executorService.shutdown()
                 GroupGame.gU(player.groupId).gameSaveCache = null
                 GroupGame.gU(player.groupId).reConnectBreak = false
             }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
+            return false;
         }
     }
 

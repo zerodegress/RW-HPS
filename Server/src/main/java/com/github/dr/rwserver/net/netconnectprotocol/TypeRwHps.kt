@@ -1,14 +1,11 @@
 package com.github.dr.rwserver.net.netconnectprotocol
 
-import com.github.dr.rwserver.net.core.TypeConnect
-import kotlin.Throws
-import com.github.dr.rwserver.net.core.AbstractNetConnect
-import com.github.dr.rwserver.util.PacketType
-import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.TypeConnect
+import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.millis
-import java.lang.Exception
 
 class TypeRwHps : TypeConnect {
     @Throws(Exception::class)
@@ -26,6 +23,7 @@ class TypeRwHps : TypeConnect {
                 PacketType.PACKET_HEART_BEAT_RESPONSE -> {
                     val player = con.player
                     player!!.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
+                    player.avgPing = (player.avgPing * player.pingTimes + player.ping) / ++player.pingTimes
                 }
                 PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
                 PacketType.PACKET_DISCONNECT -> con.disconnect()

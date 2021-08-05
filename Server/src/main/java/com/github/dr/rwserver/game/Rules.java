@@ -30,6 +30,8 @@ public class Rules {
     public int port = 5123;
     /** 是否已启动游戏 */
     public boolean isStartGame = false;
+    public long startTime;
+    public byte stage;
     /** 倍数 */
     public float income = 1f;
     /** 初始钱 */

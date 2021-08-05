@@ -56,11 +56,11 @@ object Data {
 
     /** 在线玩家  */
 	@JvmField
-	val playerGroup = Seq<Player>(16)
+	val playerGroup = Seq<Player>(60)
 
     /** ALL  */
 	@JvmField
-	val playerAll = Seq<Player>(16)
+	val playerAll = Seq<Player>(60)
     @JvmField
 	val core = Application()
     @JvmField

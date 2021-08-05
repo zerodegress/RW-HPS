@@ -243,12 +243,13 @@ interface AbstractNetConnect {
     fun sendGameSave(packet: Packet)
 
 
-    fun reConnect() {
+    fun reConnect():Boolean {
         try {
             sendKick("不支持重连")
         } catch (e: IOException) {
             Log.error("(", e)
         }
+        return false
     }
 
     /**

@@ -354,7 +354,7 @@ public class ServerCommands {
                     return;
                 }
             }
-//            GameTimeLapse.curr.refresh();
+            GameTimeLapse.curr.refresh();
         });
     }
 }

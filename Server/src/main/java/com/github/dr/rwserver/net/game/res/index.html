@@ -102,6 +102,74 @@
                background-color: #aaaaaa2a;
                transition: 0.5s linear;
            }
+           /*卡片*/
+        :root{
+            --mc-bg-z:#eee;
+            --mc-bg-ka:#333;
+            --mc-bg-hong: rgb(90, 60, 60);
+            --mc-bg-lv: rgb(89, 212, 144);
+            --mc-bg-hui: rgb(151, 151, 151);
+            --mc-bg-liang: rgb(121, 98, 98);
+        }
+        *{
+            margin: 0 auto;
+        }
+        .mc-ka-z{
+            width:100%;
+            box-shadow: 2px 2px 10px 2px #aac9b942;
+            margin: 20px;
+            float: left;
+            /* border-radius: 4px; */
+        }
+        .mc-ka-z:hover{
+            background-color: rgb(184, 166, 184);
+        }
+        .mc-ka-st{
+            width: 180px;
+            margin: 10px 15px;
+            box-shadow: 2px 2px 10px 2px #787878a8;
+            background-color: var(--mc-bg-ka);
+            float: left;
+            border-radius: 5px;
+            transition: 0.5s;
+        }
+        .mc-ka-st:hover{
+            cursor: pointer;
+            background-color: var(--mc-bg-liang);
+        }
+        .mc-ka-sx{
+            height: 18px;
+            font-size: 16px;
+            line-height: 18px;
+            color: aliceblue;
+            margin:8px 5px;
+            padding:0 5px;
+            word-wrap:break-word;
+            word-break:normal;
+            display: inline-block;border-radius: 3px;
+            background-color: var(--mc-bg-hong);
+        }
+        .mc-dh{
+            transition: 0.5s;
+        }
+        .mc-ka-tou{
+            background-color: rgba(220, 236, 230, 0.53);
+            padding: 5px 8px;
+        }
+        .mc-ka-tou span{
+            background-color: rgba(53, 212, 149, 0.53);
+            transition: 0.5s;
+            box-shadow: 1px 3px 10px 2px rgb(144 144 144 / 29%);
+            height: 50px;
+            line-height: 50px;
+            font-size: 20px;
+            color: #250a57;
+            padding: 5px 8px;
+            user-select: none;
+        }
+        .mc-ka-tou span:hover{
+            background-color: aquamarine;
+        }
     </style>
 </head>
 <body background="https://i.loli.net/2021/07/23/lHmwVns1AQxqXOC.jpg">
@@ -130,8 +198,7 @@
         <span id="playTime" class="des" style="height: 30px;"></span>
     </div>
     <div style="height: 10px"></div>
-    <div id="playerTable">
-    </div>
+    <div id="zu" style="margin: 0 auto;width: 936px;">
     <div style="height: 30px"></div>
 </div>
 <div id="boardWra" style="background-color: #6495eded">
@@ -151,7 +218,7 @@
     let backInfo = document.getElementById("backInfo");
     let board = document.getElementById("board");
     let playStartTime=new Date().getTime();
-    let isGameStart=false;
+    let isGameStart=[false];
     let playTimeDom=document.getElementById("playTime");
     function boardGoing(str){
         let el = document.createElement("p");
@@ -183,23 +250,61 @@
             if(e.data.indexOf("-c ")>-1){
               cmdList(e.data)
             }else if(e.data.indexOf("-ts")==0){
-                let playStat = document.getElementById("playerTable");
+                let playStat = document.getElementById("zu");
                 playStat.innerText=""
                 let dm=e.data.substr(3);
                 let data = JSON.parse(dm);
-                isGameStart=data.isGameStart
-                if(data.sTime!=0) playStartTime=data.sTime
-                addTable(playStat,data.players,"lovTab",1,doPickCmd,
-                    function (r,c,el){
-                        el.style.backgroundColor=r[5]==0?'#7dc6ff':'#d904ff'
-                    }
-                )
+                toCard(data,playStat,(p,i,e)=>{
+                    if(i==6) p.parentElement.style.setProperty("--mc-bg-ka",e=="断开"?"rgb(151, 151, 151)":"rgb(89, 212, 144)")
+                    p.style.setProperty("--mc-bg-hong",colorWalk(8947848))
+                },1)
             }else if(e.data.startsWith("-gf ")) initServerCan(e.data);
             else boardGoing(e.data)
         }
         ws.onclose=function (){
             boardGoing("已断开")
             isCon=false
+        }
+    }
+    function oneCard(data,hd,ski,ys){
+        let ka=g("div")
+        ka.classList.add("mc-ka-st","mc-dh")
+        data.forEach((e,i) => {
+            if(ski&&i==ski){
+                ka.id=e;
+            }else{
+                let p=g("p")
+                p.classList.add("mc-ka-sx")
+                p.innerText=e
+                if(hd) p.title=hd[i]
+                ka.append(p)
+                if(ys) ys(p,i,e)
+            }
+
+        });
+        return ka;
+    }
+    let timeL=[]
+    let tesss='-ts[["玩家昵称","uuid","位置","延迟","队伍","管理","游戏状态","组","平均延迟","ping/次","连接地址"],{"head":["1","战役室","1628248856819"],"body":[["单于","AD470BB9430431B04C73E9C9D3714FD24CBB73000C8038FE2163A6AFF62029A4","4","27","0","true","比赛中","1","29.7","30","112.14.105.214:5123"]]},{"head":["1","战役室","1628248856819"],"body":[["世界核平","48ADFFD10A469EFD2BCE7623587E9FFE9DD31E9D09E925EAA22217B1418636A1","1","48","1","false","比赛中","1","52.57895","19","43.227.139.179:5123"]]},{"head":["1","战役室","1628248856819"],"body":[["Unnamed433","E6B095A0D50DFE979613E886ADC7B723A1FCC457F46B0275D5B15B98593088A0","3","12","1","false","比赛中","1","35.263157","19","27.186.203.48:5123"]]},{"head":["1","战役室","1628248856819"],"body":[["Noname293922","8FE8E3FF4D50BC51A044AC3E2DACC1188EDAA82BDA3708EDDDB5283FB81DD420","2","281","0","false","比赛中","1","192.54546","11","115.178.225.121:5123"]]},{"head":["1","战役室","1628248856819"],"body":[["屯蛋小王子","17BA47E5A1AAB9F5BF94CE159464A0633CCFC4F06B1A3C3E9789509EE82FFC7C","6","40","0","false","比赛中","1","32.7","10","36.60.203.62:5123"]]},{"head":["1","战役室","1628248856819"],"body":[["Josué🇨🇺🇨🇺🇨🇺","A3D79F2859A04C17E0B34B59D92D7B00BBB7E05BDB72D751EAE6669A0B2E5085","0","388","0","false","比赛中","1","526.3333","3","152.206.232.46:5123"]]},{"head":["1","战役室","1628248856819"],"body":[["☃️青青艹原~雪王","5134B431C600A850F6363D933BB2C48AEEBDE05A9CF79EBC7C61762140BD3E9C","5","50","1","false","比赛中","1","50.0","0","221.192.180.142:5123"]]}]'
+    function toCard(data,p,ys,ski){
+        let hd=data[0]
+        while(data.length>1){
+            let c=data.pop()
+            let a=g("div")
+            a.classList.add("mc-ka-z","mc-dh")
+            p.append(a)
+            let h=g('div')
+            h.classList.add("mc-ka-tou")
+            a.append(h)
+            for(let i in c.head){
+                let h1=g("span")
+                h1.innerText=c.head[i]
+                if(i==2) h1.innerText=formatTime(new Date().getTime()-c.head[i])
+                h.append(h1)
+            }
+            c.body.forEach(e=>{
+                a.append(oneCard(e,hd,ski,ys))
+            })
         }
     }
     function doPickCmd(v){

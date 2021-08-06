@@ -104,9 +104,8 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         data.each(map::put);
         return JSONObject.toJSONString(map, SerializerFeature.PrettyFormat);
     }
-    public static String gameStateInfo(){
-        ArrayList<List<String>> players = new ArrayList<>();
-        ArrayList<String> fieldName = new ArrayList<>();
+    private static ArrayList<String> fieldName = new ArrayList<>();
+    static {
         fieldName.add("玩家昵称");
         fieldName.add("uuid");
         fieldName.add("位置");
@@ -118,28 +117,45 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         fieldName.add("平均延迟");
         fieldName.add("ping/次");
         fieldName.add("连接地址");
-        players.add(fieldName);
-        Data.playerGroup.forEach(p->{
+    }
+    @SuppressWarnings("unchecked")
+    public static String gameStateInfo(){
+        List<Object> info=new ArrayList<>();
+        info.add(fieldName);
+        Data.playerAll.forEach(g->{
+            Optional<Object> group = info.stream().filter(o -> o instanceof Map && ((List) ((Map) o).get("head")).get(0).equals("组" + g.groupId)).findAny();
+            List<List> players;
+            if(group.isPresent()){
+                 players = (List<List>) ((Map) group.get()).get("body");
+            }else {
+                HashMap<String,Object> data = new HashMap<>();
+                List<String> prop=new ArrayList<>();
+                prop.add(g.groupId+"");
+                prop.add(GroupGame.games.get(g.groupId).isStartGame?"游戏中":"战役室");
+                prop.add(System.currentTimeMillis()+"");
+                players= new ArrayList<>();
+                data.put("head",prop);
+                data.put("body",players);
+                info.add(data);
+
+            }
             ArrayList<String> player = new ArrayList<>();
-            player.add(p.name);
-            player.add(p.uuid);
-            player.add(p.site+"");
-            player.add(p.ping+"");
-            player.add(p.team+"");
-            player.add(p.isAdmin+"");
-            player.add(GroupGame.games.get(p.groupId).isStartGame?p.dead?"已被击败":"比赛中":"战役室");
-            player.add(p.groupId+"");
-            player.add(p.avgPing+"");
-            player.add(p.pingTimes+"");
-            player.add(p.con.getIp()+":"+p.con.getPort());
+            player.add(g.name);
+            player.add(g.uuid);
+            player.add(g.site+"");
+            player.add(g.ping+"");
+            player.add(g.team+"");
+            player.add(g.isAdmin+"");
+            player.add(Data.playerGroup.contains(g)? g.dead?"已被击败":"比赛中":"断开");
+            player.add(g.groupId+"");
+            player.add(g.avgPing+"");
+            player.add(g.pingTimes+"");
+            player.add(g.con.getIp()+":"+ g.con.getPort());
             players.add(player);
         });
-        HashMap<String,Object> data = new HashMap<>();
-        data.put("sTime",System.currentTimeMillis());
-        data.put("players",players);
-        data.put("isGameStart",false);
-        return "-ts"+JSONObject.toJSONString(data);
+        return "-ts"+JSONObject.toJSONString(info);
     }
+
     public static void broadCast(String msg){
         connected.forEach(x->x.writeAndFlush(new TextWebSocketFrame(msg)));
     }

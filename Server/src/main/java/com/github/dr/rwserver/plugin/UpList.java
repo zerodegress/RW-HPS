@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class UpList extends Plugin {
-    private boolean upServerList = false;
+//    private boolean upServerList = false;
     public void onEnable() {
     }
 
@@ -25,17 +25,16 @@ public class UpList extends Plugin {
         String token = Data.config.readString("token", "Zet2bbEDv0@MhvA>~Rz:MHX.:");
         int port = Data.config.readInt("connectPort", 5123);
         if (IsUtil.notIsBlank(token)) {
-            handler.register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {
-                if (!this.upServerList) {
+            handler.register("upserverlist", "<off/on>","serverCommands.upserverlist", (arg, log) -> {
+                if("on".equals(arg[0]))
                     Threads.newThreadCore(() -> {
-                        this.upServerList = true;
                         this.uplist(token, port);
                     });
-                } else {
-                    Log.clog("已上传 不需要再次上传");
+                else {
+                    Threads.removeScheduledFutureData("UPLIST");
                 }
-
             });
+
         } else {
             handler.register("upserverlist", "serverCommands.upserverlist", (arg, log) -> {
                 Log.clog("无Tonken");
@@ -52,7 +51,7 @@ public class UpList extends Plugin {
         map.put("Status", "add");
         map.put("Name", Data.core.serverName);
         map.put("Port", String.valueOf(port));
-        map.put("PlayerMaxSzie", String.valueOf(Data.game.maxPlayer));
+        map.put("PlayerMaxSzie", String.valueOf(Data.game.gMaxPlayer));
         map.put("MapName", Data.game.maps.mapName);
         map.put("StartGame", String.valueOf(Data.game.isStartGame));
         map.put("PlayerSize", String.valueOf(Data.playerGroup.size()));

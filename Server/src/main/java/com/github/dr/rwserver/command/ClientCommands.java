@@ -319,7 +319,7 @@ public class ClientCommands {
 				}
 				GroupGame.games.get(player.groupId).isStartGame = true;
 				int int3 = 0;
-				for (int i = 0; i <  GroupGame.games.get(player.groupId).gMaxPlayer; i++) {
+				for (int i = 0; i <  GroupGame.games.get(player.groupId).maxPlayer; i++) {
 					Player player1 =  GroupGame.games.get(player.groupId).playerData[i];
 					if (player1 != null) {
 						if (player1.sharedControl ||  GroupGame.games.get(player.groupId).sharedControl) {

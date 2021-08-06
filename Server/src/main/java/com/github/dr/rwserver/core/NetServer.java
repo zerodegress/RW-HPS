@@ -4,6 +4,7 @@ import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.ga.GroupGame;
+import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.net.game.StartNet;
 import com.github.dr.rwserver.util.log.Log;
 
@@ -48,7 +49,8 @@ public class NetServer {
         Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
 //        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
 //        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
-
+        Data.game = new Rules(Data.config);
+        Data.game.init();
         Log.clog("Server Gameover completed");
     }
 }

@@ -76,7 +76,7 @@ class Event : AbstractEvent {
     override fun registerPlayerLeaveEvent(player: Player) {
         if (Data.game.oneAdmin && player.isAdmin) {
             try {
-                val p = Data.playerGroup[0]
+                val p = GroupGame.playerGroup(player.groupId).get(0)
                 p.isAdmin = true
                 Call.upDataGameData()
                 player.isAdmin = false
@@ -89,7 +89,7 @@ class Event : AbstractEvent {
         if (GroupGame.games[player.groupId]?.isStartGame == true) {
             player.sharedControl = true
             var int3 = 0
-            for (i in 0 until Data.game.gMaxPlayer) {
+            for (i in 0 until GroupGame.gU(player.groupId).maxPlayer) {
                 val player1 = GroupGame.gU(player.groupId).playerData[i]
                 if (player1 != null) {
                     if (player1.sharedControl || Data.game.sharedControl) {

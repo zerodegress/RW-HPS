@@ -5,7 +5,6 @@ import com.github.dr.rwserver.command.LogCommands;
 import com.github.dr.rwserver.command.ServerCommands;
 import com.github.dr.rwserver.core.Core;
 import com.github.dr.rwserver.core.Initialization;
-import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.data.plugin.PluginEventManage;
@@ -106,7 +105,7 @@ public class Main {
 		loadUnitList();
 
 		/* 按键监听 */
-		Threads.newThreadCore(Main::buttonMonitoring);
+//		Threads.newThreadCore(Main::buttonMonitoring);
 
 		/* 加载完毕 */
 		Events.fire(new EventType.ServerLoadEvent());
@@ -154,6 +153,7 @@ public class Main {
 		BufferedReader bufferedReader = IoReadConversion.streamBufferRead(System.in);
 		while (true) {
 			try {
+				System.out.println(Thread.currentThread().getName());
 				String str = bufferedReader.readLine();
 				CommandHandler.CommandResponse response = Data.SERVERCOMMAND.handleMessage(str, (StrCons) Log::clog);
 				if (response != null && response.type != CommandHandler.ResponseType.noCommand) {

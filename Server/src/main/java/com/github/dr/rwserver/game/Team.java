@@ -1,7 +1,6 @@
 package com.github.dr.rwserver.game;
 
 import com.github.dr.rwserver.data.Player;
-import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.ga.GroupGame;
 
 import static com.github.dr.rwserver.util.IsUtil.isTwoTimes;
@@ -12,7 +11,7 @@ import static com.github.dr.rwserver.util.IsUtil.isTwoTimes;
 public class Team {
     public static void autoPlayerTeam(Player player) {
         if (GroupGame.gU(player.groupId).amTeam) {
-            for (int i=0,len=Data.game.gMaxPlayer;i<len;i++) {
+            for (int i=0,len=GroupGame.gU(player.groupId).maxPlayer;i<len;i++) {
                 if (GroupGame.gU(player.groupId).playerData[i] == null) {
                     GroupGame.gU(player.groupId).playerData[i] = player;
                     player.site=i;
@@ -21,7 +20,7 @@ public class Team {
                 }
             }
         } else {
-            for (int i=0,len=Data.game.gMaxPlayer;i<len;i++) {
+            for (int i=0,len=GroupGame.gU(player.groupId).maxPlayer;i<len;i++) {
                 if (GroupGame.gU(player.groupId).playerData[i] == null) {
                     GroupGame.gU(player.groupId).playerData[i] = player;
                     player.site=i;

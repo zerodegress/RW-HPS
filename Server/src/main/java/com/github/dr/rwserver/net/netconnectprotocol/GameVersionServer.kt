@@ -321,7 +321,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
 
                 inputPassword = false
 
-                if (Data.playerGroup.size() >=Data.game.maxPlayer) {
+                if (Data.playerGroup.size() >=Data.game.gMaxPlayer) {
                     if (IsUtil.isBlank(Data.game.maxPlayerAd)) {
                         sendKick("服务器没有位置 # The server has no free location")
                     } else {

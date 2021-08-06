@@ -4,11 +4,9 @@ import com.github.dr.rwserver.core.Call;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.GroupNet;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.util.game.Events;
@@ -111,11 +109,15 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
             int gid=ctx.channel().attr(GroupGame.G_KEY).get();
             if(GroupGame.games.get(gid).isStartGame){
                 List<Player> players = GroupGame.playersByGid(Data.playerGroup, gid);
+
                 if(players.isEmpty()){
                     Events.fire(new EventType.GameOverEvent(gid));
-                }else if (players.size()==1){
+                }else if (players.size()==1&&!Threads.getIfScheduledFutureData("Gameover-t"+gid)){
                     Call.sendSystemMessageLocal("gameOver.oneMin",gid);
                     Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent(gid)),1, TimeUnit.MINUTES,"Gameover"+gid);
+                }else {
+                    if(players.stream().map(p->p.team).distinct().toArray().length==1)
+                        Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent(gid)),2, TimeUnit.MINUTES,"Gameover-t"+gid);
                 }
             }
         }
@@ -124,6 +126,7 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
         ctx.close();
         Log.error(new RuntimeException());
         Log.error(cause);

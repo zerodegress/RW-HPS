@@ -1,6 +1,7 @@
 package com.github.dr.rwserver.data;
 
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.net.core.AbstractNetConnect;
 import com.github.dr.rwserver.util.IsUtil;
@@ -61,7 +62,7 @@ public final class Player {
 	public static Player addPlayer(int groupId,AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {
 		Player player = new Player(groupId, con, uuid, name, localeUtil);
 		if (Data.game.oneAdmin) {
-			if (Data.playerGroup.size() == 0) {
+			if (GroupGame.playerGroup(groupId).size()==0) {
 				player.isAdmin = true;
 			}
 		} else {

@@ -81,7 +81,7 @@ class GameVersionPacket : AbstractNetPacket {
     @Throws(IOException::class)
     override fun getTeamDataPacket(gid:Int): GzipEncoder {
         val enc = GzipEncoder.getGzipStream("teams", true)
-        for (i in 0 until Data.game.gMaxPlayer) {
+        for (i in 0 until GroupGame.gU(gid).maxPlayer) {
             try {
                 val player = GroupGame.games.get(gid)?.playerData?.get(i)
                 if (player == null) {

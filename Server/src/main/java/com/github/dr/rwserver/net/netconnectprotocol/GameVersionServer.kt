@@ -14,6 +14,7 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
+import com.github.dr.rwserver.net.game.KongZhi
 import com.github.dr.rwserver.util.ExtractUtil
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
@@ -118,6 +119,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             var message: String? = stream.readString()
             var response: CommandResponse? = null
             Log.clog("[{0}]: {1}", player.name, message)
+            KongZhi.broadCast("-chat "+player.uuid+" "+message)
             if (player.isAdmin && getIfScheduledFutureData("AfkCountdown")) {
                 removeScheduledFutureData("AfkCountdown")
                 Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))

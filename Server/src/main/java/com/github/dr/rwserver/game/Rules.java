@@ -108,7 +108,7 @@ public class Rules {
     public final OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
-
+        startTime=System.currentTimeMillis();
         subtitle = config.readString("subtitle","");
 
         int port = config.readInt("port",5123);

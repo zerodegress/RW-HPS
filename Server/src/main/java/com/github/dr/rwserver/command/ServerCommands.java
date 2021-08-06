@@ -343,7 +343,7 @@ public class ServerCommands {
             if(Data.playerGroup.isEmpty()) Log.clog("没有玩家");
             else {
                 Data.playerGroup.each(e -> e.sendSystemMessage(arg[0]));
-                Log.clog("已发送信息 "+arg[1]);
+                Log.clog("已发送信息 "+arg[0]);
             }
         });
 

@@ -130,14 +130,13 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             }else {
                 HashMap<String,Object> data = new HashMap<>();
                 List<String> prop=new ArrayList<>();
-                prop.add(g.groupId+"");
+                prop.add("组" +g.groupId);
                 prop.add(GroupGame.games.get(g.groupId).isStartGame?"游戏中":"战役室");
-                prop.add(System.currentTimeMillis()+"");
+                prop.add(GroupGame.gU(g.groupId).startTime+"");
                 players= new ArrayList<>();
                 data.put("head",prop);
                 data.put("body",players);
                 info.add(data);
-
             }
             ArrayList<String> player = new ArrayList<>();
             player.add(g.name);
@@ -146,7 +145,7 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             player.add(g.ping+"");
             player.add(g.team+"");
             player.add(g.isAdmin+"");
-            player.add(Data.playerGroup.contains(g)? g.dead?"已被击败":"比赛中":"断开");
+            player.add(Data.playerGroup.contains(g)? g.dead?"已被击败":"正常":"断开");
             player.add(g.groupId+"");
             player.add(g.avgPing+"");
             player.add(g.pingTimes+"");

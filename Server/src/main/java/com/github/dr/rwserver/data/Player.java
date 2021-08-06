@@ -44,7 +44,7 @@ public final class Player {
 	public long timeTemp;
 	public int ping = 50;
 	public int pingTimes=0;
-	public float avgPing=50;
+	public int avgPing=50;
 	public long lastMessageTime = 0;
 	public String lastSentMessage = "";
 

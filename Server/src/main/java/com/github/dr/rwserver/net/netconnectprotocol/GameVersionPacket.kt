@@ -9,11 +9,15 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.AbstractNetPacket
 import com.github.dr.rwserver.struct.Seq
+import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
+import com.github.dr.rwserver.util.encryption.Game
+import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
 import java.io.DataOutputStream
 import java.io.IOException
+import java.math.BigInteger
 
 /**
  * @author Dr
@@ -191,11 +195,34 @@ class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun getPlayerConnectPacket(): Packet {
-        return Packet(0, ByteArray(0))
+        val out = GameOutputStream()
+        out.writeString("com.corrodinggames.rwhps.forward");
+        out.writeInt(1);
+        out.writeInt(151);
+        out.writeInt(151);
+        return out.createPacket(PacketType.PACKET_PREREGISTER_CONNECTION)
     }
 
     @Throws(IOException::class)
-    override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String, key: Int): Packet {
-        return Packet(0,ByteArray(0))
+    override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet {
+        val out = GameOutputStream()
+        out.writeString("com.corrodinggames.rts");
+        out.writeInt(4);
+        out.writeInt(151);
+        out.writeInt(151);
+        out.writeString(name);
+
+        if (IsUtil.isBlank(passwd)) {
+            out.writeBoolean(false);
+        } else {
+            out.writeBoolean(true)
+            out.writeString(BigInteger(1, Sha().sha256Array(passwd!!)).toString(16).uppercase())
+        }
+
+        out.writeString("com.corrodinggames.rts.java")
+        out.writeString(uuid)
+        out.writeInt(1198432602)
+        out.writeString(Game.connectKey(key))
+        return out.createPacket(PacketType.PACKET_PLAYER_INFO)
     }
 }

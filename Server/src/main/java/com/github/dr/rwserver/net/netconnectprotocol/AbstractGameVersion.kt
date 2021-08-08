@@ -1,22 +1,18 @@
 package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.data.Player
-import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
-import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
-import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
+import com.github.dr.rwserver.net.game.ConnectSrver
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.concurrentMillis
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
-import okhttp3.internal.cache2.Relay
 import java.io.IOException
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 /**
  * 作为[AbstractNetConnect] 和 协议实现的中间人
@@ -24,7 +20,7 @@ import java.nio.charset.StandardCharsets
  * 共用协议放在本处
  * @author Dr
  */
-abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: ConnectionAgreement) : AbstractNetConnect {
+ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: ConnectionAgreement): AbstractNetConnect {
     /** 错误次数  */
     override var `try` = 0
         protected set
@@ -36,6 +32,9 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     /** 最后一次接受到包的时间  */
     override var lastReceivedTime = concurrentMillis()
         protected set
+
+    override val isConnectServer: Boolean = false
+    override var connectServer: ConnectSrver? = null
 
     /** 玩家是否死亡  */
     @JvmField

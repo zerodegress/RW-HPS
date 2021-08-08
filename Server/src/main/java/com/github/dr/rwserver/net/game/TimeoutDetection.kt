@@ -1,6 +1,6 @@
 package com.github.dr.rwserver.net.game
 
-import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.util.Time.concurrentMillis
 import com.github.dr.rwserver.util.threads.ThreadFactoryName
 import java.util.concurrent.ScheduledExecutorService
@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit
  */
 internal class TimeoutDetection(s: Int, startNet: StartNet) {
     private val namedFactory = ThreadFactoryName.nameThreadFactory("TimeoutDetection-")
-    private val SERVICE: ScheduledExecutorService = ScheduledThreadPoolExecutor(1, namedFactory)
-    private val scheduledFuture: ScheduledFuture<*> = SERVICE.scheduleAtFixedRate(CheckTime(startNet), 0, s.toLong(), TimeUnit.SECONDS)
+    private val Service: ScheduledExecutorService = ScheduledThreadPoolExecutor(1, namedFactory)
+    private val scheduledFuture: ScheduledFuture<*> = Service.scheduleAtFixedRate(CheckTime(startNet), 0, s.toLong(), TimeUnit.SECONDS)
 
     private class CheckTime(private val startNet: StartNet) : Runnable {
         override fun run() {

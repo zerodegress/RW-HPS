@@ -13,7 +13,7 @@ import io.netty.util.ReferenceCountUtil
 internal class PacketDecoder : ByteToMessageDecoder() {
     companion object {
         private const val HEADER_SIZE = 8
-        private const val MAX_CONTENT_LENGTH = 10485760
+        private const val MAX_CONTENT_LENGTH = 52428800
     }
 
     @Throws(Exception::class)
@@ -21,7 +21,9 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         if (bufferIn == null) {
             return
         }
-        if (bufferIn.readableBytes() < HEADER_SIZE) {
+
+        val readableBytes = bufferIn.readableBytes()
+        if (readableBytes < HEADER_SIZE) {
             return
         }
         /*
@@ -35,9 +37,8 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         */
         //消息长度
 
-        //final int maxContentLength = 40960;
-        // 10MB
-        if (bufferIn.readableBytes() > MAX_CONTENT_LENGTH) {
+        // 50MB
+        if (readableBytes > MAX_CONTENT_LENGTH) {
             error("MAX Packet")
             ReferenceCountUtil.release(bufferIn)
             /*

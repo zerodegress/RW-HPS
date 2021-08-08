@@ -2,7 +2,7 @@ package com.github.dr.rwserver.net.game;
 
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect;
 import com.github.dr.rwserver.net.core.TypeConnect;
 import com.github.dr.rwserver.net.udp.ReliableServerSocket;
 import com.github.dr.rwserver.util.log.Log;

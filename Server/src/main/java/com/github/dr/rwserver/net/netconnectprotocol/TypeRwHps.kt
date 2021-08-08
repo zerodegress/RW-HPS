@@ -2,7 +2,7 @@ package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.net.core.TypeConnect
 import kotlin.Throws
-import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.io.Packet
@@ -41,5 +41,5 @@ class TypeRwHps : TypeConnect {
     }
 
     override val version: String
-        get() = "2.0.0"
+        get() = "2.0.5"
 }

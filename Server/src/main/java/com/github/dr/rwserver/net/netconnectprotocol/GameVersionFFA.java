@@ -10,7 +10,7 @@ import com.github.dr.rwserver.game.GameCommand;
 import com.github.dr.rwserver.io.GameInputStream;
 import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.io.Packet;
-import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect;
 import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
@@ -19,7 +19,6 @@ import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder;
-import com.ip2location.IPResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
@@ -667,12 +666,13 @@ public class GameVersionFFA extends AbstractGameVersion {
                     return false;
                 }
                 LocaleUtil localeUtil = Data.localeUtilMap.get("CN");
+                /*
                 if (Data.game.ipCheckMultiLanguageSupport) {
                     IPResult rec = Data.ip2Location.IPQuery(connectionAgreement.ip);
                     if (!"OK".equals(rec.getStatus())) {
                         localeUtil = Data.localeUtilMap.get(rec.getCountryShort());
                     }
-                }
+                }*/
                 player = Player.addPlayer(this, uuid, name, localeUtil);
             }
 

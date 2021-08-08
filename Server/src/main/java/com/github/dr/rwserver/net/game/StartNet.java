@@ -2,7 +2,8 @@ package com.github.dr.rwserver.net.game;
 
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
-import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.AbstractNet;
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect;
 import com.github.dr.rwserver.net.udp.ReliableServerSocket;
 import com.github.dr.rwserver.net.udp.ReliableSocket;
 import com.github.dr.rwserver.net.web.realization.HttpServer;
@@ -19,6 +20,8 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.Attribute;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -33,8 +36,18 @@ public class StartNet {
     private final Seq<Channel> connectChannel = new Seq<>(4);
     private ServerSocket serverSocket = null;
     private StartGameNetUdp startGameNetUdp = null;
-    private final StartGameNetTcp starta = new StartGameNetTcp(this);
+    private final AbstractNet start;
     protected final OrderedMap<String, AbstractNetConnect> OVER_MAP = new OrderedMap<>(16);
+    protected final EventExecutorGroup ioGroup = new DefaultEventExecutorGroup(32);
+
+
+    public StartNet() {
+        start = new StartGameNetTcp(this);
+    }
+
+    public StartNet(AbstractNet abstractNet) {
+        start = abstractNet;
+    }
 
     /**
      * 在指定端口启动Game Server
@@ -43,6 +56,8 @@ public class StartNet {
     // 不想过多if 但runClass的都是可控
     @SuppressWarnings("unchecked")
     public void openPort(int port) {
+        Log.clog(Data.localeUtil.getinput("server.start.open"));
+
         EventLoopGroup bossGroup;
         EventLoopGroup workerGroup;
         Class runClass;
@@ -54,6 +69,7 @@ public class StartNet {
         } else {
             bossGroup = new EpollEventLoopGroup(4);
             workerGroup = new EpollEventLoopGroup();
+
             runClass = EpollServerSocketChannel.class;
         }
         try {
@@ -62,18 +78,20 @@ public class StartNet {
                     .channel(runClass)
                     .localAddress(new InetSocketAddress(port))
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                    //.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                    .childHandler(starta);
+                    //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childHandler(start);
 
+            Log.clog(Data.localeUtil.getinput("server.start.openPort"));
             ChannelFuture channelFutureTcp = serverBootstrapTcp.bind(port).sync();
             Channel start = channelFutureTcp.channel();
-
             connectChannel.add(start);
+
+            Log.clog(Data.localeUtil.getinput("server.start.end"));
 
             Data.config.setObject("runPid",Data.core.getPid());
             Data.config.save();
-            Log.clog(Data.localeUtil.getinput("server.start.openPort"));
+
             if (Data.game.webApi) {
                 startWebApi();
             }
@@ -158,8 +176,8 @@ public class StartNet {
 
 
     public void updateNet() {
-        if (IsUtil.notIsBlank(starta)) {
-            starta.updateNet();
+        if (IsUtil.notIsBlank(start)) {
+            start.updateNet();
         }
         if (IsUtil.notIsBlank(serverSocket)) {
             startGameNetUdp.update();

@@ -19,7 +19,7 @@ public class WebApi {
         Json json = new Json(message);
         final StringBuilder str = new StringBuilder(8);
         Data.SERVERCOMMAND.handleMessage(json.getData("Command"),(StrCons) (e) -> str.append(e).append("\n"));
-        ObjectMap<String,String> runServerCommand = new ObjectMap<>(4);
+        ObjectMap<String,Object> runServerCommand = new ObjectMap<>(4);
         runServerCommand.put("State","0");
         runServerCommand.put("Result",Base64.encode(str.toString()));
         return Base64.encode(Json.toJson(runServerCommand));
@@ -27,7 +27,7 @@ public class WebApi {
 
     @Central(url = "/runPid")
     public String runPid(String message, Map<Object, Object> map) {
-        ObjectMap<String,String> runPid = new ObjectMap<>(4);
+        ObjectMap<String,Object> runPid = new ObjectMap<>(4);
         runPid.put("State","0");
         runPid.put("result",String.valueOf(Data.core.getPid()));
         return Base64.encode(Json.toJson(runPid));

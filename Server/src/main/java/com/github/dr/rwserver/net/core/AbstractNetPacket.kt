@@ -27,7 +27,7 @@ interface AbstractNetPacket {
     /**
      * 发送用户名命名的消息
      * @param      msg     The message
-     * @param      sendBy  The send by
+     * @param      sendBy  The sendBy
      * @param      team    The team
      * @return Packet
      * @throws IOException err
@@ -139,5 +139,5 @@ interface AbstractNetPacket {
      * @return Packet
      */
     @Throws(IOException::class)
-    fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String, key: Int): Packet
+    fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet
 }

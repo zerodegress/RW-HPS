@@ -1,6 +1,7 @@
 package com.github.dr.rwserver.net.core
 
 import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import kotlin.Throws
 import java.lang.Exception
 

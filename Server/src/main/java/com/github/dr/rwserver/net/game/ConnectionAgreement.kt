@@ -4,7 +4,6 @@ import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
 import com.github.dr.rwserver.net.udp.ReliableSocket
 import com.github.dr.rwserver.util.RandomUtil.generateStr
-import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
 import java.io.DataOutputStream
 import java.io.IOException
@@ -18,8 +17,7 @@ import java.util.*
  */
 class ConnectionAgreement {
     private val protocolType: ((packet: Packet) -> Unit)
-    private val startNet: StartNet
-    private val channelHandlerContext: ChannelHandlerContext?
+    private val startNet: StartNet?
     private val objectOutStream: Any
     private val udpDataOutputStream: DataOutputStream?
     val useAgreement: String
@@ -30,15 +28,18 @@ class ConnectionAgreement {
 
     /**
      * TCP Send
-     * @param channel Netty-Channel
+     * @param channelHandlerContext Netty-ChannelHandlerContext
      */
-    constructor(channelHandlerContext: ChannelHandlerContext, channel: Channel, startNet: StartNet) {
-        protocolType = { packet: Packet -> channel.writeAndFlush(packet) }
+    constructor(channelHandlerContext: ChannelHandlerContext, startNet: StartNet) {
+        protocolType = { packet: Packet ->
+            channelHandlerContext.channel().eventLoop().execute { channelHandlerContext.writeAndFlush(packet) }
+        }
         this.startNet = startNet
-        this.channelHandlerContext = channelHandlerContext
-        objectOutStream = channel
+        objectOutStream = channelHandlerContext
         udpDataOutputStream = null
         useAgreement = "TCP"
+
+        val channel = channelHandlerContext.channel()
         ip = convertIp(channel.remoteAddress().toString())
         localPort = (channel.localAddress() as InetSocketAddress).port
         id = generateStr(5)
@@ -58,7 +59,6 @@ class ConnectionAgreement {
             socketStream.flush()
         }
         this.startNet = startNet
-        channelHandlerContext = null
         objectOutStream = socket
         udpDataOutputStream = socketStream
         useAgreement = "UDP"
@@ -69,8 +69,7 @@ class ConnectionAgreement {
 
     constructor() {
         protocolType = {}
-        startNet = StartNet()
-        channelHandlerContext = null
+        startNet = null
         objectOutStream = ""
         udpDataOutputStream = null
         useAgreement = "Test"
@@ -80,8 +79,8 @@ class ConnectionAgreement {
     }
 
     fun add(groupNet: GroupNet) {
-        if (objectOutStream is Channel) {
-            groupNet.add(objectOutStream as Channel?)
+        if (objectOutStream is ChannelHandlerContext) {
+            groupNet.add(objectOutStream.channel())
         } else if (objectOutStream is ReliableSocket) {
             groupNet.add(this)
         }
@@ -101,20 +100,19 @@ class ConnectionAgreement {
     @Throws(IOException::class)
     fun close(groupNet: GroupNet?) {
         if (groupNet != null) {
-            if (objectOutStream is Channel) {
-                groupNet.remove(objectOutStream as Channel?)
+            if (objectOutStream is ChannelHandlerContext) {
+                groupNet.remove(objectOutStream.channel())
             } else if (objectOutStream is ReliableSocket) {
                 groupNet.remove(this)
             }
         }
-        if (objectOutStream is Channel) {
+        if (objectOutStream is ChannelHandlerContext) {
+            objectOutStream.channel().close()
             objectOutStream.close()
-            channelHandlerContext!!.close()
-            startNet.OVER_MAP.remove(objectOutStream.id().asLongText())
         } else if (objectOutStream is ReliableSocket) {
             udpDataOutputStream!!.close()
             objectOutStream.close()
-            startNet.OVER_MAP.remove(objectOutStream.remoteSocketAddress.toString())
+            startNet!!.OVER_MAP.remove(objectOutStream.remoteSocketAddress.toString())
         }
     }
 

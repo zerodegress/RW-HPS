@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.net.netconnectprotocol
 
+import com.github.dr.rwserver.Main
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
@@ -11,20 +12,19 @@ import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
-import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.ExtractUtil
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.RandomUtil
+import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Game
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
-import org.jetbrains.annotations.NotNull
 import java.io.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -37,6 +37,7 @@ import kotlin.math.min
  * @date 2020/9/5 17:02:33
  */
 
+@MainProtocolImplementation
 class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGameVersion(connectionAgreement) {
     private var playerConnectKey: String? = null
     private val sync = ReentrantLock(true)
@@ -276,7 +277,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         }
     }
 
-    @Throws(IOException::class)
+    //@Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         try {
             GameInputStream(p).use { stream ->
@@ -344,12 +345,14 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                         return false
                     }
                     var localeUtil = Data.localeUtilMap["CN"]
+                    /*
                     if (Data.game.ipCheckMultiLanguageSupport) {
                         val rec = Data.ip2Location.IPQuery(connectionAgreement.ip)
                         if ("OK" != rec.status) {
                             localeUtil = Data.localeUtilMap[rec.countryShort]
                         }
                     }
+                     */
                     player = Player.addPlayer(this, uuid, name, localeUtil)
                 }
                 connectionAgreement.add(NetStaticData.groupNet)

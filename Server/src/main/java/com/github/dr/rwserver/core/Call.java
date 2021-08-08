@@ -135,12 +135,15 @@ public class Call {
     private static class SendGameTickCommand implements Runnable {
         private int time = 0;
         private boolean oneSay = true;
+        private boolean gameover = true;
         @Override
         public void run() {
             // 检测人数是否符合Gameover
             if (Data.playerGroup.size() == 0) {
-                Events.fire(new EventType.GameOverEvent());
-                return;
+                if (gameover) {
+                    Events.fire(new EventType.GameOverEvent());
+                    gameover = false;
+                }
             }
             if (Data.playerGroup.size() <= 1) {
                 if (oneSay) {
@@ -151,6 +154,7 @@ public class Call {
             } else {
                 if (Threads.getIfScheduledFutureData("Gameover")) {
                     oneSay = true;
+                    gameover = true;
                     Threads.removeScheduledFutureData("Gameover");
                 }
             }

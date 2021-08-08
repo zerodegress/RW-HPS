@@ -6,6 +6,8 @@ import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.alone.annotations.NeedHelp
 import com.github.dr.rwserver.util.alone.annotations.NeedToRefactor
 import com.github.dr.rwserver.util.threads.GetNewThreadPool
+import kotlinx.coroutines.CoroutineScope
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -24,6 +26,7 @@ object Threads {
     /** 在退出时执行Runnable  */
     private val SAVE_POOL = Seq<Runnable>()
     private val SCHEDULED_FUTURE_DATA = OrderedMap<String, ScheduledFuture<*>>()
+    private val TASK_FUTURE_DATA = OrderedMap<String, Timer>()
 
     @JvmStatic
 	fun close() {
@@ -45,9 +48,8 @@ object Threads {
      * @param nameId NameID
      */
 	@JvmStatic
-	fun newThreadService(run: Runnable, endTime: Int, timeUnit: TimeUnit, nameId: String) {
+    fun newThreadService(run: Runnable, endTime: Int, timeUnit: TimeUnit, nameId: String) {
         SCHEDULED_FUTURE_DATA.put(nameId, SERVICE.schedule(run, endTime.toLong(), timeUnit))
-        //Log.error((SERVICE as ScheduledThreadPoolExecutor).getQueue().size)
     }
 
     /**

@@ -13,10 +13,8 @@ import com.github.dr.rwserver.util.file.FileUtil;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.log.exp.FileException;
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
-import com.ip2location.IP2Location;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 
 import static com.github.dr.rwserver.net.HttpRequestOkHttp.doGet;
@@ -29,24 +27,14 @@ import static com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate;
 public class Initialization {
 
     public Initialization() {
-		//update();
 		loadLang();
 
 		initMaps();
-
-		//downPlugin();
-
-		//loadIpBin();
 
 		Runtime.getRuntime().addShutdownHook(new ExitHandler());
     }
 
     public void startInit() {
-		initServerLanguage();
-	}
-
-    private void initServerLanguage() {
-		boolean isChina = doGet("https://ip.tool.lu").contains("中国");
 	}
 
 	private void initMaps() {
@@ -98,18 +86,6 @@ public class Initialization {
 		Data.MapsMap.put("EnclosedIsland(10p)","Enclosed Island (10p)@[z;p10]");
 		Data.MapsMap.put("TwoLargeIslands(10p)","Two_Large_Islands_(10p)@[z;p10]");
 		Data.MapsMap.put("Wetlands(10p)","Wetlands (10p)@[z;p10]");
-	}
-
-	private void loadIpBin() {
-		if (!Data.config.readBoolean("ipCheckMultiLanguageSupport",false)) {
-			return;
-		}
-		try {
-			Data.ip2Location = new IP2Location();
-			Data.ip2Location.Open(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("IP.bin").getPath(), true);
-		} catch (IOException e) {
-			Log.error("IP-LOAD ERR",e);
-		}
 	}
 
 	private void loadLang() {

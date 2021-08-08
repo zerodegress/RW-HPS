@@ -66,6 +66,22 @@ object StringFilteringUtil {
         } else str.substring(0, length)
     }
 
+
+    /***
+     * 把中文替换为指定字符<br></br>
+     * 注意:一次只匹配一个中文字符
+     * @param source
+     * @param replacement
+     * @return
+     */
+    @JvmStatic
+    fun replaceChinese(source: String, replacement: String): String {
+        val reg = "[\u4e00-\u9fa5]"
+        val pat = Pattern.compile(reg)
+        val mat = pat.matcher(source)
+        return mat.replaceAll(replacement)
+    }
+
     class StringMatcherData(patternString: String, text: String) {
         private val matcher: Matcher = Pattern.compile(patternString).matcher(text)
 

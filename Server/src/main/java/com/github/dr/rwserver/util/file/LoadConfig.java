@@ -1,7 +1,5 @@
 package com.github.dr.rwserver.util.file;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.github.dr.rwserver.data.json.Json;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.util.log.Log;
@@ -37,10 +35,10 @@ public final class LoadConfig {
         }
         Json json = new Json(fileUtil.readFileStringData());
         //json对象转Map
-        json.getInnerMap().forEach((k,v) -> data.put(k,v.toString()));
+        json.getInnerMap().forEach(data::put);
     }
 
-    private String load(String input, Object def) {
+	private String load(String input, Object def) {
         Object result = data.get(input);
         if (result == null) {
             Log.clog("NO KEY- Please check the file",input);
@@ -48,7 +46,7 @@ public final class LoadConfig {
             return def.toString();
         }
         return result.toString();
-    }
+	}
 
     public String readString(String input) {
         return readString(input,"");
@@ -80,13 +78,13 @@ public final class LoadConfig {
     }
 
     public void setObject(String input,@NotNull Object key) {
-        data.put(input,key.toString());
+        data.put(input,key);
     }
 
     public void save() {
         final Map<String,Object> map = new HashMap<>();
         data.each(map::put);
-        fileUtil.writeFile(JSONObject.toJSONString(map, SerializerFeature.PrettyFormat),false);
+        fileUtil.writeFile(Json.toJson(map),false);
         Log.clog("SAVE CONFIG OK");
     }
 }

@@ -6,9 +6,7 @@ import java.lang.RuntimeException
 /**
  * @author Dr
  */
-class VariableException(type: String) : RuntimeException(ErrorCode.valueOf(type).error)
-
-{
+class VariableException(type: String) : RuntimeException(ErrorCode.valueOf(type).error) {
     class ArrayRuntimeException(type: String) : RuntimeException(ErrorCode.valueOf(type).error)
 
     class ObjectMapRuntimeException(info: String) : RuntimeException(info)

@@ -1,7 +1,7 @@
 package com.github.dr.rwserver.plugin.event
 
 import com.github.dr.rwserver.data.Player
-import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 
 interface AbstractEvent {
     /** 服务器初始化 [异步-ASync]  */

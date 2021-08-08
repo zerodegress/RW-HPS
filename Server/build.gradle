@@ -3,22 +3,21 @@ plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.5.21'
 }
 
+/* 使用Java11做标准语法并编译 */
 sourceCompatibility=11
 targetCompatibility=11
 
+/**
+ * 这里全部采用的compileOnly 为了适配idea 但是编译的时候会切到implementation
+ * 需要帮助!
+ */
 dependencies {
-	// Gradle : compileOnly -> implementation
-	// compileOnly is Test
 	compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
-	compileOnly group: 'com.ip2location', name: 'ip2location-java', version: '8.5.0'
-	compileOnly group: 'com.alibaba', name: 'fastjson', version: '1.2.58'
 	compileOnly (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
 		exclude group: "org.jetbrains.kotlin"
 	}
 	compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
 	compileOnly group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
-	//implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.69'
-
 }
 
 jar{
@@ -35,12 +34,12 @@ jar{
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.github.RW-HPS'
-            artifactId = 'Server'
-            version = '1.0.0'
-            from components.java
+	publications {
+		maven(MavenPublication) {
+			groupId = 'com.github.RW-HPS'
+			artifactId = 'Server'
+			version = '1.0.0'
+			from components.java
 
 			/*
 			Need Help 需要帮助
@@ -48,6 +47,6 @@ publishing {
 			pom.withXml {
 			}
  			*/
-        }
-    }
+		}
+	}
 }

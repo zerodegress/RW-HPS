@@ -150,3 +150,10 @@ RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如�
 
 ## 感谢
 [Thanks](https://github.com/RW-HPS/RW-HPS/blob/master/Thanks-CN.md)
+
+[RW-HPS Server]
+A third-party server implementation
+Please refer to README.md for function introduction
+
+github link:https://github.com/RW-HPS/RW-HPS
+discord server:https://discord.gg/VwwxJhVG64

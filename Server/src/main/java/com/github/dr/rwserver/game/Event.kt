@@ -5,14 +5,18 @@ import com.github.dr.rwserver.core.NetServer
 import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.net.Administration.PlayerInfo
-import com.github.dr.rwserver.net.core.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.plugin.event.AbstractEvent
+import com.github.dr.rwserver.util.ExtractUtil
 import com.github.dr.rwserver.util.Time.millis
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.debug
 import com.github.dr.rwserver.util.log.Log.error
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
 import java.io.IOException
 
 /**
@@ -109,11 +113,19 @@ class Event : AbstractEvent {
     }
 
     override fun registerGameOverEvent() {
-        if (Data.game.maps.mapData != null) {
-            Data.game.maps.mapData!!.clean()
+        if (Cache.startGameover) {
+            Cache.startGameover = false
+            if (getIfScheduledFutureData("UpServerList")) {
+                NetServer.removeServerList()
+                removeScheduledFutureData("UpServerList")
+            }
+            if (Data.game.maps.mapData != null) {
+                Data.game.maps.mapData!!.clean()
+            }
+            NetServer.reLoadServer()
+            Cache.startGameover = true
+            System.gc()
         }
-        NetServer.reLoadServer()
-        System.gc()
     }
 
     override fun registerPlayerBanEvent(player: Player) {

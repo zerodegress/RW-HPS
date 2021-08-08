@@ -144,7 +144,6 @@ public class Rules {
         webApiSsl = config.readBoolean("webApiSsl",false);
         webApiSslKetPath = config.readString("webApiSslKetPath","");
         webApiSslPasswd = config.readString("webApiSslPasswd","");
-
         startMinPlayerSize = config.readInt("startMinPlayerSize",0);
         autoLoadOrUpdate(config);
 

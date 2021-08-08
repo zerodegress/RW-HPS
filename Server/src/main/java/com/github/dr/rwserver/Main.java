@@ -45,20 +45,12 @@ public class Main {
 	public static void main(String[] args) {
 		final Initialization initialization = new Initialization();
 
-		Log.set("ERROR");
+		Log.set("OFF");
 		Log.setPrint(true);
 		Logger.getLogger("io.netty").setLevel(Level.OFF);
 
 		System.out.println(Data.localeUtil.getinput("server.login"));
 		Log.clog("Load ing...");
-
-		//byte[] bytes = new Sha().sha256Array("8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92");
-		//String text = new BigInteger(1, bytes).toString(16).toUpperCase(Locale.ROOT);
-		//Log.clog(ExtractUtil.bytesToHex(bytes));
-		//Log.clog(ExtractUtil.bytesToHex(new BigInteger(ExtractUtil.hexToByteArray(text.toLowerCase(Locale.ROOT))).toByteArray()));
-		//Log.clog(new Sha().sha256("123456"));
-		//Log.clog(Arrays.toString(ExtractUtil.hexToByteArray("ff")));
-		//Core.mandatoryExit();
 
 		/* 防止修改签名 */
 		/* CP #1 */
@@ -69,11 +61,7 @@ public class Main {
 
 		FileUtil.setFilePath((args.length > 0) ? Base64.decodeString(args[0]) : null);
 
-		//Data.core.settings.load();
 		Data.core.load();
-
-		//loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
-
 		Log.clog(Data.localeUtil.getinput("server.hi"));
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
@@ -112,8 +100,8 @@ public class Main {
 		/* 初始化Plugin Init */
 		PluginManage.runInit();
 
-		Log.clog("Load Plugin Jar : {0}",PluginManage.getLoadSize());
-
+		Log.clog(Data.localeUtil.getinput("server.load.end"));
+		Log.clog(Data.localeUtil.getinput("server.loadPlugin",PluginManage.getLoadSize()));
 
 		/* 默认直接启动服务器 */
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
@@ -128,7 +116,7 @@ public class Main {
 		}
 		lib.importLib("io.netty","netty-all","4.1.66.Final");
 		lib.importLib("com.ip2location","ip2location-java","8.5.0");
-		lib.importLib("com.alibaba","fastjson","1.2.58");
+		//lib.importLib("com.alibaba","fastjson","1.2.58");
 		//lib.importLib("org.bouncycastle","bcprov-jdk15on","1.69");
 		loadKtJar(lib);
 		//lib.importLib("org.quartz-scheduler","quartz","2.3.2");

@@ -1,7 +1,6 @@
 package com.github.dr.rwserver.mods;
 
 import com.github.dr.rwserver.Main;
-import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
@@ -49,25 +48,34 @@ public class ModsLoad {
             ModsData s = null;
             try {
                 s = new ModsData(k.value);
+
                 if (Boolean.getBoolean(s.modFileData.get("core").get("dont_load"))) {
                     return;
                 }
+
                 s.a(s,s,modsData,orderedMap);
-                //s.addModsConfig(modsData);
+
+                s.addModsConfig(modsData);
 
                 s.loadCopyFromSection();
+
                 s.aa();
 
-                Log.clog(k.key);
-               Log.clog(String.valueOf(s.getMd5()));
+                //Log.clog(k.key);
+               //Log.clog(String.valueOf(s.getMd5()));
                 if (s.getName() != null) {
-                    objectMap.put(s.getName(),s.getMd5());
+                    //objectMap.put(s.getName(),s.getMd5());
+                    if (!lll.contains(String.valueOf(s.getMd5()))) {
+                        Log.clog(k.key);
+
+                    }
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
+        /*
         try {
             DataOutputStream stream = Data.utilData.stream;
             stream.writeInt(1);
@@ -85,9 +93,10 @@ public class ModsLoad {
                     Log.error(e);
                 }
             });
+
         } catch (Exception e) {
             Log.error(e);
-        }
+        } */
     }
 
     private static class ModsData {
@@ -297,12 +306,21 @@ public class ModsLoad {
 
         private void aa() {
             this.global = getGlobalData();
-            this.define = getDefineData();
+            //this.define = getDefineData();
             final LinkedHashMap<String,String> result = new LinkedHashMap<>();
             for (String str : this.modFileData.keySet()) {
                 if (str == null || str.startsWith("comment_") || str.startsWith("template_")) {
                     continue;
                 }
+
+                this.define = new LinkedHashMap<>();
+                for (String str1 : getTheCustomNameListInTheName(str, "@define ")) {
+                    String str2 = str1.substring("@define ".length()).trim();
+                    String str3 = this.modFileData.get(str).get(str1);
+                    //Log.clog(str2+"   "+str3);
+                    this.define.put(str2, str3);
+                }
+
                 LinkedHashMap<String,String> map =this.modFileData.get(str);
                 for (String str1 : map.keySet()) {
                     String str2 = (String)map.get(str1);
@@ -350,7 +368,7 @@ public class ModsLoad {
             matcher.appendTail(stringBuffer);
             paramString2 = stringBuffer.toString();
             if (bool) {
-                paramString2 = ModsLoadUtil.b(paramString2.charAt(0));
+                paramString2 = ModsLoadUtil.b(new b$1(paramString2).b());
             }
             return paramString2;
         }
@@ -385,6 +403,7 @@ public class ModsLoad {
                 return str;
             }
             throw new RuntimeException("Could not find variable with name: " + paramString2);
+            //return "";
         }
 
         public String getMaptoMapVaule(String paramString1, String paramString2) {

@@ -2,7 +2,7 @@ package com.github.dr.rwserver.data;
 
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.game.Team;
-import com.github.dr.rwserver.net.core.AbstractNetConnect;
+import com.github.dr.rwserver.net.core.server.AbstractNetConnect;
 import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.LocaleUtil;
 import org.jetbrains.annotations.Nls;

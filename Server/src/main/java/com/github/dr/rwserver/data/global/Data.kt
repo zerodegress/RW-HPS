@@ -10,7 +10,6 @@ import com.github.dr.rwserver.util.LocaleUtil
 import com.github.dr.rwserver.util.file.LoadConfig
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.zip.gzip.GzipEncoder.Companion.getGzipStream
-import com.ip2location.IP2Location
 import io.netty.channel.Channel
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -32,7 +31,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "1.4.0-M1-DEV2"
+    const val SERVER_CORE_VERSION = "1.4.0-M1"
     /** 单位数据缓存  */
 	@JvmField
 	val utilData = getGzipStream("customUnits", false)
@@ -67,7 +66,7 @@ object Data {
 	val localeUtilMap = ObjectMap<String, LocaleUtil>(8)
 
     lateinit var config: LoadConfig
-    lateinit var ip2Location: IP2Location
+    //lateinit var ip2Location: IP2Location
 
     /**
      * 可控变量

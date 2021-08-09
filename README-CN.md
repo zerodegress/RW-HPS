@@ -150,3 +150,8 @@ RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如�
 
 ## 感谢
 [Thanks](https://github.com/RW-HPS/RW-HPS/blob/master/Thanks-CN.md)
+
+> [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的 IDE，适用于 JVM 平台语言。
+
+特别感谢 [JetBrains](https://www.jetbrains.com/?from=rw-hps) 为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=rw-hps) 等 IDE 的授权  
+[<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=rw-hps)

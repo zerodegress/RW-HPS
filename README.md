@@ -148,3 +148,7 @@ We receive donations through the following channels：
 
 ## Thanks
 [Thanks](https://github.com/RW-HPS/RW-HPS/blob/master/Thanks.md)
+
+> [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) It is an IDE that maximizes the productivity of developers in all aspects, and is suitable for JVM platform languages。
+
+[<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=rw-hps)

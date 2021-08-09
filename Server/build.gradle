@@ -12,12 +12,12 @@ targetCompatibility=11
  * 需要帮助!
  */
 dependencies {
-	compileOnly group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
-	compileOnly (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
+	implementation group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
+	implementation (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
 		exclude group: "org.jetbrains.kotlin"
 	}
-	compileOnly group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
-	compileOnly group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
+	implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
+	implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
 }
 
 jar{

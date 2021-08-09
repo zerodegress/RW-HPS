@@ -34,7 +34,7 @@ public class GameTimeLapse {
                 if(lap>(x.stage+1)*5000*60) {
                     x.stage= (byte) (lap/300000);
                     Data.playerGroup.eachBooleanIfs(p->p.groupId==y,e -> e.sendSystemMessage("游戏已进行"+lap/60000+"分钟"));
-                    Log.clog("游戏已进行"+lap/60000+"分钟");
+                    Log.clog("组"+y+" 游戏已进行"+lap/60000+"分钟");
                 }
             }
         });

@@ -119,7 +119,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             var message: String? = stream.readString()
             var response: CommandResponse? = null
             Log.clog("[{0}]: {1}", player.name, message)
-            KongZhi.broadCast("-chat "+player.uuid+" "+message)
+            KongZhi.broadCast("-chat\n"+player.uuid+"\n"+message)
             if (player.isAdmin && getIfScheduledFutureData("AfkCountdown")) {
                 removeScheduledFutureData("AfkCountdown")
                 Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
@@ -357,6 +357,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 Events.fire(PlayerJoinEvent(player))
                 if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).enterAd)) {
                     sendSystemMessage(GroupGame.gU(player.groupId).enterAd)
+                    sendSystemMessage("您在第"+player.groupId+"组房间")
                 }
 //                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name),player.groupId)
                 if (re.get()) {

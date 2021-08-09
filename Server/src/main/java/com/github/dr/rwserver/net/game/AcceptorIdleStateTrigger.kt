@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.net.game
 
+import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.debug
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
@@ -29,6 +30,8 @@ internal class AcceptorIdleStateTrigger(private val startNet: StartNet) : Channe
             if (state == IdleState.WRITER_IDLE) {
                 val con = ctx.channel().attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
                 if (TimeoutDetection.checkTimeoutDetection(con)) {
+                    Log.clog("闲置断开: "+con.ip)
+                    if(con.player!=null) Log.clog("组"+con.player?.groupId+"玩家"+con.player?.name+"断开")
                     startNet.clear(ctx)
                 }
             }

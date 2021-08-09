@@ -52,7 +52,7 @@ public class UpList extends Plugin {
         map.put("Name", Data.core.serverName);
         map.put("Port", String.valueOf(port));
         map.put("PlayerMaxSzie", String.valueOf(Data.game.gMaxPlayer));
-        map.put("MapName", Data.game.maps.mapName);
+        map.put("MapName", "OO's Auto Server");
         map.put("StartGame", String.valueOf(Data.game.isStartGame));
         map.put("PlayerSize", String.valueOf(Data.playerGroup.size()));
         String result = HttpRequestOkHttp.doPostJson("https://api.der.kim:41567/api/post/uplist", JSONObject.toJSONString(map, new SerializerFeature[]{SerializerFeature.PrettyFormat}));
@@ -73,7 +73,7 @@ public class UpList extends Plugin {
                     Map<String, String> map0 = new HashMap<>();
                     map0.put("Token", tonken);
                     map0.put("Status", "update");
-                    map0.put("MapName", Data.game.maps.mapName);
+                    map0.put("MapName","OO's Auto Server");
                     map0.put("StartGame", String.valueOf(Data.game.isStartGame));
                     map0.put("PlayerSize", String.valueOf(Data.playerGroup.size()));
                     String result0 = HttpRequestOkHttp.doPostJson("https://api.der.kim:41567/api/post/uplist", JSONObject.toJSONString(map0, new SerializerFeature[]{SerializerFeature.PrettyFormat}));

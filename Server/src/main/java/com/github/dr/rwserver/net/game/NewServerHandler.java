@@ -109,15 +109,18 @@ class NewServerHandler extends SimpleChannelInboundHandler<Object> {
             int gid=ctx.channel().attr(GroupGame.G_KEY).get();
             if(GroupGame.games.get(gid).isStartGame){
                 List<Player> players = GroupGame.playersByGid(Data.playerGroup, gid);
-
                 if(players.isEmpty()){
+                    Log.clog("组"+gid+"玩家全部离开，结束游戏");
                     Events.fire(new EventType.GameOverEvent(gid));
                 }else if (players.size()==1&&!Threads.getIfScheduledFutureData("Gameover-t"+gid)){
                     Call.sendSystemMessageLocal("gameOver.oneMin",gid);
+                    Log.clog("组"+gid+"进入1分钟结束倒计时");
                     Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent(gid)),1, TimeUnit.MINUTES,"Gameover"+gid);
                 }else {
-                    if(players.stream().map(p->p.team).distinct().toArray().length==1)
+                    if(players.stream().map(p->p.team).distinct().toArray().length==1){
+                        Log.clog("队伍离开，组"+gid+"进入2分钟结束倒计时");
                         Threads.newThreadService(() -> Events.fire(new EventType.GameOverEvent(gid)),2, TimeUnit.MINUTES,"Gameover-t"+gid);
+                    }
                 }
             }
         }

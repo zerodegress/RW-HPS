@@ -223,6 +223,7 @@ public class Vote {
     }
 
     private void gameover() {
+        Log.clog("组"+player.groupId+"投票结束游戏");
         Events.fire(new EventType.GameOverEvent(player.groupId));
     }
 

@@ -23,7 +23,7 @@ open class StartGameNetTcp(startNet: StartNet) : ChannelInitializer<SocketChanne
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
         val pipeline = socketChannel.pipeline()
-        pipeline.addLast(IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
+        pipeline.addLast(IdleStateHandler(0, 10, 0, TimeUnit.SECONDS))
         pipeline.addLast(idleStateTrigger)
         pipeline.addLast(PacketDecoder())
         pipeline.addLast(PacketEncoder())

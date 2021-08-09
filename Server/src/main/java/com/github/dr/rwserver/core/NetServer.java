@@ -33,24 +33,16 @@ public class NetServer {
         if (Threads.getIfScheduledFutureData("GameTask"+gid)) {
             Threads.removeScheduledFutureData("GameTask"+gid);
         }
-//        if (Threads.getIfScheduledFutureData("GamePing"+gid)) {
-//            Threads.removeScheduledFutureData("GamePing");
-//        }
-//        if (Threads.getIfScheduledFutureData("GameWinOrLoseCheck")) {
-//            Threads.removeScheduledFutureData("GameWinOrLoseCheck");
-//        }
-//        if (Threads.getIfScheduledFutureData("Gameover"+gid)) {
-//            Threads.removeScheduledFutureData("Gameover"+gid);
-//        }
+        if (Threads.getIfScheduledFutureData("Gameover-t"+gid)) {
+            Threads.removeScheduledFutureData("Gameover-t"+gid);
+        }
         Call.killPlayers(gid);
         GroupGame.removePlayer(Data.playerAll,gid);
         GroupGame.removePlayer(Data.playerGroup,gid);
         GroupGame.games.get(gid).re();
-        Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
 //        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
 //        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
-        Data.game = new Rules(Data.config);
-        Data.game.init();
-        Log.clog("Server Gameover completed");
+
+        Log.clog("组"+gid+"完成游戏");
     }
 }

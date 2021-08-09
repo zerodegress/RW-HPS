@@ -122,10 +122,11 @@
             /* border-radius: 4px; */
         }
         .mc-ka-z:hover{
-            background-color: rgb(184, 166, 184);
+            background-color: rgba(199, 174, 199, 0.89);
         }
         .mc-ka-st{
-            width: 180px;
+            width: 210px;
+            height: 200px;
             margin: 10px 15px;
             box-shadow: 2px 2px 10px 2px #787878a8;
             background-color: var(--mc-bg-ka);
@@ -170,6 +171,24 @@
         .mc-ka-tou span:hover{
             background-color: aquamarine;
         }
+        .dai{
+            height: 200px;
+            position: relative;
+        }
+        .xianshi{
+            animation: 0.2s show 1;opacity:1;
+        }
+        .touming{
+            animation: 0.2s hide 1;opacity:0;
+        }
+        @keyframes show{
+            0%{opacity:0}
+            100%{opacity:1;}
+        }
+        @keyframes hide{
+            0%{opacity:1}
+            100%{opacity:0;}
+        }
     </style>
 </head>
 <body background="https://i.loli.net/2021/08/06/wDBE2OCTUpz9fxJ.jpg">
@@ -198,7 +217,7 @@
         <span id="playTime" class="des" style="height: 30px;"></span>
     </div>
     <div style="height: 10px"></div>
-    <div id="zu" style="margin: 0 auto;width: 936px;overflow: hidden;"></div>
+    <div id="zu" style="margin: 0 auto;width: 980px;overflow: hidden;"></div>
     <div style="height: 30px"></div>
 </div>
 <div id="boardWra" style="background-color: #6495eded">
@@ -220,6 +239,7 @@
     let playStartTime=new Date().getTime();
     let isGameStart=[false];
     let playTimeDom=document.getElementById("playTime");
+    function gt(v){return document.getElementById(v)}
     function boardGoing(str){
         let el = document.createElement("p");
         el.innerText=str;
@@ -252,6 +272,9 @@
             }else if(e.data.indexOf("-ts")==0){
                 playerCard(e.data)
             }else if(e.data.startsWith("-gf ")) initServerCan(e.data);
+            else if(e.data.startsWith("-chat\n")) {
+                ag=e.data.split('\n');chatShow(ag[1],ag[2])
+            }
             else boardGoing(e.data)
         }
         ws.onclose=function (){
@@ -314,7 +337,7 @@
         for(let j in players){
             if(!data.find(d=>d.head[0]==j)) {
                 players[j].a.remove();
-                players[j]=undefined
+                delete players[j]
             }
         }
     }
@@ -340,6 +363,80 @@
                p.a.append(oneCard(p.gp[p.gp.length-1],s,hd,ski,ys))
             }
         })
+        p.gp=p.gp.filter(x=>{
+                if(!c.body.find(y=>y[1]==x[1])){
+                    x[0].parentElement.remove()
+                    return false
+                }else return true
+            }
+        )
+    }
+    function dailg(str,obj,flip){
+        let zih=50
+        let fac=Math.ceil(str.length/13)
+        let x=200
+        let y=50*fac
+        if(fac>8){
+            x=500
+            y=y*2/5
+        }else if(fac>3){
+            x=300
+            y=2/3*y
+        }else if(str.length<5) x=100
+        let dai=g("div")
+        dai.classList.add("dai",'xianshi')
+        dai.style.left=obj.clientWidth-50+'px'
+        dai.style.top=obj.clientHeight/2-y+10+'px'
+        obj.append(dai)
+        if(dai.offsetParent!=obj){dai.style.top=(obj.offsetTop-dai.offsetTop)/2-y+10+'px'}
+        let canvas=g("canvas")
+        canvas.height=y
+        canvas.width=x
+        dai.append(canvas)
+        let ctx=canvas.getContext("2d")
+        let m=8;n=2;
+        ctx.moveTo(x/2,m);
+        // ctx.strokeStyle = "#ee9";
+        ctx.quadraticCurveTo(n,n,m,y/2);
+        ctx.quadraticCurveTo(n,0.8*y,0.2*x,0.85*y);
+        ctx.quadraticCurveTo(0.2*x,0.98*y,3*m,y);
+        ctx.quadraticCurveTo(0.26*x,0.98*y,0.27*x,0.85*y);
+        ctx.quadraticCurveTo(x-n,y-n,x-m,y/2);
+        ctx.quadraticCurveTo(x-n,n,x/2,m);
+        // ctx.stroke();
+        ctx.fillStyle="#eeeedddc"
+        ctx.fill();
+        if(flip) {canvas.style.transform='scaleX(-1)';dai.style.left=-150+'px'}
+        let zi=g("div")
+        zi.innerText=str
+        let mid=midle(x/2,m,n,n,m,y/2)
+        zi.style.width=midle(x/2,m,x-n,n,x/2,m)[0]-mid[0]+40+'px'
+        dai.append(zi)
+        zi.style.position='relative'
+        zi.style.fontSize='16px'
+        if(fac<3){ mid[0]=mid[0]-10;mid[1]+=5}
+        zi.style.top=mid[1]-y+'px'
+        zi.style.left=mid[0]+'px'
+        zi.style.textAlign='center'
+        zi.style.margin='unset'
+        return dai
+    }
+    function midle(p0x,p0y,p1x,p1y,p2x,p2y){
+        r=[]
+        r[0]=0.25*p0x+0.5*p1x+0.25*p2x
+        r[1]=0.25*p0y+0.5*p1y+0.25*p2y
+        return r
+    }
+    function chatShow(u,s){
+        for(let i in players){
+            let x=players[i].gp.find((v)=>v[1]==u)
+            if(x){
+                x=x[0].parentElement;
+                let dai=dailg(s,x,x.offsetLeft-x.parentElement.offsetLeft>600?1:undefined)
+                setTimeout(()=>{dai.classList.remove('xianshi');dai.classList.add('touming');setTimeout(()=>{dai.remove(),200})},2000)
+                break;
+            }
+        }
     }
     let colorSch=[]
     for(let i=0;i<15;i++){
@@ -349,6 +446,12 @@
         let playStat = document.getElementById("zu");
         let dm=ps.substr(3);
         let data = JSON.parse(dm);
+        playTimeDom.online=0;
+        playTimeDom.total=data.length-1;
+        for(let i=1;i<data.length;i++){
+            if(data[i].body[6]=="断开") playTimeDom.online++;
+        }
+        playTimeDom="在线玩家："+playTimeDom.online+"/"+playTimeDom.total;
         toCard(data,playStat,(p,i,data)=>{
             if(i==6) p.parentElement.style.setProperty("--mc-bg-ka",data[i]=="断开"?"rgb(151, 151, 151)":data[4]==1?"rgb(71,150,248)":"rgb(220,27,50)")
             p.style.setProperty("--mc-bg-hong",colorSch[i])
@@ -450,11 +553,11 @@
             msgSend("msg "+pMsg);
         }
     }
-    setInterval(()=>{
-        if(isCon)
-        if(isGameStart)  playTimeDom.innerText= '游戏已开始:'+formatTime((new Date().getTime()-playStartTime))
-        else playTimeDom.innerText="战役室:"+formatTime((new Date().getTime()-playStartTime))
-    },1000)
+    // setInterval(()=>{
+    //     if(isCon)
+    //     if(isGameStart)  playTimeDom.innerText= '游戏已开始:'+formatTime((new Date().getTime()-playStartTime))
+    //     else playTimeDom.innerText="战役室:"+formatTime((new Date().getTime()-playStartTime))
+    // },1000)
     setInterval(()=>{
        if(isCon) {
           ws.send("-p1 -3 0")

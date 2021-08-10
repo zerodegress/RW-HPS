@@ -6,6 +6,7 @@ import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.core.TypeConnect
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.millis
+import com.github.dr.rwserver.util.log.Log
 
 class TypeRwHps : TypeConnect {
     @Throws(Exception::class)
@@ -26,7 +27,10 @@ class TypeRwHps : TypeConnect {
                     player.avgPing = (player.avgPing * player.pingTimes + player.ping) / ++player.pingTimes
                 }
                 PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
-                PacketType.PACKET_DISCONNECT -> con.disconnect()
+                PacketType.PACKET_DISCONNECT -> {
+                    Log.clog("组"+con.player?.groupId+"玩家"+con.player?.name+"主动断开")
+                    con.disconnect()
+                }
                 PacketType.PACKET_ACCEPT_START_GAME -> con.player!!.start = true
                 PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
                 PacketType.PACKET_SYNC ->GroupGame.gU(con.player?.groupId!!).gameSaveCache = packet

@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit
 @NeedToRefactor
 object Threads {
     private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(6, "Core-")
-    private val CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(1, "Core-Net-")
-    private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(10, "ScheduledExecutorPool-")
-    private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")
+//    private val CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(1, "Core-Net-")
+    private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(8, "ScheduledExecutorPool-")
+//    private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")
 
     /** 在退出时执行Runnable  */
     private val SAVE_POOL = Seq<Runnable>()
@@ -28,13 +28,13 @@ object Threads {
     @JvmStatic
 	fun close() {
         CORE_THREAD.shutdownNow()
-        CORE_NET_THREAD.shutdownNow()
+//        CORE_NET_THREAD.shutdownNow()
         SERVICE.shutdownNow()
-        PLAYER_HEAT_THREAD.shutdownNow()
+//        PLAYER_HEAT_THREAD.shutdownNow()
     }
 
     fun closeNet() {
-        CORE_NET_THREAD.shutdownNow()
+//        CORE_NET_THREAD.shutdownNow()
     }
 
     /**
@@ -80,7 +80,7 @@ object Threads {
 
     @JvmStatic
     fun newThreadPlayerHeat(run: Runnable) {
-        PLAYER_HEAT_THREAD.execute(run)
+//        PLAYER_HEAT_THREAD.execute(run)
     }
 
     @JvmStatic
@@ -90,7 +90,7 @@ object Threads {
 
     @JvmStatic
     fun newThreadCoreNet(run: Runnable) {
-        CORE_NET_THREAD.execute(run)
+//        CORE_NET_THREAD.execute(run)
     }
 
     @JvmStatic

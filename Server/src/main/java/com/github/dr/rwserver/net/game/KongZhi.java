@@ -148,7 +148,7 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             player.add(Data.playerGroup.contains(g)? g.dead?"已被击败":"正常":"断开");
             player.add(g.groupId+"");
             player.add(g.avgPing+"");
-            player.add(g.pingTimes+"");
+            player.add(g.pingTimes+"次");
             player.add(g.con.getIp()+":"+ g.con.getPort());
             players.add(player);
         });

@@ -47,13 +47,13 @@ public class StartNet {
         EventLoopGroup workerGroup;
         Class runClass;
         if (Data.core.isWindows()) {
-            bossGroup = new NioEventLoopGroup(4);
-            workerGroup = new NioEventLoopGroup();
+            bossGroup = new NioEventLoopGroup(1);
+            workerGroup = new NioEventLoopGroup(8);
             runClass = NioServerSocketChannel.class;
             Log.clog("运行在Windows 或许效率会略低");
         } else {
-            bossGroup = new EpollEventLoopGroup(4);
-            workerGroup = new EpollEventLoopGroup();
+            bossGroup = new EpollEventLoopGroup(1);
+            workerGroup = new EpollEventLoopGroup(8);
             runClass = EpollServerSocketChannel.class;
         }
         try {

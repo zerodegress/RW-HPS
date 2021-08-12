@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--  do_not_remove: published-with-gradle-metadata  -->
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.github.RW-HPS</groupId>
+<artifactId>RW-HPS</artifactId>
+
+<name>RW-HPS/RW-HPS</name>
+<description>Dedicated to Rusted Warfare(RustedWarfare) High Performance Server / 铁锈战争高效率服务器</description>
+<url>https://github.com/RW-HPS/RW-HPS</url>
+
+<inceptionYear>2020</inceptionYear>
+
+<licenses>
+<license>
+<name>GNU Affero General Public License v3.0</name>
+<url>https://api.github.com/licenses/agpl-3.0</url>
+<distribution>repo</distribution>
+</license>
+</licenses>
+</project>

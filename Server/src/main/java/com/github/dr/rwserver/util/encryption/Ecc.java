@@ -1,13 +1,13 @@
-package com.github.dr.rwserver.util.encryption;
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
 
-import javax.crypto.Cipher;
-import java.io.File;
-import java.io.FileInputStream;
-import java.security.*;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
+package com.github.dr.rwserver.util.encryption;
 
 /**
  * @author Dr

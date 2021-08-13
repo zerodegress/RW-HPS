@@ -7,6 +7,18 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.util.log.exp
+package com.github.dr.rwserver.util.io
 
-class ImplementedException(string: String) : Exception(string)
+import java.io.Closeable
+
+object Streams {
+    /** Close and ignore all errors.  */
+    fun close(c: Closeable?) {
+        if (c != null) {
+            try {
+                c.close()
+            } catch (ignored: Throwable) {
+            }
+        }
+    }
+}

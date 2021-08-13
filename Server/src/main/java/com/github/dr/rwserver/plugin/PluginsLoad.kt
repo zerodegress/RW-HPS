@@ -11,6 +11,7 @@ package com.github.dr.rwserver.plugin
 
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.json.Json
+import com.github.dr.rwserver.dependent.LibraryManager
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.file.FileUtil
@@ -38,6 +39,16 @@ class PluginsLoad {
                     error("Invalid jar file", file.name)
                     continue
                 }
+                val imports = ZipDecoder(file).getZipNameInputStream("imports.json")
+                if (IsUtil.notIsBlank(imports)) {
+                    val importsJson = Json(FileUtil.readFileString(imports!!)).getArraySeqData("imports")
+                    val lib = LibraryManager(Data.Plugin_Lib_Path)
+                    importsJson.each {
+                        lib.importLib(it.getData("group"), it.getData("name"), it.getData("version"))
+                    }
+                    lib.loadToClassLoader()
+                }
+
                 val json = Json(FileUtil.readFileString(imp!!))
                 if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
                     warn("Plugin版本不兼容 Plugin名字为: ", json.getData("name"))
@@ -119,7 +130,7 @@ class PluginsLoad {
         @JvmField val description: String,
         @JvmField val version: String,
         @JvmField val main: Plugin
-        ) {
+    ) {
         init {
             main.pluginData.setFileUtil(
                 FileUtil.getFolder(Data.Plugin_Plugins_Path).toFile(this.name).toFile(this.name + ".bin")

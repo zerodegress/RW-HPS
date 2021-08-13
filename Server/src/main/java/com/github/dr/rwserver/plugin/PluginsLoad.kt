@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.plugin
 
 import com.github.dr.rwserver.data.global.Data
@@ -12,6 +21,7 @@ import com.github.dr.rwserver.util.zip.zip.ZipDecoder
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
+import java.util.*
 
 /**
  * @author Dr
@@ -90,7 +100,9 @@ class PluginsLoad {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()), ClassLoader.getSystemClassLoader())
         Log.info(file.name)
         val classMain = classLoader.loadClass(main)
-        return classMain.getDeclaredConstructor().newInstance() as Plugin
+        val mainPlugin = classMain.getDeclaredConstructor().newInstance() as Plugin
+        mainPlugin.classLoader = classLoader
+        return mainPlugin
     }
 
     /**
@@ -101,19 +113,13 @@ class PluginsLoad {
      */
     private class PluginImportData(@JvmField val pluginData: Json, @JvmField val file: File)
 
-    class PluginLoadData(name: Any, author: Any, description: Any, version: Any, @JvmField val main: Plugin) {
-        @JvmField
-        val name: String = name as String
-
-        @JvmField
-        val author: String = author as String
-
-        @JvmField
-        val description: String = description as String
-
-        @JvmField
-        val version: String = version as String
-
+    class PluginLoadData(
+        @JvmField val name: String,
+        @JvmField val author: String,
+        @JvmField val description: String,
+        @JvmField val version: String,
+        @JvmField val main: Plugin
+        ) {
         init {
             main.pluginData.setFileUtil(
                 FileUtil.getFolder(Data.Plugin_Plugins_Path).toFile(this.name).toFile(this.name + ".bin")
@@ -122,6 +128,19 @@ class PluginsLoad {
                 main.pluginData.read()
             } catch (e: Exception) {
             }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+            return if (other == null || javaClass != other.javaClass) {
+                false
+            } else name == (other as PluginLoadData).name
+        }
+
+        override fun hashCode(): Int {
+            return Objects.hash(name)
         }
     }
 

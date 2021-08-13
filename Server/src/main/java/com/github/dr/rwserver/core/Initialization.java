@@ -1,25 +1,19 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.core;
 
 import com.github.dr.rwserver.Main;
 import com.github.dr.rwserver.data.global.Data;
-import com.github.dr.rwserver.data.json.Json;
-import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.LocaleUtil;
-import com.github.dr.rwserver.util.ReExp;
-import com.github.dr.rwserver.util.encryption.Aes;
-import com.github.dr.rwserver.util.encryption.Base64;
-import com.github.dr.rwserver.util.encryption.Md5;
-import com.github.dr.rwserver.util.file.FileUtil;
-import com.github.dr.rwserver.util.log.Log;
-import com.github.dr.rwserver.util.log.exp.FileException;
-import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
-import java.io.File;
 import java.util.Objects;
-
-import static com.github.dr.rwserver.net.HttpRequestOkHttp.doGet;
-import static com.github.dr.rwserver.util.IsUtil.notIsBlank;
-import static com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate;
 
 /**
  * @author Dr
@@ -30,11 +24,15 @@ public class Initialization {
 		loadLang();
 
 		initMaps();
-
 		Runtime.getRuntime().addShutdownHook(new ExitHandler());
     }
 
     public void startInit() {
+		initServerLanguage();
+	}
+
+    private void initServerLanguage() {
+		//boolean isChina = doGet("https://ip.tool.lu").contains("中国");
 	}
 
 	private void initMaps() {

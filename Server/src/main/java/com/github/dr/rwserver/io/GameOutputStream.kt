@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.io
 
 import com.github.dr.rwserver.io.output.DisableSyncByteArrayOutputStream
@@ -9,8 +18,8 @@ import java.io.IOException
  * @author Dr
  */
 class GameOutputStream {
-    val buffer = DisableSyncByteArrayOutputStream()
-    val stream = DataOutputStream(buffer)
+    private val buffer = DisableSyncByteArrayOutputStream()
+    private val stream = DataOutputStream(buffer)
 
     fun createPacket(): Packet {
         try {
@@ -111,8 +120,13 @@ class GameOutputStream {
     }
 
     @Throws(IOException::class)
-    fun flushData(inputStream: GameInputStream) {
-        inputStream.buffer.transferTo(buffer)
+    fun transferTo(inputStream: GameInputStream) {
+        inputStream.transferTo(buffer)
+    }
+
+    @Throws(IOException::class)
+    fun transferToFixedLength(inputStream: GameInputStream, length: Int) {
+        inputStream.transferToFixedLength(buffer,length)
     }
 
     @Throws(IOException::class)

@@ -30,7 +30,23 @@ It aims to provide better game experience for players as a high performance and 
 
 ### Licenses
 Used in this project  
-GNU General Public License v3.0
+GNU Affero General Public License v3.0
+```
+Copyright (C) 2020-2021 RW-HPS Team and contributors.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
 
 #### Game protocols that will not be supported
 - Server List -> ADD List, Update List, Remove List  
@@ -147,8 +163,6 @@ We receive donations through the following channels：
 + [爱发电](https://afdian.net/@derdct)
 
 ## Thanks
-[Thanks](https://github.com/RW-HPS/RW-HPS/blob/master/Thanks.md)
-
 > [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) It is an IDE that maximizes the productivity of developers in all aspects, and is suitable for JVM platform languages。
 
 [<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=rw-hps)

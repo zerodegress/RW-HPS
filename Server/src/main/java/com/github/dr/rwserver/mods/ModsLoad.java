@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.mods;
 
 import com.github.dr.rwserver.Main;
@@ -66,7 +75,7 @@ public class ModsLoad {
                 if (s.getName() != null) {
                     //objectMap.put(s.getName(),s.getMd5());
                     if (!lll.contains(String.valueOf(s.getMd5()))) {
-                        Log.clog(k.key);
+                        Log.clog(k.key + "    " + s.getMd5());
 
                     }
                 }
@@ -104,7 +113,7 @@ public class ModsLoad {
         private static final Pattern g = Pattern.compile("\\s*\\[([^]]*)]\\s*");
         /** 分割 = */
         private static final Pattern h = Pattern.compile("\\s*([^=:]*)[=:](.*)");
-        private static final Pattern a = Pattern.compile("\\$\\{([^\\}]*)\\}");
+        private static final Pattern a = Pattern.compile("\\$\\{([^}]*)}");
         private static final Pattern b = Pattern.compile("[A-Za-z_][A-Za-z_.0-9]*");
 
         private final LinkedHashMap<String,LinkedHashMap<String,String>> modFileData = new LinkedHashMap<>();
@@ -201,7 +210,7 @@ public class ModsLoad {
                     a(modsData1,a,modsData,orderedMap);
                 }
             } else {
-                modsData1.addModsConfig(modsData);
+                //modsData1.addModsConfig(modsData);
             }
 
         }
@@ -313,6 +322,7 @@ public class ModsLoad {
                     continue;
                 }
 
+                if (this.define != null) this.define.clear();
                 this.define = new LinkedHashMap<>();
                 for (String str1 : getTheCustomNameListInTheName(str, "@define ")) {
                     String str2 = str1.substring("@define ".length()).trim();
@@ -430,7 +440,9 @@ public class ModsLoad {
                     if (this.modFileData.get(k) == null) {
                         this.modFileData.computeIfAbsent(k, keyCache -> new LinkedHashMap<>()).put(k1, v1);
                     } else {
-                        this.modFileData.get(k).putIfAbsent(k1, v1);
+                        if (this.modFileData.get(k).get(k1) == null) {
+                            this.modFileData.get(k).put(k1,v1);
+                        }
                     }
 
                 });

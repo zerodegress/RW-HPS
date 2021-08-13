@@ -9,7 +9,11 @@
 
 package com.github.dr.rwserver.game
 
+import com.github.dr.rwserver.game.GameUnitType.GameActions
+
 /**
  * @author Dr
  */
-class GameCommand(val sendBy: Int, val arr: ByteArray)
+class EventLambdaType {
+    class PlayerUnit(val gameActions: GameActions, val unitName: String)
+}

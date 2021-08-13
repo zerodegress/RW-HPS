@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.game
 
 import com.github.dr.rwserver.core.Call
@@ -5,18 +14,14 @@ import com.github.dr.rwserver.core.NetServer
 import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
-import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.net.Administration.PlayerInfo
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.plugin.event.AbstractEvent
-import com.github.dr.rwserver.util.ExtractUtil
 import com.github.dr.rwserver.util.Time.millis
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.debug
 import com.github.dr.rwserver.util.log.Log.error
-import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
 import java.io.IOException
 
 /**
@@ -41,7 +46,7 @@ class Event : AbstractEvent {
     override fun registerPlayerJoinEvent(player: Player) {
         if (Data.core.admin.bannedUUIDs.contains(player.uuid)) {
             try {
-                player.con.sendKick(player.localeUtil.getinput("kick.ban"))
+                player.con!!.sendKick(player.localeUtil.getinput("kick.ban"))
             } catch (ioException: IOException) {
                 error("[Player] Send Kick Player Error", ioException)
             }
@@ -51,7 +56,7 @@ class Event : AbstractEvent {
             val info = Data.core.admin.playerDataCache[player.uuid]
             if (info.timesKicked > millis()) {
                 try {
-                    player.con.sendKick(player.localeUtil.getinput("kick.you.time"))
+                    player.con!!.sendKick(player.localeUtil.getinput("kick.you.time"))
                 } catch (ioException: IOException) {
                     error("[Player] Send Kick Player Error", ioException)
                 }
@@ -68,9 +73,8 @@ class Event : AbstractEvent {
                     abstractNetConnect.sendErrorPasswd()
                 } catch (ioException: IOException) {
                     debug("Event Passwd", ioException)
-                } finally {
-                    return arrayOf("true", "")
                 }
+                return arrayOf("true", "")
             }
         }
         return arrayOf("false", "")
@@ -113,22 +117,18 @@ class Event : AbstractEvent {
     }
 
     override fun registerGameOverEvent() {
-        if (Cache.startGameover) {
-            Cache.startGameover = false
-            if (Data.game.maps.mapData != null) {
-                Data.game.maps.mapData!!.clean()
-            }
-            NetServer.reLoadServer()
-            Cache.startGameover = true
-            System.gc()
+        if (Data.game.maps.mapData != null) {
+            Data.game.maps.mapData!!.clean()
         }
+        NetServer.reLoadServer()
+        System.gc()
     }
 
     override fun registerPlayerBanEvent(player: Player) {
         Data.core.admin.bannedUUIDs.add(player.uuid)
-        Data.core.admin.bannedIPs.add(player.con.ip)
+        Data.core.admin.bannedIPs.add(player.con!!.ip)
         try {
-            player.con.sendKick(player.localeUtil.getinput("kick.ban"))
+            player.con!!.sendKick(player.localeUtil.getinput("kick.ban"))
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
@@ -136,9 +136,9 @@ class Event : AbstractEvent {
     }
 
     override fun registerPlayerIpBanEvent(player: Player) {
-        Data.core.admin.bannedIPs.add(player.con.ip)
+        Data.core.admin.bannedIPs.add(player.con!!.ip)
         try {
-            player.con.sendKick("kick.ban")
+            player.con!!.sendKick("kick.ban")
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }

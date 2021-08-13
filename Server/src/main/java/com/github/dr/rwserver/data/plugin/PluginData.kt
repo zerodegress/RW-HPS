@@ -7,6 +7,9 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.data.global
+package com.github.dr.rwserver.data.plugin
 
-class Maps 
+class PluginData : AutoSavePluginData {
+    constructor() {}
+    constructor(id: String?) {}
+}

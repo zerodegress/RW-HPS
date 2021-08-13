@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.data.json
 
 import com.github.dr.rwserver.struct.ObjectMap
@@ -5,8 +14,6 @@ import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.serialization.JSONSerializer
 import com.github.dr.rwserver.util.serialization.JsonFormatTool
-import java.util.ArrayList
-import java.util.LinkedHashMap
 
 //Json
 //写的越久，BUG越多，伤痕越疼，脾气越差/-活得越久 故事越多 伤痕越疼，脾气越差
@@ -33,6 +40,7 @@ class Json {
     }
 
     fun getInnerMap(): Map<String, Any> {
+        @Suppress("UNCHECKED_CAST")
         return jsonObject as LinkedHashMap<String, Any>
     }
 

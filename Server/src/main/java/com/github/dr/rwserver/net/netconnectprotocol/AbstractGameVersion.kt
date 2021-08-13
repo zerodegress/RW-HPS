@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.data.Player
@@ -6,7 +15,7 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
-import com.github.dr.rwserver.net.game.ConnectSrver
+import com.github.dr.rwserver.net.game.ConnectServer
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.concurrentMillis
@@ -20,7 +29,7 @@ import java.io.IOException
  * 共用协议放在本处
  * @author Dr
  */
- abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: ConnectionAgreement): AbstractNetConnect {
+abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: ConnectionAgreement): AbstractNetConnect {
     /** 错误次数  */
     override var `try` = 0
         protected set
@@ -33,8 +42,8 @@ import java.io.IOException
     override var lastReceivedTime = concurrentMillis()
         protected set
 
-    override val isConnectServer: Boolean = false
-    override var connectServer: ConnectSrver? = null
+    override var isConnectServer: Boolean = false
+    override var connectServer: ConnectServer? = null
 
     /** 玩家是否死亡  */
     @JvmField
@@ -127,9 +136,19 @@ import java.io.IOException
 
     override fun sendTeamData(gzip: GzipEncoder) {}
 
-    override fun sendRelayServerType(msg: String) {}
 
+
+
+    override fun sendRelayServerType(msg: String) {}
     override fun sendRelayServerTypeReply(packet: Packet) {}
+    override fun sendRelayServerInfo() {}
+    override fun sendRelayServerCheck() {}
+    override fun sendRelayServerId() {}
+    override fun sendRelayPlayerInfo() {}
+    override fun getRelayUnitData(packet: Packet) {}
+
+
+
 
     @Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {

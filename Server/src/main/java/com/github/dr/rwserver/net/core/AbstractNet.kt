@@ -1,20 +1,22 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.net.core
 
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.net.game.*
-import com.github.dr.rwserver.net.game.AcceptorIdleStateTrigger
-import com.github.dr.rwserver.net.game.NewServerHandler
-import com.github.dr.rwserver.net.game.PacketDecoder
-import com.github.dr.rwserver.net.game.PacketEncoder
-import com.github.dr.rwserver.util.log.Log.info
 import com.github.dr.rwserver.util.log.exp.ImplementedException
-import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelPipeline
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
-import io.netty.util.concurrent.EventExecutorGroup
 import java.util.concurrent.TimeUnit
 
 @Sharable
@@ -23,24 +25,20 @@ open class AbstractNet(protected val startNet: StartNet): ChannelInitializer<Soc
     private var newServerHandler: NewServerHandler = NewServerHandler(startNet, NetStaticData.protocolData.abstractNetConnect, NetStaticData.protocolData.typeConnect)
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {
-        //info("addTimeOut")
         channelPipeline.addLast(IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
         channelPipeline.addLast(idleStateTrigger)
     }
 
     protected fun addPacketDecoderAndEncoder(channelPipeline: ChannelPipeline) {
-        //info("addPacketDecoderAndEncoder")
         channelPipeline.addLast(PacketDecoder())
         channelPipeline.addLast(PacketEncoder())
     }
 
     protected fun addNewServerHandler(channelPipeline: ChannelPipeline) {
-        //info("addNewServerHandler")
         channelPipeline.addLast(newServerHandler)
     }
-    protected fun addNewServerHandler(eventExecutorGroup: EventExecutorGroup, channelPipeline: ChannelPipeline) {
-        //info("addNewServerHandler")
-        channelPipeline.addLast(eventExecutorGroup,newServerHandler)
+    protected fun addNewServerHandlerExecutorGroup(channelPipeline: ChannelPipeline) {
+        channelPipeline.addLast(startNet.ioGroup,newServerHandler)
     }
 
     fun updateNet() {

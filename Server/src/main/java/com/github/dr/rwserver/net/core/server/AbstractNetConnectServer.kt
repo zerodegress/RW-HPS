@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.net.core.server
 
 import com.github.dr.rwserver.data.Player
@@ -9,27 +18,36 @@ import org.jetbrains.annotations.Nls
 import java.io.IOException
 
 /**
- * 只提供接口 不实现
- * 作为游戏CoreNet的分布实现 为GameServer提供多样的版本支持
+ * Only provide interface but not implement
+ * As the interface of game CoreNet, it provides various version support for GameServer
  * @author Dr
  * @date 2021/7/31/ 14:14
  */
 interface AbstractNetConnectServer {
     /**
-     * 获取玩家
+     * Acquire players
      * @return Player
      */
     val player: Player?
 
     /**
-     * 发送系统命名的消息包
+     * Send the message /*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+package named by the system
      * SERVER: ...
      * @param msg The message
      */
     fun sendSystemMessage(@Nls msg: String)
 
     /**
-     * 发送用户名命名的消息
+     * Send a message named by username
      * @param msg String
      * @param sendBy String
      * @param team Int
@@ -37,7 +55,7 @@ interface AbstractNetConnectServer {
     fun sendChatMessage(@Nls msg: String, sendBy: String, team: Int)
 
     /**
-     * 发送服务器消息
+     * Send server info
      * @param utilData 是否发送UnitData
      * @throws IOException Error
      */
@@ -45,13 +63,13 @@ interface AbstractNetConnectServer {
     fun sendServerInfo(utilData: Boolean)
 
     /**
-     * 自杀
+     * send Surrender
      */
     fun sendSurrender()
 
     /**
-     * 踢出玩家
-     * @param reason 发送原因
+     * Kick the player
+     * @param reason Reason
      * @throws IOException Error
      */
     @Throws(IOException::class)
@@ -63,7 +81,16 @@ interface AbstractNetConnectServer {
     fun ping()
 
     /**
-     * 提取GameSave包
+     * Extract the GameSave /*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+package
      * @param packet packet
      * @return 包
      * @throws IOException Error
@@ -72,7 +99,7 @@ interface AbstractNetConnectServer {
     fun getGameSaveData(packet: Packet): ByteArray
 
     /**
-     * 接受语言包
+     * Accept language pack
      * @param p Packet
      * @throws IOException Error
      */
@@ -80,7 +107,16 @@ interface AbstractNetConnectServer {
     fun receiveChat(p: Packet)
 
     /**
-     * 接受位移包
+     * Accept displacement /*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+package
      * @param p Packet
      * @throws IOException Error
      */
@@ -88,22 +124,31 @@ interface AbstractNetConnectServer {
     fun receiveCommand(p: Packet)
 
     /**
-     * 发送游戏开始包
+     * Send game start /*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+package
      * @throws IOException Error
      */
     @Throws(IOException::class)
     fun sendStartGame()
 
     /**
-     * 发送队伍包
+     * Send team pack
      * @param gzip GzipPacket
      */
     fun sendTeamData(gzip: GzipEncoder)
 
     /**
-     * 获取玩家的信息并注册
-     * @param p Packet包
-     * @return 注册状态
+     * Get player information and register
+     * @param p Packet
+     * @return Registration status
      * @throws IOException err
      */
     @JdkConstants.BoxLayoutAxis
@@ -111,27 +156,36 @@ interface AbstractNetConnectServer {
     fun getPlayerInfo(p: Packet): Boolean
 
     /**
-     * 注册连接
-     * @param p Packet包
+     * Register connection
+     * @param p Packet
      * @throws IOException err
      */
     @Throws(IOException::class)
     fun registerConnection(p: Packet)
 
     /**
-     * 密码错误
+     * wrong password
      * @throws IOException err
      */
     @Throws(IOException::class)
     fun sendErrorPasswd()
 
     /**
-     * 诱骗客户端发送Save包
+     * Trick the client to send the Save /*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+package
      */
     fun getGameSave()
 
     /**
-     * 发送重连包
+     * Send reconnect packet
      * @param packet ByteBuf
      */
     fun sendGameSave(packet: Packet)
@@ -139,7 +193,7 @@ interface AbstractNetConnectServer {
 
     fun reConnect() {
         try {
-            sendKick("不支持重连")
+            sendKick("不支持重连 || Does not support reconnection")
         } catch (e: IOException) {
             Log.error("(", e)
         }

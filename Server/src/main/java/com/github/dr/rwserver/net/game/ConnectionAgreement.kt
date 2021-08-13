@@ -1,10 +1,19 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.net.game
 
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
-import com.github.dr.rwserver.net.udp.ReliableSocket
 import com.github.dr.rwserver.util.RandomUtil.generateStr
 import io.netty.channel.ChannelHandlerContext
+import net.udp.ReliableSocket
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -32,7 +41,7 @@ class ConnectionAgreement {
      */
     constructor(channelHandlerContext: ChannelHandlerContext, startNet: StartNet) {
         protocolType = { packet: Packet ->
-            channelHandlerContext.channel().eventLoop().execute { channelHandlerContext.writeAndFlush(packet) }
+            channelHandlerContext.writeAndFlush(packet)
         }
         this.startNet = startNet
         objectOutStream = channelHandlerContext

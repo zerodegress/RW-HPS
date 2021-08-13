@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.Main
@@ -38,8 +47,8 @@ import kotlin.math.min
  */
 
 @MainProtocolImplementation
-class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGameVersion(connectionAgreement) {
-    private var playerConnectKey: String? = null
+open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGameVersion(connectionAgreement) {
+    protected var playerConnectKey: String? = null
     private val sync = ReentrantLock(true)
 
     override fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect {
@@ -125,9 +134,9 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
                 val strEnd = min(message.length, 3)
                 response = if ("qc" == message.substring(1, strEnd)) {
-                    Data.CLIENTCOMMAND.handleMessage("/" + message.substring(5), player)
+                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(5), player)
                 } else {
-                    Data.CLIENTCOMMAND.handleMessage("/" + message.substring(1), player)
+                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(1), player)
                 }
             }
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
@@ -174,20 +183,24 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                     if (int1 == -2) {
                         outStream.writeString(inStream.readString())
                     }
-                    outStream.writeBytes(inStream.stream.readNBytes(28))
+                    //outStream.writeBytes(inStream.readNBytes(28))
+                    outStream.transferToFixedLength(inStream,28)
                     outStream.writeIsString(inStream)
                 }
-                outStream.writeBytes(inStream.stream.readNBytes(10))
+                //outStream.writeBytes(inStream.readNBytes(10))
+                outStream.transferToFixedLength(inStream,10)
                 val boolean3 = inStream.readBoolean()
                 outStream.writeBoolean(boolean3)
                 if (boolean3) {
-                    outStream.writeBytes(inStream.stream.readNBytes(8))
+                    //outStream.writeBytes(inStream.readNBytes(8))
+                    outStream.transferToFixedLength(inStream,8)
                 }
                 outStream.writeBoolean(inStream.readBoolean())
                 val int2 = inStream.readInt()
                 outStream.writeInt(int2)
                 for (i in 0 until int2) {
-                    outStream.writeBytes(inStream.stream.readNBytes(8))
+                    //outStream.writeBytes(inStream.readNBytes(8))
+                    outStream.transferToFixedLength(inStream,8)
                 }
                 val boolean4 = inStream.readBoolean()
                 outStream.writeBoolean(boolean4)
@@ -197,14 +210,17 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 val boolean5 = inStream.readBoolean()
                 outStream.writeBoolean(boolean5)
                 if (boolean5) {
-                    outStream.writeBytes(inStream.stream.readNBytes(8))
+                    //outStream.writeBytes(inStream.readNBytes(8))
+                    outStream.transferToFixedLength(inStream,8)
                 }
-                outStream.writeBytes(inStream.stream.readNBytes(8))
+                //outStream.writeBytes(inStream.readNBytes(8))
+                outStream.transferToFixedLength(inStream,8)
                 outStream.writeString(inStream.readString())
-                outStream.writeBoolean(inStream.readBoolean())
+                //outStream.writeBoolean(inStream.readBoolean())
+                outStream.writeByte(inStream.readByte())
                 inStream.readShort()
                 outStream.writeShort(Data.game.sharedControlPlayer.toShort())
-                outStream.flushData(inStream)
+                outStream.transferTo(inStream)
                 Data.game.gameCommandCache.offer(GameCommand(player.site, outStream.getPacketBytes()))
             }
         } catch (e: Exception) {
@@ -465,8 +481,8 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             val executorService = Executors.newFixedThreadPool(1)
             val future = executorService.submit<String?> {
-                Data.playerGroup.each({ e: Player -> e.uuid != this.player.uuid && !e.con.tryBoolean }) { p: Player ->
-                    p.con.getGameSave()
+                Data.playerGroup.each({ e: Player -> e.uuid != this.player.uuid && !e.con!!.tryBoolean }) { p: Player ->
+                    p.con!!.getGameSave()
                     while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
                         if (Thread.interrupted()) {
                             return@each
@@ -500,25 +516,143 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         }
     }
 
-    override fun sendRelayServerType(msg: String) {
+    /**
+     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
+     * @author Dr
+     */
+    override fun sendRelayServerInfo() {
         try {
-            val o = GameOutputStream()
-            // 理论上是随机数？
-            o.writeByte(1)
-            o.writeInt(5) //可能和-AX一样
-            o.writeString(msg)
-            sendPacket(o.createPacket(117)) //->118
-            inputPassword = true
-        } catch (e: java.lang.Exception) {
-            error(e)
+            val bytes = ExtractUtil.hexToByteArray("00 00 00 00 01 00 00 00 97 00")
+            sendPacket(Packet(163,bytes))
+        } catch (e: Exception) {
+            Log.error(e)
         }
     }
 
-    override fun sendRelayServerTypeReply(packet: Packet) {
-        GameInputStream(packet).use { stream ->
-            stream.buffer.readNBytes(5)
-            //这个就是回复 但是我找不到什么好方法
-            //stream.readString()
+    /**
+     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
+     * @author Dr
+     */
+    override fun sendRelayServerCheck() {
+        try {
+            val bytes = ExtractUtil.hexToByteArray("00 00 00 01 00 00 00 01 00 00 00 06 52 57 2d 48 50 53 00 06 52 57 2d 48 50 53 00 00 00 01 00")
+            sendPacket(Packet(151,bytes))
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
+    /**
+     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
+     * @author Dr
+     */
+    override fun sendRelayServerId() {
+        try {
+            val bytes = ExtractUtil.hexToByteArray("01 01 01 01 00 24 33 30 34 66 30 34 30 34 2d 63 36 35 38 2d 34 65 33 34 2d 39 35 62 33 2d 39 39 36 66 65 32 62 36 36 61 38 65 01 00 01 00 28 7b 7b 52 57 2d 48 50 53 20 52 65 6c 61 79 7d 7d 2e 52 6f 6f 6d 20 49 44 20 3a 20 41 75 74 6f 20 52 65 61 64 20 4d 6f 64 01")
+            sendPacket(Packet(170,bytes))
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
+    /*
+
+     */
+
+    /**
+     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
+     * @author Dr
+     */
+    override fun sendRelayPlayerInfo() {
+        try {
+            val bytes = ExtractUtil.hexToByteArray("00 00 00 00 02 00 24 62 64 66 30 34 35 35 66 2d 30 62 66 35 2d 34 34 37 31 2d 39 61 65 39 2d 34  64 36 31 35 32 35 31 30 38 37 39 00")
+            sendPacket(Packet(172, bytes))
+            val bytes2 = ExtractUtil.hexToByteArray("00 00 00 02 00 00 00 34 00 00 00 2c 00 00 00 a0 00 19 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67  61 6d 65 73 2e 72 74 73 2e 71 7a 00 00 00 03 00  00 00 97 00 00 00 01 00 00 02 00 00")
+            sendPacket(Packet(174, bytes2))
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
+    /**
+     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
+     * @author Dr
+     */
+    private fun sendRelayPlayerConnectPacket(packet: Packet) {
+        try {
+            GameInputStream(packet).use { inStream ->
+                val o = GameOutputStream()
+                inStream.skip(4)
+                val dataOutputStream = inStream.getStream()
+                dataOutputStream.readString()
+                dataOutputStream.skip(12)
+                dataOutputStream.readString()
+                dataOutputStream.readString()
+
+                val out = GameOutputStream()
+                val bytes = ExtractUtil.hexToByteArray("00 16 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67 61 6d 65 73 2e 72 74 73 00 00 00 04 00 00 00 97 00 00 00 97 00 0c 4d 6f 64 20 52 65 61 64 20 42 6f 74 00 00 1b 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67 61 6d 65 73 2e 72 74 73 2e 6a 61 76 61 00 13 52 57 2d 48 50 53 20 4d 6f 64 20 52 65 61 64 20 42 6f 74 47 6e a1 5a")
+                out.writeBytes(bytes)
+                out.writeString(Game.connectKey(dataOutputStream.readInt()))
+                val packet1 = out.createPacket()
+
+                o.writeInt(2)
+                o.writeInt(packet1.bytes.size+8)
+                o.writeInt(packet1.bytes.size)
+                o.writeInt(110)
+                o.writeBytes(packet1.bytes)
+                sendPacket(o.createPacket(174))
+            }
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
+    /**
+     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
+     * @author Dr
+     */
+    override fun getRelayUnitData(packet: Packet) {
+        try {
+            GameInputStream(packet).use { inStream ->
+                inStream.readInt()
+                when (inStream.readInt()) {
+                    106 -> {
+                        inStream.skip(4)
+                        inStream.readString()
+                        inStream.skip(8)
+                        inStream.readString()
+                        inStream.skip(8)
+                        inStream.readBoolean()
+                        inStream.skip(26)
+                        inStream.readString()
+                        //
+                        val stream2 = DataInputStream(ByteArrayInputStream(inStream.readStreamBytes()))
+                        stream2.readInt()
+                        val count = stream2.readInt()
+                        val data = StringBuilder()
+                        Data.core.unitBase64.clear()
+                        for (i in 0 until count) {
+                            data.delete(0, data.length)
+                            data.append(stream2.readUTF()).append("%#%").append(stream2.readInt())
+                            stream2.readBoolean()
+                            if (stream2.readBoolean()) {
+                                data.append("%#%").append(stream2.readUTF())
+                            }
+                            stream2.skip(16)
+                            Data.core.unitBase64.add(data.toString())
+                        }
+                        Data.game.oneReadUnitList = false
+                        Data.config.setObject("oneReadUnitList", false)
+                        Data.core.save()
+                        sendPacket(NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket("MOD读取完成，请重新进入"))
+                        Main.loadUnitList()
+                    }
+                    161 -> sendRelayPlayerConnectPacket(packet)
+                    else -> return
+                }
+            }
+        } catch (e: Exception) {
+            Log.error(e)
         }
     }
 }

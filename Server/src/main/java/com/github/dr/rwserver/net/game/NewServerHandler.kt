@@ -1,9 +1,17 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.net.game
 
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.TypeConnect
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
-import com.github.dr.rwserver.util.log.Log.debug
 import com.github.dr.rwserver.util.log.Log.error
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
@@ -64,15 +72,17 @@ internal class NewServerHandler internal constructor(
                 }
 
                 ctx.executor().execute {
+                    /*
                     if (con.isConnectServer) {
                         con.connectServer!!.send(msg)
                         return@execute
-                    }
+                    }*/
+                    //TODO
                     try {
                         typeConnect.typeConnect(con, msg)
                     } catch (e: Exception) {
-                        debug(e)
-                        con.disconnect()
+                        //debug(e)
+                        //con.disconnect()
                     }
                 }
             }

@@ -29,16 +29,16 @@ object Log {
     private val LOG_CACHE = StringBuilder()
 
     @JvmStatic
-	fun set(log: String) {
+    fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()
     }
 
     @JvmStatic
-	fun setPrint(system: Boolean) {
+    fun setPrint(system: Boolean) {
         logPrint =
             if (system) object : LogPrint<Any> {
                 override fun println(t: Any) {
-                    System.out.println(t)
+                    kotlin.io.println(t)
                 }
             } else object : LogPrint<Any> {
                 override fun println(t: Any) {
@@ -48,7 +48,7 @@ object Log {
     }
 
     @JvmStatic
-	val logCache: String
+    val logCache: String
         get() {
             val result = LOG_CACHE.toString()
             LOG_CACHE.delete(0, LOG_CACHE.length)
@@ -99,7 +99,7 @@ object Log {
     }
 
     @JvmStatic
-	fun error(tag: Any, e: Any) {
+    fun error(tag: Any, e: Any) {
         logs(6, tag, e)
     }
 
@@ -116,7 +116,7 @@ object Log {
         logs(5, "WARN", e)
     }
     @JvmStatic
-	fun warn(tag: Any, e: Any) {
+    fun warn(tag: Any, e: Any) {
         logs(5, tag, e)
     }
 
@@ -133,7 +133,7 @@ object Log {
         logs(4, "INFO", e)
     }
     @JvmStatic
-	fun info(tag: Any, e: Any) {
+    fun info(tag: Any, e: Any) {
         logs(4, tag, e)
     }
 
@@ -150,7 +150,7 @@ object Log {
         logs(3, "DEBUG", e)
     }
     @JvmStatic
-	fun debug(tag: Any, e: Any) {
+    fun debug(tag: Any, e: Any) {
         logs(3, tag, e)
     }
 
@@ -191,7 +191,7 @@ object Log {
         val sb = StringBuilder()
         val lines = e.toString().split(Data.LINE_SEPARATOR).toTypedArray()
         val stack = Throwable().stackTrace
-        var i1: Int = 0
+        var i1 = 0
         while (i1 < stack.size) {
             val ste = stack[i1]
             val className = ste.className + "." + ste.methodName
@@ -217,25 +217,24 @@ object Log {
 
     @JvmStatic
     fun clog(text: String) {
-        var text = text
-        text = "[" +
+        val textCache = "[" +
                 getUtcMilliFormat(1) +
                 " UTC] " +
                 text
-        println(formatColors("$text&fr"))
+        println(formatColors("$textCache&fr"))
     }
 
     @JvmStatic
-	fun clog(text: String?, vararg obj: Any?) {
+    fun clog(text: String, vararg obj: Any?) {
         clog(MessageFormat(text).format(obj))
     }
 
     private fun formatColors(text: String): String {
-        var text = text
+        var textCache = text
         for (i in ColorCodes.CODES.indices) {
-            text = text.replace("&" + ColorCodes.CODES[i], ColorCodes.VALUES[i])
+            textCache = textCache.replace("&" + ColorCodes.CODES[i], ColorCodes.VALUES[i])
         }
-        return text
+        return textCache
     }
 
     fun testPrint(`object`: Any) {

@@ -12,7 +12,6 @@ package com.github.dr.rwserver.util
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-//Java
 /**
  * @author Dr
  */
@@ -27,7 +26,7 @@ object StringFilteringUtil {
     @JvmStatic
     fun removeAllisBlank(s: String): String {
         var result = ""
-        if (null != s && "" != s) {
+        if ("" != s) {
             result = s.replace("[　*| *| *|//s*]*".toRegex(), "")
         }
         return result
@@ -36,7 +35,7 @@ object StringFilteringUtil {
     @JvmStatic
     fun trim(s: String): String {
         var result = ""
-        if (null != s && "" != s) {
+        if ("" != s) {
             result = s.replace("^[　*| *| *|//s*]*".toRegex(), "").replace("[　*| *| *|//s*]*$".toRegex(), "")
         }
         return result
@@ -45,7 +44,7 @@ object StringFilteringUtil {
     @JvmStatic
     fun removeAllEn(s: String): String {
         var result = ""
-        if (null != s && "" != s) {
+        if ("" != s) {
             result = s.replace("[^(A-Za-z)]".toRegex(), "")
         }
         return result
@@ -54,7 +53,7 @@ object StringFilteringUtil {
     @JvmStatic
     fun removeAllCn(s: String): String {
         var result = ""
-        if (null != s && "" != s) {
+        if ("" != s) {
             result = s.replace("[^(\\u4e00-\\u9fa5)]".toRegex(), "")
         }
         return result
@@ -69,7 +68,7 @@ object StringFilteringUtil {
     }
 
     @JvmStatic
-	fun cutting(str: String, length: Int): String {
+    fun cutting(str: String, length: Int): String {
         return if (str.length < length) {
             str
         } else str.substring(0, length)

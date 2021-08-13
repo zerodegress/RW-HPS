@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver;
 
 import com.github.dr.rwserver.command.ClientCommands;
@@ -62,6 +71,9 @@ public class Main {
 		FileUtil.setFilePath((args.length > 0) ? Base64.decodeString(args[0]) : null);
 
 		Data.core.load();
+
+		//loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
+
 		Log.clog(Data.localeUtil.getinput("server.hi"));
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
@@ -69,9 +81,9 @@ public class Main {
 		initialization.startInit();
 
 		/* 命令加载 */
-		new ServerCommands(Data.SERVERCOMMAND);
-		new ClientCommands(Data.CLIENTCOMMAND);
-		new LogCommands(Data.LOGCOMMAND);
+		new ServerCommands(Data.SERVER_COMMAND);
+		new ClientCommands(Data.CLIENT_COMMAND);
+		new LogCommands(Data.LOG_COMMAND);
 		Log.clog(Data.localeUtil.getinput("server.load.command"));
 
 		/* Event加载 */
@@ -81,8 +93,8 @@ public class Main {
 		/* 初始化Plugin */
 		PluginManage.init(FileUtil.getFolder(Data.Plugin_Plugins_Path));
 		PluginManage.runOnEnable();
-		PluginManage.runRegisterClientCommands(Data.CLIENTCOMMAND);
-		PluginManage.runRegisterServerCommands(Data.SERVERCOMMAND);
+		PluginManage.runRegisterClientCommands(Data.CLIENT_COMMAND);
+		PluginManage.runRegisterServerCommands(Data.SERVER_COMMAND);
 		PluginManage.runRegisterEvents();
 
 		/* Core Net */
@@ -104,7 +116,7 @@ public class Main {
 		Log.clog(Data.localeUtil.getinput("server.loadPlugin",PluginManage.getLoadSize()));
 
 		/* 默认直接启动服务器 */
-		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
+		Data.SERVER_COMMAND.handleMessage("start",(StrCons) Log::clog);
 	}
 
 	private static void loadCoreJar(String libPath) {
@@ -115,20 +127,9 @@ public class Main {
 			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
 		}
 		lib.importLib("io.netty","netty-all","4.1.66.Final");
-		lib.importLib("com.ip2location","ip2location-java","8.5.0");
-		//lib.importLib("com.alibaba","fastjson","1.2.58");
-		//lib.importLib("org.bouncycastle","bcprov-jdk15on","1.69");
-		loadKtJar(lib);
-		//lib.importLib("org.quartz-scheduler","quartz","2.3.2");
-		//lib.importLib("com.github.oshi","oshi-core","5.5.0");
-		//lib.importLib("net.java.dev.jna","jna","5.7.0");
-		//lib.importLib("org.slf4j","slf4j-api","1.7.30");
+		//lib.importLib("com.ip2location","ip2location-java","8.5.0");
 		lib.loadToClassLoader();
 		lib.removeOldLib();
-	}
-
-	private static void loadKtJar(LibraryManager lib) {
-		//lib.importLib("org.jetbrains.kotlin","bkotlin-stdlib","1.5.21");
 	}
 
 	@SuppressWarnings("InfiniteLoopStatement")
@@ -137,7 +138,7 @@ public class Main {
 		while (true) {
 			try {
 				String str = bufferedReader.readLine();
-				CommandHandler.CommandResponse response = Data.SERVERCOMMAND.handleMessage(str, (StrCons) Log::clog);
+				CommandHandler.CommandResponse response = Data.SERVER_COMMAND.handleMessage(str, (StrCons) Log::clog);
 				if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
 					if (response.type != CommandHandler.ResponseType.valid) {
 						String text;
@@ -153,7 +154,7 @@ public class Main {
 				}
 			} catch (Exception e) {
 				Log.clog("Error");
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
 		}
 	}
@@ -165,11 +166,11 @@ public class Main {
 			stream.writeInt(1);
 			Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData-114")));
 			stream.writeInt(list.size());
-			String[] unitdata;
+			String[] unitData;
 			for (String str : list) {
-				unitdata = str.split("%#%");
-				stream.writeUTF(unitdata[0]);
-				stream.writeInt(Integer.parseInt(unitdata[1]));
+				unitData = str.split("%#%");
+				stream.writeUTF(unitData[0]);
+				stream.writeInt(Integer.parseInt(unitData[1]));
 				stream.writeBoolean(true);
 				stream.writeBoolean(false);
 				stream.writeLong(0);
@@ -189,15 +190,15 @@ public class Main {
 				stream.writeInt(1);
 				stream.writeInt(Data.core.unitBase64.size());
 
-				String[] unitdata;
+				String[] unitData;
 				for (String str : Data.core.unitBase64) {
-					unitdata = str.split("%#%");
-					stream.writeUTF(unitdata[0]);
-					stream.writeInt(Integer.parseInt(unitdata[1]));
+					unitData = str.split("%#%");
+					stream.writeUTF(unitData[0]);
+					stream.writeInt(Integer.parseInt(unitData[1]));
 					stream.writeBoolean(true);
-					if (unitdata.length > 2) {
+					if (unitData.length > 2) {
 						stream.writeBoolean(true);
-						stream.writeUTF(unitdata[2]);
+						stream.writeUTF(unitData[2]);
 					} else {
 						stream.writeBoolean(false);
 					}

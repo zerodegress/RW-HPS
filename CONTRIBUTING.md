@@ -1,7 +1,5 @@
 # Contributing
 
-This is for code contributions. For translations, see [TRANSLATING](TRANSLATING.md).
-
 ## Basic Guidelines
 
 ### Use an IDE.

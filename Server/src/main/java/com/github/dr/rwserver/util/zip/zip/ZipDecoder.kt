@@ -1,3 +1,12 @@
+/*
+ * Copyright 2020-2021 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
 package com.github.dr.rwserver.util.zip.zip
 
 import com.github.dr.rwserver.game.GameMaps.MapData
@@ -7,8 +16,8 @@ import com.github.dr.rwserver.util.io.IoRead
 import com.github.dr.rwserver.util.io.IoRead.MultiplexingReadStream
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.log.exp.FileException
-import com.github.dr.rwserver.util.zip.zip.realization.ZipEntry
-import com.github.dr.rwserver.util.zip.zip.realization.ZipFile
+import org.apache.compress.ZipEntry
+import org.apache.compress.ZipFile
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException

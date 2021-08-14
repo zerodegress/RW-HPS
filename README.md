@@ -54,9 +54,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 **All development is for learning, do not use for illegal purposes** 
 
-`RW-HPS` is open sourced under the `GPLv3` agreement. For the healthy development of the entire community，We **highly recommended**you do the following：
+`RW-HPS` is open sourced under the `AGPLv3` agreement. For the healthy development of the entire community，We **highly recommended**you do the following：
 
-- **Indirect contact (including but not limited to using `Http API` or cross-process technology and bytecode modification) to `RW-HPS` software using `GPLv3` open source**
+- **Indirect contact (including but not limited to using `Http API` or cross-process technology and bytecode modification) to `RW-HPS` software using `AGPLv3` open source**
 - **For personal use, please join the server to use from RW-HPS**
 - **Do not encourage, do not support all commercial use*
 

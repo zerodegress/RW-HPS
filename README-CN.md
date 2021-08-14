@@ -1,3 +1,7 @@
+## Language(语言)
+
+[To English](README.md)
+
 # RW-HPS
 ![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
@@ -89,7 +93,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 </details>
 
 ## 开始
-- 开发文档: [docs](https://github.com/RW-HPS/RW-HPS/wiki)
+- 开发文档: [docs](docs/zh/README.md)
 - 更新日志: [release](https://github.com/RW-HPS/RW-HPS/releases)
 - 开发计划: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - 讨论:

@@ -1,6 +1,6 @@
 ## Language(语言)  
 
-[跳转中文介绍](https://github.com/RW-HPS/RW-HPS/blob/master/README-CN.md)  
+[跳转中文介绍](README-CN.md)  
 
 # RW-HPS
 ![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
@@ -93,7 +93,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 </details>
 
 ## Start
-- Development documentation: [docs](https://github.com/RW-HPS/RW-HPS/wiki)  
+- Development documentation: [docs](docs/zh/README.md)  
 - Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)  
 - Development plan: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)  
 - Discuss:

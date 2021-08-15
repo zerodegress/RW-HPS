@@ -133,7 +133,7 @@ class PluginsLoad {
     ) {
         init {
             main.pluginData.setFileUtil(
-                FileUtil.getFolder(Data.Plugin_Plugins_Path).toFile(this.name).toFile(this.name + ".bin")
+                FileUtil.getFolder(Data.Plugin_Plugins_Path).toFolder(this.name).toFile(this.name + ".bin")
             )
             try {
                 main.pluginData.read()

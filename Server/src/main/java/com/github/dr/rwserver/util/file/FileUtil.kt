@@ -20,6 +20,8 @@ import com.github.dr.rwserver.util.io.IoReadConversion.fileToStream
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
 import java.io.*
+import java.net.URLDecoder
+import java.net.URLDecoder.decode
 
 /**
  * FileUtil()均代指实例 FileUtil. 代指静态方法
@@ -249,8 +251,8 @@ class FileUtil {
             val jarName = pathSplit[pathSplit.size - 1]
             val jarPath = path.replace(jarName, "")
 
-            defaultFilePath = jarPath
-		}
+            defaultFilePath = decode(jarPath, "UTF-8")
+        }
 
         /**
          * 设置Jar的数据存储位置

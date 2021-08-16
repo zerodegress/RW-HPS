@@ -350,19 +350,15 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                         }
                     }
                     player = Player.addPlayer(GroupGame.newPlayerGroupId(), this, uuid, name, localeUtil)
-                }
-                connectionAgreement.add(NetStaticData.groupNet,player.groupId)
-                Call.sendTeamData(player.groupId)
-                sendServerInfo(true)
+                    if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).enterAd)) {
+                        sendSystemMessage(GroupGame.gU(player.groupId).enterAd)
+                        sendSystemMessage("您在第"+player.groupId+"组房间")
+                    }
+                    connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+                    Call.sendTeamData(player.groupId)
+                    sendServerInfo(true)
+                }else reConnect()
                 Events.fire(PlayerJoinEvent(player))
-                if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).enterAd)) {
-                    sendSystemMessage(GroupGame.gU(player.groupId).enterAd)
-                    sendSystemMessage("您在第"+player.groupId+"组房间")
-                }
-//                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name),player.groupId)
-                if (re.get()) {
-                   return reConnect()
-                }
                 return true
             }
         } finally {
@@ -460,27 +456,6 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket(player.groupId))
             GroupGame.gU(player.groupId).reConnectBreak = true
             Call.sendSystemMessage(player.name+"重连中...",player.groupId)
-//            val executorService = Executors.newFixedThreadPool(1)
-//            val future = executorService.submit<String?> {
-//                Data.playerGroup.each({ e: Player ->e.groupId==player.groupId&& e.uuid != this.player.uuid && !e.con.tryBoolean }) { p: Player ->
-//                    p.con.getGameSave()
-//                    while (GroupGame.gU(player.groupId).gameSaveCache == null || GroupGame.gU(player.groupId).gameSaveCache.type == 0) {
-//                        if (Thread.interrupted()) {
-//                            return@each
-//                        }
-//                    }
-//                    try {
-//                        NetStaticData.groupNet.broadcast(
-//                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
-//                                GroupGame.gU(player.groupId).gameSaveCache
-//                            ),player.groupId
-//                        )
-//                    } catch (e: IOException) {
-//                        Log.error(e)
-//                    }
-//                }
-//                null
-//            }
             try {
 //                future[30, TimeUnit.SECONDS]
                 val iterator: Iterator<Player> = Data.playerGroup.iterator()

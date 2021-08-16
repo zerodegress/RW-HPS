@@ -128,11 +128,10 @@
             width: 210px;
             height: 200px;
             margin: 10px 15px;
-            box-shadow: 2px 2px 10px 2px #787878a8;
+            box-shadow: 2px 2px 10px 2px #a09f9fa8;
             background-color: var(--mc-bg-ka);
             background-image: url("http://zhongguose.com/img/texture.png");
             float: left;
-            border-radius: 5px;
             transition: 0.5s;
         }
         .mc-ka-st:hover{
@@ -182,6 +181,19 @@
         .touming{
             animation: 0.2s hide 1;opacity:0;
         }
+        .m{
+            background-color: #656262;
+            box-shadow: 4px 4px 11px 1px #22222259;
+            display: inline-block;
+            border-radius: 22px;
+            padding: 8px;
+            cursor: pointer;
+            color: cornsilk;
+            transition: 0.3s;
+        }
+        .m:hover{
+            background-color: #aaa;
+        }
         @keyframes show{
             0%{opacity:0}
             100%{opacity:1;}
@@ -192,38 +204,41 @@
         }
     </style>
 </head>
-<body background="https://i.loli.net/2021/08/06/wDBE2OCTUpz9fxJ.jpg">
-<div class="bord-with">
-    <div style="width: 200px;display: inline-block">
-        <form id="form" class="bord-with">
-            <input id="a" name="a" style="height: 27px" type="password"/>
-            <br>
-            <span class="btn" onclick="connect()">连接</span>
-            <span class="btn" onclick="setCan()">参数设置</span>
-            <br>
-            <input id="b" name="b" style="height: 27px"/>
-        </form>
-        <span class="btn" onclick="doCmd()">发送命令</span>
-        <span class="btn" onclick="clearBoard()">清除日志</span>
-        <div id="backInfo"></div>
+<body>
+<div style="position:fixed; width:100%; height:100%;background-image: url('https://i.loli.net/2021/08/06/wDBE2OCTUpz9fxJ.jpg')"></div>
+<div style="position: absolute;top: 0px;width: 100%">
+    <div class="bord-with">
+        <div style="width: 200px;display: inline-block">
+            <form id="form" class="bord-with">
+                <input id="a" name="a" style="height: 27px" type="password"/>
+                <br>
+                <span class="btn" onclick="connect()">连接</span>
+                <span class="btn" onclick="setCan()">参数设置</span>
+                <br>
+                <input id="b" name="b" style="height: 27px"/>
+            </form>
+            <span class="btn" onclick="doCmd()">发送命令</span>
+            <span class="btn" onclick="clearBoard()">清除日志</span>
+            <div id="backInfo"></div>
+        </div>
+        <span style="background-color: #7f7f7f;width: 20px"></span>
+        <div id="cmTab">
+        </div>
     </div>
-    <span style="background-color: #7f7f7f;width: 20px"></span>
-    <div id="cmTab">
+    <div id="playStat" style="background-color: #dbe6f840;border-top: 5px solid #6c5c5c8c;">
+        <div style="height: 50px;width: 550px">
+            <span class="btn" style="font-size: 16px;"  onclick="sendServerMsg()">发送服务器消息</span>
+            <input id="pMsg" style="display: block;float: left;margin: 10px;"/>
+            <span id="playTime" class="des" style="height: 30px;"></span>
+        </div>
+        <div style="height: 10px"></div>
+        <div id="zu" style="margin: 0 auto;width: 980px;overflow: hidden;"></div>
+        <div style="height: 30px"></div>
     </div>
-</div>
-<div id="playStat" style="background-color: #dbe6f840;border-top: 5px solid #6c5c5c8c;">
-    <div style="height: 50px;width: 550px">
-        <span class="btn" style="font-size: 16px;"  onclick="sendServerMsg()">发送服务器消息</span>
-        <input id="pMsg" style="display: block;float: left;margin: 10px;"/>
-        <span id="playTime" class="des" style="height: 30px;"></span>
-    </div>
-    <div style="height: 10px"></div>
-    <div id="zu" style="margin: 0 auto;width: 980px;overflow: hidden;"></div>
-    <div style="height: 30px"></div>
-</div>
-<div id="boardWra" style="background-color: #6495eded">
-    <div class="board" id="board">
-        <p>服务器信息：</p>
+    <div id="boardWra" style="background-color: #6495eded">
+        <div class="board" id="board">
+            <p>服务器信息：</p>
+        </div>
     </div>
 </div>
 <script>
@@ -283,12 +298,56 @@
             isCon=false
         }
     }
+    let context;
+    function showContext(x,y){
+        function doAc(str){
+            msgSend("-ac "+str)
+            context.hidden=true
+            pick.s=false
+        }
+        if(!context){
+            context=g("div");
+            document.body.append(context)
+            context.style.position='fixed'
+            context.style.top=y+"px";context.style.left=x+"px"
+            context.kick=g("div")
+            context.kick.innerText="踢出"
+            context.kick.style.position='relative'
+            context.kick.style.top='45px'
+            context.kick.classList.add("m")
+            context.append(context.kick)
+            context.kick.onclick=()=>{doAc('k '+pick.tar)}
+            context.mute=g("div")
+            context.mute.innerText="禁言"
+            context.mute.style.position='relative'
+            context.mute.style.top='55px'
+            context.mute.style.left='35px'
+            context.mute.classList.add("m")
+            context.append(context.mute)
+            context.mute.onclick=()=>{doAc('m '+pick.tar)}
+            context.gb=g("div")
+            context.gb.innerText="X"
+            context.gb.classList.add("m")
+            context.gb.onclick=()=>{context.hidden=true;pick.s=false}
+            context.append(context.gb)
+        }else {
+            context.style.top=y+"px";context.style.left=x+"px"
+            context.hidden=false
+        }
+    }
+    function actToPlayer(u,e){
+        if(pick.s==false){
+            pick.tar=u
+            showContext(e.clientX,e.clientY)
+        }
+    }
     function oneCard(gpi,data,hd,ski,ys){
         let ka=g("div")
         ka.classList.add("mc-ka-st","mc-dh")
         data.forEach((e,i) => {
             if(ski&&i==ski){
                 ka.id=e;
+                ka.onclick=(evt)=>{actToPlayer(e,evt)}
                 gpi[i]=e
             }else{
                 let p=g("p")
@@ -302,6 +361,7 @@
         });
         return ka;
     }
+
     let players={};
     function toCard(data,p,ys,ski){
         let hd=data.shift()
@@ -440,7 +500,8 @@
         }
     }
     let colorSch=["#d2ee52","#a251a0","#e4e9b6","#c97ef5","#88e60f","#8e5c4a","#f2cf9d","#8e7221","#faa5fe","#acc651","#acfb1e","#d87daa","#af46ec","#a9b143","#faa759"]
-    let colorTeam=["#029ee7","#fa0a4b","#ea8531","#c34b26","#eea8b3","#c4eaa9","#8a7597","#cc184c","#f9b185","#899ff3","#bfcb65","#a22e34","#9c5bd8","#994fcf","#d4821c"]
+    let colorTeam=["#092671","#B31010",
+        "#ea8531","#c34b26","#ad5465","#c4eaa9","#8a7597","#cc184c","#f9b185","#899ff3","#bfcb65","#a22e34","#9c5bd8","#994fcf","#d4821c"]
     // for(let i=0;i<15;i++){
     //     colorSch[i]=colorWalk(8947848);
     // }
@@ -455,7 +516,7 @@
         }
         playTimeDom="在线玩家："+playTimeDom.online+"/"+playTimeDom.total;
         toCard(data,playStat,(p,i,data)=>{
-            if(i==6) p.parentElement.style.setProperty("--mc-bg-ka",data[i]=="断开"?"rgb(151, 151, 151)":data[5]=='true'?"rgb(250,239,0)":colorTeam[data[4]])
+            if(i==6) p.parentElement.style.setProperty("--mc-bg-ka",data[i]=="断开"?"rgb(151, 151, 151)":data[5]=='true'?"rgb(182,134,14)":colorTeam[data[4]])
             p.style.setProperty("--mc-bg-hong",colorSch[i])
         },1)
     }

@@ -2,6 +2,7 @@ package com.github.dr.rwserver.net.game;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.ga.GroupGame;
@@ -16,6 +17,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -92,6 +94,34 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         }else if(message.startsWith("-sf")){
             Map<String,String> map = new Gson().fromJson(message.replace("-sf ", ""), Map.class);
             map.forEach((k,v)->Data.config.getData().put(k,v));
+        }else if(message.startsWith("-ac")){
+            String[] arg = message.substring(4).split(" ");
+            Iterator<Player> iterator = Data.playerGroup.iterator();
+            if(arg[0].equals("k")){
+                while (iterator.hasNext()){
+                    Player p = iterator.next();
+                    if(p.uuid.equals(arg[1])) {
+                        Log.clog("踢出玩家"+p.name);
+                        try {
+                            p.con.sendKick("你已被踢出");
+                        } catch (IOException e) {
+                            try{p.con.disconnect();}finally {};
+                            e.printStackTrace();
+                        }
+                        break;
+                    }
+                }
+            }else if(arg[0].equals("m")){
+                while (iterator.hasNext()){
+                    Player p = iterator.next();
+                    if(p.uuid.equals(arg[1])) {
+                        p.con.sendSystemMessage("你已被禁言");
+                        p.muteTime=System.currentTimeMillis()+Integer.MAX_VALUE;
+                        Log.clog("禁言玩家"+p.name);
+                        break;
+                    }
+                }
+            }
         }
         else {
             Log.clog("接收到游戏板消息："+message);
@@ -114,8 +144,6 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
         fieldName.add("管理");
         fieldName.add("游戏状态");
         fieldName.add("组");
-        fieldName.add("平均延迟");
-        fieldName.add("ping/次");
         fieldName.add("连接地址");
     }
     @SuppressWarnings("unchecked")
@@ -147,8 +175,6 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             player.add(g.isAdmin+"");
             player.add(Data.playerGroup.contains(g)? g.dead?"已被击败":"正常":"断开");
             player.add(g.groupId+"");
-            player.add(g.avgPing+"");
-            player.add(g.pingTimes+"次");
             player.add(g.con.getIp()+":"+ g.con.getPort());
             players.add(player);
         });

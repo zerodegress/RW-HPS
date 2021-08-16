@@ -24,7 +24,6 @@ class TypeRwHps : TypeConnect {
                 PacketType.PACKET_HEART_BEAT_RESPONSE -> {
                     val player = con.player
                     player!!.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
-                    player.avgPing = (player.avgPing * player.pingTimes + player.ping) / ++player.pingTimes
                 }
                 PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
                 PacketType.PACKET_DISCONNECT -> {

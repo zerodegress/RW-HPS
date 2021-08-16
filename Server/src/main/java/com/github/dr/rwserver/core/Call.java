@@ -72,23 +72,13 @@ public class Call {
     public static void sendTeamData() {
         GroupGame.games.keySet().stream().forEach(Call::sendTeamData);
     }
-
+    private static int times=1;
     public static void sendPlayerPing() {
-        GroupGame.games.keySet().stream().filter(x->!GroupGame.games.get(x).isStartGame)
+        times=times++>5?1:times;
+        GroupGame.games.keySet().stream().filter(x->times==6||!GroupGame.games.get(x).isStartGame)
                 .forEach(x-> GroupGame.playersByGid(Data.playerGroup,x).forEach(
                         e -> e.con.ping()
                 ));
-    }
-
-    public static void upDataGameData() {
-        Data.playerGroup.each(e -> {
-            try {
-                e.con.sendServerInfo(false);
-            } catch (IOException err) {
-                Log.error("[ALL] Send System Info Error",err);
-            }
-        });
-
     }
 
 //    public static void killAllPlayer() {

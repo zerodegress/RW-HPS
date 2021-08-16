@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit
 @NeedHelp
 @NeedToRefactor
 object Threads {
-    private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(6, "Core-")
+    private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(4, "Core-")
 //    private val CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(1, "Core-Net-")
     private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(8, "ScheduledExecutorPool-")
 //    private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")

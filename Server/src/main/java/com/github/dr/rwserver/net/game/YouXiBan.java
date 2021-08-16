@@ -5,6 +5,7 @@ import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.func.StrCons;
+import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
 import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
@@ -38,6 +39,7 @@ public class YouXiBan extends Plugin {
             Data.game.init();
             Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
             Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
+            Threads.newThreadService2(this::gameSave,0,2, TimeUnit.SECONDS,"GameSave");
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
             NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(new ConnectionAgreement()),151);
             Threads.newThreadCore(() -> {
@@ -77,6 +79,12 @@ public class YouXiBan extends Plugin {
         NetStaticData.startNet.add(startNet);
         Log.clog("游戏板嵌入成功");
         startNet.openPort(Data.game.port);
+    }
+
+    private void gameSave(){
+        GroupGame.games.forEach((x,y)->{
+
+        });
     }
 
     @Override

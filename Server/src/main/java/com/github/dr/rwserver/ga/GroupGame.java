@@ -56,7 +56,8 @@ public class GroupGame {
         Iterator<Integer> iterator = games.keySet().iterator();
         while (iterator.hasNext()){
             Integer gid = iterator.next();
-            if(!games.get(gid).isStartGame) return gid;
+            Rules rules = games.get(gid);
+            if(!rules.isStartGame&&playerGroup(gid).size()<rules.maxPlayer) return gid;
         }
         Rules rules = new Rules(Data.config);
         rules.init();

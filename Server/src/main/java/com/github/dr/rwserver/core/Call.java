@@ -142,7 +142,16 @@ public class Call {
             cancel();
         }
     }
+    public static void upDataGameData() {
+        Data.playerGroup.each(e -> {
+            try {
+                e.con.sendServerInfo(false);
+            } catch (IOException err) {
+                Log.error("[ALL] Send System Info Error",err);
+            }
+        });
 
+    }
     private static class SendGameTickCommand implements Runnable {
         private int time = 0;
         private boolean oneSay = true;

@@ -131,7 +131,8 @@ public class Rules {
         }
         maxMessageLen = config.readInt("maxMessageLen",40);
         maxUnit = config.readInt("maxUnit",200);
-        Data.core.defIncome = config.readFloat("defIncome",1f);
+        Data.core.defIncome = config.readFloat("defIncome",100f);
+        if(Data.core.defIncome<100) Data.core.defIncome=100;
         Data.core.serverName = config.readString("serverName","RW-HPS");
         oneAdmin = config.readBoolean("oneAdmin",true);
         ipCheckMultiLanguageSupport = config.readBoolean("iPCheckMultiLanguageSupport",false);

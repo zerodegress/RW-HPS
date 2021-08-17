@@ -179,8 +179,13 @@ public class ClientCommands {
 					player.sendSystemMessage(player.localeUtil.getinput("err.startGame"));
 					return;
 				}
-				 GroupGame.games.get(player.groupId).income = Float.parseFloat(args[0]);
-				Call.upDataGameData();
+				float v = Float.parseFloat(args[0]);
+				if(v<100) player.con.sendSystemMessage("已锁定不小于100倍金钱");
+				else {
+					GroupGame.games.get(player.groupId).income =v ;
+					Call.upDataGameData();
+
+				}
 			}
 		});
 

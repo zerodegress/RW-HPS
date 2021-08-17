@@ -58,7 +58,7 @@ public class Call {
     }
 
     public static void sendTeamData(int gid) {
-        if (GroupGame.games.get(gid).reConnectBreak) {
+        if (GroupGame.games.get(gid).reConnectCount.get()>0) {
             return;
         }
         try {
@@ -75,12 +75,11 @@ public class Call {
     private static int times=1;
     public static void sendPlayerPing() {
         times=times++>5?1:times;
-        GroupGame.games.keySet().stream().filter(x->times==6||!GroupGame.games.get(x).isStartGame)
+        GroupGame.games.keySet().stream().filter(x->times==5||!GroupGame.games.get(x).isStartGame)
                 .forEach(x-> GroupGame.playersByGid(Data.playerGroup,x).forEach(
                         e -> e.con.ping()
                 ));
     }
-
 //    public static void killAllPlayer() {
 //        Data.playerGroup.each(e -> {
 //            try {
@@ -163,7 +162,7 @@ public class Call {
         private int gid;
         @Override
         public void run() {
-            if (GroupGame.games.get(gid).reConnectBreak) {
+            if (GroupGame.games.get(gid).reConnectCount.get()>0) {
                 return;
             }
             time += 10;

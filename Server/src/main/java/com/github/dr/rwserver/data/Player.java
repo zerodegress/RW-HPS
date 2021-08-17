@@ -49,6 +49,7 @@ public final class Player {
 	public String lastSentMessage = "";
 
 	public boolean noSay = false;
+	public boolean canSave = true;
 	public boolean watch = false;
 
 	public Player(int groupId, AbstractNetConnect con, final String uuid, final String name, final LocaleUtil localeUtil) {

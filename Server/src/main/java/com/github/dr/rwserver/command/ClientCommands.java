@@ -8,6 +8,7 @@ import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.EventType;
 import com.github.dr.rwserver.game.GameMaps;
+import com.github.dr.rwserver.game.Rules;
 import com.github.dr.rwserver.game.Team;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
@@ -300,39 +301,42 @@ public class ClientCommands {
 					Threads.removeScheduledFutureData("AfkCountdown");
 					Call.sendMessageLocal(player, "afk.clear", player.name);
 				}
-				if ( GroupGame.games.get(player.groupId).startMinPlayerSize > GroupGame.playerGroup(player.groupId).size()) {
-					player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", GroupGame.games.get(player.groupId).startMinPlayerSize));
+				Rules rules = GroupGame.games.get(player.groupId);
+				if ( rules.startMinPlayerSize > GroupGame.playerGroup(player.groupId).size()) {
+					player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", rules.startMinPlayerSize));
 					return;
 				}
 //				if (Threads.getIfScheduledFutureData("GamePing")) {
 //					Threads.removeScheduledFutureData("GamePing");
 //				}
-				if ( GroupGame.games.get(player.groupId).maps.mapData != null) {
-					 GroupGame.games.get(player.groupId).maps.mapData.readMap();
+				if ( rules.maps.mapData != null) {
+					 rules.maps.mapData.readMap();
 				}
+				GroupGame.removePlayer(Data.playerAll,player.groupId);
 				Data.playerGroup.eachBooleanIfs(p->p.groupId==player.groupId,e -> {
 					try {
 						e.con.sendStartGame();
 						e.lastMoveTime = System.currentTimeMillis();
+						Data.playerAll.add(e);
 					} catch (IOException err) {
 						Log.error("Start Error",err);
 					}
 				});
 
-				if ( GroupGame.games.get(player.groupId).winOrLose) {
+				if ( rules.winOrLose) {
 
 				}
-				GroupGame.games.get(player.groupId).isStartGame = true;
+				rules.isStartGame = true;
 				int int3 = 0;
-				for (int i = 0; i <  GroupGame.games.get(player.groupId).maxPlayer; i++) {
-					Player player1 =  GroupGame.games.get(player.groupId).playerData[i];
+				for (int i = 0; i <  rules.maxPlayer; i++) {
+					Player player1 =  rules.playerData[i];
 					if (player1 != null) {
-						if (player1.sharedControl ||  GroupGame.games.get(player.groupId).sharedControl) {
+						if (player1.sharedControl ||  rules.sharedControl) {
 							int3 = (int3 | 1 << i);
 						}
 					}
 				}
-				GroupGame.games.get(player.groupId).sharedControlPlayer = int3;
+				rules.sharedControlPlayer = int3;
 				Call.testPreparationPlayer(player.groupId);
 				Events.fire(new EventType.GameStartEvent(player.groupId));
 			}

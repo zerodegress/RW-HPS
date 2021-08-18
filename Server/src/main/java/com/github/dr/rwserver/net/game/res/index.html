@@ -202,6 +202,21 @@
             0%{opacity:1}
             100%{opacity:0;}
         }
+        .mc-chouti{
+            position: fixed;
+            right: 0px;
+            top: 0px;
+            background-color: rgb(194, 215, 221);
+            box-shadow: 3px 3px 10px 2px #888;
+            height: 100%;
+            width: 500px;
+            z-index: 99999;
+            transform: translateX(500px);
+            transition: transform 0.5s cubic-bezier(0.03, 0.53, 0.54, 0.96);
+        }
+        .mc-chouti-wai{
+            transform: translateX(0px);
+        }
     </style>
 </head>
 <body>
@@ -214,6 +229,7 @@
                 <br>
                 <span class="btn" onclick="connect()">连接</span>
                 <span class="btn" onclick="setCan()">参数设置</span>
+                <span class="btn" id="cmdHelp">命令帮助</span>
                 <br>
                 <input id="b" name="b" style="height: 27px"/>
             </form>
@@ -255,6 +271,8 @@
     let playStartTime=new Date().getTime();
     let isGameStart=[false];
     let playTimeDom=document.getElementById("playTime");
+    let cmdTab=document.createElement("div")
+    cmdTab.id="cmdTab"
     function gt(v){return document.getElementById(v)}
     function boardGoing(str){
         let el = document.createElement("p");
@@ -534,7 +552,7 @@
         cmdList=cmdList.replaceAll("<","[")
         cmdList=cmdList.replaceAll(">","]")
         let cmdL = JSON.parse(cmdList);
-        let cmdTab = document.getElementById("cmTab");
+        // let cmdTab = document.getElementById("cmTab");
         cmdTab.innerText=""
         cmdL.forEach(x=>{
             let a = document.createElement("div");
@@ -584,32 +602,32 @@
         ab.b=document.getElementById("b").value;
         ws.send("-p"+ab.a+" -1 "+ab.b);
     }
-    function drag0(obj){
-        obj.onmousedown = function(e){
-            if(e.target!=obj) return;
-            if(obj.style.position!="fixed"&&obj.style.position!="absolute"){
-                obj.rep=obj.style.position;
-                let h=obj.offsetTop;
-                let l=obj.offsetLeft;
-                obj.style.position="absolute"
-                obj.style.top=h+"px";
-                obj.style.left=l+"px";
-            }
-            var divX = e.clientX - this.offsetLeft;
-            var divY = e.clientY - this.offsetTop;
-            document.onmousemove = function(e){
-                var disX = e.clientX - divX;
-                var disY = e.clientY - divY;
-                obj.style.top = disY + "px";
-                obj.style.left = disX + "px";
-                document.onmouseup = function(e){
-                    document.onmousedown = document.onmousemove = null;
-                    if(e.pageY<20){obj.style.position=obj.rep;}
-                }
-            }
-        }
-    }
-    drag0(document.getElementById("cmTab"))
+    // function drag0(obj){
+    //     obj.onmousedown = function(e){
+    //         if(e.target!=obj) return;
+    //         if(obj.style.position!="fixed"&&obj.style.position!="absolute"){
+    //             obj.rep=obj.style.position;
+    //             let h=obj.offsetTop;
+    //             let l=obj.offsetLeft;
+    //             obj.style.position="absolute"
+    //             obj.style.top=h+"px";
+    //             obj.style.left=l+"px";
+    //         }
+    //         var divX = e.clientX - this.offsetLeft;
+    //         var divY = e.clientY - this.offsetTop;
+    //         document.onmousemove = function(e){
+    //             var disX = e.clientX - divX;
+    //             var disY = e.clientY - divY;
+    //             obj.style.top = disY + "px";
+    //             obj.style.left = disX + "px";
+    //             document.onmouseup = function(e){
+    //                 document.onmousedown = document.onmousemove = null;
+    //                 if(e.pageY<20){obj.style.position=obj.rep;}
+    //             }
+    //         }
+    //     }
+    // }
+    // drag0(document.getElementById("cmTab"))
     function sendServerMsg(){
         let pMsg = document.getElementById("pMsg").value;
         if(pMsg.length>0){
@@ -691,6 +709,44 @@
             else {xianshi(ban);serverCan.show=true}
         }
     }
+    function ansiHas(el,tarEl){
+        while (el!=null) {
+            if(el==tarEl) return true
+            el=el.parentElement
+        }
+        return false
+    }
+    function applyChouTi(obj,content){
+        obj.onclick=()=>{
+            let chouti=document.getElementById("mc-ct")
+            if(!chouti){
+                content.style.height="100vh"
+                content.style.overflowY="auto"
+                chouti=document.createElement("div")
+                chouti.classList.add("mc-chouti")
+                chouti.id="mc-ct"
+                document.body.append(chouti)
+                chouti.append(content)
+                chouti.hidden=true
+                content.onmousewheel=(e)=>{
+                    e.stopPropagation()
+                }
+            }
+            if(!chouti.hidden) return
+            chouti.hidden=false
+            setTimeout(()=> chouti.classList.add("mc-chouti-wai"),0)
+            function dis(e){
+                if(e.target!=obj&&!ansiHas(e.target,chouti)){
+                    chouti.classList.remove("mc-chouti-wai")
+                    setTimeout(()=> chouti.hidden=true,500)
+                    window.removeEventListener("click",dis)
+                }
+            }
+            window.addEventListener("click",dis)
+        }
+    }
+
+    applyChouTi(document.getElementById("cmdHelp"),cmdTab)
 </script>
 </body>
 </html>

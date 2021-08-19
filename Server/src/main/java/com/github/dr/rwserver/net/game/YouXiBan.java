@@ -39,7 +39,6 @@ public class YouXiBan extends Plugin {
             Data.game.init();
             Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
             Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
-            Threads.newThreadService2(this::gameSave,0,2, TimeUnit.SECONDS,"GameSave");
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
             NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(new ConnectionAgreement()),151);
             Threads.newThreadCore(() -> {
@@ -80,13 +79,6 @@ public class YouXiBan extends Plugin {
         Log.clog("游戏板嵌入成功");
         startNet.openPort(Data.game.port);
     }
-
-    private void gameSave(){
-        GroupGame.games.forEach((x,y)->{
-
-        });
-    }
-
     @Override
     public void registerClientCommands(CommandHandler handler) {
     }

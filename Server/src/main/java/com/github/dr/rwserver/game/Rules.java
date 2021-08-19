@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Dr
@@ -53,6 +54,7 @@ public class Rules {
     public final String passwd;
     /** 按键包缓存 */
     public final LinkedBlockingQueue<GameCommand> gameCommandCache = new LinkedBlockingQueue<>();
+    public final LinkedBlockingQueue<GameCommand> reConCommandCache = new LinkedBlockingQueue<>();
     /** 混战分配 */
     public boolean amTeam = false;
     /** 队伍数据 */
@@ -69,6 +71,7 @@ public class Rules {
     public final boolean ipCheckMultiLanguageSupport;
     /** 重连暂停 */
     public boolean reConnectBreak = false;
+    public final AtomicInteger reConnectCount=new AtomicInteger(0);
     /** 重连缓存 GameSave */
     public volatile Packet gameSaveCache = null;
     /** 是否启用重连 */
@@ -167,6 +170,8 @@ public class Rules {
 
     public void re() {
         gameCommandCache.clear();
+        gameSaveCache=null;
+        reConnectCount.set(0);
         Arrays.fill(playerData, null);
         income = Data.core.defIncome;
         initUnit = 1;

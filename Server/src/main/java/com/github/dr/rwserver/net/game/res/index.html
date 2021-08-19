@@ -54,9 +54,9 @@
             width: 810px;
         }
         .board{
-
+            position: relative;
             color: #dbe6f8;
-            padding: 10px;
+            transition: 0.2s;
         }
         #cmTab{
             width: 600px;
@@ -251,10 +251,55 @@
         <div id="zu" style="margin: 0 auto;width: 980px;overflow: hidden;"></div>
         <div style="height: 30px"></div>
     </div>
-    <div id="boardWra" style="background-color: #6495eded">
-        <div class="board" id="board">
-            <p>服务器信息：</p>
+    <div id="boardWra" style="background-color: #84848438;width: 600px;height: 400px;font-size: 12px;border:5px solid #82818142;
+        position: fixed;bottom: 10px">
+        <div id="boardHead" style="user-select: none;background-color: #60606073;height: 20px">日志信息：</div>
+        <div style="height: 380px;overflow: hidden">
+            <div class="board" id="board">
+                <p>服务器信息：1</p>
+                <p>服务器信息：2</p>
+                <p>服务器信息：3</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：</p>
+                <p>服务器信息：1</p>
+                <p>服务器信息：2</p>
+                <p>服务器信息：3</p>
+            </div>
         </div>
+
     </div>
 </div>
 <script>
@@ -277,7 +322,7 @@
     function boardGoing(str){
         let el = document.createElement("p");
         el.innerText=str;
-        el.style.backgroundColor=colorWalkS(266,50,0.3,40,90)
+        el.style.backgroundColor=colorWalkH(100,50,0.2,0,200)
         board.prepend(el);
     }
     function clearBoard(){
@@ -747,6 +792,18 @@
     }
 
     applyChouTi(document.getElementById("cmdHelp"),cmdTab)
+    drag(document.getElementById("boardHead"),document.getElementById("boardWra"))
+    board.onmousewheel=(e)=>{
+        let speed=20
+        let t=-board.style.top.replace("px","");
+        if(e.wheelDelta<0&&t<=board.clientHeight-board.parentElement.clientHeight){
+            if(t==board.clientHeight-board.parentElement.clientHeight) board.style.top=-(board.clientHeight-board.parentElement.clientHeight)+"px";
+            board.style.top=-(t+speed)+"px";
+        }else {
+            if(speed-t>=0) t=speed
+            board.style.top=-(t-speed)+"px";
+        }
+    }
 </script>
 </body>
 </html>

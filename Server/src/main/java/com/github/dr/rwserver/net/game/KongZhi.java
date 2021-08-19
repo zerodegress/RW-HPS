@@ -161,6 +161,7 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
                 prop.add("组" +g.groupId);
                 prop.add(GroupGame.games.get(g.groupId).isStartGame?"游戏中":"战役室");
                 prop.add(GroupGame.gU(g.groupId).startTime+"");
+                prop.add(GroupGame.playerGroup(g.groupId)+"/"+GroupGame.allPlayer(g.groupId));
                 players= new ArrayList<>();
                 data.put("head",prop);
                 data.put("body",players);

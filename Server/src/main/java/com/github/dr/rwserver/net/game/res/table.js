@@ -35,6 +35,11 @@ function colorWalkS(h,l,a,sa,sb){
     let s=randomRange(sa,sb)
     return "hsla("+h+","+s+"%,"+l+"%,"+a+")";
 }
+function colorWalkH(s,l,a,ha,hb){
+    if(!ha) ha=0; if(!hb) hb=100;
+    let h=randomRange(ha,hb)
+    return "hsla("+h+","+s+"%,"+l+"%,"+a+")";
+}
 function randomRange(a,b){
     return Math.random()*(b-a)+a;
 }

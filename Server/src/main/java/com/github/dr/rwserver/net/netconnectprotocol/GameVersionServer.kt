@@ -12,6 +12,7 @@ import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.net.GroupNet
 import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.net.game.KongZhi
@@ -478,7 +479,9 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                 }
                 if(groupRule.gameSaveCache==null) return false;
                 try {
-                    sendPacket(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(groupRule.gameSaveCache))
+                    val saveC=NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(groupRule.gameSaveCache);
+                    sendPacket(saveC)
+                    NetStaticData.groupNet.broadcast(saveC,player.groupId)
                     return true;
                 } catch (e: IOException) {
                    throw RuntimeException(e)

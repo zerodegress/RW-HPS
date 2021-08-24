@@ -9,4 +9,4 @@
 
 package com.github.dr.rwserver.command
 
-class RelayCommands 
+class RelayCommands

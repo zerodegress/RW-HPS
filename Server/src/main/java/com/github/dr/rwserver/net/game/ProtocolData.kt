@@ -17,7 +17,7 @@ class ProtocolData {
     /** 可以支持什么版本 */
     var gameNetVersion = 0
         private set
-    
+
     internal lateinit var abstractNetConnect: AbstractNetConnect
     internal lateinit var typeConnect: TypeConnect
     internal lateinit var abstractNetPacket: AbstractNetPacket

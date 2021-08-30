@@ -53,10 +53,14 @@ public class HttpRequestOkHttp {
 			final String[] keyValue = pam.split("=");
 			formBody.add(keyValue[0],keyValue[1]);
 		}
+		return doPost(url,formBody);
+	}
+
+	public static String doPost(String url, FormBody.Builder data) {
 		Request request = new Request.Builder()
 				.url(url)
 				.addHeader("User-Agent",USER_AGENT)
-				.post(formBody.build())
+				.post(data.build())
 				.build();
 		return getHttpResultString(request);
 	}

@@ -93,7 +93,7 @@ internal class NewServerHandler internal constructor(
 
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-        ctx.close()
+        //ctx.close()
         //error(RuntimeException())
         error(cause)
     }

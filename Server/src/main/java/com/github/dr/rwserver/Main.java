@@ -15,6 +15,7 @@ import com.github.dr.rwserver.command.ServerCommands;
 import com.github.dr.rwserver.core.Core;
 import com.github.dr.rwserver.core.Initialization;
 import com.github.dr.rwserver.core.thread.Threads;
+import com.github.dr.rwserver.custom.UpListCustom;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.data.plugin.PluginEventManage;
@@ -117,6 +118,8 @@ public class Main {
 
 		/* 默认直接启动服务器 */
 		Data.SERVER_COMMAND.handleMessage("start",(StrCons) Log::clog);
+
+		new UpListCustom(Data.SERVER_COMMAND);
 	}
 
 	private static void loadCoreJar(String libPath) {

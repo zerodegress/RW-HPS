@@ -40,7 +40,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "1.4.2"
+    const val SERVER_CORE_VERSION = "1.4.3"
     //public static final int SERVER_VERSION2 = 1.13.6;
     /** 单位数据缓存  */
 	@JvmField

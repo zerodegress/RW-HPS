@@ -12,7 +12,7 @@ targetCompatibility=11
  * 需要帮助!
  */
 dependencies {
-	implementation group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
+	implementation group: 'io.netty', name: 'netty-all', version: '4.1.67.Final'
 
 	implementation ('com.gitee.ldp_dpsmax:chainMarket:23fc7f989f') {
 		exclude group: "io.netty"

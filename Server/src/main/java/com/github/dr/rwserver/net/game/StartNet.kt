@@ -22,6 +22,7 @@ import com.shareData.chainMarket.HttpServer
 import com.shareData.chainMarket.constant.HttpsSetting
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.*
+import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
@@ -30,7 +31,7 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup
 import io.netty.util.concurrent.EventExecutorGroup
 import net.udp.ReliableServerSocket
 import net.udp.ReliableSocket
-import java.net.InetSocketAddress
+import java.net.BindException
 import java.net.ServerSocket
 
 /**
@@ -42,6 +43,7 @@ class StartNet {
     private var serverSocket: ServerSocket? = null
     private var startGameNetUdp: StartGameNetUdp? = null
     private val start: AbstractNet
+
     @JvmField
     val OVER_MAP = OrderedMap<String, AbstractNetConnect>(16)
 
@@ -61,66 +63,50 @@ class StartNet {
      */
     // 不想过多if 但runClass的都是可控
     fun openPort(port: Int) {
+        openPort(port,1,0)
+
+        Data.config.setObject("runPid", Data.core.pid)
+        Data.config.save()
+
+        if (Data.game.webApi) {
+            startWebApi()
+        }
+    }
+
+    fun openPort(port: Int,startPort:Int,endPort:Int) {
         clog(Data.localeUtil.getinput("server.start.open"))
-        val bossGroup: EventLoopGroup
-        val workerGroup: EventLoopGroup
+        val bossGroup: EventLoopGroup = getEventLoopGroup(4)
+        val workerGroup: EventLoopGroup = getEventLoopGroup()
         val runClass: Class<out ServerChannel>
-        if (Data.core.isWindows) {
-            bossGroup = NioEventLoopGroup(4)
-            workerGroup = NioEventLoopGroup()
-            runClass = NioServerSocketChannel::class.java
-            clog("运行在Windows 或许效率会略低")
-        } else {
-            bossGroup = EpollEventLoopGroup(4)
-            workerGroup = EpollEventLoopGroup()
+
+        if (Epoll.isAvailable()) {
             runClass = EpollServerSocketChannel::class.java
+        } else {
+            runClass = NioServerSocketChannel::class.java
+            clog("无法使用Epool 效率可能略低")
         }
         try {
             val serverBootstrapTcp = ServerBootstrap()
             serverBootstrapTcp.group(bossGroup, workerGroup)
                 .channel(runClass)
-                .localAddress(InetSocketAddress(port))
-                .childOption(ChannelOption.TCP_NODELAY, true) //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                //.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(start)
             clog(Data.localeUtil.getinput("server.start.openPort"))
-            val channelFutureTcp = serverBootstrapTcp.bind(port).sync()
+            val channelFutureTcp = serverBootstrapTcp.bind(port)
+
+            for (i in startPort..endPort) {
+                serverBootstrapTcp.bind(i)
+            }
+
             val start = channelFutureTcp.channel()
             connectChannel.add(start)
             clog(Data.localeUtil.getinput("server.start.end"))
-            Data.config.setObject("runPid", Data.core.pid)
-            Data.config.save()
-            if (Data.game.webApi) {
-                startWebApi()
-            }
             start.closeFuture().sync()
         } catch (e: InterruptedException) {
             error("[TCP Start Error]", e)
-        } finally {
-            bossGroup.shutdownGracefully()
-            workerGroup.shutdownGracefully()
-        }
-    }
-
-    fun openPort() {
-        val bossGroup = EpollEventLoopGroup(4)
-        val workerGroup = EpollEventLoopGroup()
-        try {
-            val serverBootstrapTcp = ServerBootstrap()
-            serverBootstrapTcp.group(bossGroup, workerGroup)
-                .channel(EpollServerSocketChannel::class.java)
-                //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childHandler(StartGameNetTcp(this))
-            val nn = serverBootstrapTcp.bind(5200)
-            for (i in 5201..5500) {
-                serverBootstrapTcp.bind(i)
-            }
-            val start = nn.channel()
-            connectChannel.add(start)
-            clog(Data.localeUtil.getinput("server.start.openPort"))
-            start.closeFuture().sync()
-        } catch (e: InterruptedException) {
-            error("[TCP Start Error]", e)
+        } catch (bindError: BindException) {
+            error("[Port Bind Error]", bindError)
         } finally {
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
@@ -128,7 +114,8 @@ class StartNet {
     }
 
     fun startUdp(port: Int) {
-        startGameNetUdp = StartGameNetUdp(this, NetStaticData.protocolData.abstractNetConnect, NetStaticData.protocolData.typeConnect)
+        startGameNetUdp =
+            StartGameNetUdp(this, NetStaticData.protocolData.abstractNetConnect, NetStaticData.protocolData.typeConnect)
         try {
             ReliableServerSocket(port).use { serverSocket ->
                 this.serverSocket = serverSocket
@@ -180,6 +167,14 @@ class StartNet {
         }
         if (IsUtil.notIsBlank(serverSocket)) {
             startGameNetUdp!!.update()
+        }
+    }
+
+    private fun getEventLoopGroup(size: Int = 0): EventLoopGroup {
+        return if (!Epoll.isAvailable()) {
+            NioEventLoopGroup(size)
+        } else {
+            EpollEventLoopGroup(size)
         }
     }
 }

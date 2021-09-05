@@ -63,7 +63,7 @@ object Data {
 
     /**  */
 	@JvmField
-	val MapsMap: Map<String, String> = HashMap()
+	val MapsMap = ObjectMap<String, String>()
 
     /** 在线玩家  */
 	@JvmField

@@ -53,7 +53,7 @@ public class Main {
 	 * 设置多个检查点, 定期检查, 如果发现问题就加密或混淆部分数据
 	 */
 	public static void main(String[] args) {
-		final Initialization initialization = new Initialization();
+		new Initialization();
 
 		Log.set("OFF");
 		Log.setPrint(true);
@@ -78,8 +78,6 @@ public class Main {
 		Log.clog(Data.localeUtil.getinput("server.hi"));
 
 		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
-
-		initialization.startInit();
 
 		/* 命令加载 */
 		new ServerCommands(Data.SERVER_COMMAND);

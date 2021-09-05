@@ -41,6 +41,9 @@ class Application {
     fun load() {
         pluginData.setFileUtil(getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
         admin = Administration(pluginData)
+
+        Initialization.startInit(pluginData)
+
         serverConnectUuid = pluginData.getData("serverConnectUuid", UUID.randomUUID().toString())
         unitBase64 = pluginData.getData("unitBase64", Seq())
         addSavePool {

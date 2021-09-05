@@ -9,7 +9,6 @@
 
 package com.github.dr.rwserver.net
 
-import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.struct.Seq

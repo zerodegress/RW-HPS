@@ -9,6 +9,7 @@
 
 package com.github.dr.rwserver.data.plugin;
 
+import com.github.dr.rwserver.func.Prov;
 import com.github.dr.rwserver.io.ReusableByteInStream;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.OrderedMap;
@@ -85,6 +86,10 @@ class AbstractPluginData {
      */
     public <T> T getData(String name,@NotNull final T data) {
         return (T) PLUGIN_DATA.get(name, () -> new Value<>(data)).getData();
+    }
+
+    public <T> T getData(String name,@NotNull final Prov<Boolean> data) {
+        return (T) PLUGIN_DATA.get(name, () -> new Value<>(data.get())).getData();
     }
 
     public void read() {

@@ -14,7 +14,6 @@ import com.github.dr.rwserver.core.thread.Threads.newThreadService2
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.net.HttpRequestOkHttp
-import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.ReExp
 import com.github.dr.rwserver.util.game.CommandHandler
@@ -32,7 +31,7 @@ class UpListCustom(handler: CommandHandler) {
         handler.removeCommand("upserverlist")
         handler.removeCommand("upserverlistnew")
         if (notIsBlank(tk)) {
-            handler.register("upserverlist", "serverCommands.upserverlist") { arg: Array<String>?, log: StrCons ->
+            handler.register("upserverlist", "serverCommands.upserverlist") { _: Array<String>?, log: StrCons ->
                 if (!upServerList) {
                     newThreadCore {
                         upServerList = true
@@ -43,18 +42,18 @@ class UpListCustom(handler: CommandHandler) {
                 }
             }
         } else {
-            handler.register("upserverlist", "serverCommands.upserverlist") { arg: Array<String?>?, log: StrCons ->
+            handler.register("upserverlist", "serverCommands.upserverlist") { _: Array<String?>?, log: StrCons ->
                 log["无Tonken"]
             }
         }
     }
 
     private fun uplist() {
-        val formBody = FormBody.Builder();
+        val formBody = FormBody.Builder()
 
         formBody.add("Token",tk)
 
-        formBody.add("Passwd", IsUtil.notIsBlank(Data.game.passwd).toString())
+        formBody.add("Passwd", notIsBlank(Data.game.passwd).toString())
         formBody.add("ServerName",Data.core.serverName)
         formBody.add("Port", Data.game.port.toString())
         formBody.add("MapName",Data.game.maps.mapName)
@@ -75,9 +74,9 @@ class UpListCustom(handler: CommandHandler) {
 
 
 
-        val O1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultCheckPort).contains("true")
-        val O4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultCheckPort).contains("true")
-        if (O1 || O4) {
+        val checkPortGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultCheckPort).contains("true")
+        val checkPortGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultCheckPort).contains("true")
+        if (checkPortGs1 || checkPortGs4) {
             clog(Data.localeUtil.getinput("err.yesOpen"))
         } else {
             clog(Data.localeUtil.getinput("err.noOpen"))
@@ -87,11 +86,11 @@ class UpListCustom(handler: CommandHandler) {
             val pingdata = object : ReExp() {
                 @Throws(Exception::class)
                 override fun runs(): Any {
-                    val formBodyUpdate = FormBody.Builder();
+                    val formBodyUpdate = FormBody.Builder()
 
                     formBodyUpdate.add("Token",tk)
 
-                    formBodyUpdate.add("Passwd", IsUtil.notIsBlank(Data.game.passwd).toString())
+                    formBodyUpdate.add("Passwd", notIsBlank(Data.game.passwd).toString())
                     formBodyUpdate.add("ServerName",Data.core.serverName)
                     formBodyUpdate.add("Port", Data.game.port.toString())
                     formBodyUpdate.add("MapName",Data.game.maps.mapName)
@@ -113,6 +112,6 @@ class UpListCustom(handler: CommandHandler) {
             if (pingdata == null) {
                 Log.warn("错误 请检查网络")
             }
-        }, 50, 50, TimeUnit.SECONDS, "UPLIST")
+        }, 40, 40, TimeUnit.SECONDS, "UPLIST")
     }
 }

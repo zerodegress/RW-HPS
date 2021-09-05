@@ -11,8 +11,6 @@ package com.github.dr.rwserver.game
 
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.NetServer
-import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
-import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.net.Administration.PlayerInfo

@@ -6,6 +6,7 @@
 ![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
 [![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
+![](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)
 
 ### **It is currently in KT rewriting status. Welcome to rewrite and submit pr**
 
@@ -36,8 +37,7 @@ Copyright (C) 2020-2021 RW-HPS Team and contributors.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License v3.0 as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -47,6 +47,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License v3.0
 along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 ```
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS?ref=badge_large)
 
 #### Game protocols that will not be supported
 - Server List -> ADD List, Update List, Remove List  

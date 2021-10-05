@@ -1,31 +1,26 @@
 plugins {
 	id 'maven-publish'
-	id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+	id 'org.jetbrains.kotlin.jvm' version '1.5.31'
 }
 
-/* 使用Java11做标准语法并编译 */
-sourceCompatibility=11
-targetCompatibility=11
-
+/* 使用Java8做标准语法并编译 */
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 /**
  * 这里全部采用的compileOnly 为了适配idea 但是编译的时候会切到implementation
  * 需要帮助!
  */
 dependencies {
-	implementation group: 'io.netty', name: 'netty-all', version: '4.1.67.Final'
-
+	implementation group: 'io.netty', name: 'netty-all', version: '4.1.68.Final'
 	implementation ('com.gitee.ldp_dpsmax:chainMarket:23fc7f989f') {
 		exclude group: "io.netty"
 	}
 	implementation 'com.github.deng-rui:RUDP:1.0.0'
 	implementation 'com.github.deng-rui:Compress-Zip:1.0.0'
-
 	implementation (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
 		exclude group: "org.jetbrains.kotlin"
 	}
-
-	implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
-	implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
+	implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.31'
 }
 
 jar{

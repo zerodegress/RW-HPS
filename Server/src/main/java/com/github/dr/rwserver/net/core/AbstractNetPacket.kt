@@ -11,10 +11,10 @@ package com.github.dr.rwserver.net.core
 
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.game.GameCommand
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.struct.Seq
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
-import java.io.DataOutputStream
+import com.github.dr.rwserver.util.zip.CompressOutputStream
 import java.io.IOException
 
 /**
@@ -87,7 +87,7 @@ interface AbstractNetPacket {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun getTeamDataPacket(): GzipEncoder
+    fun getTeamDataPacket(): CompressOutputStream
 
     /**
      * 转换GameSave包
@@ -129,7 +129,7 @@ interface AbstractNetPacket {
      * @param stream Data流
      */
     @Throws(IOException::class)
-    fun writePlayer(player: Player, stream: DataOutputStream)
+    fun writePlayer(player: Player, stream: GameOutputStream)
 
     /**
      * 获取连接包

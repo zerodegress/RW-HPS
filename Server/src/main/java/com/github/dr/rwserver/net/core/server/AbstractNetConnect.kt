@@ -17,5 +17,4 @@ package com.github.dr.rwserver.net.core.server
 interface AbstractNetConnect:
     AbstractNetConnectEx,
     AbstractNetConnectServer,
-    AbstractNetConnectRelay {
-}
+    AbstractNetConnectRelay

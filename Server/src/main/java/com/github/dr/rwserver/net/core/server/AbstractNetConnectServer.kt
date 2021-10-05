@@ -12,7 +12,7 @@ package com.github.dr.rwserver.net.core.server
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import com.github.dr.rwserver.util.zip.CompressOutputStream
 import org.intellij.lang.annotations.JdkConstants
 import org.jetbrains.annotations.Nls
 import java.io.IOException
@@ -28,19 +28,10 @@ interface AbstractNetConnectServer {
      * Acquire players
      * @return Player
      */
-    val player: Player?
+    val player: Player
 
     /**
-     * Send the message /*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
-package named by the system
+     * Send the message package named by the system
      * SERVER: ...
      * @param msg The message
      */
@@ -81,16 +72,7 @@ package named by the system
     fun ping()
 
     /**
-     * Extract the GameSave /*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
-package
+     * Extract the GameSave package
      * @param packet packet
      * @return 包
      * @throws IOException Error
@@ -107,16 +89,7 @@ package
     fun receiveChat(p: Packet)
 
     /**
-     * Accept displacement /*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
-package
+     * Accept displacement package
      * @param p Packet
      * @throws IOException Error
      */
@@ -124,16 +97,7 @@ package
     fun receiveCommand(p: Packet)
 
     /**
-     * Send game start /*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
-package
+     * Send game start package
      * @throws IOException Error
      */
     @Throws(IOException::class)
@@ -143,7 +107,7 @@ package
      * Send team pack
      * @param gzip GzipPacket
      */
-    fun sendTeamData(gzip: GzipEncoder)
+    fun sendTeamData(gzip: CompressOutputStream)
 
     /**
      * Get player information and register
@@ -171,16 +135,7 @@ package
     fun sendErrorPasswd()
 
     /**
-     * Trick the client to send the Save /*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
-package
+     * Trick the client to send the Save package
      */
     fun getGameSave()
 

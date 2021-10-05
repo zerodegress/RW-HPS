@@ -168,14 +168,10 @@ public class Seq<T> implements Iterable<T> {
         return list;
     }
 
-    public <E extends T> void neach(BooleanIf<? super T> pred, Cons<E> consumer, Runnable run) {
+    public void each(Cons<? super T> consumer) {
         for (int i = 0; i < size; i++) {
-            if(pred.get(items[i])) {
-                consumer.get((E)items[i]);
-                return;
-            }
+            consumer.get(items[i]);
         }
-        run.run();
     }
 
     public <E extends T> void each(BooleanIf<? super T> pred, Cons<E> consumer) {
@@ -196,6 +192,16 @@ public class Seq<T> implements Iterable<T> {
         }
     }
 
+    public <E extends T> void neach(BooleanIf<? super T> pred, Cons<E> consumer, Runnable run) {
+        for (int i = 0; i < size; i++) {
+            if(pred.get(items[i])) {
+                consumer.get((E)items[i]);
+                return;
+            }
+        }
+        run.run();
+    }
+
     public <E extends T> void eachBooleanIfs(BooleanIf<? super T> pred, Cons<E> consumer) {
         for (int i = 0; i < size; i++) {
             if(pred.get(items[i])) {
@@ -203,13 +209,6 @@ public class Seq<T> implements Iterable<T> {
             }
         }
     }
-
-    public void each(Cons<? super T> consumer) {
-        for (int i = 0; i < size; i++) {
-            consumer.get(items[i]);
-        }
-    }
-
 
     /** Flattens this array of arrays into one array. Allocates a new instance.*/
     public <R> Seq<R> flatten() {
@@ -334,17 +333,17 @@ public class Seq<T> implements Iterable<T> {
         return this;
     }
 
-    /** Sets this array's contents to the specified array.*/
-    public void set(Seq<? extends T> array){
-        clear();
-        addAll(array);
-    }
-
     public T get(int index){
         if(index >= size) {
             throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
         }
         return items[index];
+    }
+
+    /** Sets this array's contents to the specified array.*/
+    public void set(Seq<? extends T> array){
+        clear();
+        addAll(array);
     }
 
     public void set(int index, T value){

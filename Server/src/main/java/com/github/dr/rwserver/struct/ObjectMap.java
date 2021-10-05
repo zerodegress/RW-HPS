@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
  * 使用3个散列，随机游走和用于问题键的小存储区。空键是不允许的。允许为空值。除了增加表大小时，不进行任何分配
  * 此映射执行非常快的get，containsKey和remove（通常为O（1），最坏情况为O（log（n））） Put可能会变慢，
  * 取决于哈希冲突。负载因子大于0.91大大增加了将地图重新​​哈希化为*下一个更高的POT大小的机会
- * <br> *对于大容量的地图，迭代速度可能非常慢。 {@link #clear（int）}和{@link #shrink（int）}可用于减少容量。 {@link OrderedMap}提供了更快的迭代速度。
+ * 对于大容量的地图，迭代速度可能非常慢。 {@link #clear（int）}和{@link #shrink（int）}可用于减少容量。 {@link OrderedMap}提供了更快的迭代速度。
  * @author Nathan Sweet
  */
 @SuppressWarnings("unchecked")
@@ -352,20 +352,6 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
         return val;
     }
 
-    /** 尝试获取值。如果它不存在返回值.*/
-    public V getNoPut(K key, Prov<V> supplier){
-        V val = get(key);
-        if(val == null){
-            return supplier.get();
-        }
-        return val;
-    }
-
-    /** Get, with a nullable key.*/
-    public V getNull(K key){
-        return key == null ? null : get(key);
-    }
-
     /** Returns the value for the specified key, or null if the key is not in the map. */
     public V get(K key){
         int hashCode = key.hashCode();
@@ -396,6 +382,20 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
             }
         }
         return valueTable[index];
+    }
+
+    /** 尝试获取值。如果它不存在返回值.*/
+    public V getNoPut(K key, Prov<V> supplier){
+        V val = get(key);
+        if(val == null){
+            return supplier.get();
+        }
+        return val;
+    }
+
+    /** Get, with a nullable key.*/
+    public V getNull(K key){
+        return key == null ? null : get(key);
     }
 
     private V getStash(K key, V defaultValue){

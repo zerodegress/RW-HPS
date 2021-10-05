@@ -146,7 +146,7 @@ public class ModsLoad {
         }
 
         private void readModFile(BufferedReader paramBufferedReader) throws IOException {
-            try (paramBufferedReader) {
+            try {
                 String str2 = null;
                 String lineString;
                 while ((lineString = paramBufferedReader.readLine()) != null) {
@@ -177,6 +177,8 @@ public class ModsLoad {
                         linkedHashMap.put(str3, str4);
                     }
                 }
+            } finally {
+                paramBufferedReader.close();
             }
         }
 

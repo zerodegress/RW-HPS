@@ -43,7 +43,7 @@ public class HttpRequestOkHttp {
 		} catch (IOException e) {
 			Log.error(e);
 		}
-		return null;
+		return "";
 	}
 
 	public static String doPost(String url, String param) {

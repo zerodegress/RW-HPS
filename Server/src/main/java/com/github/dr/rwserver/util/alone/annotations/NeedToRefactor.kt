@@ -24,4 +24,4 @@ package com.github.dr.rwserver.util.alone.annotations
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER
 )
-annotation class NeedToRefactor
+annotation class NeedToRefactor 

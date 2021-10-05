@@ -12,19 +12,23 @@ package com.github.dr.rwserver.util.encryption
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
-class Sha {
+object Sha {
+    @JvmStatic
     fun sha256(strText: String): String {
         return toSha(strText, "SHA-256")
     }
 
+    @JvmStatic
     fun sha512(strText: String): String {
         return toSha(strText, "SHA-512")
     }
 
+    @JvmStatic
     fun sha256Array(strText: String): ByteArray {
         return toShaArray(strText, "SHA-256")
     }
 
+    @JvmStatic
     fun sha512Array(strText: String): ByteArray {
         return toShaArray(strText, "SHA-512")
     }

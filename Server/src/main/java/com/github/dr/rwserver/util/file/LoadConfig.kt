@@ -67,7 +67,7 @@ class LoadConfig {
 
     fun readBoolean(input: String, def: Boolean): Boolean {
         val str = load(input, def)
-        return java.lang.Boolean.parseBoolean(str)
+        return str.toBoolean()
     }
 
     fun readFloat(input: String, def: Float): Float {

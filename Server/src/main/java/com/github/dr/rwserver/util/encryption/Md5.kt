@@ -59,8 +59,8 @@ object Md5 {
     }
 
     @JvmStatic
-    fun md5(list: Seq<File>): Seq<String?> {
-        val result = Seq<String?>()
+    fun md5(list: Seq<File>): Seq<String> {
+        val result = Seq<String>()
         list.each { e: File ->
             val md5 = md5(e)
             if (notIsBlank(md5)) {

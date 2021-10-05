@@ -33,6 +33,16 @@ object IsUtil {
     }
 
     @JvmStatic
+    fun isNull(string: Any?): Boolean {
+        return string == null
+    }
+
+    @JvmStatic
+    fun notIsNull(string: Any?): Boolean {
+        return !isNull(string)
+    }
+
+    @JvmStatic
     fun isBlankDefaultResult(string: Any?): String {
         return  if (isBlank(string)) {
                     ""

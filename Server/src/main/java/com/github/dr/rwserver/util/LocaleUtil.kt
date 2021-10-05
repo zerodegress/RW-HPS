@@ -53,6 +53,7 @@ class LocaleUtil {
             p.load(inputStreamReader)
             p.forEach { key: Any, value: Any -> languageData.put(key as String, value as String) }
         } catch (e: Exception) {
+            Log.error("[Load Language File] Error",e)
         }
     }
 

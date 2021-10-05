@@ -17,20 +17,21 @@ import com.github.dr.rwserver.util.io.IoOutConversion.fileToStream
 import com.github.dr.rwserver.util.io.IoRead.readFileToByteArray
 import com.github.dr.rwserver.util.io.IoReadConversion.fileToReadStream
 import com.github.dr.rwserver.util.io.IoReadConversion.fileToStream
-import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
+import com.github.dr.rwserver.util.SortList
 import java.io.*
 import java.net.URLDecoder.decode
 
 /**
- * FileUtil()均代指实例 FileUtil. 代指静态方法
- * 推荐使用教程
- * FileUtil.getFile(文件名) 因为不会创建文件 同时 位置和Jar同目录
- * FileUtil.getFolder(文件夹名) 因为不会创建文件 只会创建目录
- * FileUtil.getFolder(文件夹名).toFile(文件名) 只会创建目录
+ * FileUtil() refers to instance fileUtil. FileUtil refers to static method
+ *
+ * Recommended tutorial:
+ * FileUtil.getFile("文件名") 因为不会创建文件 同时 位置和Jar同目录
+ * FileUtil.getFolder("文件夹名") 因为不会创建文件 只会创建目录
+ * FileUtil.getFolder("文件夹名").toFile("文件名") 只会创建目录
  *
  *
- * FileUtil的三个实例什么都不会做 也不会创建目录和文件
+ * FileUtil The three instances of will not do anything and will not create directories and files:
  * 如果需要先目录再文件 那么用FileUtil.toFolder(文件夹名).toFile(文件名)
  * 如果需要先进入多个目录 那么用FileUtil.toFolder(文件夹名).toFolder(文件夹名)
  *
@@ -41,6 +42,13 @@ import java.net.URLDecoder.decode
  * toFolder只是起一个进入作用
  * FileUtil().mkdir()会创建文件夹并尝试创建文件
  * FileUtil().createNewFile()会尝试创建文件
+ *
+ *
+ * 部分误区:
+ * 在操作FileUtil()的时候不会进行创建文件,但是当你操作File的时候,那么就会创建文件
+ *     例子:
+ *         FileUtil.getFile("文件名").exists()的时候就不会创建文件
+ *         FileUtil.getFile("文件名").getInputsStream()的时候就会自动创建一个文件
  * 欢迎提交修改
  */
 /**
@@ -69,7 +77,7 @@ class FileUtil {
         this.path = filepath
     }
 
-    private constructor(file: File, filepath: String, a: String) {
+    private constructor(file: File, filepath: String, Uuid: String) {
         this.file = file
         this.path = filepath
         file.mkdirs()
@@ -88,7 +96,6 @@ class FileUtil {
     }
 
     fun toFile(filename: String): FileUtil {
-        //info(this.path + "/" + filename)
         return FileUtil(File(this.path + "/" + filename))
     }
 
@@ -123,6 +130,13 @@ class FileUtil {
         get() {
             val list = Seq<File>()
             fileList.eachBooleanIfs({ e: File -> e.length() > 0 }) { value: File -> list.add(value) }
+            return list
+        }
+
+    val fileListNotNullSizeSort: Seq<File>
+        get() {
+            val list = fileListNotNullSize
+            SortList.sortByFileName(list)
             return list
         }
 
@@ -203,6 +217,10 @@ class FileUtil {
         return Seq()
     }
 
+    fun copy(newFile: FileUtil) {
+        FileOperation.copyFile(file,newFile.file)
+    }
+
     fun mkdir() {
         file.parentFile.mkdirs()
 
@@ -214,7 +232,7 @@ class FileUtil {
             try {
                 file.createNewFile()
             } catch (e: IOException) {
-                Log.error("Mk file", e)
+                error("Mk file", e)
             }
         }
     }
@@ -228,7 +246,7 @@ class FileUtil {
             try {
                 file.createNewFile()
             } catch (e: IOException) {
-                Log.error("Mk file", e)
+                error("Mk file", e)
             }
         }
     }
@@ -251,7 +269,7 @@ class FileUtil {
             val jarPath = path.replace(jarName, "")
 
             defaultFilePath = decode(jarPath, "UTF-8")
-        }
+		}
 
         /**
          * 设置Jar的数据存储位置

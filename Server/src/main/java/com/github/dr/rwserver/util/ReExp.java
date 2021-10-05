@@ -70,7 +70,7 @@ public abstract class ReExp {
             } catch (Exception e) {
                 try {
                     Thread.sleep(sleepTime);
-                } catch (InterruptedException interruptedException) {
+                } catch (InterruptedException ignored) {
                 }
             }
         }

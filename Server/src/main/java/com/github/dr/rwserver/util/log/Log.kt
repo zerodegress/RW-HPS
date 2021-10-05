@@ -10,6 +10,7 @@
 package com.github.dr.rwserver.util.log
 
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.plugin.Plugin
 import com.github.dr.rwserver.util.Time.getUtcMilliFormat
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -29,26 +30,27 @@ object Log {
     private val LOG_CACHE = StringBuilder()
 
     @JvmStatic
-    fun set(log: String) {
+	fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()
     }
 
     @JvmStatic
-    fun setPrint(system: Boolean) {
+	fun setCopyPrint(system: Boolean) {
         logPrint =
             if (system) object : LogPrint<Any> {
                 override fun println(t: Any) {
-                    kotlin.io.println(t)
+                    println(t)
+                    LOG_CACHE.append(t)
                 }
             } else object : LogPrint<Any> {
                 override fun println(t: Any) {
-                    LOG_CACHE.append(t)
+                    println(t)
                 }
             }
     }
 
     @JvmStatic
-    val logCache: String
+	val logCache: String
         get() {
             val result = LOG_CACHE.toString()
             LOG_CACHE.delete(0, LOG_CACHE.length)
@@ -99,7 +101,7 @@ object Log {
     }
 
     @JvmStatic
-    fun error(tag: Any, e: Any) {
+	fun error(tag: Any, e: Any) {
         logs(6, tag, e)
     }
 
@@ -116,7 +118,7 @@ object Log {
         logs(5, "WARN", e)
     }
     @JvmStatic
-    fun warn(tag: Any, e: Any) {
+	fun warn(tag: Any, e: Any) {
         logs(5, tag, e)
     }
 
@@ -133,7 +135,7 @@ object Log {
         logs(4, "INFO", e)
     }
     @JvmStatic
-    fun info(tag: Any, e: Any) {
+	fun info(tag: Any, e: Any) {
         logs(4, tag, e)
     }
 
@@ -150,7 +152,7 @@ object Log {
         logs(3, "DEBUG", e)
     }
     @JvmStatic
-    fun debug(tag: Any, e: Any) {
+	fun debug(tag: Any, e: Any) {
         logs(3, tag, e)
     }
 
@@ -218,14 +220,14 @@ object Log {
     @JvmStatic
     fun clog(text: String) {
         val textCache = "[" +
-                getUtcMilliFormat(1) +
-                " UTC] " +
-                text
+                        getUtcMilliFormat(1) +
+                        " UTC] " +
+                        text
         println(formatColors("$textCache&fr"))
     }
 
     @JvmStatic
-    fun clog(text: String, vararg obj: Any?) {
+	fun clog(text: String, vararg obj: Any?) {
         clog(MessageFormat(text).format(obj))
     }
 
@@ -237,8 +239,14 @@ object Log {
         return textCache
     }
 
+    @JvmStatic
     fun testPrint(`object`: Any) {
         info(`object`)
+    }
+
+    @JvmStatic
+    fun testPlugin(plugin: Plugin) {
+        plugin.init()
     }
 
     private enum class Logg(private val logg: Int) {

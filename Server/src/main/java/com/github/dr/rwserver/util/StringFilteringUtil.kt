@@ -9,8 +9,11 @@
 
 package com.github.dr.rwserver.util
 
+import com.github.dr.rwserver.util.IsUtil.notIsBlank
+import com.github.dr.rwserver.util.log.Log
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
 
 /**
  * @author Dr
@@ -18,9 +21,35 @@ import java.util.regex.Pattern
 object StringFilteringUtil {
     private val pattern = Pattern.compile("[1-9][0-9]{4,14}")
 
-    private fun findFristGroup(matcher: Matcher): String {
+    private fun findFirstGroup(matcher: Matcher): String {
         matcher.find()
         return matcher.group(0)
+    }
+
+    @JvmStatic
+    fun findMatchString(str: String, regEx: String): String {
+        return try {
+            val pattern = Pattern.compile(regEx)
+            val matcher = pattern.matcher(str)
+            findFirstGroup(matcher)
+        } catch (e: java.lang.Exception) {
+            Log.error("[Find Match] Error",e)
+            ""
+        }
+    }
+
+
+    @JvmStatic
+    fun getkeys(textRuselt: String, keys: String, numbero: Int, numbert: Int): String {
+        var tkk = ""
+        // 去除返回数据空格
+        val text = removeAllisBlank(textRuselt)
+        if (notIsBlank(textRuselt)) {
+            val matchString: String = findMatchString(text, keys)
+            // 提取目标
+            tkk = matchString.substring(numbero, matchString.length - numbert)
+        }
+        return tkk
     }
 
     @JvmStatic
@@ -68,7 +97,7 @@ object StringFilteringUtil {
     }
 
     @JvmStatic
-    fun cutting(str: String, length: Int): String {
+	fun cutting(str: String, length: Int): String {
         return if (str.length < length) {
             str
         } else str.substring(0, length)
@@ -101,15 +130,6 @@ object StringFilteringUtil {
         fun getInt(position: Int): Int {
             val result = matcher.group(position)
             return if (IsUtil.notIsBlank(result)) result.toInt() else 0
-        }
-
-        fun getStringNoError(position: Int): String {
-            try {
-                val result = matcher.group(position)
-                return if (IsUtil.notIsBlank(result)) result else ""
-            } catch (e: Exception) {
-            }
-            return ""
         }
 
         init {

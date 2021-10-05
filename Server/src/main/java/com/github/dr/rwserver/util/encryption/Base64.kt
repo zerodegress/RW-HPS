@@ -51,7 +51,7 @@ object Base64 {
             if (result.equals(`val`, ignoreCase = true)) {
                 return true
             }
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
         }
         return false
     }

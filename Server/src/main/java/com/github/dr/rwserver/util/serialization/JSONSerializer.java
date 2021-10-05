@@ -169,8 +169,6 @@ public class JSONSerializer {
                     } catch (ArrayIndexOutOfBoundsException ignore) {
                         throw new ParseJsonException(new String(this.buffer), this.position, "Expected a ',' or ']'");
                     }
-
-
                 case '"':
                 case '\'':
                     StringBuilder sb = new StringBuilder();

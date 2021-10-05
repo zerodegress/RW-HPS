@@ -1,6 +1,6 @@
 # RW-HPS Start Server
 ## JVM 环境要求
-- JVM：最低 Java 11 优先建议JDK,也可以使用JRE
+- JVM：最低 Java 8 优先建议JDK,也可以使用JRE
 
 > 要下载 JDK：
 > - 手动下载安装如 [AdoptOpenJDK](https://adoptopenjdk.net/) 或者 [OracleJDK](https://www.oracle.com/java/technologies/javase-downloads.html) 

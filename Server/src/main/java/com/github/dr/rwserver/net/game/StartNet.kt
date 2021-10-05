@@ -61,7 +61,6 @@ class StartNet {
      * 在指定端口启动Game Server
      * @param port 端口
      */
-    // 不想过多if 但runClass的都是可控
     fun openPort(port: Int) {
         openPort(port,1,0)
 
@@ -73,6 +72,12 @@ class StartNet {
         }
     }
 
+    /**
+     * 在指定端口范围启动Game Server
+     * @param port 主端口
+     * @param startPort Start Port
+     * @param endPort End Port
+     */
     fun openPort(port: Int,startPort:Int,endPort:Int) {
         clog(Data.localeUtil.getinput("server.start.open"))
         val bossGroup: EventLoopGroup = getEventLoopGroup(4)
@@ -171,10 +176,10 @@ class StartNet {
     }
 
     private fun getEventLoopGroup(size: Int = 0): EventLoopGroup {
-        return if (!Epoll.isAvailable()) {
-            NioEventLoopGroup(size)
-        } else {
+        return if (Epoll.isAvailable()) {
             EpollEventLoopGroup(size)
+        } else {
+            NioEventLoopGroup(size)
         }
     }
 }

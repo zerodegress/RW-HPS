@@ -22,7 +22,4 @@ internal class StartGameNetTcp(startNet: StartNet): AbstractNet(startNet) {
         addPacketDecoderAndEncoder(pipeline)
         addNewServerHandlerExecutorGroup(pipeline)
     }
-
-
-
 }

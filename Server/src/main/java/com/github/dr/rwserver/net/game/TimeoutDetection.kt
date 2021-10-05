@@ -27,7 +27,7 @@ internal class TimeoutDetection(s: Int, startNet: StartNet) {
 
     private class CheckTime(private val startNet: StartNet) : Runnable {
         override fun run() {
-            startNet.OVER_MAP.each { k: String?, v: AbstractNetConnect ->
+            startNet.OVER_MAP.each { k: String, v: AbstractNetConnect ->
                 if (checkTimeoutDetection(v)) {
                     v.disconnect()
                     startNet.OVER_MAP.remove(k)

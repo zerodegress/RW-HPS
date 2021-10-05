@@ -33,7 +33,7 @@ import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import com.github.dr.rwserver.util.zip.CompressOutputStream
 import java.io.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -48,8 +48,10 @@ import kotlin.math.min
 
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGameVersion(connectionAgreement) {
-    protected var playerConnectKey: String? = null
     private val sync = ReentrantLock(true)
+
+    /** 玩家  */
+    override lateinit var player: Player
 
     override fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect {
         return GameVersionServer(connectionAgreement)
@@ -107,8 +109,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             ByteArrayOutputStream().use { buffer ->
                 DataOutputStream(buffer).use { stream ->
                     stream.writeByte(player.site)
-                    val a =
-                        ExtractUtil.hexToByteArray("000000ffffffffffffffff0000000000000000ffffffffffffffff00022d3100000001000000000000000000000000640000000000")
+                    val a = ExtractUtil.hexToByteArray("000000ffffffffffffffff0000000000000000ffffffffffffffff00022d3100000001000000000000000000000000640000000000")
                     for (b in a) {
                         stream.writeByte(b.toInt())
                     }
@@ -152,13 +153,16 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Events.fire(PlayerChatEvent(player, message))
             } else {
                 if (response.type != CommandHandler.ResponseType.valid) {
-                    val text: String
-                    text = if (response.type == CommandHandler.ResponseType.manyArguments) {
-                        "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                    } else if (response.type == CommandHandler.ResponseType.fewArguments) {
-                        "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                    } else {
-                        "Unknown command. Check .help"
+                    val text: String =  when (response.type) {
+                                            CommandHandler.ResponseType.manyArguments -> {
+                                                "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                            }
+                                            CommandHandler.ResponseType.fewArguments -> {
+                                                "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                            }
+                                            else -> {
+                                                "Unknown command. Check .help"
+                                        }
                     }
                     player.sendSystemMessage(text)
                 }
@@ -183,23 +187,19 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     if (int1 == -2) {
                         outStream.writeString(inStream.readString())
                     }
-                    //outStream.writeBytes(inStream.readNBytes(28))
                     outStream.transferToFixedLength(inStream,28)
                     outStream.writeIsString(inStream)
                 }
-                //outStream.writeBytes(inStream.readNBytes(10))
                 outStream.transferToFixedLength(inStream,10)
                 val boolean3 = inStream.readBoolean()
                 outStream.writeBoolean(boolean3)
                 if (boolean3) {
-                    //outStream.writeBytes(inStream.readNBytes(8))
                     outStream.transferToFixedLength(inStream,8)
                 }
                 outStream.writeBoolean(inStream.readBoolean())
                 val int2 = inStream.readInt()
                 outStream.writeInt(int2)
                 for (i in 0 until int2) {
-                    //outStream.writeBytes(inStream.readNBytes(8))
                     outStream.transferToFixedLength(inStream,8)
                 }
                 val boolean4 = inStream.readBoolean()
@@ -210,10 +210,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 val boolean5 = inStream.readBoolean()
                 outStream.writeBoolean(boolean5)
                 if (boolean5) {
-                    //outStream.writeBytes(inStream.readNBytes(8))
                     outStream.transferToFixedLength(inStream,8)
                 }
-                //outStream.writeBytes(inStream.readNBytes(8))
                 outStream.transferToFixedLength(inStream,8)
                 outStream.writeString(inStream.readString())
                 //outStream.writeBoolean(inStream.readBoolean())
@@ -257,7 +255,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         }
     }
 
-    override fun sendTeamData(gzip: GzipEncoder) {
+    override fun sendTeamData(gzip: CompressOutputStream) {
         try {
             val o = GameOutputStream()
             /* 玩家位置 */
@@ -360,7 +358,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         }
                         return false
                     }
-                    var localeUtil = Data.localeUtilMap["CN"]
+                    val localeUtil = Data.localeUtilMap["CN"]
                     /*
                     if (Data.game.ipCheckMultiLanguageSupport) {
                         val rec = Data.ip2Location.IPQuery(connectionAgreement.ip)
@@ -385,7 +383,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 return true
             }
         } finally {
-            playerConnectKey = null
+            super.connectKey = null
         }
     }
 
@@ -394,7 +392,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         // 生成随机Key;
         val keyLen = 6
         val key = RandomUtil.generateInt(keyLen)
-        playerConnectKey = Game.connectKey(key)
+        super.connectKey = Game.connectKey(key)
         GameInputStream(p).use { stream ->
             // Game Pkg Name
             stream.readString()
@@ -433,7 +431,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             return
         }
         super.isDis = true
-        if (IsUtil.notIsBlank(player)) {
+        if (this::player.isInitialized) {
             Data.playerGroup.remove(player)
             if (!Data.game.isStartGame) {
                 Data.playerAll.remove(player)
@@ -455,9 +453,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             o.writeFloat(0f)
             o.writeBoolean(true)
             o.writeBoolean(false)
-            val gzipEncoder = GzipEncoder.getGzipStream("gameSave", false)
-            val io = gzipEncoder.stream
-            io.writeUTF("This is RW-HPS!")
+            val gzipEncoder = CompressOutputStream.getGzipOutputStream("gameSave", false)
+            gzipEncoder.writeString("This is RW-HPS!")
             o.flushEncodeData(gzipEncoder)
             sendPacket(o.createPacket(35))
         } catch (e: Exception) {

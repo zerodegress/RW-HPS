@@ -9,7 +9,6 @@
 
 package com.github.dr.rwserver.net.netconnectprotocol
 
-import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
@@ -20,7 +19,7 @@ import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.concurrentMillis
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import com.github.dr.rwserver.util.zip.CompressOutputStream
 import java.io.IOException
 
 /**
@@ -50,13 +49,13 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     @Volatile
     protected var isDis = false
 
+    /** 玩家连接校验 */
+    protected var connectKey: String? = null
+
+
     /** 是否已经重试过  */
     @Volatile
     override var tryBoolean = false
-
-    /** 玩家  */
-    override lateinit var player: Player
-
 
     override val ip: String
         get() = connectionAgreement.ip
@@ -134,22 +133,12 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     @Throws(IOException::class)
     override fun sendStartGame() {}
 
-    override fun sendTeamData(gzip: GzipEncoder) {}
-
-
-
-
+    override fun sendTeamData(gzip: CompressOutputStream) {}
     override fun sendRelayServerType(msg: String) {}
     override fun sendRelayServerTypeReply(packet: Packet) {}
-    override fun sendRelayServerInfo() {}
-    override fun sendRelayServerCheck() {}
     override fun sendRelayServerId() {}
     override fun sendRelayPlayerInfo() {}
     override fun getRelayUnitData(packet: Packet) {}
-
-
-
-
     @Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         return false

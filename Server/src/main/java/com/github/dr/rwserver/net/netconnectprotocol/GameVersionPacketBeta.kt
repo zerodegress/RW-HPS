@@ -6,11 +6,9 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
-
 package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.data.Player
-import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.game.GameMaps
@@ -19,19 +17,15 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.AbstractNetPacket
 import com.github.dr.rwserver.struct.Seq
-import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
-import com.github.dr.rwserver.util.encryption.Game
-import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.zip.CompressOutputStream
 import java.io.IOException
-import java.math.BigInteger
 
 /**
  * @author Dr
  */
-class GameVersionPacket : AbstractNetPacket {
+class GameVersionPacketBeta : AbstractNetPacket {
     @Throws(IOException::class)
     override fun getSystemMessagePacket(msg: String): Packet {
         return getChatMessagePacket(msg, "SERVER", 5)
@@ -131,14 +125,13 @@ class GameVersionPacket : AbstractNetPacket {
         }
     }
 
-    // 0->本地 1->自定义 2->保存的游戏
     @Throws(IOException::class)
     override fun getStartGamePacket(): Packet {
         val o = GameOutputStream()
         o.writeByte(0)
         // 0->本地 1->自定义 2->保存的游戏
         o.writeInt(Data.game.maps.mapType.ordinal)
-        if (Data.game.maps.mapType == GameMaps.MapType.defaultMap) {
+        if (Data.game.maps.mapType === GameMaps.MapType.defaultMap) {
             o.writeString("maps/skirmish/" + Data.game.maps.mapPlayer + Data.game.maps.mapName + ".tmx")
         } else {
             o.flushMapData(Data.game.maps.mapData!!.mapSize, Data.game.maps.mapData!!.bytesMap!!)
@@ -160,18 +153,9 @@ class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun getExitPacket(): Packet {
-        val cPacket: Packet? = Cache.packetCache["getExitPacket"]
-        if (IsUtil.notIsBlank(cPacket)) {
-            return cPacket!!
-        }
-
         val o = GameOutputStream()
         o.writeString("exited")
-
-        val cachePacket = o.createPacket(111)
-        Cache.packetCache.put("getExitPacket",cachePacket)
-
-        return cachePacket
+        return o.createPackets(111)
     }
 
     @Throws(IOException::class)
@@ -190,57 +174,32 @@ class GameVersionPacket : AbstractNetPacket {
         stream.writeString(player.name)
         stream.writeBoolean(false)
 
-        /* -1 N/A  -2 -   -99 HOST */
-        stream.writeInt(player.ping)
+        /* -1 N/A ; -2 -  ; -99 HOST */stream.writeInt(player.ping)
         stream.writeLong(System.currentTimeMillis())
-        /* MS */
-        stream.writeBoolean(false)
+        /* MS */stream.writeBoolean(false)
         stream.writeInt(0)
         stream.writeInt(player.site)
         stream.writeByte(0)
-        /* 共享控制 */
-        stream.writeBoolean(Data.game.sharedControl)
-        /* 是否掉线 */
-        stream.writeBoolean(player.sharedControl)
-        /* 是否投降 */
-        stream.writeBoolean(false)
+        /* 共享控制 */stream.writeBoolean(Data.game.sharedControl)
+        /* 是否掉线 */stream.writeBoolean(player.sharedControl)
+        /* 是否投降 */stream.writeBoolean(false)
         stream.writeBoolean(false)
         stream.writeInt(-9999)
         stream.writeBoolean(false)
         // 延迟后显示 （HOST)
         stream.writeInt(if (player.isAdmin) 1 else 0)
+        stream.writeInt(1)
+        stream.writeInt(0)
+        stream.writeInt(0)
+        stream.writeInt(0)
+        stream.writeInt(0)
     }
 
-    @Throws(IOException::class)
     override fun getPlayerConnectPacket(): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rwhps.forward")
-        out.writeInt(1)
-        out.writeInt(151)
-        out.writeInt(151)
-        return out.createPacket(PacketType.PACKET_PREREGISTER_CONNECTION)
+        return Packet(0, ByteArray(0))
     }
 
-    @Throws(IOException::class)
     override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rts")
-        out.writeInt(4)
-        out.writeInt(151)
-        out.writeInt(151)
-        out.writeString(name)
-
-        if (IsUtil.isBlank(passwd)) {
-            out.writeBoolean(false)
-        } else {
-            out.writeBoolean(true)
-            out.writeString(BigInteger(1, Sha.sha256Array(passwd!!)).toString(16).uppercase())
-        }
-
-        out.writeString("com.corrodinggames.rts.java")
-        out.writeString(uuid)
-        out.writeInt(1198432602)
-        out.writeString(Game.connectKey(key))
-        return out.createPacket(PacketType.PACKET_PLAYER_INFO)
+        return Packet(0,ByteArray(0))
     }
 }

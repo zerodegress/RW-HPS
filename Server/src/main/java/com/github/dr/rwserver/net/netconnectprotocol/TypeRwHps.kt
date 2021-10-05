@@ -23,7 +23,7 @@ class TypeRwHps : TypeConnect {
         if (!Data.game.oneReadUnitList) {
             if (packet.type == PacketType.PACKET_ADD_GAMECOMMAND) {
                 con.receiveCommand(packet)
-                con.player!!.lastMoveTime = millis()
+                con.player.lastMoveTime = millis()
             } else {
                 when (packet.type) {
                     PacketType.PACKET_PREREGISTER_CONNECTION -> con.registerConnection(packet)
@@ -32,11 +32,11 @@ class TypeRwHps : TypeConnect {
                     }
                     PacketType.PACKET_HEART_BEAT_RESPONSE -> {
                         val player = con.player
-                        player!!.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
+                        player.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
                     }
                     PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
                     PacketType.PACKET_DISCONNECT -> con.disconnect()
-                    PacketType.PACKET_ACCEPT_START_GAME -> con.player!!.start = true
+                    PacketType.PACKET_ACCEPT_START_GAME -> con.player.start = true
                     PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
                     PacketType.PACKET_SYNC -> Data.game.gameSaveCache = packet
 

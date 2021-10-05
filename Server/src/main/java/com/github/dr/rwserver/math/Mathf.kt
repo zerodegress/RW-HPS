@@ -18,8 +18,8 @@ object Mathf {
 
     /** 获取2的次方.  */
     @JvmStatic
-    fun nextPowerOfTwo(value: Int): Int {
-        var value = value
+    fun nextPowerOfTwo(valueIn: Int): Int {
+        var value = valueIn
         if (value == 0) {
             return 1
         }

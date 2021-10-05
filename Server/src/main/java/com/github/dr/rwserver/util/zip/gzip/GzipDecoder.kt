@@ -9,7 +9,6 @@
 
 package com.github.dr.rwserver.util.zip.gzip
 
-import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.input.DisableSyncByteArrayInputStream
 import com.github.dr.rwserver.util.io.IoRead
 import java.io.BufferedInputStream
@@ -20,27 +19,19 @@ import java.util.zip.GZIPInputStream
 /**
  * @author Dr
  */
-class GzipDecoder(isGzip: Boolean, bytes: ByteArray) : GameInputStream(
-    if (isGzip)
-        DisableSyncByteArrayInputStream(getUnGzipBytes(bytes))
-    else
-        DisableSyncByteArrayInputStream(bytes)
-    ) {
+object GzipDecoder {
+    @JvmStatic
+    @Throws(Exception::class)
+    fun getGzipInputStream(inputStream: InputStream): InputStream {
+        return BufferedInputStream(GZIPInputStream(inputStream))
+    }
 
-    companion object {
-        @JvmStatic
-		@Throws(Exception::class)
-        fun getGzipInputStream(inputStream: InputStream): InputStream {
-            return BufferedInputStream(GZIPInputStream(inputStream))
+    @JvmStatic
+    @Throws(Exception::class)
+    fun getUnGzipBytes(bytes: ByteArray): ByteArray {
+        GZIPInputStream(DisableSyncByteArrayInputStream(bytes)).use {
+            return IoRead.readInputStreamBytes(it)
         }
 
-        @JvmStatic
-        @Throws(Exception::class)
-        fun getUnGzipBytes(bytes: ByteArray): ByteArray {
-            GZIPInputStream(DisableSyncByteArrayInputStream(bytes)).use {
-                return IoRead.readInputStreamBytes(it)
-            }
-
-        }
     }
 }

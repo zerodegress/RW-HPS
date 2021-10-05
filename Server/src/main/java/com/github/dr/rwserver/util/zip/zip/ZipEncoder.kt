@@ -30,7 +30,7 @@ object ZipEncoder {
      */
     @JvmStatic
     @Throws(IOException::class)
-    fun incrementalUpdate(updateFile: Seq<String?>, vararg sourceZipFiles: String?): ByteArray {
+    fun incrementalUpdate(updateFile: Seq<String>, vararg sourceZipFiles: String?): ByteArray {
         val outputStream = ByteArrayOutputStream()
         ZipOutputStream(outputStream).use { out ->
             val names = HashSet<String>()

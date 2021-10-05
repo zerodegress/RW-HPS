@@ -232,8 +232,8 @@ class Rand : Random {
 
         /** 浮点数的归一化常数  */
         private const val NORM_FLOAT = 1.0 / (1L shl 24)
-        private fun murmurHash3(x: Long): Long {
-            var x = x
+        private fun murmurHash3(xIn: Long): Long {
+            var x = xIn
             x = x xor (x ushr 33)
             x *= -0xae502812aa7333L
             x = x xor (x ushr 33)

@@ -112,6 +112,6 @@ class UpListCustom(handler: CommandHandler) {
             if (pingdata == null) {
                 Log.warn("错误 请检查网络")
             }
-        }, 40, 40, TimeUnit.SECONDS, "UPLIST")
+        }, 50, 50, TimeUnit.SECONDS, "UPLIST")
     }
 }

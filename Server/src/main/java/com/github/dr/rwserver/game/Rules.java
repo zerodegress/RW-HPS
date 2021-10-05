@@ -119,7 +119,7 @@ public class Rules {
 
         int port = config.readInt("port",5123);
         String passwdCache = config.readString("passwd","");
-        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, new Sha().sha256Array(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
+        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, Sha.sha256Array(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
 
         enterAd = config.readString("enterServerAd","");
         startAd = config.readString("startAd","");
@@ -152,7 +152,6 @@ public class Rules {
         webApiSsl = config.readBoolean("webApiSsl",false);
         webApiSslKetPath = config.readString("webApiSslKetPath","");
         webApiSslPasswd = config.readString("webApiSslPasswd","");
-
         oneReadUnitList = config.readBoolean("oneReadUnitList",false);
 
         startMinPlayerSize = config.readInt("startMinPlayerSize",0);
@@ -182,7 +181,7 @@ public class Rules {
     }
 
     public void checkMaps() {
-        Seq<File> list = FileUtil.getFolder(Data.Plugin_Maps_Path).getFileListNotNullSize();
+        Seq<File> list = FileUtil.getFolder(Data.Plugin_Maps_Path).getFileListNotNullSizeSort();
         list.each(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));

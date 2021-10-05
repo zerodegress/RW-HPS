@@ -24,6 +24,7 @@ import com.github.dr.rwserver.dependent.LibraryManager;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.game.Event;
 import com.github.dr.rwserver.game.EventType;
+import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.encryption.Autograph;
@@ -36,7 +37,6 @@ import com.github.dr.rwserver.util.io.IoReadConversion;
 import com.github.dr.rwserver.util.log.Log;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,10 +53,10 @@ public class Main {
 	 * 设置多个检查点, 定期检查, 如果发现问题就加密或混淆部分数据
 	 */
 	public static void main(String[] args) {
-		new Initialization();
+		final Initialization initialization = new Initialization();
 
-		Log.set("OFF");
-		Log.setPrint(true);
+		Log.set("ALL");
+		Log.setCopyPrint(true);
 		Logger.getLogger("io.netty").setLevel(Level.OFF);
 
 		System.out.println(Data.localeUtil.getinput("server.login"));
@@ -127,7 +127,7 @@ public class Main {
 		} else {
 			lib = new LibraryManager(true,Data.Plugin_Lib_Path);
 		}
-		lib.importLib("io.netty","netty-all","4.1.66.Final");
+		lib.importLib("io.netty","netty-all","4.1.67.Final");
 		//lib.importLib("com.ip2location","ip2location-java","8.5.0");
 		lib.loadToClassLoader();
 		lib.removeOldLib();
@@ -136,6 +136,7 @@ public class Main {
 	@SuppressWarnings("InfiniteLoopStatement")
 	private static void buttonMonitoring() {
 		BufferedReader bufferedReader = IoReadConversion.streamBufferRead(System.in);
+		int count = 0;
 		while (true) {
 			try {
 				String str = bufferedReader.readLine();
@@ -155,7 +156,14 @@ public class Main {
 				}
 			} catch (Exception e) {
 				Log.clog("Error");
-				e.printStackTrace();
+
+				/* nohup Error */
+				if (10 < count++) {
+					try {
+						bufferedReader.close();
+					} catch (Exception ignored) {}
+					return;
+				}
 			}
 		}
 	}
@@ -163,14 +171,15 @@ public class Main {
 	public static void loadNetCore() {
 		NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacket(),"2.0.0");
 		try {
-			DataOutputStream stream = Data.utilData.stream;
+			GameOutputStream stream = Data.utilData;
+			stream.reset();
 			stream.writeInt(1);
 			Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData-114")));
 			stream.writeInt(list.size());
 			String[] unitData;
 			for (String str : list) {
 				unitData = str.split("%#%");
-				stream.writeUTF(unitData[0]);
+				stream.writeString(unitData[0]);
 				stream.writeInt(Integer.parseInt(unitData[1]));
 				stream.writeBoolean(true);
 				stream.writeBoolean(false);
@@ -186,20 +195,21 @@ public class Main {
 	public static void loadUnitList() {
 		if(Data.core.unitBase64.size() > 0) {
 			try {
-				Data.utilData.buffer.reset();
-				DataOutputStream stream = Data.utilData.stream;
+				//Data.utilData.buffer.reset();
+				GameOutputStream stream = Data.utilData;
+				stream.reset();
 				stream.writeInt(1);
 				stream.writeInt(Data.core.unitBase64.size());
 
 				String[] unitData;
 				for (String str : Data.core.unitBase64) {
 					unitData = str.split("%#%");
-					stream.writeUTF(unitData[0]);
+					stream.writeString(unitData[0]);
 					stream.writeInt(Integer.parseInt(unitData[1]));
 					stream.writeBoolean(true);
 					if (unitData.length > 2) {
 						stream.writeBoolean(true);
-						stream.writeUTF(unitData[2]);
+						stream.writeString(unitData[2]);
 					} else {
 						stream.writeBoolean(false);
 					}

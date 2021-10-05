@@ -30,12 +30,10 @@ import com.github.dr.rwserver.game.EventType.PlayerBanEvent
 import com.github.dr.rwserver.game.Rules
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.net.game.StartNet
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionFFA
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer
-import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps
+import com.github.dr.rwserver.net.netconnectprotocol.*
 import com.github.dr.rwserver.plugin.PluginsLoad.PluginLoadData
 import com.github.dr.rwserver.plugin.center.PluginCenter
+import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
@@ -93,11 +91,6 @@ class ServerCommands(handler: CommandHandler) {
             NetStaticData.protocolData.setTypeConnect(TypeRwHps())
             NetStaticData.protocolData.setNetConnectProtocol(GameVersionServer(ConnectionAgreement()), 151)
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
-            /*
-            NetStaticData.protocolData.setTypeConnect(new TypeRwHpsBeta());
-            NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServerBeta(null),157);
-            NetStaticData.protocolData.setNetConnectPacket(new GameVersionPacketBeta(),"3.0.0");*/
-            //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
             newThreadCore {
                 val startNet = StartNet()
                 NetStaticData.startNet.add(startNet)
@@ -153,6 +146,16 @@ class ServerCommands(handler: CommandHandler) {
                 log[localeUtil.getinput("plugin.info", e!!.name, e.description, e.author, e.version)]
             }
         }
+        handler.register("mods", "serverCommands.mods") { _: Array<String>?, log: StrCons ->
+            val seqCache = Seq<String>()
+            Data.core.unitBase64.each() {str ->
+                val unitData = str.split("%#%");
+                if (unitData.size > 2 && !seqCache.contains(unitData[2])) {
+                    seqCache.add(unitData[2])
+                    log[localeUtil.getinput("mod.info", unitData[2])]
+                }
+            }
+        }
         handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
             if (Data.playerGroup.size() == 0) {
                 log["No players are currently in the server."]
@@ -187,7 +190,14 @@ class ServerCommands(handler: CommandHandler) {
 
     private fun registerPlayerCommand(handler: CommandHandler) {
         handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, _: StrCons ->
-            sendSystemMessage(arg[0].replace("<>", ""))
+            val response = StringBuilder(arg[0])
+            var i = 1
+            val lens = arg.size
+            while (i < lens) {
+                response.append(" ").append(arg[i])
+                i++
+            }
+            sendSystemMessage(response.toString().replace("<>", ""))
         }
         handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
             Events.fire(

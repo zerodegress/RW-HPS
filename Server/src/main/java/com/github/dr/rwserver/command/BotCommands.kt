@@ -12,6 +12,4 @@ package com.github.dr.rwserver.command
 import com.github.dr.rwserver.util.game.CommandHandler
 
 class BotCommands(handler: CommandHandler) {
-    init {
-    }
 }

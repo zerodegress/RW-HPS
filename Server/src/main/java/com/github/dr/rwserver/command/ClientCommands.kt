@@ -244,7 +244,8 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("i", "<i...>", "HIDE") { _: Array<String>?, _: Player -> }
 
-        /* QC */handler.register("credits", "<money>", "HIDE") { args: Array<String>, player: Player ->
+        /* QC */
+        handler.register("credits", "<money>", "HIDE") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0])) {
                     player.sendSystemMessage(localeUtil.getinput("err.noNumber"))

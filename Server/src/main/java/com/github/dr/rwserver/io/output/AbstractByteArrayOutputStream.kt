@@ -176,8 +176,6 @@ abstract class AbstractByteArrayOutputStream : OutputStream() {
      */
     @Throws(IOException::class)
     override fun close() {
-        buffers.clear()
-        currentBuffer = null
     }
 
     /**

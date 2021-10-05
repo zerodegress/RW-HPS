@@ -10,7 +10,7 @@
 package com.github.dr.rwserver.io
 
 import com.github.dr.rwserver.io.input.DisableSyncByteArrayInputStream
-import com.github.dr.rwserver.util.zip.gzip.GzipDecoder
+import com.github.dr.rwserver.util.zip.CompressInputStream
 import java.io.Closeable
 import java.io.DataInputStream
 import java.io.IOException
@@ -27,7 +27,7 @@ open class GameInputStream : Closeable {
         this.buffer = buffer
         this.stream = DataInputStream(buffer)
     }
-
+    
     constructor(packet: Packet) {
         this.buffer = DisableSyncByteArrayInputStream(packet.bytes)
         this.stream = DataInputStream(buffer)
@@ -37,7 +37,6 @@ open class GameInputStream : Closeable {
         this.buffer = DisableSyncByteArrayInputStream(bytes)
         this.stream = DataInputStream(buffer)
     }
-
     /**
      * Read a Byte (1 byte)
      * @return Byte
@@ -59,7 +58,7 @@ open class GameInputStream : Closeable {
     }
 
     /**
-     * Read a Int (4 byte)
+     * Read an Int (4 byte)
      * @return Int
      * @throws IOException
      */
@@ -193,13 +192,13 @@ open class GameInputStream : Closeable {
     fun getDecodeStream(bl: Boolean): GameInputStream {
         readString()
         val bytes = readStreamBytes()
-        return GzipDecoder(bl, bytes)
+        return CompressInputStream.getGzipInputStream(bl, bytes)
     }
 
     @Throws(IOException::class)
     fun getStream(): GameInputStream {
         val bytes = readStreamBytesNew()
-        return GzipDecoder(false, bytes)
+        return CompressInputStream.getGzipInputStream(false, bytes)
     }
 
     @Throws(IOException::class)

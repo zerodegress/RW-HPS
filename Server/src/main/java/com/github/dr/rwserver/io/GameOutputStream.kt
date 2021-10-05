@@ -10,16 +10,16 @@
 package com.github.dr.rwserver.io
 
 import com.github.dr.rwserver.io.output.DisableSyncByteArrayOutputStream
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.zip.CompressOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
 
 /**
  * @author Dr
  */
-class GameOutputStream {
-    private val buffer = DisableSyncByteArrayOutputStream()
-    private val stream = DataOutputStream(buffer)
+open class GameOutputStream @JvmOverloads constructor(private val buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
+    private val stream: DataOutputStream = DataOutputStream(buffer)
 
     fun createPacket(): Packet {
         try {
@@ -69,6 +69,16 @@ class GameOutputStream {
         }
     }
 
+    fun getByteArray(): ByteArray {
+        stream.flush()
+        buffer.flush()
+        return buffer.toByteArray()
+    }
+
+    fun size(): Int {
+        return this.buffer.size()
+    }
+
     @Throws(IOException::class)
     fun writeByte(value: Int) {
         stream.writeByte(value)
@@ -110,6 +120,17 @@ class GameOutputStream {
     }
 
     @Throws(IOException::class)
+    fun writeIsString(value: String?) {
+        print(value)
+        if (IsUtil.isBlank(value)) {
+            writeBoolean(false)
+        } else {
+            writeBoolean(true)
+            writeString(value!!)
+        }
+    }
+
+    @Throws(IOException::class)
     fun writeIsString(gameInputStream: GameInputStream) {
         if (gameInputStream.readBoolean()) {
             writeBoolean(true)
@@ -130,17 +151,20 @@ class GameOutputStream {
     }
 
     @Throws(IOException::class)
-    fun flushEncodeData(enc: GzipEncoder) {
-        enc.close()
-        writeString(enc.str!!)
-        writeInt(enc.buffer.size())
-        enc.buffer.writeTo(stream)
-        stream.flush()
+    fun flushEncodeData(enc: CompressOutputStream) {
+        val bytes = enc.getByteArray()
+        writeString(enc.head)
+        writeInt(bytes.size)
+        writeBytes(bytes)
     }
 
     @Throws(IOException::class)
     fun flushMapData(mapSize: Int, bytes: ByteArray) {
         writeInt(mapSize)
         stream.write(bytes)
+    }
+
+    fun reset() {
+        this.buffer.reset()
     }
 }

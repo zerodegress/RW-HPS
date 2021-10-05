@@ -10,6 +10,7 @@
 package com.github.dr.rwserver.util.io
 
 import java.io.*
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
 /**
@@ -18,26 +19,26 @@ import java.nio.charset.StandardCharsets
  */
 object IoReadConversion {
     @JvmStatic
-    fun streamBufferRead(inputStream: InputStream): BufferedReader {
-        return BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
+    @JvmOverloads fun streamBufferRead(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): BufferedReader {
+        return BufferedReader(InputStreamReader(inputStream, charset))
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun fileToBufferReadStream(file: File): BufferedReader {
-        return BufferedReader(fileToReadStream(file))
+    @JvmOverloads fun fileToBufferReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): BufferedReader {
+        return BufferedReader(fileToReadStream(file,charset))
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun fileToReadStream(file: File): InputStreamReader {
-        return InputStreamReader(fileToStream(file), StandardCharsets.UTF_8)
+    @JvmOverloads fun fileToReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): InputStreamReader {
+        return InputStreamReader(fileToStream(file), charset)
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun fileToReadStream(inputStream: InputStream): InputStreamReader {
-        return InputStreamReader(inputStream, StandardCharsets.UTF_8)
+    @JvmOverloads fun fileToReadStream(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): InputStreamReader {
+        return InputStreamReader(inputStream, charset)
     }
 
     @JvmStatic

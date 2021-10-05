@@ -15,7 +15,7 @@ import java.io.OutputStream
 import java.util.*
 import kotlin.math.min
 
-class DisableSyncByteArrayInputStream : InputStream {
+open class DisableSyncByteArrayInputStream : InputStream {
     /**
      * An array of bytes that was provided
      * by the creator of the stream. Elements `buf[0]`
@@ -24,7 +24,7 @@ class DisableSyncByteArrayInputStream : InputStream {
      * stream;  element `buf[pos]` is
      * the next byte to be read.
      */
-    private var buf: ByteArray
+    protected var buf: ByteArray
 
     /**
      * The index of the next character to read from the input stream buffer.
@@ -33,7 +33,7 @@ class DisableSyncByteArrayInputStream : InputStream {
      * The next byte to be read from the input stream buffer
      * will be `buf[pos]`.
      */
-    private var pos: Int
+    protected var pos: Int
 
     /**
      * The currently marked position in the stream.
@@ -49,7 +49,7 @@ class DisableSyncByteArrayInputStream : InputStream {
      *
      * @since   1.1
      */
-    private var mark = 0
+    protected var mark = 0
 
     /**
      * The index one greater than the last valid character in the input
@@ -60,7 +60,7 @@ class DisableSyncByteArrayInputStream : InputStream {
      * the last byte within `buf` that
      * can ever be read  from the input stream buffer.
      */
-    private var count: Int
+    protected var count: Int
 
     /**
      * Creates a `ByteArrayInputStream`
@@ -144,27 +144,37 @@ class DisableSyncByteArrayInputStream : InputStream {
      * `b.length - off`
      */
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        var len = len
-        Objects.checkFromIndexSize(off, len, b.size)
+        var readLen = len
+        Objects.checkFromIndexSize(off, readLen, b.size)
         if (pos >= count) {
             return -1
         }
         val avail = count - pos
-        if (len > avail) {
-            len = avail
+        if (readLen > avail) {
+            readLen = avail
         }
-        if (len <= 0) {
+        if (readLen <= 0) {
             return 0
         }
-        System.arraycopy(buf, pos, b, off, len)
-        pos += len
-        return len
+        System.arraycopy(buf, pos, b, off, readLen)
+        pos += readLen
+        return readLen
     }
 
     override fun readAllBytes(): ByteArray {
         val result = buf.copyOfRange(pos, count)
         pos = count
         return result
+    }
+
+    override fun readNBytes(len: Int): ByteArray {
+        if ((count - pos) >= len) {
+            val result = buf.copyOfRange(pos, pos+len)
+            pos += len
+            return result
+        } else {
+            throw IndexOutOfBoundsException("Max: $count , You need $len")
+        }
     }
 
     override fun readNBytes(b: ByteArray, off: Int, len: Int): Int {

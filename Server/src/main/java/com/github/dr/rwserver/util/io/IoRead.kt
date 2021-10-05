@@ -62,17 +62,20 @@ object IoRead {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyInputStream(inputStream: InputStream, outputStream: OutputStream) {
-        copyLarge(inputStream, outputStream, ByteArray(DEFAULT_BUFFER_SIZE))
+    fun copyInputStream(inputStream: InputStream, outputStream: OutputStream): Int {
+        return copyLarge(inputStream, outputStream, ByteArray(DEFAULT_BUFFER_SIZE))
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyLarge(inputStream: InputStream, outputStream: OutputStream, buffer: ByteArray) {
+    fun copyLarge(inputStream: InputStream, outputStream: OutputStream, buffer: ByteArray): Int {
+        var len: Int = 0
         var n: Int
         while (IOUtils.EOF != inputStream.read(buffer).also { n = it }) {
             outputStream.write(buffer, 0, n)
+            len += n
         }
+        return len
     }
 
     class MultiplexingReadStream @JvmOverloads constructor(byteSize: Int = 16384) : Closeable {

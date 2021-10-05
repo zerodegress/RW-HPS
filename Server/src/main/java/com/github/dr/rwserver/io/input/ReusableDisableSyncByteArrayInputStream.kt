@@ -7,14 +7,14 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.io
+package com.github.dr.rwserver.io.input
 
-import java.io.ByteArrayInputStream
+import kotlin.math.min
 
 /**
  * @author Dr
  */
-class ReusableByteInStream : ByteArrayInputStream(ByteArray(0)) {
+class ReusableDisableSyncByteArrayInputStream : DisableSyncByteArrayInputStream(ByteArray(0)) {
     fun position(): Int {
         return pos
     }
@@ -29,7 +29,7 @@ class ReusableByteInStream : ByteArrayInputStream(ByteArray(0)) {
     fun setBytes(bytes: ByteArray, offset: Int, length: Int) {
         buf = bytes
         pos = offset
-        count = Math.min(offset + length, bytes.size)
+        count = min(offset + length, bytes.size)
         mark = offset
     }
 }

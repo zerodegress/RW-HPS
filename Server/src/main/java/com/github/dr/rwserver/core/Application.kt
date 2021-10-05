@@ -18,9 +18,11 @@ import com.github.dr.rwserver.net.Administration
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil.isBlank
 import com.github.dr.rwserver.util.RandomUtil.generateStr
-import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
+import com.github.dr.rwserver.util.file.FileUtil
 import com.github.dr.rwserver.util.log.Log.error
+import java.lang.management.ManagementFactory
 import java.util.*
+
 
 /**
  * @author Dr
@@ -35,11 +37,13 @@ class Application {
     lateinit var unitBase64: Seq<String>
     lateinit var admin: Administration
     @JvmField
+    var upServerList = false
+    @JvmField
     var serverName = "RW-HPS"
     @JvmField
     var defIncome = 1f
     fun load() {
-        pluginData.setFileUtil(getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
+        pluginData.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
         admin = Administration(pluginData)
 
         Initialization.startInit(pluginData)
@@ -85,7 +89,24 @@ class Application {
             return isBlank(os) || os.lowercase(Locale.getDefault()).contains("windows")
         }
     val pid: Long
-        get() = ProcessHandle.current().pid()
+        // 唯一的到Java11理由
+        // get() = ProcessHandle.current().pid()
+        get() = jvmPid()
+
+
+    private fun jvmPid(): Long {
+        return try {
+            var pid = ManagementFactory.getRuntimeMXBean().name
+            val indexOf = pid.indexOf('@')
+            if (indexOf > 0) {
+                pid = pid.substring(0, indexOf)
+            }
+            pid.toLong()
+
+        } catch (e: Exception) {
+            -1
+        }
+    }
 
     /**
      * 取得系统属性，如果因为Java安全的限制而失败，则将错误打在Log中，然后返回

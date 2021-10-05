@@ -111,9 +111,8 @@ class PluginsLoad {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()), ClassLoader.getSystemClassLoader())
         Log.info(file.name)
         val classMain = classLoader.loadClass(main)
-        val mainPlugin = classMain.getDeclaredConstructor().newInstance() as Plugin
-        mainPlugin.classLoader = classLoader
-        return mainPlugin
+        //mainPlugin.classLoader = classLoader
+        return classMain.getDeclaredConstructor().newInstance() as Plugin
     }
 
     /**
@@ -130,15 +129,10 @@ class PluginsLoad {
         @JvmField val description: String,
         @JvmField val version: String,
         @JvmField val main: Plugin
-    ) {
+        ) {
         init {
-            main.pluginData.setFileUtil(
-                FileUtil.getFolder(Data.Plugin_Plugins_Path).toFolder(this.name).toFile(this.name + ".bin")
-            )
-            try {
-                main.pluginData.read()
-            } catch (e: Exception) {
-            }
+            main.pluginData.setFileUtil(FileUtil.getFolder(Data.Plugin_Plugins_Path).toFolder(this.name).toFile(this.name + ".bin"))
+            main.pluginData.read()
         }
 
         override fun equals(other: Any?): Boolean {

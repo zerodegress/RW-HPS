@@ -11,18 +11,14 @@ package com.github.dr.rwserver.plugin
 
 import com.github.dr.rwserver.data.plugin.PluginData
 import com.github.dr.rwserver.plugin.event.AbstractEvent
-import com.github.dr.rwserver.util.RandomUtil.generateLowerStr
 import com.github.dr.rwserver.util.game.CommandHandler
-import java.net.URLClassLoader
 
 /**
  * @author Dr
  */
 abstract class Plugin {
     @JvmField
-    internal var classLoader: URLClassLoader? = null
-    @JvmField
-    val pluginData = PluginData(generateLowerStr(10))
+    val pluginData = PluginData()
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
     open fun onEnable() {}

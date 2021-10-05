@@ -11,6 +11,8 @@ package com.github.dr.rwserver.game
 
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.NetServer
+import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
+import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.net.Administration.PlayerInfo
@@ -62,6 +64,8 @@ class Event : AbstractEvent {
                 player.muteTime = info.timeMute
             }
         }
+
+       // ConnectServer("127.0.0.1",5124,player.con)
     }
 
     override fun registerPlayerConnectPasswdCheckEvent(abstractNetConnect: AbstractNetConnect, passwd: String): Array<String> {
@@ -105,6 +109,7 @@ class Event : AbstractEvent {
             Data.game.sharedControlPlayer = int3
             Call.sendSystemMessage("player.dis", player.name)
             Call.sendTeamData()
+
         } else {
             Call.sendSystemMessage("player.disNoStart", player.name)
         }

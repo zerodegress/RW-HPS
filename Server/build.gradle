@@ -4,8 +4,8 @@ plugins {
 }
 
 /* 使用Java8做标准语法并编译 */
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 /**
  * 这里全部采用的compileOnly 为了适配idea 但是编译的时候会切到implementation
  * 需要帮助!

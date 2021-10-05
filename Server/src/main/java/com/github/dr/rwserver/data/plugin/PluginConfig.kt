@@ -9,4 +9,4 @@
 
 package com.github.dr.rwserver.data.plugin
 
-class PluginConfig
+class PluginConfig 

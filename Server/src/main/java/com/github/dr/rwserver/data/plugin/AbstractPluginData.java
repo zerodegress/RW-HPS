@@ -10,7 +10,7 @@
 package com.github.dr.rwserver.data.plugin;
 
 import com.github.dr.rwserver.func.Prov;
-import com.github.dr.rwserver.io.ReusableByteInStream;
+import com.github.dr.rwserver.io.input.ReusableDisableSyncByteArrayInputStream;
 import com.github.dr.rwserver.struct.ObjectMap;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.SerializerTypeAll;
@@ -34,7 +34,7 @@ import java.io.*;
 class AbstractPluginData {
     private static final ObjectMap<Class<?>, SerializerTypeAll.TypeSerializer<?>> SERIALIZERS = new ObjectMap<>();
     private final OrderedMap<String, Value<?>> PLUGIN_DATA = new OrderedMap<>();
-    private final ReusableByteInStream byteInputStream = new ReusableByteInStream();
+    private final ReusableDisableSyncByteArrayInputStream byteInputStream = new ReusableDisableSyncByteArrayInputStream();
     private final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     private final DataOutputStream dataOutput = new DataOutputStream(byteStream);
     private FileUtil fileUtil;

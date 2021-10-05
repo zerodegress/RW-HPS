@@ -9,7 +9,5 @@
 
 package com.github.dr.rwserver.data.plugin
 
-class PluginData : AutoSavePluginData {
-    constructor() {}
-    constructor(id: String?) {}
+class PluginData() : AutoSavePluginData() {
 }

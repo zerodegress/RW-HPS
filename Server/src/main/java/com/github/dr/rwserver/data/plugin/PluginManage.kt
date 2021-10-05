@@ -89,7 +89,7 @@ object PluginManage {
             pluginData!!.remove(p)
             //p.main.onUnLoad();
             try {
-                p.main.classLoader!!.close()
+                //p.main.classLoader!!.close()
             } catch (e: IOException) {
                 error("卸载失败 : " + p.name)
             }

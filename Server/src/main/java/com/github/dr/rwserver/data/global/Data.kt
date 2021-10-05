@@ -18,7 +18,7 @@ import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.LocaleUtil
 import com.github.dr.rwserver.util.file.LoadConfig
 import com.github.dr.rwserver.util.game.CommandHandler
-import com.github.dr.rwserver.util.zip.gzip.GzipEncoder.Companion.getGzipStream
+import com.github.dr.rwserver.util.zip.CompressOutputStream
 import io.netty.channel.Channel
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -40,11 +40,12 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "1.4.3"
+    const val SERVER_CORE_VERSION = "1.5.0-M1-DEV1"
+    const val SERVER_CORE_VERSION_INT = 200
     //public static final int SERVER_VERSION2 = 1.13.6;
     /** 单位数据缓存  */
 	@JvmField
-	val utilData = getGzipStream("customUnits", false)
+	val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
 
     /**  */
     const val SERVER_MAX_TRY = 3

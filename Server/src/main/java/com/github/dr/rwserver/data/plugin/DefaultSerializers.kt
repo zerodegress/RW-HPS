@@ -32,7 +32,7 @@ internal object DefaultSerializers {
     private fun registrationBasis() {
         AbstractPluginData.setSerializer(String::class.java, object : TypeSerializer<String> {
             @Throws(IOException::class)
-            override fun write(stream: DataOutput, objectData: String) {
+            override fun write(stream: DataOutput, objectData: String?) {
                 stream.writeUTF(objectData ?: "")
             }
 
@@ -155,12 +155,12 @@ internal object DefaultSerializers {
                     if (size == 0) {
                         return map
                     }
-                    val keyt = stream.readUTF()
-                    val valt = stream.readUTF()
-                    val keySer = AbstractPluginData.getSerializer(lookup(keyt))
-                    val valSer = AbstractPluginData.getSerializer(lookup(valt))
-                    requireNotNull(keySer) { "$keyt does not have a serializer registered!" }
-                    requireNotNull(valSer) { "$valt does not have a serializer registered!" }
+                    val keySerName = stream.readUTF()
+                    val valSerName = stream.readUTF()
+                    val keySer = AbstractPluginData.getSerializer(lookup(keySerName))
+                    val valSer = AbstractPluginData.getSerializer(lookup(valSerName))
+                    requireNotNull(keySer) { "$keySerName does not have a serializer registered!" }
+                    requireNotNull(valSer) { "$valSerName does not have a serializer registered!" }
                     for (i in 0 until size) {
                         val key = keySer.read(stream)
                         val `val` = valSer.read(stream)
@@ -202,12 +202,12 @@ internal object DefaultSerializers {
                     if (size == 0) {
                         return map
                     }
-                    val keyt = stream.readUTF()
-                    val valt = stream.readUTF()
-                    val keySer = AbstractPluginData.getSerializer(lookup(keyt))
-                    val valSer = AbstractPluginData.getSerializer(lookup(valt))
-                    requireNotNull(keySer) { "$keyt does not have a serializer registered!" }
-                    requireNotNull(valSer) { "$valt does not have a serializer registered!" }
+                    val keySerName = stream.readUTF()
+                    val valSerName = stream.readUTF()
+                    val keySer = AbstractPluginData.getSerializer(lookup(keySerName))
+                    val valSer = AbstractPluginData.getSerializer(lookup(valSerName))
+                    requireNotNull(keySer) { "$keySerName does not have a serializer registered!" }
+                    requireNotNull(valSer) { "$valSerName does not have a serializer registered!" }
                     for (i in 0 until size) {
                         val key = keySer.read(stream)
                         val `val` = valSer.read(stream)
@@ -226,7 +226,7 @@ internal object DefaultSerializers {
         AbstractPluginData.setSerializer(PlayerInfo::class.java, object : TypeSerializer<PlayerInfo> {
             @Throws(IOException::class)
             override fun write(stream: DataOutput, objectData: PlayerInfo) {
-                AbstractPluginData.getSerializer(String::class.java).write(stream, objectData.uuid)
+                AbstractPluginData.getSerializer(String::class.java)!!.write(stream, objectData.uuid)
                 stream.writeLong(objectData.timesKicked)
                 stream.writeLong(objectData.timesJoined)
                 stream.writeLong(objectData.timeMute)
@@ -235,7 +235,7 @@ internal object DefaultSerializers {
 
             @Throws(IOException::class)
             override fun read(stream: DataInput): PlayerInfo {
-                val objectData = PlayerInfo(AbstractPluginData.getSerializer(String::class.java).read(stream) as String)
+                val objectData = PlayerInfo(AbstractPluginData.getSerializer(String::class.java)!!.read(stream) as String)
                 objectData.timesKicked = stream.readLong()
                 objectData.timesJoined = stream.readLong()
                 objectData.timeMute = stream.readLong()

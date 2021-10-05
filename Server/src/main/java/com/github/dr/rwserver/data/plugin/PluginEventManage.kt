@@ -14,7 +14,6 @@ import com.github.dr.rwserver.plugin.event.AbstractEvent
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.threads.GetNewThreadPool
-import java.lang.Boolean
 
 internal class PluginEventManage {
     companion object {
@@ -54,7 +53,7 @@ internal class PluginEventManage {
             Events.on(PlayerConnectPasswdCheckEvent::class.java) { e: PlayerConnectPasswdCheckEvent ->
                 pluginEventData.each { p: AbstractEvent ->
                     val strings = p.registerPlayerConnectPasswdCheckEvent(e.abstractNetConnect, e.passwd)
-                    e.result = Boolean.parseBoolean(strings[0])
+                    e.result = strings[0].toBoolean()
                     e.name = strings[1]
                 }
             }

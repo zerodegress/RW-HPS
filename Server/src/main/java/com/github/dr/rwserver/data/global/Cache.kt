@@ -10,8 +10,9 @@
 package com.github.dr.rwserver.data.global
 
 import com.github.dr.rwserver.io.Packet
-import com.github.dr.rwserver.struct.ArrayMap
+import com.github.dr.rwserver.struct.ObjectMap
 
 object Cache {
-    val packetCache: ArrayMap<String,Packet> = ArrayMap(8)
+    @JvmStatic
+    val packetCache: ObjectMap<String, Packet> = ObjectMap(8)
 }

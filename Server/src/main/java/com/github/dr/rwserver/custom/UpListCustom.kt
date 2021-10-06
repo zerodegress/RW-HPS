@@ -12,47 +12,66 @@ package com.github.dr.rwserver.custom
 import com.github.dr.rwserver.core.thread.Threads.newThreadCore
 import com.github.dr.rwserver.core.thread.Threads.newThreadService2
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.data.json.Json
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.net.HttpRequestOkHttp
 import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.ReExp
+import com.github.dr.rwserver.util.encryption.Base64
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.clog
 import com.github.dr.rwserver.util.log.Log.error
 import okhttp3.FormBody
+import java.text.MessageFormat
 import java.util.concurrent.TimeUnit
 
+/**
+ * This class is used for the official list on the server
+ * Make small restrictions when most of the source code is publicly available
+ * Do not want players to use this server for advertising
+ * @author Dr
+ */
 class UpListCustom(handler: CommandHandler) {
-    private val tk = Data.config.readString("token", "")
+    //private val tk = Data.config.readString("token", "")
     private var upServerList = false
+
+    /* DATA Cache */
+    private lateinit var serverID: String
+    private lateinit var addData: String
+    private lateinit var openData: String
+    private lateinit var updateData: String
+    private lateinit var removeData: String
 
     init {
         handler.removeCommand("upserverlist")
         handler.removeCommand("upserverlistnew")
-        if (notIsBlank(tk)) {
-            handler.register("upserverlist", "serverCommands.upserverlist") { _: Array<String>?, log: StrCons ->
-                if (!upServerList) {
-                    newThreadCore {
-                        upServerList = true
-                        uplist()
-                    }
-                } else {
-                    log["已上传 不需要再次上传"]
+        handler.register("upserverlist", "serverCommands.upserverlist") { _: Array<String>?, log: StrCons ->
+            if (!upServerList) {
+                initUpListData()
+                newThreadCore {
+                    upServerList = true
+                    uplist()
                 }
+            } else {
+                log["已上传 不需要再次上传"]
             }
-        } else {
-            handler.register("upserverlist", "serverCommands.upserverlist") { _: Array<String?>?, log: StrCons ->
-                log["无Tonken"]
+        }
+
+        handler.register("removeupserverlist", "serverCommands.removeupserverlist") { _: Array<String>?, log: StrCons ->
+            if (upServerList) {
+                HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", removeData)
+                HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", removeData)
+                upServerList = false
+                log["已删除"]
+            } else {
+                log["未上传 不需要删除"]
             }
         }
     }
 
-    private fun uplist() {
+    private fun initUpListData() {
         val formBody = FormBody.Builder()
-
-        formBody.add("Token",tk)
-
         formBody.add("Passwd", notIsBlank(Data.game.passwd).toString())
         formBody.add("ServerName",Data.core.serverName)
         formBody.add("Port", Data.game.port.toString())
@@ -60,22 +79,46 @@ class UpListCustom(handler: CommandHandler) {
         formBody.add("PlayerSize",Data.playerGroup.size().toString())
         formBody.add("PlayerMaxSize",Data.game.maxPlayer.toString())
 
-        val resultUpList = HttpRequestOkHttp.doPost("https://api.data.der.kim/UpList/upList?Status=add", formBody)
+        val resultUpList = HttpRequestOkHttp.doPost("https://api.data.der.kim/UpList/v2/upList", formBody)
 
         if (resultUpList.startsWith("[-1]")) {
-            error("[Get UPLIST Data Error] Please Check API/Token")
+            error("[Get UPLIST Data Error] Please Check API")
+            return
+        } else if (resultUpList.startsWith("[-2]")) {
+            error("[Get UPLIST Data Error] IP prohibited")
             return
         }
 
-        val resultCheckPort = HttpRequestOkHttp.doPost("https://api.data.der.kim/UpList/upList?Status=port", "Token=$tk&Port="+Data.game.port.toString())
+        val json = Json(resultUpList)
+        Log.info(resultUpList)
+        serverID = Base64.decodeString(json.getData("id"))
+        addData = Base64.decodeString(json.getData("add"))
+        openData = Base64.decodeString(json.getData("open"))
+        updateData = Base64.decodeString(json.getData("update"))
+        removeData = Base64.decodeString(json.getData("remove"))
 
-        HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultUpList)
-        HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultUpList)
+        Log.info(serverID)
+        Log.info(addData)
+        Log.info(openData)
+        Log.info(updateData)
+        Log.info(resultUpList)
+    }
 
+    private fun uplist() {
+        val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", addData).contains(serverID)
+        val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", addData).contains(serverID)
+        if (addGs1 || addGs4) {
+            if (addGs1 && addGs4) {
+                clog(Data.localeUtil.getinput("err.yesList"))
+            } else {
+                clog(Data.localeUtil.getinput("err.ynList"))
+            }
+        } else {
+            clog(Data.localeUtil.getinput("err.noList"))
+        }
 
-
-        val checkPortGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultCheckPort).contains("true")
-        val checkPortGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultCheckPort).contains("true")
+        val checkPortGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", openData).contains("true")
+        val checkPortGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", openData).contains("true")
         if (checkPortGs1 || checkPortGs4) {
             clog(Data.localeUtil.getinput("err.yesOpen"))
         } else {
@@ -86,19 +129,7 @@ class UpListCustom(handler: CommandHandler) {
             val pingdata = object : ReExp() {
                 @Throws(Exception::class)
                 override fun runs(): Any {
-                    val formBodyUpdate = FormBody.Builder()
-
-                    formBodyUpdate.add("Token",tk)
-
-                    formBodyUpdate.add("Passwd", notIsBlank(Data.game.passwd).toString())
-                    formBodyUpdate.add("ServerName",Data.core.serverName)
-                    formBodyUpdate.add("Port", Data.game.port.toString())
-                    formBodyUpdate.add("MapName",Data.game.maps.mapName)
-                    formBodyUpdate.add("GameStatus",if (Data.game.isStartGame) "ingame" else "battleroom")
-                    formBodyUpdate.add("PlayerSize",Data.playerGroup.size().toString())
-                    formBodyUpdate.add("PlayerMaxSize",Data.game.maxPlayer.toString())
-
-                    val result0 = HttpRequestOkHttp.doPost("https://api.data.der.kim/UpList/upList?Status=update", formBodyUpdate)
+                    val result0 = MessageFormat(updateData).format(arrayOf(Data.game.maps.mapName,if (Data.game.isStartGame) "ingame" else "battleroom",Data.playerGroup.size().toString()))
                     HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)
                     HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", result0)
 

@@ -90,18 +90,18 @@ class UpListCustom(handler: CommandHandler) {
         }
 
         val json = Json(resultUpList)
-        Log.info(resultUpList)
+        Log.debug(resultUpList)
         serverID = Base64.decodeString(json.getData("id"))
         addData = Base64.decodeString(json.getData("add"))
         openData = Base64.decodeString(json.getData("open"))
         updateData = Base64.decodeString(json.getData("update"))
         removeData = Base64.decodeString(json.getData("remove"))
 
-        Log.info(serverID)
-        Log.info(addData)
-        Log.info(openData)
-        Log.info(updateData)
-        Log.info(resultUpList)
+        Log.debug(serverID)
+        Log.debug(addData)
+        Log.debug(openData)
+        Log.debug(updateData)
+        Log.debug(resultUpList)
     }
 
     private fun uplist() {

@@ -9,59 +9,49 @@
 
 package com.github.dr.rwserver.util.threads;
 
-import org.jetbrains.annotations.NotNull;
+import com.github.dr.rwserver.util.log.Log;
 
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
-/**
- * 动态改变线程池的线程数量
- * @author Dr
- */
-@Deprecated(forRemoval = true)
 public class ScheduledThreadPoolExecutorDynamic extends ScheduledThreadPoolExecutor {
+
+
 
     public ScheduledThreadPoolExecutorDynamic(int corePoolSize) {
         super(corePoolSize);
     }
 
-    public ScheduledThreadPoolExecutorDynamic(int corePoolSize, @NotNull final ThreadFactory threadFactory) {
+    public ScheduledThreadPoolExecutorDynamic(int corePoolSize, ThreadFactory threadFactory) {
         super(corePoolSize,threadFactory);
     }
 
-    @NotNull
     @Override
-    public ScheduledFuture<?> schedule(@NotNull final Runnable command, long end, @NotNull final TimeUnit unit) {
-        dynamicCorePoolSize(this);
-        return super.schedule(command, end, unit);
-    }
-
-    @NotNull
-    @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(@NotNull final Runnable command, long initialDelay, long period, @NotNull final TimeUnit unit) {
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
         dynamicCorePoolSize(this);
         return super.scheduleAtFixedRate(command, initialDelay, period, unit);
     }
 
-    public boolean cancelSchedule(@NotNull final ScheduledFuture<?> scheduledFuture) {
-        if (!scheduledFuture.isCancelled()) {
+    private static void dynamicCorePoolSize(ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+        int activeCount = scheduledThreadPoolExecutor.getActiveCount();
+        int corePoolSize = scheduledThreadPoolExecutor.getCorePoolSize();
+        final BlockingQueue<Runnable> queue = scheduledThreadPoolExecutor.getQueue();
+        Log.clog("当前总线程:"+corePoolSize+"运行中:"+activeCount+"任务数："+queue.size());
+        if (activeCount == corePoolSize) {
+            scheduledThreadPoolExecutor.setCorePoolSize(corePoolSize + 1);
+            Log.clog("》增加一个线程");
+        } else if (corePoolSize>3&&activeCount < corePoolSize - 1) {
+            scheduledThreadPoolExecutor.setCorePoolSize(corePoolSize - 1);
+            Log.clog("》减少一个线程");
+        }
+    }
+
+    public boolean cancelSchedule(ScheduledFuture<?> scheduledFuture) {
+        if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
             scheduledFuture.cancel(true);
-            this.setCorePoolSize(this.getCorePoolSize() - 1);
+            dynamicCorePoolSize(this);
             return true;
         }
         return false;
-    }
-
-    private static void dynamicCorePoolSize(@NotNull final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
-        int activeCount = scheduledThreadPoolExecutor.getActiveCount();
-        int corePoolSize = scheduledThreadPoolExecutor.getCorePoolSize();
-        if (activeCount == corePoolSize) {
-            scheduledThreadPoolExecutor.setCorePoolSize(corePoolSize + 1);
-        } else if (activeCount < corePoolSize - 1) {
-            scheduledThreadPoolExecutor.setCorePoolSize(corePoolSize - 1);
-        }
     }
 }

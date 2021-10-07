@@ -1,26 +1,22 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.net.netconnectprotocol
 
+import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
+import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
-import com.github.dr.rwserver.net.core.server.AbstractNetConnect
-import com.github.dr.rwserver.net.game.ConnectServer
+import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.concurrentMillis
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.zip.CompressOutputStream
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import okhttp3.internal.cache2.Relay
 import java.io.IOException
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 /**
  * 作为[AbstractNetConnect] 和 协议实现的中间人
@@ -28,7 +24,7 @@ import java.io.IOException
  * 共用协议放在本处
  * @author Dr
  */
-abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: ConnectionAgreement): AbstractNetConnect {
+abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: ConnectionAgreement) : AbstractNetConnect {
     /** 错误次数  */
     override var `try` = 0
         protected set
@@ -41,21 +37,17 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     override var lastReceivedTime = concurrentMillis()
         protected set
 
-    override var isConnectServer: Boolean = false
-    override var connectServer: ConnectServer? = null
-
     /** 玩家是否死亡  */
     @JvmField
     @Volatile
     protected var isDis = false
 
-    /** 玩家连接校验 */
-    protected var connectKey: String? = null
-
-
     /** 是否已经重试过  */
     @Volatile
     override var tryBoolean = false
+
+    /** 玩家  */
+    override lateinit var player: Player
 
     override val ip: String
         get() = connectionAgreement.ip
@@ -117,6 +109,7 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
         try {
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getPingPacket(player))
         } catch (e: IOException) {
+            e.printStackTrace()
             `try`++
         }
     }
@@ -133,12 +126,12 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     @Throws(IOException::class)
     override fun sendStartGame() {}
 
-    override fun sendTeamData(gzip: CompressOutputStream) {}
+    override fun sendTeamData(gzip: GzipEncoder) {}
+
     override fun sendRelayServerType(msg: String) {}
+
     override fun sendRelayServerTypeReply(packet: Packet) {}
-    override fun sendRelayServerId() {}
-    override fun sendRelayPlayerInfo() {}
-    override fun getRelayUnitData(packet: Packet) {}
+
     @Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         return false

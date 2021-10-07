@@ -1,42 +1,36 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.net.netconnectprotocol
 
-import com.github.dr.rwserver.Main
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.game.EventType.*
 import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
-import com.github.dr.rwserver.net.core.server.AbstractNetConnect
+import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
+import com.github.dr.rwserver.net.game.KongZhi
+import com.github.dr.rwserver.net.game.cal.CalUt
 import com.github.dr.rwserver.util.ExtractUtil
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.RandomUtil
-import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Game
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.zip.CompressOutputStream
-import java.io.*
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import com.github.dr.rwserver.util.log.Log.error
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import java.io.ByteArrayOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.lang.RuntimeException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.min
@@ -46,12 +40,9 @@ import kotlin.math.min
  * @date 2020/9/5 17:02:33
  */
 
-@MainProtocolImplementation
-open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGameVersion(connectionAgreement) {
+class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGameVersion(connectionAgreement) {
+    private var playerConnectKey: String? = null
     private val sync = ReentrantLock(true)
-
-    /** 玩家  */
-    override lateinit var player: Player
 
     override fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect {
         return GameVersionServer(connectionAgreement)
@@ -72,22 +63,22 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         o.writeString(Data.SERVER_ID)
         o.writeInt(NetStaticData.protocolData.gameNetVersion)
         /* 地图 */
-        o.writeInt(Data.game.maps.mapType.ordinal)
-        o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
-        o.writeInt(Data.game.credits)
-        o.writeInt(Data.game.mist)
+        o.writeInt(GroupGame.gU(player.groupId).maps.mapType.ordinal)
+        o.writeString(GroupGame.gU(player.groupId).maps.mapPlayer + GroupGame.gU(player.groupId).maps.mapName)
+        o.writeInt(GroupGame.gU(player.groupId).credits)
+        o.writeInt(GroupGame.gU(player.groupId).mist)
         o.writeBoolean(true)
         o.writeInt(1)
         o.writeByte(7)
         o.writeBoolean(false)
         /* Admin Ui */
         o.writeBoolean(player.isAdmin)
-        o.writeInt(Data.game.maxUnit)
-        o.writeInt(Data.game.maxUnit)
-        o.writeInt(Data.game.initUnit)
-        o.writeFloat(Data.game.income)
+        o.writeInt(GroupGame.gU(player.groupId).maxUnit)
+        o.writeInt(GroupGame.gU(player.groupId).maxUnit)
+        o.writeInt(GroupGame.gU(player.groupId).initUnit)
+        o.writeFloat(GroupGame.gU(player.groupId).income)
         /* NO Nukes */
-        o.writeBoolean(Data.game.noNukes)
+        o.writeBoolean(GroupGame.gU(player.groupId).noNukes)
         o.writeBoolean(false)
         o.writeBoolean(utilData)
         if (utilData) {
@@ -95,7 +86,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         }
 
         /* 共享控制 */
-        o.writeBoolean(Data.game.sharedControl)
+        o.writeBoolean(GroupGame.gU(player.groupId).sharedControl)
         o.writeBoolean(false)
         o.writeBoolean(false)
         // 允许观众
@@ -109,13 +100,14 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             ByteArrayOutputStream().use { buffer ->
                 DataOutputStream(buffer).use { stream ->
                     stream.writeByte(player.site)
-                    val a = ExtractUtil.hexToByteArray("000000ffffffffffffffff0000000000000000ffffffffffffffff00022d3100000001000000000000000000000000640000000000")
+                    val a =
+                        ExtractUtil.hexToByteArray("000000ffffffffffffffff0000000000000000ffffffffffffffff00022d3100000001000000000000000000000000640000000000")
                     for (b in a) {
                         stream.writeByte(b.toInt())
                     }
                     val cmd = GameCommand(player.site, buffer.toByteArray())
-                    Data.game.gameCommandCache.offer(cmd)
-                    Call.sendSystemMessage(Data.localeUtil.getinput("player.surrender", player.name))
+                    GroupGame.gU(player.groupId).gameCommandCache.offer(cmd)
+                    Call.sendSystemMessage(Data.localeUtil.getinput("player.surrender", player.name),player.groupId)
                 }
             }
         } catch (ignored: Exception) {
@@ -127,7 +119,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         GameInputStream(p).use { stream ->
             var message: String? = stream.readString()
             var response: CommandResponse? = null
-            Log.clog("[{0}]: {1}", player.name, message)
+            if(message?.contains("-i desync:Player") == false && !message?.contains("-i 同步:Player")&&
+                    !message.contains(" -i <suppressing desync errors>")
+                    ){
+                KongZhi.broadCast("-chat\n"+player.uuid+"\n"+message)
+                Log.clog("[{0}]: {1}", player.name, message)
+            }
             if (player.isAdmin && getIfScheduledFutureData("AfkCountdown")) {
                 removeScheduledFutureData("AfkCountdown")
                 Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
@@ -135,13 +132,13 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
                 val strEnd = min(message.length, 3)
                 response = if ("qc" == message.substring(1, strEnd)) {
-                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(5), player)
+                    Data.CLIENTCOMMAND.handleMessage("/" + message.substring(5), player)
                 } else {
-                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(1), player)
+                    Data.CLIENTCOMMAND.handleMessage("/" + message.substring(1), player)
                 }
             }
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                if (message.length > Data.game.maxMessageLen) {
+                if (message.length > GroupGame.gU(player.groupId).maxMessageLen) {
                     sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
                     return
                 }
@@ -153,27 +150,23 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Events.fire(PlayerChatEvent(player, message))
             } else {
                 if (response.type != CommandHandler.ResponseType.valid) {
-                    val text: String =  when (response.type) {
-                                            CommandHandler.ResponseType.manyArguments -> {
-                                                "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            }
-                                            CommandHandler.ResponseType.fewArguments -> {
-                                                "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            }
-                                            else -> {
-                                                "Unknown command. Check .help"
-                                        }
+                    val text: String
+                    text = if (response.type == CommandHandler.ResponseType.manyArguments) {
+                        "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                    } else if (response.type == CommandHandler.ResponseType.fewArguments) {
+                        "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                    } else {
+                        "Unknown command. Check .help"
                     }
                     player.sendSystemMessage(text)
                 }
             }
         }
     }
-
     @Throws(IOException::class)
     override fun receiveCommand(p: Packet) {
         //PlayerOperationUnitEvent
-        sync.lock()
+        GroupGame.MOVE_LOCK.get(player.groupId-1).lock()
         try {
             GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
                 val outStream = GameOutputStream()
@@ -187,20 +180,20 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     if (int1 == -2) {
                         outStream.writeString(inStream.readString())
                     }
-                    outStream.transferToFixedLength(inStream,28)
+                    outStream.writeBytes(inStream.stream.readNBytes(28))
                     outStream.writeIsString(inStream)
                 }
-                outStream.transferToFixedLength(inStream,10)
+                outStream.writeBytes(inStream.stream.readNBytes(10))
                 val boolean3 = inStream.readBoolean()
                 outStream.writeBoolean(boolean3)
                 if (boolean3) {
-                    outStream.transferToFixedLength(inStream,8)
+                    outStream.writeBytes(inStream.stream.readNBytes(8))
                 }
                 outStream.writeBoolean(inStream.readBoolean())
                 val int2 = inStream.readInt()
                 outStream.writeInt(int2)
                 for (i in 0 until int2) {
-                    outStream.transferToFixedLength(inStream,8)
+                    outStream.writeBytes(inStream.stream.readNBytes(8))
                 }
                 val boolean4 = inStream.readBoolean()
                 outStream.writeBoolean(boolean4)
@@ -210,21 +203,20 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 val boolean5 = inStream.readBoolean()
                 outStream.writeBoolean(boolean5)
                 if (boolean5) {
-                    outStream.transferToFixedLength(inStream,8)
+                    outStream.writeBytes(inStream.stream.readNBytes(8))
                 }
-                outStream.transferToFixedLength(inStream,8)
+                outStream.writeBytes(inStream.stream.readNBytes(8))
                 outStream.writeString(inStream.readString())
-                //outStream.writeBoolean(inStream.readBoolean())
-                outStream.writeByte(inStream.readByte())
+                outStream.writeBoolean(inStream.readBoolean())
                 inStream.readShort()
-                outStream.writeShort(Data.game.sharedControlPlayer.toShort())
-                outStream.transferTo(inStream)
-                Data.game.gameCommandCache.offer(GameCommand(player.site, outStream.getPacketBytes()))
+                outStream.writeShort(GroupGame.gU(player.groupId).sharedControlPlayer.toShort())
+                outStream.flushData(inStream)
+                GroupGame.gU(player.groupId).gameCommandCache.offer(GameCommand(player.site, outStream.getPacketBytes()))
             }
         } catch (e: Exception) {
             Log.error(e)
         } finally {
-            sync.unlock()
+            GroupGame.MOVE_LOCK.get(player.groupId-1).unlock()
         }
     }
 
@@ -249,40 +241,41 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     @Throws(IOException::class)
     override fun sendStartGame() {
         sendServerInfo(true)
-        sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket())
-        if (IsUtil.notIsBlank(Data.game.startAd)) {
-            sendSystemMessage(Data.game.startAd)
+        sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket(player.groupId))
+        if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).startAd)) {
+            sendSystemMessage(GroupGame.gU(player.groupId).startAd)
         }
     }
 
-    override fun sendTeamData(gzip: CompressOutputStream) {
+    override fun sendTeamData(gzip: GzipEncoder) {
         try {
+            val rule=GroupGame.gU(player.groupId);
             val o = GameOutputStream()
             /* 玩家位置 */
             o.writeInt(player.site)
-            o.writeBoolean(Data.game.isStartGame)
+            o.writeBoolean(rule.isStartGame)
             /* 最大玩家 */
-            o.writeInt(Data.game.maxPlayer)
+            o.writeInt(rule.maxPlayer)
             o.flushEncodeData(gzip)
             /* 迷雾 */
-            o.writeInt(Data.game.mist)
-            o.writeInt(Data.game.credits)
+            o.writeInt(rule.mist)
+            o.writeInt(rule.credits)
             o.writeBoolean(true)
             /* AI Difficulty ?*/
             o.writeInt(1)
             o.writeByte(5)
-            o.writeInt(Data.game.maxUnit)
-            o.writeInt(Data.game.maxUnit)
+            o.writeInt(rule.maxUnit)
+            o.writeInt(rule.maxUnit)
             /* 初始单位 */
-            o.writeInt(Data.game.initUnit)
+            o.writeInt(rule.initUnit)
             /* 倍速 */
-            o.writeFloat(Data.game.income)
+            o.writeFloat(rule.income)
             /* NO Nukes */
-            o.writeBoolean(Data.game.noNukes)
+            o.writeBoolean(rule.noNukes)
             o.writeBoolean(false)
             o.writeBoolean(false)
             /* 共享控制 */
-            o.writeBoolean(Data.game.sharedControl)
+            o.writeBoolean(rule.sharedControl)
             /* 游戏暂停 */
             o.writeBoolean(false)
             sendPacket(o.createPacket(PacketType.PACKET_TEAM_LIST))
@@ -291,99 +284,97 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         }
     }
 
-    //@Throws(IOException::class)
+    @Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         try {
             GameInputStream(p).use { stream ->
                 stream.readString()
-                Log.debug(stream.readInt())
-                Log.debug(stream.readInt())
-                Log.debug(stream.readInt())
+                stream.readInt()
+                stream.readInt()
+                stream.readInt()
                 var name = stream.readString()
-                Log.debug("name", name)
+//                Log.debug("name", name)
                 val passwd = stream.isReadString()
-                Log.debug("passwd", passwd)
+//                Log.debug("passwd", passwd)
                 stream.readString()
                 val uuid = stream.readString()
-                Log.debug("uuid", uuid)
-                Log.debug("?", stream.readInt())
+//                Log.debug("uuid", uuid)
+                 stream.readInt()
                 val token = stream.readString()
-                Log.debug("token", token)
+//                Log.debug("token", token)
                 /*
             if (!token.equals(playerConnectKey)) {
                 sendKick("You Open Mod?");
                 return false;
             }
              */
-                val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
-                Events.fire(playerConnectPasswdCheck)
-                if (playerConnectPasswdCheck.result) {
-                    return true
-                }
-                if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
-                    name = playerConnectPasswdCheck.name
-                }
-
-                Events.fire(PlayerJoinUuidandNameEvent(uuid,name))
-
-                val playerJoinName = PlayerJoinNameEvent(name)
-                Events.fire(playerJoinName)
-                if (IsUtil.notIsBlank(playerJoinName.resultName)) {
-                    name = playerJoinName.resultName
-                }
+//                val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
+//                Events.fire(playerConnectPasswdCheck)
+//                if (playerConnectPasswdCheck.result) {
+//                    return true
+//                }
+//                if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
+//                    name = playerConnectPasswdCheck.name
+//                }
+//
+//             val playerJoinName = PlayerJoinNameEvent(name)
+//                Events.fire(playerJoinName)
+//                if (IsUtil.notIsBlank(playerJoinName.resultName)) {
+//                    name = playerJoinName.resultName
+//                }
 
                 inputPassword = false
+
+                if (Data.playerGroup.size() >=Data.game.gMaxPlayer) {
+                    if (IsUtil.isBlank(Data.game.maxPlayerAd)) {
+                        sendKick("服务器没有位置 # The server has no free location")
+                    } else {
+                        sendKick(Data.game.maxPlayerAd)
+                    }
+                    Log.clog("因服务器已满，拒绝连接："+player.con.ip)
+                    return false
+                }
                 val re = AtomicBoolean(false)
-                if (Data.game.isStartGame) {
-                    Data.playerAll.each({ i: Player -> i.uuid == uuid }) { e: Player ->
-                        re.set(true)
-                        this.player = e
-                        player.con = this
-                        Data.playerGroup.add(e)
-                    }
-                    if (!re.get()) {
-                        if (IsUtil.isBlank(Data.game.startPlayerAd)) {
-                            sendKick("游戏已经开局 请等待 # The game has started, please wait")
-                        } else {
-                            sendKick(Data.game.startPlayerAd)
-                        }
-                        return false
-                    }
-                } else {
-                    if (Data.playerGroup.size() >= Data.game.maxPlayer) {
-                        if (IsUtil.isBlank(Data.game.maxPlayerAd)) {
-                            sendKick("服务器没有位置 # The server has no free location")
-                        } else {
-                            sendKick(Data.game.maxPlayerAd)
-                        }
-                        return false
-                    }
-                    val localeUtil = Data.localeUtilMap["CN"]
-                    /*
+                Data.playerAll.each(
+                    { i: Player -> i.uuid == uuid }
+                ) { e: Player? ->
+                    re.set(true)
+                    player = e!!
+                    player.con = this
+                    super.isDis=false;
+                    Data.playerGroup.add(e)
+                }
+                if (!re.get()||!GroupGame.gU(player.groupId).isStartGame) {
+                    var localeUtil = Data.localeUtilMap["CN"]
+
                     if (Data.game.ipCheckMultiLanguageSupport) {
                         val rec = Data.ip2Location.IPQuery(connectionAgreement.ip)
                         if ("OK" != rec.status) {
                             localeUtil = Data.localeUtilMap[rec.countryShort]
                         }
                     }
-                     */
-                    player = Player.addPlayer(this, uuid, name, localeUtil)
-                }
-                connectionAgreement.add(NetStaticData.groupNet)
-                Call.sendTeamData()
-                sendServerInfo(true)
+                    player = Player.addPlayer(GroupGame.newPlayerGroupId(), this, uuid, name, localeUtil)
+                    connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+                    Call.sendTeamData(player.groupId)
+                    sendServerInfo(true)
+                    if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).enterAd)) {
+                        sendSystemMessage(GroupGame.gU(player.groupId).enterAd)
+                    }
+                    sendSystemMessage("此服务器为rw-hps分支，注意，稳定性不保证！")
+                    sendSystemMessage("欢迎加入，您在第"+player.groupId+"组房间")
+                }else if (reConnect()){
+                    Call.sendSystemMessage("玩家 "+player.name+"重连完成",player.groupId);
+                    Log.clog("玩家 "+player.name+"重连完成",player.groupId)
+                    Events.fire(PlayerReJoinEvent(player))
+                }else return false
+//                connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+//                Call.sendTeamData(player.groupId)
+                CalUt.channelInfos.get(connectionAgreement.getChannel().id())?.p = player
                 Events.fire(PlayerJoinEvent(player))
-                if (IsUtil.notIsBlank(Data.game.enterAd)) {
-                    sendSystemMessage(Data.game.enterAd)
-                }
-                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
-                if (re.get()) {
-                    reConnect()
-                }
                 return true
             }
         } finally {
-            super.connectKey = null
+            playerConnectKey = null
         }
     }
 
@@ -392,7 +383,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         // 生成随机Key;
         val keyLen = 6
         val key = RandomUtil.generateInt(keyLen)
-        super.connectKey = Game.connectKey(key)
+        playerConnectKey = Game.connectKey(key)
         GameInputStream(p).use { stream ->
             // Game Pkg Name
             stream.readString()
@@ -431,12 +422,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             return
         }
         super.isDis = true
-        if (this::player.isInitialized) {
+        if (IsUtil.notIsBlank(player)) {
             Data.playerGroup.remove(player)
-            if (!Data.game.isStartGame) {
+            if (!GroupGame.gU(player.groupId).isStartGame) {
                 Data.playerAll.remove(player)
                 player.clear()
-                Data.game.playerData[player.site] = null
+                GroupGame.gU(player.groupId).playerData[player.site] = null
             }
             Events.fire(PlayerLeaveEvent(player))
         }
@@ -453,8 +444,9 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             o.writeFloat(0f)
             o.writeBoolean(true)
             o.writeBoolean(false)
-            val gzipEncoder = CompressOutputStream.getGzipOutputStream("gameSave", false)
-            gzipEncoder.writeString("This is RW-HPS!")
+            val gzipEncoder = GzipEncoder.getGzipStream("gameSave", false)
+            val io = gzipEncoder.stream
+            io.writeUTF("This is RW-HPS!")
             o.flushEncodeData(gzipEncoder)
             sendPacket(o.createPacket(35))
         } catch (e: Exception) {
@@ -466,190 +458,96 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         sendPacket(packet)
     }
 
-    override fun reConnect() {
+    override fun  reConnect() :Boolean{
+        val groupRule = GroupGame.gU(player.groupId)
         try {
-            if (!Data.game.reConnect) {
-                sendKick("不支持重连 # Does not support reconnection")
-                return
+            Log.clog("玩家"+player.name+"尝试重连:"+player.con.ip)
+            if (!groupRule.reConnect) {
+                sendKick("抱歉，不支持重连")
+                return false;
             }
-            super.isDis = false
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket())
-            Data.game.reConnectBreak = true
-            Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
-            val executorService = Executors.newFixedThreadPool(1)
-            val future = executorService.submit<String?> {
-                Data.playerGroup.each({ e: Player -> e.uuid != this.player.uuid && !e.con!!.tryBoolean }) { p: Player ->
-                    p.con!!.getGameSave()
-                    while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
-                        if (Thread.interrupted()) {
-                            return@each
-                        }
-                    }
-                    try {
-                        NetStaticData.groupNet.broadcast(
-                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
-                                Data.game.gameSaveCache
-                            )
-                        )
-                    } catch (e: IOException) {
-                        Log.error(e)
-                    }
-                }
-                null
-            }
+            if(groupRule.reConnectBreak) {
+                sendKick("其他玩家正在重连，请稍后再试")
+                return false;
+            };
+            connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+//            Call.sendTeamData(player.groupId)
+            val enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket(player.groupId)
+            player.con.sendTeamData(enc)
+            sendServerInfo(true)
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket(player.groupId))
             try {
-                future[30, TimeUnit.SECONDS]
-            } catch (e: Exception) {
-                future.cancel(true)
-                Log.error(e)
-                connectionAgreement.close(NetStaticData.groupNet)
-            } finally {
-                executorService.shutdown()
-                Data.game.gameSaveCache = null
-                Data.game.reConnectBreak = false
-            }
-        } catch (e: Exception) {
-            Log.error("[Player] Send GameSave ReConnect Error", e)
-        }
-    }
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    override fun sendRelayServerInfo() {
-        try {
-            val bytes = ExtractUtil.hexToByteArray("00 00 00 00 01 00 00 00 97 00")
-            sendPacket(Packet(163,bytes))
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-    }
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    override fun sendRelayServerCheck() {
-        try {
-            val bytes = ExtractUtil.hexToByteArray("00 00 00 01 00 00 00 01 00 00 00 06 52 57 2d 48 50 53 00 06 52 57 2d 48 50 53 00 00 00 01 00")
-            sendPacket(Packet(151,bytes))
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-    }
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    override fun sendRelayServerId() {
-        try {
-            val bytes = ExtractUtil.hexToByteArray("01 01 01 01 00 24 33 30 34 66 30 34 30 34 2d 63 36 35 38 2d 34 65 33 34 2d 39 35 62 33 2d 39 39 36 66 65 32 62 36 36 61 38 65 01 00 01 00 28 7b 7b 52 57 2d 48 50 53 20 52 65 6c 61 79 7d 7d 2e 52 6f 6f 6d 20 49 44 20 3a 20 41 75 74 6f 20 52 65 61 64 20 4d 6f 64 01")
-            sendPacket(Packet(170,bytes))
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-    }
-
-    /*
-
-     */
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    override fun sendRelayPlayerInfo() {
-        try {
-            val bytes = ExtractUtil.hexToByteArray("00 00 00 00 02 00 24 62 64 66 30 34 35 35 66 2d 30 62 66 35 2d 34 34 37 31 2d 39 61 65 39 2d 34  64 36 31 35 32 35 31 30 38 37 39 00")
-            sendPacket(Packet(172, bytes))
-            val bytes2 = ExtractUtil.hexToByteArray("00 00 00 02 00 00 00 34 00 00 00 2c 00 00 00 a0 00 19 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67  61 6d 65 73 2e 72 74 73 2e 71 7a 00 00 00 03 00  00 00 97 00 00 00 01 00 00 02 00 00")
-            sendPacket(Packet(174, bytes2))
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-    }
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    private fun sendRelayPlayerConnectPacket(packet: Packet) {
-        try {
-            GameInputStream(packet).use { inStream ->
-                val o = GameOutputStream()
-                inStream.skip(4)
-                val dataOutputStream = inStream.getStream()
-                dataOutputStream.readString()
-                dataOutputStream.skip(12)
-                dataOutputStream.readString()
-                dataOutputStream.readString()
-
-                val out = GameOutputStream()
-                val bytes = ExtractUtil.hexToByteArray("00 16 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67 61 6d 65 73 2e 72 74 73 00 00 00 04 00 00 00 97 00 00 00 97 00 0c 4d 6f 64 20 52 65 61 64 20 42 6f 74 00 00 1b 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67 61 6d 65 73 2e 72 74 73 2e 6a 61 76 61 00 13 52 57 2d 48 50 53 20 4d 6f 64 20 52 65 61 64 20 42 6f 74 47 6e a1 5a")
-                out.writeBytes(bytes)
-                out.writeString(Game.connectKey(dataOutputStream.readInt()))
-                val packet1 = out.createPacket()
-
-                o.writeInt(2)
-                o.writeInt(packet1.bytes.size+8)
-                o.writeInt(packet1.bytes.size)
-                o.writeInt(110)
-                o.writeBytes(packet1.bytes)
-                sendPacket(o.createPacket(174))
-            }
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-    }
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    override fun getRelayUnitData(packet: Packet) {
-        try {
-            GameInputStream(packet).use { inStream ->
-                inStream.readInt()
-                when (inStream.readInt()) {
-                    106 -> {
-                        inStream.skip(4)
-                        inStream.readString()
-                        inStream.skip(8)
-                        inStream.readString()
-                        inStream.skip(8)
-                        inStream.readBoolean()
-                        inStream.skip(26)
-                        inStream.readString()
-                        //
-                        val stream2 = DataInputStream(ByteArrayInputStream(inStream.readStreamBytes()))
-                        stream2.readInt()
-                        val count = stream2.readInt()
-                        val data = StringBuilder()
-                        Data.core.unitBase64.clear()
-                        for (i in 0 until count) {
-                            data.delete(0, data.length)
-                            data.append(stream2.readUTF()).append("%#%").append(stream2.readInt())
-                            stream2.readBoolean()
-                            if (stream2.readBoolean()) {
-                                data.append("%#%").append(stream2.readUTF())
-                            }
-                            stream2.skip(16)
-                            Data.core.unitBase64.add(data.toString())
-                        }
-                        Data.game.oneReadUnitList = false
-                        Data.config.setObject("oneReadUnitList", false)
-                        Data.core.save()
-                        sendPacket(NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket("MOD读取完成，请重新进入"))
-                        Main.loadUnitList()
+                groupRule.reConnectBreak=true
+                val iterator: Iterator<Player> = Data.playerGroup.iterator()
+                while (iterator.hasNext()) {
+                    val next = iterator.next()
+                    if(player.groupId!=player.groupId||player==next||!next.canSave||next.con==null) continue;
+                    var times=6;
+                    next.con.getGameSave();
+                    while (times-->0){
+                        if(groupRule.gameSaveCache!=null) break;
+                        Call.sendSystemMessage(player.name+"正在重连，尝试获取"+next.name+"保存包（"+times+")",player.groupId)
+                        Thread.sleep(1000)
                     }
-                    161 -> sendRelayPlayerConnectPacket(packet)
-                    else -> return
+                    if(groupRule.gameSaveCache!=null&&groupRule.gameSaveCache.type!=0) break;
+                    next.canSave=false;
                 }
+                if(groupRule.gameSaveCache==null) {
+                    sendKick("无法获取保存包")
+                    return false
+                };
+                try {
+                    val saveC=NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(groupRule.gameSaveCache);
+                    NetStaticData.groupNet.broadcast(saveC,player.groupId)
+                    return true;
+                } catch (e: IOException) {
+                   throw RuntimeException(e)
+                }
+            } catch (e: Throwable) {
+                Log.error(e)
+                throw RuntimeException(e)
+            } finally {
+                groupRule.reConnectBreak=false
+                groupRule.gameSaveCache = null
             }
-        } catch (e: Exception) {
-            Log.error(e)
+        } catch (e: Throwable) {
+            Log.error("[Player] Send GameSave ReConnect Error", e)
+            connectionAgreement.close(NetStaticData.groupNet)
+            e.printStackTrace()
+            super.isDis=true
+            return false;
+        }
+    }
+    private fun reConAutoCloseBreak(gid:Int){
+        if (GroupGame.games[gid]!!.isStartGame) {
+            val players = GroupGame.playersByGid(Data.playerGroup, gid)
+            if (players.size >= 1 ) {
+                removeScheduledFutureData("Gameover$gid")
+            }
+            if (players.stream().map { p: Player -> p.team }.distinct().toArray().size > 1) {
+                removeScheduledFutureData("Gameover-t$gid")
+            }
+        }
+    }
+    override fun sendRelayServerType(msg: String) {
+        try {
+            val o = GameOutputStream()
+            // 理论上是随机数？
+            o.writeByte(1)
+            o.writeInt(5) //可能和-AX一样
+            o.writeString(msg)
+            sendPacket(o.createPacket(117)) //->118
+            inputPassword = true
+        } catch (e: java.lang.Exception) {
+            error(e)
+        }
+    }
+
+    override fun sendRelayServerTypeReply(packet: Packet) {
+        GameInputStream(packet).use { stream ->
+            stream.buffer.readNBytes(5)
+            //这个就是回复 但是我找不到什么好方法
+            //stream.readString()
         }
     }
 }

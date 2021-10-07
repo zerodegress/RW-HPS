@@ -1,12 +1,3 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.data.global
 
 import com.github.dr.rwserver.command.ex.Vote
@@ -18,7 +9,8 @@ import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.LocaleUtil
 import com.github.dr.rwserver.util.file.LoadConfig
 import com.github.dr.rwserver.util.game.CommandHandler
-import com.github.dr.rwserver.util.zip.CompressOutputStream
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder.Companion.getGzipStream
+import com.ip2location.IP2Location
 import io.netty.channel.Channel
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -40,12 +32,10 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "1.5.0-M1"
-    const val SERVER_CORE_VERSION_INT = 200
-    //public static final int SERVER_VERSION2 = 1.13.6;
+    const val SERVER_CORE_VERSION = "1.4.0-M1-DEV2"
     /** 单位数据缓存  */
 	@JvmField
-	val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
+	val utilData = getGzipStream("customUnits", false)
 
     /**  */
     const val SERVER_MAX_TRY = 3
@@ -54,32 +44,31 @@ object Data {
 
     /** 服务端 客户端命令  */
 	@JvmField
-	val SERVER_COMMAND = CommandHandler("")
+	val SERVERCOMMAND = CommandHandler("")
     @JvmField
-	val LOG_COMMAND = CommandHandler("!")
+	val LOGCOMMAND = CommandHandler("!")
     @JvmField
-	val CLIENT_COMMAND = CommandHandler("/")
-    @JvmField
-    val RELAY_COMMAND = CommandHandler(".")
+	val CLIENTCOMMAND = CommandHandler("/")
 
     /**  */
 	@JvmField
-	val MapsMap = ObjectMap<String, String>()
+	val MapsMap: Map<String, String> = HashMap()
 
     /** 在线玩家  */
 	@JvmField
-	val playerGroup = Seq<Player>(16)
+	val playerGroup = Seq<Player>(120)
 
     /** ALL  */
 	@JvmField
-	val playerAll = Seq<Player>(16)
+	val playerAll = Seq<Player>(180)
     @JvmField
 	val core = Application()
     @JvmField
 	val localeUtilMap = ObjectMap<String, LocaleUtil>(8)
 
     lateinit var config: LoadConfig
-
+    lateinit var ip2Location: IP2Location
+    fun ins(): Boolean {return Data::config.isInitialized}
     /**
      * 可控变量
      */
@@ -88,4 +77,5 @@ object Data {
     lateinit var Vote: Vote
     @JvmField
 	var serverChannelB: Channel? = null
+
 }

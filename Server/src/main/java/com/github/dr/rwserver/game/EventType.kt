@@ -51,10 +51,10 @@ class EventType {
     class PlayerChatEvent(val player: Player, val message: String)
 
     /** 开始游戏  */
-    class GameStartEvent
+    class GameStartEvent(val groupId: Int)
 
     /** 结束游戏  */
-    class GameOverEvent
+    class GameOverEvent(val groupId:Int)
 
     /** 玩家被ban  */
     class PlayerBanEvent(val player: Player)

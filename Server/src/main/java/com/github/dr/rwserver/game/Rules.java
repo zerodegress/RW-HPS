@@ -1,12 +1,3 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.game;
 
 import com.github.dr.rwserver.core.thread.Threads;
@@ -30,6 +21,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Dr
@@ -39,12 +31,17 @@ public class Rules {
     public int port = 5123;
     /** 是否已启动游戏 */
     public boolean isStartGame = false;
+    public boolean isReady=false;
+    public int time=0;
+    public long startTime;
+    public byte stage;
     /** 倍数 */
     public float income = 1f;
     /** 初始钱 */
     public int credits = 0;
     /** 最大玩家 */
     public int maxPlayer;
+    public int gMaxPlayer;
     /** 地图数据 */
     public final GameMaps maps = new GameMaps();
     /** nukes */
@@ -91,8 +88,8 @@ public class Rules {
     public boolean mapLock = false;
 
     /** AD */
-    public final String enterAd;
-    public final String startAd;
+    public  String enterAd;
+    public  String startAd;
     public final String maxPlayerAd;
     public final String startPlayerAd;
     public final String serverUpID;
@@ -114,12 +111,12 @@ public class Rules {
     public final OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
     public Rules(LoadConfig config) {
-
+        startTime=System.currentTimeMillis();
         subtitle = config.readString("subtitle","");
 
         int port = config.readInt("port",5123);
         String passwdCache = config.readString("passwd","");
-        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, Sha.sha256Array(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
+        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, new Sha().sha256Array(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
 
         enterAd = config.readString("enterServerAd","");
         startAd = config.readString("startAd","");
@@ -137,12 +134,13 @@ public class Rules {
         }
         maxMessageLen = config.readInt("maxMessageLen",40);
         maxUnit = config.readInt("maxUnit",200);
-        Data.core.defIncome = config.readFloat("defIncome",1f);
+        Data.core.defIncome = config.readFloat("defIncome",100f);
+        if(Data.core.defIncome<100) Data.core.defIncome=100;
         Data.core.serverName = config.readString("serverName","RW-HPS");
         oneAdmin = config.readBoolean("oneAdmin",true);
         ipCheckMultiLanguageSupport = config.readBoolean("iPCheckMultiLanguageSupport",false);
 
-        reConnect = config.readBoolean("reConnect",false);
+        reConnect = config.readBoolean("reConnect",true);
         winOrLose = config.readBoolean("winOrLose",false);
         winOrLoseTime = config.readInt("winOrLoseTime",30000);
 
@@ -152,12 +150,10 @@ public class Rules {
         webApiSsl = config.readBoolean("webApiSsl",false);
         webApiSslKetPath = config.readString("webApiSslKetPath","");
         webApiSslPasswd = config.readString("webApiSslPasswd","");
-        oneReadUnitList = config.readBoolean("oneReadUnitList",false);
-
         startMinPlayerSize = config.readInt("startMinPlayerSize",0);
-        autoLoadOrUpdate(config);
-
         init(config.readInt("maxPlayer",10),port);
+        gMaxPlayer=config.readInt("gMaxPlayer",120);
+//        autoLoadOrUpdate(config);
     }
 
     public void init() {
@@ -173,15 +169,24 @@ public class Rules {
 
     public void re() {
         gameCommandCache.clear();
+        gameSaveCache=null;
         Arrays.fill(playerData, null);
         income = Data.core.defIncome;
         initUnit = 1;
         mist = 2;
         sharedControl = false;
+        isStartGame=false;
+        isReady=false;
+        time=0;
+        //重新配置
+
+        enterAd = Data.config.readString("enterServerAd","");
+        startAd = Data.config.readString("startAd","");
+        gMaxPlayer=Data.config.readInt("gMaxPlayer",120);
     }
 
     public void checkMaps() {
-        Seq<File> list = FileUtil.getFolder(Data.Plugin_Maps_Path).getFileListNotNullSizeSort();
+        Seq<File> list = FileUtil.getFolder(Data.Plugin_Maps_Path).getFileListNotNullSize();
         list.each(e -> {
             final String original = Base64.isBase64(e.getName()) ? Base64.decodeString(e.getName()) : e.getName();
             final String postpone = original.substring(original.lastIndexOf("."));
@@ -221,9 +226,9 @@ public class Rules {
     private void autoLoadOrUpdate(LoadConfig config) {
         if (config.readBoolean("autoReLoadMap",false)) {
             Threads.newThreadService2(() -> {
-                if (IsUtil.notIsBlank(Data.game) && !Data.game.isStartGame) {
-                    Data.game.mapsData.clear();
-                    Data.game.checkMaps();
+                if (IsUtil.notIsBlank(this) && !this.isStartGame) {
+                    this.mapsData.clear();
+                    this.checkMaps();
                 }
             },0,1, TimeUnit.MINUTES,"AutoReLoadMap");
         }

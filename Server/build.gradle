@@ -1,26 +1,23 @@
 plugins {
 	id 'maven-publish'
-	id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+	id 'org.jetbrains.kotlin.jvm' version '1.5.21'
 }
 
-/* 使用Java8做标准语法并编译 */
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
-/**
- * 这里全部采用的compileOnly 为了适配idea 但是编译的时候会切到implementation
- * 需要帮助!
- */
+sourceCompatibility=11
+targetCompatibility=11
+
 dependencies {
-	implementation group: 'io.netty', name: 'netty-all', version: '4.1.68.Final'
-	implementation ('com.gitee.ldp_dpsmax:chainMarket:23fc7f989f') {
-		exclude group: "io.netty"
-	}
-	implementation 'com.github.deng-rui:RUDP:1.0.0'
-	implementation 'com.github.deng-rui:Compress-Zip:1.0.0'
+	// Gradle : compileOnly -> implementation
+	// compileOnly is Test
+	implementation group: 'io.netty', name: 'netty-all', version: '4.1.66.Final'
+	implementation group: 'com.ip2location', name: 'ip2location-java', version: '8.5.0'
+	implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.58'
 	implementation (group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.1') {
 		exclude group: "org.jetbrains.kotlin"
 	}
-	implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.31'
+	implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version: '1.5.21'
+//	implementation group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '1.5.1'
+	//implementation group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.69'
 }
 
 jar{
@@ -34,15 +31,19 @@ jar{
 		 attributes 'Main-Class': 'com.github.dr.rwserver.Main'
 		 attributes 'Launcher-Agent-Class': 'com.github.dr.rwserver.dependent.LibraryManager'
 	}
+    archiveName "rwServer.jar"
+    from('src/main/java') {
+        include 'com/github/dr/rwserver/net/game/res/*'
+    }
 }
 
 publishing {
-	publications {
-		Production(MavenPublication) {
-			groupId = 'com.github.RW-HPS'
-			artifactId = 'Server'
-			version = '1.0.0'
-			from components.java
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.github.RW-HPS'
+            artifactId = 'Server'
+            version = '1.0.0'
+            from components.java
 
 			/*
 			Need Help 需要帮助
@@ -50,6 +51,6 @@ publishing {
 			pom.withXml {
 			}
  			*/
-		}
-	}
+        }
+    }
 }

@@ -1,24 +1,21 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.net.game
 
+import com.github.dr.rwserver.core.thread.Threads
+import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.GroupNet
+import com.github.dr.rwserver.net.udp.ReliableSocket
 import com.github.dr.rwserver.util.RandomUtil.generateStr
+import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
-import net.udp.ReliableSocket
+import io.netty.channel.socket.nio.NioSocketChannel
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Dr
@@ -26,7 +23,8 @@ import java.util.*
  */
 class ConnectionAgreement {
     private val protocolType: ((packet: Packet) -> Unit)
-    private val startNet: StartNet?
+    private val startNet: StartNet
+    private val channelHandlerContext: ChannelHandlerContext?
     private val objectOutStream: Any
     private val udpDataOutputStream: DataOutputStream?
     val useAgreement: String
@@ -35,25 +33,26 @@ class ConnectionAgreement {
     internal val localPort: Int
     val id: String
 
+
     /**
      * TCP Send
-     * @param channelHandlerContext Netty-ChannelHandlerContext
+     * @param channel Netty-Channel
      */
-    constructor(channelHandlerContext: ChannelHandlerContext, startNet: StartNet) {
-        protocolType = { packet: Packet ->
-            channelHandlerContext.writeAndFlush(packet)
-        }
+    constructor(channelHandlerContext: ChannelHandlerContext, channel: Channel, startNet: StartNet) {
+        protocolType = { packet: Packet -> channel.writeAndFlush(packet) }
         this.startNet = startNet
-        objectOutStream = channelHandlerContext
+        this.channelHandlerContext = channelHandlerContext
+        objectOutStream = channel
         udpDataOutputStream = null
         useAgreement = "TCP"
-
-        val channel = channelHandlerContext.channel()
         ip = convertIp(channel.remoteAddress().toString())
         localPort = (channel.localAddress() as InetSocketAddress).port
         id = generateStr(5)
     }
-
+    fun  bindGroup(gid:Int){
+        val c:Channel= objectOutStream as Channel;
+        c.attr(GroupGame.G_KEY).set(gid);
+    }
     /**
      * UDP Send
      * @param socket Socket
@@ -68,6 +67,7 @@ class ConnectionAgreement {
             socketStream.flush()
         }
         this.startNet = startNet
+        channelHandlerContext = null
         objectOutStream = socket
         udpDataOutputStream = socketStream
         useAgreement = "UDP"
@@ -78,7 +78,8 @@ class ConnectionAgreement {
 
     constructor() {
         protocolType = {}
-        startNet = null
+        startNet = StartNet()
+        channelHandlerContext = null
         objectOutStream = ""
         udpDataOutputStream = null
         useAgreement = "Test"
@@ -87,9 +88,11 @@ class ConnectionAgreement {
         id = generateStr(5)
     }
 
-    fun add(groupNet: GroupNet) {
-        if (objectOutStream is ChannelHandlerContext) {
-            groupNet.add(objectOutStream.channel())
+    fun add(groupNet: GroupNet,gid: Int) {
+        if (objectOutStream is Channel) {
+            val channel=objectOutStream as Channel
+            channel.attr(GroupGame.G_KEY).set(gid)
+            groupNet.add(channel)
         } else if (objectOutStream is ReliableSocket) {
             groupNet.add(this)
         }
@@ -109,19 +112,20 @@ class ConnectionAgreement {
     @Throws(IOException::class)
     fun close(groupNet: GroupNet?) {
         if (groupNet != null) {
-            if (objectOutStream is ChannelHandlerContext) {
-                groupNet.remove(objectOutStream.channel())
+            if (objectOutStream is Channel) {
+                groupNet.remove(objectOutStream as Channel?)
             } else if (objectOutStream is ReliableSocket) {
                 groupNet.remove(this)
             }
         }
-        if (objectOutStream is ChannelHandlerContext) {
-            objectOutStream.channel().close()
-            objectOutStream.close()
+        if (objectOutStream is NioSocketChannel) {
+            startNet.OVER_MAP.remove(objectOutStream.id().asLongText())
+            Threads.newThreadService({ objectOutStream.close()
+                channelHandlerContext!!.close()} ,2,TimeUnit.SECONDS,this.toString())
         } else if (objectOutStream is ReliableSocket) {
             udpDataOutputStream!!.close()
             objectOutStream.close()
-            startNet!!.OVER_MAP.remove(objectOutStream.remoteSocketAddress.toString())
+            startNet.OVER_MAP.remove(objectOutStream.remoteSocketAddress.toString())
         }
     }
 
@@ -140,5 +144,7 @@ class ConnectionAgreement {
 
     private fun convertIp(ipString: String): String {
         return ipString.substring(1, ipString.indexOf(':'))
+    }
+    fun getChannel(): Channel {return objectOutStream as Channel
     }
 }

@@ -1,21 +1,13 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.net.core
 
+import kotlin.Throws
+import java.io.IOException
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.game.GameCommand
-import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.struct.Seq
-import com.github.dr.rwserver.util.zip.CompressOutputStream
-import java.io.IOException
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import java.io.DataOutputStream
 
 /**
  * 获取包 转换包 理论上全版本通用 但是部分版本需要特殊覆盖实现
@@ -35,7 +27,7 @@ interface AbstractNetPacket {
     /**
      * 发送用户名命名的消息
      * @param      msg     The message
-     * @param      sendBy  The sendBy
+     * @param      sendBy  The send by
      * @param      team    The team
      * @return Packet
      * @throws IOException err
@@ -87,7 +79,7 @@ interface AbstractNetPacket {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun getTeamDataPacket(): CompressOutputStream
+    fun getTeamDataPacket(gid:Int): GzipEncoder
 
     /**
      * 转换GameSave包
@@ -104,7 +96,7 @@ interface AbstractNetPacket {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun getStartGamePacket(): Packet
+    fun getStartGamePacket(gid: Int): Packet
 
     /**
      * 获取包中的地图名
@@ -129,7 +121,7 @@ interface AbstractNetPacket {
      * @param stream Data流
      */
     @Throws(IOException::class)
-    fun writePlayer(player: Player, stream: GameOutputStream)
+    fun writePlayer(player: Player, stream: DataOutputStream)
 
     /**
      * 获取连接包
@@ -147,5 +139,5 @@ interface AbstractNetPacket {
      * @return Packet
      */
     @Throws(IOException::class)
-    fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet
+    fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String, key: Int): Packet
 }

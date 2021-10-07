@@ -1,20 +1,13 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.util.log
 
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.plugin.Plugin
+import com.github.dr.rwserver.net.game.KongZhi
 import com.github.dr.rwserver.util.Time.getUtcMilliFormat
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.MessageFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Log Util
@@ -28,23 +21,22 @@ object Log {
     private var LOG_GRADE = 5
     private lateinit var logPrint: LogPrint<Any>
     private val LOG_CACHE = StringBuilder()
-
+    private var timeFormat=SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss")
     @JvmStatic
 	fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()
     }
 
     @JvmStatic
-	fun setCopyPrint(system: Boolean) {
+	fun setPrint(system: Boolean) {
         logPrint =
             if (system) object : LogPrint<Any> {
                 override fun println(t: Any) {
-                    println(t)
-                    LOG_CACHE.append(t)
+                    System.out.println(t)
                 }
             } else object : LogPrint<Any> {
                 override fun println(t: Any) {
-                    println(t)
+                    LOG_CACHE.append(t)
                 }
             }
     }
@@ -193,7 +185,7 @@ object Log {
         val sb = StringBuilder()
         val lines = e.toString().split(Data.LINE_SEPARATOR).toTypedArray()
         val stack = Throwable().stackTrace
-        var i1 = 0
+        var i1: Int = 0
         while (i1 < stack.size) {
             val ste = stack[i1]
             val className = ste.className + "." + ste.methodName
@@ -219,43 +211,39 @@ object Log {
 
     @JvmStatic
     fun clog(text: String) {
-        val textCache = "[" +
-                        getUtcMilliFormat(1) +
-                        " UTC] " +
-                        text
-        println(formatColors("$textCache&fr"))
+        var text = text
+        text = "[" +
+                timeFormat.format(Date()) +
+                " UTC] " +
+                text
+        println(formatColors("$text&fr"))
+        if(Data.ins()) KongZhi.broadCast(text);
     }
 
     @JvmStatic
-	fun clog(text: String, vararg obj: Any?) {
+	fun clog(text: String?, vararg obj: Any?) {
         clog(MessageFormat(text).format(obj))
     }
 
     private fun formatColors(text: String): String {
-        var textCache = text
+        var text = text
         for (i in ColorCodes.CODES.indices) {
-            textCache = textCache.replace("&" + ColorCodes.CODES[i], ColorCodes.VALUES[i])
+            text = text.replace("&" + ColorCodes.CODES[i], ColorCodes.VALUES[i])
         }
-        return textCache
+        return text
     }
 
-    @JvmStatic
     fun testPrint(`object`: Any) {
         info(`object`)
     }
 
-    @JvmStatic
-    fun testPlugin(plugin: Plugin) {
-        plugin.init()
-    }
-
-    private enum class Logg(private val logg: Int) {
+    private enum class Logg(private val num: Int) {
         /* Log等级 默认为WARN */
         /* 开发时为ALL */
         OFF(8), FATAL(7), ERROR(6), WARN(5), INFO(4), DEBUG(3), TRACE(2), ALL(1);
 
         open fun getLogg(): Int {
-            return logg
+            return num
         }
     }
 

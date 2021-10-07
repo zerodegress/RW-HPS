@@ -1,17 +1,8 @@
-/*
- * Copyright 2020-2021 RW-HPS Team and contributors.
- *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- */
-
 package com.github.dr.rwserver.net.netconnectprotocol
 
 import com.github.dr.rwserver.data.Player
-import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.io.GameInputStream
@@ -19,14 +10,11 @@ import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.AbstractNetPacket
 import com.github.dr.rwserver.struct.Seq
-import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
-import com.github.dr.rwserver.util.encryption.Game
-import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log.error
-import com.github.dr.rwserver.util.zip.CompressOutputStream
+import com.github.dr.rwserver.util.zip.gzip.GzipEncoder
+import java.io.DataOutputStream
 import java.io.IOException
-import java.math.BigInteger
 
 /**
  * @author Dr
@@ -71,8 +59,8 @@ class GameVersionPacket : AbstractNetPacket {
         val o = GameOutputStream()
         o.writeInt(tick)
         o.writeInt(1)
-        val enc = CompressOutputStream.getGzipOutputStream("c", false)
-        enc.writeBytes(cmd.arr)
+        val enc = GzipEncoder.getGzipStream("c", false)
+        enc.stream.write(cmd.arr)
         o.flushEncodeData(enc)
         return o.createPacket(10)
     }
@@ -83,25 +71,25 @@ class GameVersionPacket : AbstractNetPacket {
         o.writeInt(tick)
         o.writeInt(cmd.size())
         for (c in cmd) {
-            val enc = CompressOutputStream.getGzipOutputStream("c", false)
-            enc.writeBytes(c.arr)
+            val enc = GzipEncoder.getGzipStream("c", false)
+            enc.stream.write(c.arr)
             o.flushEncodeData(enc)
         }
         return o.createPacket(10)
     }
 
     @Throws(IOException::class)
-    override fun getTeamDataPacket(): CompressOutputStream {
-        val enc = CompressOutputStream.getGzipOutputStream("teams", true)
-        for (i in 0 until Data.game.maxPlayer) {
+    override fun getTeamDataPacket(gid:Int): GzipEncoder {
+        val enc = GzipEncoder.getGzipStream("teams", true)
+        for (i in 0 until GroupGame.gU(gid).maxPlayer) {
             try {
-                val player = Data.game.playerData[i]
+                val player = GroupGame.games.get(gid)?.playerData?.get(i)
                 if (player == null) {
-                    enc.writeBoolean(false)
+                    enc.stream.writeBoolean(false)
                 } else {
-                    enc.writeBoolean(true)
-                    enc.writeInt(0)
-                    writePlayer(player, enc)
+                    enc.stream.writeBoolean(true)
+                    enc.stream.writeInt(0)
+                    writePlayer(player, enc.stream)
                 }
             } catch (e: Exception) {
                 error("[ALL/Player] Get Server Team Info", e)
@@ -133,16 +121,16 @@ class GameVersionPacket : AbstractNetPacket {
 
     // 0->本地 1->自定义 2->保存的游戏
     @Throws(IOException::class)
-    override fun getStartGamePacket(): Packet {
+    override fun getStartGamePacket(gid: Int): Packet {
         val o = GameOutputStream()
         o.writeByte(0)
         // 0->本地 1->自定义 2->保存的游戏
-        o.writeInt(Data.game.maps.mapType.ordinal)
-        if (Data.game.maps.mapType == GameMaps.MapType.defaultMap) {
-            o.writeString("maps/skirmish/" + Data.game.maps.mapPlayer + Data.game.maps.mapName + ".tmx")
+        GroupGame.games.get(gid)?.maps?.mapType?.let { o.writeInt(it.ordinal) }
+        if (GroupGame.games.get(gid)?.maps?.mapType  == GameMaps.MapType.defaultMap) {
+            o.writeString("maps/skirmish/" + GroupGame.games.get(gid)!!.maps.mapPlayer + GroupGame.games.get(gid)!!.maps.mapName + ".tmx")
         } else {
-            o.flushMapData(Data.game.maps.mapData!!.mapSize, Data.game.maps.mapData!!.bytesMap!!)
-            o.writeString("SAVE:" + Data.game.maps.mapName + ".tmx")
+            o.flushMapData(GroupGame.games.get(gid)?.maps?.mapData!!.mapSize, GroupGame.games.get(gid)?.maps?.mapData!!.bytesMap!!)
+            o.writeString("SAVE:" + GroupGame.games.get(gid)!!.maps.mapName + ".tmx")
         }
         o.writeBoolean(false)
         return o.createPacket(PacketType.PACKET_START_GAME)
@@ -160,37 +148,28 @@ class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun getExitPacket(): Packet {
-        val cPacket: Packet? = Cache.packetCache["getExitPacket"]
-        if (IsUtil.notIsBlank(cPacket)) {
-            return cPacket!!
-        }
-
         val o = GameOutputStream()
         o.writeString("exited")
-
-        val cachePacket = o.createPacket(111)
-        Cache.packetCache.put("getExitPacket",cachePacket)
-
-        return cachePacket
+        return o.createPackets(111)
     }
 
     @Throws(IOException::class)
-    override fun writePlayer(player: Player, stream: GameOutputStream) {
-        if (Data.game.isStartGame) {
+    override fun writePlayer(player: Player, stream: DataOutputStream) {
+        if (GroupGame.games.get(player.groupId)?.isStartGame == true) {
             stream.writeByte(player.site)
             stream.writeInt(player.ping)
-            stream.writeBoolean(Data.game.sharedControl)
+            stream.writeBoolean(GroupGame.games.get(player.groupId)!!.sharedControl)
             stream.writeBoolean(player.sharedControl)
             return
         }
         stream.writeByte(player.site)
-        stream.writeInt(Data.game.credits)
+        stream.writeInt(GroupGame.gU(player.groupId).credits)
         stream.writeInt(player.team)
         stream.writeBoolean(true)
-        stream.writeString(player.name)
+        stream.writeUTF(player.name)
         stream.writeBoolean(false)
 
-        /* -1 N/A  -2 -   -99 HOST */
+        /* -1 N/A ; -2 -  ; -99 HOST */
         stream.writeInt(player.ping)
         stream.writeLong(System.currentTimeMillis())
         /* MS */
@@ -199,7 +178,7 @@ class GameVersionPacket : AbstractNetPacket {
         stream.writeInt(player.site)
         stream.writeByte(0)
         /* 共享控制 */
-        stream.writeBoolean(Data.game.sharedControl)
+        stream.writeBoolean(GroupGame.gU(player.groupId).sharedControl)
         /* 是否掉线 */
         stream.writeBoolean(player.sharedControl)
         /* 是否投降 */
@@ -213,34 +192,11 @@ class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun getPlayerConnectPacket(): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rwhps.forward")
-        out.writeInt(1)
-        out.writeInt(151)
-        out.writeInt(151)
-        return out.createPacket(PacketType.PACKET_PREREGISTER_CONNECTION)
+        return Packet(0, ByteArray(0))
     }
 
     @Throws(IOException::class)
-    override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rts")
-        out.writeInt(4)
-        out.writeInt(151)
-        out.writeInt(151)
-        out.writeString(name)
-
-        if (IsUtil.isBlank(passwd)) {
-            out.writeBoolean(false)
-        } else {
-            out.writeBoolean(true)
-            out.writeString(BigInteger(1, Sha.sha256Array(passwd!!)).toString(16).uppercase())
-        }
-
-        out.writeString("com.corrodinggames.rts.java")
-        out.writeString(uuid)
-        out.writeInt(1198432602)
-        out.writeString(Game.connectKey(key))
-        return out.createPacket(PacketType.PACKET_PLAYER_INFO)
+    override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String, key: Int): Packet {
+        return Packet(0,ByteArray(0))
     }
 }

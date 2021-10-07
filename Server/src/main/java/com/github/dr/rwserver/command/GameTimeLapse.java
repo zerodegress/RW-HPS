@@ -38,14 +38,13 @@ public class GameTimeLapse {
                 }
             }
         });
-
         KongZhi.broadCast(KongZhi.gameStateInfo());
     }
 
     public void refresh(){
         Threads.removeScheduledFutureData("play-time");
         Log.clog("游戏计时任务开始");
-        Threads.newThreadService2(this::update,1,2, TimeUnit.SECONDS,"play-time");
+        Threads.newThreadService2(this::update,1,3, TimeUnit.SECONDS,"play-time");
     }
 //
 //    public void gameOverCheck(){

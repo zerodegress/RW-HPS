@@ -27,12 +27,10 @@ public class NetServer {
     }
 
     public static void reLoadServer(int gid) {
-        if (Threads.getIfScheduledFutureData("GameTask"+gid)) {
-            Threads.removeScheduledFutureData("GameTask"+gid);
-        }
-        if (Threads.getIfScheduledFutureData("Gameover-t"+gid)) {
-            Threads.removeScheduledFutureData("Gameover-t"+gid);
-        }
+
+        Threads.removeScheduledFutureData("Gameover-t"+gid);
+        Threads.removeScheduledFutureData("Gameover"+gid);
+
         Call.killPlayers(gid);
         GroupGame.removePlayer(Data.playerAll,gid);
         GroupGame.removePlayer(Data.playerGroup,gid);

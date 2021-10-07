@@ -80,7 +80,7 @@ public class ClientCommands {
 					 GroupGame.games.get(player.groupId).maps.mapPlayer = "";
 					player.sendSystemMessage(player.localeUtil.getinput("map.custom.info"));
 				}
-				Call.upDataGameData();
+				Call.upDataGameData(player.groupId);
 			}
 		});
 
@@ -121,14 +121,14 @@ public class ClientCommands {
 				Data.playerGroup.each(p -> p.isAdmin,e -> admin.set(false));
 				if (admin.get()&& GroupGame.games.get(player.groupId).oneAdmin)  {
 					player.isAdmin = true;
-					Call.upDataGameData();
+					Call.upDataGameData(player.groupId);
 					Call.sendSystemMessageLocal("afk.end.noAdmin",player.groupId,player.name);
 					return;
 				}
 				Threads.newThreadService(() -> Data.playerGroup.each(p -> p.isAdmin, i -> {
 					i.isAdmin = false;
 					player.isAdmin = true;
-					Call.upDataGameData();
+					Call.upDataGameData(player.groupId);
 					Call.sendSystemMessageLocal("afk.end.ok",player.groupId,player.name);
 					Threads.removeScheduledFutureData("AfkCountdown");
 				}),30, TimeUnit.SECONDS,"AfkCountdown");
@@ -151,7 +151,7 @@ public class ClientCommands {
 				if (notIsBlank(newAdmin)) {
 					player.isAdmin = false;
 					newAdmin.isAdmin = true;
-					Call.upDataGameData();
+					Call.upDataGameData(player.groupId);
 					Call.sendMessageLocal(player,"give.ok",player.name);
 				}else{
 					Call.sendMessageLocal(player,"give.noPlayer",player.name);
@@ -184,8 +184,7 @@ public class ClientCommands {
 				if(v<100) player.con.sendSystemMessage("已锁定不小于100倍金钱");
 				else {
 					GroupGame.games.get(player.groupId).income =v ;
-					Call.upDataGameData();
-
+					Call.upDataGameData(player.groupId);
 				}
 			}
 		});
@@ -256,14 +255,14 @@ public class ClientCommands {
 						break;
 
 				}
-				Call.upDataGameData();
+				Call.upDataGameData(player.groupId);
 			}
 		});
 
 		handler.<Player>register("nukes", "<boolean>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
 				 GroupGame.games.get(player.groupId).noNukes = !Boolean.parseBoolean(args[0]);
-				Call.upDataGameData();
+				Call.upDataGameData(player.groupId);
 			}
 		});
 
@@ -272,14 +271,14 @@ public class ClientCommands {
 		handler.<Player>register("fog", "<type>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
 				 GroupGame.games.get(player.groupId).mist = "off".equals(args[0]) ? 0 : "basic".equals(args[0]) ? 1 : 2;
-				Call.upDataGameData();
+				Call.upDataGameData(player.groupId);
 			}
 		});
 
 		handler.<Player>register("sharedcontrol", "<boolean>", "HIDE", (args, player) -> {
 			if (isAdmin(player)) {
 				 GroupGame.games.get(player.groupId).sharedControl = Boolean.parseBoolean(args[0]);
-				Call.upDataGameData();
+				Call.upDataGameData(player.groupId);
 			}
 		});
 
@@ -291,7 +290,7 @@ public class ClientCommands {
 				}
 				// GroupGame.games.get(player.groupId).initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
 				 GroupGame.games.get(player.groupId).initUnit = Integer.parseInt(args[0]);
-				Call.upDataGameData();
+				Call.upDataGameData(player.groupId);
 			}
 		});
 

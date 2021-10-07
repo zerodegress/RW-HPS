@@ -1,5 +1,7 @@
 package com.github.dr.rwserver.net.game;
 
+import com.github.dr.rwserver.net.game.cal.CalUt;
+import com.github.dr.rwserver.net.game.cal.ChannelInfo;
 import com.github.dr.rwserver.util.log.Log;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelDuplexHandler;
@@ -79,6 +81,7 @@ public class ChoiceStarGameNet extends StartGameNetTcp{
     public void initChannel(SocketChannel ch) throws Exception {
 //        ch.pipeline().addLast(new LoggingHandler(LogLevel.INFO));
         this.socketChannel=ch;
+        CalUt.twoOver.add(new ChannelInfo(ch,System.currentTimeMillis()));
         ch.pipeline().addLast(divider);
     }
     void superInitChannel() throws Exception {

@@ -78,7 +78,7 @@ public final class Player {
 	}
 
 	public final void sendSystemMessage(@NotNull @Nls final String text) {
-		con.sendSystemMessage(text);
+		if(null!=con) con.sendSystemMessage(text);
 	}
 
 	public final void sendMessage(Player player, @NotNull @Nls String text) {
@@ -113,5 +113,35 @@ public final class Player {
 	@Override
 	public int hashCode() {
 		return Objects.hash(uuid);
+	}
+
+	@Override
+	public String toString() {
+		return "Player{" +
+				"groupId=" + groupId +
+				", uuid='" + uuid + '\'' +
+				", name='" + name + '\'' +
+				", con=" + con +
+//				", isAdmin=" + isAdmin +
+//				", team=" + team +
+//				", site=" + site +
+//				", credits=" + credits +
+//				", sharedControl=" + sharedControl +
+//				", start=" + start +
+//				", localeUtil=" + localeUtil +
+//				", dead=" + dead +
+//				", lastMoveTime=" + lastMoveTime +
+//				", muteTime=" + muteTime +
+//				", kickTime=" + kickTime +
+//				", timeTemp=" + timeTemp +
+//				", ping=" + ping +
+//				", pingTimes=" + pingTimes +
+//				", avgPing=" + avgPing +
+//				", lastMessageTime=" + lastMessageTime +
+//				", lastSentMessage='" + lastSentMessage + '\'' +
+//				", noSay=" + noSay +
+//				", canSave=" + canSave +
+//				", watch=" + watch +
+				'}';
 	}
 }

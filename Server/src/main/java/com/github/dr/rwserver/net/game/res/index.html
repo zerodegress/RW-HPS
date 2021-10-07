@@ -10,14 +10,26 @@
         *{
             margin: 0 auto;
         }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg)
+            }
+
+            to {
+                transform: rotate(360deg)
+            }
+        }
+        .spin{
+            animation: rotate 30s linear infinite;
+        }
         .btn{
-            background-color: rgba(175, 248, 219, 0.53);
+            background-color: rgba(187, 186, 186, 0.53);
             transition: 1s linear;
             box-shadow:1px 3px 10px 2px rgb(144 144 144 / 29%);
             height: 50px;
             line-height: 50px;
             font-size: 20px;
-            color: #250a57;
+            color: #7c7c7d;
             padding: 5px 8px;
             user-select: none;
         }
@@ -39,7 +51,7 @@
             user-select: none;
         }
         .btn:hover{
-            background-color: #7fffc8;
+            background-color: #ffffff;
             transition: 1s linear;
             cursor: pointer;
             user-select: none;
@@ -77,8 +89,8 @@
         }
            input:focus{
                outline: 0;
-               border: 1px solid #c5ff00;
-               box-shadow: 2px 2px 5px 4px #aaaaaa1a;
+               border: 1px solid rgba(255, 145, 0, 0.45);
+               box-shadow: 9px 0px 9px 0px  #ffbb2f45;
                transition: 0.5s linear;
            }
            input {
@@ -89,7 +101,7 @@
                -webkit-appearance: none;
                padding: 5px 8px;
                box-shadow: 2px 2px 5px 4px #5555551a;
-               border: 1px solid #9cc318;
+               border: 1px solid rgba(199, 199, 199, 0.13);
                border-radius: 0;
                transition: 0.5s linear;
                color: #494949;
@@ -122,7 +134,7 @@
             /* border-radius: 4px; */
         }
         .mc-ka-z:hover{
-            background-color: rgba(205, 201, 205, 0.99);
+            background-color: rgba(215, 170, 215, 0.6);
         }
         .mc-ka-st{
             width: 210px;
@@ -220,28 +232,38 @@
     </style>
 </head>
 <body>
-<div style="position:fixed; width:100%; height:100%;background-image: url('https://i.loli.net/2021/08/06/wDBE2OCTUpz9fxJ.jpg')"></div>
+<div id="backImg" class="spin" style="transition: 3s;filter: blur(40px);position:fixed; width:100%; height:100%;background-image: url('https://i.loli.net/2021/10/07/9vtB61n37qJwEgL.jpg')"></div>
 <div style="position: absolute;top: 0px;width: 100%">
-    <div class="bord-with">
-        <div style="width: 200px;display: inline-block">
+    <div id="enTitle" style="font-size: 90px;text-align: center;color: #98a19e8a;height: 20px; margin-top: 200px;">
+        小明正要去上学
+        <div style="
+    font-size: 20px;
+    color: #787878;
+    width: 600px;
+    text-align: right;
+">-2021.10.7</div>
+    </div>
+    <div id="enter" style="width: 300px;height: 100px;position: fixed;top: 50%;left: 50%;margin-left: -150px;margin-top: -50px;">
+        <span class="btn"  onclick="connect()">连接</span>
+        <input id="a" name="a"  style="display: block;float: left;margin-top: 7px;height: 24px;" type="password"/>
+        <div id="backInfo" style="color:red;font-size: 14px"></div>
+    </div>
+    <div id="menu" class="bord-with" style="display: none">
+        <div style="width: 400px;display: inline-block;margin-top: 20px;">
             <form id="form" class="bord-with">
-                <input id="a" name="a" style="height: 27px" type="password"/>
-                <br>
-                <span class="btn" onclick="connect()">连接</span>
-                <span class="btn" onclick="setCan()">参数设置</span>
-                <span class="btn" id="cmdHelp">命令帮助</span>
-                <br>
                 <input id="b" name="b" style="height: 27px"/>
             </form>
             <span class="btn" onclick="doCmd()">发送命令</span>
             <span class="btn" onclick="clearBoard()">清除日志</span>
-            <div id="backInfo"></div>
+            <span class="btn" onclick="boardSwitch(this)">隐藏日志</span>
+            <span class="btn" onclick="setCan()">参数设置</span>
+            <span class="btn" id="cmdHelp">命令帮助</span>
         </div>
         <span style="background-color: #7f7f7f;width: 20px"></span>
         <div id="cmTab">
         </div>
     </div>
-    <div id="playStat" style="background-color: #dbe6f840;border-top: 5px solid #6c5c5c8c;">
+    <div id="playStat" style="background-color: #dbe6f840;border-top:2px solid #c1c1c18c;display: none">
         <div style="height: 50px;width: 550px">
             <span class="btn" style="font-size: 16px;"  onclick="sendServerMsg()">发送服务器消息</span>
             <input id="pMsg" style="display: block;float: left;margin: 10px;"/>
@@ -251,8 +273,8 @@
         <div id="zu" style="margin: 0 auto;width: 980px;overflow: hidden;"></div>
         <div style="height: 30px"></div>
     </div>
-    <div id="boardWra" style="background-color: #84848438;width: 600px;height: 400px;font-size: 12px;border:5px solid #82818142;
-        position: fixed;bottom: 10px">
+    <div id="boardWra" style="background-color: #000000db;width: 900px;height: 400px;font-size: 14px;border:5px solid #82818142;
+        position: fixed;bottom: 10px;display: none">
         <div id="boardHead" style="user-select: none;background-color: #60606073;height: 20px">日志信息：</div>
         <div style="height: 380px;overflow: hidden">
             <div class="board" id="board">
@@ -282,13 +304,31 @@
     function boardGoing(str){
         let el = document.createElement("p");
         el.innerText=str;
-        el.style.backgroundColor=colorWalkH(100,50,0.2,0,200)
+        el.style.color=colorWalkHA(100,50,0.2,1,0,200)
         board.prepend(el);
     }
     function clearBoard(){
         board.innerText="..."
     }
     let ws;
+    function boardSwitch(obj){
+        if(obj.innerText=='显示日志'){
+            obj.innerText='隐藏日志'
+            document.getElementById("boardWra").style.display='block'
+        }else {
+            obj.innerText='显示日志'
+            document.getElementById("boardWra").style.display='none'
+        }
+    }
+    function showOther(){
+        let bacImg=document.getElementById("backImg");
+        bacImg.classList.remove("spin");
+        bacImg.style.filter="unset";
+        document.getElementById("boardWra").style.display='block';
+        document.getElementById("enter").style.display='none';
+        document.getElementById("menu").style.display='block';
+        document.getElementById("playStat").style.display='block';
+    }
     function connect(){
         if(ws&&ws.isConnected) {
             boardGoing("已连接")
@@ -313,8 +353,11 @@
             }else if(e.data.startsWith("-gf ")) initServerCan(e.data);
             else if(e.data.startsWith("-chat\n")) {
                 ag=e.data.split('\n');chatShow(ag[1],ag[2])
-            }
-            else boardGoing(e.data)
+            }else if(e.data=="200"){
+                showOther()
+            }else if(e.data=="错误：100"){
+                backInfo.innerText="你把密码给忘了吗，忘了我也没辙"
+            } else boardGoing(e.data)
         }
         ws.onclose=function (){
             boardGoing("已断开")
@@ -523,7 +566,7 @@
         }
     }
     let colorSch=["#d2ee52","#a251a0","#e4e9b6","#c97ef5","#88e60f","#8e5c4a","#f2cf9d","#8e7221","#faa5fe","#acc651","#acfb1e","#d87daa","#af46ec","#a9b143","#faa759"]
-    let colorTeam=["#092671","#B31010",
+    let colorTeam=["rgba(9,38,113,0.2)","rgba(179,16,16,0.16)",
         "#ea8531","#c34b26","#ad5465","#c4eaa9","#8a7597","#cc184c","#f9b185","#899ff3","#bfcb65","#a22e34","#9c5bd8","#994fcf","#d4821c"]
     // for(let i=0;i<15;i++){
     //     colorSch[i]=colorWalk(8947848);
@@ -539,7 +582,7 @@
         }
         playTimeDom="在线玩家："+playTimeDom.online+"/"+playTimeDom.total;
         toCard(data,playStat,(p,i,data)=>{
-            if(i==6) p.parentElement.style.setProperty("--mc-bg-ka",data[i]=="断开"?"rgb(151, 151, 151)":data[5]=='true'?"rgb(182,134,14)":colorTeam[data[4]])
+            if(i==6) p.parentElement.style.setProperty("--mc-bg-ka",data[i]=="断开"?"rgba(151,151,151,0.04)":data[5]=='true'?"rgba(255,221,0,0.18)":colorTeam[data[4]])
             p.style.setProperty("--mc-bg-hong",colorSch[i])
         },1)
     }
@@ -754,7 +797,7 @@
     applyChouTi(document.getElementById("cmdHelp"),cmdTab)
     drag(document.getElementById("boardHead"),document.getElementById("boardWra"))
     board.onmousewheel=(e)=>{
-        let speed=20
+        let speed=50
         let t=-board.style.top.replace("px","");
         if(e.wheelDelta<0&&t<=board.clientHeight-board.parentElement.clientHeight){
             if(t==board.clientHeight-board.parentElement.clientHeight) board.style.top=-(board.clientHeight-board.parentElement.clientHeight)+"px";

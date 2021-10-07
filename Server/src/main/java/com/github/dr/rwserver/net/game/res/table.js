@@ -40,6 +40,13 @@ function colorWalkH(s,l,a,ha,hb){
     let h=randomRange(ha,hb)
     return "hsla("+h+","+s+"%,"+l+"%,"+a+")";
 }
+function colorWalkHA(s,l,aa,ab,ha,hb){
+    if(!ha) ha=0; if(!hb) hb=100;
+    if(!aa) aa=0; if(!ab) ab=1;
+    let h=randomRange(ha,hb)
+    let a=randomRange(aa,ab)
+    return "hsla("+h+","+s+"%,"+l+"%,"+a+")";
+}
 function randomRange(a,b){
     return Math.random()*(b-a)+a;
 }

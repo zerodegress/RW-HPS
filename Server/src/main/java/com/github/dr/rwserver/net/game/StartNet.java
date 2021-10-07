@@ -17,11 +17,14 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioChannelOption;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.Attribute;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketOptions;
+import java.net.StandardSocketOptions;
 
 import static com.github.dr.rwserver.net.game.NewServerHandler.NETTY_CHANNEL_KEY;
 
@@ -52,7 +55,7 @@ public class StartNet {
             runClass = NioServerSocketChannel.class;
             Log.clog("运行在Windows 或许效率会略低");
         } else {
-            bossGroup = new EpollEventLoopGroup(1);
+            bossGroup = new EpollEventLoopGroup(2);
             workerGroup = new EpollEventLoopGroup(4);
             runClass = EpollServerSocketChannel.class;
         }
@@ -61,16 +64,14 @@ public class StartNet {
             serverBootstrapTcp.group(bossGroup, workerGroup)
                     .channel(runClass)
                     .localAddress(new InetSocketAddress(port))
-                    .childOption(ChannelOption.TCP_NODELAY, true)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                    //.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childOption(ChannelOption.TCP_NODELAY, true)
                     .childHandler(starta);
 
             ChannelFuture channelFutureTcp = serverBootstrapTcp.bind(port).sync();
             Channel start = channelFutureTcp.channel();
 
             connectChannel.add(start);
-
             Data.config.setObject("runPid",Data.core.getPid());
             Data.config.save();
             Log.clog(Data.localeUtil.getinput("server.start.openPort"));
@@ -151,7 +152,9 @@ public class StartNet {
                 channel.close();
                 ctx.close();
             }
-        } finally {
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
             OVER_MAP.remove(channel.id().asLongText());
         }
     }

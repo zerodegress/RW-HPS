@@ -49,7 +49,6 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     /** 玩家  */
     override lateinit var player: Player
 
-
     override val ip: String
         get() = connectionAgreement.ip
 
@@ -110,6 +109,7 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
         try {
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getPingPacket(player))
         } catch (e: IOException) {
+            e.printStackTrace()
             `try`++
         }
     }

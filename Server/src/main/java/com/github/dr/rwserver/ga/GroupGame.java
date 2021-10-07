@@ -8,16 +8,15 @@ import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.game.Events;
 import io.netty.util.AttributeKey;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class GroupGame {
 
     public static final AttributeKey<Integer> G_KEY=AttributeKey.valueOf("gid");
-
+    public static final List<ReentrantLock> MOVE_LOCK=new ArrayList<>();
+    public static List<String> blackUUIDList=new ArrayList<>();
     private static int currId=0;
 
     public static Map<Integer, Rules> games=new ConcurrentHashMap<>();
@@ -61,6 +60,7 @@ public class GroupGame {
         }
         Rules rules = new Rules(Data.config);
         rules.init();
+        MOVE_LOCK.add(new ReentrantLock(true));
         games.put(++currId,rules);
         return currId;
     }

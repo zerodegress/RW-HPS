@@ -5,6 +5,7 @@ import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.alone.annotations.NeedHelp
 import com.github.dr.rwserver.util.alone.annotations.NeedToRefactor
+import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.threads.GetNewThreadPool
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit
 object Threads {
     private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(4, "Core-")
 //    private val CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(1, "Core-Net-")
-    private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(8, "ScheduledExecutorPool-")
+    private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(6, "ScheduledExecutorPool-")
 //    private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")
 
     /** 在退出时执行Runnable  */
@@ -36,7 +37,10 @@ object Threads {
     fun closeNet() {
 //        CORE_NET_THREAD.shutdownNow()
     }
-
+    @JvmStatic
+    fun logTasks(){
+        SCHEDULED_FUTURE_DATA.keys().forEach(Log::clog)
+    }
     /**
      * 创建一个倒数计时器
      * @param run Runnable

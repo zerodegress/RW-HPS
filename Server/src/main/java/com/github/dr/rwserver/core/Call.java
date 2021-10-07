@@ -58,27 +58,27 @@ public class Call {
     }
 
     public static void sendTeamData(int gid) {
-        if (GroupGame.games.get(gid).reConnectCount.get()>0) {
-            return;
-        }
+//        if (GroupGame.games.get(gid).reConnectCount.get()>0) {
+//            return;
+//        }
         try {
             GzipEncoder enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket(gid);
-            Data.playerGroup.eachBooleanIfs(p->p.groupId==gid,e -> e.con.sendTeamData(enc));
+            Data.playerGroup.eachBooleanIfs(p->p.groupId==gid&&p.con!=null,e -> e.con.sendTeamData(enc));
         } catch (IOException e) {
             Log.error("[ALL] Send Team Error",e);
         }
     }
 
     public static void sendTeamData() {
-        GroupGame.games.keySet().stream().forEach(Call::sendTeamData);
+        GroupGame.games.keySet().forEach(Call::sendTeamData);
     }
-    private static int times=1;
     public static void sendPlayerPing() {
-        times=times++>5?1:times;
-        GroupGame.games.keySet().stream().filter(x->times==5||!GroupGame.games.get(x).isStartGame)
-                .forEach(x-> GroupGame.playersByGid(Data.playerGroup,x).forEach(
-                        e -> e.con.ping()
-                ));
+        GroupGame.games.forEach((x,y)->{
+            if(!y.isStartGame){
+                GroupGame.playerGroup(x).forEach(p->p.con.ping());
+            }
+            sendTeamData(x);
+        });
     }
 //    public static void killAllPlayer() {
 //        Data.playerGroup.each(e -> {
@@ -112,7 +112,6 @@ public class Call {
 
         private int loadTime = 0;
         private final int loadTimeMaxTry = 30;
-        private boolean start =true;
         private int gid;
         public RandyTask(int gid) {
             this.gid = gid;
@@ -123,26 +122,19 @@ public class Call {
             Data.playerGroup.eachBooleanIfs(e->e.groupId==gid,p -> {
                 if (!p.start) {
                     loadTime += 1;
-                    start = false;
                     if (loadTime > loadTimeMaxTry) {
-                        if (start) {
-                            Call.sendSystemMessageLocal("start.testNo",p.groupId);
-                        }
-                        Threads.newThreadService2(new SendGameTickCommand(gid),0,150, TimeUnit.MILLISECONDS,"GameTask"+gid);
+                        Call.sendSystemMessageLocal("start.testNo",p.groupId);
+                        GroupGame.gU(p.groupId).isReady=true;
                         cancel();
                     }
                 }
             });
-            if (start) {
-                start = false;
-                Call.sendSystemMessageLocal("start.testYes",gid);
-            }
-            Threads.newThreadService2(new SendGameTickCommand(gid),0,150, TimeUnit.MILLISECONDS,"GameTask"+gid);
+            GroupGame.gU(gid).isReady=true;
             cancel();
         }
     }
-    public static void upDataGameData() {
-        Data.playerGroup.each(e -> {
+    public static void upDataGameData(int gid) {
+        Data.playerGroup.eachBooleanIfs(p->p.groupId==gid&&p.con!=null,e -> {
             try {
                 e.con.sendServerInfo(false);
             } catch (IOException err) {
@@ -151,46 +143,39 @@ public class Call {
         });
 
     }
-    private static class SendGameTickCommand implements Runnable {
-        private int time = 0;
-        private boolean oneSay = true;
+    public static class SendGameTickCommand implements Runnable {
 
-        public SendGameTickCommand(int gid) {
-            this.gid = gid;
-        }
-
-        private int gid;
         @Override
         public void run() {
-            if (GroupGame.games.get(gid).reConnectCount.get()>0) {
-                return;
-            }
-            time += 10;
-
-            final int size = GroupGame.games.get(gid).gameCommandCache.size();
-
-            if (size == 0) {
-                try {
-                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getTickPacket(time),gid);
-                } catch (IOException e) {
-                    Log.error("[ALL] Send Tick Failed",e);
+            GroupGame.games.forEach((gid,rule)->{
+                if (!rule.isReady||rule.reConnectBreak) {
+                    return;
                 }
-            } else if (size == 1 ) {
-                GameCommand gameCommand =GroupGame.gU(gid).gameCommandCache.poll();
-                try {
-                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandPacket(time,gameCommand),gid);
-                } catch (IOException e) {
-                    Log.error("[ALL] Send Game Tick Error",e);
+                rule.time+=15;
+                final int size = rule.gameCommandCache.size();
+                if (size == 0) {
+                    try {
+                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getTickPacket(rule.time),gid);
+                    } catch (IOException e) {
+                        Log.error("[ALL] Send Tick Failed",e);
+                    }
+                } else if (size == 1 ) {
+                    GameCommand gameCommand =rule.gameCommandCache.poll();
+                    try {
+                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandPacket(rule.time,gameCommand),gid);
+                    } catch (IOException e) {
+                        Log.error("[ALL] Send Game Tick Error",e);
+                    }
+                } else {
+                    Seq<GameCommand> comm = new Seq<>(size);
+                    IntStream.range(0, size).mapToObj(i -> rule.gameCommandCache.poll()).forEach(comm::add);
+                    try {
+                        NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandsPacket(rule.time,comm),gid);
+                    } catch (IOException e) {
+                        Log.error("[ALL] Send Game Ticks Error",e);
+                    }
                 }
-            } else {
-                Seq<GameCommand> comm = new Seq<>(size);
-                IntStream.range(0, size).mapToObj(i -> GroupGame.gU(gid).gameCommandCache.poll()).forEach(comm::add);
-                try {
-                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getGameTickCommandsPacket(time,comm),gid);
-                } catch (IOException e) {
-                    Log.error("[ALL] Send Game Ticks Error",e);
-                }
-            }
+            });
         }
     }
 }

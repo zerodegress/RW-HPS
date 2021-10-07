@@ -1,5 +1,6 @@
 package com.github.dr.rwserver.net.game
 
+import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.ga.GroupGame
 import com.github.dr.rwserver.io.Packet
@@ -8,11 +9,13 @@ import com.github.dr.rwserver.net.udp.ReliableSocket
 import com.github.dr.rwserver.util.RandomUtil.generateStr
 import io.netty.channel.Channel
 import io.netty.channel.ChannelHandlerContext
+import io.netty.channel.socket.nio.NioSocketChannel
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Dr
@@ -29,6 +32,7 @@ class ConnectionAgreement {
     val ip: String
     internal val localPort: Int
     val id: String
+
 
     /**
      * TCP Send
@@ -114,10 +118,10 @@ class ConnectionAgreement {
                 groupNet.remove(this)
             }
         }
-        if (objectOutStream is Channel) {
-            objectOutStream.close()
-            channelHandlerContext!!.close()
+        if (objectOutStream is NioSocketChannel) {
             startNet.OVER_MAP.remove(objectOutStream.id().asLongText())
+            Threads.newThreadService({ objectOutStream.close()
+                channelHandlerContext!!.close()} ,2,TimeUnit.SECONDS,this.toString())
         } else if (objectOutStream is ReliableSocket) {
             udpDataOutputStream!!.close()
             objectOutStream.close()
@@ -140,5 +144,7 @@ class ConnectionAgreement {
 
     private fun convertIp(ipString: String): String {
         return ipString.substring(1, ipString.indexOf(':'))
+    }
+    fun getChannel(): Channel {return objectOutStream as Channel
     }
 }

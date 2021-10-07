@@ -31,6 +31,8 @@ public class Rules {
     public int port = 5123;
     /** 是否已启动游戏 */
     public boolean isStartGame = false;
+    public boolean isReady=false;
+    public int time=0;
     public long startTime;
     public byte stage;
     /** 倍数 */
@@ -39,7 +41,7 @@ public class Rules {
     public int credits = 0;
     /** 最大玩家 */
     public int maxPlayer;
-    public int gMaxPlayer=200;
+    public int gMaxPlayer;
     /** 地图数据 */
     public final GameMaps maps = new GameMaps();
     /** nukes */
@@ -54,7 +56,6 @@ public class Rules {
     public final String passwd;
     /** 按键包缓存 */
     public final LinkedBlockingQueue<GameCommand> gameCommandCache = new LinkedBlockingQueue<>();
-    public final LinkedBlockingQueue<GameCommand> reConCommandCache = new LinkedBlockingQueue<>();
     /** 混战分配 */
     public boolean amTeam = false;
     /** 队伍数据 */
@@ -71,7 +72,6 @@ public class Rules {
     public final boolean ipCheckMultiLanguageSupport;
     /** 重连暂停 */
     public boolean reConnectBreak = false;
-    public final AtomicInteger reConnectCount=new AtomicInteger(0);
     /** 重连缓存 GameSave */
     public volatile Packet gameSaveCache = null;
     /** 是否启用重连 */
@@ -88,8 +88,8 @@ public class Rules {
     public boolean mapLock = false;
 
     /** AD */
-    public final String enterAd;
-    public final String startAd;
+    public  String enterAd;
+    public  String startAd;
     public final String maxPlayerAd;
     public final String startPlayerAd;
     public final String serverUpID;
@@ -150,11 +150,10 @@ public class Rules {
         webApiSsl = config.readBoolean("webApiSsl",false);
         webApiSslKetPath = config.readString("webApiSslKetPath","");
         webApiSslPasswd = config.readString("webApiSslPasswd","");
-
         startMinPlayerSize = config.readInt("startMinPlayerSize",0);
-        autoLoadOrUpdate(config);
-
         init(config.readInt("maxPlayer",10),port);
+        gMaxPlayer=config.readInt("gMaxPlayer",120);
+//        autoLoadOrUpdate(config);
     }
 
     public void init() {
@@ -171,13 +170,19 @@ public class Rules {
     public void re() {
         gameCommandCache.clear();
         gameSaveCache=null;
-        reConnectCount.set(0);
         Arrays.fill(playerData, null);
         income = Data.core.defIncome;
         initUnit = 1;
         mist = 2;
         sharedControl = false;
         isStartGame=false;
+        isReady=false;
+        time=0;
+        //重新配置
+
+        enterAd = Data.config.readString("enterServerAd","");
+        startAd = Data.config.readString("startAd","");
+        gMaxPlayer=Data.config.readInt("gMaxPlayer",120);
     }
 
     public void checkMaps() {

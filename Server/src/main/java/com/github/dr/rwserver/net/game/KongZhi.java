@@ -6,15 +6,13 @@ import com.github.dr.rwserver.data.Player;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.ga.GroupGame;
+import com.github.dr.rwserver.net.game.cal.ChannelInfo;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.log.Log;
 import com.google.gson.Gson;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.io.IOException;
@@ -40,7 +38,10 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
                     ctx.writeAndFlush(error(100));
                     ctx.channel().close();
                     return;
-                }else connected.add(ctx.channel());
+                }else {
+                    ctx.writeAndFlush(new TextWebSocketFrame("200"));
+                    connected.add(ctx.channel());
+                }
             }
 
             int op=-1;
@@ -96,13 +97,14 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             map.forEach((k,v)->Data.config.getData().put(k,v));
         }else if(message.startsWith("-ac")){
             String[] arg = message.substring(4).split(" ");
-            Iterator<Player> iterator = Data.playerGroup.iterator();
+            Iterator<Player> iterator = Data.playerAll.iterator();
             if(arg[0].equals("k")){
                 while (iterator.hasNext()){
                     Player p = iterator.next();
                     if(p.uuid.equals(arg[1])) {
                         Log.clog("踢出玩家"+p.name);
                         try {
+                            Data.playerAll.remove(p);
                             p.con.sendKick("你已被踢出");
                         } catch (IOException e) {
                             try{p.con.disconnect();}finally {};
@@ -124,7 +126,7 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
             }
         }
         else {
-            Log.clog("接收到游戏板消息："+message);
+            Log.clog("接收到游戏板命令："+message);
             Data.SERVERCOMMAND.handleMessage(message,(StrCons) Log::clog);
         }
     }
@@ -161,7 +163,7 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
                 prop.add("组" +g.groupId);
                 prop.add(GroupGame.games.get(g.groupId).isStartGame?"游戏中":"战役室");
                 prop.add(GroupGame.gU(g.groupId).startTime+"");
-                prop.add(GroupGame.playerGroup(g.groupId)+"/"+GroupGame.allPlayer(g.groupId));
+                prop.add("["+GroupGame.gU(g.groupId).maps.mapName+"]"+GroupGame.playerGroup(g.groupId).size()+"/"+GroupGame.allPlayer(g.groupId).size());
                 players= new ArrayList<>();
                 data.put("head",prop);
                 data.put("body",players);
@@ -183,6 +185,10 @@ public class KongZhi extends SimpleChannelInboundHandler<TextWebSocketFrame> {
     }
 
     public static void broadCast(String msg){
+
         connected.forEach(x->x.writeAndFlush(new TextWebSocketFrame(msg)));
+    }
+    public static boolean hasChannel(Channel channel){
+        return connected.contains(channel);
     }
 }

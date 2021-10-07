@@ -12,10 +12,10 @@ import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
-import com.github.dr.rwserver.net.GroupNet
 import com.github.dr.rwserver.net.core.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.net.game.KongZhi
+import com.github.dr.rwserver.net.game.cal.CalUt
 import com.github.dr.rwserver.util.ExtractUtil
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
@@ -31,10 +31,8 @@ import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.lang.RuntimeException
-import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
 import kotlin.math.min
 
 /**
@@ -121,8 +119,12 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         GameInputStream(p).use { stream ->
             var message: String? = stream.readString()
             var response: CommandResponse? = null
-            Log.clog("[{0}]: {1}", player.name, message)
-            KongZhi.broadCast("-chat\n"+player.uuid+"\n"+message)
+            if(message?.contains("-i desync:Player") == false && !message?.contains("-i 同步:Player")&&
+                    !message.contains(" -i <suppressing desync errors>")
+                    ){
+                KongZhi.broadCast("-chat\n"+player.uuid+"\n"+message)
+                Log.clog("[{0}]: {1}", player.name, message)
+            }
             if (player.isAdmin && getIfScheduledFutureData("AfkCountdown")) {
                 removeScheduledFutureData("AfkCountdown")
                 Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
@@ -161,11 +163,10 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
             }
         }
     }
-
     @Throws(IOException::class)
     override fun receiveCommand(p: Packet) {
         //PlayerOperationUnitEvent
-        sync.lock()
+        GroupGame.MOVE_LOCK.get(player.groupId-1).lock()
         try {
             GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
                 val outStream = GameOutputStream()
@@ -215,7 +216,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         } catch (e: Exception) {
             Log.error(e)
         } finally {
-            sync.unlock()
+            GroupGame.MOVE_LOCK.get(player.groupId-1).unlock()
         }
     }
 
@@ -248,33 +249,33 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
 
     override fun sendTeamData(gzip: GzipEncoder) {
         try {
-            
+            val rule=GroupGame.gU(player.groupId);
             val o = GameOutputStream()
             /* 玩家位置 */
             o.writeInt(player.site)
-            o.writeBoolean(GroupGame.gU(player.groupId).isStartGame)
+            o.writeBoolean(rule.isStartGame)
             /* 最大玩家 */
-            o.writeInt(GroupGame.gU(player.groupId).maxPlayer)
+            o.writeInt(rule.maxPlayer)
             o.flushEncodeData(gzip)
             /* 迷雾 */
-            o.writeInt(GroupGame.gU(player.groupId).mist)
-            o.writeInt(GroupGame.gU(player.groupId).credits)
+            o.writeInt(rule.mist)
+            o.writeInt(rule.credits)
             o.writeBoolean(true)
             /* AI Difficulty ?*/
             o.writeInt(1)
             o.writeByte(5)
-            o.writeInt(GroupGame.gU(player.groupId).maxUnit)
-            o.writeInt(GroupGame.gU(player.groupId).maxUnit)
+            o.writeInt(rule.maxUnit)
+            o.writeInt(rule.maxUnit)
             /* 初始单位 */
-            o.writeInt(GroupGame.gU(player.groupId).initUnit)
+            o.writeInt(rule.initUnit)
             /* 倍速 */
-            o.writeFloat(GroupGame.gU(player.groupId).income)
+            o.writeFloat(rule.income)
             /* NO Nukes */
-            o.writeBoolean(GroupGame.gU(player.groupId).noNukes)
+            o.writeBoolean(rule.noNukes)
             o.writeBoolean(false)
             o.writeBoolean(false)
             /* 共享控制 */
-            o.writeBoolean(GroupGame.gU(player.groupId).sharedControl)
+            o.writeBoolean(rule.sharedControl)
             /* 游戏暂停 */
             o.writeBoolean(false)
             sendPacket(o.createPacket(PacketType.PACKET_TEAM_LIST))
@@ -288,41 +289,39 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
         try {
             GameInputStream(p).use { stream ->
                 stream.readString()
-                Log.debug(stream.readInt())
-                Log.debug(stream.readInt())
-                Log.debug(stream.readInt())
+                stream.readInt()
+                stream.readInt()
+                stream.readInt()
                 var name = stream.readString()
-                Log.debug("name", name)
+//                Log.debug("name", name)
                 val passwd = stream.isReadString()
-                Log.debug("passwd", passwd)
+//                Log.debug("passwd", passwd)
                 stream.readString()
                 val uuid = stream.readString()
-                Log.debug("uuid", uuid)
-                Log.debug("?", stream.readInt())
+//                Log.debug("uuid", uuid)
+                 stream.readInt()
                 val token = stream.readString()
-                Log.debug("token", token)
+//                Log.debug("token", token)
                 /*
             if (!token.equals(playerConnectKey)) {
                 sendKick("You Open Mod?");
                 return false;
             }
              */
-                val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
-                Events.fire(playerConnectPasswdCheck)
-                if (playerConnectPasswdCheck.result) {
-                    return true
-                }
-                if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
-                    name = playerConnectPasswdCheck.name
-                }
-
-                Events.fire(PlayerJoinUuidandNameEvent(uuid,name))
-
-                val playerJoinName = PlayerJoinNameEvent(name)
-                Events.fire(playerJoinName)
-                if (IsUtil.notIsBlank(playerJoinName.resultName)) {
-                    name = playerJoinName.resultName
-                }
+//                val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
+//                Events.fire(playerConnectPasswdCheck)
+//                if (playerConnectPasswdCheck.result) {
+//                    return true
+//                }
+//                if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
+//                    name = playerConnectPasswdCheck.name
+//                }
+//
+//             val playerJoinName = PlayerJoinNameEvent(name)
+//                Events.fire(playerJoinName)
+//                if (IsUtil.notIsBlank(playerJoinName.resultName)) {
+//                    name = playerJoinName.resultName
+//                }
 
                 inputPassword = false
 
@@ -332,6 +331,7 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                     } else {
                         sendKick(Data.game.maxPlayerAd)
                     }
+                    Log.clog("因服务器已满，拒绝连接："+player.con.ip)
                     return false
                 }
                 val re = AtomicBoolean(false)
@@ -341,9 +341,10 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                     re.set(true)
                     player = e!!
                     player.con = this
+                    super.isDis=false;
                     Data.playerGroup.add(e)
                 }
-                if (!re.get()) {
+                if (!re.get()||!GroupGame.gU(player.groupId).isStartGame) {
                     var localeUtil = Data.localeUtilMap["CN"]
 
                     if (Data.game.ipCheckMultiLanguageSupport) {
@@ -353,16 +354,22 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                         }
                     }
                     player = Player.addPlayer(GroupGame.newPlayerGroupId(), this, uuid, name, localeUtil)
+                    connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+                    Call.sendTeamData(player.groupId)
+                    sendServerInfo(true)
                     if (IsUtil.notIsBlank(GroupGame.gU(player.groupId).enterAd)) {
                         sendSystemMessage(GroupGame.gU(player.groupId).enterAd)
-                        sendSystemMessage("您在第"+player.groupId+"组房间")
                     }
+                    sendSystemMessage("此服务器为rw-hps分支，注意，稳定性不保证！")
+                    sendSystemMessage("欢迎加入，您在第"+player.groupId+"组房间")
                 }else if (reConnect()){
-                    Call.sendSystemMessage("玩家 "+player.name+"重连成功",player.groupId);
+                    Call.sendSystemMessage("玩家 "+player.name+"重连完成",player.groupId);
+                    Log.clog("玩家 "+player.name+"重连完成",player.groupId)
+                    Events.fire(PlayerReJoinEvent(player))
                 }else return false
-                connectionAgreement.add(NetStaticData.groupNet,player.groupId)
-                Call.sendTeamData(player.groupId)
-                sendServerInfo(true)
+//                connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+//                Call.sendTeamData(player.groupId)
+                CalUt.channelInfos.get(connectionAgreement.getChannel().id())?.p = player
                 Events.fire(PlayerJoinEvent(player))
                 return true
             }
@@ -452,21 +459,29 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
     }
 
     override fun  reConnect() :Boolean{
+        val groupRule = GroupGame.gU(player.groupId)
         try {
-            val groupRule = GroupGame.gU(player.groupId)
+            Log.clog("玩家"+player.name+"尝试重连:"+player.con.ip)
             if (!groupRule.reConnect) {
-                sendKick("不支持重连 # Does not support reconnection")
+                sendKick("抱歉，不支持重连")
                 return false;
             }
-            if(groupRule.reConnectCount.getAndIncrement()>0) sendKick("其他玩家正在重连，请稍后再试");
-            super.isDis = false
+            if(groupRule.reConnectBreak) {
+                sendKick("其他玩家正在重连，请稍后再试")
+                return false;
+            };
+            connectionAgreement.add(NetStaticData.groupNet,player.groupId)
+//            Call.sendTeamData(player.groupId)
+            val enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket(player.groupId)
+            player.con.sendTeamData(enc)
+            sendServerInfo(true)
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket(player.groupId))
             try {
-//                future[30, TimeUnit.SECONDS]
+                groupRule.reConnectBreak=true
                 val iterator: Iterator<Player> = Data.playerGroup.iterator()
                 while (iterator.hasNext()) {
                     val next = iterator.next()
-                    if(player==next||!next.canSave) continue;
+                    if(player.groupId!=player.groupId||player==next||!next.canSave||next.con==null) continue;
                     var times=6;
                     next.con.getGameSave();
                     while (times-->0){
@@ -474,35 +489,46 @@ class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractGame
                         Call.sendSystemMessage(player.name+"正在重连，尝试获取"+next.name+"保存包（"+times+")",player.groupId)
                         Thread.sleep(1000)
                     }
-                    if(groupRule.gameSaveCache!=null) break;
+                    if(groupRule.gameSaveCache!=null&&groupRule.gameSaveCache.type!=0) break;
                     next.canSave=false;
                 }
-                if(groupRule.gameSaveCache==null) return false;
+                if(groupRule.gameSaveCache==null) {
+                    sendKick("无法获取保存包")
+                    return false
+                };
                 try {
                     val saveC=NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(groupRule.gameSaveCache);
-                    sendPacket(saveC)
                     NetStaticData.groupNet.broadcast(saveC,player.groupId)
                     return true;
                 } catch (e: IOException) {
                    throw RuntimeException(e)
                 }
-            } catch (e: Exception) {
-//                future.cancel(true)
+            } catch (e: Throwable) {
                 Log.error(e)
-                sendSystemMessage("无法重连")
-                connectionAgreement.close(NetStaticData.groupNet)
-                return false
+                throw RuntimeException(e)
             } finally {
-                groupRule.reConnectCount.getAndDecrement();
+                groupRule.reConnectBreak=false
                 groupRule.gameSaveCache = null
-//                executorService.shutdown()
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
+            connectionAgreement.close(NetStaticData.groupNet)
+            e.printStackTrace()
+            super.isDis=true
             return false;
         }
     }
-
+    private fun reConAutoCloseBreak(gid:Int){
+        if (GroupGame.games[gid]!!.isStartGame) {
+            val players = GroupGame.playersByGid(Data.playerGroup, gid)
+            if (players.size >= 1 ) {
+                removeScheduledFutureData("Gameover$gid")
+            }
+            if (players.stream().map { p: Player -> p.team }.distinct().toArray().size > 1) {
+                removeScheduledFutureData("Gameover-t$gid")
+            }
+        }
+    }
     override fun sendRelayServerType(msg: String) {
         try {
             val o = GameOutputStream()

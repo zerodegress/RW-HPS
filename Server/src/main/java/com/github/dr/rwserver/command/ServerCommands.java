@@ -12,6 +12,8 @@ import com.github.dr.rwserver.data.plugin.PluginManage;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.EventType;
+import com.github.dr.rwserver.net.game.cal.CalUt;
+import com.github.dr.rwserver.net.game.cal.ChannelInfo;
 import com.github.dr.rwserver.net.game.ConnectionAgreement;
 import com.github.dr.rwserver.net.game.StartNet;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
@@ -20,6 +22,7 @@ import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
 import com.github.dr.rwserver.plugin.center.PluginCenter;
 import com.github.dr.rwserver.util.LocaleUtil;
 import com.github.dr.rwserver.util.Time;
+import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.log.Log;
@@ -309,7 +312,7 @@ public class ServerCommands {
                 if (player != null) {
                     i.isAdmin = false;
                     player.isAdmin = true;
-                    Call.upDataGameData();
+                    Call.upDataGameData(player.groupId);
                     Call.sendMessage(player,localeUtil.getinput("give.ok",player.name));
                 }
             });
@@ -345,6 +348,33 @@ public class ServerCommands {
                 Data.playerGroup.each(e -> e.sendSystemMessage(arg[0]));
                 Log.clog("已发送信息 "+arg[0]);
             }
+        });
+        handler.<StrCons>register("info","serverCommands.info", (arg, log) -> {
+            Log.clog("连接信息：");
+            int p=0;
+            int online=0;
+            for(ChannelInfo xx: CalUt.channelInfos.values()){
+                Log.clog(xx.toString());
+                if(null!=xx.getP()) {
+                    p++;
+                    if(Data.playerGroup.contains(xx.getP())) online++;
+                }
+            }
+            Threads.logTasks();
+            Log.clog("总计："+ CalUt.channelInfos.size()+"个连接,"+p+"个玩家，"+online+"人在线，"+Data.playerAll.size()+"个总玩家");
+        });
+
+        handler.<StrCons>register("outCon","serverCommands.info", (arg, log) -> {
+            Log.clog("写出连接：");
+            CalUt.flushAll();
+        });
+        handler.<StrCons>register("throw","serverCommands.info", (arg, log) -> {
+            Log.clog("清理连接");
+            CalUt.throwGab();
+        });
+        handler.<StrCons>register("saveCan","serverCommands.saveCan", (arg, log) -> {
+            Log.clog("保存配置");
+            Data.config.save();
         });
 
         handler.<StrCons>register("timer", "<f/n>","serverCommands.timer", (arg, log) -> {

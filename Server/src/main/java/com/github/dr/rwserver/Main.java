@@ -46,7 +46,7 @@ public class Main {
 	public static void main(String[] args) {
 		final Initialization initialization = new Initialization();
 
-		Log.set("ERROR");
+//		Log.set("ERROR");
 		Log.setPrint(true);
 		Logger.getLogger("io.netty").setLevel(Level.OFF);
 
@@ -120,7 +120,6 @@ public class Main {
 		new YouXiBan().registerServerCommands(Data.SERVERCOMMAND);
 		Data.SERVERCOMMAND.handleMessage("start",(StrCons) Log::clog);
 		new UpList().registerServerCommands(Data.SERVERCOMMAND);
-		Data.SERVERCOMMAND.handleMessage("upserverlist",(StrCons) Log::clog);
 		Data.SERVERCOMMAND.handleMessage("timer n",(StrCons) Log::clog);
 	}
 

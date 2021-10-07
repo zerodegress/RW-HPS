@@ -237,16 +237,10 @@ object Log {
         info(`object`)
     }
 
-    private enum class Logg(private val logg: Int) {
+    private enum class Logg(private val num: Int) {
         /* Log等级 默认为WARN */
         /* 开发时为ALL */
         OFF(8), FATAL(7), ERROR(6), WARN(5), INFO(4), DEBUG(3), TRACE(2), ALL(1);
-
-        private var num = 0
-
-        open fun Logg(num: Int) {
-            this.num = num
-        }
 
         open fun getLogg(): Int {
             return num

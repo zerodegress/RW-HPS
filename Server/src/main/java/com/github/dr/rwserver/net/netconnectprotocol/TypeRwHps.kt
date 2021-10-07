@@ -18,16 +18,16 @@ class TypeRwHps : TypeConnect {
         } else {
             when (packet.type) {
                 PacketType.PACKET_PREREGISTER_CONNECTION -> con.registerConnection(packet)
-                PacketType.PACKET_PLAYER_INFO -> if (!con.getPlayerInfo(packet)) {
-                    con.disconnect()
-                }
+                PacketType.PACKET_PLAYER_INFO -> con.getPlayerInfo(packet)
                 PacketType.PACKET_HEART_BEAT_RESPONSE -> {
                     val player = con.player
                     player!!.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
                 }
                 PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
                 PacketType.PACKET_DISCONNECT -> {
-                    Log.clog("组"+con.player?.groupId+"玩家"+con.player?.name+"主动断开")
+                    try{
+                        Log.clog("组"+con.player?.groupId+"玩家"+con.player?.name+"主动断开")
+                    }catch (e:Throwable){}
                     con.disconnect()
                 }
                 PacketType.PACKET_ACCEPT_START_GAME -> con.player!!.start = true

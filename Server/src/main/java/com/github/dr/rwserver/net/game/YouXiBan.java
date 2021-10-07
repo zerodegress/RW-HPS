@@ -7,6 +7,7 @@ import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.func.StrCons;
 import com.github.dr.rwserver.ga.GroupGame;
 import com.github.dr.rwserver.game.Rules;
+import com.github.dr.rwserver.net.game.cal.CalUt;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer;
 import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps;
 import com.github.dr.rwserver.plugin.Plugin;
@@ -37,8 +38,10 @@ public class YouXiBan extends Plugin {
 
             Data.game = new Rules(Data.config);
             Data.game.init();
-            Threads.newThreadService2(Call::sendTeamData,0,2, TimeUnit.SECONDS,"GameTeam");
+//            Threads.newThreadService2(Call::sendTeamData,1,3, TimeUnit.SECONDS,"GameTeam");
             Threads.newThreadService2(Call::sendPlayerPing,0,2, TimeUnit.SECONDS,"GamePing");
+            Threads.newThreadService2(new Call.SendGameTickCommand(),0,200, TimeUnit.MILLISECONDS,"GameTask");
+            Threads.newThreadService2(CalUt::throwGab,10,10, TimeUnit.MINUTES,"ConClean");
             NetStaticData.protocolData.setTypeConnect(new TypeRwHps());
             NetStaticData.protocolData.setNetConnectProtocol(new GameVersionServer(new ConnectionAgreement()),151);
             Threads.newThreadCore(() -> {

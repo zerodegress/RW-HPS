@@ -38,18 +38,10 @@ public class NetServer {
     }
 
     public static void reLoadServer() {
-        if (Threads.getIfScheduledFutureData("GameTask")) {
-            Threads.removeScheduledFutureData("GameTask");
-        }
-        if (Threads.getIfScheduledFutureData("GamePing")) {
-            Threads.removeScheduledFutureData("GamePing");
-        }
-        if (Threads.getIfScheduledFutureData("GameWinOrLoseCheck")) {
-            Threads.removeScheduledFutureData("GameWinOrLoseCheck");
-        }
-        if (Threads.getIfScheduledFutureData("Gameover")) {
-            Threads.removeScheduledFutureData("Gameover");
-        }
+        Threads.removeScheduledFutureData("GameTask");
+        Threads.removeScheduledFutureData("GamePing");
+        Threads.removeScheduledFutureData("GameWinOrLoseCheck");
+        Threads.removeScheduledFutureData("Gameover");
         Call.killAllPlayer();
         Data.playerGroup.clear();
         Data.playerAll.clear();

@@ -15,6 +15,8 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.json.Json
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.net.HttpRequestOkHttp
+import com.github.dr.rwserver.util.ExtractUtil
+import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.ReExp
 import com.github.dr.rwserver.util.encryption.Base64
@@ -79,7 +81,7 @@ class UpListCustom(handler: CommandHandler) {
         formBody.add("PlayerSize",Data.playerGroup.size().toString())
         formBody.add("PlayerMaxSize",Data.game.maxPlayer.toString())
 
-        val resultUpList = HttpRequestOkHttp.doPost("https://api.data.der.kim/UpList/v2/upList", formBody)
+        val resultUpList = HttpRequestOkHttp.doPost("https://api.data.der.kim/UpList/v3/upList", formBody)
 
         if (resultUpList.startsWith("[-1]")) {
             error("[Get UPLIST Data Error] Please Check API")
@@ -105,8 +107,14 @@ class UpListCustom(handler: CommandHandler) {
     }
 
     private fun uplist() {
-        val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", addData).contains(serverID)
-        val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", addData).contains(serverID)
+        var privateIp = ExtractUtil.getPrivateIp()
+        if (IsUtil.isBlank(privateIp)) {
+            privateIp = "10.0.0.1"
+        }
+
+        val resultUp = MessageFormat(addData).format(arrayOf(Data.core.serverName,privateIp,Data.game.maps.mapName))
+        val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultUp).contains(serverID)
+        val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultUp).contains(serverID)
         if (addGs1 || addGs4) {
             if (addGs1 && addGs4) {
                 clog(Data.localeUtil.getinput("err.yesList"))
@@ -129,7 +137,7 @@ class UpListCustom(handler: CommandHandler) {
             val pingdata = object : ReExp() {
                 @Throws(Exception::class)
                 override fun runs(): Any {
-                    val result0 = MessageFormat(updateData).format(arrayOf(Data.game.maps.mapName,if (Data.game.isStartGame) "ingame" else "battleroom",Data.playerGroup.size().toString()))
+                    val result0 = MessageFormat(updateData).format(arrayOf(Data.core.serverName,Data.game.maps.mapName,if (Data.game.isStartGame) "ingame" else "battleroom",Data.playerGroup.size().toString()))
                     HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)
                     HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", result0)
 

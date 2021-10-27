@@ -10,6 +10,8 @@
 package com.github.dr.rwserver.util
 
 import com.github.dr.rwserver.data.global.Data
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.nio.charset.StandardCharsets
 
 /**
@@ -69,5 +71,15 @@ object ExtractUtil {
             sb.append(hex).append(" ")
         }
         return sb.toString()
+    }
+
+    /**
+     * 获取本机内网ip
+     * @return
+     * @throws UnknownHostException
+     */
+    @Throws(UnknownHostException::class)
+    fun getPrivateIp(): String? {
+        return InetAddress.getLocalHost().hostAddress
     }
 }

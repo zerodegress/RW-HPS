@@ -174,7 +174,7 @@ public class Main {
 			GameOutputStream stream = Data.utilData;
 			stream.reset();
 			stream.writeInt(1);
-			Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData-114")));
+			Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData")));
 			stream.writeInt(list.size());
 			String[] unitData;
 			for (String str : list) {
@@ -189,7 +189,7 @@ public class Main {
 		} catch (Exception e) {
 			Log.error(e);
 		}
-		Log.clog("Load OK 1.14 Protocol");
+		Log.clog("Load OK 1.15.P* Protocol");
 	}
 
 	public static void loadUnitList() {

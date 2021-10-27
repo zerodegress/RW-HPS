@@ -21,6 +21,7 @@ import com.github.dr.rwserver.net.core.AbstractNetPacket
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
+import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Game
 import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log.error
@@ -31,7 +32,8 @@ import java.math.BigInteger
 /**
  * @author Dr
  */
-class GameVersionPacket : AbstractNetPacket {
+@MainProtocolImplementation
+open class GameVersionPacket : AbstractNetPacket {
     @Throws(IOException::class)
     override fun getSystemMessagePacket(msg: String): Packet {
         return getChatMessagePacket(msg, "SERVER", 5)

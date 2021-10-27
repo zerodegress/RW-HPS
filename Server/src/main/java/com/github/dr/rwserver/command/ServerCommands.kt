@@ -30,10 +30,7 @@ import com.github.dr.rwserver.game.EventType.PlayerBanEvent
 import com.github.dr.rwserver.game.Rules
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.net.game.StartNet
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionFFA
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket
-import com.github.dr.rwserver.net.netconnectprotocol.GameVersionServer
-import com.github.dr.rwserver.net.netconnectprotocol.TypeRwHps
+import com.github.dr.rwserver.net.netconnectprotocol.*
 import com.github.dr.rwserver.plugin.PluginsLoad.PluginLoadData
 import com.github.dr.rwserver.plugin.center.PluginCenter
 import com.github.dr.rwserver.struct.Seq
@@ -91,9 +88,9 @@ class ServerCommands(handler: CommandHandler) {
             Data.game.init()
             newThreadService2({ Call.sendTeamData() } , 0, 2, TimeUnit.SECONDS, "GameTeam")
             newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS, "GamePing")
-            NetStaticData.protocolData.setTypeConnect(TypeRwHps())
-            NetStaticData.protocolData.setNetConnectProtocol(GameVersionServer(ConnectionAgreement()), 151)
-            NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
+            NetStaticData.protocolData.setTypeConnect(TypeRwHpsBeta());
+            NetStaticData.protocolData.setNetConnectProtocol(GameVersionServerBeta(ConnectionAgreement()),157);
+            NetStaticData.protocolData.setNetConnectPacket(GameVersionPacketBeta(),"3.0.0");
             newThreadCore {
                 val startNet = StartNet()
                 NetStaticData.startNet.add(startNet)

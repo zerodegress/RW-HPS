@@ -177,7 +177,7 @@ class ServerCommands(handler: CommandHandler) {
                 log[data.toString()]
             }
         }
-        handler.register("maps", "serverCommands.clearmuteall") { _: Array<String>?, log: StrCons ->
+        handler.register("maps", "serverCommands.maps") { _: Array<String>?, log: StrCons ->
             val response = StringBuilder()
             val i = AtomicInteger(0)
             Data.game.mapsData.keys().forEach { k: String? ->

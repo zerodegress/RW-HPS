@@ -12,8 +12,10 @@ package com.github.dr.rwserver.data.json
 import com.github.dr.rwserver.struct.ObjectMap
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.file.FileUtil
 import com.github.dr.rwserver.util.serialization.JSONSerializer
 import com.github.dr.rwserver.util.serialization.JsonFormatTool
+import com.google.gson.Gson
 
 //Json
 //写的越久，BUG越多，伤痕越疼，脾气越差/-活得越久 故事越多 伤痕越疼，脾气越差
@@ -81,7 +83,7 @@ class Json {
 
     companion object {
         /**
-         * Map转Json 已格式化
+         * Map to JSON formatted
          * @param map Map<String, Any>
          * @return Json
          */
@@ -91,7 +93,7 @@ class Json {
         }
 
         /**
-         * Map转Json 已格式化
+         * Map to JSON formatted
          * @param map Map<String, Any>
          * @return Json
          */
@@ -99,5 +101,13 @@ class Json {
         fun toJson(map: ObjectMap<String, Any>): String {
             return JsonFormatTool().formatJson(JSONSerializer.serialize(map))
         }
+
+        @JvmStatic
+        fun <T> stringToClass(fileUtil: FileUtil,clazz: Class<T>): Any {
+            val gson = Gson()
+            val json = fileUtil.readFileStringData();
+            return gson.fromJson(if (IsUtil.notIsBlank(json)) json else "{}", clazz.javaClass)
+        }
+
     }
 }

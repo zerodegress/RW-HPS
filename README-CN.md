@@ -168,6 +168,8 @@ RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如�
 
 我们通过以下渠道接受捐赠：  
 + [爱发电](https://afdian.net/@derdct)
++ [EN - Ko-Fi](https://ko-fi.com/derdct)
+
 
 ## 感谢
 > [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的 IDE，适用于 JVM 平台语言。

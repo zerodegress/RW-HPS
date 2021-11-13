@@ -161,7 +161,8 @@ RW-HPS is an open source project authorized by AGPL V3, which is free to use. Ho
 Please note that sponsorship is entirely voluntary. Sponsors are not privileged and can use all features without sponsorship.
 
 We receive donations through the following channels：
-+ [爱发电](https://afdian.net/@derdct)
++ [Ko-Fi](https://ko-fi.com/derdct)
++ [CN - 爱发电](https://afdian.net/@derdct)
 
 ## Thanks
 > [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) It is an IDE that maximizes the productivity of developers in all aspects, and is suitable for JVM platform languages。

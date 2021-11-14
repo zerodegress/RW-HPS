@@ -37,7 +37,6 @@ import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
-import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.log.Log.set
 import java.io.IOException
@@ -64,10 +63,15 @@ class ServerCommands(handler: CommandHandler) {
                 }
             }
         }
+
+        /*
+        @DidNotFinish
         handler.register("stop", "serverCommands.stop") { _: Array<String>?, log: StrCons ->
             log["Stop Server. end"]
             NetServer.closeServer()
         }
+         */
+
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION)]
         }
@@ -79,44 +83,55 @@ class ServerCommands(handler: CommandHandler) {
             Data.SERVER_COMMAND.handleMessage("start")
         }
         handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (Data.serverChannelB != null) {
+            if (NetStaticData.startNet.size() > 0) {
                 log["The server is not closed, please close"]
                 return@register
             }
-            Log.set(Data.config.readString("log", "WARN").uppercase(Locale.getDefault()))
+            set(Data.config.Log.uppercase(Locale.getDefault()))
             Data.game = Rules(Data.config)
+            if (Data.config.SingleUserRelay) {
+                Data.SERVER_COMMAND.handleMessage("startrelayt", log)
+                return@register
+            }
             Data.game.init()
-            newThreadService2({ Call.sendTeamData() } , 0, 2, TimeUnit.SECONDS, "GameTeam")
+            newThreadService2({ sendTeamData() } , 0, 2, TimeUnit.SECONDS, "GameTeam")
             newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS, "GamePing")
+
+NetStaticData.protocolData.setTypeConnect(TypeRwHps())
+NetStaticData.protocolData.setNetConnectProtocol(GameVersionServer(ConnectionAgreement()), 151)
+NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
+
+/*
             NetStaticData.protocolData.setTypeConnect(TypeRwHpsBeta());
             NetStaticData.protocolData.setNetConnectProtocol(GameVersionServerBeta(ConnectionAgreement()),157);
-            NetStaticData.protocolData.setNetConnectPacket(GameVersionPacketBeta(),"3.0.0");
+            NetStaticData.protocolData.setNetConnectPacket(GameVersionPacketBeta(),"3.0.0");*/
+            //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
             newThreadCore {
                 val startNet = StartNet()
                 NetStaticData.startNet.add(startNet)
-                startNet.openPort(Data.game.port)
+                startNet.openPort(Data.config.Port)
             }
-            if (Data.config.readBoolean("UDPSupport", false)) {
+            if (Data.config.UDPSupport) {
                 newThreadCore {
                     try {
                         val startNet = StartNet()
                         NetStaticData.startNet.add(startNet)
-                        startNet.startUdp(Data.game.port)
+                        startNet.startUdp(Data.config.Port)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
             }
         }
-        handler.register("startffa", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (Data.serverChannelB != null) {
+        handler.register("startffa", "serverCommands.start.ffa") { _: Array<String>?, log: StrCons ->
+            if (NetStaticData.startNet.size() > 0) {
                 log["The server is not closed, please close"]
                 return@register
             }
-            set(Data.config.readString("log", "WARN").uppercase(Locale.getDefault()))
+            set(Data.config.Log.uppercase(Locale.getDefault()))
             Data.game = Rules(Data.config)
             Data.game.init()
-            newThreadService2({ Call.sendTeamData()} , 0, 2, TimeUnit.SECONDS, "GameTeam")
+            newThreadService2({ sendTeamData() } , 0, 2, TimeUnit.SECONDS, "GameTeam")
             newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS, "GamePing")
             NetStaticData.protocolData.setTypeConnect(TypeRwHps())
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
@@ -124,14 +139,42 @@ class ServerCommands(handler: CommandHandler) {
             newThreadCore {
                 val startNet = StartNet()
                 NetStaticData.startNet.add(startNet)
-                startNet.openPort(Data.game.port)
+                startNet.openPort(Data.config.Port)
             }
-            if (Data.config.readBoolean("UDPSupport", false)) {
+            if (Data.config.UDPSupport) {
                 newThreadCore {
                     try {
                         val startNet = StartNet()
                         NetStaticData.startNet.add(startNet)
-                        startNet.startUdp(Data.game.port)
+                        startNet.startUdp(Data.config.Port)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }
+        handler.register("startrelayopen", "serverCommands.start.relayopen") { _: Array<String>?, log: StrCons ->
+            if (NetStaticData.startNet.size() > 0) {
+                log["The server is not closed, please close"]
+                return@register
+            }
+            set(Data.config.Log.uppercase(Locale.getDefault()))
+
+            Data.game = Rules(Data.config)
+            Data.game.init()
+            
+            NetStaticData.protocolData.setTypeConnect(TypeRelayOpenSource())
+            NetStaticData.protocolData.setNetConnectProtocol(GameVersionRelayOpenSource(ConnectionAgreement()), 1000)
+
+            val startNetTcp = StartNet()
+            NetStaticData.startNet.add(startNetTcp)
+            newThreadCore { startNetTcp.openPort(Data.config.Port) }
+            if (Data.config.UDPSupport) {
+                newThreadCore {
+                    try {
+                        val startNet = StartNet()
+                        NetStaticData.startNet.add(startNet)
+                        startNet.startUdp(Data.config.Port)
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -148,8 +191,8 @@ class ServerCommands(handler: CommandHandler) {
         }
         handler.register("mods", "serverCommands.mods") { _: Array<String>?, log: StrCons ->
             val seqCache = Seq<String>()
-            Data.core.unitBase64.each() {str ->
-                val unitData = str.split("%#%");
+            Data.core.unitBase64.each { str ->
+                val unitData = str.split("%#%")
                 if (unitData.size > 2 && !seqCache.contains(unitData[2])) {
                     seqCache.add(unitData[2])
                     log[localeUtil.getinput("mod.info", unitData[2])]
@@ -197,17 +240,25 @@ class ServerCommands(handler: CommandHandler) {
                 response.append(" ").append(arg[i])
                 i++
             }
+            if (Data.config.SingleUserRelay) {
+                try {
+                    NetStaticData.relayOpenSource.groupNet.broadcast(
+                        NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket(
+                            response.toString().replace("<>", "")
+                        )
+                    )
+                } catch (ignored: IOException) {
+                }
+            }
             sendSystemMessage(response.toString().replace("<>", ""))
         }
         handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
-            Events.fire(
-                GameOverEvent()
-            )
+            Events.fire(GameOverEvent())
         }
         handler.register("clearbanip", "serverCommands.clearbanip") { _: Array<String>?, _: StrCons ->
             Data.core.admin.bannedIPs.clear()
         }
-        handler.register("admin", "<add/remove> <PlayerSite>", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
+        handler.register("admin", "<add/remove> <PlayerPosition>", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
                 log[localeUtil.getinput("err.startGame")]
                 return@register
@@ -269,7 +320,7 @@ class ServerCommands(handler: CommandHandler) {
             }
         }
         handler.register("isafk", "<off/on>", "serverCommands.isAfk") { arg: Array<String>, _: StrCons ->
-            if (Data.game.oneAdmin) {
+            if (Data.config.OneAdmin) {
                 Data.game.isAfk = "on" == arg[0]
             }
         }

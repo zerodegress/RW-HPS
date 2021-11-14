@@ -22,6 +22,7 @@ import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR
+import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.game.EventType.GameStartEvent
 import com.github.dr.rwserver.game.GameMaps.MapType
 import com.github.dr.rwserver.game.Team.amNoPlayerTeam
@@ -143,7 +144,7 @@ class ClientCommands(handler: CommandHandler) {
                 }
                 val admin = AtomicBoolean(true)
                 Data.playerGroup.each({ p: Player -> p.isAdmin },{ _: Player -> admin.set(false) })
-                if (admin.get() && Data.game.oneAdmin) {
+                if (admin.get() && Data.config.OneAdmin) {
                     player.isAdmin = true
                     upDataGameData()
                     sendSystemMessageLocal("afk.end.noAdmin", player.name)
@@ -306,8 +307,8 @@ class ClientCommands(handler: CommandHandler) {
                     removeScheduledFutureData("AfkCountdown")
                     sendMessageLocal(player, "afk.clear", player.name)
                 }
-                if (Data.game.startMinPlayerSize > Data.playerGroup.size()) {
-                    player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", Data.game.startMinPlayerSize))
+                if (Data.config.StartMinPlayerSize > Data.playerGroup.size()) {
+                    player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
                 }
                 if (getIfScheduledFutureData("GamePing")) {
@@ -316,15 +317,19 @@ class ClientCommands(handler: CommandHandler) {
                 if (Data.game.maps.mapData != null) {
                     Data.game.maps.mapData!!.readMap()
                 }
+
+                val enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket()
+
                 Data.playerGroup.each { e: Player ->
                     try {
+                        e.con!!.sendTeamData(enc)
                         e.con!!.sendStartGame()
                         e.lastMoveTime = System.currentTimeMillis()
                     } catch (err: IOException) {
                         error("Start Error", err)
                     }
                 }
-                if (Data.game.winOrLose) {
+                if (Data.config.WinOrLose) {
                 }
                 Data.game.isStartGame = true
                 var int3 = 0
@@ -376,11 +381,7 @@ class ClientCommands(handler: CommandHandler) {
                 player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"))
             }
         }
-        handler.register(
-            "vote",
-            "<gameover/kick> [player-site]",
-            "clientCommands.vote"
-        ) { args: Array<String>, player: Player ->
+        handler.register("vote", "<gameover/kick> [player-site]", "clientCommands.vote") { args: Array<String>, player: Player ->
             when (args[0].lowercase(Locale.getDefault())) {
                 "gameover" -> Data.Vote = Vote(player, args[0])
                 "kick" -> if (args.size > 1 && isNumeric(args[1])) {
@@ -391,11 +392,7 @@ class ClientCommands(handler: CommandHandler) {
                 else -> player.sendSystemMessage(player.localeUtil.getinput("err.command"))
             }
         }
-        handler.register(
-            "move",
-            "<PlayerSerialNumber> <ToSerialNumber> <?>",
-            "HIDE"
-        ) { args: Array<String>, player: Player ->
+        handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
                 player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
                 return@register

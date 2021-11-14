@@ -11,6 +11,7 @@ package com.github.dr.rwserver.core
 
 import com.github.dr.rwserver.core.thread.Threads.close
 import com.github.dr.rwserver.data.global.Data
+import kotlin.system.exitProcess
 
 /**
  * @author Dr
@@ -20,11 +21,11 @@ object Core {
     fun exit() {
         Data.core.save()
         close()
-        System.exit(0)
+        exitProcess(0)
     }
 
     @JvmStatic
     fun mandatoryExit() {
-        System.exit(0)
+        exitProcess(0)
     }
 }

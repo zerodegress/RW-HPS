@@ -179,14 +179,7 @@ object Call {
                 if (oneSay) {
                     oneSay = false
                     sendSystemMessageLocal("gameOver.oneMin")
-                    newThreadService({
-                        if (Thread.currentThread().isInterrupted) {
-                            // 有一个中断请求，可能是一个取消请求
-                            // 停止做正在做的事情并终止。
-                            return@newThreadService
-                        }
-                        Events.fire(GameOverEvent())
-                    }, 1, TimeUnit.MINUTES, "Gameover")
+                    newThreadService({Events.fire(GameOverEvent())}, 1, TimeUnit.MINUTES, "Gameover")
                 }
             } else {
                 if (getIfScheduledFutureData("Gameover")) {

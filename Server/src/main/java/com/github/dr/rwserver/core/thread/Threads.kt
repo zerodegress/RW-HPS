@@ -31,7 +31,7 @@ object Threads {
     private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(10, "ScheduledExecutorPool-")
     private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")
 
-    /** 在退出时执行Runnable  */
+    /** Execute runnable on exit  */
     private val SAVE_POOL = Seq<Runnable>()
     private val SCHEDULED_FUTURE_DATA = OrderedMap<String, RunnableScheduledFuture<*>>()
     private val TASK_FUTURE_DATA = OrderedMap<String, Timer>()

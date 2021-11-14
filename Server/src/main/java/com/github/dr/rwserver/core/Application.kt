@@ -40,13 +40,14 @@ class Application {
     var upServerList = false
     @JvmField
     var serverName = "RW-HPS"
-    @JvmField
-    var defIncome = 1f
+
     fun load() {
         pluginData.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
         admin = Administration(pluginData)
 
         Initialization.startInit(pluginData)
+
+        serverName = Data.config.ServerName
 
         serverConnectUuid = pluginData.getData("serverConnectUuid", UUID.randomUUID().toString())
         unitBase64 = pluginData.getData("unitBase64", Seq())

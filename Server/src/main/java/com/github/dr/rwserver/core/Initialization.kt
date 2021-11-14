@@ -73,7 +73,7 @@ class Initialization {
     }
 
     private fun loadIpBin() {
-        if (!Data.config.readBoolean("ipCheckMultiLanguageSupport", false)) {
+        if (!Data.config.IpCheckMultiLanguageSupport) {
             return
         }
         /*
@@ -95,8 +95,8 @@ class Initialization {
 
     internal class ExitHandler : Thread("Exit Handler") {
         override fun run() {
-            println("Exit Save Ok")
             Data.core.save()
+            println("Exit Save Ok")
         }
     }
 
@@ -132,6 +132,6 @@ class Initialization {
         //downPlugin();
 
         //loadIpBin();
-        Runtime.getRuntime().addShutdownHook(Initialization.ExitHandler())
+        Runtime.getRuntime().addShutdownHook(ExitHandler())
     }
 }

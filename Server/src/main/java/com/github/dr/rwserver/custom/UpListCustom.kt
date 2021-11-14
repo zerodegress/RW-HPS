@@ -137,7 +137,11 @@ class UpListCustom(handler: CommandHandler) {
             val pingdata = object : ReExp() {
                 @Throws(Exception::class)
                 override fun runs(): Any {
-                    val result0 = MessageFormat(updateData).format(arrayOf(Data.core.serverName,Data.game.maps.mapName,if (Data.game.isStartGame) "ingame" else "battleroom",Data.playerGroup.size().toString()))
+                    val result0 = MessageFormat(updateData).format(arrayOf(
+                        if (IsUtil.isBlank(Data.config.Subtitle)) Data.core.serverName else Data.config.Subtitle,
+                        Data.game.maps.mapName,
+                        if (Data.game.isStartGame) "ingame" else "battleroom",
+                        Data.playerGroup.size().toString()))
                     HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)
                     HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", result0)
 

@@ -9,10 +9,13 @@
 
 package com.github.dr.rwserver.data.global
 
+import com.github.dr.rwserver.data.global.cache.ExistenceCache
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.struct.ObjectMap
 
 object Cache {
     @JvmStatic
     val packetCache: ObjectMap<String, Packet> = ObjectMap(8)
+    @JvmStatic
+    val relayAdminCache: ExistenceCache = ExistenceCache()
 }

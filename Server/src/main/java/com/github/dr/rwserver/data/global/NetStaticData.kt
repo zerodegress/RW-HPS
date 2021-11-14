@@ -23,6 +23,8 @@ object NetStaticData {
     @JvmField
     val groupNet = GroupNet(nanos())
     @JvmField
+    val relayOpenSource = RelayOpenSource("Single User Relay")
+    @JvmField
     val blackList = BlackList()
     @JvmField
     val protocolData = ProtocolData()

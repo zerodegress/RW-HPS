@@ -12,14 +12,13 @@ package com.github.dr.rwserver.data.global
 import com.github.dr.rwserver.command.ex.Vote
 import com.github.dr.rwserver.core.Application
 import com.github.dr.rwserver.data.Player
+import com.github.dr.rwserver.data.base.BaseConfig
 import com.github.dr.rwserver.game.Rules
 import com.github.dr.rwserver.struct.ObjectMap
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.LocaleUtil
-import com.github.dr.rwserver.util.file.LoadConfig
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.zip.CompressOutputStream
-import io.netty.channel.Channel
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -40,9 +39,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "1.5.0-M2-DEV2"
-    const val SERVER_CORE_VERSION_INT = 200
-    //public static final int SERVER_VERSION2 = 1.13.6;
+    const val SERVER_CORE_VERSION = "1.5.0-M2"
     /** 单位数据缓存  */
 	@JvmField
 	val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
@@ -78,7 +75,7 @@ object Data {
     @JvmField
 	val localeUtilMap = ObjectMap<String, LocaleUtil>(8)
 
-    lateinit var config: LoadConfig
+    lateinit var config: BaseConfig
 
     /**
      * 可控变量
@@ -86,6 +83,4 @@ object Data {
     lateinit var localeUtil: LocaleUtil
     lateinit var game: Rules
     lateinit var Vote: Vote
-    @JvmField
-	var serverChannelB: Channel? = null
 }

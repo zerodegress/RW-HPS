@@ -134,7 +134,7 @@ class Player(
     companion object {
         fun addPlayer(con: AbstractNetConnect, uuid: String, name: String, localeUtil: LocaleUtil): Player {
             val player = Player(con, uuid, name, localeUtil)
-            if (Data.game.oneAdmin) {
+            if (Data.config.OneAdmin) {
                 if (Data.playerGroup.size() == 0) {
                     player.isAdmin = true
                 }

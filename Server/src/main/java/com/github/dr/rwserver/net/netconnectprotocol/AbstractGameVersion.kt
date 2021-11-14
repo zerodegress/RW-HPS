@@ -134,11 +134,33 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
     override fun sendStartGame() {}
 
     override fun sendTeamData(gzip: CompressOutputStream) {}
+
+    override fun sendRelayServerInfo() {}
+
+    @Throws(IOException::class)
+    override fun relayDirectInspection() {}
+
+    override fun relayRegisterConnection(packet: Packet) {}
+
+    override fun sendRelayServerCheck() {}
     override fun sendRelayServerType(msg: String) {}
     override fun sendRelayServerTypeReply(packet: Packet) {}
     override fun sendRelayServerId() {}
+    override fun getRelayT4(msg: String) {}
     override fun sendRelayPlayerInfo() {}
+    override fun sendRelayPlayerConnectPacket(packet: Packet) {}
     override fun getRelayUnitData(packet: Packet) {}
+    override fun getPingData(packet: Packet) {}
+    override fun addGroup(packet: Packet) {}
+    override fun addGroupPing(packet: Packet) {}
+    override fun addRelayConnect() {}
+
+    override fun addReRelayConnect() {}
+
+    override fun addRelaySend(packet: Packet) {}
+    override fun addRelayAccept(packet: Packet) {}
+    override fun addRelayAccept1(packet: Packet) {}
+    override fun relayPlayerDisconnect() {}
     @Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         return false
@@ -150,6 +172,12 @@ abstract class AbstractGameVersion(@JvmField protected val connectionAgreement: 
 
     @Throws(IOException::class)
     override fun sendErrorPasswd() {
+    }
+
+    override fun debug(packet: Packet) {
+    }
+
+    override fun sendDebug(str: String) {
     }
 
     override fun getGameSave() {}

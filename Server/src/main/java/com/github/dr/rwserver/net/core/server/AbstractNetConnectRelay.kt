@@ -10,6 +10,7 @@
 package com.github.dr.rwserver.net.core.server
 
 import com.github.dr.rwserver.io.Packet
+import java.io.IOException
 
 /**
  * Only provide interface but not implement
@@ -17,6 +18,25 @@ import com.github.dr.rwserver.io.Packet
  * @author Dr
  * @date 2021/7/31/ 14:14
  */interface AbstractNetConnectRelay {
+    /**
+     * 服务器握手
+     */
+    fun sendRelayServerInfo()
+
+    /**
+     * 检验ID直达
+     * @throws IOException Error
+     */
+    @Throws(IOException::class)
+    fun relayDirectInspection()
+
+    fun relayRegisterConnection(packet: Packet)
+
+    /**
+     * 检测Relay的校验是否正确
+     */
+    fun sendRelayServerCheck()
+
     /**
      * Server类型
      * @param msg RelayID
@@ -28,33 +48,53 @@ import com.github.dr.rwserver.io.Packet
      */
     fun sendRelayServerTypeReply(packet: Packet)
 
-    fun sendRelayServerInfo()
-
     /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
-     */
-    fun sendRelayServerCheck()
-
-    /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
+     * 服务器Admin?
      */
     fun sendRelayServerId()
 
-    /*
-
-     */
-
     /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
+     * 发送消息
      */
+    fun getRelayT4(msg: String)
     fun sendRelayPlayerInfo()
+    fun sendRelayPlayerConnectPacket(packet: Packet)
+    fun getRelayUnitData(packet: Packet)
 
     /**
-     * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
-     * @author Dr
+     * 返回ping包
+     * @param packet packet
      */
-    fun getRelayUnitData(packet: Packet)
+    fun getPingData(packet: Packet)
+
+    /**
+     * 群发包
+     * @param packet Packet
+     */
+    fun addGroup(packet: Packet)
+
+    /**
+     * 群发ping包
+     * @param packet Packet
+     */
+    fun addGroupPing(packet: Packet)
+
+    /**
+     * 连接Relay服务器
+     */
+    fun addRelayConnect()
+
+    /**
+     * 连接Relay服务器
+     */
+    fun addReRelayConnect()
+
+    /**
+     * 解析包
+     * @param packet Packet
+     */
+    fun addRelaySend(packet: Packet)
+    fun addRelayAccept(packet: Packet)
+    fun addRelayAccept1(packet: Packet)
+    fun relayPlayerDisconnect()
 }

@@ -72,7 +72,6 @@ internal class NewServerHandler internal constructor(
                 }
 
                 ctx.executor().execute {
-
                     if (con.isConnectServer) {
                         con.connectServer!!.send(msg)
                         return@execute

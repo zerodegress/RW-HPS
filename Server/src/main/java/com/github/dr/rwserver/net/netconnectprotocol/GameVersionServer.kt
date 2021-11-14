@@ -82,8 +82,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         o.writeBoolean(false)
         /* Admin Ui */
         o.writeBoolean(player.isAdmin)
-        o.writeInt(Data.game.maxUnit)
-        o.writeInt(Data.game.maxUnit)
+        o.writeInt(Data.config.MaxUnit)
+        o.writeInt(Data.config.MaxUnit)
         o.writeInt(Data.game.initUnit)
         o.writeFloat(Data.game.income)
         /* NO Nukes */
@@ -141,7 +141,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 }
             }
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                if (message.length > Data.game.maxMessageLen) {
+                if (message.length > Data.config.MaxMessageLen) {
                     sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
                     return
                 }
@@ -250,18 +250,18 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun sendStartGame() {
         sendServerInfo(true)
         sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket())
-        if (IsUtil.notIsBlank(Data.game.startAd)) {
-            sendSystemMessage(Data.game.startAd)
+        if (IsUtil.notIsBlank(Data.config.StartAd)) {
+            sendSystemMessage(Data.config.StartAd)
         }
     }
 
     override fun sendTeamData(gzip: CompressOutputStream) {
         try {
             val o = GameOutputStream()
-            /* 玩家位置 */
+            /* Player position */
             o.writeInt(player.site)
             o.writeBoolean(Data.game.isStartGame)
-            /* 最大玩家 */
+            /* Largest player */
             o.writeInt(Data.game.maxPlayer)
             o.flushEncodeData(gzip)
             /* 迷雾 */
@@ -271,8 +271,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             /* AI Difficulty ?*/
             o.writeInt(1)
             o.writeByte(5)
-            o.writeInt(Data.game.maxUnit)
-            o.writeInt(Data.game.maxUnit)
+            o.writeInt(Data.config.MaxUnit)
+            o.writeInt(Data.config.MaxUnit)
             /* 初始单位 */
             o.writeInt(Data.game.initUnit)
             /* 倍速 */
@@ -309,12 +309,14 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Log.debug("?", stream.readInt())
                 val token = stream.readString()
                 Log.debug("token", token)
+                Log.debug(token, connectKey!!)
+
                 /*
-            if (!token.equals(playerConnectKey)) {
-                sendKick("You Open Mod?");
-                return false;
-            }
-             */
+                if (!token.equals(playerConnectKey)) {
+                    sendKick("You Open Mod?");
+                    return false;
+                }*/
+
                 val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
                 Events.fire(playerConnectPasswdCheck)
                 if (playerConnectPasswdCheck.result) {
@@ -342,19 +344,19 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         Data.playerGroup.add(e)
                     }
                     if (!re.get()) {
-                        if (IsUtil.isBlank(Data.game.startPlayerAd)) {
+                        if (IsUtil.isBlank(Data.config.StartPlayerAd)) {
                             sendKick("游戏已经开局 请等待 # The game has started, please wait")
                         } else {
-                            sendKick(Data.game.startPlayerAd)
+                            sendKick(Data.config.StartPlayerAd)
                         }
                         return false
                     }
                 } else {
                     if (Data.playerGroup.size() >= Data.game.maxPlayer) {
-                        if (IsUtil.isBlank(Data.game.maxPlayerAd)) {
+                        if (IsUtil.isBlank(Data.config.MaxPlayerAd)) {
                             sendKick("服务器没有位置 # The server has no free location")
                         } else {
-                            sendKick(Data.game.maxPlayerAd)
+                            sendKick(Data.config.MaxPlayerAd)
                         }
                         return false
                     }
@@ -373,8 +375,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Call.sendTeamData()
                 sendServerInfo(true)
                 Events.fire(PlayerJoinEvent(player))
-                if (IsUtil.notIsBlank(Data.game.enterAd)) {
-                    sendSystemMessage(Data.game.enterAd)
+                if (IsUtil.notIsBlank(Data.config.EnterAd)) {
+                    sendSystemMessage(Data.config.EnterAd)
                 }
                 Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
                 if (re.get()) {
@@ -468,7 +470,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
     override fun reConnect() {
         try {
-            if (!Data.game.reConnect) {
+            if (!Data.config.ReConnect) {
                 sendKick("不支持重连 # Does not support reconnection")
                 return
             }
@@ -575,7 +577,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
      * (WARN) This part temporarily refuses to provide analysis and needs to wait for the right time
      * @author Dr
      */
-    private fun sendRelayPlayerConnectPacket(packet: Packet) {
+    override fun sendRelayPlayerConnectPacket(packet: Packet) {
         try {
             GameInputStream(packet).use { inStream ->
                 val o = GameOutputStream()
@@ -638,8 +640,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                             stream2.skip(16)
                             Data.core.unitBase64.add(data.toString())
                         }
-                        Data.game.oneReadUnitList = false
-                        Data.config.setObject("oneReadUnitList", false)
+                        Data.config.OneReadUnitList = false
                         Data.core.save()
                         sendPacket(NetStaticData.protocolData.abstractNetPacket.getSystemMessagePacket("MOD读取完成，请重新进入"))
                         Main.loadUnitList()

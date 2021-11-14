@@ -47,10 +47,16 @@ class GameVersionPacketBeta : GameVersionPacket() {
         stream.writeBoolean(false)
         // 延迟后显示 （HOST)
         stream.writeInt(if (player.isAdmin) 1 else 0)
+
+        // Ai Difficulty Override
         stream.writeInt(1)
+        // Player Color
+        stream.writeInt(5)
+        // ?
         stream.writeInt(0)
+        // ?
         stream.writeInt(0)
-        stream.writeInt(0)
+        // ? Not > 0
         stream.writeInt(0)
     }
 }

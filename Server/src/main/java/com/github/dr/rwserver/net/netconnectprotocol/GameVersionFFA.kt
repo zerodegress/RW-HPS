@@ -54,7 +54,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
                 }
             }
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                if (message.length > Data.game.maxMessageLen) {
+                if (message.length > Data.config.MaxMessageLen) {
                     sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
                     return
                 }

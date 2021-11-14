@@ -9,6 +9,7 @@
 
 package com.github.dr.rwserver.net
 
+import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.struct.Seq
@@ -24,7 +25,7 @@ import java.util.concurrent.Executors
  * @author Dr
  */
 class GroupNet(id: Long) {
-    private val channelGroup: ChannelGroup = DefaultChannelGroup("ChannelGroups", GlobalEventExecutor.INSTANCE)
+    private val channelGroup: ChannelGroup = DefaultChannelGroup( GlobalEventExecutor.INSTANCE)
     private val singleTcpThreadExecutor = Executors.newSingleThreadExecutor()
     private val singleUdpThreadExecutor = Executors.newSingleThreadExecutor()
     private val protocol = Seq<ConnectionAgreement>(8)
@@ -46,6 +47,9 @@ class GroupNet(id: Long) {
     }
 
     fun broadcast(msg: Any) {
+        if (Data.config.SingleUserRelay) {
+            return
+        }
         broadcast(msg, null)
     }
 

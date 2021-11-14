@@ -20,7 +20,8 @@ class TypeRwHps : TypeConnect {
     @Throws(Exception::class)
     override fun typeConnect(con: AbstractNetConnect, packet: Packet) {
         con.setLastReceivedTime()
-        if (!Data.game.oneReadUnitList) {
+        //Log.debug(packet.type,ExtractUtil.bytesToHex(packet.bytes))
+        if (!Data.config.OneReadUnitList) {
             if (packet.type == PacketType.PACKET_ADD_GAMECOMMAND) {
                 con.receiveCommand(packet)
                 con.player.lastMoveTime = millis()

@@ -62,14 +62,14 @@ class StartNet {
      * @param port 端口
      */
     fun openPort(port: Int) {
-        openPort(port,1,0)
-
-        Data.config.setObject("runPid", Data.core.pid)
+        Data.config.RunPid = Data.core.pid
         Data.config.save()
 
-        if (Data.game.webApi) {
+        if (Data.config.WebApi) {
             startWebApi()
         }
+
+        openPort(port,1,0)
     }
 
     /**
@@ -136,12 +136,12 @@ class StartNet {
 
     private fun startWebApi() {
         val httpServer = HttpServer()
-        HttpsSetting.sslEnabled = Data.game.webApiSsl
-        HttpsSetting.keystorePath = Data.game.webApiSslKetPath
-        HttpsSetting.certificatePassword = Data.game.webApiSslPasswd
-        HttpsSetting.keystorePassword = Data.game.webApiSslPasswd
+        HttpsSetting.sslEnabled = Data.config.WebApiSsl
+        HttpsSetting.keystorePath = Data.config.WebApiSslKetPath
+        HttpsSetting.certificatePassword = Data.config.WebApiSslPasswd
+        HttpsSetting.keystorePassword = Data.config.WebApiSslPasswd
         httpServer.start(
-            Data.game.webApiPort, "com.github.dr.rwserver.net.web.api", 1024,
+            Data.config.WebApiPort, "com.github.dr.rwserver.net.web.api", 1024,
             null, null
         )
     }

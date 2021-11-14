@@ -16,6 +16,7 @@ import com.github.dr.rwserver.core.Core;
 import com.github.dr.rwserver.core.Initialization;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.custom.UpListCustom;
+import com.github.dr.rwserver.data.base.BaseConfig;
 import com.github.dr.rwserver.data.global.Data;
 import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.data.plugin.PluginEventManage;
@@ -28,9 +29,7 @@ import com.github.dr.rwserver.io.GameOutputStream;
 import com.github.dr.rwserver.net.netconnectprotocol.GameVersionPacket;
 import com.github.dr.rwserver.struct.Seq;
 import com.github.dr.rwserver.util.encryption.Autograph;
-import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.file.FileUtil;
-import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.game.CommandHandler;
 import com.github.dr.rwserver.util.game.Events;
 import com.github.dr.rwserver.util.io.IoReadConversion;
@@ -62,22 +61,23 @@ public class Main {
 		System.out.println(Data.localeUtil.getinput("server.login"));
 		Log.clog("Load ing...");
 
-		/* 防止修改签名 */
+		/*
+		 * TODO
+		 * Prevent signature modification */
 		/* CP #1 */
 		if (!new Autograph().verify(Main.class.getProtectionDomain().getCodeSource().getLocation())) {
 			Log.skipping("The server was modified and refused to start");
 			Core.mandatoryExit();
 		}
 
-		FileUtil.setFilePath((args.length > 0) ? Base64.decodeString(args[0]) : null);
+		FileUtil.setFilePath(null);
+
+		Data.config = BaseConfig.stringToClass();
 
 		Data.core.load();
 
-		//loadCoreJar((args.length > 1) ? Base64.decodeString(args[1]) : null);
-
 		Log.clog(Data.localeUtil.getinput("server.hi"));
-
-		Data.config = new LoadConfig(Data.Plugin_Data_Path,"Config.json");
+		Log.clog(Data.localeUtil.getinput("server.project.url"));
 
 		/* 命令加载 */
 		new ServerCommands(Data.SERVER_COMMAND);
@@ -111,14 +111,15 @@ public class Main {
 		/* 初始化Plugin Init */
 		PluginManage.runInit();
 
+
 		Log.clog(Data.localeUtil.getinput("server.load.end"));
 		Log.clog(Data.localeUtil.getinput("server.loadPlugin",PluginManage.getLoadSize()));
 
 		/* 默认直接启动服务器 */
-		Data.SERVER_COMMAND.handleMessage("start",(StrCons) Log::clog);
-
+		Data.SERVER_COMMAND.handleMessage(Data.config.getDefStartCommand(),(StrCons) Log::clog);
 		new UpListCustom(Data.SERVER_COMMAND);
 	}
+
 
 	private static void loadCoreJar(String libPath) {
 		LibraryManager lib;
@@ -174,7 +175,7 @@ public class Main {
 			GameOutputStream stream = Data.utilData;
 			stream.reset();
 			stream.writeInt(1);
-			Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData")));
+			Seq<String> list = FileUtil.readFileListString(Objects.requireNonNull(Main.class.getResourceAsStream("/unitData-114")));
 			stream.writeInt(list.size());
 			String[] unitData;
 			for (String str : list) {
@@ -189,7 +190,7 @@ public class Main {
 		} catch (Exception e) {
 			Log.error(e);
 		}
-		Log.clog("Load OK 1.15.P* Protocol");
+		Log.clog("Load OK 1.15 Protocol");
 	}
 
 	public static void loadUnitList() {
@@ -223,3 +224,7 @@ public class Main {
 		}
 	}
 }
+/*
+	I hope this game can have more servers to let players play their favorite games better
+ 	Dr . 2021
+ */

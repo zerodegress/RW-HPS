@@ -50,6 +50,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 
 #### 不会支持的游戏协议
 - 列表相关，如ADD List, Update List, Remove List  
+  - 目前可用 采用替代方案
 - 金钱相关，如增值服务    
 
 **一切开发旨在学习，请勿用于非法用途**  
@@ -84,7 +85,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 
 **扩展功能**
 - 加载插件
-- 玩家跳转服务器(TODO)
+- 玩家跳转服务器
 - 地图生成单位
 
 **其他**

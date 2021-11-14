@@ -51,6 +51,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 
 #### Game protocols that will not be supported
 - Server List -> ADD List, Update List, Remove List  
+  - Alternatives are currently available
 - Money related, such as value-added services  
 
 **All development is for learning, do not use for illegal purposes** 
@@ -84,8 +85,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 
 **Ex**
 - Loading plugins
-- Player jump server(TODO)
-- Map generation unit(TODO)
+- Player jump server
+- Map generation unit
 
 **Other**
 - BanUUID

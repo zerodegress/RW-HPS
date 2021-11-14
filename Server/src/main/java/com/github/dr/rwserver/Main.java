@@ -190,7 +190,7 @@ public class Main {
 		} catch (Exception e) {
 			Log.error(e);
 		}
-		Log.clog("Load OK 1.15 Protocol");
+		Log.clog("Load OK 1.14 Protocol");
 	}
 
 	public static void loadUnitList() {

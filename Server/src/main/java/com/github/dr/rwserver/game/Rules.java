@@ -12,7 +12,9 @@ package com.github.dr.rwserver.game;
 import com.github.dr.rwserver.core.thread.Threads;
 import com.github.dr.rwserver.custom.CustomEvent;
 import com.github.dr.rwserver.data.Player;
+import com.github.dr.rwserver.data.base.BaseConfig;
 import com.github.dr.rwserver.data.global.Data;
+import com.github.dr.rwserver.data.global.NetStaticData;
 import com.github.dr.rwserver.io.Packet;
 import com.github.dr.rwserver.struct.OrderedMap;
 import com.github.dr.rwserver.struct.Seq;
@@ -20,7 +22,6 @@ import com.github.dr.rwserver.util.IsUtil;
 import com.github.dr.rwserver.util.encryption.Base64;
 import com.github.dr.rwserver.util.encryption.Sha;
 import com.github.dr.rwserver.util.file.FileUtil;
-import com.github.dr.rwserver.util.file.LoadConfig;
 import com.github.dr.rwserver.util.log.Log;
 import com.github.dr.rwserver.util.zip.zip.ZipDecoder;
 
@@ -35,8 +36,6 @@ import java.util.concurrent.TimeUnit;
  * @author Dr
  */
 public class Rules {
-    /** 端口 */
-    public int port = 5123;
     /** 是否已启动游戏 */
     public boolean isStartGame = false;
     /** 倍数 */
@@ -63,118 +62,56 @@ public class Rules {
     public boolean amTeam = false;
     /** 队伍数据 */
     public volatile Player[] playerData;
-    /** 最大发言长度 */
-    public final int maxMessageLen;
-    /** 最大单位数 */
-    public final int maxUnit;
     /** AFK */
     public boolean isAfk = true;
-    /** only Admin */
-    public final boolean oneAdmin;
-    /** ip多语言支持 */
-    public final boolean ipCheckMultiLanguageSupport;
     /** 重连暂停 */
     public boolean reConnectBreak = false;
     /** 重连缓存 GameSave */
     public volatile Packet gameSaveCache = null;
-    /** 是否启用重连 */
-    public final boolean reConnect;
-    /** 是否启用胜负判定 */
-    public final boolean winOrLose;
-    /** 胜负判定时间 */
-    public final int winOrLoseTime;
-    /** 是否第一次启动读取MOD */
-    public boolean oneReadUnitList;
     /** 共享控制 */
     public int sharedControlPlayer = 0;
     /** Mpa Lock */
     public boolean mapLock = false;
 
     /** AD */
-    public final String enterAd;
-    public final String startAd;
-    public final String maxPlayerAd;
-    public final String startPlayerAd;
-    public final String serverUpID;
+    public final String serverUpID = "";
 
-    /* */
-    public final boolean webApi;
-    public final String webUrl;
-    public final int webApiPort;
-    public final boolean webApiSsl;
-    public final String webApiSslKetPath;
-    public final String webApiSslPasswd;
     /* */
     public boolean lockTeam = false;
-    /* */
-    public final int startMinPlayerSize;
-
-    public final String subtitle;
 
     public final OrderedMap<String,GameMaps.MapData> mapsData = new OrderedMap<>(8);
 
-    public Rules(LoadConfig config) {
+    public Rules(BaseConfig config) {
+        passwd = IsUtil.notIsBlank(Data.config.getPasswd()) ? new BigInteger(1, Sha.sha256Array(Data.config.getPasswd())).toString(16).toUpperCase(Locale.ROOT) : "";
 
-        subtitle = config.readString("subtitle","");
-
-        int port = config.readInt("port",5123);
-        String passwdCache = config.readString("passwd","");
-        passwd = IsUtil.notIsBlank(passwdCache) ? new BigInteger(1, Sha.sha256Array(passwdCache)).toString(16).toUpperCase(Locale.ROOT) : "";
-
-        enterAd = config.readString("enterServerAd","");
-        startAd = config.readString("startAd","");
-        maxPlayerAd = config.readString("maxPlayerAd","");
-        startPlayerAd = config.readString("startPlayerAd","");
-        serverUpID = config.readString("serverUpID","");
-
-        if (config.readBoolean("readMap",false)) {
-            try {
-                checkMaps();
-                Log.clog(Data.localeUtil.getinput("server.load.maps"));
-            } catch (Exception exp) {
-                Log.debug("Read Error",exp);
-            }
+        try {
+            checkMaps();
+            Log.clog(Data.localeUtil.getinput("server.load.maps"));
+        } catch (Exception exp) {
+            Log.debug("Read Error",exp);
         }
-        maxMessageLen = config.readInt("maxMessageLen",40);
-        maxUnit = config.readInt("maxUnit",200);
-        Data.core.defIncome = config.readFloat("defIncome",1f);
-        Data.core.serverName = config.readString("serverName","RW-HPS");
-        oneAdmin = config.readBoolean("oneAdmin",true);
-        ipCheckMultiLanguageSupport = config.readBoolean("iPCheckMultiLanguageSupport",false);
 
-        reConnect = config.readBoolean("reConnect",false);
-        winOrLose = config.readBoolean("winOrLose",false);
-        winOrLoseTime = config.readInt("winOrLoseTime",30000);
+        NetStaticData.relayOpenSource.setMod(config.getSingleUserRelayMod());
 
-        webApi = config.readBoolean("webApi",false);
-        webUrl = config.readString("webUrl","");
-        webApiPort = config.readInt("webApiPort",0);
-        webApiSsl = config.readBoolean("webApiSsl",false);
-        webApiSslKetPath = config.readString("webApiSslKetPath","");
-        webApiSslPasswd = config.readString("webApiSslPasswd","");
-        oneReadUnitList = config.readBoolean("oneReadUnitList",false);
-
-        startMinPlayerSize = config.readInt("startMinPlayerSize",0);
         autoLoadOrUpdate(config);
 
-        init(config.readInt("maxPlayer",10),port);
+        init(config.getMaxPlayer());
     }
 
     public void init() {
         new CustomEvent();
     }
 
-    public void init(int maxPlayer,int port) {
+    public void init(int maxPlayer) {
         this.maxPlayer = maxPlayer;
         playerData = new Player[maxPlayer];
-        this.port = port;
-        income = Data.core.defIncome;
+        income = Data.config.getDefIncome();
     }
 
     public void re() {
         gameCommandCache.clear();
         Arrays.fill(playerData, null);
-        income = Data.core.defIncome;
+        income = Data.config.getDefIncome();
         initUnit = 1;
         mist = 2;
         sharedControl = false;
@@ -218,8 +155,8 @@ public class Rules {
         });
     }
 
-    private void autoLoadOrUpdate(LoadConfig config) {
-        if (config.readBoolean("autoReLoadMap",false)) {
+    private void autoLoadOrUpdate(BaseConfig config) {
+        if (config.getAutoReLoadMap()) {
             Threads.newThreadService2(() -> {
                 if (IsUtil.notIsBlank(Data.game) && !Data.game.isStartGame) {
                     Data.game.mapsData.clear();

@@ -25,4 +25,4 @@ package com.github.dr.rwserver.util.alone.annotations
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER
 )
-annotation class MainProtocolImplementation
+annotation class MainProtocolImplementation 

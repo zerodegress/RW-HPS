@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder
  * @author Dr
  */
 data class BaseConfig(
+    val DefStartCommand: String = "start",
     val Log: String = "WARN",
 
     val ServerName: String = "RW-HPS",
@@ -67,9 +68,13 @@ data class BaseConfig(
     val WebApiSslPasswd: String = "",
 
     val DeleteLib: Boolean = false,
-    val StartRelay: Boolean = false,
 
-    /** 是否第一次启动读取MOD */
+    /** Single user relay disable pop-up selection */
+    val SingleUserRelay: Boolean = false,
+    /** Default mods configuration for single user relay */
+    val SingleUserRelayMod: Boolean = false,
+
+    /** Whether to start reading mod for the first time */
     var OneReadUnitList: Boolean = false,
     val GameOverUpList: Boolean = false,
     val PasswdCheckApi: Boolean = false,

@@ -138,8 +138,8 @@ class UpListCustom(handler: CommandHandler) {
                 @Throws(Exception::class)
                 override fun runs(): Any {
                     val result0 = MessageFormat(updateData).format(arrayOf(
-                        if (IsUtil.isBlank(Data.config.Subtitle)) Data.core.serverName else Data.config.Subtitle,
-                        Data.game.maps.mapName,
+                        Data.core.serverName,
+                        if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else Data.config.Subtitle,
                         if (Data.game.isStartGame) "ingame" else "battleroom",
                         Data.playerGroup.size().toString()))
                     HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)

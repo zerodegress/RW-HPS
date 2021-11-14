@@ -76,7 +76,7 @@ class UpListCustom(handler: CommandHandler) {
         val formBody = FormBody.Builder()
         formBody.add("Passwd", notIsBlank(Data.game.passwd).toString())
         formBody.add("ServerName",Data.core.serverName)
-        formBody.add("Port", Data.game.port.toString())
+        formBody.add("Port", Data.config.Port.toString())
         formBody.add("MapName",Data.game.maps.mapName)
         formBody.add("PlayerSize",Data.playerGroup.size().toString())
         formBody.add("PlayerMaxSize",Data.game.maxPlayer.toString())

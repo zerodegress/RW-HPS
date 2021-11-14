@@ -145,7 +145,7 @@ class FileUtil {
      * @param log Log
      * @param cover 是否尾部写入
      */
-    fun writeFile(log: Any, cover: Boolean) {
+    fun writeFile(log: Any, cover: Boolean = false) {
         mkdir()
         try {
             fileToOutStream(file, cover).use { osw ->

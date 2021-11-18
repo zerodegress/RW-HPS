@@ -88,7 +88,7 @@ class StartNet {
             runClass = EpollServerSocketChannel::class.java
         } else {
             runClass = NioServerSocketChannel::class.java
-            clog("无法使用Epool 效率可能略低")
+            clog("无法使用Epoll 效率可能略低")
         }
         try {
             val serverBootstrapTcp = ServerBootstrap()

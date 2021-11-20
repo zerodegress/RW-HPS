@@ -477,7 +477,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             super.isDis = false
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket())
             Data.game.reConnectBreak = true
-            Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
+            Call.sendSystemMessage("玩家断线重连中 请耐心等待 请勿退出 期间可能会暂时卡住！！ 预计需要30s-60s")
             val executorService = Executors.newFixedThreadPool(1)
             val future = executorService.submit<String?> {
                 Data.playerGroup.each({ e: Player -> e.uuid != this.player.uuid && !e.con!!.tryBoolean }) { p: Player ->

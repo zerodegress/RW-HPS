@@ -1,4 +1,4 @@
-[Chinese version / 中文介绍](README-CN.md)  
+[Chinese version / 中文介绍](README-CN.md)
 
 # RW-HPS
 ![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
@@ -17,11 +17,11 @@ This software aims at a higher performance which increases total thourghput and 
 ### Plugin framework
 Despite most of the things you can do in a normal game, you may also do a lot of other things on this server because there's a plugin framework which allows you to extend the functionality of this server. Furthermore, you can even implement your own communication protocol!
 
-## Statements
+## Statement
 ### For educational purposes only
-- RW-HPS is a free and open source software and is only for educational purposes. You shall not use this project for any illegal purposes.
+- RW-HPS is a free and open source project and is only for educational purposes. You shall not use this project for any illegal purposes. The author or the developement team of this project will not be held responsible for any damages.
 
-### Please read the following copyright statement before using 
+### Please read the following copyright disclaimer before using 
 GNU Affero General Public License v3.0
 ```
 Copyright (C) 2020-2021 RW-HPS Team and contributors.
@@ -40,28 +40,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 ```
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS?ref=badge_large)
 
-#### Game protocols that will not be supported
-- Server List -> ADD List, Update List, Remove List  
-  - Alternatives are currently available
-- Money related, such as value-added services  
-
-**All development is for learning, do not use for illegal purposes** 
-
-`RW-HPS` is open sourced under the `AGPLv3` agreement. For the healthy development of the entire community，We **highly recommended**you do the following：
-
-- **Indirect contact (including but not limited to using `Http API` or cross-process technology and bytecode modification) to `RW-HPS` software using `AGPLv3` open source**
-- **For personal use, please join the server to use from RW-HPS**
-- **Do not encourage, do not support all commercial use*
-
-### Derivative software needs to declare and quote
-
-- If the software package released by RW-HPS is quoted without modifying RW-HPS, the derivative project shall mention the use of RW-HPS in any part of the description。
-- If the RW-HPS source code is modified and then released，**Or refer to the internal implementation of RW-HPS to release another project**，Then the derivative project must be**article head**or 'RW-HPS' related information**first Appearance**s position**clearly stated**from This Warehouse (`https://github.com/RW-HPS/RW-HPS`) Don’t distort or hide the fact that it’s free and open source。
-
-## Protocol support
+## Actions List
 
 <details>
-  <summary>Protocol support List</summary>  
+  <summary>Actions List</summary>  
 
 **Message**
 - Team Chat
@@ -85,17 +67,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 
 </details>
 
+### Actions that will not be supported
+- Server List -> ADD List, Update List, Remove List
+- Anything related to real money
+
 ## Start
 - Development documentation: [docs](docs/zh/README.md)  
 - Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)  
-- Development plan: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)  
-- Discuss:
-  > Questions raised in GitHub discussions will be answered, and you are welcome to share your new ideas based on the project.  
+- Development milestones: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)  
+- Discussion:
+  > The developemenet team is actively answering questions on Github Discussions, please feel free to share you ideas on this project.
   > Email contact: dr@der.kim  
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)  
   > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>  
   > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)
-  >> Tencent QQ: A modern messaging software used by all Chinese netizens.  
 - Mirroring:
   > [Github](https://github.com/RW-HPS/RW-HPS)  
   > [Gitee](https://gitee.com/derdct/RW-HPS)

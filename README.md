@@ -1,6 +1,4 @@
-## Language(语言)  
-
-[跳转中文介绍](README-CN.md)  
+[Chinese version / 中文介绍](README-CN.md)  
 
 # RW-HPS
 ![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
@@ -8,16 +6,13 @@
 [![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
 ![](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)
 
-### **It is currently in KT rewriting status. Welcome to rewrite and submit pr**
+### **This project is written in Kotlin and still under developement. Please feel free to submit pull requests**
 
-## what is it?
-This is a server based on the Rusted Warfare . You can run it on any device that can run Java 11
-### What can it do
-You can do a lot of interesting things on this server  
-It can do most of the things you can do in a normal game  
-You can do what you can't do in the original game  
-You can also write plugin to expand the function of the server  
-You can also customize your protocol implementation
+## About this project
+This is a Rusted Warfare game server. You can run it on any devices as long as it supports Java 11.
+
+### 
+Despite most of the things you can do in a normal game, you can also do a lot of other things on this server. There's also a plugin framework which allows you to extend the functionality of this server. Furthermore, you can even implement your own protocol!
 
 ## Statement
 ### All development is for learning, please do not use it for illegal purposes

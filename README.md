@@ -6,26 +6,22 @@
 [![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
 ![](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)
 
-### **This project is written in Kotlin and still under developement. Please feel free to submit pull requests**
+**This project is currently being refactored in Kotlin. Please feel free to submit pull requests**
 
-## About this project
+## Features
 This is a Rusted Warfare game server. You can run it on any devices as long as it supports Java 11.
 
-### 
-Despite most of the things you can do in a normal game, you can also do a lot of other things on this server. There's also a plugin framework which allows you to extend the functionality of this server. Furthermore, you can even implement your own protocol!
+### High performance
+This software aims at a higher performance which increases total thourghput and decrease latency.
 
-## Statement
-### All development is for learning, please do not use it for illegal purposes
-- RW-HPS Is completely free and open source software, only for learning and entertainment purposes
-- RW-HPS Will not be forced to charge fees in any way, or impose material conditions on users
+### Plugin framework
+Despite most of the things you can do in a normal game, you may also do a lot of other things on this server because there's a plugin framework which allows you to extend the functionality of this server. Furthermore, you can even implement your own communication protocol!
 
-## Present
-Third party rust war server  
-This is a netty based server  
-It aims to provide better game experience for players as a high performance and high availability server
+## Statements
+### For educational purposes only
+- RW-HPS is a free and open source software and is only for educational purposes. You shall not use this project for any illegal purposes.
 
-### Licenses
-Used in this project  
+### Please read the following copyright statement before using 
 GNU Affero General Public License v3.0
 ```
 Copyright (C) 2020-2021 RW-HPS Team and contributors.

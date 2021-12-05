@@ -48,21 +48,21 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - Server List -> ADD List, Update List, Remove List
 - Anything related to real money
 
-## Needs help?
+## Needs Help?
 - Documentation: [docs](docs/zh/README.md)  
-- Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)  
-- Development milestones: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)  
+- Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)
+- Development milestones: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - Discussion:
-  > The developemenet team is actively answering questions on Github Discussions, please feel free to share you ideas on this project.
+  > The developemenet team is actively answering questions on Github Discussions, please feel free to share you ideas about this project.
   > Email contact: dr@der.kim  
-  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)  
-  > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>  
+  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)
+  > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>
   > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)
 - Mirrors:
-  > [Github](https://github.com/RW-HPS/RW-HPS)  
+  > [Github](https://github.com/RW-HPS/RW-HPS)
   > [Gitee](https://gitee.com/derdct/RW-HPS)
 
-## Run
+## Recommended Configuration
 
 | Configuration 		| CPU             | RAM 	| System 			| Disk 	| Java Version |
 |:--- 		|:---             |:---     |:---           |:---       |:---       |
@@ -118,12 +118,12 @@ We receive donations through the following channels：
 + [Ko-Fi](https://ko-fi.com/derdct)
 + [CN - 爱发电](https://afdian.net/@derdct)
 
-## Special thanks
+## Special Thanks
 > [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) is an IDE that maximizes the productivity of developers in all aspects, and is suitable for JVM platform languages。
 
 [<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=rw-hps)
 
-## Statement
+## Statements
 ### For educational purposes only
 - RW-HPS is a free and open source project and is only for educational purposes. You shall not use this project for any illegal purposes. The author or the developement team of this project will not be held responsible for any damages.
 

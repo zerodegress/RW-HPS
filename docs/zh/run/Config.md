@@ -1,10 +1,10 @@
 > 服务器默认启动命令  
 >> Server模式为**start**  
->> Relay模式为**startrelaytest**  
+>> Relay模式为**startrelayopen**  
 "DefStartCommand": "start"  
 
 > Log记录等级  
-> OFF FATAL ERROR WARN INFO DEBUG TRACE ALL
+> OFF FATAL ERROR WARN INFO DEBUG TRACE ALL  
 "Log": "ALL"  
 
 > 服务器的名字 在上列表的PlayerName显示  
@@ -85,5 +85,5 @@
 > 是否自动重读取maps下地图  
 "AutoReLoadMap": false
 
-> 服务器进程的PID
+> 服务器进程的PID  
 "RunPid": 2757

@@ -1,10 +1,10 @@
 > Server default start command
 >> Server mode is **start**  
->> Relay mode is **startrelaytest**  
+>> Relay mode is **startrelayopen**  
 "DefStartCommand": "start"
 
 > Log logging level  
-> OFF FATAL ERROR WARN INFO DEBUG TRACE ALL
+> OFF FATAL ERROR WARN INFO DEBUG TRACE ALL  
 "Log": "ALL"
 
 > Server name The PlayerName in the above list is displayed  
@@ -85,5 +85,5 @@
 > Whether to automatically reload maps under maps  
 "AutoReLoadMap": false
 
-> PID of the server process
+> PID of the server process  
 "RunPid": 2757

@@ -39,7 +39,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "1.5.0"
+    const val SERVER_CORE_VERSION = "1.5.1"
     /** 单位数据缓存  */
 	@JvmField
 	val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)

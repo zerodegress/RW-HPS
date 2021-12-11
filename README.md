@@ -1,19 +1,18 @@
 [Chinese version / 中文介绍](README-CN.md)
 
-# RW-HPS
-![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
+**Welcome to provide better translation**
+
+![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
-[![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
+![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)
 ![](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)
 
-**This project is currently being refactored in Kotlin. Please feel free to submit pull requests**
+# RW-HPS Project
+RW-HPS is a Rusted Warfare game server, used to quickly set up high-performance game servers on servers running Java11
 
 ## Features
-This is a Rusted Warfare game server. You can run it on any devices as long as it supports Java 11.
-
 ### High performance
-This software aims at a higher performance which increases total thourghput and decrease latency.
-
+Ditch the <Java -Blocking IO / BIO> development approach used by the game itself and use <Java -Not-Blocking IO / NIO> to increase throughput and reduce latency
 ### Plugin framework
 Despite most of the things you can do in a normal game, you may also do a lot of other things on this server because there's a plugin framework which allows you to extend the functionality of this server. Furthermore, you can even implement your own actions!
 
@@ -26,26 +25,28 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - Team Chat
 - All Chat
 - Map location
-- Forbidden words
 
 **Game**
 - Unit movement
 - Game reconnection
 - Custom map
+- Load Save Game
+- Load Mods?
 
 **Ex**
 - Loading plugins
 - Player jump server
 - Map generation unit
+- RELAY Server
 
 **Other**
 - BanUUID
 - BanIP
+- Mute Player
 
 </details>
 
 ### Actions that won't be supported
-- Server List -> ADD List, Update List, Remove List
 - Anything related to real money
 
 ## Needs Help?
@@ -53,21 +54,20 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)
 - Development milestones: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - Discussion:
-  > The developemenet team is actively answering questions on Github Discussions, please feel free to share you ideas about this project.
-  > Email contact: dr@der.kim  
-  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi) (AGPLv3)
-  > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>
-  > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)
+  > The developemenet team is actively answering questions on Github Discussions, please feel free to share you ideas about this project.  
+  > Email contact: dr@der.kim      
+  > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi)  
+  > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>  
+  > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)  
 - Mirrors:
-  > [Github](https://github.com/RW-HPS/RW-HPS)
-  > [Gitee](https://gitee.com/derdct/RW-HPS)
+  [Github](https://github.com/RW-HPS/RW-HPS) ; [Gitee](https://gitee.com/derdct/RW-HPS)
 
 ## Recommended Configuration
 
-| Configuration 		| CPU             | RAM 	| System 			| Disk 	| Java Version |
-|:--- 		|:---             |:---     |:---           |:---       |:---       |
-| Recommended 	| ARMv7 Processor rev 5 +  | 128MB      | *nix  | 64M HDD  | Java 11   |
-| Minimum 	| any  | 64M      | any | 64M HDD  | Java 11   |
+| Configuration 		| CPU                     | RAM 	| System 			 | Disk 	  | Java Version |
+|:--- 		|:------------------------|:---     |:-----------|:--------|:---       |
+| Recommended 	| ARMv7 Processor rev 5 + | 128MB      | Any        | 64M HDD | Java 11   |
+| Minimum 	| Any                     | 64M      | Any        | 16M HDD | Java 11   |
 
 ## Server Command List
 <details>
@@ -96,7 +96,8 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 | maps          		 |                               	   											 | View Custom Map               			 |
 | reloadmaps          		 |                               	   											 | Reload map               			 |
 | stop          		 |                               	   											 | Stop the server               			 |
-Sorry, maybe more commands have not been added because the document has no time to update
+Sorry, maybe more commands have not been added because the document has no time to update  
+Please use help in the console to see more  
 </details>
 
 
@@ -107,7 +108,8 @@ Sorry, maybe more commands have not been added because the document has no time 
 | Command 			| Parameter 												 | Information 										 |
 |:---           |:--- 												 |:--- 										 |
 | help      |   | Get help 									 |
-There are many commands not shown here. I suggest you test them yourself
+There are many commands not shown here. I suggest you test them yourself  
+Please use .help in the game to see more  
 </details>
 
 ## Sponsorship
@@ -118,6 +120,11 @@ We receive donations through the following channels：
 + [Ko-Fi](https://ko-fi.com/derdct)
 + [CN - 爱发电](https://afdian.net/@derdct)
 
+## Contribution
+All kinds of contributions are welcomed.
+If you hold an interest in helping us implementing RW-HPS on JS, iOS or Native platforms, please email us .
+If you meet any problem or have any questions, feel free to file an issue. Our goal is to make RW-HPS easy to use `RW-HPS@der.kim`
+
 ## Special Thanks
 > [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) is an IDE that maximizes the productivity of developers in all aspects, and is suitable for JVM platform languages。
 
@@ -127,8 +134,7 @@ We receive donations through the following channels：
 ### For educational purposes only
 - RW-HPS is a free and open source project and is only for educational purposes. You shall not use this project for any illegal purposes. The author or the developement team of this project will not be held responsible for any damages.
 
-### Copyright disclaimer
-GNU Affero General Public License v3.0
+## License
 ```
 Copyright (C) 2020-2021 RW-HPS Team and contributors.
 
@@ -144,4 +150,3 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License v3.0
 along with this program.  If not, see <https://www.gnu.org/licenses/agpl-3.0>.
 ```
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS?ref=badge_large)

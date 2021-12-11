@@ -50,7 +50,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - Anything related to real money
 
 ## Needs Help?
-- Documentation: [docs](docs/zh/README.md)  
+- Documentation: [docs](docs/en/README.md)  
 - Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)
 - Development milestones: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - Discussion:

@@ -13,13 +13,21 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.TypeConnect
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
+import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.millis
 
-class TypeRwHps : TypeConnect {
+class TypeRwHps(abstractNetConnect: AbstractNetConnect) : TypeConnect(abstractNetConnect) {
+    val con = abstractNetConnect as GameVersionServer
+
+    override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
+        return TypeRwHps(con.getVersionNet(connectionAgreement))
+    }
+
     @Throws(Exception::class)
-    override fun typeConnect(con: AbstractNetConnect, packet: Packet) {
-        con.setLastReceivedTime()
+    override fun typeConnect(packet: Packet) {
+        con.lastReceivedTime()
+
         //Log.debug(packet.type,ExtractUtil.bytesToHex(packet.bytes))
         if (!Data.config.OneReadUnitList) {
             if (packet.type == PacketType.PACKET_ADD_GAMECOMMAND) {
@@ -41,7 +49,7 @@ class TypeRwHps : TypeConnect {
                     PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
                     PacketType.PACKET_SYNC -> Data.game.gameSaveCache = packet
 
-                    118 -> con.sendRelayServerTypeReply(packet)
+                    //118 -> con.sendRelayServerTypeReply(packet)
 
                     else -> {
                     }

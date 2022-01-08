@@ -13,13 +13,21 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.TypeConnect
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
+import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.millis
 
-class TypeRwHpsBeta : TypeConnect {
+class TypeRwHpsBeta(abstractNetConnect: AbstractNetConnect) : TypeConnect(abstractNetConnect) {
+    val con = abstractNetConnect as GameVersionServerBeta
+
+    override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
+        return TypeRwHpsBeta(con.getVersionNet(connectionAgreement))
+    }
+
     @Throws(Exception::class)
-    override fun typeConnect(con: AbstractNetConnect, packet: Packet) {
-        con.setLastReceivedTime()
+    override fun typeConnect(packet: Packet) {
+        con.lastReceivedTime()
+
         if (packet.type == PacketType.PACKET_ADD_GAMECOMMAND) {
             con.receiveCommand(packet)
             con.player.lastMoveTime = millis()

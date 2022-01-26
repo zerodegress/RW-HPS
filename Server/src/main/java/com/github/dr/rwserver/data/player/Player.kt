@@ -7,22 +7,22 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.data
+package com.github.dr.rwserver.data.player
 
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.game.Team
-import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectServer
+import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServer
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.LocaleUtil
 import org.jetbrains.annotations.Nls
 import java.util.*
 
 /**
+ *
  * @author Dr
  */
 class Player(
-    @JvmField var con: AbstractNetConnect?,
+    @JvmField var con: GameVersionServer?,
     /** Player connection UUID  */
     @JvmField val uuid: String,
     /** Player name  */
@@ -83,10 +83,14 @@ class Player(
         con!!.sendChatMessage(text, player.name, player.team)
     }
 
+    fun kickPlayer(@Nls text: String) {
+        con!!.sendKick(text)
+    }
+
     /**
      * The player’s data on the local server is transferred to the new server
      * At this time, the local server only forwards the player data and has nothing to do with the local player.
-     * The player will not exist in [Data.playerGroup] and [Data.playerAll]
+     * The player will not exist in [Data.game.playerManage.playerGroup] and [Data.game.playerManage.playerAll]
      * Player ⇄ LocalServer ⇄ NewServer
      * @param ip
      * @param port
@@ -106,8 +110,8 @@ class Player(
         connectServer!!.close()
         con!!.isConnectServer = false
         con!!.connectServer = null
-        Data.playerGroup.add(this)
-        Data.playerAll.add(this)
+        Data.game.playerManage.playerGroup.add(this)
+        Data.game.playerManage.playerAll.add(this)
     }
 
     fun clear() {
@@ -129,24 +133,5 @@ class Player(
 
     override fun hashCode(): Int {
         return Objects.hash(uuid)
-    }
-
-    companion object {
-        fun addPlayer(con: AbstractNetConnect, uuid: String, name: String, localeUtil: LocaleUtil): Player {
-            val player = Player(con, uuid, name, localeUtil)
-            if (Data.config.OneAdmin) {
-                if (Data.playerGroup.size() == 0) {
-                    player.isAdmin = true
-                }
-            } else {
-                if (Data.core.admin.playerData.contains(player.uuid)) {
-                    player.isAdmin = true
-                }
-            }
-            Team.autoPlayerTeam(player)
-            Data.playerGroup.add(player)
-            Data.playerAll.add(player)
-            return player
-        }
     }
 }

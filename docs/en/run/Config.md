@@ -61,15 +61,6 @@
 "WinOrLose": false  
 "WinOrLoseTime": 30000
 
-> URL-API is not available  
-"WebApi": false  
-"WebUrl": ""  
-"WebApiPort": 80  
-"WebApiSsl": false  
-"WebApiSslKetPath": ""  
-"WebApiSslPasswd": ""  
-"DeleteLib": false
-
 > Whether to enable single-room mode in RELAY mode  
 "SingleUserRelay": false  
 > Whether to enable Mod in single-room mode  

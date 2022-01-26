@@ -59,16 +59,7 @@
 
 > 无用  
 "WinOrLose": false  
-"WinOrLoseTime": 30000  
-
-> URL-API 无用  
-"WebApi": false  
-"WebUrl": ""  
-"WebApiPort": 80  
-"WebApiSsl": false  
-"WebApiSslKetPath": ""  
-"WebApiSslPasswd": ""  
-"DeleteLib": false  
+"WinOrLoseTime": 30000
 
 > RELAY模式下 是否启用单房间模式  
 "SingleUserRelay": false  

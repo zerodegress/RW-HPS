@@ -106,7 +106,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java11的服务�
 - Tiexiu.xyz
     - [简幻欢](https://sfe.simpfun.cn)  
 - 非官方RELAY
-    - **RelayCN-Unofficial IP** : relay.der.kim
+    - **RelayCN-Unofficial IP** - [SimpFun Cloud](https://vps.tiexiu.xyz) : relay.der.kim
 
 ## 运行配置
 

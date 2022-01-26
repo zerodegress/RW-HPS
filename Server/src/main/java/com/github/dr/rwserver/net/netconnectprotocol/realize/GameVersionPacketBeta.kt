@@ -6,11 +6,11 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
-package com.github.dr.rwserver.net.netconnectprotocol
+package com.github.dr.rwserver.net.netconnectprotocol.realize
 
-import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.io.GameOutputStream
+import com.github.dr.rwserver.data.player.Player
+import com.github.dr.rwserver.io.output.GameOutputStream
 import java.io.IOException
 
 /**

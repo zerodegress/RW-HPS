@@ -23,6 +23,11 @@ import com.github.dr.rwserver.net.game.ConnectionAgreement
  */
 abstract class TypeConnect(val abstractNetConnect: AbstractNetConnect) {
     /**
+     * 为什么要用con.getVersionNet来获取 多此一举
+     * 我是 ** ((
+     */
+
+    /**
      * Set up a packet parser for the connection
      * @param connectionAgreement ConnectionAgreement
      * @return AbstractNetConnect

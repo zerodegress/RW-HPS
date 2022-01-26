@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.net.netconnectprotocol
+package com.github.dr.rwserver.net.netconnectprotocol.realize
 
 import com.github.dr.rwserver.core.Call.sendMessage
 import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
@@ -15,10 +15,9 @@ import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.game.EventType.PlayerChatEvent
 import com.github.dr.rwserver.game.GameCommand
-import com.github.dr.rwserver.io.GameInputStream
-import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
-import com.github.dr.rwserver.net.core.server.AbstractNetConnect
+import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.CommandHandler.CommandResponse
@@ -28,10 +27,6 @@ import java.io.IOException
 import kotlin.math.min
 
 class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionServer(connectionAgreement!!) {
-    override fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect {
-        return GameVersionFFA(connectionAgreement)
-    }
-
     override val version: String
         get() = "1.14 RW-HPS-FFA"
 

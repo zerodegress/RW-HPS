@@ -7,26 +7,31 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.net.netconnectprotocol
+package com.github.dr.rwserver.net.netconnectprotocol.realize
 
-import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
-import com.github.dr.rwserver.data.global.RelayOpenSource
-import com.github.dr.rwserver.io.GameInputStream
-import com.github.dr.rwserver.io.GameOutputStream
+import com.github.dr.rwserver.data.global.Relay
 import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
+import com.github.dr.rwserver.net.core.server.AbstractNetConnectRelay
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
+import com.github.dr.rwserver.util.RandomUtil.generateMixStr
+import com.github.dr.rwserver.util.StringFilteringUtil.cutting
 import com.github.dr.rwserver.util.Time.nanos
 import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
+import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log.debug
 import com.github.dr.rwserver.util.log.Log.error
 import java.io.IOException
+import java.math.BigInteger
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Consumer
 import java.util.stream.IntStream
 
@@ -34,30 +39,37 @@ import java.util.stream.IntStream
  * @author Dr
  */
 @MainProtocolImplementation
-open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?) : AbstractGameVersion(connectionAgreement!!) {
-    private var cachePacket: Packet? = null
+open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectRelay {
+    override var relay: Relay? = null
+        protected set
 
-    private var relayOpenSource: RelayOpenSource? = null
+    override var relayPlayerQQ: String? = ""
+        protected set
 
     protected var site = 0
 
-    override var name = "NOT NAME"
+    private val connectUUID = UUID.randomUUID().toString()
+
+    private var cachePacket: Packet? = null
+    private var betaGameVersion = false
+
+    private var netConnectAuthenticate: NetConnectAuthenticate? = null
+
+    var name = "NOT NAME"
         protected set
 
     private var registerPlayerId: String? = null
 
-    protected var uuid = UUID.randomUUID().toString()
-
-    override fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect {
-        return GameVersionRelayOpenSource(connectionAgreement)
-    }
-
-    override fun setCache(packet: Packet) {
+    override fun setCachePacket(packet: Packet) {
         cachePacket = packet
     }
 
+    override fun setlastSentPacket(packet: Packet) {
+    }
+
+
     override val version: String
-        get() = "RELAY Open Source"
+        get() = "1.14 RELAY"
 
     override fun sendRelayServerInfo() {
         val cPacket: Packet? = Cache.packetCache["sendRelayServerInfo"]
@@ -81,34 +93,98 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
 
     @Throws(IOException::class)
     override fun relayDirectInspection() {
-        sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.hi", Data.SERVER_CORE_VERSION))
+        GameInputStream(cachePacket!!).use { inStream ->
+            inStream.readString()
+            val packetVersion = inStream.readInt()
+            if (inStream.readInt() >= 157) {
+                betaGameVersion = true
+            }
+            if (packetVersion >= 1) {
+                inStream.skip(4)
+            }
+            var queryString: String? = null
+            if (packetVersion >= 2) {
+                queryString = inStream.isReadString()
+            }
+            if (packetVersion >= 3) {
+                name = inStream.readString()
+                //info(name)
+                //this.playerAdminName = StringFilteringUtil.replaceChinese(this.playerAdminName,"?");
+            }
+            if (IsUtil.isBlank(queryString) || "RELAYCN".equals(queryString, ignoreCase = true)) {
+                sendRelayServerType(Data.localeUtil.getinput("relay.hi", Data.SERVER_CORE_VERSION))
+            } else {
+                idCustom(queryString!!.substring(1))
+            }
+        }
+    }
+
+    @Throws(IOException::class)
+    override fun relayDirectInspection(relay: Relay) {
+        try {
+            GameInputStream(cachePacket!!).use { inStream ->
+                inStream.readString()
+                val packetVersion = inStream.readInt()
+                if (inStream.readInt() >= 157) {
+                    betaGameVersion = true
+                }
+                if (packetVersion >= 1) {
+                    inStream.skip(4)
+                }
+                if (packetVersion >= 2) {
+                    inStream.isReadString()
+                }
+                if (packetVersion >= 3) {
+                    name = inStream.readString()
+                    //this.playerAdminName = StringFilteringUtil.replaceChinese(this.playerAdminName,"?");
+                }
+                this.relay = relay
+                if (this.relay != null) {
+                    addRelayConnect()
+                    this.relay!!.setAddSize()
+                } else {
+                    //sendRelayServerType(Data.localeUtil.getinput("relay.server.no",queryString));
+                }
+            }
+        } catch (e: Exception) {
+            //sendRelayServerType(Data.localeUtil.getinput("relay.server.no",queryString));
+        }
     }
 
     override fun sendRelayServerCheck() {
-        val cPacket: Packet? = Cache.packetCache["sendRelayServerCheck"]
-        if (IsUtil.notIsBlank(cPacket)) {
-            sendPacket(cPacket!!)
-            return
-        }
+        netConnectAuthenticate = NetConnectAuthenticate()
+        val netConnectAuthenticate: NetConnectAuthenticate = netConnectAuthenticate!!
         try {
             val o = GameOutputStream()
-            // 理论上是随机数？
-            o.writeInt(1)
-            o.writeInt(1) //可能和-AX一样
+            // 返回相同
+            o.writeInt(netConnectAuthenticate.resultInt)
+            o.writeInt(netConnectAuthenticate.authenticateType)
             o.writeBoolean(false)
             o.writeBoolean(false)
-            o.writeString("RW-HPS")
-            o.writeString("RW-HPS")
-            o.writeInt(1) //随机？
+            o.writeString(netConnectAuthenticate.outcome)
+            o.writeString(netConnectAuthenticate.fixedInitial)
+            o.writeInt(netConnectAuthenticate.maximumNumberOfCalculations) //随机？
             o.writeBoolean(false)
 
-            val cachePacket = o.createPacket(151)
-            Cache.packetCache.put("sendRelayServerCheck",cachePacket)
-
-            sendPacket(cachePacket)/*->152（可做验证）*/
+            sendPacket(o.createPacket(151))
         } catch (e: Exception) {
             error(e)
         }
+    }
+
+    override fun receiveRelayServerCheck(packet: Packet): Boolean {
+        try {
+            GameInputStream(packet).use { inStream ->
+                if (netConnectAuthenticate != null) {
+                    if (netConnectAuthenticate!!.check(inStream.readInt(),inStream.readInt(),inStream.readString().toInt())) {
+                        return true
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            error(e)
+        }
+        return false
     }
 
     override fun sendRelayServerType(msg: String) {
@@ -131,16 +207,16 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
             val message: String = inStream.readString()
 
             /*
-            if (relayOpenSource!!.admin.name == pName && relayOpenSource!!.admin == this) {
+            if (relay!!.admin.name == pName && relay!!.admin == this) {
                 if (message.startsWith(".")) {
                     Data.RELAY_COMMAND.handleMessage(message, this)
                 }
             }*/
 
             if (!message.contains("self_"))
-            //&& relayOpenSource!!.relayData != null)
-            {
-                addRelayAccept(p)
+                //&& relay!!.relayData != null)
+                {
+                sendResultPing(p)
             }
         }
     }
@@ -149,7 +225,8 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
         try {
             GameInputStream(packet).use { inStream ->
                 inStream.skip(5)
-                idCustom(inStream.readString().trim { it <= ' ' })
+                val id = inStream.readString().trim { it <= ' ' }
+                idCustom(id)
             }
         } catch (e: Exception) {
             error(e)
@@ -159,46 +236,55 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
     override fun sendRelayServerId() {
         try {
             inputPassword = false
-            if (relayOpenSource == null) {
-                relayOpenSource = NetStaticData.relayOpenSource
+            if (relay == null) {
+                //Log.debug("sendRelayServerId","Relay == null");
+                relay = NetStaticData.relay
             }
-            if (relayOpenSource!!.admin != null) {
-                relayOpenSource!!.removeAbstractNetConnect(site)
+            if (relay!!.admin != null) {
+                // Log.debug("sendRelayServerId","Admin != null");
+                relay!!.removeAbstractNetConnect(site)
             }
-            relayOpenSource!!.admin = this
+            //Log.debug("sendRelayServerId","Set Admin");
+            relay!!.admin = this
+            //Log.debug(this == relay.getAdmin());
             val o = GameOutputStream()
             o.writeByte(1)
             o.writeBoolean(true)
             o.writeBoolean(true)
             o.writeBoolean(true)
-            o.writeString(Data.core.serverConnectUuid)
-            o.writeBoolean(relayOpenSource!!.isMod) //MOD
+            o.writeString(relay!!.serverUuid)
+            o.writeBoolean(relay!!.isMod) //MOD
+            // List OPEN
             o.writeBoolean(false)
             o.writeBoolean(true)
-            o.writeString("{{RW-HPS RelayOpenSource}}.Room ID : " + relayOpenSource!!.id)
+            o.writeString("{{RW-HPS Relay}}.Room ID : " + relay!!.id)
+            //
             o.writeBoolean(false)
-            sendPacket(o.createPacket(170))
-
-            // Server AD [RW-HPS!]
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket("Thank you for your use, this server is RW-HPS, you can get it in Github", "RW-HPS-AD", 5))
-
+            sendPacket(o.createPacket(170)) //+108+140
+            //getRelayT4(Data.localeUtil.getinput("relay.server.admin.connect",relay.getId()));
             sendPacket(
                 NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(
                     Data.localeUtil.getinput(
-                        "relayOpenSource.server.admin.connect",
-                        relayOpenSource!!.id
+                        "relay.server.admin.connect",
+                        relay!!.id
                     ), "ADMIN", 5
                 )
             )
             sendPacket(
                 NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(
                     Data.localeUtil.getinput(
-                        "relayOpenSource",
-                        relayOpenSource!!.id
+                        "relay",
+                        relay!!.id
                     ), "ADMIN", 5
                 )
             )
             //ping();
+
+            debug(name)
+            if (name.equals("SERVER", ignoreCase = true) || name.equals("RELAY", ignoreCase = true)) {
+                relay!!.groupNet.disconnect() // Close Room
+                disconnect() // Close Connect & Reset Room
+            }
         } catch (e: Exception) {
             error(e)
         }
@@ -208,7 +294,7 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
         try {
             val o = GameOutputStream()
             // 理论上是随机数？
-            //o.writeString("RW-HPS RelayOpenSource TEST?");
+            //o.writeString("RW-HPS Relay TEST?");
             o.writeString(msg)
             o.writeByte(0)
             sendPacket(o.createPacket(140))
@@ -233,12 +319,12 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
     }
 
     override fun addGroup(packet: Packet) {
-        relayOpenSource!!.groupNet.broadcast(packet, null)
+        relay!!.groupNet.broadcast(packet, null)
     }
 
     override fun addGroupPing(packet: Packet) {
         try {
-            relayOpenSource!!.groupNet.broadcast(packet, null)
+            relay!!.groupNet.broadcast(packet, null)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -247,31 +333,33 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
     override fun addRelayConnect() {
         try {
             inputPassword = false
-            if (relayOpenSource == null) {
-                relayOpenSource = NetStaticData.relayOpenSource
+            if (relay == null) {
+                relay = NetStaticData.relay
             }
-            relayOpenSource!!.setAddSite()
-            relayOpenSource!!.setAbstractNetConnect(this)
-            site = relayOpenSource!!.site
+            relay!!.setAddSite()
+            relay!!.setAbstractNetConnect(this)
+            site = relay!!.site
             val o = GameOutputStream()
             o.writeByte(0)
             o.writeInt(site)
-            o.writeString(uuid)
+            //o.writeBoolean(true);
+            o.writeString(connectUUID)
             o.writeBoolean(false)
-            relayOpenSource!!.admin.sendPacket(o.createPacket(172))
+            //o.writeIsString(Cache.relayAdminCache.getCache(name+ip))
+            relay!!.admin!!.sendPacket(o.createPacket(172))
             val o1 = GameOutputStream()
             o1.writeInt(site)
             o1.writeInt(cachePacket!!.bytes.size + 8)
             o1.writeInt(cachePacket!!.bytes.size)
             o1.writeInt(160)
             o1.writeBytes(cachePacket!!.bytes)
-            relayOpenSource!!.admin.sendPacket(o1.createPacket(174))
-            connectionAgreement.add(relayOpenSource!!.groupNet)
+            relay!!.admin!!.sendPacket(o1.createPacket(174))
+            connectionAgreement.add(relay!!.groupNet)
             sendPacket(
                 NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(
                     Data.localeUtil.getinput(
-                        "relayOpenSource",
-                        relayOpenSource!!.id
+                        "relay",
+                        relay!!.id
                     ), "ADMIN", 5
                 )
             )
@@ -294,9 +382,9 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
                     registerPlayerId = stream.readString()
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
-        addRelayAccept(packet)
+        sendResultPing(packet)
     }
 
     override fun addReRelayConnect() {
@@ -304,17 +392,18 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
             val o = GameOutputStream()
             o.writeByte(0)
             o.writeInt(site)
-            o.writeString(uuid)
+            //o.writeBoolean(true);
+            o.writeString(connectUUID)
             o.writeBoolean(true)
             o.writeString(registerPlayerId!!)
-            relayOpenSource!!.admin.sendPacket(o.createPacket(172))
+            relay!!.admin!!.sendPacket(o.createPacket(172))
             val o1 = GameOutputStream()
             o1.writeInt(site)
             o1.writeInt(cachePacket!!.bytes.size + 8)
             o1.writeInt(cachePacket!!.bytes.size)
             o1.writeInt(160)
             o1.writeBytes(cachePacket!!.bytes)
-            relayOpenSource!!.admin.sendPacket(o1.createPacket(174))
+            relay!!.admin!!.sendPacket(o1.createPacket(174))
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
@@ -330,15 +419,14 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
                 if (IntStream.of(
                         PacketType.PACKET_DISCONNECT,
                         PacketType.PACKET_HEART_BEAT
-                    ).anyMatch { i: Int -> i == type }) {
+                ).anyMatch { i: Int -> i == type }) {
                     return
                 }
                 inStream.skip(4)
                 val bytes = inStream.readAllBytes()
-                val abstractNetConnect = relayOpenSource!!.getAbstractNetConnect(target)
+                val abstractNetConnect = relay!!.getAbstractNetConnect(target)
                 if (PacketType.PACKET_KICK == type) {
                     val gameOutputStream = GameOutputStream()
-                    // Shield Tencent group number
                     gameOutputStream.writeString(GameInputStream(bytes).readString().replace("[0-9]".toRegex(), ""))
                     abstractNetConnect!!.sendPacket(gameOutputStream.createPacket(type))
                     relayPlayerDisconnect()
@@ -348,11 +436,11 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
             }
         } catch (e: IOException) {
             e.printStackTrace()
-        } catch (nullPointerException: NullPointerException) {
+        } catch (_: NullPointerException) {
         }
     }
 
-    override fun addRelayAccept(packet: Packet) {
+    override fun sendResultPing(packet: Packet) {
         try {
             val o = GameOutputStream()
             o.writeInt(site)
@@ -360,13 +448,13 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
             o.writeInt(packet.bytes.size)
             o.writeInt(packet.type)
             o.writeBytes(packet.bytes)
-            relayOpenSource!!.admin.sendPacket(o.createPacket(174))
+            relay!!.admin!!.sendPacket(o.createPacket(174))
         } catch (e: IOException) {
             e.printStackTrace()
         }
     }
 
-    override fun addRelayAccept1(packet: Packet) {
+    override fun sendCustomPacket(packet: Packet) {
         try {
             sendPacket(packet)
         } catch (e: IOException) {
@@ -379,10 +467,14 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
             val out = GameOutputStream()
             out.writeByte(0)
             out.writeInt(site)
-            relayOpenSource!!.admin.sendPacket(out.createPacket(173))
+            relay!!.admin!!.sendPacket(out.createPacket(173))
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    override fun multicastAnalysis(packet: Packet) {
+        TODO("Not yet implemented")
     }
 
     override fun disconnect() {
@@ -390,37 +482,37 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
             return
         }
         super.isDis = true
-        if (relayOpenSource != null) {
-            relayOpenSource!!.setRemoveSize()
-            if (this !== relayOpenSource!!.admin) {
-                relayOpenSource!!.removeAbstractNetConnect(site)
+        if (relay != null) {
+            relay!!.setRemoveSize()
+            if (this !== relay!!.admin) {
+                relay!!.removeAbstractNetConnect(site)
                 try {
-                    relayOpenSource!!.updateMinSize()
-                    addRelayAccept(NetStaticData.protocolData.abstractNetPacket.getExitPacket())
+                    relay!!.updateMinSize()
+                    sendResultPing(NetStaticData.protocolData.abstractNetPacket.getExitPacket())
                 } catch (e: IOException) {
                     error("[Relay disconnect] Send Exited", e)
                 }
             } else {
+                Relay.serverRelayIpData.remove(ip)
                 //relay.groupNet.disconnect();
-                if (relayOpenSource!!.isStartGame) {
-                    if (relayOpenSource!!.size > 0) {
+                if (relay!!.isStartGame) {
+                    if (relay!!.size > 0) {
                         // Move Room Admin
                         adminMoveNew()
+                        //Cache.relayAdminCache.addCache(name+ip,BigInteger(1, sha256Array(uuid+Data.core.serverConnectUuid)).toString(16).uppercase(Locale.ROOT))
                     }
                 } else {
                     // Close Room
-                    relayOpenSource!!.groupNet.disconnect()
+                    relay!!.groupNet.disconnect()
                 }
             }
             // Log.clog(String.valueOf(relay.getSize()));
-            if (relayOpenSource!!.size <= 0 && !relayOpenSource!!.closeRoom) {
-                if (!Data.config.SingleUserRelay) {
-                    relayOpenSource!!.closeRoom = true
-                }
+            if (relay!!.size <= 0 && !relay!!.closeRoom) {
+                relay!!.closeRoom = true
                 debug("[Relay] Gameover")
-                relayOpenSource!!.re()
+                relay!!.re()
             }
-            super.close(relayOpenSource!!.groupNet)
+            super.close(relay!!.groupNet)
         } else {
             super.close(null)
         }
@@ -429,7 +521,7 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
     private fun idCustom(inId: String) {
         var id = inId
         if (id.isEmpty()) {
-            sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.server.no", "空"))
+            sendRelayServerType(Data.localeUtil.getinput("relay.server.no", "空"))
             return
         }
         if ("R".equals(id[0].toString(), ignoreCase = true)) {
@@ -437,29 +529,30 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
         } else if ("C".equals(id[0].toString(), ignoreCase = true)) {
             id = id.substring(1)
             if (id.length > 7 || id.length < 5) {
-                sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.id.re"))
+                sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
                 return
             }
             if ("M".equals(id[0].toString(), ignoreCase = true)) {
                 id = id.substring(1)
-                if (RelayOpenSource.getRelay(id) == null) {
+                if (Relay.getRelay(id) == null) {
                     newRelayId(id, true)
                 } else {
-                    sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.id.re"))
+                    sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
                 }
             } else {
                 if (id.length > 6) {
-                    sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.id.re"))
+                    sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
                     return
                 }
-                if (RelayOpenSource.getRelay(id) == null) {
+                if (Relay.getRelay(id) == null) {
                     newRelayId(id, false)
                 } else {
-                    sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.id.re"))
+                    sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
                 }
             }
             return
         }
+
         if (IsUtil.notIsBlank(id)) {
             if ("new".equals(id, ignoreCase = true)) {
                 newRelayId(false)
@@ -467,27 +560,27 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
                 newRelayId(true)
             } else {
                 try {
-                    relayOpenSource = RelayOpenSource.getRelay(id)
-                    if (relayOpenSource != null) {
+                    relay = Relay.getRelay(id)
+                    if (relay != null) {
                         addRelayConnect()
-                        relayOpenSource!!.setAddSize()
+                        relay!!.setAddSize()
                     } else {
-                        sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.server.no", id))
+                        sendRelayServerType(Data.localeUtil.getinput("relay.server.no", id))
                     }
                 } catch (e: Exception) {
-                    sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.server.no", id))
+                    sendRelayServerType(Data.localeUtil.getinput("relay.server.no", id))
                 }
             }
         } else {
-            sendRelayServerType(Data.localeUtil.getinput("relayOpenSource.server.no", id))
+            sendRelayServerType(Data.localeUtil.getinput("relay.server.no", id))
         }
     }
 
     private fun adminMoveNew() {
-        relayOpenSource!!.updateMinSize()
-        relayOpenSource!!.getAbstractNetConnect(relayOpenSource!!.minSize).sendRelayServerId()
-        relayOpenSource!!.abstractNetConnectIntMap.values()
-            .forEach(Consumer { obj: AbstractNetConnect -> obj.addReRelayConnect() })
+        relay!!.updateMinSize()
+        relay!!.getAbstractNetConnect(relay!!.minSize).sendRelayServerId()
+        relay!!.abstractNetConnectIntMap.values()
+            .forEach(Consumer { obj: GameVersionRelay -> obj.addReRelayConnect() })
     }
 
     private fun newRelayId(mod: Boolean) {
@@ -495,16 +588,42 @@ open class GameVersionRelayOpenSource(connectionAgreement: ConnectionAgreement?)
     }
 
     private fun newRelayId(id: String?, mod: Boolean) {
-        relayOpenSource = if (IsUtil.isBlank(id)) {
-            RelayOpenSource(nanos())
+        relay = if (IsUtil.isBlank(id)) {
+            Relay(nanos())
         } else {
-            RelayOpenSource(nanos(), id)
+            Relay(nanos(), id)
         }
-        relayOpenSource!!.isMod = mod
+        relay!!.isMod = mod
         sendRelayServerId()
-        relayOpenSource!!.setAddSize()
+        relay!!.setAddSize()
     }
 
-    override val player: Player
-        get() = Player(null,"","",Data.localeUtil)
+
+    class NetConnectAuthenticate {
+        private val rand = ThreadLocalRandom.current()
+
+        val resultInt = rand.nextInt()
+        //val authenticateType = rand.nextInt(0,7)
+        /* 并不是很想让假人简便的破解 */
+        val authenticateType = 5
+
+        val initInt_1 = 0
+        val initInt_2 = 0
+
+        val outcome: String
+        val fixedInitial: String = generateMixStr(4)
+        val off: Int = rand.nextInt(0, 100)
+        val maximumNumberOfCalculations: Int = rand.nextInt(0, 10000000)
+
+        init {
+            outcome = cutting(BigInteger(1, Sha.sha256Array(fixedInitial + "" + off)).toString(16).uppercase(), 14)
+        }
+
+        fun check(resultInt: Int,authenticateType: Int,off: Int): Boolean {
+            if (this.resultInt != resultInt || this.authenticateType != authenticateType || this.off != off) {
+                return false
+            }
+            return true
+        }
+    }
 }

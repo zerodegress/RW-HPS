@@ -14,25 +14,43 @@ import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.TypeConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
-import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionRelay
+import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionRelayRebroadcast
 import com.github.dr.rwserver.util.PacketType
+import java.util.stream.IntStream
 
-class TypeRelay(val con: GameVersionRelay) : TypeConnect(con) {
+class TypeRelayRebroadcast(val con: GameVersionRelayRebroadcast) : TypeConnect(con) {
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-         return TypeRelay(GameVersionRelay(connectionAgreement))
+        return TypeRelayRebroadcast(GameVersionRelayRebroadcast(connectionAgreement))
     }
 
     @Throws(Exception::class)
     override fun typeConnect(packet: Packet) {
         con.lastReceivedTime()
 
-        when (packet.type) {
-            175 -> {
+
+        if (IntStream.of(175, 176).noneMatch { i: Int -> i == packet.type }) {
+            con.setlastSentPacket(packet)
+        }
+        when {
+            IntStream.of(120,141 , 115).anyMatch { i: Int -> i == packet.type } -> {
+                // 快速抛弃
+            }
+            packet.type == 175 -> {
                 con.addRelaySend(packet)
             }
-            PacketType.PACKET_HEART_BEAT -> {
-                con.addGroup(packet)
+            packet.type == PacketType.PACKET_HEART_BEAT -> {
                 con.getPingData(packet)
+                //con.addGroup(packet)
+            }
+            packet.type == 176 -> {
+                con.multicastAnalysis(packet)
+            }
+            IntStream.of(
+                PacketType.PACKET_SYNCCHECKSUM_STATUS,
+                PacketType.PACKET_HEART_BEAT_RESPONSE,
+                PacketType.PACKET_ADD_GAMECOMMAND
+            ).anyMatch { i: Int -> i == packet.type } -> {
+                con.sendResultPing(packet)
             }
             else -> {
                 when (packet.type) {
@@ -57,22 +75,25 @@ class TypeRelay(val con: GameVersionRelay) : TypeConnect(con) {
                             con.disconnect()
                         }
                     }
-
+                    //141 -> con.receiveChat(packet)
+                    140 -> con.receiveChat(packet)
                     118 -> con.sendRelayServerTypeReply(packet)
-                    176 -> {
-                    }
+                    110 -> con.relayRegisterConnection(packet)
                     112 -> {
                         con.relay!!.isStartGame = true
                         con.sendResultPing(packet)
                     }
+                    //PacketType.PACKET_ADD_CHAT -> con.addRelayAccept(packet)
                     PacketType.PACKET_DISCONNECT -> con.disconnect()
                     PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
-                    else -> con.sendResultPing(packet)
+                    else ->
+                        //Log.clog(packet.type.toString());
+                        con.sendResultPing(packet)
                 }
             }
         }
     }
 
     override val version: String
-        get() = "RELAY"
+        get() = "2.0.0"
 }

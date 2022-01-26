@@ -29,13 +29,6 @@ import java.nio.charset.StandardCharsets
  * @date 2021/12/16 08:55:26
  */
 abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionAgreement) {
-    /**
-     * 获取游戏包解析器
-     * @param connectionAgreement ConnectionAgreement
-     * @return Protocol
-     */
-    abstract fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect
-
     /** 连接转发标识 */
     var isConnectServer: Boolean = false
 

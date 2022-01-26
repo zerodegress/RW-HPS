@@ -54,9 +54,14 @@ interface AbstractNetConnectRelay {
     fun relayDirectInspection(relay: Relay)
 
     /**
-     * 检测Relay的校验是否正确
+     * 检测Relay的校验是否正确-发送
      */
     fun sendRelayServerCheck()
+
+    /**
+     * 检测Relay的校验是否正确-校验
+     */
+    fun receiveRelayServerCheck(packet: Packet): Boolean
 
     /**
      * Server类型

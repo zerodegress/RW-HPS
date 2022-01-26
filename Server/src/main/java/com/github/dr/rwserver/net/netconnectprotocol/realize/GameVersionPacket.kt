@@ -7,16 +7,17 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.net.netconnectprotocol
+package com.github.dr.rwserver.net.netconnectprotocol.realize
 
-import com.github.dr.rwserver.data.Player
 import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.game.GameCommand
 import com.github.dr.rwserver.game.GameMaps
-import com.github.dr.rwserver.io.GameInputStream
-import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.Packet
+import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.output.CompressOutputStream
+import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.core.AbstractNetPacket
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
@@ -25,7 +26,6 @@ import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Game
 import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log.error
-import com.github.dr.rwserver.util.zip.CompressOutputStream
 import java.io.IOException
 import java.math.BigInteger
 
@@ -76,7 +76,7 @@ open class GameVersionPacket : AbstractNetPacket {
         val enc = CompressOutputStream.getGzipOutputStream("c", false)
         enc.writeBytes(cmd.arr)
         o.flushEncodeData(enc)
-        return o.createPacket(PacketType.PACKET_TICK)
+        return o.createPacket(10)
     }
 
     @Throws(IOException::class)
@@ -89,15 +89,14 @@ open class GameVersionPacket : AbstractNetPacket {
             enc.writeBytes(c.arr)
             o.flushEncodeData(enc)
         }
-        return o.createPacket(PacketType.PACKET_TICK)
+        return o.createPacket(10)
     }
 
     @Throws(IOException::class)
     override fun getTeamDataPacket(): CompressOutputStream {
         val enc = CompressOutputStream.getGzipOutputStream("teams", true)
-        for (i in 0 until Data.game.maxPlayer) {
+        Data.game.playerManage.runPlayerArrayDataRunnable { player: Player? ->
             try {
-                val player = Data.game.playerData[i]
                 if (player == null) {
                     enc.writeBoolean(false)
                 } else {
@@ -129,7 +128,7 @@ open class GameVersionPacket : AbstractNetPacket {
             val bytes = stream.readStreamBytes()
             o.writeString("gameSave")
             o.flushMapData(bytes.size, bytes)
-            return o.createPacket(PacketType.PACKET_SYNC)
+            return o.createPacket(35)
         }
     }
 
@@ -170,7 +169,7 @@ open class GameVersionPacket : AbstractNetPacket {
         val o = GameOutputStream()
         o.writeString("exited")
 
-        val cachePacket = o.createPacket(PacketType.PACKET_DISCONNECT)
+        val cachePacket = o.createPacket(111)
         Cache.packetCache.put("getExitPacket",cachePacket)
 
         return cachePacket

@@ -7,9 +7,8 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.net.netconnectprotocol
+package com.github.dr.rwserver.net.netconnectprotocol.realize
 
-import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
 
 /**
@@ -17,10 +16,6 @@ import com.github.dr.rwserver.net.game.ConnectionAgreement
  * @date 2020/9/5 17:02:33
  */
 class GameVersionServerBeta(connectionAgreement: ConnectionAgreement?) : GameVersionServer(connectionAgreement!!) {
-    override fun getVersionNet(connectionAgreement: ConnectionAgreement): AbstractNetConnect {
-        return GameVersionServerBeta(connectionAgreement)
-    }
-
     override val version: String
         get() = "1.15.P RW-HPS"
 }

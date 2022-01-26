@@ -12,16 +12,14 @@ package com.github.dr.rwserver.net.netconnectprotocol
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.net.core.TypeConnect
-import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.net.game.ConnectionAgreement
+import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServerBeta
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.Time.millis
 
-class TypeRwHpsBeta(abstractNetConnect: AbstractNetConnect) : TypeConnect(abstractNetConnect) {
-    val con = abstractNetConnect as GameVersionServerBeta
-
+class TypeRwHpsBeta(val con: GameVersionServerBeta) : TypeConnect(con) {
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeRwHpsBeta(con.getVersionNet(connectionAgreement))
+        return TypeRwHpsBeta(GameVersionServerBeta(connectionAgreement))
     }
 
     @Throws(Exception::class)

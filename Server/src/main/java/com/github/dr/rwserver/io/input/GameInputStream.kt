@@ -7,10 +7,9 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.io
+package com.github.dr.rwserver.io.input
 
-import com.github.dr.rwserver.io.input.DisableSyncByteArrayInputStream
-import com.github.dr.rwserver.util.zip.CompressInputStream
+import com.github.dr.rwserver.io.Packet
 import java.io.Closeable
 import java.io.DataInputStream
 import java.io.IOException

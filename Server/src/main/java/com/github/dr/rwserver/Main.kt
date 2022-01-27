@@ -26,13 +26,11 @@ import com.github.dr.rwserver.data.plugin.PluginManage.runOnEnable
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterClientCommands
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterEvents
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterServerCommands
-import com.github.dr.rwserver.dependent.LibraryManager
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.game.Event
 import com.github.dr.rwserver.game.EventType.ServerLoadEvent
 import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionPacket
-import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.encryption.Autograph
 import com.github.dr.rwserver.util.encryption.Base64.decodeString
 import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
@@ -121,8 +119,6 @@ object Main {
         clog(Data.localeUtil.getinput("server.loadPlugin", loadSize))
 
         /* 默认直接启动服务器 */
-        //Data.SERVER_COMMAND.handleMessage("startrelay",StrCons { obj: String -> clog(obj) })
-        //Data.SERVER_COMMAND.handleMessage("startrelaytest",StrCons { obj: String -> clog(obj) })
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {

@@ -11,7 +11,6 @@ package com.github.dr.rwserver.command
 
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.Core
-import com.github.dr.rwserver.core.NetServer
 import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData

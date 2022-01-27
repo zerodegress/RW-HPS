@@ -70,36 +70,8 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 | Minimum 	| Any                     | 64M      | Any        | 16M HDD | Java 11   |
 
 ## Server Command List
-<details>
-  <summary>Server Command List</summary>  
-
-| Command 					 | Parameter 																						 | Information 									 |
-|:--- 					 |:--- 																						 |:--- 									 |
-| help 		              |                                                  										 | Get help 		 |
-| start                  |                                                  										 | Turn on the server 						 |
-| say 		      | &lt;TEXT&gt;                                                  										 | Send messages in the name of Server 				 |
-| giveadmin                | &lt;PlayerSerialNumber&gt; 																 | Transfer Admin       		         |
-| restart 			 | 																							 | Restart server 				 |
-| gameover 				 |  	 | Restart The Game               				 |
-| clearbanip          		 |                                                  										 | Clean up the banned IP               	 |
-| admin          		 |&lt;add/remove&gt; &lt;PlayerSite&gt;                                                  										 | Set up admin               			 |
-| clearbanuuid          		 |                               	   											 | Clear banned uuid               			 |
-| clearbanall          		 |                               	   											 | Empty ban               			 |
-| ban          		 | &lt;PlayerSerialNumber&gt;                                 	   											 | Ban someone               			 |
-| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Forbid sb from speaking               			 |
-| kick          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | Kick               			 |
-| isafk          		 |  &lt;off/on&gt;                             	   											 | Whether to enable AFK               			 |
-| plugins          		 |                               	   											 | View the list of plugins               			 |
-| players          		 |                               	   											 | View player list               			 |
-| kill          		 | &lt;PlayerSerialNumber&gt;                             	   											 | Kill the player               			 |
-| clearmuteall          		 |                               	   											 | Unmute all               			 |
-| maps          		 |                               	   											 | View Custom Map               			 |
-| reloadmaps          		 |                               	   											 | Reload map               			 |
-| stop          		 |                               	   											 | Stop the server               			 |
-Sorry, maybe more commands have not been added because the document has no time to update  
+Depending on the startup protocol, the server command will change accordingly    
 Please use help in the console to see more  
-</details>
-
 
 ## Game Command List
 <details>

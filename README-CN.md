@@ -133,35 +133,8 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java11的服务�
 | 最低配置 	| 任何                      | 64M      | 任何     | 16M HDD  | Java 11   |
 
 ## 服务器命令列表
-<details>
-  <summary>服务器命令列表</summary>  
-
-| 命令 					 | 参数 																						 | 信息 									 |
-|:--- 					 |:--- 																						 |:--- 									 |
-| help 		              |                                                  										 | 获取帮助 		 |
-| start                  |                                                  										 | 开启服务器 						 |
-| say 		            | &lt;文字&gt;                                                  								| 用Server的名义发消息 				 |
-| giveadmin              | &lt;玩家位置&gt; 																            | 转移Admin       		         |
-| restart 			      | 																						| 重启服务器 				  |
-| gameover 				 |  	                                                                                    | 重新开始游戏               				 |
-| clearbanip          		 |                                                  										 | 清理被ban的ip               	 |
-| admin          		 |&lt;add/remove&gt; &lt;PlayerSite&gt;                                                  										 | 设置admin               			 |
-| clearbanuuid          		 |                               	   											 | 清除被ban的uuid               			 |
-| clearbanall          		 |                               	   											 | 清空ban               			 |
-| ban          		 | &lt;PlayerSerialNumber&gt;                                 	   											 | 禁止某人               			 |
-| mute          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 禁言某人               			 |
-| kick          		 |  &lt;PlayerSerialNumber&gt;  &lt;Time/s&gt;                             	   											 | 踢出               			 |
-| isafk          		 |  &lt;off/on&gt;                             	   											 | 是否启用AFK               			 |
-| plugins          		 |                               	   											 | 查看插件列表               			 |
-| players          		 |                               	   											 | 查看玩家列表               			 |
-| kill          		 | &lt;PlayerSerialNumber&gt;                              	   											 | 杀死玩家               			 |
-| clearmuteall          		 |                               	   											 | 取消全部禁言               			 |
-| maps          		 |                               	   											 | 查看Custom Map               			 |
-| reloadmaps          		 |                               	   											 | 重新加载地图               			 |
-| stop          		 |                               	   											 | 停止服务器               			 |
-抱歉 或许有更多的命令没有被加入 因为文档没有时间更新  
+根据服务器使用的协议不同,命令也会发生改变  
 请在控制台使用help查看更多  
-</details>
 
 ## 游戏命令列表
 <details>

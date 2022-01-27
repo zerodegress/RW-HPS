@@ -23,6 +23,7 @@ import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.RandomUtil.generateMixStr
 import com.github.dr.rwserver.util.StringFilteringUtil.cutting
+import com.github.dr.rwserver.util.StringFilteringUtil.replaceChinese
 import com.github.dr.rwserver.util.Time.nanos
 import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Sha
@@ -36,6 +37,32 @@ import java.util.function.Consumer
 import java.util.stream.IntStream
 
 /**
+ * Many thanks to them for providing cloud computing for the project
+ * This is essential to complete the RW-HPS Relay test
+ * @Thanks : [SimpFun Cloud](https://vps.tiexiu.xyz)
+ * @Thanks : [Github 1dNDN](https://github.com/1dNDN)
+ *
+ * This test was done on :
+ * Relay-CN (V. 3.2.0)
+ * 2021.11.05 16:30
+ */
+
+/**
+ * Relay protocol implementation
+ * Direct forwarding consumes more bandwidth and the same effect as using VPN forwarding
+ *
+ * @property relay Relay example
+ * @property relayPlayerQQ NO USE
+ * @property site RELAY's internal location
+ * @property connectUUID UUID of this connection
+ * @property cachePacket Cached Package
+ * @property betaGameVersion Is it a beta version
+ * @property netConnectAuthenticate Connection validity verification
+ * @property name player's name
+ * @property registerPlayerId UUID-Hash code after player registration
+ * @property version Protocol version
+ * @constructor
+ *
  * @author Dr
  */
 @MainProtocolImplementation
@@ -69,7 +96,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
 
     override val version: String
-        get() = "1.14 RELAY"
+        get() = "RELAY"
 
     override fun sendRelayServerInfo() {
         val cPacket: Packet? = Cache.packetCache["sendRelayServerInfo"]

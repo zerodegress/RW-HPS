@@ -9,8 +9,8 @@
 package com.github.dr.rwserver
 
 import com.github.dr.rwserver.command.ClientCommands
+import com.github.dr.rwserver.command.CoreCommands
 import com.github.dr.rwserver.command.LogCommands
-import com.github.dr.rwserver.command.ServerCommands
 import com.github.dr.rwserver.core.Core.mandatoryExit
 import com.github.dr.rwserver.core.Initialization
 import com.github.dr.rwserver.core.thread.Threads.newThreadCore
@@ -26,11 +26,13 @@ import com.github.dr.rwserver.data.plugin.PluginManage.runOnEnable
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterClientCommands
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterEvents
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterServerCommands
+import com.github.dr.rwserver.dependent.LibraryManager
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.game.Event
 import com.github.dr.rwserver.game.EventType.ServerLoadEvent
 import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionPacket
+import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.encryption.Autograph
 import com.github.dr.rwserver.util.encryption.Base64.decodeString
 import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
@@ -86,7 +88,7 @@ object Main {
         clog(Data.localeUtil.getinput("server.project.url"))
 
         /* 命令加载 */
-        ServerCommands(Data.SERVER_COMMAND)
+        CoreCommands(Data.SERVER_COMMAND)
         ClientCommands(Data.CLIENT_COMMAND)
         LogCommands(Data.LOG_COMMAND)
         clog(Data.localeUtil.getinput("server.load.command"))
@@ -119,7 +121,14 @@ object Main {
         clog(Data.localeUtil.getinput("server.loadPlugin", loadSize))
 
         /* 默认直接启动服务器 */
-        Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
+        //Data.SERVER_COMMAND.handleMessage("startrelay",StrCons { obj: String -> clog(obj) })
+        //Data.SERVER_COMMAND.handleMessage("startrelaytest",StrCons { obj: String -> clog(obj) })
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
+        if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
+            if (response.type != CommandHandler.ResponseType.valid) {
+                clog("Please check the command , Unable to use StartCommand inside Config to start the server")
+            }
+        }
 
         clog("Server Run PID : ${Data.core.pid}")
 

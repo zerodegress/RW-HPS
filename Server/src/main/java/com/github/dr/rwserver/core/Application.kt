@@ -49,8 +49,8 @@ class Application {
 
         serverName = Data.config.ServerName
 
-        serverConnectUuid = pluginData.getData("serverConnectUuid", UUID.randomUUID().toString())
-        unitBase64 = pluginData.getData("unitBase64", Seq())
+        serverConnectUuid = pluginData.getData("serverConnectUuid") { UUID.randomUUID().toString() }
+        unitBase64 = pluginData.getData("unitBase64") {Seq()}
         addSavePool {
             pluginData.setData("serverConnectUuid", serverConnectUuid)
             pluginData.setData("unitBase64", unitBase64)

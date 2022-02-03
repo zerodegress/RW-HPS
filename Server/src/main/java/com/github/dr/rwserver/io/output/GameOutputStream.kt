@@ -105,6 +105,10 @@ open class GameOutputStream @JvmOverloads constructor(private val buffer: Disabl
     }
 
     @Throws(IOException::class)
+    fun writeFloat(value: Int) {
+        stream.writeFloat(value.toFloat())
+    }
+    @Throws(IOException::class)
     fun writeFloat(value: Float) {
         stream.writeFloat(value)
     }

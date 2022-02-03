@@ -13,6 +13,7 @@ import com.github.dr.rwserver.struct.OrderedMap
 import com.github.dr.rwserver.util.file.FileUtil
 import com.github.dr.rwserver.util.io.IoReadConversion
 import com.github.dr.rwserver.util.log.Log
+import org.jetbrains.annotations.Nls
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -73,6 +74,7 @@ class LocaleUtil {
      * @param      params  替换参
      * @return     文本
      */
+    @Nls
     fun getinput(input: String, vararg params: Any?): String {
         val ps = arrayOfNulls<Any>(params.size)
         System.arraycopy(params, 0, ps, 0, params.size)
@@ -85,6 +87,7 @@ class LocaleUtil {
      * @param      ps     Object替换组
      * @return     文本
      */
+    @Nls
     fun getinputt(input: String, ps: Array<Any?>?): String {
         return core(input, ps)
     }

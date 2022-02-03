@@ -10,7 +10,11 @@
 package com.github.dr.rwserver.util
 
 /**
- * @author Miku
+ * The tag corresponding to the protocol number of the server
+ *
+ * From Game-Ilb.jar and Rukkit
+ *
+ * @author [RukkitDev](https://github.com/RukkitDev)
  * @author Dr
  */
 object PacketType {

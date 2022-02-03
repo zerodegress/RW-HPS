@@ -10,6 +10,7 @@
 package com.github.dr.rwserver.util.alone
 
 import com.github.dr.rwserver.core.thread.Threads.newThreadService2
+import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
 import com.github.dr.rwserver.util.Time.millis
@@ -51,9 +52,9 @@ class BlackList {
     }
 
     init {
-        newThreadService2({
+        TimeTaskData.BlackListCheckTask = newThreadService2({
             val time = millis()
-            blackList.each({ e: BlackData -> e.time < time }) { value: BlackData -> blackList.remove(value) }
-        }, 0, 1, TimeUnit.HOURS, "BlackListCheck")
+            blackList.each({ it.time < time }) { value: BlackData -> blackList.remove(value) }
+        }, 0, 1, TimeUnit.HOURS)
     }
 }

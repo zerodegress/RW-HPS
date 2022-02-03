@@ -13,7 +13,7 @@
 ### 许可证
 - [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html)
 ```
-Copyright (C) 2020-2021 RW-HPS Team and contributors.
+Copyright (C) 2020-2022 RW-HPS Team and contributors.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 - [EULA](https://github.com/RW-HPS/RW-HPS/blob/master/Server/src/main/resources/eula/China.md)
 ```
-版权所有©2021 RW-HPS.Team <RW-HPS@der.kim>
+版权所有©2022 RW-HPS.Team <RW-HPS@der.kim>
 
 允许在其遵守CC BY-NC-SA 4.0协议的同时，每个人复制和分发此许可证文档的逐字记录副本，且允许对其进行更改，但必须保留其版权信息与原作者。
 

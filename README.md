@@ -109,7 +109,7 @@ If you meet any problem or have any questions, feel free to file an issue. Our g
 ## License
 - [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html)
 ```
-Copyright (C) 2020-2021 RW-HPS Team and contributors.
+Copyright (C) 2020-2022 RW-HPS Team and contributors.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -126,7 +126,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 - [EULA](https://github.com/RW-HPS/RW-HPS/blob/master/Server/src/main/resources/eula/Engilsh.md)
 ```
-Copyright © 2021 RW-HPS.Team <RW-HPS@der.kim>
+Copyright © 2022 RW-HPS.Team <RW-HPS@der.kim>
 
 Permission is granted to each person to copy and distribute a verbatim copy of this license document and to make changes to it while it complies with the CC BY-NC-SA 4.0 agreement, provided that its copyright information is retained with the original author.
 

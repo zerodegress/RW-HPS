@@ -128,7 +128,7 @@ object Main {
 
         clog("Server Run PID : ${Data.core.pid}")
 
-        UpListCustom(Data.SERVER_COMMAND);
+        UpListCustom(Data.SERVER_COMMAND)
     }
 
     private fun buttonMonitoring() {
@@ -155,7 +155,7 @@ object Main {
                     }
                 }
             } catch (e: Exception) {
-                clog("Error")
+                clog("ButtonMonitoring Error")
                 info(e)
 
                 /* nohup Error */
@@ -192,7 +192,7 @@ object Main {
         } catch (e: Exception) {
             error(e)
         }
-        clog("Load OK 1.15 Protocol")
+        clog("Load OK 1.14 Protocol")
     }
 
     fun loadUnitList() {

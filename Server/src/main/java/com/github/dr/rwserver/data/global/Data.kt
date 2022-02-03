@@ -9,7 +9,6 @@
 
 package com.github.dr.rwserver.data.global
 
-import com.github.dr.rwserver.command.ex.Vote
 import com.github.dr.rwserver.core.Application
 import com.github.dr.rwserver.data.base.BaseConfig
 import com.github.dr.rwserver.game.Rules
@@ -37,7 +36,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "5.1.0"
+    const val SERVER_CORE_VERSION = "5.2.0-M1-DEV"
     /** 单位数据缓存  */
 	@JvmField
 	val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
@@ -73,5 +72,4 @@ object Data {
      */
     lateinit var localeUtil: LocaleUtil
     lateinit var game: Rules
-    lateinit var Vote: Vote
 }

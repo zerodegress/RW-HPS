@@ -31,7 +31,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
     val playerAll = Seq<Player>(16)
 
     /** 队伍数据  */
-    private val playerData = arrayOfNulls<Player>(maxPlayerSize)
+    private val playerData = arrayOfNulls<Player?>(maxPlayerSize)
 
     fun addPlayer(con: GameVersionServer, uuid: String, name: String, localeUtil: LocaleUtil = Data.localeUtil): Player {
         val player = Player(con, uuid, name, localeUtil)

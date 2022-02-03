@@ -33,15 +33,20 @@ class GameVersionPacketBeta : GameVersionPacket() {
         stream.writeString(player.name)
         stream.writeBoolean(false)
 
-        /* -1 N/A ; -2 -  ; -99 HOST */stream.writeInt(player.ping)
+        /* -1 N/A ; -2 -  ; -99 HOST */
+        stream.writeInt(player.ping)
         stream.writeLong(System.currentTimeMillis())
-        /* MS */stream.writeBoolean(false)
+        /* MS */
+        stream.writeBoolean(false)
         stream.writeInt(0)
         stream.writeInt(player.site)
         stream.writeByte(0)
-        /* 共享控制 */stream.writeBoolean(Data.game.sharedControl)
-        /* 是否掉线 */stream.writeBoolean(player.sharedControl)
-        /* 是否投降 */stream.writeBoolean(false)
+        /* 共享控制 */
+        stream.writeBoolean(Data.game.sharedControl)
+        /* 是否掉线 */
+        stream.writeBoolean(player.sharedControl)
+        /* 是否投降 */
+        stream.writeBoolean(false)
         stream.writeBoolean(false)
         stream.writeInt(-9999)
         stream.writeBoolean(false)

@@ -306,7 +306,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             )
             //ping();
 
-            debug(name)
+            //debug(name)
             if (name.equals("SERVER", ignoreCase = true) || name.equals("RELAY", ignoreCase = true)) {
                 relay!!.groupNet.disconnect() // Close Room
                 disconnect() // Close Connect & Reset Room
@@ -364,7 +364,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             }
             relay!!.setAddSite()
             relay!!.setAbstractNetConnect(this)
-            site = relay!!.site
+            site = relay!!.getSite()
             val o = GameOutputStream()
             o.writeByte(0)
             o.writeInt(site)
@@ -454,7 +454,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 if (PacketType.PACKET_KICK == type) {
                     val gameOutputStream = GameOutputStream()
                     gameOutputStream.writeString(GameInputStream(bytes).readString().replace("[0-9]".toRegex(), ""))
-                    abstractNetConnect!!.sendPacket(gameOutputStream.createPacket(type))
+                    abstractNetConnect?.sendPacket(gameOutputStream.createPacket(type))
                     relayPlayerDisconnect()
                     return
                 }
@@ -500,7 +500,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     override fun multicastAnalysis(packet: Packet) {
-        TODO("Not yet implemented")
+        // Protocol not supported
     }
 
     override fun disconnect() {
@@ -522,7 +522,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 Relay.serverRelayIpData.remove(ip)
                 //relay.groupNet.disconnect();
                 if (relay!!.isStartGame) {
-                    if (relay!!.size > 0) {
+                    if (relay!!.getSize() > 0) {
                         // Move Room Admin
                         adminMoveNew()
                         //Cache.relayAdminCache.addCache(name+ip,BigInteger(1, sha256Array(uuid+Data.core.serverConnectUuid)).toString(16).uppercase(Locale.ROOT))
@@ -533,7 +533,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 }
             }
             // Log.clog(String.valueOf(relay.getSize()));
-            if (relay!!.size <= 0 && !relay!!.closeRoom) {
+            if (relay!!.getSize() <= 0 && !relay!!.closeRoom) {
                 relay!!.closeRoom = true
                 debug("[Relay] Gameover")
                 relay!!.re()
@@ -604,7 +604,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     private fun adminMoveNew() {
         relay!!.updateMinSize()
-        relay!!.getAbstractNetConnect(relay!!.minSize).sendRelayServerId()
+        relay!!.getAbstractNetConnect(relay!!.minSize)!!.sendRelayServerId()
         relay!!.abstractNetConnectIntMap.values()
             .forEach(Consumer { obj: GameVersionRelay -> obj.addReRelayConnect() })
     }
@@ -617,7 +617,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         relay = if (IsUtil.isBlank(id)) {
             Relay(nanos())
         } else {
-            Relay(nanos(), id)
+            Relay(nanos(), id!!)
         }
         relay!!.isMod = mod
         sendRelayServerId()

@@ -10,8 +10,7 @@
 package com.github.dr.rwserver.net.netconnectprotocol.realize
 
 import com.github.dr.rwserver.core.Call.sendMessage
-import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
-import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
+import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.game.EventType.PlayerChatEvent
 import com.github.dr.rwserver.game.GameCommand
@@ -36,8 +35,8 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
             var message: String? = stream.readString()
             var response: CommandResponse? = null
             clog("[{0}]: {1}", player.name, message)
-            if (player.isAdmin && getIfScheduledFutureData("AfkCountdown")) {
-                removeScheduledFutureData("AfkCountdown")
+            if (player.isAdmin && TimeTaskData.PlayerAfkTask != null) {
+                TimeTaskData.stopPlayerAfkTask()
                 sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
             }
             if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {

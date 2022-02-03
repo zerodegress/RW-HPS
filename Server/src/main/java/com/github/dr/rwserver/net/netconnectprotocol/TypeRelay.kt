@@ -26,50 +26,53 @@ class TypeRelay(val con: GameVersionRelay) : TypeConnect(con) {
     override fun typeConnect(packet: Packet) {
         con.lastReceivedTime()
 
-        when (packet.type) {
-            175 -> {
-                con.addRelaySend(packet)
-            }
-            PacketType.PACKET_HEART_BEAT -> {
-                con.addGroup(packet)
-                con.getPingData(packet)
-            }
-            else -> {
-                when (packet.type) {
-                    PacketType.PACKET_PREREGISTER_CONNECTION -> {
-                        con.setCachePacket(packet)
-                        con.sendRelayServerInfo()
-                        con.sendRelayServerCheck()
-                    }
-                    152 -> {
-                        if (con.receiveRelayServerCheck(packet)) {
-                            if (!Data.config.SingleUserRelay) {
-                                con.relayDirectInspection()
-                            } else {
-                                NetStaticData.relay.setAddSize()
-                                if (NetStaticData.relay.admin == null) {
-                                    con.sendRelayServerId()
-                                } else {
-                                    con.addRelayConnect()
-                                }
-                            }
-                        } else {
-                            con.disconnect()
-                        }
-                    }
-
-                    118 -> con.sendRelayServerTypeReply(packet)
-                    176 -> {
-                    }
-                    112 -> {
-                        con.relay!!.isStartGame = true
-                        con.sendResultPing(packet)
-                    }
-                    PacketType.PACKET_DISCONNECT -> con.disconnect()
-                    PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
-                    else -> con.sendResultPing(packet)
+        // CPU branch prediction
+        if (packet.type == 175) {
+            con.addRelaySend(packet)
+        } else {
+            when (packet.type) {
+                PacketType.PACKET_HEART_BEAT -> {
+                    con.addGroup(packet)
+                    con.getPingData(packet)
                 }
-            }
+                else -> {
+                    when (packet.type) {
+                        PacketType.PACKET_PREREGISTER_CONNECTION -> {
+                            con.setCachePacket(packet)
+                            con.sendRelayServerInfo()
+                            con.sendRelayServerCheck()
+                        }
+                        152 -> {
+                            if (con.receiveRelayServerCheck(packet)) {
+                                if (!Data.config.SingleUserRelay) {
+                                    con.relayDirectInspection()
+                                } else {
+                                    NetStaticData.relay.setAddSize()
+                                    if (NetStaticData.relay.admin == null) {
+                                        con.sendRelayServerId()
+                                    } else {
+                                        con.addRelayConnect()
+                                    }
+                                }
+                            } else {
+                                con.disconnect()
+                            }
+                        }
+
+                        118 -> con.sendRelayServerTypeReply(packet)
+                        176 -> {
+                        }
+                        112 -> {
+                            con.relay!!.isStartGame = true
+                            con.sendResultPing(packet)
+                        }
+                        PacketType.PACKET_DISCONNECT -> con.disconnect()
+                        PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
+                        else -> con.sendResultPing(packet)
+                    }
+                }
+        }
+
         }
     }
 

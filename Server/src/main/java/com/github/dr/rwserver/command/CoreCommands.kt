@@ -12,6 +12,7 @@ package com.github.dr.rwserver.command
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.Core
 import com.github.dr.rwserver.core.thread.Threads
+import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.plugin.PluginManage
@@ -111,8 +112,8 @@ class CoreCommands(handler: CommandHandler) {
             Log.set(Data.config.Log.uppercase(Locale.getDefault()))
             Data.game = Rules(Data.config)
             Data.game.init()
-            Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS, "GameTeam")
-            Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS, "GamePing")
+            TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
+            TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)
 
             NetStaticData.protocolData.setTypeConnect(TypeRwHps(GameVersionServer(ConnectionAgreement())))
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
@@ -150,10 +151,12 @@ class CoreCommands(handler: CommandHandler) {
             Log.set(Data.config.Log.uppercase(Locale.getDefault()))
             Data.game = Rules(Data.config)
             Data.game.init()
-            Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS, "GameTeam")
-            Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS, "GamePing")
+            TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
+            TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)
+
             NetStaticData.protocolData.setTypeConnect(TypeRwHps(GameVersionFFA(ConnectionAgreement())))
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
+
             Threads.newThreadCore {
                 val startNet = StartNet()
                 NetStaticData.startNet.add(startNet)

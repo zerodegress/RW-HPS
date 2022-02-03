@@ -9,23 +9,20 @@
 
 package com.github.dr.rwserver.command
 
-import com.github.dr.rwserver.command.ex.Vote
 import com.github.dr.rwserver.core.Call.sendMessageLocal
 import com.github.dr.rwserver.core.Call.sendSystemMessageLocal
 import com.github.dr.rwserver.core.Call.sendTeamData
 import com.github.dr.rwserver.core.Call.sendTeamMessage
 import com.github.dr.rwserver.core.Call.testPreparationPlayer
 import com.github.dr.rwserver.core.Call.upDataGameData
-import com.github.dr.rwserver.core.thread.Threads.getIfScheduledFutureData
 import com.github.dr.rwserver.core.thread.Threads.newThreadService
-import com.github.dr.rwserver.core.thread.Threads.removeScheduledFutureData
+import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.game.EventType.GameStartEvent
 import com.github.dr.rwserver.game.GameMaps.MapType
-import com.github.dr.rwserver.util.IsUtil.isNumeric
 import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.IsUtil.notIsNumeric
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
@@ -33,7 +30,6 @@ import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log.error
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -81,8 +77,7 @@ class ClientCommands(handler: CommandHandler) {
                     response.append(" ").append(args[i])
                     i++
                 }
-                val inputMapName =
-                    response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
+                val inputMapName = response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
                 val mapPlayer = Data.MapsMap[inputMapName]
                 if (mapPlayer != null) {
                     val data = mapPlayer.split("@").toTypedArray()
@@ -137,7 +132,7 @@ class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(localeUtil.getinput("err.startGame"))
                     return@register
                 }
-                if (getIfScheduledFutureData("AfkCountdown")) {
+                if (TimeTaskData.PlayerAfkTask != null) {
                     return@register
                 }
                 val admin = AtomicBoolean(true)
@@ -148,16 +143,16 @@ class ClientCommands(handler: CommandHandler) {
                     sendSystemMessageLocal("afk.end.noAdmin", player.name)
                     return@register
                 }
-                newThreadService({
+                TimeTaskData.PlayerAfkTask = newThreadService({
                     Data.game.playerManage.playerGroup.each(
                         { p: Player -> p.isAdmin }) { i: Player ->
                         i.isAdmin = false
                         player.isAdmin = true
                         upDataGameData()
                         sendSystemMessageLocal("afk.end.ok", player.name)
-                        removeScheduledFutureData("AfkCountdown")
+                        TimeTaskData.stopPlayerAfkTask()
                     }
-                }, 30, TimeUnit.SECONDS, "AfkCountdown")
+                }, 30, TimeUnit.SECONDS)
                 sendMessageLocal(player, "afk.start", player.name)
             }
         }
@@ -296,16 +291,13 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("start", "clientCommands.start") { _: Array<String>?, player: Player ->
             if (isAdmin(player)) {
-                if (getIfScheduledFutureData("AfkCountdown")) {
-                    removeScheduledFutureData("AfkCountdown")
+                if (TimeTaskData.PlayerAfkTask != null) {
+                    TimeTaskData.stopPlayerAfkTask()
                     sendMessageLocal(player, "afk.clear", player.name)
                 }
                 if (Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size()) {
                     player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
-                }
-                if (getIfScheduledFutureData("GamePing")) {
-                    removeScheduledFutureData("GamePing")
                 }
                 if (Data.game.maps.mapData != null) {
                     Data.game.maps.mapData!!.readMap()
@@ -366,6 +358,8 @@ class ClientCommands(handler: CommandHandler) {
                 player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"))
             }
         }
+        // TODO Vote
+        /*
         handler.register("vote", "<gameover/kick> [player-site]", "clientCommands.vote") { args: Array<String>, player: Player ->
             when (args[0].lowercase(Locale.getDefault())) {
                 "gameover" -> Data.Vote = Vote(player, args[0])
@@ -377,6 +371,8 @@ class ClientCommands(handler: CommandHandler) {
                 else -> player.sendSystemMessage(player.localeUtil.getinput("err.command"))
             }
         }
+
+         */
         handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
                 player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))

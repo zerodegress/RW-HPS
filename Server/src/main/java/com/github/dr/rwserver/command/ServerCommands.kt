@@ -182,7 +182,8 @@ class ServerCommands(handler: CommandHandler) {
             val size = Data.game.mapsData.size
             Data.game.mapsData.clear()
             Data.game.checkMaps()
-            log["Reload {0}:{1}", size, Data.game.mapsData.size]
+            // Reload 旧列表的Custom数量 : 新列表的Custom数量
+            log["Reload Old Size:New Size is {0}:{1}", size, Data.game.mapsData.size]
         }
     }
 

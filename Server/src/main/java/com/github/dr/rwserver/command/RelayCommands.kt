@@ -22,7 +22,7 @@ class RelayCommands(handler: CommandHandler) {
             if (Relay.serverRelayIpData.size() == 0) {
                 log["No players are currently in the server."]
             } else {
-                log[Relay.getRelayAllIP()]
+                log[Relay.relayAllIP]
             }
         }
         handler.register("banrelay", "<id>", "serverCommands.banrelay") { arg: Array<String>, log: StrCons ->
@@ -30,12 +30,12 @@ class RelayCommands(handler: CommandHandler) {
             if (isBlank(relay)) {
                 log["NOT RELAY ROOM"]
             } else {
-                relay.groupNet.disconnect()
+                relay!!.groupNet.disconnect()
                 relay.sendMsg("You are banned by the administrator, please do not occupy public resources")
                 val ip = relay.admin!!.ip
                 Data.core.admin.bannedIP24.add(ipToLong(ip))
                 relay.admin!!.disconnect()
-                log["OK!  ${ip} The *.*.*.0 segment is disabled"]
+                log["OK!  $ip The *.*.*.0 segment is disabled"]
             }
 
         }
@@ -43,7 +43,7 @@ class RelayCommands(handler: CommandHandler) {
         handler.register("unbanrelay", "<ip>", "serverCommands.unBanrelay") { arg: Array<String>, log: StrCons ->
             val ip = arg[0]
             Data.core.admin.bannedIP24.remove(ipToLong(ip))
-            log["OK!  ${ip} The *.*.*.0 segment is unDisabled"]
+            log["OK!  $ip The *.*.*.0 segment is unDisabled"]
         }
     }
 

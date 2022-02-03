@@ -52,7 +52,7 @@ public class Administration {
 
         Threads.addSavePool(() -> {
             pluginData.setData("bannedIPs",bannedIPs);
-            //pluginData.setData("bannedIP24",bannedIP24);
+            pluginData.setData("bannedIP24",bannedIP24);
             pluginData.setData("bannedUUIDs",bannedUUIDs);
             pluginData.setData("whitelist",whitelist);
             pluginData.setData("playerData",playerData);

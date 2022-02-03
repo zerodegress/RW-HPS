@@ -28,6 +28,10 @@ internal class NewServerHandler internal constructor(
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Any?) {
+        if (msg == null) {
+            return
+        }
+
         try {
             if (msg is Packet) {
                 val attr = ctx.channel().attr(NETTY_CHANNEL_KEY)
@@ -43,12 +47,10 @@ internal class NewServerHandler internal constructor(
                 }
 
                 ctx.executor().execute {
-                    /*
-                    if (type.isConnectServer) {
-                        type.connectServer!!.send(msg)
+                    if (type.abstractNetConnect.isConnectServer) {
+                        type.abstractNetConnect.connectServer!!.send(msg)
                         return@execute
-                    }*/
-                    //TODO
+                    }
                     try {
                         type.typeConnect(msg)
                     } catch (e: Exception) {
@@ -63,10 +65,14 @@ internal class NewServerHandler internal constructor(
     }
 
     @Throws(Exception::class)
-    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
         //ctx.close()
-        //error(RuntimeException())
-        error(cause)
+        error(RuntimeException())
+        error(cause == null)
+        error(cause!!)
+        error(cause.message!!)
+        error(cause.localizedMessage!!)
+        error(cause.cause!!)
     }
 
     companion object {

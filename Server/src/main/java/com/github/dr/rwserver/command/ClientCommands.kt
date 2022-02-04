@@ -387,13 +387,13 @@ class ClientCommands(handler: CommandHandler) {
                 val newSite = args[1].toInt() - 1
                 //int newSite = 0;
                 val team = args[2].toInt()
-                if (oldSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
-                    val od = Data.game.playerManage.getPlayerArray(oldSite)
-                    val nw = Data.game.playerManage.getPlayerArray(newSite)
-                    if (od == null) {
-                        return@register
-                    }
-                    if (newSite > -2) {
+                if (newSite >= 0) {
+                    if (oldSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
+                        val od = Data.game.playerManage.getPlayerArray(oldSite)
+                        val nw = Data.game.playerManage.getPlayerArray(newSite)
+                        if (od == null) {
+                            return@register
+                        }
                         if (nw == null) {
                             Data.game.playerManage.removePlayerArray(oldSite)
                             od.site = newSite
@@ -410,7 +410,11 @@ class ClientCommands(handler: CommandHandler) {
                             Data.game.playerManage.setPlayerArray(newSite,od)
                             Data.game.playerManage.setPlayerArray(oldSite,nw)
                         }
+                        sendTeamData()
                     }
+                } else if (newSite == -3) {
+                    val od = Data.game.playerManage.getPlayerArray(oldSite) ?: return@register
+                    od.team = -3
                     sendTeamData()
                 }
             }
@@ -429,17 +433,22 @@ class ClientCommands(handler: CommandHandler) {
             }
             val newSite = args[0].toInt() - 1
             val team = args[1].toInt()
-            if (newSite < Data.game.maxPlayer) {
-                val newSitePlayer = Data.game.playerManage.getPlayerArray(newSite)
-                if (newSitePlayer == null) {
-                    Data.game.playerManage.removePlayerArray(player)
-                    player.site = newSite
-                    if (team > -1) {
-                        player.team = team
+            if (newSite >= 0) {
+                if (newSite < Data.game.maxPlayer) {
+                    val newSitePlayer = Data.game.playerManage.getPlayerArray(newSite)
+                    if (newSitePlayer == null) {
+                        Data.game.playerManage.removePlayerArray(player)
+                        player.site = newSite
+                        if (team > -1) {
+                            player.team = team
+                        }
+                        Data.game.playerManage.setPlayerArray(newSite,player)
+                        sendTeamData()
                     }
-                    Data.game.playerManage.setPlayerArray(newSite,player)
-                    sendTeamData()
                 }
+            } else if (newSite == -3) {
+                player.team = -3
+                sendTeamData()
             }
         }
         handler.register("team", "<PlayerSiteNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: Player ->

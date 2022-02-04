@@ -9,6 +9,7 @@
 
 package com.github.dr.rwserver.command
 
+import com.github.dr.rwserver.command.ex.Vote
 import com.github.dr.rwserver.core.Call.sendMessageLocal
 import com.github.dr.rwserver.core.Call.sendSystemMessageLocal
 import com.github.dr.rwserver.core.Call.sendTeamData
@@ -335,13 +336,12 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("surrender", "clientCommands.surrender") { _: Array<String>?, player: Player ->
             if (Data.game.isStartGame) {
-                /*
-				if (isBlank(Data.Vote)) {
-					Data.Vote = new Vote(player,"surrender");
-				} else {
-					Data.Vote.toVote(player,"y");
-				}*/
-                player.con!!.sendSurrender()
+                if (Data.vote == null) {
+                    Data.vote = Vote("surrender",player)
+                } else {
+                    Data.vote!!.toVote(player,"y")
+                }
+                //player.con!!.sendSurrender()
             } else {
                 player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"))
             }

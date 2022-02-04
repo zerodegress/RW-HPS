@@ -46,7 +46,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 
 </details>
 
-## Currently to be completed
+#### Currently to be completed
 - [ ] Analog Layer (technical limitations)
 - [ ] Vote
 - [ ] 1.15.P*

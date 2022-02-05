@@ -51,6 +51,7 @@ class TypeRelayRebroadcast(val con: GameVersionRelayRebroadcast) : TypeConnect(c
                 ).anyMatch { i: Int -> i == packet.type } -> {
                     con.sendResultPing(packet)
                 }
+
                 else -> {
                     when (packet.type) {
                         PacketType.PACKET_PREREGISTER_CONNECTION -> {

@@ -100,7 +100,7 @@ class Event : AbstractEvent {
             Call.sendTeamData()
 
         } else {
-            Call.sendSystemMessage("player.disNoStart", player.name)
+            //Call.sendSystemMessage("player.disNoStart", player.name)
         }
     }
 

@@ -50,31 +50,28 @@ import java.util.logging.Level
 import java.util.logging.Logger
 
 /**
+ * Welcome to Bugs RW-HPS !
+ * Welcome to the RW-HPS Team ! Add a copy of your code to the project
+ *
+ * RW-HPS Team Welcome to You
+ */
+
+/**
  * @author Dr
  */
 object Main {
-    /*
-	 * TODO 防逆向
-	 * 设置多个检查点, 定期检查, 如果发现问题就加密或混淆部分数据
-	 */
     @JvmStatic
     fun main(args: Array<String>) {
         Initialization()
+
         set("ALL")
         setCopyPrint(true)
+
         Logger.getLogger("io.netty").level = Level.OFF
+
         println(Data.localeUtil.getinput("server.login"))
         clog("Load ing...")
 
-
-        /*
-		 * TODO
-		 * Prevent signature modification */
-        /* CP #1 */
-        if (!Autograph().verify(Main::class.java.protectionDomain.codeSource.location)) {
-            skipping("The server was modified and refused to start")
-            mandatoryExit()
-        }
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
         Data.config = BaseConfig.stringToClass()

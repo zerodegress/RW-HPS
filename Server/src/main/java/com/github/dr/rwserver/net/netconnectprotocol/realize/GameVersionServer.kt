@@ -17,6 +17,7 @@ import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.game.EventType.*
 import com.github.dr.rwserver.game.GameCommand
+import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.output.CompressOutputStream
@@ -87,8 +88,11 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         o.writeString(Data.SERVER_ID)
         o.writeInt(supportedVersion)
         /* 地图 */
-        o.writeInt(Data.game.maps.mapType.ordinal)
-        o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
+        //o.writeInt(Data.game.maps.mapType.ordinal)
+        //o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
+        o.writeInt(GameMaps.MapType.customMap.ordinal)
+        o.writeString(Data.config.Subtitle)
+
         o.writeInt(Data.game.credits)
         o.writeInt(Data.game.mist)
         o.writeBoolean(true)
@@ -192,47 +196,55 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     @Throws(IOException::class)
     override fun receiveChat(p: Packet) {
         GameInputStream(p).use { stream ->
-            var message: String? = stream.readString()
+            val message: String = stream.readString()
+
             var response: CommandResponse? = null
+
             Log.clog("[{0}]: {1}", player.name, message)
+
+            // Afk Stop
             if (player.isAdmin && TimeTaskData.PlayerAfkTask != null) {
                 TimeTaskData.stopPlayerAfkTask()
                 Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
             }
-            if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
+
+            // Msg Command
+            if (message.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
                 val strEnd = min(message.length, 3)
+                // 提取出消息前三位 判定是否为QC命令
                 response = if ("qc" == message.substring(1, strEnd)) {
                     Data.CLIENT_COMMAND.handleMessage("/" + message.substring(5), player)
                 } else {
                     Data.CLIENT_COMMAND.handleMessage("/" + message.substring(1), player)
                 }
             }
+
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
                 if (message.length > Data.config.MaxMessageLen) {
                     sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
                     return
                 }
-                message = Data.core.admin.filterMessage(player, message)
-                if (message == null) {
-                    return
+
+                Data.core.admin.filterMessage(player, message)?.let { filterMessage: String ->
+                    Call.sendMessage(player, filterMessage)
+                    Events.fire(PlayerChatEvent(player, filterMessage))
                 }
-                Call.sendMessage(player, message)
-                Events.fire(PlayerChatEvent(player, message))
-            } else {
-                if (response.type != CommandHandler.ResponseType.valid) {
-                    val text: String =  when (response.type) {
-                                            CommandHandler.ResponseType.manyArguments -> {
-                                                "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            }
-                                            CommandHandler.ResponseType.fewArguments -> {
-                                                "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            }
-                                            else -> {
-                                                "Unknown command. Check .help"
+
+            } else if (response.type != CommandHandler.ResponseType.valid) {
+                val text: String =  when (response.type) {
+                                        CommandHandler.ResponseType.manyArguments -> {
+                                            "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                                         }
-                    }
-                    player.sendSystemMessage(text)
+                                        CommandHandler.ResponseType.fewArguments -> {
+                                            "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                        }
+                                        else -> {
+                                            "Unknown command. Check .help"
+                                    }
                 }
+                player.sendSystemMessage(text)
+            } else {
+                // no execution
             }
         }
     }
@@ -445,7 +457,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 if (IsUtil.notIsBlank(Data.config.EnterAd)) {
                     sendSystemMessage(Data.config.EnterAd)
                 }
-                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
+                // TODO
+                //Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
                 if (re.get()) {
                     reConnect()
                 }

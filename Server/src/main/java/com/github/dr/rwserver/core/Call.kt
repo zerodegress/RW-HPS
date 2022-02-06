@@ -73,7 +73,7 @@ object Call {
 
     @JvmStatic
     fun sendTeamData() {
-        if (Data.game.reConnectBreak) {
+        if (Data.game.gamePaused) {
             return
         }
         try {
@@ -164,6 +164,16 @@ object Call {
         }
     }
 
+    // Welcome to Bugs RW-HPS ! ---- 来自于 1.2.0-M2到5.2.0-M1-DEV才被修复的Bug
+    /**
+     *
+     * @property timer Timer
+     * @property time Int
+     * @property oneSay Boolean
+     * @property gameOverTask ScheduledFuture<*>?
+     * @property forcedReturn Boolean
+     * @constructor
+     */
     private class SendGameTickCommand(private val timer: Timer) : TimerTask() {
         private var time = 0
         private var oneSay = true
@@ -173,7 +183,7 @@ object Call {
         private var forcedReturn = false
 
         override fun run() {
-            // 检测人数是否符合GameOver
+            // 检测人数是否符合Gameover
             val playerSize = Data.game.playerManage.playerGroup.size()
             if (playerSize == 0) {
                 gr()
@@ -194,7 +204,7 @@ object Call {
                 }
             }
 
-            if (Data.game.reConnectBreak || forcedReturn) {
+            if (Data.game.gamePaused || forcedReturn) {
                 return
             }
 

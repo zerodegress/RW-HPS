@@ -23,11 +23,9 @@ import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.RandomUtil.generateMixStr
 import com.github.dr.rwserver.util.StringFilteringUtil.cutting
-import com.github.dr.rwserver.util.StringFilteringUtil.replaceChinese
 import com.github.dr.rwserver.util.Time.nanos
 import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Sha
-import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.debug
 import com.github.dr.rwserver.util.log.Log.error
 import java.io.IOException

@@ -17,7 +17,6 @@ import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.game.EventType.*
 import com.github.dr.rwserver.game.GameCommand
-import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.io.Packet
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.output.CompressOutputStream
@@ -51,7 +50,7 @@ import kotlin.math.min
 
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectServer {
-    private val supportedVersion: Int = 151
+    protected val supportedVersion: Int = 151
     
     private val sync = ReentrantLock(true)
 
@@ -88,11 +87,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         o.writeString(Data.SERVER_ID)
         o.writeInt(supportedVersion)
         /* 地图 */
-        //o.writeInt(Data.game.maps.mapType.ordinal)
-        //o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
-        o.writeInt(GameMaps.MapType.customMap.ordinal)
-        o.writeString(Data.config.Subtitle)
-
+        o.writeInt(Data.game.maps.mapType.ordinal)
+        o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
         o.writeInt(Data.game.credits)
         o.writeInt(Data.game.mist)
         o.writeBoolean(true)
@@ -197,7 +193,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun receiveChat(p: Packet) {
         GameInputStream(p).use { stream ->
             val message: String = stream.readString()
-
             var response: CommandResponse? = null
 
             Log.clog("[{0}]: {1}", player.name, message)
@@ -224,12 +219,10 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
                     return
                 }
-
                 Data.core.admin.filterMessage(player, message)?.let { filterMessage: String ->
                     Call.sendMessage(player, filterMessage)
                     Events.fire(PlayerChatEvent(player, filterMessage))
                 }
-
             } else if (response.type != CommandHandler.ResponseType.valid) {
                 val text: String =  when (response.type) {
                                         CommandHandler.ResponseType.manyArguments -> {
@@ -244,7 +237,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 }
                 player.sendSystemMessage(text)
             } else {
-                // no execution
+                //
             }
         }
     }
@@ -341,7 +334,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             o.writeInt(player.site)
             o.writeBoolean(Data.game.isStartGame)
             /* Largest player */
-            o.writeInt(Data.game.maxPlayer)
+            o.writeInt(Data.game.getMaxPlayer())
             o.flushEncodeData(gzip)
             /* 迷雾 */
             o.writeInt(Data.game.mist)
@@ -450,18 +443,22 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                      */
                     player = Data.game.playerManage.addPlayer(this, uuid, name, localeUtil)
                 }
-                connectionAgreement.add(NetStaticData.groupNet)
-                Call.sendTeamData()
+
+                player.sendTeamData()
                 sendServerInfo(true)
+
                 Events.fire(PlayerJoinEvent(player))
+
                 if (IsUtil.notIsBlank(Data.config.EnterAd)) {
                     sendSystemMessage(Data.config.EnterAd)
                 }
-                // TODO
-                //Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
+                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
                 if (re.get()) {
                     reConnect()
                 }
+
+                connectionAgreement.add(NetStaticData.groupNet)
+
                 return true
             }
         } finally {
@@ -525,25 +522,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         super.close(NetStaticData.groupNet)
     }
 
-    override fun getGameSave() {
-        try {
-            val o = GameOutputStream()
-            o.writeByte(0)
-            o.writeInt(0)
-            o.writeInt(0)
-            o.writeFloat(0f)
-            o.writeFloat(0f)
-            o.writeBoolean(true)
-            o.writeBoolean(false)
-            val gzipEncoder = CompressOutputStream.getGzipOutputStream("gameSave", false)
-            gzipEncoder.writeString("This is RW-HPS!")
-            o.flushEncodeData(gzipEncoder)
-            sendPacket(o.createPacket(35))
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-    }
-
     override fun sendGameSave(packet: Packet) {
         sendPacket(packet)
     }
@@ -556,28 +534,31 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             }
             super.isDis = false
             sendPacket(NetStaticData.protocolData.abstractNetPacket.getStartGamePacket())
-            Data.game.reConnectBreak = true
-            Call.sendSystemMessage("玩家短线重连中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
+            sync()
+        } catch (e: Exception) {
+            Log.error("[Player] Send GameSave ReConnect Error", e)
+        }
+    }
+
+    override fun sync() {
+        try {
+            Data.game.gamePaused = true
+            Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             val executorService = Executors.newFixedThreadPool(1)
-            val future = executorService.submit<String?> {
-                Data.game.playerManage.playerGroup.each({ e: Player -> e.uuid != this.player.uuid && !e.con!!.tryBoolean }) { p: Player ->
-                    p.con!!.getGameSave()
-                    while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
-                        if (Thread.interrupted()) {
-                            return@each
-                        }
-                    }
-                    try {
-                        NetStaticData.groupNet.broadcast(
-                            NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(
-                                Data.game.gameSaveCache
-                            )
-                        )
-                    } catch (e: IOException) {
-                        Log.error(e)
+            val future = executorService.submit {
+                // 批量诱骗
+                NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.deceiveGetGameSave())
+
+                while (Data.game.gameSaveCache == null || Data.game.gameSaveCache.type == 0) {
+                    if (Thread.interrupted()) {
+                        return@submit
                     }
                 }
-                null
+                try {
+                    NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.convertGameSaveDataPacket(Data.game.gameSaveCache))
+                } catch (e: IOException) {
+                    Log.error(e)
+                }
             }
             try {
                 future[30, TimeUnit.SECONDS]
@@ -588,7 +569,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             } finally {
                 executorService.shutdown()
                 Data.game.gameSaveCache = null
-                Data.game.reConnectBreak = false
+                Data.game.gamePaused = false
             }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)

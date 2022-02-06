@@ -35,6 +35,7 @@ class TypeRelay(val con: GameVersionRelay) : TypeConnect(con) {
                     con.addGroup(packet)
                     con.getPingData(packet)
                 }
+
                 PacketType.PACKET_PREREGISTER_CONNECTION -> {
                     con.setCachePacket(packet)
                     con.sendRelayServerInfo()
@@ -67,6 +68,7 @@ class TypeRelay(val con: GameVersionRelay) : TypeConnect(con) {
                 PacketType.PACKET_DISCONNECT -> con.disconnect()
                 PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
                 else -> con.sendResultPing(packet)
+
         }
 
         }

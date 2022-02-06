@@ -41,11 +41,12 @@ class TypeRwHps(val con: GameVersionServer) : TypeConnect(con) {
                         val player = con.player
                         player.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
                     }
-                    //PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
+                    PacketType.PACKET_ADD_CHAT -> con.receiveChat(packet)
                     PacketType.PACKET_DISCONNECT -> con.disconnect()
                     PacketType.PACKET_ACCEPT_START_GAME -> con.player.start = true
                     PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
-                    PacketType.PACKET_SYNC -> Data.game.gameSaveCache = packet
+                    // 竞争 谁先到就用谁
+                    PacketType.PACKET_SYNC -> if (Data.game.gameSaveCache == null) Data.game.gameSaveCache = packet
 
                     //118 -> con.sendRelayServerTypeReply(packet)
 

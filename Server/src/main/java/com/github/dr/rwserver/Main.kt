@@ -11,27 +11,24 @@ package com.github.dr.rwserver
 import com.github.dr.rwserver.command.ClientCommands
 import com.github.dr.rwserver.command.CoreCommands
 import com.github.dr.rwserver.command.LogCommands
-import com.github.dr.rwserver.core.Core.mandatoryExit
 import com.github.dr.rwserver.core.Initialization
 import com.github.dr.rwserver.core.thread.Threads.newThreadCore
-import com.github.dr.rwserver.custom.UpListCustom
+import com.github.dr.rwserver.custom.LoadCustomPlugin
 import com.github.dr.rwserver.data.base.BaseConfig
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.plugin.PluginEventManage.Companion.add
+import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.data.plugin.PluginManage.init
 import com.github.dr.rwserver.data.plugin.PluginManage.loadSize
 import com.github.dr.rwserver.data.plugin.PluginManage.runInit
 import com.github.dr.rwserver.data.plugin.PluginManage.runOnEnable
-import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterClientCommands
 import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterEvents
-import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterServerCommands
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.game.Event
 import com.github.dr.rwserver.game.EventType.ServerLoadEvent
 import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionPacket
-import com.github.dr.rwserver.util.encryption.Autograph
 import com.github.dr.rwserver.util.encryption.Base64.decodeString
 import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
 import com.github.dr.rwserver.util.file.FileUtil.Companion.readFileListString
@@ -44,7 +41,6 @@ import com.github.dr.rwserver.util.log.Log.error
 import com.github.dr.rwserver.util.log.Log.info
 import com.github.dr.rwserver.util.log.Log.set
 import com.github.dr.rwserver.util.log.Log.setCopyPrint
-import com.github.dr.rwserver.util.log.Log.skipping
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -60,6 +56,10 @@ import java.util.logging.Logger
  * @author Dr
  */
 object Main {
+    /*
+	 * TODO 防逆向
+	 * 设置多个检查点, 定期检查, 如果发现问题就加密或混淆部分数据
+	 */
     @JvmStatic
     fun main(args: Array<String>) {
         Initialization()
@@ -77,8 +77,6 @@ object Main {
         Data.config = BaseConfig.stringToClass()
         Data.core.load()
 
-        //loadCoreJar(if (args.size > 1) decodeString(args[1]) else null)
-
         clog(Data.localeUtil.getinput("server.hi"))
         clog(Data.localeUtil.getinput("server.project.url"))
 
@@ -94,10 +92,13 @@ object Main {
 
         /* 初始化Plugin */
         init(getFolder(Data.Plugin_Plugins_Path))
+        LoadCustomPlugin()
+
         runOnEnable()
-        runRegisterClientCommands(Data.CLIENT_COMMAND)
-        runRegisterServerCommands(Data.SERVER_COMMAND)
         runRegisterEvents()
+        PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
+        PluginManage.runRegisterClientCommands(Data.CLIENT_COMMAND)
+
 
         /* Core Net */
         loadNetCore()
@@ -111,7 +112,8 @@ object Main {
         /* 加载完毕 */
         Events.fire(ServerLoadEvent())
 
-        /* 初始化Plugin Init */runInit()
+        /* 初始化Plugin Init */
+        runInit()
         clog(Data.localeUtil.getinput("server.load.end"))
         clog(Data.localeUtil.getinput("server.loadPlugin", loadSize))
 
@@ -124,8 +126,6 @@ object Main {
         }
 
         clog("Server Run PID : ${Data.core.pid}")
-
-        UpListCustom(Data.SERVER_COMMAND)
     }
 
     private fun buttonMonitoring() {

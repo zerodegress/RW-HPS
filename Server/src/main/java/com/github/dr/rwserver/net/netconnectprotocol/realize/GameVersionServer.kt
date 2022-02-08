@@ -545,7 +545,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             player.sendSystemMessage("目前已有同步任务 请等待")
             return
         }
-        ctry {
+        try {
             Data.game.gamePaused = true
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             val executorService = Executors.newFixedThreadPool(1)

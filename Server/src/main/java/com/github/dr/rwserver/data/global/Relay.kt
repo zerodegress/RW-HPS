@@ -233,10 +233,10 @@ class Relay {
 
         @JvmStatic
         fun getRelay(id: String): Relay? {
-            if (IsUtil.isNumeric(id)) {
-                return serverRelayData[id.toInt()]
+            return if (isNumeric(id)) {
+                serverRelayData[id.toInt()]
             } else {
-                return null
+                null
             }
         }
 

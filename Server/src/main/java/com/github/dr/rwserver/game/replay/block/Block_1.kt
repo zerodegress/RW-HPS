@@ -9,10 +9,11 @@
 
 package com.github.dr.rwserver.game.replay.block
 
+import com.github.dr.rwserver.game.GameUnitType.GameActions
 import com.github.dr.rwserver.io.input.GameInputStream
 
 class Block_1(intream: GameInputStream) {
-    val unitAction: UnitAction
+    val unitAction: GameActions
     /** 对应单位id ?  */
     // TODO
     val unit: String?
@@ -38,7 +39,7 @@ class Block_1(intream: GameInputStream) {
 
     init {
         with (intream) {
-            unitAction = readEnum(UnitAction::class.java) as UnitAction
+            unitAction = readEnum(GameActions::class.java) as GameActions
             val unitId = readInt()
             unit = if (unitId == -2) readString() else null
             unitActionX = readFloat()
@@ -52,25 +53,5 @@ class Block_1(intream: GameInputStream) {
             boolean_3 = readBoolean()
             string_1 = isReadString()
         }
-    }
-
-    enum class UnitAction {
-        move,
-        attack,
-        build,
-        repair,
-        loadInto,
-        unloadAt,
-        reclaim,
-        attackMove,
-        loadUp,
-        patrol,
-        guard,
-        guardAt,
-        touchTarget,
-        follow,
-        triggerAction,
-        triggerActionWhenInRange,
-        setPassiveTarget
     }
 }

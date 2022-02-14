@@ -14,6 +14,7 @@ import com.github.dr.rwserver.game.replay.block.PointF
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.struct.Seq
+import com.github.dr.rwserver.util.log.Log.debug
 
 class PlayerDataAnalysis(inStream: GameInputStream) {
     val playerIndex: Int
@@ -44,22 +45,37 @@ class PlayerDataAnalysis(inStream: GameInputStream) {
 
     val boolean_3: Boolean
 
-    val short_1: Short
+    val controlCheckSum: Short
+
+    val withOrWithoutUnitData: Boolean
+
+    // change Step Rate
+    var changeStepRate: Float = 0F
+    var float_1: Float = 0F
+    var systemCommand: Int = 0
+
 
 
     init {
         with (inStream) {
             playerIndex = readInt()
+            debug("Player index",playerIndex)
+
             block_1 = if (readBoolean()) Block_1(inStream) else null
 
             boolean_1 = readBoolean()
             isCancel = readBoolean()
+            debug("Is player cancel a command",isCancel)
+
 
             string_1 = readInt().toString()
 
             doNo = readEnum(A::class.java) as A
+            debug("[可能] 是操控单位的范围",doNo.name)
+
 
             pointF = if (readBoolean()) PointF(readFloat(),readFloat()) else null
+            debug("Whether to control the unit move", if (pointF == null) "false" else "true X: ${pointF.x} Y: ${pointF.y}")
 
             boolean_2 = readBoolean()
 
@@ -71,6 +87,7 @@ class PlayerDataAnalysis(inStream: GameInputStream) {
             byte_1 = if (readBoolean()) readByte().toByte() else -1
 
             ping = if (readBoolean()) PointF(readFloat(),readFloat()) else null
+            debug("Whether to show Ping on the map", if (ping == null) "false" else "true X: ${ping.x} Y: ${ping.y}")
 
 
             readLong() // False TODO
@@ -78,7 +95,25 @@ class PlayerDataAnalysis(inStream: GameInputStream) {
             string_2 = readString()
 
             boolean_3 = readBoolean()
-            short_1 = readShort()
+
+            controlCheckSum = readShort()
+            debug("controlCheckSum",controlCheckSum)
+
+            withOrWithoutUnitData = readBoolean()
+            debug("withOrWithoutUnitData",withOrWithoutUnitData)
+
+            if (withOrWithoutUnitData) {
+                readByte() // skip
+                changeStepRate = readFloat()
+                float_1 = readFloat()
+                systemCommand = readInt()
+
+                val moveUnitsCount = readInt()
+
+                for (index in 0..moveUnitsCount) {
+                    // skip  By.Dr
+                }
+            }
         }
     }
 
@@ -93,7 +128,12 @@ class PlayerDataAnalysis(inStream: GameInputStream) {
             GameInputStream(packet).use {
                 val frameGame = it.readInt()/10
                 val readCount = it.readInt()
-                PlayerDataAnalysis(it.getDecodeStream(false))
+                for (index in 0..readCount) {
+                    // Name: c
+                    // Gzip: false
+                    PlayerDataAnalysis(it.getDecodeStream(false))
+                }
+
             }
         }
     }

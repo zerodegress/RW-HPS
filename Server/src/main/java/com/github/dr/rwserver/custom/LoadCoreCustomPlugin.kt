@@ -12,8 +12,10 @@ package com.github.dr.rwserver.custom
 import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.plugin.beta.uplist.UpList
 
-class LoadCustomPlugin {
+class LoadCoreCustomPlugin {
+    val core = "[Core Plugin]"
+    val coreEx = "[Core Plugin Extend]"
     init {
-        PluginManage.addPluginClass("UpList","Dr","[Core] UpList","1.0",UpList())
+        PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpList())
     }
 }

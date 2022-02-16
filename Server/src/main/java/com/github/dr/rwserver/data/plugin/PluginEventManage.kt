@@ -9,7 +9,7 @@
 
 package com.github.dr.rwserver.data.plugin
 
-import com.github.dr.rwserver.game.EventGlobalType.*
+import com.github.dr.rwserver.game.EventGlobalType.ServerLoadEvent
 import com.github.dr.rwserver.game.EventType.*
 import com.github.dr.rwserver.plugin.event.AbstractEvent
 import com.github.dr.rwserver.plugin.event.AbstractGlobalEvent

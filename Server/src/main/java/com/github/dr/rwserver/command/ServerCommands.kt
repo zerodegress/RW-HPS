@@ -22,6 +22,7 @@ import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.game.EventType.GameOverEvent
 import com.github.dr.rwserver.game.EventType.PlayerBanEvent
+import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
@@ -33,27 +34,6 @@ import java.io.IOException
  */
 class ServerCommands(handler: CommandHandler) {
     private fun registerPlayerCommand(handler: CommandHandler) {
-        handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
-            if (Data.game.playerManage.playerGroup.size() == 0) {
-                log["No players are currently in the server."]
-            } else {
-                log["Players: {0}", Data.game.playerManage.playerGroup.size()]
-                val data = StringBuilder()
-                for (player in Data.game.playerManage.playerGroup) {
-                    data.append(LINE_SEPARATOR)
-                        .append(player.name)
-                        .append(" / ")
-                        .append("ID: ").append(player.uuid)
-                        .append(" / ")
-                        .append("IP: ").append(player.con!!.ip)
-                        .append(" / ")
-                        .append("Protocol: ").append(player.con!!.useConnectionAgreement)
-                        .append(" / ")
-                        .append("Admin: ").append(player.isAdmin)
-                }
-                log[data.toString()]
-            }
-        }
         handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, _: StrCons ->
             val response = StringBuilder(arg[0])
             var i = 1
@@ -76,7 +56,7 @@ class ServerCommands(handler: CommandHandler) {
         handler.register("clearbanip", "serverCommands.clearbanip") { _: Array<String>?, _: StrCons ->
             Data.core.admin.bannedIPs.clear()
         }
-        handler.register("admin", "<add/remove> <PlayerPosition>", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
+        handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
                 log[localeUtil.getinput("err.startGame")]
                 return@register
@@ -88,13 +68,17 @@ class ServerCommands(handler: CommandHandler) {
             val add = "add" == arg[0]
             val site = arg[1].toInt() - 1
             val player = Data.game.playerManage.getPlayerArray(site)
+            val supAdmin = arg.size > 2
             if (player != null) {
                 if (add) {
-                    Data.core.admin.addAdmin(player.uuid)
+                    Data.core.admin.addAdmin(player.uuid,supAdmin)
                 } else {
                     Data.core.admin.removeAdmin(player.uuid)
                 }
+
                 player.isAdmin = add
+                player.superAdmin = supAdmin
+
                 try {
                     player.con!!.sendServerInfo(false)
                 } catch (e: IOException) {
@@ -212,6 +196,28 @@ class ServerCommands(handler: CommandHandler) {
         }
     }
 
+    private fun registerPlayerCustomEx(handler: CommandHandler) {
+        handler.register("summon", "<unitName> <x> <y> [index(NeutralByDefault)]", "serverCommands.players") { arg: Array<String>, log: StrCons ->
+            if (!Data.game.isStartGame) {
+                log[localeUtil.getinput("err.noStartGame")]
+                return@register
+            }
+            val index = if (arg.size > 3) {
+                when {
+                    IsUtil.isNumericNegative(arg[3]) -> arg[3].toInt()
+                    else -> -1
+                }
+            } else {
+                -1
+            }
+            if (IsUtil.notIsNumeric(arg[1]) || IsUtil.notIsNumeric(arg[2])) {
+                log["Not Numeric, Invalid coordinates"]
+                return@register
+            }
+            Data.game.gameCommandCache.offer(NetStaticData.protocolData.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
+        }
+    }
+
     companion object {
         private val localeUtil = Data.localeUtil
     }
@@ -219,6 +225,7 @@ class ServerCommands(handler: CommandHandler) {
     init {
         registerPlayerCommand(handler)
         registerPlayerStatusCommand(handler)
+        registerPlayerCustomEx(handler)
 
         PluginManage.runRegisterServerCommands(handler)
     }

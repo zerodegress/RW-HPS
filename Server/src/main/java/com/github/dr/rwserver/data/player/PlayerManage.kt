@@ -39,13 +39,14 @@ class PlayerManage(private val maxPlayerSize: Int) {
             if (playerGroup.size() == 0) {
                 player.isAdmin = true
             }
-        } else {
-            if (Data.core.admin.isAdmin(player.uuid)) {
-                val data = Data.core.admin.playerAdminData.get(player.uuid)
-                player.isAdmin = data.admin
-                player.superAdmin = data.superAdmin
-            }
         }
+
+        if (Data.core.admin.isAdmin(player)) {
+            val data = Data.core.admin.playerAdminData.get(player.uuid)
+            player.isAdmin = data.admin
+            player.superAdmin = data.superAdmin
+        }
+
         autoPlayerTeam(player)
         playerGroup.add(player)
         playerAll.add(player)
@@ -77,7 +78,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
         for (i in 0 until maxPlayerSize) {
             val player1 = playerData[i]
             if (player1 != null && player1.controlThePlayer) {
-                if (player1.sharedControl || Data.game.sharedControl) {
+                if (player1.controlThePlayer) {
                     int3 = int3 or 1 shl i
                 }
             }

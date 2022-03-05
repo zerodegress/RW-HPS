@@ -20,6 +20,7 @@ import com.github.dr.rwserver.struct.ObjectMap
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.LocaleUtil
 import com.github.dr.rwserver.util.Time
+import com.github.dr.rwserver.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
 import java.util.*
 
@@ -47,16 +48,13 @@ class Player(
 	var site = 0
     /** */
     val credits = Data.game.credits
-    /** Shared control  */
-	var sharedControl = false
-    val controlThePlayer = sharedControl || if (con == null) true else con!!.isDis
     /** (Markers)  */
 	var start = false
     /** Whether the player is dead  */
 	var dead = false
     /** Last move time  */
 	@Volatile
-    var lastMoveTime: Long = 0
+    var lastMoveTime: Int = 0
     /** Mute expiration time */
 	var muteTime: Long = 0
     /** Kick expiration time */
@@ -71,6 +69,17 @@ class Player(
 	var noSay = false
     var watch = false
         private set
+
+    /** Shared control  */
+    var sharedControl = false
+    val controlThePlayer: Boolean
+        get() {
+            return sharedControl || if (con == null || Time.concurrentSecond()-lastMoveTime > 120) {
+                true
+            } else {
+                con!!.isDis
+            }
+        }
 
     var lastVoteTime: Int = 0
 
@@ -98,6 +107,12 @@ class Player(
     fun kickPlayer(@Nls text: String, time: Int = 0) {
         kickTime = Time.getTimeFutureMillis(time * 1000L)
         con!!.sendKick(text)
+    }
+
+
+
+    fun getinput(input: String, vararg params: Any?): String {
+        return localeUtil.getinput(input,params)
     }
 
 
@@ -130,7 +145,7 @@ class Player(
      */
     fun playerJumpsToAnotherServer(ip: String, port: Int) {
         if (!IsUtil.isDomainName(ip)) {
-            throw RuntimeException("Error Domain")
+            throw NetException("ERROR_DOMAIN")
         }
         connectServer = ConnectServer(ip,port,con!!)
     }

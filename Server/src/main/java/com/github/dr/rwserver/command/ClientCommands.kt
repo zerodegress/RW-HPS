@@ -15,8 +15,6 @@ import com.github.dr.rwserver.core.Call.sendTeamData
 import com.github.dr.rwserver.core.Call.sendTeamMessage
 import com.github.dr.rwserver.core.Call.testPreparationPlayer
 import com.github.dr.rwserver.core.Call.upDataGameData
-import com.github.dr.rwserver.core.NetServer
-import com.github.dr.rwserver.core.thread.Threads.newThreadCore
 import com.github.dr.rwserver.core.thread.Threads.newThreadService
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data

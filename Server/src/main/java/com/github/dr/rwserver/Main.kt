@@ -27,7 +27,7 @@ import com.github.dr.rwserver.data.plugin.PluginManage.runRegisterEvents
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.game.Event
 import com.github.dr.rwserver.game.EventGlobal
-import com.github.dr.rwserver.game.EventGlobalType.ServerLoadEvent
+import com.github.dr.rwserver.game.event.EventGlobalType.ServerLoadEvent
 import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionPacket
 import com.github.dr.rwserver.util.encryption.Base64.decodeString

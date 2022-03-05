@@ -16,6 +16,6 @@ class LoadCoreCustomPlugin {
     val core = "[Core Plugin]"
     val coreEx = "[Core Plugin Extend]"
     init {
-        PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpList())
+        PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpList(),false)
     }
 }

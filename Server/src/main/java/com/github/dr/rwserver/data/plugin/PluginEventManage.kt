@@ -9,8 +9,8 @@
 
 package com.github.dr.rwserver.data.plugin
 
-import com.github.dr.rwserver.game.EventGlobalType.ServerLoadEvent
-import com.github.dr.rwserver.game.EventType.*
+import com.github.dr.rwserver.game.event.EventGlobalType.*
+import com.github.dr.rwserver.game.event.EventType.*
 import com.github.dr.rwserver.plugin.event.AbstractEvent
 import com.github.dr.rwserver.plugin.event.AbstractGlobalEvent
 import com.github.dr.rwserver.struct.Seq
@@ -35,17 +35,13 @@ internal class PluginEventManage {
             /* Sync */
             Events.on(PlayerJoinEvent::class.java) { e: PlayerJoinEvent ->
                 pluginEventData.each { p: AbstractEvent ->
-                    p.registerPlayerJoinEvent(
-                        e.player
-                    )
+                    p.registerPlayerJoinEvent(e.player)
                 }
             }
             /* Sync */
             Events.on(PlayerReJoinEvent::class.java) { e: PlayerReJoinEvent ->
                 pluginEventData.each { p: AbstractEvent ->
-                    p.registerPlayerReJoinEvent(
-                        e.player
-                    )
+                    p.registerPlayerReJoinEvent(e.player)
                 }
             }
             /* Sync */
@@ -61,9 +57,7 @@ internal class PluginEventManage {
             Events.on(PlayerConnectEvent::class.java) { e: PlayerConnectEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerConnectEvent(
-                            e.player
-                        )
+                        p.registerPlayerConnectEvent(e.player)
                     }
                 }
             }
@@ -71,9 +65,7 @@ internal class PluginEventManage {
             Events.on(PlayerLeaveEvent::class.java) { e: PlayerLeaveEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerLeaveEvent(
-                            e.player
-                        )
+                        p.registerPlayerLeaveEvent(e.player)
                     }
                 }
             }
@@ -81,10 +73,7 @@ internal class PluginEventManage {
             Events.on(PlayerChatEvent::class.java) { e: PlayerChatEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerChatEvent(
-                            e.player,
-                            e.message
-                        )
+                        p.registerPlayerChatEvent(e.player, e.message)
                     }
                 }
             }
@@ -108,9 +97,7 @@ internal class PluginEventManage {
             Events.on(PlayerBanEvent::class.java) { e: PlayerBanEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerBanEvent(
-                            e.player
-                        )
+                        p.registerPlayerBanEvent(e.player)
                     }
                 }
             }
@@ -118,9 +105,7 @@ internal class PluginEventManage {
             Events.on(PlayerUnbanEvent::class.java) { e: PlayerUnbanEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerUnbanEvent(
-                            e.player
-                        )
+                        p.registerPlayerUnbanEvent(e.player)
                     }
                 }
             }
@@ -128,9 +113,7 @@ internal class PluginEventManage {
             Events.on(PlayerIpBanEvent::class.java) { e: PlayerIpBanEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerIpBanEvent(
-                            e.player
-                        )
+                        p.registerPlayerIpBanEvent(e.player)
                     }
                 }
             }
@@ -138,9 +121,7 @@ internal class PluginEventManage {
             Events.on(PlayerIpUnbanEvent::class.java) { e: PlayerIpUnbanEvent ->
                 executorService.execute {
                     pluginEventData.each { p: AbstractEvent ->
-                        p.registerPlayerIpUnbanEvent(
-                            e.ip
-                        )
+                        p.registerPlayerIpUnbanEvent(e.ip)
                     }
                 }
             }
@@ -152,6 +133,24 @@ internal class PluginEventManage {
                 executorService.execute {
                     pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
                         obj.registerServerLoadEvent()
+                    }
+                }
+            }
+
+            /* Sync */
+            Events.on(NewConnectEvent::class.java) { e: NewConnectEvent ->
+                executorService.execute {
+                    pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                        obj.registerNewConnectEvent(e.connectionAgreement)
+                    }
+                }
+            }
+
+            /* Sync */
+            Events.on(NewCloseEvent::class.java) { e: NewCloseEvent ->
+                executorService.execute {
+                    pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                        obj.registerNewCloseEvent(e.connectionAgreement)
                     }
                 }
             }

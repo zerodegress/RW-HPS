@@ -41,8 +41,8 @@ object PluginManage {
     }
 
     @JvmStatic
-    fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin) {
-        addPluginClass(name,author,description,version,main, pluginData!!)
+    fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean) {
+        addPluginClass(name,author,description,version,main,mkdir,pluginData!!)
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
@@ -92,7 +92,7 @@ object PluginManage {
     @JvmStatic
     fun runOnDisable() {
         pluginData!!.each { e: PluginLoadData ->
-            e.main.pluginData.save()
+            //e.main.pluginData.save()
             e.main.onDisable()
         }
     }

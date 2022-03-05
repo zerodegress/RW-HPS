@@ -17,7 +17,8 @@ enum class ErrorCode(val code: Int, private val errMsg: String) {
     /*状态码*/ /**
      * 通用码
      */
-    SUCCESS(0, "Success"), ERROR(-1, "Error"),
+    SUCCESS(0, "Success"),
+    ERROR(-1, "Error"),
 
     /*网络层*/
 
@@ -25,7 +26,10 @@ enum class ErrorCode(val code: Int, private val errMsg: String) {
      * NETWORK_NOT_CONNECTED : 没有网络
      * DATA_CORRUPTION : 数据在传输中损坏
      */
-    NETWORK_NOT_CONNECTED(10001, "Network not connected"), DATA_CORRUPTION(10002, "Data corruption"),
+    NETWORK_NOT_CONNECTED(10001, "Network not connected"),
+    DATA_CORRUPTION(10002, "Data corruption"),
+    NETWORK_IP_ERROR(10003, "Network ip error"),
+    ERROR_DOMAIN(10004,"Error Domain"),
 
 
     /*客户端层*/
@@ -36,14 +40,16 @@ enum class ErrorCode(val code: Int, private val errMsg: String) {
      * SERVER_CLOSE : 服务器关闭
      * AUTO_SELECT_FAILED : 自动选择SQL错误
      */
-    PASSWORD_ERROR(20001, "Passwd error"), USER_DOES_NOT_EXIST(20002, "User does not exist"),
+    PASSWORD_ERROR(20001, "Passwd error"),
+    USER_DOES_NOT_EXIST(20002, "User does not exist"),
     SERVER_CLOSE(20003, "Server close"),
     AUTO_SELECT_FAILED(20004, "Auto select failed"),  /*文件层*/
 
     /**
      * INVALID_PARAMETER : 无效配置
      */
-    INVALID_PARAMETER(30001, "Please check the configuration file"), MD5(30002, "MD5"),
+    INVALID_PARAMETER(30001, "Please check the configuration file"),
+    MD5(30002, "MD5"),
 
 
     /*WEB层*/
@@ -53,8 +59,11 @@ enum class ErrorCode(val code: Int, private val errMsg: String) {
      * NO_PERMISSION : 无权限
      * INVALID_VERIFICATION : 无效验证
      */
-    INCOMPLETE_PARAMETERS(40001, "Incomplete parameters"), NO_PERMISSION(40002, "No permission"),
-    INVALID_VERIFICATION(40003, "Invalid verification"),  /*加密层*/
+    INCOMPLETE_PARAMETERS(40001, "Incomplete parameters"),
+    NO_PERMISSION(40002, "No permission"),
+    INVALID_VERIFICATION(40003, "Invalid verification"),
+
+    /*加密层*/
 
     /**
      * NO_ENCRYPTION : 数据未加密

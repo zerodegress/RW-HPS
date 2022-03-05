@@ -16,7 +16,7 @@ import com.github.dr.rwserver.data.json.Json
 import com.github.dr.rwserver.func.StrCons
 import com.github.dr.rwserver.net.HttpRequestOkHttp
 import com.github.dr.rwserver.plugin.Plugin
-import com.github.dr.rwserver.util.ExtractUtil
+import com.github.dr.rwserver.util.IpUtil
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.encryption.Base64
 import com.github.dr.rwserver.util.game.CommandHandler
@@ -111,7 +111,7 @@ class UpList : Plugin() {
 
     private fun uplist() {
 
-        var privateIp = ExtractUtil.getPrivateIp()
+        var privateIp = IpUtil.getPrivateIp()
         if (IsUtil.isBlank(privateIp)) {
             privateIp = "10.0.0.1"
         }

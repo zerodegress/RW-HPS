@@ -128,11 +128,13 @@ class PluginsLoad {
         @JvmField val author: String,
         @JvmField val description: String,
         @JvmField val version: String,
-        @JvmField val main: Plugin
+        @JvmField val main: Plugin,
+        private val mkdir: Boolean = true
         ) {
         init {
-            main.pluginData.setFileUtil(FileUtil.getFolder(Data.Plugin_Plugins_Path).toFolder(this.name).toFile(this.name + ".bin"))
-            main.pluginData.read()
+            if (mkdir) {
+                main.pluginDataFileUtil = FileUtil.getFolder(Data.Plugin_Plugins_Path).toFolder(this.name)
+            }
         }
 
         override fun equals(other: Any?): Boolean {
@@ -168,8 +170,8 @@ class PluginsLoad {
         }
 
         @JvmStatic
-        internal fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,list: Seq<PluginLoadData>) {
-            list.add(PluginLoadData(name, author, description, version, main))
+        internal fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean,list: Seq<PluginLoadData>) {
+            list.add(PluginLoadData(name, author, description, version, main,mkdir))
         }
     }
 }

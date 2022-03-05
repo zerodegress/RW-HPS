@@ -12,8 +12,8 @@ package com.github.dr.rwserver.plugin.beta.adserver
 import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
-import com.github.dr.rwserver.game.EventType
 import com.github.dr.rwserver.game.GameMaps
+import com.github.dr.rwserver.game.event.EventType
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.io.packet.Packet
@@ -82,8 +82,6 @@ class AdSpecializationNet(connectionAgreement: ConnectionAgreement) : GameVersio
                 if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
                     name = playerConnectPasswdCheck.name
                 }
-
-                Events.fire(EventType.PlayerJoinUuidandNameEvent(uuid, name))
 
                 val playerJoinName = EventType.PlayerJoinNameEvent(name)
                 Events.fire(playerJoinName)

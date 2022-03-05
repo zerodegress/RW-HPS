@@ -10,16 +10,16 @@
 package com.github.dr.rwserver.plugin
 
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.data.plugin.PluginData
 import com.github.dr.rwserver.plugin.event.AbstractEvent
+import com.github.dr.rwserver.util.file.FileUtil
 import com.github.dr.rwserver.util.game.CommandHandler
 
 /**
  * @author Dr
  */
 abstract class Plugin {
-    @JvmField
-    val pluginData = PluginData()
+    lateinit var pluginDataFileUtil: FileUtil
+        interface set
 
     /**
      * 提供语言注入

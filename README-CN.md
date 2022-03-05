@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ## 介绍
-RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java11的服务器上快速建立高性能游戏服务器  
+RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器上快速建立高性能游戏服务器  
 旨在作为一个高性能 高可用的服务器 为玩家提供更好的游戏体验
 
 ## 特点
@@ -113,10 +113,12 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java11的服务�
 </details>
 
 #### 目前待完成
-- [ ] 模拟层 (技术力限制)
-- [x] Vote
+- [ ] 模拟层
+- [ ] Vote (Bug :( )
 - [ ] 1.15.P*
-
+- [ ] Load RWMOD
+- [ ] 热修改游戏进度
+- 
 ### 不会支持的游戏协议
 - 金钱相关，如增值服务
 

@@ -12,7 +12,7 @@ package com.github.dr.rwserver.net.netconnectprotocol.realize
 import com.github.dr.rwserver.core.Call.sendMessage
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.game.EventType.PlayerChatEvent
+import com.github.dr.rwserver.game.event.EventType.PlayerChatEvent
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.io.packet.GameCommandPacket
@@ -132,7 +132,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(5)
         o.writeInt(0)
         o.writeBoolean(false)
-        val cmd = GameCommandPacket(player.site, o.createPacket().bytes)
+        val cmd = GameCommandPacket(player.site, o.getPacketBytes())
         Data.game.gameCommandCache.offer(cmd)
     }
 
@@ -179,7 +179,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(5)
         o.writeInt(0)
         o.writeBoolean(false)
-        val cmd = GameCommandPacket(player.site, o.createPacket().bytes)
+        val cmd = GameCommandPacket(player.site, o.getPacketBytes())
         Data.game.gameCommandCache.offer(cmd)
     }
 
@@ -226,7 +226,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(5)
         o.writeInt(0)
         o.writeBoolean(false)
-        val cmd = GameCommandPacket(player.site, o.createPacket().bytes)
+        val cmd = GameCommandPacket(player.site, o.getPacketBytes())
         Data.game.gameCommandCache.offer(cmd)
     }
 
@@ -273,7 +273,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(5)
         o.writeInt(0)
         o.writeBoolean(false)
-        val cmd = GameCommandPacket(player.site, o.createPacket().bytes)
+        val cmd = GameCommandPacket(player.site, o.getPacketBytes())
         Data.game.gameCommandCache.offer(cmd)
     }
 
@@ -320,7 +320,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(5)
         o.writeInt(0)
         o.writeBoolean(false)
-        val cmd = GameCommandPacket(player.site, o.createPacket().bytes)
+        val cmd = GameCommandPacket(player.site, o.getPacketBytes())
         Data.game.gameCommandCache.offer(cmd)
     }
 }

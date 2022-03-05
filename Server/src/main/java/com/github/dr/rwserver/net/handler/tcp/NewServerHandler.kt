@@ -11,11 +11,11 @@ package com.github.dr.rwserver.net.handler.tcp
 
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
-import com.github.dr.rwserver.game.EventGlobalType.NewConnectEvent
+import com.github.dr.rwserver.game.event.EventGlobalType.NewConnectEvent
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.core.ConnectionAgreement
 import com.github.dr.rwserver.net.core.TypeConnect
-import com.github.dr.rwserver.util.ExtractUtil
+import com.github.dr.rwserver.util.IpUtil
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log.debug
 import com.github.dr.rwserver.util.log.Log.error
@@ -43,15 +43,16 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     type = NetStaticData.protocolData.typeConnect.getTypeConnect(connectionAgreement)
                     attr.setIfAbsent(type)
 
+                    if (Data.core.admin.bannedIP24.contains(IpUtil.ipToLong24(type.abstractNetConnect.ip))) {
+                        type.abstractNetConnect.disconnect()
+                        return
+                    }
+
                     val newConnectEvent = NewConnectEvent(connectionAgreement)
                     Events.fire(newConnectEvent)
                     if (newConnectEvent.result) {
                         return
                     }
-                }
-                if (Data.core.admin.bannedIP24.contains(ExtractUtil.ipToLong(type.abstractNetConnect.ip))) {
-                    type.abstractNetConnect.disconnect()
-                    return
                 }
 
                 ctx.executor().execute {

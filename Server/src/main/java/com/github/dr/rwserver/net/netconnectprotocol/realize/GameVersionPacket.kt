@@ -95,6 +95,8 @@ open class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun getTeamDataPacket(): CompressOutputStream {
+        Data.game.playerManage.updateControlIdentifier()
+
         val enc = CompressOutputStream.getGzipOutputStream("teams", true)
         Data.game.playerManage.runPlayerArrayDataRunnable { player: Player? ->
             try {
@@ -185,16 +187,19 @@ open class GameVersionPacket : AbstractNetPacket {
     }
 
     override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float): GameCommandPacket {
+        Data.game.playerManage.updateControlIdentifier()
+
         val outStream = GameOutputStream()
         outStream.writeByte(index)
         outStream.writeBoolean(true)
         // 建造
-        outStream.writeInt(2)
+        outStream.writeInt(GameUnitType.GameActions.BUILD.ordinal)
+
 
         var unitID = -2
         if (IsUtil.notIsNumeric(unit)) {
             GameUnitType.GameUnits.values().forEach {
-                if (it.name == unit) {
+                if (it.name.equals(unit,ignoreCase = true)) {
                     unitID = it.ordinal
                     return@forEach
                 }
@@ -202,11 +207,14 @@ open class GameVersionPacket : AbstractNetPacket {
         } else {
             unitID = unit.toInt()
         }
+
+        outStream.writeInt(unitID)
+
         if (unitID == -2) {
             outStream.writeString(unit)
-        } else {
-            outStream.writeInt(unitID)
         }
+
+
         // X
         outStream.writeFloat(x)
         // Y

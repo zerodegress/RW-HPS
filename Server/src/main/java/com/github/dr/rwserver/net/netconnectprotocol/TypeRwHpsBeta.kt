@@ -16,7 +16,7 @@ import com.github.dr.rwserver.net.core.ConnectionAgreement
 import com.github.dr.rwserver.net.core.TypeConnect
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServerBeta
 import com.github.dr.rwserver.util.PacketType
-import com.github.dr.rwserver.util.Time.millis
+import com.github.dr.rwserver.util.Time.concurrentSecond
 
 class TypeRwHpsBeta(val con: GameVersionServerBeta) : TypeConnect(con) {
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
@@ -29,7 +29,7 @@ class TypeRwHpsBeta(val con: GameVersionServerBeta) : TypeConnect(con) {
 
         if (packet.type == PacketType.PACKET_ADD_GAMECOMMAND) {
             con.receiveCommand(packet)
-            con.player.lastMoveTime = millis()
+            con.player.lastMoveTime = concurrentSecond()
         } else {
             when (packet.type) {
                 PacketType.PACKET_PREREGISTER_CONNECTION -> con.registerConnection(packet)

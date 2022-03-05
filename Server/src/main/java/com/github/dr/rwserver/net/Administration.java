@@ -24,7 +24,7 @@ public class Administration {
 
     private final Seq<ChatFilter> chatFilters = new Seq<>();
     public final Seq<String> bannedIPs;
-    public final Seq<Long> bannedIP24;
+    public final Seq<String> bannedIP24;
     public final Seq<String> bannedUUIDs;
     public final Seq<String> whitelist;
     public final ObjectMap<String,PlayerInfo> playerDataCache = new ObjectMap<>();
@@ -90,8 +90,12 @@ public class Administration {
         playerAdminData.remove(uuid);
     }
 
-    public boolean isAdmin(String uuid) {
-        return playerAdminData.containsKey(uuid);
+    public boolean isAdmin(Player player) {
+        if (playerAdminData.containsKey(player.uuid)) {
+            playerAdminData.get(player.uuid).name = player.name;
+            return true;
+        }
+        return false;
     }
 
     public interface ChatFilter{
@@ -136,6 +140,7 @@ public class Administration {
     }
 
     public static class PlayerAdminInfo {
+        public String name = "";
         public final String uuid;
         public boolean admin = false;
         public boolean superAdmin = false;
@@ -144,6 +149,13 @@ public class Administration {
             this.uuid = uuid;
             this.admin = admin;
             this.superAdmin = superAdmin;
+        }
+
+        @Override
+        public String toString() {
+            return "uuid: "+uuid+
+                    "admin: "+admin+
+                    "supAdmin: "+superAdmin;
         }
     }
 

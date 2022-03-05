@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.game
+package com.github.dr.rwserver.game.event
 
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServer
@@ -72,7 +72,4 @@ class EventType {
 
     /** 玩家操作单位事件 */
     class PlayerOperationUnitEvent(val player: Player, val playerUnit: EventLambdaType.PlayerUnit)
-
-    /** 玩家进入的UUID/NAME */
-    class PlayerJoinUuidandNameEvent(val uuid: String,val  name: String)
 }

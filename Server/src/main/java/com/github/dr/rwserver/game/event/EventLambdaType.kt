@@ -7,17 +7,13 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.game
+package com.github.dr.rwserver.game.event
 
-import com.github.dr.rwserver.net.core.ConnectionAgreement
+import com.github.dr.rwserver.game.GameUnitType.GameActions
 
-class EventGlobalType {
-    /** 服务器初始化  */
-    class ServerLoadEvent
-
-    class NewConnectEvent(connectionAgreement: ConnectionAgreement) {
-        var result = false
-    }
-
-    class NewCloseEvent(connectionAgreement: ConnectionAgreement)
+/**
+ * @author Dr
+ */
+class EventLambdaType {
+    class PlayerUnit(val gameActions: GameActions, val unitName: String)
 }

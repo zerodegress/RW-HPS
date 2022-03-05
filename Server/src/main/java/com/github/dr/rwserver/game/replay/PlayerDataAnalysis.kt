@@ -9,8 +9,8 @@
 
 package com.github.dr.rwserver.game.replay
 
-import com.github.dr.rwserver.game.replay.block.Block_1
 import com.github.dr.rwserver.game.replay.block.PointF
+import com.github.dr.rwserver.game.replay.block.Waypoint
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.struct.Seq
@@ -18,7 +18,7 @@ import com.github.dr.rwserver.util.log.Log.debug
 
 class PlayerDataAnalysis(inStream: GameInputStream) {
     val playerIndex: Int
-    val block_1:Block_1?
+    val waypoint:Waypoint?
 
     val boolean_1: Boolean
     val isCancel: Boolean
@@ -61,7 +61,7 @@ class PlayerDataAnalysis(inStream: GameInputStream) {
             playerIndex = readInt()
             debug("Player index",playerIndex)
 
-            block_1 = if (readBoolean()) Block_1(inStream) else null
+            waypoint = if (readBoolean()) Waypoint(inStream) else null
 
             boolean_1 = readBoolean()
             isCancel = readBoolean()
@@ -122,8 +122,6 @@ class PlayerDataAnalysis(inStream: GameInputStream) {
     }
 
     companion object {
-        val fastGameObjectList = Seq<PlayerDataAnalysis>()
-
         fun handlingTickPackages(packet: Packet) {
             GameInputStream(packet).use {
                 val frameGame = it.readInt()/10

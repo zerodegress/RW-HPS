@@ -12,10 +12,10 @@ package com.github.dr.rwserver.game.replay.block
 import com.github.dr.rwserver.game.GameUnitType.GameActions
 import com.github.dr.rwserver.io.input.GameInputStream
 
-class Block_1(intream: GameInputStream) {
+class Waypoint(intream: GameInputStream) {
     val unitAction: GameActions
     /** 对应单位id ?  */
-    // TODO
+    // TODO 根据Enum反射获取实例 加入FastGameObject
     val unit: String?
 
     /** 动作的目标位置 */
@@ -23,7 +23,7 @@ class Block_1(intream: GameInputStream) {
     var unitActionY = 1.0f
 
     /** 对应单位的id(单位把执行动作到..上) */
-    var unitActionToId: Long = -1
+    var targetUnit: Long = -1
 
     val d: Int
 
@@ -44,7 +44,8 @@ class Block_1(intream: GameInputStream) {
             unit = if (unitId == -2) readString() else null
             unitActionX = readFloat()
             unitActionY = readFloat()
-            unitActionToId = readLong()
+            targetUnit = readLong()
+
             d = readByte()
             float_1 = readFloat()
             float_2 = readFloat()

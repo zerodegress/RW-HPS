@@ -13,7 +13,7 @@ import com.github.dr.rwserver.core.thread.Threads.newThreadService
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
-import com.github.dr.rwserver.game.EventType.GameOverEvent
+import com.github.dr.rwserver.game.event.EventType.GameOverEvent
 import com.github.dr.rwserver.io.packet.GameCommandPacket
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.game.Events
@@ -104,7 +104,7 @@ object Call {
     fun killAllPlayer() {
         Data.game.playerManage.playerGroup.each { e: Player ->
             try {
-                e.con!!.sendKick("Game Over")
+                e.kickPlayer("Game Over")
             } catch (err: IOException) {
                 error("[ALL] Kick All Player Error", e)
             }

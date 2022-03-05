@@ -15,16 +15,19 @@ import com.github.dr.rwserver.core.Call.sendTeamData
 import com.github.dr.rwserver.core.Call.sendTeamMessage
 import com.github.dr.rwserver.core.Call.testPreparationPlayer
 import com.github.dr.rwserver.core.Call.upDataGameData
+import com.github.dr.rwserver.core.NetServer
+import com.github.dr.rwserver.core.thread.Threads.newThreadCore
 import com.github.dr.rwserver.core.thread.Threads.newThreadService
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
-import com.github.dr.rwserver.game.EventType.GameStartEvent
 import com.github.dr.rwserver.game.GameMaps.MapType
+import com.github.dr.rwserver.game.event.EventType.GameStartEvent
 import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.IsUtil.notIsNumeric
+import com.github.dr.rwserver.util.Time
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log.error
@@ -329,7 +332,7 @@ class ClientCommands(handler: CommandHandler) {
                     try {
                         e.con!!.sendTeamData(enc)
                         e.con!!.sendStartGame()
-                        e.lastMoveTime = System.currentTimeMillis()
+                        e.lastMoveTime = Time.concurrentSecond()
                     } catch (err: IOException) {
                         error("Start Error", err)
                     }

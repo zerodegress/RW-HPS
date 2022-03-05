@@ -20,8 +20,8 @@ import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.func.StrCons
-import com.github.dr.rwserver.game.EventType.GameOverEvent
-import com.github.dr.rwserver.game.EventType.PlayerBanEvent
+import com.github.dr.rwserver.game.event.EventType.GameOverEvent
+import com.github.dr.rwserver.game.event.EventType.PlayerBanEvent
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
 import com.github.dr.rwserver.util.game.CommandHandler
@@ -52,9 +52,6 @@ class ServerCommands(handler: CommandHandler) {
         }
         handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
             Events.fire(GameOverEvent())
-        }
-        handler.register("clearbanip", "serverCommands.clearbanip") { _: Array<String>?, _: StrCons ->
-            Data.core.admin.bannedIPs.clear()
         }
         handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
@@ -87,9 +84,6 @@ class ServerCommands(handler: CommandHandler) {
                 sendTeamData()
                 log["Changed admin status of player: {0}", player.name]
             }
-        }
-        handler.register("clearbanuuid", "serverCommands.clearbanuuid") { _: Array<String>?, _: StrCons ->
-            Data.core.admin.bannedUUIDs.clear()
         }
         handler.register("clearbanall", "serverCommands.clearbanall") { _: Array<String>?, _: StrCons ->
             Data.core.admin.bannedIPs.clear()
@@ -190,6 +184,26 @@ class ServerCommands(handler: CommandHandler) {
                         .append("Protocol: ").append(player.con!!.useConnectionAgreement)
                         .append(" / ")
                         .append("Admin: ").append(player.isAdmin)
+                }
+                log[data.toString()]
+            }
+        }
+
+        handler.register("admins", "serverCommands.admins") { _: Array<String>?, log: StrCons ->
+            if (Data.core.admin.playerAdminData.size == 0) {
+                log["No admins are currently in the server."]
+            } else {
+                log["Admins: {0}", Data.core.admin.playerAdminData.size]
+                val data = StringBuilder()
+                for (player in Data.core.admin.playerAdminData.values()) {
+                    data.append(LINE_SEPARATOR)
+                        .append(player.name)
+                        .append(" / ")
+                        .append("ID: ").append(player.uuid)
+                        .append(" / ")
+                        .append("Admin: ").append(player.admin)
+                        .append(" / ")
+                        .append("SuperAdmin: ").append(player.superAdmin)
                 }
                 log[data.toString()]
             }

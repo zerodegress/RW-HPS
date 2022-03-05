@@ -13,7 +13,7 @@ import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.thread.Threads.newThreadService2
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.player.Player
-import com.github.dr.rwserver.game.EventType
+import com.github.dr.rwserver.game.event.EventType
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.Time.concurrentSecond
 import com.github.dr.rwserver.util.game.Events

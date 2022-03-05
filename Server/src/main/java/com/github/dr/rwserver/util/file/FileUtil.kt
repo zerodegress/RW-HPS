@@ -100,7 +100,7 @@ class FileUtil {
         if ("/" == filename[0].toString()) {
             to += filename.substring(1, filename.length)
         } else {
-            this.path + "/" + filename
+            to += "/$filename"
         }
         return FileUtil(File(to),to,true)
     }

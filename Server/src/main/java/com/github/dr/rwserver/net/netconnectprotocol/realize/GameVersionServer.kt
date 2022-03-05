@@ -15,7 +15,7 @@ import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
-import com.github.dr.rwserver.game.EventType.*
+import com.github.dr.rwserver.game.event.EventType.*
 import com.github.dr.rwserver.io.input.GameInputStream
 import com.github.dr.rwserver.io.output.CompressOutputStream
 import com.github.dr.rwserver.io.output.GameOutputStream
@@ -156,6 +156,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     override fun sendSurrender() {
+        Data.game.playerManage.updateControlIdentifier()
         try {
             val out = GameOutputStream()
 
@@ -407,8 +408,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     name = playerConnectPasswdCheck.name
                 }
 
-                Events.fire(PlayerJoinUuidandNameEvent(uuid,name))
-
                 val playerJoinName = PlayerJoinNameEvent(name)
                 Events.fire(playerJoinName)
                 if (IsUtil.notIsBlank(playerJoinName.resultName)) {
@@ -456,17 +455,16 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 player.sendTeamData()
                 sendServerInfo(true)
 
-                Events.fire(PlayerJoinEvent(player))
-
                 if (IsUtil.notIsBlank(Data.config.EnterAd)) {
                     sendSystemMessage(Data.config.EnterAd)
                 }
-                Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
                 if (re.get()) {
                     reConnect()
                 }
 
                 connectionAgreement.add(NetStaticData.groupNet)
+
+                Events.fire(PlayerJoinEvent(player))
 
                 return true
             }
@@ -511,9 +509,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         }
     }
 
-    /**
-     *
-     */
     override fun sendErrorPasswd() {
         try {
             val o = GameOutputStream()
@@ -532,6 +527,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         super.isDis = true
         if (this::player.isInitialized) {
             Data.game.playerManage.playerGroup.remove(player)
+            // DisConnect
+            player.ping = -1
             if (!Data.game.isStartGame) {
                 Data.game.playerManage.playerAll.remove(player)
                 player.clear()
@@ -682,13 +679,13 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 val bytes = ExtractUtil.hexToByteArray("00 16 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67 61 6d 65 73 2e 72 74 73 00 00 00 04 00 00 00 97 00 00 00 97 00 0c 4d 6f 64 20 52 65 61 64 20 42 6f 74 00 00 1b 63 6f 6d 2e 63 6f 72 72 6f 64 69 6e 67 67 61 6d 65 73 2e 72 74 73 2e 6a 61 76 61 00 13 52 57 2d 48 50 53 20 4d 6f 64 20 52 65 61 64 20 42 6f 74 47 6e a1 5a")
                 out.writeBytes(bytes)
                 out.writeString(Game.connectKey(dataOutputStream.readInt()))
-                val packet1 = out.createPacket()
+                val packet1Bytes = out.getPacketBytes()
 
                 o.writeInt(2)
-                o.writeInt(packet1.bytes.size+8)
-                o.writeInt(packet1.bytes.size)
+                o.writeInt(packet1Bytes.size+8)
+                o.writeInt(packet1Bytes.size)
                 o.writeInt(110)
-                o.writeBytes(packet1.bytes)
+                o.writeBytes(packet1Bytes)
                 sendPacket(o.createPacket(174))
             }
         } catch (e: Exception) {
@@ -743,4 +740,25 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             Log.error(e)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+
+        if (player != (other as GameVersionServer).player) {
+            return false
+        }
+
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return player.hashCode()
+    }
+
+
 }

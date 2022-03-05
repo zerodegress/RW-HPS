@@ -164,13 +164,13 @@ open class DisableSyncByteArrayInputStream : InputStream {
         return readLen
     }
 
-    fun readAllBytes(): ByteArray {
+    internal fun readAllBytes0(): ByteArray {
         val result = buf.copyOfRange(pos, count)
         pos = count
         return result
     }
 
-    fun readNBytes(len: Int): ByteArray {
+    internal fun readNBytes0(len: Int): ByteArray {
         if ((count - pos) >= len) {
             val result = buf.copyOfRange(pos, pos+len)
             pos += len
@@ -180,13 +180,13 @@ open class DisableSyncByteArrayInputStream : InputStream {
         }
     }
 
-    fun readNBytes(b: ByteArray, off: Int, len: Int): Int {
+    internal fun readNBytes0(b: ByteArray, off: Int, len: Int): Int {
         val n = read(b, off, len)
         return if (n == -1) 0 else n
     }
 
     @Throws(IOException::class)
-    fun transferTo(out: OutputStream): Long {
+    internal fun transferTo0(out: OutputStream): Long {
         val len = count - pos
         out.write(buf, pos, len)
         pos = count

@@ -21,31 +21,7 @@ import java.io.IOException
 open class GameOutputStream @JvmOverloads constructor(private val buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
     private val stream: DataOutputStream = DataOutputStream(buffer)
 
-    fun createPacket(): Packet {
-        try {
-            stream.use { buffer.use {
-                stream.flush()
-                buffer.flush()
-                return Packet(0, buffer.toByteArray())
-            }}
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        }
-    }
-
     fun createPacket(type: Int): Packet {
-        try {
-            stream.use { buffer.use {
-                stream.flush()
-                buffer.flush()
-                return Packet(type, buffer.toByteArray())
-            }}
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        }
-    }
-
-    fun createPackets(type: Int): Packet {
         try {
             stream.use { buffer.use {
                 stream.flush()
@@ -144,6 +120,36 @@ open class GameOutputStream @JvmOverloads constructor(private val buffer: Disabl
         }
     }
 
+    /*
+    @Throws(IOException::class)
+    fun writeGameObject(value: GameObject) {
+        if (value == null) {
+            stream.writeLong(-1L)
+        } else {
+            stream.writeLong(value.id)
+        }
+    }
+
+    @Throws(IOException::class)
+    fun writeUnit(value: Unit) {
+        writeGameObject(value)
+    }
+
+    @Throws(IOException::class)
+    fun writeOrderableUnit(value: OrderableUnit) {
+        writeGameObject(value)
+    }
+    */
+
+    @Throws(IOException::class)
+    fun writeEnum(value: Enum<*>?) {
+        if (value == null) {
+            stream.writeInt(-1)
+        } else {
+            stream.writeInt(value.ordinal)
+        }
+    }
+    
     @Throws(IOException::class)
     fun transferTo(inputStream: GameInputStream) {
         inputStream.transferTo(buffer)

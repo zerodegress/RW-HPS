@@ -142,7 +142,7 @@ open class GameInputStream : Closeable {
      */
     @Throws(IOException::class)
     fun readNBytes(readBytesLength: Int): ByteArray {
-        return this.buffer.readNBytes(readBytesLength)
+        return this.buffer.readNBytes0(readBytesLength)
     }
 
     /**
@@ -152,12 +152,12 @@ open class GameInputStream : Closeable {
      */
     @Throws(IOException::class)
     fun readAllBytes(): ByteArray {
-        return this.buffer.readAllBytes()
+        return this.buffer.readAllBytes0()
     }
 
     @Throws(IOException::class)
     fun readStreamBytes(): ByteArray {
-        return buffer.readNBytes(readInt())
+        return buffer.readNBytes0(readInt())
     }
 
     @Throws(IOException::class)
@@ -178,7 +178,7 @@ open class GameInputStream : Closeable {
      */
     @Throws(IOException::class)
     fun transferTo(out: OutputStream) {
-        this.buffer.transferTo(out)
+        this.buffer.transferTo0(out)
     }
 
     /**

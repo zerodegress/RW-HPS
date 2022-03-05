@@ -26,6 +26,11 @@ import java.io.IOException
  */
 class Event : AbstractEvent {
     override fun registerPlayerJoinEvent(player: Player) {
+        if (player.name.isBlank() || player.name.length > 20) {
+            player.kickPlayer(player.getinput("kick.name.failed"))
+            return
+        }
+
         if (Data.core.admin.bannedUUIDs.contains(player.uuid)) {
             try {
                 player.kickPlayer(player.localeUtil.getinput("kick.ban"))
@@ -34,6 +39,7 @@ class Event : AbstractEvent {
             }
             return
         }
+
         if (Data.core.admin.playerDataCache.containsKey(player.uuid)) {
             val info = Data.core.admin.playerDataCache[player.uuid]
             if (info.timesKicked > millis()) {
@@ -42,12 +48,17 @@ class Event : AbstractEvent {
                 } catch (ioException: IOException) {
                     error("[Player] Send Kick Player Error", ioException)
                 }
+                return
             } else {
                 player.muteTime = info.timeMute
             }
         }
 
-       // ConnectServer("127.0.0.1",5124,player.con)
+        Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
+
+
+
+        // ConnectServer("127.0.0.1",5124,player.con)
     }
 
     override fun registerPlayerConnectPasswdCheckEvent(abstractNetConnect: GameVersionServer, passwd: String): Array<String> {
@@ -75,11 +86,11 @@ class Event : AbstractEvent {
             } catch (ignored: IndexOutOfBoundsException) {
             }
         }
+
         Data.core.admin.playerDataCache.put(player.uuid, PlayerInfo(player.uuid, player.kickTime, player.muteTime))
 
         if (Data.game.isStartGame) {
             player.sharedControl = true
-            Data.game.playerManage.updateControlIdentifier()
             Call.sendSystemMessage("player.dis", player.name)
             Call.sendTeamData()
 

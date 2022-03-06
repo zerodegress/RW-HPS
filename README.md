@@ -52,6 +52,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - [ ] 1.15.P*
 - [ ] Load RWMOD
 - [ ] Hot modify game progress
+- [ ] GamePanel
 
 ### Actions that won't be supported
 - Anything related to real money

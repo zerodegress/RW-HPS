@@ -42,13 +42,12 @@ class CoreCommands(handler: CommandHandler) {
             log["Commands:"]
             for (command in handler.commandList) {
                 if (command.description.startsWith("#")) {
-                    log["   " + command.text + (if (command.paramText.isEmpty()) "" else " ") + command.paramText + " - " + command.description.substring(
-                        1
-                    )]
+                    log["   " + command.text + (if (command.paramText.isEmpty()) "" else " ") + command.paramText + " - " + command.description.substring(1)]
                 } else {
-                    log["   " + command.text + (if (command.paramText.isEmpty()) "" else " ") + command.paramText + " - " + Data.localeUtil.getinput(
-                        command.description
-                    )]
+                    if ("HIDE" == command.description) {
+                        continue
+                    }
+                    log["   " + command.text + (if (command.paramText.isEmpty()) "" else " ") + command.paramText + " - " + Data.localeUtil.getinput(command.description)]
                 }
             }
         }
@@ -126,22 +125,7 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.protocolData.setNetConnectProtocol(GameVersionServerBeta(ConnectionAgreement()),157);
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacketBeta(),"3.0.0");*/
             //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
-            Threads.newThreadCoreNet {
-                val startNet = StartNet()
-                NetStaticData.startNet.add(startNet)
-                startNet.openPort(Data.config.Port)
-            }
-            if (Data.config.UDPSupport) {
-                Threads.newThreadCoreNet {
-                    try {
-                        val startNet = StartNet()
-                        NetStaticData.startNet.add(startNet)
-                        startNet.startUdp(Data.config.Port)
-                    } catch (e: Exception) {
-                        Log.error(e)
-                    }
-                }
-            }
+            handler.handleMessage("startnetservice")
         }
         handler.register("startffa", "serverCommands.start.ffa") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
@@ -161,22 +145,7 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.protocolData.setTypeConnect(TypeRwHps(GameVersionFFA(ConnectionAgreement())))
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
 
-            Threads.newThreadCoreNet {
-                val startNet = StartNet()
-                NetStaticData.startNet.add(startNet)
-                startNet.openPort(Data.config.Port)
-            }
-            if (Data.config.UDPSupport) {
-                Threads.newThreadCoreNet {
-                    try {
-                        val startNet = StartNet()
-                        NetStaticData.startNet.add(startNet)
-                        startNet.startUdp(Data.config.Port)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
+            handler.handleMessage("startnetservice")
         }
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
@@ -194,20 +163,7 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.protocolData.setTypeConnect(TypeRelay(GameVersionRelay(ConnectionAgreement())))
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
 
-            val startNetTcp = StartNet()
-            NetStaticData.startNet.add(startNetTcp)
-            Threads.newThreadCoreNet { startNetTcp.openPort(Data.config.Port, 5201, 5500) }
-            if (Data.config.UDPSupport) {
-                Threads.newThreadCoreNet {
-                    try {
-                        val startNet = StartNet()
-                        NetStaticData.startNet.add(startNet)
-                        startNet.startUdp(Data.config.Port)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }
+            handler.handleMessage("startnetservice 5201 5500")
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
@@ -225,9 +181,20 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.protocolData.setTypeConnect(TypeRelayRebroadcast(GameVersionRelayRebroadcast(ConnectionAgreement())))
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
 
+            handler.handleMessage("startnetservice 5200 5500")
+        }
+
+
+        handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
             val startNetTcp = StartNet()
             NetStaticData.startNet.add(startNetTcp)
-            Threads.newThreadCoreNet { startNetTcp.openPort(Data.config.Port, 5200, 5500) }
+            Threads.newThreadCoreNet {
+                if (arg != null && arg.size > 1) {
+                    startNetTcp.openPort(Data.config.Port, arg[0].toInt(), arg[1].toInt())
+                } else {
+                    startNetTcp.openPort(Data.config.Port)
+                }
+            }
             if (Data.config.UDPSupport) {
                 Threads.newThreadCoreNet {
                     try {
@@ -240,7 +207,6 @@ class CoreCommands(handler: CommandHandler) {
                 }
             }
         }
-
     }
 
     companion object {

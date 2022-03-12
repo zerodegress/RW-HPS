@@ -36,6 +36,7 @@ import com.github.dr.rwserver.util.file.FileUtil.Companion.readFileListString
 import com.github.dr.rwserver.util.file.FileUtil.Companion.setFilePath
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
+import com.github.dr.rwserver.util.io.IoReadConversion
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.clog
 import com.github.dr.rwserver.util.log.Log.error
@@ -48,9 +49,7 @@ import java.util.logging.Logger
 
 /**
  * Welcome to Bugs RW-HPS !
- * Welcome to the RW-HPS Team ! Add a copy of your code to the project
- *
- * RW-HPS Team Welcome to You
+ * Welcome to the RW-HPS Team !
  */
 
 /**
@@ -106,7 +105,7 @@ object Main {
         loadUnitList()
 
         /* 按键监听 */
-        newThreadCore{ buttonMonitoring() }
+        newThreadCore{ inputMonitor() }
 
         /* 加载完毕 */
         Events.fire(ServerLoadEvent())
@@ -127,12 +126,13 @@ object Main {
         clog("Server Run PID : ${Data.core.pid}")
     }
 
-    private fun buttonMonitoring() {
-        val bufferedReader = System.console()
-        if (bufferedReader == null) {
-            Log.fatal("buttonMonitoring Null")
+    private fun inputMonitor() {
+        val instreamCommandReader = System.`in`
+        if (instreamCommandReader == null) {
+            Log.fatal("inputMonitor Null")
             return
         }
+        val bufferedReader = IoReadConversion.streamBufferRead(instreamCommandReader)
         while (true) {
             try {
                 val str = bufferedReader.readLine()
@@ -154,7 +154,7 @@ object Main {
                     }
                 }
             } catch (e: Exception) {
-                clog("ButtonMonitoring Error")
+                clog("InputMonitor Error")
                 info(e)
             }
         }

@@ -104,6 +104,7 @@ class Player(
         con!!.sync()
     }
 
+    @JvmOverloads
     fun kickPlayer(@Nls text: String, time: Int = 0) {
         kickTime = Time.getTimeFutureMillis(time * 1000L)
         con!!.sendKick(text)

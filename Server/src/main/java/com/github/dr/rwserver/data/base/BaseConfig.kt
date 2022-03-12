@@ -11,9 +11,12 @@ package com.github.dr.rwserver.data.base
 
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.ReflectionUtils
 import com.github.dr.rwserver.util.file.FileUtil
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import java.lang.reflect.Field
+
 
 /**
  * Save data for serialization and deserialization
@@ -74,6 +77,8 @@ data class BaseConfig(
 
     val AutoReLoadMap: Boolean = false,
 
+    val JoinBeta: Boolean = false,
+
     var RunPid: Long = 0,
 ) {
 
@@ -82,13 +87,24 @@ data class BaseConfig(
         fileUtil.writeFile(gson.toJson(this))
     }
 
+    fun coverField(name: String,value: Any) {
+        try {
+            val field: Field = ReflectionUtils.findField(this::class.java, name)!!
+            field.setAccessible(true)
+            field.set(this,value)
+            field.setAccessible(false)
+        } catch (e: Exception) {
+            com.github.dr.rwserver.util.log.Log.error("Cover Gameover error", e)
+        }
+    }
+
     companion object {
         val fileUtil = FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Config.json")
 
         @JvmStatic
         fun stringToClass(): BaseConfig {
             val gson = Gson()
-            val json = fileUtil.readFileStringData();
+            val json = fileUtil.readFileStringData()
             return gson.fromJson(if (IsUtil.notIsBlank(json)) json else "{}", BaseConfig::class.java)
         }
     }

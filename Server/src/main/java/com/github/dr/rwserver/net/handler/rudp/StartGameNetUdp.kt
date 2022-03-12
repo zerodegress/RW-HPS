@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.net.rudp
+package com.github.dr.rwserver.net.handler.rudp
 
 import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.data.global.NetStaticData

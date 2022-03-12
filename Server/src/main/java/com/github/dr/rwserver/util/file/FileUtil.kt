@@ -10,6 +10,7 @@
 package com.github.dr.rwserver.util.file
 
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.struct.OrderedMap
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.io.IoOutConversion.fileToOutStream
@@ -116,6 +117,27 @@ class FileUtil {
                 if (!value.isDirectory) {
                     if (value.isFile) {
                         fileList.add(value)
+                    }
+                }
+            }
+            return fileList
+        }
+
+    val filePollingList: OrderedMap<String, File>
+        get() {
+            val array = file.listFiles()
+            val fileList = OrderedMap<String, File>()
+            if (IsUtil.isBlank(array)) {
+                return fileList
+            }
+            for (value in array!!) {
+                if (!value.isDirectory) {
+                    if (value.isFile) {
+                        fileList.put(value.name,value)
+                    }
+                } else {
+                    FileUtil(value).filePollingList.each {k,v ->
+                        fileList.put("${value.name}/${k}",v)
                     }
                 }
             }

@@ -20,4 +20,6 @@ class VariableException(type: String) : RuntimeException(ErrorCode.valueOf(type)
     class ObjectMapRuntimeException(info: String) : RuntimeException(info)
 
     class MapRuntimeException(type: String) : RuntimeException(ErrorCode.valueOf(type).error)
+
+    class RepeatAddException(info: String) : RuntimeException(info)
 }

@@ -10,7 +10,7 @@
 package com.github.dr.rwserver.net.handler.tcp
 
 import com.github.dr.rwserver.net.core.TypeConnect
-import com.github.dr.rwserver.net.rudp.TimeoutDetection
+import com.github.dr.rwserver.net.handler.rudp.TimeoutDetection
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter

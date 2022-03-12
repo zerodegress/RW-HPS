@@ -11,9 +11,10 @@ package com.github.dr.rwserver.net
 
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.net.core.AbstractNet
+import com.github.dr.rwserver.net.handler.rudp.PackagingSocket
+import com.github.dr.rwserver.net.handler.rudp.StartGameNetUdp
 import com.github.dr.rwserver.net.handler.tcp.StartGameNetTcp
-import com.github.dr.rwserver.net.rudp.PackagingSocket
-import com.github.dr.rwserver.net.rudp.StartGameNetUdp
+import com.github.dr.rwserver.net.handler.tcp.StartGamePortDivider
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.clog
@@ -50,7 +51,9 @@ class StartNet {
     constructor() {
         start = StartGameNetTcp(this)
     }
-
+    constructor(string: String) {
+        start = StartGamePortDivider(this)
+    }
     constructor(abstractNet: AbstractNet) {
         start = abstractNet
     }

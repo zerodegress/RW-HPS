@@ -12,7 +12,7 @@ package com.github.dr.rwserver.net.core
 import com.github.dr.rwserver.game.event.EventGlobalType
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.GroupNet
-import com.github.dr.rwserver.net.rudp.PackagingSocket
+import com.github.dr.rwserver.net.handler.rudp.PackagingSocket
 import com.github.dr.rwserver.util.game.Events
 import com.github.dr.rwserver.util.log.Log
 import io.netty.channel.ChannelHandlerContext

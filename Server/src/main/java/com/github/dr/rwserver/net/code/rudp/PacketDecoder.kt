@@ -12,7 +12,7 @@ package com.github.dr.rwserver.net.code.rudp
 import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.io.input.ClearableAndReusableDisableSyncByteArrayInputStream
 import com.github.dr.rwserver.io.packet.Packet
-import com.github.dr.rwserver.net.rudp.PackagingSocket
+import com.github.dr.rwserver.net.handler.rudp.PackagingSocket
 import com.github.dr.rwserver.util.log.Log
 import java.io.EOFException
 import java.io.IOException

@@ -186,7 +186,7 @@ class CoreCommands(handler: CommandHandler) {
 
 
         handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
-            val startNetTcp = StartNet()
+            val startNetTcp = if (Data.config.JoinBeta) StartNet("") else StartNet()
             NetStaticData.startNet.add(startNetTcp)
             Threads.newThreadCoreNet {
                 if (arg != null && arg.size > 1) {

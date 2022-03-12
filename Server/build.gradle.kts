@@ -19,6 +19,7 @@ dependencies {
 
 	implementation("io.netty:netty-buffer:$nettyVersion")
 	implementation("io.netty:netty-codec:$nettyVersion")
+	implementation("io.netty:netty-codec-http:$nettyVersion")
 	implementation("io.netty:netty-handler:$nettyVersion")
 	implementation("io.netty:netty-transport:$nettyVersion")
 	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")

@@ -9,8 +9,7 @@
 
 package com.github.dr.rwserver.command
 
-import com.github.dr.rwserver.core.Call
-import com.github.dr.rwserver.core.Core
+import com.github.dr.rwserver.core.*
 import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
@@ -63,6 +62,9 @@ class CoreCommands(handler: CommandHandler) {
 
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION)]
+        }
+        handler.register("setlanguage","[HK/CN/RU/EN]" ,"serverCommands.setlanguage") { arg: Array<String>, _: StrCons ->
+            Initialization.initServerLanguage(Data.core.pluginData,arg[0])
         }
         handler.register("exit", "serverCommands.exit") { _: Array<String>?, _: StrCons ->
             Core.exit()
@@ -195,6 +197,7 @@ class CoreCommands(handler: CommandHandler) {
                     startNetTcp.openPort(Data.config.Port)
                 }
             }
+            /*
             if (Data.config.UDPSupport) {
                 Threads.newThreadCoreNet {
                     try {
@@ -205,7 +208,7 @@ class CoreCommands(handler: CommandHandler) {
                         e.printStackTrace()
                     }
                 }
-            }
+            }*/
         }
     }
 
@@ -219,8 +222,12 @@ class CoreCommands(handler: CommandHandler) {
         registerInfo(handler)
         registerStartServer(handler)
 
-        handler.register("log", "[a...]", "serverCommands.exit") { arg: Array<String>, _: StrCons ->
-            Data.LOG_COMMAND.handleMessage(arg[0], null)
+        handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: StrCons ->
+            //Data.LOG_COMMAND.handleMessage(arg[0], null)
+            Data.core.admin.playerAdminData.each() { k,v ->
+                Log.error(k,v.toString())
+            }
+
         }
         handler.register("logg", "<1> <2>", "serverCommands.exit") { arg: Array<String>, _: StrCons ->
             Data.LOG_COMMAND.handleMessage(arg[0] + " " + arg[1], null)

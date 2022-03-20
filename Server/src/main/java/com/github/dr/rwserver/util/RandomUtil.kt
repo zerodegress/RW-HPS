@@ -9,72 +9,67 @@
 
 package com.github.dr.rwserver.util
 
-import java.util.*
+import kotlin.math.absoluteValue
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 object RandomUtil {
-    private const val ALLCHAR = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    private const val LETTERCHAR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    private const val NUMBERCHAR = "123456789"
+    private val defaultRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z', '0'..'9')
+    private val letterRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z')
+    private val intCharRanges: Array<CharRange> = arrayOf('0'..'9')
+
+
+    @JvmStatic
+    fun getRandomByteArray(length: Int, random: Random = Random): ByteArray =
+        ByteArray(length) { random.nextInt(0..255).toByte() }
 
     /**
-     * 产生len长度的随机字符串
-     * @param len
-     * @return
+     * 随机生成一个正整数
      */
     @JvmStatic
-    fun generateStr(len: Int): String {
-        val sb = StringBuffer()
-        val random = Random()
-        for (i in 0 until len) {
-            sb.append(ALLCHAR[random.nextInt(ALLCHAR.length)])
-        }
-        return sb.toString()
-    }
+    fun getRandomUnsignedInt(): Int = Random.nextInt().absoluteValue
 
+    /**
+     * 随机生成长度为 [length] 的 [String].
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun getRandomString(length: Int, random: Random = Random): String =
+        getRandomString(length, *defaultRanges, random = random)
+
+    /**
+     * 根据所给 [charRange] 随机生成长度为 [length] 的 [String].
+     */
+    @JvmStatic
+    fun getRandomString(length: Int, charRange: CharRange, random: Random = Random): String =
+        CharArray(length) { charRange.random(random) }.concatToString()
+
+    /**
+     * 根据所给 [charRanges] 随机生成长度为 [length] 的 [String].
+     */
+    @JvmStatic
+    fun getRandomString(length: Int, vararg charRanges: CharRange, random: Random = Random): String =
+        CharArray(length) { charRanges[random.nextInt(0..charRanges.lastIndex)].random(random) }.concatToString()
+
+    
+    
     /**
      * 产生len长度的随机数字
-     * @param len
+     * @param length
      * @return
      */
     @JvmStatic
-    fun generateInt(len: Int): Int {
-        val sb = StringBuffer()
-        val random = Random()
-        for (i in 0 until len) {
-            sb.append(NUMBERCHAR[random.nextInt(NUMBERCHAR.length)])
-        }
-        return sb.toString().toInt()
-    }
+    fun getRandomIntString(length: Int, random: Random = Random): String =
+        getRandomString(length, *intCharRanges, random = random)
 
     /**
-     * 产生Str+len长度的随机数字
-     * @param len
-     * @return
-     */
-    @JvmStatic
-    fun generateStrInt(str: String?, len: Int): String {
-        val sb = StringBuffer(str)
-        val random = Random()
-        for (i in 0 until len) {
-            sb.append(NUMBERCHAR[random.nextInt(NUMBERCHAR.length)])
-        }
-        return sb.toString()
-    }
-
-    /**
-     * 返回一个定长的随机纯字母字符串(只包含大小写字母)
+     * 产生len长度的随机字母串(只包含大小写字母)
      * @param length 随机字符串长度
-     * @return 随机字符串
+     * @return
      */
     @JvmStatic
-    fun generateMixStr(length: Int): String {
-        val sb = StringBuffer()
-        val random = Random()
-        for (i in 0 until length) {
-            sb.append(LETTERCHAR[random.nextInt(LETTERCHAR.length)])
-        }
-        return sb.toString()
-    }
+    fun getRandomIetterString(length: Int, random: Random = Random): String =
+        getRandomString(length, *letterRanges, random = random)
 
     /**
      * 返回一个定长的随机纯大写字母字符串(只包含大小写字母)
@@ -82,9 +77,8 @@ object RandomUtil {
      * @return 随机字符串
      */
     @JvmStatic
-    fun generateLowerStr(length: Int): String {
-        return generateMixStr(length).lowercase(Locale.getDefault())
-    }
+    fun generateLowerStr(length: Int): String =
+        getRandomIetterString(length).lowercase()
 
     /**
      * 返回一个定长的随机纯小写字母字符串(只包含大小写字母)
@@ -92,7 +86,6 @@ object RandomUtil {
      * @return 随机字符串
      */
     @JvmStatic
-    fun generateUpperStr(length: Int): String {
-        return generateMixStr(length).uppercase(Locale.getDefault())
-    }
+    fun generateUpperStr(length: Int): String =
+        getRandomIetterString(length).uppercase()
 }

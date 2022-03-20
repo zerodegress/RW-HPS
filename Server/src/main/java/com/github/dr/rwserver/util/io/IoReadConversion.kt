@@ -19,31 +19,30 @@ import java.nio.charset.StandardCharsets
  */
 object IoReadConversion {
     @JvmStatic
-    @JvmOverloads fun streamBufferRead(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): BufferedReader {
-        return BufferedReader(InputStreamReader(inputStream, charset))
-    }
+    @JvmOverloads
+    fun streamBufferRead(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): BufferedReader =
+        BufferedReader(InputStreamReader(inputStream, charset))
+
+    @JvmStatic
+    @JvmOverloads
+    @Throws(IOException::class)
+    fun fileToBufferReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): BufferedReader =
+        BufferedReader(fileToReadStream(file,charset))
+
+    @JvmStatic
+    @JvmOverloads
+    @Throws(IOException::class)
+    fun fileToReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): InputStreamReader =
+        InputStreamReader(fileToStream(file), charset)
+
+    @JvmStatic
+    @JvmOverloads
+    @Throws(IOException::class)
+    fun fileToReadStream(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): InputStreamReader =
+        InputStreamReader(inputStream, charset)
 
     @JvmStatic
     @Throws(IOException::class)
-    @JvmOverloads fun fileToBufferReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): BufferedReader {
-        return BufferedReader(fileToReadStream(file,charset))
-    }
-
-    @JvmStatic
-    @Throws(IOException::class)
-    @JvmOverloads fun fileToReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): InputStreamReader {
-        return InputStreamReader(fileToStream(file), charset)
-    }
-
-    @JvmStatic
-    @Throws(IOException::class)
-    @JvmOverloads fun fileToReadStream(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): InputStreamReader {
-        return InputStreamReader(inputStream, charset)
-    }
-
-    @JvmStatic
-    @Throws(IOException::class)
-    fun fileToStream(file: File): FileInputStream {
-        return FileInputStream(file)
-    }
+    fun fileToStream(file: File): FileInputStream =
+        FileInputStream(file)
 }

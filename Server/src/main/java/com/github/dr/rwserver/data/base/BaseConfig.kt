@@ -10,9 +10,11 @@
 package com.github.dr.rwserver.data.base
 
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.ReflectionUtils
 import com.github.dr.rwserver.util.file.FileUtil
+import com.github.dr.rwserver.util.log.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.lang.reflect.Field
@@ -32,7 +34,7 @@ data class BaseConfig(
     /** 端口 */
     val Port: Int = 5123,
     val Passwd: String = "",
-    val UDPSupport: Boolean = false,
+    //val UDPSupport: Boolean = false,
 
     val EnterAd: String = "",
     val StartAd: String = "",
@@ -87,15 +89,27 @@ data class BaseConfig(
         fileUtil.writeFile(gson.toJson(this))
     }
 
-    fun coverField(name: String,value: Any) {
+    fun coverField(name: String,value: Any): Boolean {
         try {
-            val field: Field = ReflectionUtils.findField(this::class.java, name)!!
-            field.setAccessible(true)
+            val field: Field = ReflectionUtils.findField(this::class.java, name) ?:return false
+            field.isAccessible = true
             field.set(this,value)
-            field.setAccessible(false)
+            field.isAccessible = false
         } catch (e: Exception) {
             com.github.dr.rwserver.util.log.Log.error("Cover Gameover error", e)
         }
+        return true
+    }
+
+    private fun allName(): Seq<String> {
+        val allName = Seq<String>()
+        val fields = this.javaClass.declaredFields
+        for (field in fields) {
+            // 过滤Kt生成的和不能被覆盖的
+            if (field.name != "Companion" && field.name != "fileUtil")
+            allName.add(field.name)
+        }
+        return allName
     }
 
     companion object {
@@ -105,7 +119,21 @@ data class BaseConfig(
         fun stringToClass(): BaseConfig {
             val gson = Gson()
             val json = fileUtil.readFileStringData()
-            return gson.fromJson(if (IsUtil.notIsBlank(json)) json else "{}", BaseConfig::class.java)
+            val config = gson.fromJson(if (IsUtil.notIsBlank(json)) json else "{}", BaseConfig::class.java)
+
+            // PATH
+            config.allName().each {
+                val data = System.getProperties().getProperty("rwhps.config.$it")
+                if (data != null) {
+                    if (config.coverField(it,data)) {
+                        Log.debug("Set OK $it = $data")
+                    } else {
+                        Log.debug("Set ERROR $it = $data")
+                    }
+                }
+            }
+
+            return config
         }
     }
 }

@@ -14,7 +14,7 @@ val nettyVersion = "4.1.73.Final"
 dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
 
-	//implementation project(":RUDP")
+//	implementation(project(":Util"))
 	//implementation "cn.hutool:hutool-socket:5.7.5"
 
 	implementation("io.netty:netty-buffer:$nettyVersion")

@@ -11,10 +11,27 @@ package com.github.dr.rwserver.core
 
 import com.github.dr.rwserver.Main
 import com.github.dr.rwserver.data.global.Data
+import com.github.dr.rwserver.data.json.Json
 import com.github.dr.rwserver.data.plugin.PluginData
 import com.github.dr.rwserver.net.HttpRequestOkHttp
+import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.IsUtil.notIsBlank
 import com.github.dr.rwserver.util.LocaleUtil
+import com.github.dr.rwserver.util.ReExp
+import com.github.dr.rwserver.util.encryption.Aes.aesDecryptByBytes
+import com.github.dr.rwserver.util.encryption.Base64.decode
+import com.github.dr.rwserver.util.encryption.Base64.decodeString
+import com.github.dr.rwserver.util.encryption.Md5.md5
+import com.github.dr.rwserver.util.file.FileUtil
+import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
+import com.github.dr.rwserver.util.file.FileUtil.Companion.readFileListString
 import com.github.dr.rwserver.util.log.Log
+import com.github.dr.rwserver.util.log.Log.debug
+import com.github.dr.rwserver.util.log.Log.error
+import com.github.dr.rwserver.util.log.Log.warn
+import com.github.dr.rwserver.util.log.exp.FileException
+import com.github.dr.rwserver.util.zip.zip.ZipDecoder
+import com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate
 
 /**
  * @author Dr
@@ -113,17 +130,27 @@ class Initialization {
          * The country is determined according to the server's export ip when it is first started
          * Choose the language environment according to the country
          */
-        private fun initServerLanguage(pluginData: PluginData) {
-            val serverCountry = pluginData.getData("serverCountry") {
-                val country = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.ServerLanguage.Bak"))
+        internal fun initServerLanguage(pluginData: PluginData, country: String = "") {
+            val serverCountry =
+                if (country.isBlank()) {
+                    pluginData.getData("serverCountry") {
+                        val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.ServerLanguage.Bak"))
 
-                when {
-                    country.contains("香港") -> "HK"
-                    country.contains("中国") -> "CN"
-                    country.contains("俄罗斯") -> "RU"
-                    else -> "EN"
+                        when {
+                            countryUrl.contains("香港") -> "HK"
+                            countryUrl.contains("中国") -> "CN"
+                            countryUrl.contains("俄罗斯") -> "RU"
+                            else -> "EN"
+                        }
+                    }
+                } else {
+                    when {
+                        country.contains("HK") ||
+                        country.contains("CN") ||
+                        country.contains("RU") -> country
+                        else -> "EN"
+                    }
                 }
-            }
 
             Data.localeUtil = Data.localeUtilMap[serverCountry]
 

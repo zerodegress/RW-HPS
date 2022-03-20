@@ -42,7 +42,7 @@ internal object DefaultSerializers {
                 return stream.readUTF()
             }
         })
-        AbstractPluginData.setSerializer(Int::class.java, object : TypeSerializer<Int> {
+        AbstractPluginData.setSerializer(Integer::class.java, object : TypeSerializer<Int> {
             @Throws(IOException::class)
             override fun write(stream: DataOutput, objectData: Int) {
                 stream.writeInt(objectData)
@@ -53,7 +53,7 @@ internal object DefaultSerializers {
                 return stream.readInt()
             }
         })
-        AbstractPluginData.setSerializer(Float::class.java, object : TypeSerializer<Float> {
+        AbstractPluginData.setSerializer(java.lang.Float::class.java, object : TypeSerializer<Float> {
             @Throws(IOException::class)
             override fun write(stream: DataOutput, objectData: Float) {
                 stream.writeFloat(objectData)
@@ -64,7 +64,7 @@ internal object DefaultSerializers {
                 return stream.readFloat()
             }
         })
-        AbstractPluginData.setSerializer(Long::class.java, object : TypeSerializer<Long> {
+        AbstractPluginData.setSerializer(java.lang.Long::class.java, object : TypeSerializer<Long> {
             @Throws(IOException::class)
             override fun write(stream: DataOutput, objectData: Long) {
                 stream.writeLong(objectData)
@@ -75,7 +75,7 @@ internal object DefaultSerializers {
                 return stream.readLong()
             }
         })
-        AbstractPluginData.setSerializer(Boolean::class.java, object : TypeSerializer<Boolean> {
+        AbstractPluginData.setSerializer(java.lang.Boolean::class.java, object : TypeSerializer<Boolean> {
             @Throws(IOException::class)
             override fun write(stream: DataOutput, objectData: Boolean) {
                 stream.writeBoolean(objectData)
@@ -105,7 +105,7 @@ internal object DefaultSerializers {
 
             @Throws(IOException::class)
             override fun read(stream: DataInput): Seq<*>? {
-                 return try {
+                return try {
                     val size = stream.readInt()
                     val arr = Seq<Any>(size)
                     if (size == 0) {
@@ -113,11 +113,11 @@ internal object DefaultSerializers {
                     }
                     val type = stream.readUTF()
                     val ser = AbstractPluginData.getSerializer(lookup(type))
-                     requireNotNull(ser) {
-                         "$type does not have a serializer registered!"
-                     }
+                    requireNotNull(ser) {
+                        "$type does not have a serializer registered!"
+                    }
 
-                     for (i in 0 until size) {
+                    for (i in 0 until size) {
                         arr.add(ser.read(stream))
                     }
                     arr

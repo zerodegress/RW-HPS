@@ -17,7 +17,7 @@ import com.github.dr.rwserver.data.plugin.PluginManage.runOnDisable
 import com.github.dr.rwserver.net.Administration
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil.isBlank
-import com.github.dr.rwserver.util.RandomUtil.generateStr
+import com.github.dr.rwserver.util.RandomUtil.getRandomString
 import com.github.dr.rwserver.util.file.FileUtil
 import com.github.dr.rwserver.util.log.Log.error
 import java.lang.management.ManagementFactory
@@ -28,12 +28,12 @@ import java.util.*
  * @author Dr
  */
 class Application {
-    private val pluginData: PluginData = PluginData()
+    val pluginData: PluginData = PluginData()
 
     /** 服务器唯一UUID  */
     lateinit var serverConnectUuid: String
     @JvmField
-    var serverToken: String = generateStr(40)
+    var serverToken: String = getRandomString(40)
     lateinit var unitBase64: Seq<String>
     lateinit var admin: Administration
     @JvmField

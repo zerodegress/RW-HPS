@@ -14,8 +14,8 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.game.event.EventType
-import com.github.dr.rwserver.io.input.GameInputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.core.ConnectionAgreement
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServer

@@ -9,7 +9,7 @@
 
 package com.github.dr.rwserver.net.netconnectprotocol
 
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import java.io.IOException

@@ -10,7 +10,7 @@ package com.github.dr.rwserver.net.netconnectprotocol.realize
 
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.player.Player
-import com.github.dr.rwserver.io.output.GameOutputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import java.io.IOException
 
 /**

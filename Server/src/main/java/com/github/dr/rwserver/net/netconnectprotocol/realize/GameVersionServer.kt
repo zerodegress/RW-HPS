@@ -16,9 +16,9 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.game.event.EventType.*
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.output.CompressOutputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.io.packet.GameCommandPacket
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.core.ConnectionAgreement
@@ -37,8 +37,6 @@ import com.github.dr.rwserver.util.log.Log
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.IOException
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.min
@@ -477,7 +475,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun registerConnection(p: Packet) {
         // 生成随机Key;
         val keyLen = 6
-        val key = RandomUtil.generateInt(keyLen)
+        val key = RandomUtil.getRandomIntString(keyLen).toInt()
         connectKey = Game.connectKey(key)
         GameInputStream(p).use { stream ->
             // Game Pkg Name
@@ -570,30 +568,22 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         try {
             Data.game.gamePaused = true
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
-            val executorService = Executors.newFixedThreadPool(1)
-            val future = executorService.submit {
-                // 批量诱骗
-                NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getDeceiveGameSave())
+            // 批量诱骗
+            NetStaticData.groupNet.broadcast(NetStaticData.protocolData.abstractNetPacket.getDeceiveGameSave())
 
-                while (Data.game.gameSaveCache == null) {
-                    if (Thread.interrupted()) {
-                        return@submit
+            try {
+                synchronized(Data.game.gameSaveWaitObject) {
+                    Data.game.gameSaveWaitObject.wait(1000 * 30)
+
+                    try {
+                        NetStaticData.groupNet.broadcast(Data.game.gameSaveCache!!.convertGameSaveDataPacket())
+                    } catch (e: IOException) {
+                        Log.error(e)
                     }
                 }
-                try {
-                    NetStaticData.groupNet.broadcast(Data.game.gameSaveCache!!.convertGameSaveDataPacket())
-                } catch (e: IOException) {
-                    Log.error(e)
-                }
-            }
-            try {
-                future[30, TimeUnit.SECONDS]
-            } catch (e: Exception) {
-                future.cancel(true)
-                Log.error(e)
+            } catch (ex: Exception) {
                 connectionAgreement.close(NetStaticData.groupNet)
             } finally {
-                executorService.shutdown()
                 Data.game.gameSaveCache = null
                 Data.game.gamePaused = false
             }

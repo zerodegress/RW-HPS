@@ -14,12 +14,16 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.game.GameUnitType
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.output.CompressOutputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.io.packet.GameCommandPacket
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.core.AbstractNetPacket
+import com.github.dr.rwserver.net.netconnectprotocol.internal.server.chatMessagePacketInternal
+import com.github.dr.rwserver.net.netconnectprotocol.internal.server.gameTickCommandPacketInternal
+import com.github.dr.rwserver.net.netconnectprotocol.internal.server.gameTickCommandsPacketInternal
+import com.github.dr.rwserver.net.netconnectprotocol.internal.server.gameTickPacketInternal
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
@@ -36,21 +40,12 @@ import java.math.BigInteger
 @MainProtocolImplementation
 open class GameVersionPacket : AbstractNetPacket {
     @Throws(IOException::class)
-    override fun getSystemMessagePacket(msg: String): Packet {
-        return getChatMessagePacket(msg, "SERVER", 5)
-    }
+    override fun getSystemMessagePacket(msg: String): Packet =
+        getChatMessagePacket(msg, "SERVER", 5)
 
     @Throws(IOException::class)
-    override fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet {
-        val o = GameOutputStream()
-        o.writeString(msg)
-        o.writeByte(3)
-        o.writeBoolean(true)
-        o.writeString(sendBy)
-        o.writeInt(team)
-        o.writeInt(team)
-        return o.createPacket(PacketType.PACKET_SEND_CHAT)
-    }
+    override fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet =
+        chatMessagePacketInternal(msg, sendBy, team)
 
     @Throws(IOException::class)
     override fun getPingPacket(player: Player): Packet {
@@ -62,36 +57,16 @@ open class GameVersionPacket : AbstractNetPacket {
     }
 
     @Throws(IOException::class)
-    override fun getTickPacket(tick: Int): Packet {
-        val o = GameOutputStream()
-        o.writeInt(tick)
-        o.writeInt(0)
-        return o.createPacket(PacketType.PACKET_TICK)
-    }
+    override fun getTickPacket(tick: Int): Packet =
+        gameTickPacketInternal(tick)
 
     @Throws(IOException::class)
-    override fun getGameTickCommandPacket(tick: Int, cmd: GameCommandPacket): Packet {
-        val o = GameOutputStream()
-        o.writeInt(tick)
-        o.writeInt(1)
-        val enc = CompressOutputStream.getGzipOutputStream("c", false)
-        enc.writeBytes(cmd.bytes)
-        o.flushEncodeData(enc)
-        return o.createPacket(PacketType.PACKET_TICK)
-    }
+    override fun getGameTickCommandPacket(tick: Int, cmd: GameCommandPacket): Packet =
+        gameTickCommandPacketInternal(tick,cmd)
 
     @Throws(IOException::class)
-    override fun getGameTickCommandsPacket(tick: Int, cmd: Seq<GameCommandPacket>): Packet {
-        val o = GameOutputStream()
-        o.writeInt(tick)
-        o.writeInt(cmd.size())
-        for (c in cmd) {
-            val enc = CompressOutputStream.getGzipOutputStream("c", false)
-            enc.writeBytes(c.bytes)
-            o.flushEncodeData(enc)
-        }
-        return o.createPacket(PacketType.PACKET_TICK)
-    }
+    override fun getGameTickCommandsPacket(tick: Int, cmd: Seq<GameCommandPacket>): Packet =
+        gameTickCommandsPacketInternal(tick,cmd)
 
     @Throws(IOException::class)
     override fun getTeamDataPacket(): CompressOutputStream {

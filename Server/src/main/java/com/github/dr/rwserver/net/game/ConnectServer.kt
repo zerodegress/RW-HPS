@@ -12,7 +12,7 @@ package com.github.dr.rwserver.net.game
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.game.event.EventType
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.code.tcp.PacketDecoder
 import com.github.dr.rwserver.net.code.tcp.PacketEncoder

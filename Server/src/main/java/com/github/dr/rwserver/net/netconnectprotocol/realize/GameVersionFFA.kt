@@ -13,8 +13,8 @@ import com.github.dr.rwserver.core.Call.sendMessage
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.game.event.EventType.PlayerChatEvent
-import com.github.dr.rwserver.io.input.GameInputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.packet.GameCommandPacket
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.core.ConnectionAgreement

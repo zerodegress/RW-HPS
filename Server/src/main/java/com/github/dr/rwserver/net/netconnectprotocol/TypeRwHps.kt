@@ -47,7 +47,12 @@ class TypeRwHps(val con: GameVersionServer) : TypeConnect(con) {
                     PacketType.PACKET_ACCEPT_START_GAME -> con.player.start = true
                     PacketType.PACKET_SERVER_DEBUG -> con.debug(packet)
                     // 竞争 谁先到就用谁
-                    PacketType.PACKET_SYNC -> if (Data.game.gameSaveCache == null) Data.game.gameSaveCache = GameSavePacket(packet)
+                    PacketType.PACKET_SYNC -> if (Data.game.gameSaveCache == null) {
+                        Data.game.gameSaveCache = GameSavePacket(packet)
+                        synchronized(Data.game.gameSaveWaitObject) {
+                            Data.game.gameSaveWaitObject.notify()
+                        }
+                    }
 
                     //118 -> con.sendRelayServerTypeReply(packet)
 

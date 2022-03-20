@@ -13,16 +13,17 @@ import com.github.dr.rwserver.data.global.Cache
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.global.Relay
-import com.github.dr.rwserver.io.input.GameInputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.core.ConnectionAgreement
 import com.github.dr.rwserver.net.core.server.AbstractNetConnect
 import com.github.dr.rwserver.net.core.server.AbstractNetConnectRelay
 import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.PacketType
-import com.github.dr.rwserver.util.RandomUtil.generateMixStr
+import com.github.dr.rwserver.util.RandomUtil.getRandomIetterString
 import com.github.dr.rwserver.util.StringFilteringUtil.cutting
+import com.github.dr.rwserver.util.StringFilteringUtil.replaceChinese
 import com.github.dr.rwserver.util.Time.nanos
 import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Sha
@@ -632,7 +633,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         val initInt_2 = 0
 
         val outcome: String
-        val fixedInitial: String = generateMixStr(4)
+        val fixedInitial: String = getRandomIetterString(4)
         val off: Int = rand.nextInt(0, 10)
         val maximumNumberOfCalculations: Int = rand.nextInt(0, 10000000)
 

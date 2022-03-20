@@ -10,8 +10,8 @@
 package com.github.dr.rwserver.net.core
 
 import com.github.dr.rwserver.data.player.Player
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.output.CompressOutputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
 import com.github.dr.rwserver.io.packet.GameCommandPacket
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.struct.Seq

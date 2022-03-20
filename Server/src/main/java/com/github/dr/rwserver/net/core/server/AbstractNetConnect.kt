@@ -10,8 +10,8 @@
 package com.github.dr.rwserver.net.core.server
 
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.io.input.GameInputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.net.GroupNet
 import com.github.dr.rwserver.net.core.ConnectionAgreement

@@ -17,7 +17,6 @@ import com.github.dr.rwserver.custom.LoadCoreCustomPlugin
 import com.github.dr.rwserver.data.base.BaseConfig
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
-import com.github.dr.rwserver.data.global.NetStaticData.initPx
 import com.github.dr.rwserver.data.plugin.PluginEventManage.Companion.add
 import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.data.plugin.PluginManage.init

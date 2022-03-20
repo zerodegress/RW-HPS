@@ -14,7 +14,7 @@ import kotlin.math.min
 /**
  * @author Dr
  */
-open class ReusableDisableSyncByteArrayInputStream : DisableSyncByteArrayInputStream(ByteArray(0)) {
+internal open class ReusableDisableSyncByteArrayInputStream : DisableSyncByteArrayInputStream(ByteArray(0)) {
     fun position(): Int {
         return pos
     }

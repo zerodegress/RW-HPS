@@ -7,9 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.io.input
+package com.github.dr.rwserver.io
 
+import com.github.dr.rwserver.io.input.DisableSyncByteArrayInputStream
 import com.github.dr.rwserver.io.packet.Packet
+import com.github.dr.rwserver.util.io.CompressInputStream
 import java.io.Closeable
 import java.io.DataInputStream
 import java.io.IOException
@@ -18,11 +20,11 @@ import java.io.OutputStream
 /**
  * @author Dr
  */
-open class GameInputStream : Closeable {
+class GameInputStream : Closeable {
     private val buffer: DisableSyncByteArrayInputStream
     private val stream: DataInputStream
 
-    constructor(buffer: DisableSyncByteArrayInputStream) {
+    internal constructor(buffer: DisableSyncByteArrayInputStream) {
         this.buffer = buffer
         this.stream = DataInputStream(buffer)
     }
@@ -115,7 +117,7 @@ open class GameInputStream : Closeable {
      *        - Length 2 byte
      *        - Data X byte
      *    -False
-     *        - Null
+     *        - ""
      * @return String
      * @throws IOException
      */
@@ -167,7 +169,7 @@ open class GameInputStream : Closeable {
     }
 
     @Throws(IOException::class)
-    open fun readEnum(clazz: Class<*>): Enum<*>? {
+    fun readEnum(clazz: Class<*>): Enum<*>? {
         return clazz.enumConstants[readInt()] as Enum<*>
     }
 

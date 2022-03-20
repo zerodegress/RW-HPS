@@ -9,6 +9,7 @@
 
 package com.github.dr.rwserver.io.output
 
+import com.github.dr.rwserver.io.GameOutputStream
 import java.util.zip.GZIPOutputStream
 
 class CompressOutputStream(val head: String, outputStream: DisableSyncByteArrayOutputStream): GameOutputStream(outputStream) {

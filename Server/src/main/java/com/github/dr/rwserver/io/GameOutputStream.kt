@@ -7,10 +7,13 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package com.github.dr.rwserver.io.output
+package com.github.dr.rwserver.io
 
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.output.CompressOutputStream
+import com.github.dr.rwserver.io.output.CompressOutputStream.Companion.getGzipOutputStream
+import com.github.dr.rwserver.io.output.DisableSyncByteArrayOutputStream
 import com.github.dr.rwserver.io.packet.Packet
+import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
 import java.io.DataOutputStream
 import java.io.IOException
@@ -18,8 +21,9 @@ import java.io.IOException
 /**
  * @author Dr
  */
-open class GameOutputStream @JvmOverloads constructor(private val buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
-    private val stream: DataOutputStream = DataOutputStream(buffer)
+open class GameOutputStream @JvmOverloads constructor(private var buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
+
+    private var stream: DataOutputStream = DataOutputStream(buffer)
 
     fun createPacket(type: Int): Packet {
         try {
@@ -101,7 +105,6 @@ open class GameOutputStream @JvmOverloads constructor(private val buffer: Disabl
 
     @Throws(IOException::class)
     fun writeIsString(value: String?) {
-        print(value)
         if (IsUtil.isBlank(value)) {
             writeBoolean(false)
         } else {

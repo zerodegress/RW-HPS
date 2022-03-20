@@ -14,7 +14,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import kotlin.math.min
 
-open class DisableSyncByteArrayInputStream : InputStream {
+internal open class DisableSyncByteArrayInputStream : InputStream {
     /**
      * An array of bytes that was provided
      * by the creator of the stream. Elements `buf[0]`

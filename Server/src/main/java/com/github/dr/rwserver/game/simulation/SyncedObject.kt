@@ -9,8 +9,8 @@
 
 package com.github.dr.rwserver.game.simulation
 
-import com.github.dr.rwserver.io.input.GameInputStream
-import com.github.dr.rwserver.io.output.GameOutputStream
+import com.github.dr.rwserver.io.GameInputStream
+import com.github.dr.rwserver.io.GameOutputStream
 import java.io.IOException
 
 interface SyncedObject {

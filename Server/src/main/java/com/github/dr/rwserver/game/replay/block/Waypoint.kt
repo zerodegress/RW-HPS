@@ -10,7 +10,7 @@
 package com.github.dr.rwserver.game.replay.block
 
 import com.github.dr.rwserver.game.GameUnitType.GameActions
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.GameInputStream
 
 class Waypoint(intream: GameInputStream) {
     val unitAction: GameActions

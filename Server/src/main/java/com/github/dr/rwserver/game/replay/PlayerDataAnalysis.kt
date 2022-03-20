@@ -11,7 +11,7 @@ package com.github.dr.rwserver.game.replay
 
 import com.github.dr.rwserver.game.replay.block.PointF
 import com.github.dr.rwserver.game.replay.block.Waypoint
-import com.github.dr.rwserver.io.input.GameInputStream
+import com.github.dr.rwserver.io.GameInputStream
 import com.github.dr.rwserver.io.packet.Packet
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.log.Log.debug

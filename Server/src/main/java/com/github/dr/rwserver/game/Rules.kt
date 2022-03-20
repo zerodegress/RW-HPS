@@ -8,6 +8,7 @@
  */
 package com.github.dr.rwserver.game
 
+import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.core.thread.Threads.newThreadService2
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.custom.CustomEvent
@@ -74,8 +75,7 @@ class Rules(config: BaseConfig) {
     /** 按键包缓存  */
     val gameCommandCache = LinkedBlockingQueue<GameCommandPacket>()
 
-    /** AFK  */
-    var isAfk = true
+
 
     /** 重连暂停  */
     @Volatile
@@ -84,11 +84,14 @@ class Rules(config: BaseConfig) {
     /** 重连缓存 GameSave  */
     @Volatile
     var gameSaveCache: GameSavePacket? = null
+    var gameSaveWaitObject = Object()
 
     /** PlayerManage  */
     @JvmField
     val playerManage: PlayerManage
 
+    /** AFK  */
+    var isAfk = true
     /** Mpa Lock  */
     var mapLock = false
 
@@ -121,6 +124,14 @@ class Rules(config: BaseConfig) {
 
     fun init() {
         CustomEvent()
+
+        isAfk = Data.core.pluginData.getData("Rules.IsAfk") { isAfk }
+        mapLock = Data.core.pluginData.getData("Rules.MapLock") { mapLock }
+
+        Threads.addSavePool {
+            Data.core.pluginData.setData("Rules.IsAfk",isAfk)
+            Data.core.pluginData.setData("Rules.MapLock",mapLock)
+        }
     }
 
     fun re() {

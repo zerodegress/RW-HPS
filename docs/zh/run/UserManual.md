@@ -6,7 +6,7 @@ RW-HPS 用户手册
 ## 使用纯控制台版本 启动 RW-HPS
 ### 安装
 * [直接运行](Run.md)
-* [使用Docker容器](https://github.com/RW-HPS/RW-HPS/blob/master/docker/README.md)
+* [使用Docker容器](../../../docker/README.md)
 
 ### 了解运行环境
 第一次运行会初始化运行环境。下表说明了各个文件夹的用途。

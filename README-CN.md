@@ -125,6 +125,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 
 
 ## 开始
+- 用户手册: [docs](docs/zh/run/UserManual.md)
 - 开发文档: [docs](docs/zh/README.md)
 - 更新日志: [release](https://github.com/RW-HPS/RW-HPS/releases)
 - 开发计划: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)

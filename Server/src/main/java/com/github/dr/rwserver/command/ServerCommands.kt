@@ -10,22 +10,27 @@
 package com.github.dr.rwserver.command
 
 import com.github.dr.rwserver.Main
+import com.github.dr.rwserver.core.Call
 import com.github.dr.rwserver.core.Call.sendMessage
 import com.github.dr.rwserver.core.Call.sendSystemMessage
 import com.github.dr.rwserver.core.Call.sendTeamData
 import com.github.dr.rwserver.core.Call.upDataGameData
+import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.Data.LINE_SEPARATOR
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.func.StrCons
+import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.game.event.EventType.GameOverEvent
 import com.github.dr.rwserver.game.event.EventType.PlayerBanEvent
 import com.github.dr.rwserver.util.IsUtil
+import com.github.dr.rwserver.util.Time
 import com.github.dr.rwserver.util.Time.getTimeFutureMillis
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.game.Events
+import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.error
 import java.io.IOException
 
@@ -211,7 +216,7 @@ class ServerCommands(handler: CommandHandler) {
     }
 
     private fun registerPlayerCustomEx(handler: CommandHandler) {
-        handler.register("summon", "<unitName> <x> <y> [index(NeutralByDefault)]", "serverCommands.players") { arg: Array<String>, log: StrCons ->
+        handler.register("summon", "<unitName> <x> <y> [index(NeutralByDefault)]", "serverCommands.summon") { arg: Array<String>, log: StrCons ->
             if (!Data.game.isStartGame) {
                 log[localeUtil.getinput("err.noStartGame")]
                 return@register
@@ -230,10 +235,64 @@ class ServerCommands(handler: CommandHandler) {
             }
             Data.game.gameCommandCache.offer(NetStaticData.protocolData.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
         }
+
+        handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: StrCons ->
+            if (!Data.game.isStartGame || Data.game.mapLock) {
+                log["游戏未开始 & 地图被锁定"]
+                return@register
+            }
+            val response = StringBuilder(arg[0])
+            var i = 1
+            val lens = arg.size
+            while (i < lens) {
+                response.append(" ").append(arg[i])
+                i++
+            }
+            val inputMapName = response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
+            val mapPlayer = Data.MapsMap[inputMapName]
+            if (mapPlayer != null) {
+                val data = mapPlayer.split("@").toTypedArray()
+                Data.game.maps.mapName = data[0]
+                Data.game.maps.mapPlayer = data[1]
+                Data.game.maps.mapType = GameMaps.MapType.defaultMap
+            } else {
+                if (Data.game.mapsData.size == 0) {
+                    return@register
+                }
+                if (IsUtil.notIsNumeric(inputMapName)) {
+                    log[localeUtil.getinput("err.noNumber")]
+                    return@register
+                }
+                val name = Data.game.mapsData.keys().toSeq()[inputMapName.toInt()]
+                val data = Data.game.mapsData[name]
+                Data.game.maps.mapData = data
+                Data.game.maps.mapType = data.mapType
+                Data.game.maps.mapName = name
+                Data.game.maps.mapPlayer = ""
+            }
+
+            TimeTaskData.stopCallTickTask()
+            Data.game.isStartGame = false
+
+            val enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket()
+
+            Data.game.playerManage.playerGroup.each { e: Player ->
+                try {
+                    e.con!!.sendTeamData(enc)
+                    e.con!!.sendStartGame()
+                    e.lastMoveTime = Time.concurrentSecond()
+                } catch (err: IOException) {
+                    Log.error("Start Error", err)
+                }
+            }
+            Data.game.isStartGame = true
+            Data.game.playerManage.updateControlIdentifier()
+            Call.testPreparationPlayer()
+        }
     }
 
     companion object {
-        private val localeUtil = Data.localeUtil
+        private val localeUtil = Data.i18NBundle
     }
 
     init {

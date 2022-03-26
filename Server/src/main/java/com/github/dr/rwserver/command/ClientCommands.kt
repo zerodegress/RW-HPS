@@ -38,12 +38,12 @@ import java.util.concurrent.atomic.AtomicInteger
  * @author Dr
  */
 class ClientCommands(handler: CommandHandler) {
-    private val localeUtil = Data.localeUtil
+    private val localeUtil = Data.i18NBundle
     private fun isAdmin(player: Player): Boolean {
         if (player.isAdmin) {
             return true
         }
-        player.sendSystemMessage(player.localeUtil.getinput("err.noAdmin"))
+        player.sendSystemMessage(player.i18NBundle.getinput("err.noAdmin"))
         return false
     }
 
@@ -59,7 +59,7 @@ class ClientCommands(handler: CommandHandler) {
                         continue
                     }
                     str.append("   ").append(command.text).append(if (command.paramText.isEmpty()) "" else " ")
-                        .append(command.paramText).append(" - ").append(player.localeUtil.getinput(command.description))
+                        .append(command.paramText).append(" - ").append(player.i18NBundle.getinput(command.description))
                         .append(LINE_SEPARATOR)
                 }
             }
@@ -98,7 +98,7 @@ class ClientCommands(handler: CommandHandler) {
                     Data.game.maps.mapType = data.mapType
                     Data.game.maps.mapName = name
                     Data.game.maps.mapPlayer = ""
-                    player.sendSystemMessage(player.localeUtil.getinput("map.custom.info"))
+                    player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
                 upDataGameData()
             }
@@ -183,18 +183,21 @@ class ClientCommands(handler: CommandHandler) {
             player.sendSystemMessage(localeUtil.getinput("server.noSay", if (player.noSay) "开启" else "关闭"))
         }
         handler.register("am", "<on/off>", "clientCommands.am") { args: Array<String>, player: Player ->
-            Data.game.playerManage.amTeam = "on" == args[0]
-            if (Data.game.playerManage.amTeam) {
-                Data.game.playerManage.amYesPlayerTeam()
-            } else {
-                Data.game.playerManage.amNoPlayerTeam()
+            if (isAdmin(player)) {
+                Data.game.playerManage.amTeam = "on" == args[0]
+                if (Data.game.playerManage.amTeam) {
+                    Data.game.playerManage.amYesPlayerTeam()
+                } else {
+                    Data.game.playerManage.amNoPlayerTeam()
+                }
+                player.sendSystemMessage(localeUtil.getinput("server.amTeam", if (Data.game.playerManage.amTeam) "开启" else "关闭"))
             }
-            player.sendSystemMessage(localeUtil.getinput("server.amTeam", if (Data.game.playerManage.amTeam) "开启" else "关闭"))
+
         }
         handler.register("income", "<income>", "clientCommands.income") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
                 if (Data.game.isStartGame) {
-                    player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                     return@register
                 }
                 Data.game.income = args[0].toFloat()
@@ -203,7 +206,7 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("status", "clientCommands.status") { _: Array<String>?, player: Player ->
             player.sendSystemMessage(
-                player.localeUtil.getinput(
+                player.i18NBundle.getinput(
                     "status.version",
                     Data.game.playerManage.playerGroup.size(),
                     Data.core.admin.bannedIPs.size(),
@@ -214,12 +217,12 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("kick", "<PlayerSerialNumber>", "clientCommands.kick") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
             }
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0])) {
-                    player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"))
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
                 val site = args[0].toInt() - 1
@@ -244,7 +247,7 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("summon", "<unitName>", "clientCommands.kick") { args: Array<String>, player: Player ->
             if (!Data.game.isStartGame) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                 return@register
             }
             if (player.superAdmin) {
@@ -286,7 +289,7 @@ class ClientCommands(handler: CommandHandler) {
                 upDataGameData()
             }
         }
-        handler.register("addai", "HIDE") { _: Array<String>?, player: Player -> player.sendSystemMessage(player.localeUtil.getinput("err.nosupr")) }
+        handler.register("addai", "HIDE") { _: Array<String>?, player: Player -> player.sendSystemMessage(player.i18NBundle.getinput("err.nosupr")) }
         handler.register("fog", "<type>", "HIDE") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
                 Data.game.mist = if ("off" == args[0]) 0 else if ("basic" == args[0]) 1 else 2
@@ -302,7 +305,7 @@ class ClientCommands(handler: CommandHandler) {
         handler.register("startingunits", "<type>", "HIDE") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0])) {
-                    player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"))
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
                 //Data.game.initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
@@ -317,7 +320,7 @@ class ClientCommands(handler: CommandHandler) {
                     sendMessageLocal(player, "afk.clear", player.name)
                 }
                 if (Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size()) {
-                    player.sendSystemMessage(player.localeUtil.getinput("start.playerNo", Data.config.StartMinPlayerSize))
+                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
                 }
                 if (Data.game.maps.mapData != null) {
@@ -371,7 +374,7 @@ class ClientCommands(handler: CommandHandler) {
 				}*/
                 player.con!!.sendSurrender()
             } else {
-                player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
             }
         }
         handler.register("teamlock", "clientCommands.teamlock") { args: Array<String>, player: Player ->
@@ -383,7 +386,7 @@ class ClientCommands(handler: CommandHandler) {
             if (Data.game.isStartGame) {
                 player.con!!.sendSurrender()
             } else {
-                player.sendSystemMessage(player.localeUtil.getinput("err.noStartGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
             }
         }
         // TODO Vote
@@ -403,12 +406,12 @@ class ClientCommands(handler: CommandHandler) {
          */
         handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
             }
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0]) && notIsNumeric(args[1]) && notIsNumeric(args[2])) {
-                    player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"))
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
                 val oldSite = args[0].toInt() - 1
@@ -449,14 +452,14 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("self_move", "<ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
             }
             if (Data.game.lockTeam) {
                 return@register
             }
             if (notIsNumeric(args[0]) && notIsNumeric(args[1])) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                 return@register
             }
             val newSite = args[0].toInt() - 1
@@ -481,12 +484,12 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("team", "<PlayerSiteNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
             }
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0]) && notIsNumeric(args[1])) {
-                    player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"))
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
                 val playerSite = args[0].toInt() - 1
@@ -504,14 +507,14 @@ class ClientCommands(handler: CommandHandler) {
         }
         handler.register("self_team", "<ToTeamNumber>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.startGame"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
             }
             if (Data.game.lockTeam) {
                 return@register
             }
             if (notIsNumeric(args[0])) {
-                player.sendSystemMessage(player.localeUtil.getinput("err.noNumber"))
+                player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                 return@register
             }
             val newSite = args[0].toInt() - 1

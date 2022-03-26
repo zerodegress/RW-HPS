@@ -14,8 +14,10 @@ import com.github.dr.rwserver.core.thread.Threads
 import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
+import com.github.dr.rwserver.data.player.Player
 import com.github.dr.rwserver.data.plugin.PluginManage
 import com.github.dr.rwserver.func.StrCons
+import com.github.dr.rwserver.game.GameMaps
 import com.github.dr.rwserver.game.Rules
 import com.github.dr.rwserver.net.StartNet
 import com.github.dr.rwserver.net.core.ConnectionAgreement
@@ -26,8 +28,10 @@ import com.github.dr.rwserver.net.netconnectprotocol.realize.*
 import com.github.dr.rwserver.plugin.PluginsLoad
 import com.github.dr.rwserver.plugin.center.PluginCenter
 import com.github.dr.rwserver.struct.Seq
+import com.github.dr.rwserver.util.Time
 import com.github.dr.rwserver.util.game.CommandHandler
 import com.github.dr.rwserver.util.log.Log
+import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -46,7 +50,7 @@ class CoreCommands(handler: CommandHandler) {
                     if ("HIDE" == command.description) {
                         continue
                     }
-                    log["   " + command.text + (if (command.paramText.isEmpty()) "" else " ") + command.paramText + " - " + Data.localeUtil.getinput(command.description)]
+                    log["   " + command.text + (if (command.paramText.isEmpty()) "" else " ") + command.paramText + " - " + Data.i18NBundle.getinput(command.description)]
                 }
             }
         }
@@ -64,7 +68,7 @@ class CoreCommands(handler: CommandHandler) {
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION)]
         }
         handler.register("setlanguage","[HK/CN/RU/EN]" ,"serverCommands.setlanguage") { arg: Array<String>, _: StrCons ->
-            Initialization.initServerLanguage(Data.core.pluginData,arg[0])
+            Initialization.initServerLanguage(Data.core.settings,arg[0])
         }
         handler.register("exit", "serverCommands.exit") { _: Array<String>?, _: StrCons ->
             Core.exit()
@@ -188,7 +192,8 @@ class CoreCommands(handler: CommandHandler) {
 
 
         handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
-            val startNetTcp = if (Data.config.JoinBeta) StartNet("") else StartNet()
+            val startNetTcp = StartNet()
+            //val startNetTcp = StartNet(StartGamePortDivider::class.java)
             NetStaticData.startNet.add(startNetTcp)
             Threads.newThreadCoreNet {
                 if (arg != null && arg.size > 1) {
@@ -213,7 +218,7 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     companion object {
-        private val localeUtil = Data.localeUtil
+        private val localeUtil = Data.i18NBundle
     }
 
     init {
@@ -224,9 +229,35 @@ class CoreCommands(handler: CommandHandler) {
 
         handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: StrCons ->
             //Data.LOG_COMMAND.handleMessage(arg[0], null)
-            Data.core.admin.playerAdminData.each() { k,v ->
-                Log.error(k,v.toString())
+            TimeTaskData.stopCallTickTask()
+
+            val data = "Lake (2p)@[p2]".split("@").toTypedArray()
+            Data.game.maps.mapName = data[0]
+            Data.game.maps.mapPlayer = data[1]
+            Data.game.maps.mapType = GameMaps.MapType.defaultMap
+
+            Data.game.isStartGame = false
+
+            val enc = NetStaticData.protocolData.abstractNetPacket.getTeamDataPacket()
+
+            Data.game.playerManage.playerGroup.each { e: Player ->
+                try {
+                    e.con!!.sendTeamData(enc)
+                    e.con!!.sendStartGame()
+                    e.lastMoveTime = Time.concurrentSecond()
+                } catch (err: IOException) {
+                    Log.error("Start Error", err)
+                }
             }
+            /*
+            if (Data.config.WinOrLose) {
+            }*/
+            Data.game.isStartGame = true
+            if (Data.game.sharedControl) {
+                Data.game.playerManage.playerGroup.each { it.sharedControl = true }
+            }
+            Data.game.playerManage.updateControlIdentifier()
+            Call.testPreparationPlayer()
 
         }
         handler.register("logg", "<1> <2>", "serverCommands.exit") { arg: Array<String>, _: StrCons ->

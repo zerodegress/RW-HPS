@@ -66,7 +66,7 @@ object Main {
 
         Logger.getLogger("io.netty").level = Level.OFF
 
-        println(Data.localeUtil.getinput("server.login"))
+        println(Data.i18NBundle.getinput("server.login"))
         clog("Load ing...")
 
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
@@ -74,19 +74,19 @@ object Main {
         Data.config = BaseConfig.stringToClass()
         Data.core.load()
 
-        clog(Data.localeUtil.getinput("server.hi"))
-        clog(Data.localeUtil.getinput("server.project.url"))
+        clog(Data.i18NBundle.getinput("server.hi"))
+        clog(Data.i18NBundle.getinput("server.project.url"))
 
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
         ClientCommands(Data.CLIENT_COMMAND)
         LogCommands(Data.LOG_COMMAND)
-        clog(Data.localeUtil.getinput("server.load.command"))
+        clog(Data.i18NBundle.getinput("server.load.command"))
 
         /* Event加载 */
         add(Event())
         add(EventGlobal())
-        clog(Data.localeUtil.getinput("server.load.events"))
+        clog(Data.i18NBundle.getinput("server.load.events"))
 
         /* 初始化Plugin */
         init(getFolder(Data.Plugin_Plugins_Path))
@@ -112,8 +112,8 @@ object Main {
 
         /* 初始化Plugin Init */
         runInit()
-        clog(Data.localeUtil.getinput("server.load.end"))
-        clog(Data.localeUtil.getinput("server.loadPlugin", loadSize))
+        clog(Data.i18NBundle.getinput("server.load.end"))
+        clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
 
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })

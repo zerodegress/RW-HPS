@@ -28,7 +28,7 @@ import java.util.*
  * @author Dr
  */
 class Application {
-    val pluginData: PluginData = PluginData()
+    val settings: PluginData = PluginData()
 
     /** 服务器唯一UUID  */
     lateinit var serverConnectUuid: String
@@ -42,18 +42,18 @@ class Application {
     var serverName = "RW-HPS"
 
     fun load() {
-        pluginData.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
-        admin = Administration(pluginData)
+        settings.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
+        admin = Administration(settings)
 
-        Initialization.startInit(pluginData)
+        Initialization.startInit(settings)
 
         serverName = Data.config.ServerName
 
-        serverConnectUuid = pluginData.getData("serverConnectUuid") { UUID.randomUUID().toString() }
-        unitBase64 = pluginData.getData("unitBase64") {Seq()}
+        serverConnectUuid = settings.getData("serverConnectUuid") { UUID.randomUUID().toString() }
+        unitBase64 = settings.getData("unitBase64") {Seq()}
         addSavePool {
-            pluginData.setData("serverConnectUuid", serverConnectUuid)
-            pluginData.setData("unitBase64", unitBase64)
+            settings.setData("serverConnectUuid", serverConnectUuid)
+            settings.setData("unitBase64", unitBase64)
         }
     }
 
@@ -61,7 +61,7 @@ class Application {
         // 先执行自己的保存
         runSavePool()
         // 保存自己
-        pluginData.save()
+        settings.save()
         // 保存Plugin
         runOnDisable()
     }

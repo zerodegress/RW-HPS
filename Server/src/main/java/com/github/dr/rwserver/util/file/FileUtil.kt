@@ -298,7 +298,12 @@ class FileUtil {
         @JvmStatic
         fun setFilePath(customFilePath: String? = null) {
             if (customFilePath != null) {
-                defaultFilePath = customFilePath
+                defaultFilePath =
+                    if (customFilePath.endsWith("/")) {
+                        customFilePath
+                    } else {
+                        "$customFilePath/"
+                    }
             }
         }
 

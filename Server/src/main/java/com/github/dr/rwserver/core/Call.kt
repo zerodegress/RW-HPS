@@ -10,6 +10,7 @@
 package com.github.dr.rwserver.core
 
 import com.github.dr.rwserver.core.thread.Threads.newThreadService
+import com.github.dr.rwserver.core.thread.TimeTaskData
 import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.data.global.NetStaticData
 import com.github.dr.rwserver.data.player.Player
@@ -39,7 +40,7 @@ object Call {
 
     @JvmStatic
     fun sendMessageLocal(player: Player, text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.sendMessage(player, e.localeUtil.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.each { e: Player -> e.sendMessage(player, e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
@@ -49,7 +50,7 @@ object Call {
 
     @JvmStatic
     fun sendSystemTeamMessageLocal(team: Int, text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.eachBooleanIfs({ e: Player -> e.team == team }) { p: Player -> p.sendSystemMessage("[TEAM] " + p.localeUtil.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.eachBooleanIfs({ e: Player -> e.team == team }) { p: Player -> p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
@@ -63,12 +64,12 @@ object Call {
 
     @JvmStatic
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.sendSystemMessage(e.localeUtil.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.each { e: Player -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
     fun sendSystemMessage(text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.sendSystemMessage(e.localeUtil.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.each { e: Player -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
@@ -146,14 +147,22 @@ object Call {
             if (loadTime > loadTimeMaxTry) {
                 sendSystemMessageLocal("start.testNo")
                 val timerNew = Timer()
-                timerNew.schedule(SendGameTickCommand(timerNew), 0, 150)
+
+                TimeTaskData.CallTickTask = SendGameTickCommand()
+                timerNew.schedule(TimeTaskData.CallTickTask, 0, 150)
+                TimeTaskData.CallTickPool = timerNew
+
                 stop()
             }
 
             if (start) {
                 sendSystemMessageLocal("start.testYes")
                 val timerNew = Timer()
-                timerNew.schedule(SendGameTickCommand(timerNew), 0, 150)
+
+                TimeTaskData.CallTickTask = SendGameTickCommand()
+                timerNew.schedule(TimeTaskData.CallTickTask, 0, 150)
+                TimeTaskData.CallTickPool = timerNew
+
                 stop()
             }
         }
@@ -174,7 +183,7 @@ object Call {
      * @property forcedReturn Boolean
      * @constructor
      */
-    private class SendGameTickCommand(private val timer: Timer) : TimerTask() {
+    private class SendGameTickCommand() : TimerTask() {
         private var time = 0
         private var oneSay = true
 
@@ -237,10 +246,18 @@ object Call {
             }
         }
 
+        override fun cancel(): Boolean {
+            if (gameOverTask != null) {
+                gameOverTask!!.cancel(true)
+                gameOverTask = null
+            }
+            return super.cancel()
+        }
+
         fun gr() {
             if (forcedReturn) {
                 cancel()
-                timer.cancel()
+                TimeTaskData.stopCallTickTask()
                 return
             }
             forcedReturn = true
@@ -248,7 +265,7 @@ object Call {
             gameOverTask = null
 
             cancel()
-            timer.cancel()
+            TimeTaskData.stopCallTickTask()
 
             Events.fire(GameOverEvent())
         }

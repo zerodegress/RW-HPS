@@ -22,7 +22,7 @@ object NetStaticData {
     @JvmField
     val groupNet = GroupNet()
     @JvmField
-    val relay = Relay("RW-HPS Beta Relay")
+    val relay = Relay("RW-HPS Beta Relay", groupNet)
     @JvmField
     val blackList = BlackList()
     @JvmField

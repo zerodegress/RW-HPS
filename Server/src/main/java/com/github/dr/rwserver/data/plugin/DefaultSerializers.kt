@@ -105,7 +105,7 @@ internal object DefaultSerializers {
 
             @Throws(IOException::class)
             override fun read(stream: DataInput): Seq<*>? {
-                return try {
+                 return try {
                     val size = stream.readInt()
                     val arr = Seq<Any>(size)
                     if (size == 0) {
@@ -113,11 +113,11 @@ internal object DefaultSerializers {
                     }
                     val type = stream.readUTF()
                     val ser = AbstractPluginData.getSerializer(lookup(type))
-                    requireNotNull(ser) {
-                        "$type does not have a serializer registered!"
-                    }
+                     requireNotNull(ser) {
+                         "$type does not have a serializer registered!"
+                     }
 
-                    for (i in 0 until size) {
+                     for (i in 0 until size) {
                         arr.add(ser.read(stream))
                     }
                     arr

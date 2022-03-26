@@ -47,53 +47,15 @@ class Relay {
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()
 
-    constructor(a: Long) {
-        val stringId: String
-        while (true) {
-            val intId = rand.random(1000, 100000)
-            if (!serverRelayData.containsKey(intId)) {
-                serverRelayData.put(intId, this)
-                stringId = intId.toString()
-                debug(intId)
-                break
-            }
-        }
-        id = stringId
-        groupNet = GroupNet()
-    }
-
-    constructor(a: Long, id: String) {
+    private constructor(id: String) {
         serverRelayData.put(id.toInt(), this)
         this.id = id
         groupNet = GroupNet()
     }
 
-    constructor(i: String?, up: Boolean, playerName: Array<String>, isMod: Boolean, betaGameVersion: Boolean) {
-        val stringId: String
-        while (true) {
-            val intId = rand.random(1000, 100000)
-            if (!serverRelayData.containsKey(intId)) {
-                serverRelayData.put(intId, this)
-                stringId = intId.toString()
-                debug(intId)
-                break
-            }
-        }
-        id = stringId
-        groupNet = GroupNet()
-        this.isMod = isMod
-    }
-
-    constructor(a: Long, id: String, up: Boolean, playerName: Array<String>, isMod: Boolean, betaGameVersion: Boolean) {
-        serverRelayData.put(id.toInt(), this)
+    constructor(id: String, groupNet: GroupNet) {
         this.id = id
-        groupNet = GroupNet()
-        this.isMod = isMod
-    }
-
-    constructor(id: String) {
-        this.id = id
-        groupNet = NetStaticData.groupNet
+        this.groupNet = groupNet
     }
 
     val allIP: String
@@ -242,6 +204,26 @@ class Relay {
         @JvmStatic
         fun sendAllMsg(msg: String) {
             serverRelayData.values().forEach(Consumer { e: Relay -> e.sendMsg(msg) })
+        }
+
+        fun getNoUpRelay(id: String = ""): Relay {
+            var idRelay = id
+            val relay: Relay =  if (id.isBlank()) {
+                while (true) {
+                    val intId = rand.random(1000, 100000)
+                    if (!serverRelayData.containsKey(intId)) {
+                        idRelay = intId.toString()
+                        debug(intId)
+                        break
+                    }
+                }
+                Relay(idRelay)
+            } else {
+                Relay(idRelay)
+            }
+            serverRelayData.put(idRelay.toInt(), relay)
+            return relay
+
         }
     }
 }

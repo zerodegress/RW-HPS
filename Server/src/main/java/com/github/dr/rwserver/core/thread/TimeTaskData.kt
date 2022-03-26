@@ -10,85 +10,82 @@
 package com.github.dr.rwserver.core.thread
 
 import com.github.dr.rwserver.util.IsUtil
+import java.util.*
 import java.util.concurrent.ScheduledFuture
 
 object TimeTaskData {
-    @JvmField
     var CallTeamTask: ScheduledFuture<*>? = null
-    @JvmField
     var CallPingTask: ScheduledFuture<*>? = null
-    @JvmField
     var PlayerAfkTask: ScheduledFuture<*>? = null
 
-    @JvmField
     var CustomUpServerListTask: ScheduledFuture<*>? = null
-    @JvmField
     var UpServerListTask: ScheduledFuture<*>? = null
-    @JvmField
     var UpServerListNewTask: ScheduledFuture<*>? = null
 
-    @JvmField
+
     var GameWinOrLoseCheckTask: ScheduledFuture<*>? = null
 
-    @JvmField
+
     var AutoReLoadMapTask: ScheduledFuture<*>? = null
+
+    var CallTickPool: Timer? = null
+    var CallTickTask: TimerTask? = null
 
 
     /*
      * 这一块为永久区
      * 将不会执行 cancel
      */
-    @JvmField
     var BlackListCheckTask: ScheduledFuture<*>? = null
-    @JvmField
     var ServerUploadDataTask: ScheduledFuture<*>? = null
-    @JvmField
     var ServerUploadData_CheckTimeTask: ScheduledFuture<*>? = null
 
-    @JvmStatic
     fun stopCallTeamTask() {
         CallTeamTask?.cancel(true)
         CallTeamTask = null
     }
-    @JvmStatic
     fun stopCallPingTask() {
         CallPingTask?.cancel(true)
         CallPingTask = null
     }
-    @JvmStatic
     fun stopPlayerAfkTask() {
         PlayerAfkTask?.cancel(true)
         PlayerAfkTask = null
     }
 
-    @JvmStatic
+
     fun stopCustomUpServerListTask(run: Runnable? = null) {
         CustomUpServerListTask?.cancel(true)
         if (IsUtil.isNull(CustomUpServerListTask)) run?.run()
         CustomUpServerListTask = null
 
     }
-    @JvmStatic
     fun stopUpServerListTask(run: Runnable? = null) {
         UpServerListTask?.cancel(true)
         if (IsUtil.isNull(UpServerListTask)) run?.run()
         UpServerListTask = null
     }
-    @JvmStatic
     fun stopUpServerListNewTask(run: Runnable? = null) {
         UpServerListNewTask?.cancel(true)
         if (IsUtil.isNull(UpServerListNewTask)) run?.run()
         UpServerListNewTask = null
     }
-    @JvmStatic
     fun stopAutoReLoadMapTask() {
         AutoReLoadMapTask?.cancel(true)
         AutoReLoadMapTask = null
     }
 
-    @JvmStatic
+
     fun stopGameWinOrLoseCheckTask() {
         GameWinOrLoseCheckTask?.cancel(true)
         GameWinOrLoseCheckTask = null
+    }
+
+
+    fun stopCallTickTask() {
+        CallTickTask?.cancel()
+        CallTickPool?.cancel()
+        CallTickTask = null
+        CallTickPool = null
     }
 }

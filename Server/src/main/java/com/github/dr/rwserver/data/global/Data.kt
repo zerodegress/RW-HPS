@@ -15,7 +15,7 @@ import com.github.dr.rwserver.data.base.BaseConfig
 import com.github.dr.rwserver.game.Rules
 import com.github.dr.rwserver.io.output.CompressOutputStream
 import com.github.dr.rwserver.struct.ObjectMap
-import com.github.dr.rwserver.util.LocaleUtil
+import com.github.dr.rwserver.util.I18NBundle
 import com.github.dr.rwserver.util.file.LoadIni
 import com.github.dr.rwserver.util.game.CommandHandler
 import java.nio.charset.Charset
@@ -38,7 +38,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "5.3.0-M1"
+    const val SERVER_CORE_VERSION = "5.3.0-M2"
     /** 单位数据缓存  */
 	@JvmField
 	val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
@@ -65,7 +65,7 @@ object Data {
     @JvmField
 	val core = Application()
     @JvmField
-	val localeUtilMap = ObjectMap<String, LocaleUtil>(8)
+	val i18NBundleMap = ObjectMap<String, I18NBundle>(8)
     @JvmField
     val urlData: LoadIni
 
@@ -75,7 +75,7 @@ object Data {
     /**
      * 可控变量
      */
-    lateinit var localeUtil: LocaleUtil
+    lateinit var i18NBundle: I18NBundle
     lateinit var game: Rules
 
     @JvmField

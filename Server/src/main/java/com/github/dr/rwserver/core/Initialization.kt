@@ -11,27 +11,10 @@ package com.github.dr.rwserver.core
 
 import com.github.dr.rwserver.Main
 import com.github.dr.rwserver.data.global.Data
-import com.github.dr.rwserver.data.json.Json
 import com.github.dr.rwserver.data.plugin.PluginData
 import com.github.dr.rwserver.net.HttpRequestOkHttp
-import com.github.dr.rwserver.util.IsUtil
-import com.github.dr.rwserver.util.IsUtil.notIsBlank
-import com.github.dr.rwserver.util.LocaleUtil
-import com.github.dr.rwserver.util.ReExp
-import com.github.dr.rwserver.util.encryption.Aes.aesDecryptByBytes
-import com.github.dr.rwserver.util.encryption.Base64.decode
-import com.github.dr.rwserver.util.encryption.Base64.decodeString
-import com.github.dr.rwserver.util.encryption.Md5.md5
-import com.github.dr.rwserver.util.file.FileUtil
-import com.github.dr.rwserver.util.file.FileUtil.Companion.getFolder
-import com.github.dr.rwserver.util.file.FileUtil.Companion.readFileListString
+import com.github.dr.rwserver.util.I18NBundle
 import com.github.dr.rwserver.util.log.Log
-import com.github.dr.rwserver.util.log.Log.debug
-import com.github.dr.rwserver.util.log.Log.error
-import com.github.dr.rwserver.util.log.Log.warn
-import com.github.dr.rwserver.util.log.exp.FileException
-import com.github.dr.rwserver.util.zip.zip.ZipDecoder
-import com.github.dr.rwserver.util.zip.zip.ZipEncoder.incrementalUpdate
 
 /**
  * @author Dr
@@ -105,13 +88,13 @@ class Initialization {
     }
 
     private fun loadLang() {
-        Data.localeUtilMap.put("CN", LocaleUtil(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
-        Data.localeUtilMap.put("HK", LocaleUtil(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
-        Data.localeUtilMap.put("RU", LocaleUtil(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
-        Data.localeUtilMap.put("EN", LocaleUtil(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
+        Data.i18NBundleMap.put("CN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
+        Data.i18NBundleMap.put("HK", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
+        Data.i18NBundleMap.put("RU", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
+        Data.i18NBundleMap.put("EN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
 
         // Default use EN
-        Data.localeUtil = Data.localeUtilMap["EN"]
+        Data.i18NBundle = Data.i18NBundleMap["EN"]
     }
 
     internal class ExitHandler : Thread("Exit Handler") {
@@ -152,9 +135,9 @@ class Initialization {
                     }
                 }
 
-            Data.localeUtil = Data.localeUtilMap[serverCountry]
+            Data.i18NBundle = Data.i18NBundleMap[serverCountry]
 
-            Log.clog(Data.localeUtil.getinput("server.language"))
+            Log.clog(Data.i18NBundle.getinput("server.language"))
         }
     }
 

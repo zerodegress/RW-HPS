@@ -12,7 +12,7 @@ import com.github.dr.rwserver.data.global.Data
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServer
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.IsUtil
-import com.github.dr.rwserver.util.LocaleUtil
+import com.github.dr.rwserver.util.I18NBundle
 import java.util.*
 
 class PlayerManage(private val maxPlayerSize: Int) {
@@ -33,8 +33,8 @@ class PlayerManage(private val maxPlayerSize: Int) {
     /** 队伍数据  */
     private val playerData = arrayOfNulls<Player?>(maxPlayerSize)
 
-    fun addPlayer(con: GameVersionServer, uuid: String, name: String, localeUtil: LocaleUtil = Data.localeUtil): Player {
-        val player = Player(con, uuid, name, localeUtil)
+    fun addPlayer(con: GameVersionServer, uuid: String, name: String, i18NBundle: I18NBundle = Data.i18NBundle): Player {
+        val player = Player(con, uuid, name, i18NBundle)
         if (Data.config.OneAdmin) {
             if (playerGroup.size() == 0) {
                 player.isAdmin = true

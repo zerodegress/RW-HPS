@@ -27,7 +27,7 @@ public class NetServer {
         if (Data.game != null) {
             NetStaticData.startNet.each(StartNet::stop);
             //Threads.newThreadCoreNet();
-            TimeTaskData.stopGameWinOrLoseCheckTask();
+            TimeTaskData.INSTANCE.stopGameWinOrLoseCheckTask();
 
             Data.game.playerManage.playerGroup.clear();
             Data.game.playerManage.playerAll.clear();
@@ -37,7 +37,7 @@ public class NetServer {
     }
 
     public static void reLoadServer() {
-        TimeTaskData.stopGameWinOrLoseCheckTask();
+        TimeTaskData.INSTANCE.stopGameWinOrLoseCheckTask();
         if (Data.vote!= null) {
             Data.vote.stopVote();
         }

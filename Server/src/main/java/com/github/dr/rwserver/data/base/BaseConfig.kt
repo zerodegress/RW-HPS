@@ -15,6 +15,7 @@ import com.github.dr.rwserver.util.IsUtil
 import com.github.dr.rwserver.util.ReflectionUtils
 import com.github.dr.rwserver.util.file.FileUtil
 import com.github.dr.rwserver.util.log.Log
+import com.github.dr.rwserver.util.log.Log.warn
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import java.lang.reflect.Field
@@ -79,10 +80,17 @@ data class BaseConfig(
 
     val AutoReLoadMap: Boolean = false,
 
-    val JoinBeta: Boolean = false,
-
     var RunPid: Long = 0,
 ) {
+
+    private fun checkValue() {
+        // 拒绝最大玩家数超过最小开始玩家数
+        if (MaxPlayer < StartMinPlayerSize) {
+            warn("MaxPlayer < StartMinPlayerSize , Reset !")
+            coverField("StartMinPlayerSize",0)
+        }
+
+    }
 
     fun save() {
         val gson = GsonBuilder().setPrettyPrinting().create()
@@ -132,6 +140,8 @@ data class BaseConfig(
                     }
                 }
             }
+
+            config.checkValue()
 
             return config
         }

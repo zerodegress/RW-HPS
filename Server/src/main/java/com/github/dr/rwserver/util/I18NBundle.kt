@@ -24,7 +24,7 @@ import java.util.*
  * @author Dr
  * @Date ?
  */
-class LocaleUtil {
+class I18NBundle {
     private val languageData = OrderedMap<String, String>()
 
     constructor(fileUtil: FileUtil) {

@@ -18,7 +18,7 @@ import com.github.dr.rwserver.net.game.ConnectServer
 import com.github.dr.rwserver.net.netconnectprotocol.realize.GameVersionServer
 import com.github.dr.rwserver.struct.ObjectMap
 import com.github.dr.rwserver.util.IsUtil
-import com.github.dr.rwserver.util.LocaleUtil
+import com.github.dr.rwserver.util.I18NBundle
 import com.github.dr.rwserver.util.Time
 import com.github.dr.rwserver.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
@@ -35,7 +35,7 @@ class Player(
     /** Player name  */
     @JvmField val name: String,
     /**   */
-    @JvmField val localeUtil: LocaleUtil
+    @JvmField val i18NBundle: I18NBundle
 ) {
     /** is Admin  */
 	@JvmField
@@ -113,7 +113,7 @@ class Player(
 
 
     fun getinput(input: String, vararg params: Any?): String {
-        return localeUtil.getinput(input,params)
+        return i18NBundle.getinput(input,params)
     }
 
 

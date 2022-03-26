@@ -41,7 +41,7 @@ import java.math.BigInteger
 open class GameVersionPacket : AbstractNetPacket {
     @Throws(IOException::class)
     override fun getSystemMessagePacket(msg: String): Packet =
-        getChatMessagePacket(msg, "SERVER", 5)
+        chatMessagePacketInternal(msg, "SERVER", 5)
 
     @Throws(IOException::class)
     override fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet =

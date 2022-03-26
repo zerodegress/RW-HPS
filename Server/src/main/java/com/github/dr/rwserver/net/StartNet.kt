@@ -14,7 +14,6 @@ import com.github.dr.rwserver.net.core.AbstractNet
 import com.github.dr.rwserver.net.handler.rudp.PackagingSocket
 import com.github.dr.rwserver.net.handler.rudp.StartGameNetUdp
 import com.github.dr.rwserver.net.handler.tcp.StartGameNetTcp
-import com.github.dr.rwserver.net.handler.tcp.StartGamePortDivider
 import com.github.dr.rwserver.struct.Seq
 import com.github.dr.rwserver.util.log.Log
 import com.github.dr.rwserver.util.log.Log.clog
@@ -50,12 +49,17 @@ class StartNet {
 
     constructor() {
         start = StartGameNetTcp(this)
+        //start = StartGamePortDivider(this)
     }
-    constructor(string: String) {
-        start = StartGamePortDivider(this)
-    }
-    constructor(abstractNet: AbstractNet) {
-        start = abstractNet
+
+    constructor(abstractNetClass: Class<*>) {
+        start =
+            try {
+                abstractNetClass.getConstructor(StartNet::class.java).newInstance(this) as AbstractNet
+            } catch (e: NoSuchMethodException) {
+                Log.fatal("[StartNet Load Error] Use default implementation",e)
+                StartGameNetTcp(this)
+            }
     }
 
     /**
@@ -76,7 +80,7 @@ class StartNet {
      * @param endPort End Port
      */
     fun openPort(port: Int,startPort:Int,endPort:Int) {
-        clog(Data.localeUtil.getinput("server.start.open"))
+        clog(Data.i18NBundle.getinput("server.start.open"))
         val bossGroup: EventLoopGroup = getEventLoopGroup(4)
         val workerGroup: EventLoopGroup = getEventLoopGroup()
         val runClass: Class<out ServerChannel>
@@ -94,7 +98,7 @@ class StartNet {
                 //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(start)
-            clog(Data.localeUtil.getinput("server.start.openPort"))
+            clog(Data.i18NBundle.getinput("server.start.openPort"))
             val channelFutureTcp = serverBootstrapTcp.bind(port)
 
             for (i in startPort..endPort) {
@@ -103,7 +107,7 @@ class StartNet {
 
             val start = channelFutureTcp.channel()
             connectChannel.add(start)
-            clog(Data.localeUtil.getinput("server.start.end"))
+            clog(Data.i18NBundle.getinput("server.start.end"))
             start.closeFuture().sync()
         } catch (e: InterruptedException) {
             error("[TCP Start Error]", e)

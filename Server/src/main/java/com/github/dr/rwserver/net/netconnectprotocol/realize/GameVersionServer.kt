@@ -204,7 +204,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
             val cmd = GameCommandPacket(player.site, out.getByteArray())
             Data.game.gameCommandCache.offer(cmd)
-            Call.sendSystemMessage(Data.localeUtil.getinput("player.surrender", player.name))
+            Call.sendSystemMessage(Data.i18NBundle.getinput("player.surrender", player.name))
         } catch (ignored: Exception) {
         }
     }
@@ -244,7 +244,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             // Afk Stop
             if (player.isAdmin && TimeTaskData.PlayerAfkTask != null) {
                 TimeTaskData.stopPlayerAfkTask()
-                Call.sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
+                Call.sendSystemMessage(Data.i18NBundle.getinput("afk.clear", player.name))
             }
 
             // Msg Command
@@ -260,7 +260,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
                 if (message.length > Data.config.MaxMessageLen) {
-                    sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
+                    sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
                     return
                 }
                 Data.core.admin.filterMessage(player, message)?.let { filterMessage: String ->
@@ -438,7 +438,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         }
                         return false
                     }
-                    val localeUtil = Data.localeUtilMap["CN"]
+                    val localeUtil = Data.i18NBundleMap["CN"]
                     /*
                     if (Data.game.ipCheckMultiLanguageSupport) {
                         val rec = Data.ip2Location.IPQuery(connectionAgreement.ip)

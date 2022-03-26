@@ -67,7 +67,7 @@ interface AbstractNetConnectRelay {
      * Server类型
      * @param msg RelayID
      */
-    fun sendRelayServerType(msg: String)
+    fun sendRelayServerType(msg: String, run: ((String) -> Unit)? = null)
 
     /**
      * 类型回复

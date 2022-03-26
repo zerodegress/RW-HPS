@@ -63,7 +63,7 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     try {
                         type.typeConnect(msg)
                     } catch (e: Exception) {
-                        debug(e)
+                        debug(e = e)
                         //type.disconnect()
                     }
                 }

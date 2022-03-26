@@ -24,7 +24,6 @@ import com.github.dr.rwserver.util.PacketType
 import com.github.dr.rwserver.util.RandomUtil.getRandomIetterString
 import com.github.dr.rwserver.util.StringFilteringUtil.cutting
 import com.github.dr.rwserver.util.StringFilteringUtil.replaceChinese
-import com.github.dr.rwserver.util.Time.nanos
 import com.github.dr.rwserver.util.alone.annotations.MainProtocolImplementation
 import com.github.dr.rwserver.util.encryption.Sha
 import com.github.dr.rwserver.util.log.Log
@@ -88,6 +87,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     private var registerPlayerId: String? = null
 
+    private var relaySelect: ((String) -> Unit)? = null
+
     override fun setCachePacket(packet: Packet) {
         cachePacket = packet
     }
@@ -140,7 +141,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 //this.playerAdminName = StringFilteringUtil.replaceChinese(this.playerAdminName,"?");
             }
             if (IsUtil.isBlank(queryString) || "RELAYCN".equals(queryString, ignoreCase = true)) {
-                sendRelayServerType(Data.localeUtil.getinput("relay.hi", Data.SERVER_CORE_VERSION))
+                sendRelayServerType(Data.i18NBundle.getinput("relay.hi", Data.SERVER_CORE_VERSION))
             } else {
                 idCustom(queryString!!.substring(1))
             }
@@ -215,7 +216,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         return false
     }
 
-    override fun sendRelayServerType(msg: String) {
+    override fun sendRelayServerType(msg: String, run: ((String) -> Unit)?) {
         try {
             val o = GameOutputStream()
             // 理论上是随机数？
@@ -223,6 +224,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o.writeInt(5) //可能和-AX一样
             o.writeString(msg)
             sendPacket(o.createPacket(117)) //->118
+            relaySelect = run
+
             inputPassword = true
         } catch (e: Exception) {
             error(e)
@@ -254,7 +257,11 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             GameInputStream(packet).use { inStream ->
                 inStream.skip(5)
                 val id = inStream.readString().trim { it <= ' ' }
-                idCustom(id)
+                if (relaySelect == null) {
+                    idCustom(id)
+                } else {
+                    relaySelect!!(id)
+                }
             }
         } catch (e: Exception) {
             error(e)
@@ -290,22 +297,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o.writeBoolean(false)
             sendPacket(o.createPacket(170)) //+108+140
             //getRelayT4(Data.localeUtil.getinput("relay.server.admin.connect",relay.getId()));
-            sendPacket(
-                NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(
-                    Data.localeUtil.getinput(
-                        "relay.server.admin.connect",
-                        relay!!.id
-                    ), "ADMIN", 5
-                )
-            )
-            sendPacket(
-                NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(
-                    Data.localeUtil.getinput(
-                        "relay",
-                        relay!!.id
-                    ), "ADMIN", 5
-                )
-            )
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", relay!!.id), "ADMIN", 5))
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "ADMIN", 5))
             //ping();
 
             //debug(name)
@@ -383,7 +376,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o1.writeBytes(cachePacket!!.bytes)
             relay!!.admin!!.sendPacket(o1.createPacket(174))
             connectionAgreement.add(relay!!.groupNet)
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.localeUtil.getinput("relay", relay!!.id), "ADMIN", 5))
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "ADMIN", 5))
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
@@ -542,15 +535,16 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     private fun idCustom(inId: String) {
         var id = inId
         if (id.isEmpty()) {
-            sendRelayServerType(Data.localeUtil.getinput("relay.server.no", "空"))
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", "空"))
             return
         }
+
         if ("R".equals(id[0].toString(), ignoreCase = true)) {
             id = id.substring(1)
         } else if ("C".equals(id[0].toString(), ignoreCase = true)) {
             id = id.substring(1)
             if (id.length > 7 || id.length < 5) {
-                sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
+                sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
                 return
             }
             if ("M".equals(id[0].toString(), ignoreCase = true)) {
@@ -558,17 +552,17 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 if (Relay.getRelay(id) == null) {
                     newRelayId(id, true)
                 } else {
-                    sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
                 }
             } else {
                 if (id.length > 6) {
-                    sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
                     return
                 }
                 if (Relay.getRelay(id) == null) {
                     newRelayId(id, false)
                 } else {
-                    sendRelayServerType(Data.localeUtil.getinput("relay.id.re"))
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
                 }
             }
             return
@@ -586,15 +580,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                         addRelayConnect()
                         relay!!.setAddSize()
                     } else {
-                        sendRelayServerType(Data.localeUtil.getinput("relay.server.no", id))
+                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
                     }
                 } catch (e: Exception) {
                     Log.debug(e)
-                    sendRelayServerType(Data.localeUtil.getinput("relay.server.no", id))
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
                 }
             }
         } else {
-            sendRelayServerType(Data.localeUtil.getinput("relay.server.no", id))
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
         }
     }
 
@@ -611,9 +605,9 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     private fun newRelayId(id: String?, mod: Boolean) {
         relay = if (IsUtil.isBlank(id)) {
-            Relay(nanos())
+            Relay.getNoUpRelay()
         } else {
-            Relay(nanos(), id!!)
+            Relay.getNoUpRelay(id!!)
         }
         relay!!.isMod = mod
         sendRelayServerId()

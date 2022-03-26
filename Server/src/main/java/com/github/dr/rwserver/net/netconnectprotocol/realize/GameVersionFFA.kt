@@ -37,7 +37,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
             clog("[{0}]: {1}", player.name, message)
             if (player.isAdmin && TimeTaskData.PlayerAfkTask != null) {
                 TimeTaskData.stopPlayerAfkTask()
-                sendMessage(player, Data.localeUtil.getinput("afk.clear", player.name))
+                sendMessage(player, Data.i18NBundle.getinput("afk.clear", player.name))
             }
             if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
                 val strEnd = min(message.length, 3)
@@ -49,7 +49,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
             }
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
                 if (message.length > Data.config.MaxMessageLen) {
-                    sendSystemMessage(Data.localeUtil.getinput("message.maxLen"))
+                    sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
                     return
                 }
                 message = Data.core.admin.filterMessage(player, message)

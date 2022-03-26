@@ -24,17 +24,14 @@ class SendWeb(
     private val request: HttpRequest
 ) {
     private var cacheData: ByteArray? = null
-    private var status = HttpResponseStatus.OK
+    var status: HttpResponseStatus = HttpResponseStatus.OK
+    private val hand  = "RW-HPS Web [Version: ${Data.SERVER_CORE_VERSION}]"
 
     fun setData(bytes: ByteArray) {
         cacheData = bytes
     }
     fun setData(string: String) {
         cacheData = string.toByteArray(Data.UTF_8)
-    }
-
-    fun setStatus(status: HttpResponseStatus) {
-        this.status = status
     }
 
     fun send404() {
@@ -44,10 +41,12 @@ class SendWeb(
     }
 
     fun send() {
-        if (cacheData == null || status == null) {
+        if (cacheData == null) {
             throw NullPointerException()
         }
         val defaultFullHttpResponse = DefaultFullHttpResponse(request.protocolVersion(), status)
+        defaultFullHttpResponse.headers().set("server",hand)
+
         defaultFullHttpResponse.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, cacheData!!.size)
         defaultFullHttpResponse.content().writeBytes(cacheData)
 

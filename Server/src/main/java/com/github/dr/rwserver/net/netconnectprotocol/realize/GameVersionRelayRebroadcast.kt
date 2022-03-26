@@ -77,8 +77,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             // Multicast
             o.writeBoolean(true)
             sendPacket(o.createPacket(170)) //+108+140
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.localeUtil.getinput("relay.server.admin.connect", relay!!.id), "ADMIN", 5))
-            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.localeUtil.getinput("relay", relay!!.id), "ADMIN", 5))
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", relay!!.id), "ADMIN", 5))
+            sendPacket(NetStaticData.protocolData.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "ADMIN", 5))
             //ping();
 
             val nnn = StringFilteringUtil.filterChines(name)

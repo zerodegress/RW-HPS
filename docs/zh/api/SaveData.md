@@ -39,4 +39,27 @@ interface Value<T> {
 
 ### 使用 `PluginData`
 示例在此时比理论更高效  
-1.直接使用Plugin内的getPluginData();  
+
+1. 插件自己创建
+```java
+public class Main extends Plugin {
+    PluginData pluginData = new PluginData();
+
+    /**
+     * 这里主要做初始化
+     */
+    @Override
+    public void init() {
+        // 设置Bin文件位置
+        pluginData.setFileUtil(this.pluginDataFileUtil.toFile("ExampleData.bin"));
+        pluginData.read();
+
+        // 读取
+        long lastStartTime = this.pluginData.getData("lastStartTime", Time.concurrentMillis());
+        String lastStartTimeString = this.pluginData.getData("lastStartTimeString", Time.getUtcMilliFormat(1));
+        // 写入
+        this.pluginData.setData("lastStartTime", Time.concurrentMillis());
+        this.pluginData.setData("lastStartTimeString", Time.getUtcMilliFormat(1));
+    }
+}
+```

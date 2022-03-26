@@ -7,15 +7,6 @@
 
 ----------------------
 
-# GameServer
-
-## StartNet
-
-`StartNet` 用于创建一个新的 `StartNet`
-
-```java
-StartNet bot = new StartNet();
-```
 
 # Misc utils
 

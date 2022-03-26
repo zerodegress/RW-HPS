@@ -91,9 +91,9 @@ class Rules(config: BaseConfig) {
     val playerManage: PlayerManage
 
     /** AFK  */
-    var isAfk = true
+    var isAfk: Boolean = true
     /** Mpa Lock  */
-    var mapLock = false
+    var mapLock: Boolean = false
 
     /** AD  */
     @JvmField
@@ -106,7 +106,7 @@ class Rules(config: BaseConfig) {
     init {
         try {
             checkMaps()
-            clog(Data.localeUtil.getinput("server.load.maps"))
+            clog(Data.i18NBundle.getinput("server.load.maps"))
         } catch (exp: Exception) {
             debug("Read Error", exp)
         }
@@ -125,12 +125,12 @@ class Rules(config: BaseConfig) {
     fun init() {
         CustomEvent()
 
-        isAfk = Data.core.pluginData.getData("Rules.IsAfk") { isAfk }
-        mapLock = Data.core.pluginData.getData("Rules.MapLock") { mapLock }
+        isAfk = Data.core.settings.getData("Rules.IsAfk") { isAfk }
+        mapLock = Data.core.settings.getData("Rules.MapLock") { mapLock }
 
         Threads.addSavePool {
-            Data.core.pluginData.setData("Rules.IsAfk",isAfk)
-            Data.core.pluginData.setData("Rules.MapLock",mapLock)
+            Data.core.settings.setData("Rules.IsAfk",isAfk)
+            Data.core.settings.setData("Rules.MapLock",mapLock)
         }
     }
 

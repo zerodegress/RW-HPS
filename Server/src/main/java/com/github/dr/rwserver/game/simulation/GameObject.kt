@@ -23,7 +23,7 @@ abstract class GameObject() : SyncedObject {
         fastGameObjectList.add(this)
     }
 
-    fun remove() {
+    open fun remove() {
         gameObjectList.remove(this)
         fastGameObjectList.remove(this)
         this.deleted = true

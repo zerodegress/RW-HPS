@@ -33,7 +33,7 @@ class Event : AbstractEvent {
 
         if (Data.core.admin.bannedUUIDs.contains(player.uuid)) {
             try {
-                player.kickPlayer(player.localeUtil.getinput("kick.ban"))
+                player.kickPlayer(player.i18NBundle.getinput("kick.ban"))
             } catch (ioException: IOException) {
                 error("[Player] Send Kick Player Error", ioException)
             }
@@ -44,7 +44,7 @@ class Event : AbstractEvent {
             val info = Data.core.admin.playerDataCache[player.uuid]
             if (info.timesKicked > millis()) {
                 try {
-                    player.kickPlayer(player.localeUtil.getinput("kick.you.time"))
+                    player.kickPlayer(player.i18NBundle.getinput("kick.you.time"))
                 } catch (ioException: IOException) {
                     error("[Player] Send Kick Player Error", ioException)
                 }
@@ -54,7 +54,7 @@ class Event : AbstractEvent {
             }
         }
 
-        Call.sendSystemMessage(Data.localeUtil.getinput("player.ent", player.name))
+        Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
 
 
 
@@ -115,7 +115,7 @@ class Event : AbstractEvent {
         Data.core.admin.bannedUUIDs.add(player.uuid)
         Data.core.admin.bannedIPs.add(player.con!!.ip)
         try {
-            player.kickPlayer(player.localeUtil.getinput("kick.ban"))
+            player.kickPlayer(player.i18NBundle.getinput("kick.ban"))
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }

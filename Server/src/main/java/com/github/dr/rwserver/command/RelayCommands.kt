@@ -63,7 +63,7 @@ class RelayCommands(handler: CommandHandler) {
     }
 
     companion object {
-        private val localeUtil = Data.localeUtil
+        private val localeUtil = Data.i18NBundle
     }
 
     init {

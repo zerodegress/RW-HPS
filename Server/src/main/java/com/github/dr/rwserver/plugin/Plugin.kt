@@ -29,7 +29,7 @@ abstract class Plugin {
      * @return 是否成功
      */
     fun loadLang(lang: String,k: String, v: String): Boolean {
-        return Data.localeUtilMap[lang]?.addLang(k,v) == true
+        return Data.i18NBundleMap[lang]?.addLang(k,v) == true
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */

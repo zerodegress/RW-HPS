@@ -74,7 +74,7 @@ class PanelWebSocket : WebSocket() {
                 des = if (x.description.startsWith("#")) {
                     des.substring(1)
                 } else {
-                    Data.localeUtil.getinput(des)
+                    Data.i18NBundle.getinput(des)
                 }
                 cmd["d"] = des
                 cmdList.add(cmd)

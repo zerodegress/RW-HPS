@@ -99,7 +99,7 @@ class AdSpecializationNet(connectionAgreement: ConnectionAgreement) : GameVersio
                     }
                     return false
                 }
-                val localeUtil = Data.localeUtilMap["CN"]
+                val localeUtil = Data.i18NBundleMap["CN"]
                 player = Data.game.playerManage.addPlayer(this, uuid, name, localeUtil)
 
                 connectionAgreement.add(NetStaticData.groupNet)

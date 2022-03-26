@@ -55,7 +55,7 @@ class UpList : Plugin() {
                     "add" -> { if (args.size > 1) add(log,args[1]) else add(log) }
                     "update" -> update()
                     "remove" -> remove(log)
-                    "help" -> log[Data.localeUtil.getinput("uplist.help")]
+                    "help" -> log[Data.i18NBundle.getinput("uplist.help")]
                     else -> log["Check UpList Command !"]
                 }
             } else {
@@ -122,20 +122,20 @@ class UpList : Plugin() {
         val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultUp).contains(serverID)
         if (addGs1 || addGs4) {
             if (addGs1 && addGs4) {
-                Log.clog(Data.localeUtil.getinput("err.yesList"))
+                Log.clog(Data.i18NBundle.getinput("err.yesList"))
             } else {
-                Log.clog(Data.localeUtil.getinput("err.ynList"))
+                Log.clog(Data.i18NBundle.getinput("err.ynList"))
             }
         } else {
-            Log.clog(Data.localeUtil.getinput("err.noList"))
+            Log.clog(Data.i18NBundle.getinput("err.noList"))
         }
 
         val checkPortGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", openData).contains("true")
         val checkPortGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", openData).contains("true")
         if (checkPortGs1 || checkPortGs4) {
-            Log.clog(Data.localeUtil.getinput("err.yesOpen"))
+            Log.clog(Data.i18NBundle.getinput("err.yesOpen"))
         } else {
-            Log.clog(Data.localeUtil.getinput("err.noOpen"))
+            Log.clog(Data.i18NBundle.getinput("err.noOpen"))
         }
 
         TimeTaskData.CustomUpServerListTask = Threads.newThreadService2({update()}, 50, 50, TimeUnit.SECONDS)

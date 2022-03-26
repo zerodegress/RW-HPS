@@ -68,7 +68,7 @@ class Vote {
 
     fun toVote(votePlayer: Player, playerPick: String) {
         if (playerList.contains(votePlayer.uuid)) {
-            votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.rey"))
+            votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.rey"))
             return
         }
         
@@ -80,28 +80,28 @@ class Vote {
                 if (votePlayer.team == player.team) {
                     this.pass++
                     playerList.add(votePlayer.uuid)
-                    votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.y"))
+                    votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.y"))
                     votePlayerIng()
                 } else {
-                    votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.team"))
+                    votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.team"))
                 }
             } else {
                 this.pass++
                 playerList.add(votePlayer.uuid)
-                votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.y"))
+                votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.y"))
                 votePlayerIng()
             }
         } else if (noAccapt == playerPick) {
             if (isTeam) {
                 if (votePlayer.team == player.team) {
                     playerList.add(votePlayer.uuid)
-                    votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.n"))
+                    votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.n"))
                 } else {
-                    votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.team"))
+                    votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.team"))
                 }
             } else {
                 playerList.add(votePlayer.uuid)
-                votePlayer.sendSystemMessage(votePlayer.localeUtil.getinput("vote.n"))
+                votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.n"))
             }
         }
         inspectEnd()
@@ -112,7 +112,7 @@ class Vote {
         when {
             commandStartData.contains(command) -> commandStartData[command]!!.invoke(this)
             else -> {
-                player.sendSystemMessage(player.localeUtil.getinput("vote.end.err", command))
+                player.sendSystemMessage(player.i18NBundle.getinput("vote.end.err", command))
                 clearUp()
             }
         }

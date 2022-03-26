@@ -66,7 +66,7 @@ public class LibraryManager {
      * 加载并添加到URLClassLoader
      */
     public final void loadToClassLoader() {
-        Log.clog(Data.localeUtil.getinput("server.load.jar"));
+        Log.clog(Data.i18NBundle.getinput("server.load.jar"));
         load();
         try {
             if (ClassLoader.getSystemClassLoader() instanceof URLClassLoader) {
@@ -94,7 +94,7 @@ public class LibraryManager {
             }
         } catch (Exception e) {
             Log.fatal("Class Load",e);
-            Log.clog(Data.localeUtil.getinput("load.err"));
+            Log.clog(Data.i18NBundle.getinput("load.err"));
         }
     }
 

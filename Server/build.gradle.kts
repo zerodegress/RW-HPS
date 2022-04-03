@@ -1,8 +1,7 @@
 plugins {
 	kotlin("jvm") version "1.6.10"
-	id("me.him188.maven-central-publish") version "1.0.0-dev-3"
+	`maven-publish`
 }
-
 
 //Netty Version
 val nettyVersion = "4.1.75.Final"
@@ -40,16 +39,6 @@ dependencies {
 	api("com.squareup.okhttp3:okhttp:4.9.3") {
 		exclude(group = "org.jetbrains.kotlin")
 	}
-
-	compileOnly("commons-io:commons-io:2.11.0")
-	compileOnly("it.unimi.dsi:fastutil:8.5.8")
-	//compileOnly group: "org.bouncycastle", name: "bcprov-jdk15on", version: "1.69"
-
-	//compileOnly fileTree(dir:"libs",include:["*.jar"])
-	//compileOnly group: "org.quartz-scheduler", name: "quartz", version: "2.3.2"
-	//compileOnly group: "com.github.oshi", name: "oshi-core", version: "5.5.0"
-
-
 }
 
 kotlin {
@@ -88,34 +77,57 @@ tasks.jar {
 		attributes(mapOf("Main-Class" to "com.github.dr.rwserver.Main"))
 		attributes(mapOf("Launcher-Agent-Class" to  "com.github.dr.rwserver.dependent.LibraryManager"))
 	}
-
-	/*
-	from (configurations.compileClasspath.get().map {
-		if (it.isDirectory) it else zipTree(it)
-	})*/
 }
 
-mavenCentralPublish {
-	groupId = "com.github.RW-HPS"
-	artifactId = "Server"
-	description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
+publishing {
+	publications {
+		create<MavenPublication>("maven") {
+			val mavenPublication: MavenPublication = this
+			groupId = "com.github.RW-HPS"
+			artifactId = "Server"
+			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
+			version = "1.0.0"
 
-	pom {
-		scm {
-			url.set("https://github.com/RW-HPS/RW-HPS")
-			connection.set("scm:https://github.com/RW-HPS/RW-HPS.git")
-			developerConnection.set("scm:git@github.com:RW-HPS/RW-HPS.git")
-		}
+			from (components.getByName("java"))
 
-		developers {
-			developer {
-				id.set("RW-HPS")
-				name.set("RW-HPS Technologies")
+			versionMapping {
+				usage("java-api") {
+					fromResolutionOf("runtimeClasspath")
+				}
+				usage("java-runtime") {
+					fromResolutionResult()
+				}
+			}
+
+			pom {
+				scm {
+					url.set("https://github.com/RW-HPS/RW-HPS")
+					connection.set("scm:https://github.com/RW-HPS/RW-HPS.git")
+					developerConnection.set("scm:git@github.com:RW-HPS/RW-HPS.git")
+				}
+
+				licenses {
+					license {
+						name.set("GNU AGPLv3")
+						url.set("https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE")
+					}
+				}
+
+				developers {
+					developer {
+						id.set("RW-HPS")
+						name.set("RW-HPS Technologies")
+					}
+				}
+
+			}
+
+			pom.withXml {
+				val root = asNode()
+				root.appendNode("description", project.description)
+				root.appendNode("name", project.name)
+				root.appendNode("url", "https://github.com/RW-HPS/RW-HPS")
 			}
 		}
-
 	}
-	singleDevGithubProject("RW-HPS", "RW-HPS")
-	licenseAGplV3()
-	deploymentServerUrl = null
 }

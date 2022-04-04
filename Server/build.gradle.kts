@@ -89,6 +89,7 @@ publishing {
 			version = "1.0.0"
 
 			from (components.getByName("java"))
+			from (components.getByName("kotlin"))
 
 			versionMapping {
 				usage("java-api") {

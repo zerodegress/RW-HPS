@@ -88,8 +88,8 @@ publishing {
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
 			version = "1.0.0"
 
-			from (components.getByName("java"))
-			from (components.getByName("kotlin"))
+			//from (components.getByName("java"))
+			from (components["kotlin"])
 
 			versionMapping {
 				usage("java-api") {

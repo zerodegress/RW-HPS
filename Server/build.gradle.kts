@@ -10,7 +10,7 @@ val nettyVersion = "4.1.75.Final"
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
+	api("org.jetbrains.kotlin:kotlin-stdlib:1.6.20")
 
 //	api(project(":Util"))
 	//api "cn.hutool:hutool-socket:5.7.5"
@@ -32,21 +32,12 @@ dependencies {
 	api("com.github.deng-rui:RUDP:2.0.0")
 	api("com.github.deng-rui:Compress-Zip:1.0.0")
 
-	api("com.google.code.gson:gson:2.8.9")
+	api("com.google.code.gson:gson:2.9.0")
 
 	//compileOnly group: "com.ip2location", name: "ip2location-java", version: "8.5.0"
 	//compileOnly group: "com.alibaba", name: "fastjson", version: "1.2.58"
 	api("com.squareup.okhttp3:okhttp:4.9.3") {
 		exclude(group = "org.jetbrains.kotlin")
-	}
-}
-
-kotlin {
-	sourceSets {
-		all {
-			languageSettings.enableLanguageFeature("InlineClasses")
-			languageSettings.optIn("kotlin.Experimental")
-		}
 	}
 }
 
@@ -74,22 +65,21 @@ tasks.jar {
 	exclude("META-INF/*/*/*/*.xml")
 
 	manifest {
-		attributes(mapOf("Main-Class" to "com.github.dr.rwserver.Main"))
-		attributes(mapOf("Launcher-Agent-Class" to  "com.github.dr.rwserver.dependent.LibraryManager"))
+		attributes(mapOf("Main-Class" to "cn.rwhps.server.Main"))
+		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.LibraryManager"))
 	}
 }
 
 publishing {
 	publications {
 		create<MavenPublication>("maven") {
-			val mavenPublication: MavenPublication = this
 			groupId = "com.github.RW-HPS"
 			artifactId = "Server"
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
 			version = "1.0.0"
 
-			//from (components.getByName("java"))
-			from (components["kotlin"])
+			from (components.getByName("java"))
+			//from (components.getByName("kotlin"))
 
 			versionMapping {
 				usage("java-api") {

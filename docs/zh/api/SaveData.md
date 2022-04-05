@@ -50,6 +50,7 @@ public class Main extends Plugin {
      */
     @Override
     public void init() {
+        // this.pluginDataFileUtil 是 继承Plugin后自动生成
         // 设置Bin文件位置
         pluginData.setFileUtil(this.pluginDataFileUtil.toFile("ExampleData.bin"));
         pluginData.read();

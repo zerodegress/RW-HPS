@@ -14,6 +14,7 @@ import cn.rwhps.server.command.CoreCommands
 import cn.rwhps.server.command.LogCommands
 import cn.rwhps.server.core.Initialization
 import cn.rwhps.server.core.thread.Threads.newThreadCore
+import cn.rwhps.server.custom.LoadCoreCustomPlugin
 import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.mods.ModManage
@@ -85,7 +86,7 @@ object Main {
 
         /* 初始化Plugin */
         init(getFolder(Data.Plugin_Plugins_Path))
-        //LoadCoreCustomPlugin()
+        LoadCoreCustomPlugin()
 
         runOnEnable()
         runRegisterEvents()

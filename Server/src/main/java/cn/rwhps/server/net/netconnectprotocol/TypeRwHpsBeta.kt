@@ -62,6 +62,11 @@ class TypeRwHpsBeta : TypeRwHps {
                         }
                     }
                 }
+
+                0 -> {
+                    // 忽略空包
+                }
+
                 else -> {
                     Log.warn("[Unknown Package]", """
                             Type : ${packet.type} Length : ${packet.bytes.size}

@@ -614,6 +614,13 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun sendRelayServerTypeReply(packet: Packet) {
         try {
             val id = relayServerTypeReplyInternal(packet)
+
+            // 解决被扫列表中的RELAY 而不是主动调用
+            if (relaySelect == null) {
+                disconnect()
+                return
+            }
+
             relaySelect!!(id)
         } catch (e: Exception) {
             Log.error(e)

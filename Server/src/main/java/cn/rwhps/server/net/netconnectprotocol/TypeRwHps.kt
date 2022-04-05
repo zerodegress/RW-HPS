@@ -78,6 +78,10 @@ open class TypeRwHps : TypeConnect {
 
                 118 -> con.sendRelayServerTypeReply(packet)
 
+                0 -> {
+                    // 忽略空包
+                }
+
                 else -> {
                     Log.warn("[Unknown Package]", """
                         Type : ${packet.type} Length : ${packet.bytes.size}

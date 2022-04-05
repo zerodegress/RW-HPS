@@ -97,7 +97,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 - 游戏重连
 - 自定义地图
 - 保存的游戏
-- 不正宗的Mods支持 (指不能加载rwmod)
+- 正宗的Mods支持
 
 **扩展功能**
 - 加载插件
@@ -116,7 +116,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 - [ ] 模拟层
 - [ ] Vote (Bug :( )
 - [ ] 1.15.P*
-- [ ] Load RWMOD
+- [x] Load RWMOD
 - [ ] 热修改游戏进度
 - [ ] WEB面板
 

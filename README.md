@@ -31,7 +31,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - Game reconnection
 - Custom map
 - Load Save Game
-- Mods Support (rwmod cannot be loaded directly)
+- Mods Support
 
 **Ex**
 - Loading plugins
@@ -50,7 +50,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - [ ] Analog Layer
 - [ ] Vote (Bug :( )
 - [ ] 1.15.P*
-- [ ] Load RWMOD
+- [x] Load RWMOD
 - [ ] Hot modify game progress
 - [ ] GamePanel
 

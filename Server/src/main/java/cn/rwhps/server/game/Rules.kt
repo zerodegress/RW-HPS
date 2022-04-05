@@ -104,7 +104,7 @@ class Rules(private var config: BaseConfig) {
     var lockTeam = false
     val mapsData = OrderedMap<String, MapData>(8)
 
-    val tickGame = AtomicInteger()
+    val tickGame = AtomicInteger(10)
 
     init {
         try {
@@ -142,6 +142,8 @@ class Rules(private var config: BaseConfig) {
 
         gameCommandCache.clear()
         playerManage.cleanPlayerAllData()
+        // 重置Tick
+        tickGame.set(10)
 
         income = config.DefIncome
         val maxPlayer = config.MaxPlayer

@@ -57,7 +57,6 @@ class Event : AbstractEvent {
         Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
 
 
-
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 

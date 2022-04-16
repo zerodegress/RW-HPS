@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets
 /**
  * Realize basic network information packaging
  * The game protocol compulsory inheritance of this class
- * @author Dr
+ * @author RW-HPS/Dr
  * @date 2021/12/16 08:55:26
  */
 abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionAgreement) {

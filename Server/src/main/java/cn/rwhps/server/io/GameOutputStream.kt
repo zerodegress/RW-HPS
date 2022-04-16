@@ -17,7 +17,7 @@ import java.io.DataOutputStream
 import java.io.IOException
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  */
 open class GameOutputStream @JvmOverloads constructor(private var buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
 

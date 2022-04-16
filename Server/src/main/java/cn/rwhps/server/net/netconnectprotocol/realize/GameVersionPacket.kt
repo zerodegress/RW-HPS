@@ -35,7 +35,7 @@ import java.io.IOException
 import java.math.BigInteger
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
 open class GameVersionPacket : AbstractNetPacket {

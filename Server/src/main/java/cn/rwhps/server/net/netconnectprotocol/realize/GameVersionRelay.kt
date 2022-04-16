@@ -64,7 +64,7 @@ import java.util.stream.IntStream
  * @property version Protocol version
  * @constructor
  *
- * @author Dr
+ * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
 open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectRelay {

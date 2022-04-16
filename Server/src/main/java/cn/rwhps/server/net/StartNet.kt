@@ -37,7 +37,7 @@ import java.net.BindException
 import java.net.ServerSocket
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  * 遵守NetGameServer服务对外最少开放接口,尽量内部整合
  */
 class StartNet {

@@ -41,7 +41,7 @@ import java.util.stream.IntStream
  * @property version Protocol version
  * @constructor
  *
- * @author Dr
+ * @author RW-HPS/Dr
  */
 class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : GameVersionRelay(connectionAgreement) {
     private lateinit var lastSentPacket: Packet

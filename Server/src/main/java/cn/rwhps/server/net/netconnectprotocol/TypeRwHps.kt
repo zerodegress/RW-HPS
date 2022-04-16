@@ -68,6 +68,9 @@ open class TypeRwHps : TypeConnect {
                 // 竞争 谁先到就用谁
                 PacketType.PACKET_SYNC -> if (Data.game.gameSaveCache == null) {
                     val gameSavePacket = GameSavePacket(packet)
+                    //gameSavePacket.analyze()
+                    //Core.exit()
+
                     if (gameSavePacket.checkTick()) {
                         Data.game.gameSaveCache = gameSavePacket
                         synchronized(Data.game.gameSaveWaitObject) {

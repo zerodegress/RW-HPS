@@ -40,7 +40,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.min
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  * @date 2020/9/5 17:02:33
  */
 
@@ -620,7 +620,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 disconnect()
                 return
             }
-
             relaySelect!!(id)
         } catch (e: Exception) {
             Log.error(e)
@@ -645,6 +644,4 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun hashCode(): Int {
         return player.hashCode()
     }
-
-
 }

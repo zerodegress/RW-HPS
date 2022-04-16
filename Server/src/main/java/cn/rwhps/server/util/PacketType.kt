@@ -15,7 +15,7 @@ package cn.rwhps.server.util
  * From Game-Ilb.jar and Rukkit
  *
  * @author [RukkitDev](https://github.com/RukkitDev)
- * @author Dr
+ * @author RW-HPS/Dr
  */
 object PacketType {
     const val PACKET_SERVER_DEBUG = 2000

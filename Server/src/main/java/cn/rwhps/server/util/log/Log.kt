@@ -18,7 +18,7 @@ import java.text.MessageFormat
 
 /**
  * Log Util
- * @author Dr
+ * @author RW-HPS/Dr
  * @version 1.1
  * @date 2020年3月8日星期日 3:54
  * 练手轮子? :P

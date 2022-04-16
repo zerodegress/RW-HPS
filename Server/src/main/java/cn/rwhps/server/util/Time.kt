@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  */
 object Time {
     /** 高并发下的效率提升  */

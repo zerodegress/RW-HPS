@@ -24,7 +24,7 @@ import java.lang.reflect.Field
 
 /**
  * Save data for serialization and deserialization
- * @author Dr
+ * @author RW-HPS/Dr
  */
 data class BaseConfig(
     val DefStartCommand: String = "start",

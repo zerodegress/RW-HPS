@@ -12,36 +12,96 @@ package cn.rwhps.server.data.mods
 import cn.rwhps.server.Main
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.io.GameOutputStream
+import cn.rwhps.server.mods.ModsIniData
 import cn.rwhps.server.mods.ModsLoad
 import cn.rwhps.server.struct.ObjectMap
+import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.file.FileName
 import cn.rwhps.server.util.file.FileUtil
-import cn.rwhps.server.util.io.IoRead
 import cn.rwhps.server.util.log.Log
 
-object ModManage {
-    private val coreName = "core_RW-HPS_units_114.zip"
-    private val modsData = ObjectMap<String,ObjectMap<String,Int>>()
+/**
+ * Mods 加载管理器
+ */
+internal object ModManage {
+    private const val coreName = "core_RW-HPS_units_114.zip"
+    private val modsData = OrderedMap<String,ObjectMap<String, ModsIniData>>()
     private var loadUnitsCount = 0
     private var fileMods: FileUtil? = null
 
     fun load(fileUtil: FileUtil): Int {
+        loadCore()
         this.fileMods = fileUtil
-        var loadCount = -1
+        var loadCount = 0
         fileMods!!.fileList.each {
+            // 只读取 RWMOD 和 ZIP
+            if (!it.name.endsWith(".rwmod") && !it.name.endsWith(".zip")) {
+                return@each
+            }
+
             loadCount++
             val modsDataCache = ModsLoad(it).load()
+
             modsData.put(FileName.getFileName(it.name), modsDataCache)
             loadUnitsCount += modsDataCache.size
         }
         return loadCount
     }
 
-    fun loadCore() {
-        if (!FileUtil.getFolder(Data.Plugin_Mods_Path).toFile(coreName).exists()) {
-            FileUtil.getFolder(Data.Plugin_Mods_Path).toFile(coreName).writeFileByte(IoRead.readInputStreamBytes(Main::class.java.getResourceAsStream("/$coreName")!!),false)
+    private fun loadCore() {
+        val modsDataCache = ModsLoad(Main::class.java.getResourceAsStream("/$coreName")!!).load()
+
+        // 我是傻逼 忘记加了
+        loadUnitsCount += modsDataCache.size
+        /*
+        // overrideAndReplace
+        modsData.values().forEach {
+            val modData = it
+            modData.forEach {
+                val previousLayerIt = it
+
+                val overrideAndReplace = previousLayerIt.value.getValue("core","overrideAndReplace","")
+                if (!overrideAndReplace.isNullOrBlank()) {
+                    overrideAndReplace.split(",").forEach { replaceName ->
+                        // 被替代的单位
+                        val name = replaceName.trim()
+                        if (!name.equals("NONE",ignoreCase = true)) {
+                            if (!modsDataCache.containsKey(name)) {
+                                // 如果不在核心单位
+                                if (GameUnitType.GameUnits.from(name) == null) {
+                                    // 设个flag 看看有没有这个
+                                    var flag = true
+
+                                    // 是不是替换自己
+                                    if (modData.containsKey(name)) {
+                                        //modData.remove(name)
+                                        //modData.remove(previousLayerIt.key)
+                                        //modData.put(it.value.getName(),previousLayerIt.value)
+                                        flag = false
+                                    }
+
+                                    if (flag) {
+                                        throw RwGamaException.ModsException("[Replacement Failed] $name")
+                                    }
+                                } else {
+                                    //modData.remove(previousLayerIt.key)
+                                    //modsDataCache.put(name,previousLayerIt.value)
+                                    //modData.remove(name)
+                                    //modsDataCache.put(it.value.getName(),it.value)
+                                }
+                            } else {
+                                //modData.remove(previousLayerIt.key)
+                                //modsDataCache.remove(name)
+                                //modsDataCache.put(it.value.getName(),previousLayerIt.value)
+                            }
+                        }
+                    }
+                }
+            }
         }
+        */
+        modsData.put(coreName, modsDataCache)
     }
 
     fun loadUnits() {
@@ -57,23 +117,48 @@ object ModManage {
             val core = (modName == coreName)
 
             try {
-                modData.forEach {
-                    stream.writeString(it.key)
-                    stream.writeInt(it.value)
+                modData.forEach { iniData ->
+
+                    stream.writeString(iniData.key)
+                    stream.writeInt(iniData.value.getMd5())
                     stream.writeBoolean(true)
                     if (core) {
                         stream.writeBoolean(false)
                     } else {
                         stream.writeBoolean(true)
-                        stream.writeString(modName)
+                        stream.writeString(modName!!)
                     }
                     stream.writeLong(0)
                     stream.writeLong(0)
                 }
-                Log.debug("Load OK",modName)
+                Log.debug("Load OK", if (core) "Core Units" else modName!!)
             } catch (e: Exception) {
                 Log.error(e)
             }
+        }
+    }
+
+    fun test() {
+        val ls = FileUtil.getFile("Units.txt").readFileListStringData()
+
+        val stream: GameOutputStream = Data.utilData
+        stream.reset()
+        stream.writeInt(1)
+        stream.writeInt(ls.size())
+
+        ls.each {
+            val a = it.split("%#%")
+            stream.writeString(a[0])
+            stream.writeInt(a[1].toInt())
+            stream.writeBoolean(true)
+            if (a.size < 3) {
+                stream.writeBoolean(false)
+            } else {
+                stream.writeBoolean(true)
+                stream.writeString(a[2])
+            }
+            stream.writeLong(0)
+            stream.writeLong(0)
         }
     }
 

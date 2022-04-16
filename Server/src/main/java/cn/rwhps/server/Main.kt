@@ -16,6 +16,7 @@ import cn.rwhps.server.core.Initialization
 import cn.rwhps.server.core.thread.Threads.newThreadCore
 import cn.rwhps.server.custom.LoadCoreCustomPlugin
 import cn.rwhps.server.data.base.BaseConfig
+import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.mods.ModManage
 import cn.rwhps.server.data.plugin.PluginEventManage.Companion.add
@@ -49,7 +50,7 @@ import java.util.logging.Logger
  */
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  */
 object Main {
     @JvmStatic
@@ -68,6 +69,7 @@ object Main {
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
         Data.config = BaseConfig.stringToClass()
+        Data.configTest = BaseTestConfig.stringToClass()
         Data.core.load()
 
         clog(Data.i18NBundle.getinput("server.hi"))
@@ -95,9 +97,9 @@ object Main {
 
 
         /* Load Mod */
-        ModManage.loadCore()
         clog(Data.i18NBundle.getinput("server.loadMod",ModManage.load(getFolder(Data.Plugin_Mods_Path))))
         ModManage.loadUnits()
+        //ModManage.test()
 
 
         /* 按键监听 */

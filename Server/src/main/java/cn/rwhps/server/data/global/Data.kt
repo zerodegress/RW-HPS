@@ -12,6 +12,7 @@ package cn.rwhps.server.data.global
 import cn.rwhps.server.command.ex.Vote
 import cn.rwhps.server.core.Application
 import cn.rwhps.server.data.base.BaseConfig
+import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.game.Rules
 import cn.rwhps.server.io.output.CompressOutputStream
 import cn.rwhps.server.struct.ObjectMap
@@ -22,7 +23,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
 /**
- * @author Dr
+ * @author RW-HPS/Dr
  */
 object Data {
     const val Plugin_Data_Path = "/data"
@@ -38,8 +39,8 @@ object Data {
 	 * 插件默认变量
 	 */
     /** 自定义包名  */
-    const val SERVER_ID = "com.github.dr.rwserver"
-    const val SERVER_CORE_VERSION = "5.4.2"
+    const val SERVER_ID = "cn.rwhps.server"
+    const val SERVER_CORE_VERSION = "5.4.3"
     //public static final int SERVER_VERSION2 = 1.13.6;
     /** 单位数据缓存  */
 	@JvmField
@@ -72,6 +73,7 @@ object Data {
     val urlData: LoadIni
 
     lateinit var config: BaseConfig
+    lateinit var configTest: BaseTestConfig
 
     /**
      * 可控变量

@@ -219,7 +219,7 @@ internal class ZipFileDecoder: ZipDecoderUtils {
     private fun isIni(inputStream: InputStream): Boolean {
         var result = false
         readFileData(inputStream) {
-            if (it.contains("core")) {
+            if (it.contains("core",ignoreCase = true) || it.contains("action",ignoreCase = true)) {
                 result = true
             }
         }

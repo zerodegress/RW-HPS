@@ -177,7 +177,7 @@ internal class ZipStreamDecoder: ZipDecoderUtils {
     private fun isIni(inputStream: InputStream): Boolean {
         var result = false
         FileStream.readFileData(inputStream) {
-            if (it.contains("core")) {
+            if (it.contains("core", ignoreCase = true) || it.contains("action", ignoreCase = true)) {
                 result = true
             }
         }

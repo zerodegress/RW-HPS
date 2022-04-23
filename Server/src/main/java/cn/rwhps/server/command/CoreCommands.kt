@@ -9,6 +9,8 @@
 
 package cn.rwhps.server.command
 
+import cn.rwhps.server.command.relay.RelayCommands
+import cn.rwhps.server.command.server.ServerCommands
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Core
 import cn.rwhps.server.core.Initialization
@@ -114,9 +116,7 @@ class CoreCommands(handler: CommandHandler) {
             Data.game.init()
 
             NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
-            NetStaticData.RwHps =
-                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
-                    .newInstance(IRwHps.NetType.ServerProtocol) as IRwHps
+            NetStaticData.RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.ServerProtocol) as IRwHps
 
             TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
             TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)

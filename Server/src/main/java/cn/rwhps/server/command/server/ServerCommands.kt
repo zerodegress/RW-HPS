@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.command
+package cn.rwhps.server.command.server
 
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Call.sendMessage
@@ -38,7 +38,7 @@ import java.io.IOException
 /**
  * @author RW-HPS/Dr
  */
-class ServerCommands(handler: CommandHandler) {
+internal class ServerCommands(handler: CommandHandler) {
     private fun registerPlayerCommand(handler: CommandHandler) {
         handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, _: StrCons ->
             val response = StringBuilder(arg[0])
@@ -208,7 +208,7 @@ class ServerCommands(handler: CommandHandler) {
                 log[Data.i18NBundle.getinput("err.startGame")]
             } else {
                 log[Data.i18NBundle.getinput("server.loadMod", ModManage.reLoadMods())]
-                Call.upDataGameData(true)
+                upDataGameData(true)
             }
 
         }
@@ -344,5 +344,7 @@ class ServerCommands(handler: CommandHandler) {
         registerPlayerCustomEx(handler)
 
         PluginManage.runRegisterServerCommands(handler)
+
+        ClientCommands(Data.CLIENT_COMMAND)
     }
 }

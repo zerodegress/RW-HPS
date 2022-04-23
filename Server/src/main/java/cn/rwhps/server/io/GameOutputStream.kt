@@ -13,6 +13,7 @@ import cn.rwhps.server.io.output.CompressOutputStream
 import cn.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.util.IsUtil
+import cn.rwhps.server.util.PacketType
 import java.io.DataOutputStream
 import java.io.IOException
 
@@ -22,6 +23,10 @@ import java.io.IOException
 open class GameOutputStream @JvmOverloads constructor(private var buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
 
     private var stream: DataOutputStream = DataOutputStream(buffer)
+
+    fun createPacket(type: PacketType): Packet {
+        return createPacket(type.type)
+    }
 
     fun createPacket(type: Int): Packet {
         try {

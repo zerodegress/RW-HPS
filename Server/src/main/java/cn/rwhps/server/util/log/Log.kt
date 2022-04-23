@@ -11,7 +11,7 @@ package cn.rwhps.server.util.log
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.plugin.Plugin
-import cn.rwhps.server.util.Time.getUtcMilliFormat
+import cn.rwhps.server.util.Time.getMilliFormat
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.MessageFormat
@@ -204,8 +204,8 @@ object Log {
             }
             i1++
         }
-        sb.append("UTC [")
-            .append(getUtcMilliFormat(1)).append("] ") //.append(LINE_SEPARATOR)
+        sb.append("[")
+            .append(getMilliFormat(1)).append("] ") //.append(LINE_SEPARATOR)
             .append(tag)
             .append(": ")
             .append(Data.LINE_SEPARATOR)
@@ -220,8 +220,8 @@ object Log {
     @JvmStatic
     fun clog(text: String) {
         val textCache = "[" +
-                        getUtcMilliFormat(1) +
-                        " UTC] " +
+                        getMilliFormat(1) +
+                        "] " +
                         text
         println(formatColors("$textCache&fr"))
     }

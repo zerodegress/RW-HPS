@@ -44,67 +44,20 @@ internal object ModManage {
             val modsDataCache = ModsLoad(it).load()
 
             modsData.put(FileName.getFileName(it.name), modsDataCache)
-            loadUnitsCount += modsDataCache.size
         }
         return loadCount
     }
 
     private fun loadCore() {
         val modsDataCache = ModsLoad(Main::class.java.getResourceAsStream("/$coreName")!!).load()
-
-        // 我是傻逼 忘记加了
-        loadUnitsCount += modsDataCache.size
-        /*
-        // overrideAndReplace
-        modsData.values().forEach {
-            val modData = it
-            modData.forEach {
-                val previousLayerIt = it
-
-                val overrideAndReplace = previousLayerIt.value.getValue("core","overrideAndReplace","")
-                if (!overrideAndReplace.isNullOrBlank()) {
-                    overrideAndReplace.split(",").forEach { replaceName ->
-                        // 被替代的单位
-                        val name = replaceName.trim()
-                        if (!name.equals("NONE",ignoreCase = true)) {
-                            if (!modsDataCache.containsKey(name)) {
-                                // 如果不在核心单位
-                                if (GameUnitType.GameUnits.from(name) == null) {
-                                    // 设个flag 看看有没有这个
-                                    var flag = true
-
-                                    // 是不是替换自己
-                                    if (modData.containsKey(name)) {
-                                        //modData.remove(name)
-                                        //modData.remove(previousLayerIt.key)
-                                        //modData.put(it.value.getName(),previousLayerIt.value)
-                                        flag = false
-                                    }
-
-                                    if (flag) {
-                                        throw RwGamaException.ModsException("[Replacement Failed] $name")
-                                    }
-                                } else {
-                                    //modData.remove(previousLayerIt.key)
-                                    //modsDataCache.put(name,previousLayerIt.value)
-                                    //modData.remove(name)
-                                    //modsDataCache.put(it.value.getName(),it.value)
-                                }
-                            } else {
-                                //modData.remove(previousLayerIt.key)
-                                //modsDataCache.remove(name)
-                                //modsDataCache.put(it.value.getName(),previousLayerIt.value)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        */
         modsData.put(coreName, modsDataCache)
     }
 
     fun loadUnits() {
+        modsData.values().forEach {
+            loadUnitsCount += it.size
+        }
+
         val stream: GameOutputStream = Data.utilData
         stream.reset()
         stream.writeInt(1)
@@ -173,4 +126,4 @@ internal object ModManage {
 
     fun getModsList(): Seq<String> =
         modsData.keys().toSeq()
-}
+    }

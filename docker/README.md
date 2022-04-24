@@ -56,8 +56,8 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ./data:/app/data
-	privileged: true
-	user: root
+    privileged: true
+    user: root
 ```
 
 > 后台运行

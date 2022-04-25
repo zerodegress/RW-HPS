@@ -40,8 +40,9 @@ jobs:
           --output "type=image,push=true" \
           --file Dockerfile \
           --tag $IMAGE_ID:$VERSION \
+          .
 
-      - name: Build Image And Push - latest - ghcr.io
+      - name: Build Image and Push - latest - ghcr.io
         # --platform=linux/amd64,linux/arm64/v8 \
         run: |
           declare -l IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.IMAGE_NAME }}

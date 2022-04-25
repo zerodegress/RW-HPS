@@ -31,7 +31,7 @@ jobs:
       - name: Build Image and Push - ghcr.io
         # --platform=linux/amd64,linux/arm64/v8 \
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.IMAGE_NAME }}
+          declare -l IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.IMAGE_NAME }}
           VERSION=${{ steps.vars.outputs.RELEASE_VERSION }}
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
@@ -44,7 +44,7 @@ jobs:
       - name: Build Image And Push - latest - ghcr.io
         # --platform=linux/amd64,linux/arm64/v8 \
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.IMAGE_NAME }}
+          declare -l IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.IMAGE_NAME }}
           echo IMAGE_ID=$IMAGE_ID
           docker buildx build \
           --platform=linux/amd64 \

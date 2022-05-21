@@ -16,14 +16,8 @@ import cn.rwhps.server.net.HttpRequestOkHttp
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.core.ServiceLoader
 import cn.rwhps.server.net.core.ServiceLoader.ServiceType
-import cn.rwhps.server.net.netconnectprotocol.RwHps
-import cn.rwhps.server.net.netconnectprotocol.TypeRelay
-import cn.rwhps.server.net.netconnectprotocol.TypeRelayRebroadcast
-import cn.rwhps.server.net.netconnectprotocol.TypeRwHps
-import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionPacket
-import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
-import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelayRebroadcast
-import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
+import cn.rwhps.server.net.netconnectprotocol.*
+import cn.rwhps.server.net.netconnectprotocol.realize.*
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.log.Log
 
@@ -148,10 +142,12 @@ class Initialization {
 
         internal fun loadService() {
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.ServerProtocol.name,          TypeRwHps::class.java)
+            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.ServerTestProtocol.name,      TypeRwHpsJump::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name,           TypeRelay::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name,  TypeRelayRebroadcast::class.java)
 
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerProtocol.name,          GameVersionServer::class.java)
+            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerTestProtocol.name,      GameVersionServerJump::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayProtocol.name,           GameVersionRelay::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayMulticastProtocol.name,  GameVersionRelayRebroadcast::class.java)
 

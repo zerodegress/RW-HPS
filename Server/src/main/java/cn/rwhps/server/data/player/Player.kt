@@ -160,26 +160,17 @@ class Player(
      */
     @JvmOverloads
     @Throws(NetException::class)
-    fun playerJumpsToAnotherServer(ip0: String, port: Int = 5123) {
-        if (!IsUtil.isDomainName(ip0)) {
+    fun playerJumpsToAnotherServer(ip: String, port: Int = 5123) {
+        if (!IsUtil.isDomainName(ip)) {
             throw NetException("[ERROR_DOMAIN] Error Domain")
         }
         if (con == null) {
             throw NetException("[CONNECT_CLOSE] Connect disconnect")
         }
 
-        var ip = "$ip0:$port"
-        val id = StringFilteringUtil.findMatchString(ip, "[a-zA-Z][a-zA-Z0-9_]{4,5}")
-        if (IsUtil.isBlank(id)) {
-            throw NetException("[NETWORK_IP_ERROR] Network ip error")
-        } else {
-            ip = id
-        }
-
         if (con is GameVersionServerJump) {
-            (con as GameVersionServerJump).jumpNewServer(ip)
+            (con as GameVersionServerJump).jumpNewServer("$ip:$port")
         } else {
-            // 这里不支持 RELAY ID
             connectServer = ConnectServer(ip,port,con!!)
         }
     }

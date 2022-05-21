@@ -9,7 +9,6 @@
 
 package cn.rwhps.server.util.log
 
-import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.struct.ObjectMap
 
 /**
@@ -44,37 +43,9 @@ internal object ColorCodes {
     internal val VALUES: Array<String>
 
     init {
-        val map: ObjectMap<String, String>
         //WIN :(
-        if (Data.core.isWindows) {
-            map = ObjectMap.of(
-                "ff", "",
-                "fr", "",
-                "fb", "",
-                "fi", "",
-                "fu", "",
-                "bk", "",
-                "r", "",
-                "g", "",
-                "y", "",
-                "b", "",
-                "p", "",
-                "c", "",
-                "lr", "",
-                "lg", "",
-                "ly", "",
-                "lm", "",
-                "lb", "",
-                "lc", "",
-                "w", "",
-                "bd", "",
-                "br", "",
-                "bg", "",
-                "by", "",
-                "bb", ""
-            )
-        } else {
-            map = ObjectMap.of(
+
+        val map: ObjectMap<String, String> = ObjectMap.of(
                 "ff", FLUSH,
                 "fr", RESET,
                 "fb", BOLD,
@@ -100,7 +71,7 @@ internal object ColorCodes {
                 "by", BACK_YELLOW,
                 "bb", BACK_BLUE
             )
-        }
+
         CODES = map.keys().toSeq().toArray(String::class.java)
         VALUES = map.values().toSeq().toArray(String::class.java)
     }

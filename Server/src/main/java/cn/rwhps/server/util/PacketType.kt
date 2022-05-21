@@ -17,7 +17,7 @@ package cn.rwhps.server.util
  * @author [RukkitDev](https://github.com/RukkitDev)
  * @author RW-HPS/Dr
  */
-enum class PacketType(val type: Int) {
+enum class PacketType(val typeInt: Int) {
     /* DEBUG */
     SERVER_DEBUG_RECEIVE(2000),
     SERVER_DEBUG(2001),
@@ -52,12 +52,15 @@ enum class PacketType(val type: Int) {
     TICK(10),
     GAMECOMMAND_RECEIVE(20),
     SYNCCHECKSUM_STATUS(31),
+    _30(30),
     SYNC(35),
 
     /* Relay */
     RELAY_117(117),
-    RELAY_118_117_REC(118),
+    RELAY_118_117_RETURN(118),
     RELAY_151(151),
+    RELAY_152_151_RETURN(152),
+
     RELAY_VERSION_INFO(163),
     FORWARD_HOST_SET(170),
     FORWARD_CLIENT_ADD(172),
@@ -65,6 +68,13 @@ enum class PacketType(val type: Int) {
     PACKET_FORWARD_CLIENT_FROM(174),
     PACKET_FORWARD_CLIENT_TO(175),
     PACKET_FORWARD_CLIENT_TO_REPEATED(176),
-    PACKET_RECONNECT_TO(178);
+    PACKET_RECONNECT_TO(178),
 
+
+    EMPTYP_ACKAGE(0),
+    NOT_RESOLVED(-1);
+
+    companion object {
+        fun from(type: Int?): PacketType = values().find { it.typeInt == type } ?: NOT_RESOLVED
+    }
 }

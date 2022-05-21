@@ -9,13 +9,14 @@
 
 package cn.rwhps.server.util.io
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStreamWriter
+import java.io.*
 import java.nio.charset.StandardCharsets
 
 object IoOutConversion {
+    @JvmStatic
+    @Throws(IOException::class)
+    fun outToOutStream(outputStream: OutputStream): OutputStreamWriter =
+        OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
     @JvmStatic
     @Throws(IOException::class)
     fun fileToOutStream(file: File, cover: Boolean): OutputStreamWriter =

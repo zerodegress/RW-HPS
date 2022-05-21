@@ -40,8 +40,6 @@ package cn.rwhps.server.util.serialization
  * 5、打印：当前字符。
  *
  */
-/**
- */
 internal object JsonFormatTool {
     /**
      * 单位缩进字符串。

@@ -234,7 +234,8 @@ object Log {
     private fun formatColors(text: String): String {
         var textCache = text
         for (i in ColorCodes.CODES.indices) {
-            textCache = textCache.replace("&" + ColorCodes.CODES[i], ColorCodes.VALUES[i])
+            textCache = textCache.replace("&${ColorCodes.CODES[i]}" , ColorCodes.VALUES[i])
+            textCache = textCache.replace("[${ColorCodes.CODES[i]}]", ColorCodes.VALUES[i])
         }
         return textCache
     }

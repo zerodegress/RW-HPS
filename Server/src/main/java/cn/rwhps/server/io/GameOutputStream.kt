@@ -25,7 +25,7 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
     private var stream: DataOutputStream = DataOutputStream(buffer)
 
     fun createPacket(type: PacketType): Packet {
-        return createPacket(type.type)
+        return createPacket(type.typeInt)
     }
 
     fun createPacket(type: Int): Packet {

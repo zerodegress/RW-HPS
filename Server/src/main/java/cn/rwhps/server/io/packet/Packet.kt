@@ -10,11 +10,34 @@
 package cn.rwhps.server.io.packet
 
 import cn.rwhps.server.util.ExtractUtil
+import cn.rwhps.server.util.PacketType
+import cn.rwhps.server.util.log.Log
 
 /**
  * @author RW-HPS/Dr
  */
-class Packet(@JvmField val type: Int, @JvmField val bytes: ByteArray) {
+class Packet(type0: Int, @JvmField val bytes: ByteArray) {
+    val type = PacketType.from(type0)
+
+    init {
+        if (type == PacketType.NOT_RESOLVED) {
+            Log.fatal("ERROR , $type0")
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is PacketType) {
+            return other.name == type.name && other.typeInt == type.typeInt
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = bytes.contentHashCode()
+        result = 31 * result + type.hashCode()
+        return result
+    }
+
     /**
      * Return detailed Packet data
      * @return Packet String

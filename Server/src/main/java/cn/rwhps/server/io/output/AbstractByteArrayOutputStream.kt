@@ -267,7 +267,7 @@ abstract class AbstractByteArrayOutputStream : OutputStream() {
      * @return 字节数组转字符串的内容
      * @see java.io.ByteArrayOutputStream.toString
      */
-    @Deprecated("", ReplaceWith("toString(Charset) or toString()", "java.nio.charset.Charset"))
+    @Deprecated("", ReplaceWith("toString(Charset.defaultCharset())", "java.nio.charset.Charset"))
     override fun toString(): String {
         return String(toByteArray()!!, Charset.defaultCharset())
     }

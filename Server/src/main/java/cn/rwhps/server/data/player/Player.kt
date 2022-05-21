@@ -14,11 +14,14 @@ import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.plugin.Value
 import cn.rwhps.server.data.totalizer.TimeAndNumber
 import cn.rwhps.server.func.Prov
+import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.game.ConnectServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
+import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.IsUtil
+import cn.rwhps.server.util.StringFilteringUtil
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
@@ -89,23 +92,23 @@ class Player(
     private var connectServer: ConnectServer? = null
 
     fun sendSystemMessage(@Nls text: String) {
-        con!!.sendSystemMessage(text)
+        con?.sendSystemMessage(text)
     }
 
     fun sendMessage(player: Player, @Nls text: String) {
-        con!!.sendChatMessage(text, player.name, player.team)
+        con?.sendChatMessage(text, player.name, player.team)
     }
 
     fun sendTeamData() {
-        con!!.sendTeamData(NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket())
+        con?.sendTeamData(NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket())
     }
 
     fun sendPopUps(@Nls msg: String,run: ((String) -> Unit)) {
-        con!!.sendRelayServerType(msg,run)
+        con?.sendRelayServerType(msg,run)
     }
 
     fun sync() {
-        con!!.sync()
+        con?.sync()
     }
 
     @JvmOverloads
@@ -141,18 +144,44 @@ class Player(
     }
 
     /**
-     * The player’s data on the local server is transferred to the new server
-     * At this time, the local server only forwards the player data and has nothing to do with the local player.
-     * The player will not exist in [Data.game.playerManage.playerGroup] and [Data.game.playerManage.playerAll]
-     * Player ⇄ LocalServer ⇄ NewServer
+     * Local player connects to new server
+     * For [IRwHps.NetType.ServerProtocol] :
+     *  At this time, the local server only forwards the player data and has nothing to do with the local player.
+     *  The player will not exist in [Data.game.playerManage.playerGroup] and [Data.game.playerManage.playerAll]
+     *  Player ⇄ LocalServer ⇄ NewServer
+     *
+     * For [IRwHps.NetType.ServerTestProtocol] :
+     *  At this time, the local server does not participate in the forwarding, and the client directly disconnects the server and joins the new server.
+     *  The player will not exist in [Data.game.playerManage.playerGroup] and [Data.game.playerManage.playerAll]
+     *  Player ⇄ NewServer
+     *
      * @param ip
      * @param port
      */
-    fun playerJumpsToAnotherServer(ip: String, port: Int) {
-        if (!IsUtil.isDomainName(ip)) {
-            throw NetException("ERROR_DOMAIN")
+    @JvmOverloads
+    @Throws(NetException::class)
+    fun playerJumpsToAnotherServer(ip0: String, port: Int = 5123) {
+        if (!IsUtil.isDomainName(ip0)) {
+            throw NetException("[ERROR_DOMAIN] Error Domain")
         }
-        connectServer = ConnectServer(ip,port,con!!)
+        if (con == null) {
+            throw NetException("[CONNECT_CLOSE] Connect disconnect")
+        }
+
+        var ip = "$ip0:$port"
+        val id = StringFilteringUtil.findMatchString(ip, "[a-zA-Z][a-zA-Z0-9_]{4,5}")
+        if (IsUtil.isBlank(id)) {
+            throw NetException("[NETWORK_IP_ERROR] Network ip error")
+        } else {
+            ip = id
+        }
+
+        if (con is GameVersionServerJump) {
+            (con as GameVersionServerJump).jumpNewServer(ip)
+        } else {
+            // 这里不支持 RELAY ID
+            connectServer = ConnectServer(ip,port,con!!)
+        }
     }
 
     /**

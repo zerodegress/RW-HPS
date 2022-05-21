@@ -16,8 +16,7 @@ class TimeAndNumber(
     private val conutMax: Int
 ) {
     private var startTime = 0
-    var time: Int = 0
-        private set
+    private var time: Int = 0
     var count: Int = 0
         set(value) {
             if (field == 0) {

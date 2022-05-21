@@ -8,12 +8,15 @@
  */
 package cn.rwhps.server.data.player
 
+import cn.rwhps.server.core.Call
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.IsUtil
 import java.util.*
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 class PlayerManage(private val maxPlayerSize: Int) {
     /** 混战分配  */
@@ -32,6 +35,8 @@ class PlayerManage(private val maxPlayerSize: Int) {
 
     /** 队伍数据  */
     private val playerData = arrayOfNulls<Player?>(maxPlayerSize)
+    /** 队伍切换锁 */
+    private val moveLock = ReentrantLock(true)
 
     fun addPlayer(con: GameVersionServer, uuid: String, name: String, i18NBundle: I18NBundle = Data.i18NBundle): Player {
         val player = Player(con, uuid, name, i18NBundle)
@@ -101,22 +106,24 @@ class PlayerManage(private val maxPlayerSize: Int) {
     /* TEAM  */
 
     private fun autoPlayerTeam(player: Player) {
-        if (amTeam) {
-            for (i in 0 until maxPlayerSize) {
-                if (playerData[i] == null) {
-                    playerData[i] = player
-                    player.site = i
-                    player.team = i
-                    return
+        moveLock.withLock {
+            if (amTeam) {
+                for (i in 0 until maxPlayerSize) {
+                    if (playerData[i] == null) {
+                        playerData[i] = player
+                        player.site = i
+                        player.team = i
+                        return
+                    }
                 }
-            }
-        } else {
-            for (i in 0 until maxPlayerSize) {
-                if (playerData[i] == null) {
-                    playerData[i] = player
-                    player.site = i
-                    player.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
-                    return
+            } else {
+                for (i in 0 until maxPlayerSize) {
+                    if (playerData[i] == null) {
+                        playerData[i] = player
+                        player.site = i
+                        player.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
+                        return
+                    }
                 }
             }
         }
@@ -134,6 +141,48 @@ class PlayerManage(private val maxPlayerSize: Int) {
         for (i in 0 until maxPlayerSize) {
             if (playerData[i] != null) {
                 playerData[i]!!.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
+            }
+        }
+    }
+
+    fun movePlayerSite(oldLocationIn: Int, newLocationIn: Int, newTeam: Int, admin: Boolean = false) {
+        moveLock.withLock {
+            val oldIndex = oldLocationIn - 1
+            val newIndex = newLocationIn - 1
+
+            if (newIndex >= 0) {
+                /* 位置不能过限*/
+                if (oldIndex < maxPlayerSize && newIndex < maxPlayerSize) {
+                    val od = getPlayerArray(oldIndex)
+                    val nw = getPlayerArray(newIndex)
+                    if (od == null) {
+                        return
+                    }
+                    if (nw == null) {
+                        removePlayerArray(oldIndex)
+                        od.site = newIndex
+                        if (newTeam > -1) {
+                            od.team = newTeam
+                        }
+                        setPlayerArray(newIndex,od)
+                    } else {
+                        if (admin) {
+                            od.site = newIndex
+                            nw.site = oldIndex
+                            if (newTeam > -1) {
+                                od.team = newTeam
+                            }
+                            setPlayerArray(newIndex,od)
+                            setPlayerArray(oldIndex,nw)
+                        }
+                    }
+                    Call.sendTeamData()
+                }
+            } else if (newIndex == -3) {
+                /* 观战 */
+                val od = getPlayerArray(oldIndex) ?: return
+                od.team = -3
+                Call.sendTeamData()
             }
         }
     }

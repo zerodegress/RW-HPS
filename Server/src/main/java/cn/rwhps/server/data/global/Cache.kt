@@ -9,13 +9,10 @@
 
 package cn.rwhps.server.data.global
 
-import cn.rwhps.server.data.global.cache.ExistenceCache
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.struct.ObjectMap
 
 object Cache {
     @JvmStatic
     val packetCache: ObjectMap<String, Packet> = ObjectMap(8)
-    @JvmStatic
-    val relayAdminCache: ExistenceCache = ExistenceCache()
 }

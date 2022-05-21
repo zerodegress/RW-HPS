@@ -54,13 +54,21 @@ class Relay {
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()
 
-    private constructor(id: String) {
+    private constructor(id: String, playerName: Array<String>, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int) {
         serverRelayData.put(id.toInt(), this)
         this.id = id
         groupNet = GroupNet()
+        this.isMod = isMod
     }
 
-    constructor(id: String, groupNet: GroupNet) {
+    /**
+     * 仅供内部使用
+     * 作为单房间实例化
+     * @param id String
+     * @param groupNet GroupNet
+     * @constructor
+     */
+    internal constructor(id: String, groupNet: GroupNet) {
         this.id = id
         this.groupNet = groupNet
     }
@@ -213,7 +221,16 @@ class Relay {
             serverRelayData.values().forEach(Consumer { e: Relay -> e.sendMsg(msg) })
         }
 
-        fun getNoUpRelay(id: String = ""): Relay {
+        /**
+         * This method should not be open to the public for internal use only
+         * @param id                Custom ID left blank self generated
+         * @param playerName        Player name data
+         * @param isMod             Whether mods room
+         * @param betaGameVersion   Is it a beta version
+         * @param maxPlayer         Maximum number of people
+         * @return Relay
+         */
+        internal fun getRelay(id: String = "", playerName: Array<String>, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int): Relay {
             var idRelay = id
             val relay: Relay =  if (id.isBlank()) {
                                     while (true) {
@@ -224,13 +241,12 @@ class Relay {
                                             break
                                         }
                                     }
-                                    Relay(idRelay)
+                                    Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
                                 } else {
-                                    Relay(idRelay)
+                                    Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
                                 }
             serverRelayData.put(idRelay.toInt(), relay)
             return relay
-
         }
     }
 }

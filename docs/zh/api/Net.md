@@ -44,7 +44,8 @@ startNet.openPort(主端口,监听范围起始,监听范围结束)
 ```
 
 #### 修改协议
-只需要继承AbstractNet即可修改 initChannel 实现, 来自定义协议
+只需要继承AbstractNet即可修改 initChannel 实现, 来自定义协议  
+在 `RW-HPS` 中 已经默认实现了一个GamePort共用解析器, 您可以自行调用
 
 ```kotlin
 class NewShunt(startNet: StartNet) : AbstractNet(startNet) {

@@ -41,6 +41,7 @@ import cn.rwhps.server.util.log.Log.clog
 import cn.rwhps.server.util.log.Log.info
 import cn.rwhps.server.util.log.Log.set
 import cn.rwhps.server.util.log.Log.setCopyPrint
+import org.fusesource.jansi.AnsiConsole
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
@@ -72,15 +73,15 @@ object Main {
         /* 覆盖输入输出流 */
         inputMonitorInit()
         // 强制 UTF-8 我不愿意解决奇奇怪怪的问题
-        if (!System.getProperty("file.encoding").equals("UTF-8",ignoreCase = true)) {
+        if (!System.getProperty("file.encoding").equals("UTF-8", ignoreCase = true)) {
             clog("Please use UTF-8 !!!  -> java -Dfile.encoding=UTF-8 -jar Server.jar")
             clog("For non-UTF8 problems, please solve it yourself")
             Core.mandatoryExit()
         }
 
-
         Initialization()
 
+        /* 设置Log 并开启拷贝 */
         set("ALL")
         setCopyPrint(true)
 
@@ -120,7 +121,7 @@ object Main {
 
 
         /* Load Mod */
-        clog(Data.i18NBundle.getinput("server.loadMod",ModManage.load(getFolder(Data.Plugin_Mods_Path))))
+        clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load(getFolder(Data.Plugin_Mods_Path))))
         ModManage.loadUnits()
         //ModManage.test()
 
@@ -142,17 +143,8 @@ object Main {
 
         clog("Server Run PID : ${Data.core.pid}")
 
-        Data.config.DockerSupCommand.forEach {
-            val responseDockerSupCommand = Data.SERVER_COMMAND.handleMessage(it, StrCons { obj: String -> clog(obj) })
-            if (responseDockerSupCommand != null && responseDockerSupCommand.type != CommandHandler.ResponseType.noCommand) {
-                if (responseDockerSupCommand.type != CommandHandler.ResponseType.valid) {
-                    clog("Please check the command , Unable to use StartCommand inside Config to start the server")
-                }
-            }
-        }
-
         /* 按键监听 */
-        newThreadCore{ inputMonitor() }
+        newThreadCore { inputMonitor() }
     }
 
     /**
@@ -160,6 +152,8 @@ object Main {
      * Win的CMD就是个垃圾
      */
     private fun inputMonitorInit() {
+        AnsiConsole.systemInstall()
+
         val terminal = TerminalBuilder.builder().encoding("UTF-8").build()
         reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
     }

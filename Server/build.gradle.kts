@@ -76,6 +76,15 @@ tasks.jar {
 	}
 }
 
+java {
+	withSourcesJar()
+}
+
+val javaComponent = components["java"] as AdhocComponentWithVariants
+javaComponent.withVariantsFromConfiguration(configurations["sourcesElements"]) {
+	skip()
+}
+
 publishing {
 	publications {
 		create<MavenPublication>("maven") {
@@ -84,7 +93,7 @@ publishing {
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
 			version = "1.0.0"
 
-			from (components.getByName("release"))
+			from (components["java"])
 			//from (components.getByName("kotlin"))
 
 			versionMapping {

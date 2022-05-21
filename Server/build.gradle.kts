@@ -76,15 +76,6 @@ tasks.jar {
 	}
 }
 
-java {
-	withSourcesJar()
-}
-
-val javaComponent = components["java"] as AdhocComponentWithVariants
-javaComponent.withVariantsFromConfiguration(configurations["sourcesElements"]) {
-	skip()
-}
-
 publishing {
 	publications {
 		create<MavenPublication>("maven") {

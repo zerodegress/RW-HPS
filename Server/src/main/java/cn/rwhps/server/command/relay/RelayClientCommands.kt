@@ -23,7 +23,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
             return true
         }
         if (sendMsg) {
-            con.getRelayT4(localeUtil.getinput("err.noAdmin"))
+            sendMsg(con,localeUtil.getinput("err.noAdmin"))
         }
         return false
     }
@@ -47,7 +47,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
             sendMsg(con,str.toString())
         }
 
-        handler.register("jump","<ip/id>", "# jump Server") { args: Array<String>, con: GameVersionRelay ->
+        handler.register("jump","<ip/id>", "#jump Server") { args: Array<String>, con: GameVersionRelay ->
             if (!isAdmin(con,false)) {
                 con.sendCustomPacket(fromRelayJumpsToAnotherServer(args[0]))
             } else {

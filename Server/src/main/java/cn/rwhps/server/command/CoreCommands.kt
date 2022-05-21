@@ -126,7 +126,29 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.protocolData.setNetConnectPacket(GameVersionPacketBeta(),"3.0.0");*/
             //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
             handler.handleMessage("startnetservice")
-        }/*
+        }
+        handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
+            if (NetStaticData.startNet.size() > 0) {
+                log["The server is not closed, please close"]
+                return@register
+            }
+
+            /* Register Server Protocol Command */
+            ServerCommands(handler)
+
+            Log.set(Data.config.Log.uppercase(Locale.getDefault()))
+            Data.game = Rules(Data.config)
+            Data.game.init()
+
+            NetStaticData.ServerNetType = IRwHps.NetType.ServerTestProtocol
+            NetStaticData.RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.ServerTestProtocol) as IRwHps
+
+            TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
+            TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)
+
+            handler.handleMessage("startnetservice")
+        }
+        /*
         handler.register("startffa", "serverCommands.start.ffa") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
                 log["The server is not closed, please close"]

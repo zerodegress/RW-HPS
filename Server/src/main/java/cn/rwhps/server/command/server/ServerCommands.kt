@@ -27,7 +27,6 @@ import cn.rwhps.server.game.event.EventType.GameOverEvent
 import cn.rwhps.server.game.event.EventType.PlayerBanEvent
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.Font16
-import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.Time.getTimeFutureMillis
@@ -331,21 +330,6 @@ internal class ServerCommands(handler: CommandHandler) {
                 }
                 i++
                 off += i
-            }
-        }
-
-
-        handler.register("banss",  "serverCommands.bans") { _: Array<String>, log: StrCons ->
-            if (Data.core.admin.bannedIP24.size() == 0) {
-                log["No bans are currently in the server."]
-            } else {
-                log["AUTO Bans: {0}", Data.core.admin.bannedIP24.size()]
-                val data = StringBuilder()
-                for (ipLong in Data.core.admin.bannedIP24) {
-                    data.append(Data.LINE_SEPARATOR)
-                        .append("IP: ").append(IpUtil.long24ToIp(ipLong))
-                }
-                log[data.toString()]
             }
         }
     }

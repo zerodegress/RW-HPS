@@ -15,7 +15,6 @@ import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.sendTeamMessage
 import cn.rwhps.server.core.Call.testPreparationPlayer
 import cn.rwhps.server.core.Call.upDataGameData
-import cn.rwhps.server.core.NetServer
 import cn.rwhps.server.core.thread.Threads.newThreadService
 import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.global.Data
@@ -419,40 +418,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
-                val oldSite = args[0].toInt() - 1
-                val newSite = args[1].toInt() - 1
-                //int newSite = 0;
-                val team = args[2].toInt()
-                if (newSite >= 0) {
-                    if (oldSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
-                        val od = Data.game.playerManage.getPlayerArray(oldSite)
-                        val nw = Data.game.playerManage.getPlayerArray(newSite)
-                        if (od == null) {
-                            return@register
-                        }
-                        if (nw == null) {
-                            Data.game.playerManage.removePlayerArray(oldSite)
-                            od.site = newSite
-                            if (team > -1) {
-                                od.team = team
-                            }
-                            Data.game.playerManage.setPlayerArray(newSite,od)
-                        } else {
-                            od.site = newSite
-                            nw.site = oldSite
-                            if (team > -1) {
-                                od.team = team
-                            }
-                            Data.game.playerManage.setPlayerArray(newSite,od)
-                            Data.game.playerManage.setPlayerArray(oldSite,nw)
-                        }
-                        sendTeamData()
-                    }
-                } else if (newSite == -3) {
-                    val od = Data.game.playerManage.getPlayerArray(oldSite) ?: return@register
-                    od.team = -3
-                    sendTeamData()
-                }
+                Data.game.playerManage.movePlayerSite(args[0].toInt(),args[1].toInt(),args[2].toInt(),true)
             }
         }
         handler.register("self_move", "<ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
@@ -467,25 +433,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                 return@register
             }
-            val newSite = args[0].toInt() - 1
-            val team = args[1].toInt()
-            if (newSite >= 0) {
-                if (newSite < Data.game.maxPlayer) {
-                val newSitePlayer = Data.game.playerManage.getPlayerArray(newSite)
-                    if (newSitePlayer == null) {
-                        Data.game.playerManage.removePlayerArray(player)
-                        player.site = newSite
-                        if (team > -1) {
-                            player.team = team
-                        }
-                        Data.game.playerManage.setPlayerArray(newSite,player)
-                        sendTeamData()
-                    }
-                }
-            } else if (newSite == -3) {
-                player.team = -3
-                sendTeamData()
-            }
+            Data.game.playerManage.movePlayerSite(player.site+1,args[0].toInt(),args[1].toInt())
         }
         handler.register("team", "<PlayerSiteNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {

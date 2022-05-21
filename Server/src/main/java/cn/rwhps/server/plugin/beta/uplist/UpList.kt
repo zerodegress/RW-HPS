@@ -18,6 +18,7 @@ import cn.rwhps.server.net.HttpRequestOkHttp
 import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.IsUtil
+import cn.rwhps.server.util.StringFilteringUtil.cutting
 import cn.rwhps.server.util.encryption.Base64
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.log.Log
@@ -127,7 +128,7 @@ class UpList : Plugin() {
             privateIp = "10.0.0.1"
         }
 
-        val resultUp = MessageFormat(addData).format(arrayOf(Data.config.ServerName,privateIp, Data.game.maps.mapName))
+        val resultUp = MessageFormat(addData).format(arrayOf(cutting(Data.config.ServerName,12),privateIp, Data.game.maps.mapName))
 
         val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultUp).contains(serverID)
         val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultUp).contains(serverID)
@@ -154,8 +155,8 @@ class UpList : Plugin() {
 
     private fun update() {
         val result0 = MessageFormat(updateData).format(arrayOf(
-            Data.config.ServerName,
-            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else Data.config.Subtitle,
+            cutting(Data.config.ServerName,12),
+            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,30),
             if (Data.game.isStartGame) "ingame" else "battleroom",
             Data.game.playerManage.playerGroup.size().toString()))
         HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)

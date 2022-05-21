@@ -18,24 +18,20 @@ import cn.rwhps.server.util.PacketType
 import java.io.IOException
 
 /**
- * 使用官方协议跳转到新服务器
- *  客户端主动连接
- * @param ip String     : IP
+ * 让客户端认为这是 RELAY 服务器
+ *  用 RELAY 的初始化
  * @return Packet       : 生成一个可发送的包
  * @throws IOException  : 未知
  */
 @Throws(IOException::class)
-internal fun fromRelayJumpsToAnotherServer(ip: String): Packet {
+internal fun relayServerInitInfo(): Packet {
     val o = GameOutputStream()
-    // 包内包含的消息
     o.writeByte(0)
-    // 协议版本? 我不知道
-    o.writeInt(3)
-    // Debug
-    o.writeBoolean(false)
-    // For
+    // RELAY Version
+    o.writeInt(151)
+    // ?
     o.writeInt(1)
-    o.writeString(ip)
-
-    return o.createPacket(PacketType.PACKET_RECONNECT_TO)
+    // ?
+    o.writeBoolean(false)
+    return o.createPacket(PacketType.RELAY_VERSION_INFO)
 }

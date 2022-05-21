@@ -18,6 +18,13 @@ import cn.rwhps.server.net.netconnectprotocol.`null`.NullNetPacket
 import cn.rwhps.server.net.netconnectprotocol.`null`.NullTypeConnect
 import cn.rwhps.server.util.log.Log
 
+/**
+ * 核心协议实现
+ * @property netType NetType                        : 使用的Net协议类型
+ * @property typeConnect TypeConnect                : 连接解析器
+ * @property abstractNetPacket AbstractNetPacket    : NetPacket
+ * @author RW-HPS/Dr
+ */
 class RwHps(private val netType: IRwHps.NetType) : IRwHps {
     override val typeConnect: TypeConnect =
         try {

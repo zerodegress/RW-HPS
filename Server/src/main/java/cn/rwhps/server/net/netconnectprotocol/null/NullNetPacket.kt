@@ -16,69 +16,70 @@ import cn.rwhps.server.io.packet.GameCommandPacket
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.AbstractNetPacket
 import cn.rwhps.server.struct.Seq
+import cn.rwhps.server.util.log.exp.ImplementedException
 
 class NullNetPacket : AbstractNetPacket {
     override fun getSystemMessagePacket(msg: String): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getPingPacket(player: Player): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getTickPacket(tick: Int): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getGameTickCommandPacket(tick: Int, cmd: GameCommandPacket): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getGameTickCommandsPacket(tick: Int, cmd: Seq<GameCommandPacket>): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getTeamDataPacket(): CompressOutputStream {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun convertGameSaveDataPacket(packet: Packet): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getStartGamePacket(): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getPacketMapName(bytes: ByteArray): String {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getDeceiveGameSave(): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float): GameCommandPacket {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getExitPacket(): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun writePlayer(player: Player, stream: GameOutputStream) {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getPlayerConnectPacket(): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 }

@@ -88,7 +88,10 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
              * 禁止玩家使用 Server/Relay 做玩家名
              * 禁止玩家使用带 eess 做玩家名 (色情网站)
              */
-            if (nnn.lowercase(Locale.getDefault()).contains("server") || nnn.lowercase(Locale.getDefault()).contains("relay") || nnn.lowercase(Locale.getDefault()).contains("eess")) {
+            if (nnn.lowercase(Locale.getDefault()).contains("server")
+                || nnn.lowercase(Locale.getDefault()).contains("relay")
+                || nnn.lowercase(Locale.getDefault()).contains("eess")
+                || nnn.lowercase(Locale.getDefault()).contains("uu.")) {
                 relay!!.groupNet.disconnect() // Close Room
                 disconnect() // Close Connect & Reset Room
             }
@@ -104,7 +107,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 val type = inStream.readInt()
                 //Log.clog(target+"   "+type);
 
-                if (IntStream.of(PacketType.DISCONNECT.type, PacketType.HEART_BEAT.type).anyMatch { i: Int -> i == type }) {
+                if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
                     return
                 }
 
@@ -121,8 +124,10 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 }
 
                 when (type) {
-                    PacketType.KICK.type -> {
-                        relayPlayerDisconnect()
+                    PacketType.KICK.typeInt -> {
+                        if (abstractNetConnect != null) {
+                            abstractNetConnect.relayPlayerDisconnect()
+                        }
                     }
                 }
             }
@@ -140,9 +145,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
                 abstractNetConnect?.sendPacket(lastSentPacket)
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } catch (_: NullPointerException) {
+        } catch (_: IOException) {
         }
     }
 }

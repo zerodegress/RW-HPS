@@ -10,7 +10,6 @@
 package cn.rwhps.server.net.netconnectprotocol
 
 import cn.rwhps.server.data.global.Data
-import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.GameSavePacket
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
@@ -18,7 +17,6 @@ import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.util.ExtractUtil
-import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.Time.concurrentSecond
@@ -28,8 +26,6 @@ open class TypeRwHps : TypeConnect {
     val con: GameVersionServer
     var conClass: Class<out GameVersionServer>? = null
 
-    var cache0 = false
-
     override val abstractNetConnect: AbstractNetConnect
         get() = con
 
@@ -38,7 +34,8 @@ open class TypeRwHps : TypeConnect {
     }
     constructor(con: Class<out GameVersionServer>) {
         // will not be used ; just override the initial value to avoid refusing to compile
-        this.con = GameVersionServer(ConnectionAgreement())
+        this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
+
         // use for instantiation
         conClass = con
     }
@@ -51,41 +48,26 @@ open class TypeRwHps : TypeConnect {
     override fun typeConnect(packet: Packet) {
         con.lastReceivedTime()
 
-        if (packet.type != 110 && packet.type != 160 && packet.type != 109) {
-            if (cache0) {
-                Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(con.ip))
-                con.disconnect()
-            }
-        }
-
         //Log.debug(packet.type,ExtractUtil.bytesToHex(packet.bytes))
-        if (packet.type == PacketType.GAMECOMMAND_RECEIVE.type) {
+        if (packet.type == PacketType.GAMECOMMAND_RECEIVE) {
             con.receiveCommand(packet)
             con.player.lastMoveTime = concurrentSecond()
         } else {
             when (packet.type) {
-                PacketType.PREREGISTER_INFO_RECEIVE.type -> {
-                    cache0 = true
-                    val o = GameOutputStream()
-                    o.writeLong(1000L)
-                    o.writeByte(0)
-                    con.sendPacket(o.createPacket(PacketType.HEART_BEAT))
-                    con.registerConnection(packet)
-                }
-                PacketType.REGISTER_PLAYER.type -> if (!con.getPlayerInfo(packet)) {
+                PacketType.PREREGISTER_INFO_RECEIVE -> con.registerConnection(packet)
+                PacketType.REGISTER_PLAYER -> if (!con.getPlayerInfo(packet)) {
                     con.disconnect()
                 }
-                PacketType.HEART_BEAT_RESPONSE.type -> {
-                    cache0 = false
+                PacketType.HEART_BEAT_RESPONSE -> {
                     val player = con.player
                     player.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
                 }
-                PacketType.CHAT_RECEIVE.type -> con.receiveChat(packet)
-                PacketType.DISCONNECT.type -> con.disconnect()
-                PacketType.ACCEPT_START_GAME.type -> con.player.start = true
-                PacketType.SERVER_DEBUG_RECEIVE.type -> con.debug(packet)
+                PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
+                PacketType.DISCONNECT -> con.disconnect()
+                PacketType.ACCEPT_START_GAME -> con.player.start = true
+                PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                 // 竞争 谁先到就用谁
-                PacketType.SYNC.type -> if (Data.game.gameSaveCache == null) {
+                PacketType.SYNC -> if (Data.game.gameSaveCache == null) {
                     val gameSavePacket = GameSavePacket(packet)
                     //gameSavePacket.analyze()
                     //Core.exit()
@@ -98,9 +80,9 @@ open class TypeRwHps : TypeConnect {
                     }
                 }
 
-                PacketType.RELAY_118_117_REC.type -> con.sendRelayServerTypeReply(packet)
+                PacketType.RELAY_118_117_RETURN -> con.sendRelayServerTypeReply(packet)
 
-                0 -> {
+                PacketType.EMPTYP_ACKAGE -> {
                     // 忽略空包
                 }
 

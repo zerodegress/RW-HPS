@@ -21,8 +21,9 @@ import java.io.IOException
 /**
  * 使玩家客户端弹出一个可输入的窗口
  *   输入的数据明文返回
- * @param msg String : 提示的信息
- * @return Packet    : 生成一个可发送的包
+ * @param msg String    : 提示的信息
+ * @return Packet       : 生成一个可发送的包
+ * @throws IOException  : 未知
  */
 @Throws(IOException::class)
 fun relayServerTypeInternal(msg: String): Packet {
@@ -39,6 +40,7 @@ fun relayServerTypeInternal(msg: String): Packet {
  * 解析 [relayServerTypeInternal] 返回的数据
  * @param packet Packet : 返回的包
  * @return String       : 解析出的数据 (玩家输入的明文)
+ * @throws IOException  : 未知
  */
 @Throws(IOException::class)
 fun relayServerTypeReplyInternal(packet: Packet): String {

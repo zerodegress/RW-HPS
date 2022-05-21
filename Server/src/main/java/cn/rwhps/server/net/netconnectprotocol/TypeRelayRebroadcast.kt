@@ -9,6 +9,9 @@
 
 package cn.rwhps.server.net.netconnectprotocol
 
+import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
+import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
@@ -17,7 +20,7 @@ import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelayRebroadcast
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.ReflectionUtils
-import java.util.stream.IntStream
+import cn.rwhps.server.util.game.CommandHandler
 
 class TypeRelayRebroadcast : TypeRelay {
     constructor(con: GameVersionRelay) : super(con)
@@ -37,45 +40,70 @@ class TypeRelayRebroadcast : TypeRelay {
         val permissionStatus = con.permissionStatus
 
         if (permissionStatus == RelayStatus.HostPermission) {
+
             when (packet.type) {
-                PacketType.PACKET_FORWARD_CLIENT_TO.type  -> con.addRelaySend(packet)
-                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED.type  -> con.multicastAnalysis(packet)
-                else -> con.setlastSentPacket(packet)
+                PacketType.PACKET_FORWARD_CLIENT_TO  -> con.addRelaySend(packet)
+                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED  -> con.multicastAnalysis(packet)
+                else -> {
+                    con.setlastSentPacket(packet)
+
+                    // Command?
+                    if (packet.type == PacketType.CHAT) {
+                        GameInputStream(packet).use {
+                            val message = it.readString()
+                            it.skip(1)
+                            if (it.isReadString() == con.name) {
+                                if (message.startsWith(".")) {
+                                    val response = Data.RELAY_COMMAND.handleMessage(message, con)
+                                    if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                                    } else if (response.type != CommandHandler.ResponseType.valid) {
+                                        val text: String = when (response.type) {
+                                            CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                            CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                            else -> return@use
+                                        }
+                                        con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        when {
-            IntStream.of(
-                PacketType.START_GAME.type,
-                PacketType.CHAT.type ,
-                PacketType.TEAM_LIST.type).anyMatch { i: Int -> i == packet.type } -> {
-                // 快速抛弃
+        when (packet.type) {
+            // 快速抛弃
+            PacketType.START_GAME,
+            PacketType.CHAT,
+            PacketType.TEAM_LIST -> {
             }
-            packet.type == PacketType.HEART_BEAT.type -> {
+
+            PacketType.HEART_BEAT -> {
                 con.getPingData(packet)
                 //con.addGroup(packet)
             }
-            IntStream.of(
-                PacketType.SYNCCHECKSUM_STATUS.type,
-                PacketType.HEART_BEAT_RESPONSE.type,
-                PacketType.GAMECOMMAND_RECEIVE.type
-            ).anyMatch { i: Int -> i == packet.type } -> {
+
+            PacketType.SYNCCHECKSUM_STATUS,
+            PacketType.HEART_BEAT_RESPONSE,
+            PacketType.GAMECOMMAND_RECEIVE -> {
                 con.sendResultPing(packet)
             }
+
             else -> {
                 when (packet.type) {
                     //141 -> con.receiveChat(packet)
-                    PacketType.CHAT_RECEIVE.type -> con.receiveChat(packet)
-                    PacketType.REGISTER_PLAYER.type -> con.relayRegisterConnection(packet)
-                    PacketType.ACCEPT_START_GAME.type -> {
+                    PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
+                    PacketType.REGISTER_PLAYER -> con.relayRegisterConnection(packet)
+                    PacketType.ACCEPT_START_GAME -> {
                         con.relay!!.isStartGame = true
                         con.sendResultPing(packet)
                     }
                     //PacketType.PACKET_ADD_CHAT -> con.addRelayAccept(packet)
-                    PacketType.DISCONNECT.type -> con.disconnect()
-                    PacketType.SERVER_DEBUG_RECEIVE.type -> con.debug(packet)
+                    PacketType.DISCONNECT -> con.disconnect()
+                    PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                     else ->
-                        //Log.clog(packet.type.toString());
+                        //Log.clog(packet.toString());
                         con.sendResultPing(packet)
                 }
             }

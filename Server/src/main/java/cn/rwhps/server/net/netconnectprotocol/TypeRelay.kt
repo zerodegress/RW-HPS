@@ -11,6 +11,7 @@ package cn.rwhps.server.net.netconnectprotocol
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
+import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
@@ -19,6 +20,7 @@ import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.ReflectionUtils
+import cn.rwhps.server.util.game.CommandHandler
 
 open class TypeRelay : TypeConnect {
     val con: GameVersionRelay
@@ -31,9 +33,10 @@ open class TypeRelay : TypeConnect {
         this.con = con
     }
     constructor(con: Class<out GameVersionRelay>) {
-        // 不会被使用
-        this.con = GameVersionRelay(ConnectionAgreement())
-        // 给实例化使用
+        // will not be used ; just override the initial value to avoid refusing to compile
+        this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
+
+        // use for instantiation
         conClass = con
     }
 
@@ -50,24 +53,51 @@ open class TypeRelay : TypeConnect {
         val permissionStatus = con.permissionStatus
 
         // CPU branch prediction
-        if (packet.type == PacketType.PACKET_FORWARD_CLIENT_TO.type) {
+        if (packet.type == PacketType.PACKET_FORWARD_CLIENT_TO) {
             if (permissionStatus == RelayStatus.HostPermission) {
-                con.addRelaySend(packet)
+                when (packet.type) {
+                    PacketType.PACKET_FORWARD_CLIENT_TO  -> con.addRelaySend(packet)
+                    else -> {
+                        con.setlastSentPacket(packet)
+
+                        // Command?
+                        if (packet.type == PacketType.CHAT) {
+                            GameInputStream(packet).use {
+                                val message = it.readString()
+                                it.skip(1)
+                                if (it.isReadString() == con.name) {
+                                    if (message.startsWith(".")) {
+                                        val response = Data.RELAY_COMMAND.handleMessage(message, con)
+                                        if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                                        } else if (response.type != CommandHandler.ResponseType.valid) {
+                                            val text: String = when (response.type) {
+                                                CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                                CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                                else -> return@use
+                                            }
+                                            con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         } else {
             when (packet.type) {
-                PacketType.HEART_BEAT.type -> {
+                PacketType.HEART_BEAT -> {
                     con.addGroup(packet)
                     con.getPingData(packet)
                 }
-                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED.type -> {
+                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED -> {
                 }
-                PacketType.ACCEPT_START_GAME.type -> {
+                PacketType.ACCEPT_START_GAME -> {
                     con.relay!!.isStartGame = true
                     con.sendResultPing(packet)
                 }
-                PacketType.DISCONNECT.type -> con.disconnect()
-                PacketType.SERVER_DEBUG_RECEIVE.type -> con.debug(packet)
+                PacketType.DISCONNECT -> con.disconnect()
+                PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                 else -> con.sendResultPing(packet)
 
         }
@@ -78,12 +108,16 @@ open class TypeRelay : TypeConnect {
     protected fun relayCheck(packet: Packet): Boolean {
         con.lastReceivedTime()
 
+        if (packet.type == PacketType.SERVER_DEBUG_RECEIVE) {
+            con.permissionStatus = RelayStatus.Debug
+        }
+
         val permissionStatus = con.permissionStatus
 
         if (permissionStatus.ordinal < RelayStatus.PlayerPermission.ordinal) {
             // Initial Connection
             if (permissionStatus == RelayStatus.InitialConnection) {
-                if (packet.type == PacketType.PREREGISTER_INFO_RECEIVE.type) {
+                if (packet.type == PacketType.PREREGISTER_INFO_RECEIVE) {
                     // Wait Certified
                     con.permissionStatus = RelayStatus.WaitCertified
 
@@ -97,7 +131,7 @@ open class TypeRelay : TypeConnect {
             }
 
             if (permissionStatus == RelayStatus.WaitCertified) {
-                if (packet.type == 152) {
+                if (packet.type == PacketType.RELAY_152_151_RETURN) {
                     if (con.receiveVerifyClientValidity(packet)) {
                         // Certified End
                         con.permissionStatus = RelayStatus.CertifiedEnd
@@ -121,7 +155,7 @@ open class TypeRelay : TypeConnect {
             }
 
             if (permissionStatus == RelayStatus.CertifiedEnd) {
-                if (packet.type == PacketType.RELAY_118_117_REC.type) {
+                if (packet.type == PacketType.RELAY_118_117_RETURN) {
                     con.sendRelayServerTypeReply(packet)
                 }
                 return true

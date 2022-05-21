@@ -135,7 +135,7 @@ interface AbstractNetConnectRelay {
     fun sendCustomPacket(packet: Packet)
 
     /**
-     * RELAY玩家断开
+     * 给HOST 发生 RELAY玩家断开
      */
     fun relayPlayerDisconnect()
 

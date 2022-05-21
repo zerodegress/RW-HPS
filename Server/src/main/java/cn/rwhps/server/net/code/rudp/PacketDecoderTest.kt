@@ -10,10 +10,10 @@
 package cn.rwhps.server.net.code.rudp
 
 import cn.rwhps.server.io.input.ClearableAndReusableDisableSyncByteArrayInputStream
-import cn.rwhps.server.util.log.Log
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.socket.DatagramPacket
 import io.netty.handler.codec.MessageToMessageDecoder
+import net.udp.impl.Segment
 
 class PacketDecoderTest : MessageToMessageDecoder<DatagramPacket>() {
 
@@ -26,11 +26,10 @@ class PacketDecoderTest : MessageToMessageDecoder<DatagramPacket>() {
     override fun decode(channelHandlerContext: ChannelHandlerContext, datagramPacket: DatagramPacket, list: List<Any>) {
         val bufferIn = datagramPacket.content()
 
-        val b = ByteArray(bufferIn.readableBytes())
-        bufferIn.readBytes(b)
+        val bytes = ByteArray(bufferIn.readableBytes())
+        bufferIn.readBytes(bytes)
 
-        inputStream.addBytes(b,b.size)
+        val segment = Segment.parse(bytes)
 
-        Log.clog(inputStream.available().toString())
     }
 }

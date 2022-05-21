@@ -30,7 +30,7 @@ internal class PacketEncoder : MessageToByteEncoder<Packet>() {
     @Throws(Exception::class)
     override fun encode(p1: ChannelHandlerContext, msg: Packet, out: ByteBuf) {
         out.writeInt(msg.bytes.size)
-        out.writeInt(msg.type)
+        out.writeInt(msg.type.typeInt)
         out.writeBytes(msg.bytes)
     }
 }

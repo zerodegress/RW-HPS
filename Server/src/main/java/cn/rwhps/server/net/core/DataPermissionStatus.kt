@@ -15,7 +15,8 @@ object DataPermissionStatus {
         WaitCertified,
         CertifiedEnd,
         PlayerPermission,
-        HostPermission;
+        HostPermission,
+        Debug;
     }
 
     enum class ServerStatus {

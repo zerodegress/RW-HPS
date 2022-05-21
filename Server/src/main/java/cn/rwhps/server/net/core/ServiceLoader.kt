@@ -18,6 +18,13 @@ object ServiceLoader {
     private val ServiceLoaderData:MutableMap<String,Class<*>> = HashMap()
     private val ServiceObjectData:MutableMap<String,Value<*>> = HashMap()
 
+    /**
+     * 获取服务实例 (有参)
+     * @param serviceType ServiceType            : 服务类型
+     * @param serviceName String                 : 名称
+     * @param parameterTypes Array<out Class<*>> : 构造参数
+     * @return Constructor<*>                    : 实例
+     */
     fun getService(serviceType: ServiceType, serviceName: String, vararg parameterTypes: Class<*>): Constructor<*>  {
         val serviceClass = ServiceLoaderData[serviceType.name+serviceName]
         if (serviceClass != null) {
@@ -27,6 +34,12 @@ object ServiceLoader {
         }
     }
 
+    /**
+     * 获取服务 Class
+     * @param serviceType ServiceType : 服务类型
+     * @param serviceName String      : 名称
+     * @return Class<*>               : Class
+     */
     fun getServiceClass(serviceType: ServiceType, serviceName: String): Class<*>  {
         val serviceClass = ServiceLoaderData[serviceType.name+serviceName]
         if (serviceClass != null) {

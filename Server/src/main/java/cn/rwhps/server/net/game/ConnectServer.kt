@@ -18,6 +18,7 @@ import cn.rwhps.server.net.code.tcp.PacketDecoder
 import cn.rwhps.server.net.code.tcp.PacketEncoder
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.util.IsUtil
+import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.game.Events
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.*
@@ -81,7 +82,7 @@ class ConnectServer(private val ip: String, private val port: Int, private val a
         @Throws(java.lang.Exception::class)
         override fun channelRead(ctx: ChannelHandlerContext, msg: Any) {
             if (msg is Packet) {
-                if (msg.type == 161) {
+                if (msg.type == PacketType.PREREGISTER_INFO) {
                     val stream = GameInputStream(msg)
                     stream.readString()
                     stream.skip(12)

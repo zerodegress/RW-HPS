@@ -13,6 +13,7 @@ import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
+import cn.rwhps.server.util.log.exp.ImplementedException
 
 internal class NullTypeConnect : TypeConnect {
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
@@ -20,11 +21,11 @@ internal class NullTypeConnect : TypeConnect {
     }
 
     override fun typeConnect(packet: Packet) {
-        TODO("Not yet implemented")
+        throw ImplementedException("Not yet implemented")
     }
 
     override val abstractNetConnect: AbstractNetConnect
-        get() = TODO("Not yet implemented")
+        get() = throw ImplementedException("Not yet implemented")
 
     override val version: String
         get() = "Null TypeConnect"

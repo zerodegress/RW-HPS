@@ -42,9 +42,15 @@ interface IRwHps {
     val abstractNetPacket: AbstractNetPacket
 
     enum class NetType {
+        /** (默认) Server协议 原汁原味服务器实现 */
         ServerProtocol,
+        /** Server协议 Server服务器实现 加入测试功能 */
+        ServerTestProtocol,
+        /** Relay协议 普通RELAY实现 */
         RelayProtocol,
+        /** Relay协议 多播RELAY实现 */
         RelayMulticastProtocol,
+        /** 无实现 找不到对应实现 */
         NullProtocol;
 
         companion object {

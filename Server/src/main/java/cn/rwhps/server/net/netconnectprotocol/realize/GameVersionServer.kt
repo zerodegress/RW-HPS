@@ -41,10 +41,9 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.min
 
 /**
- * @author RW-HPS/Dr
+ *
  * @date 2020/9/5 17:02:33
  */
-
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectServer {
     protected val supportedVersion: Int = 151

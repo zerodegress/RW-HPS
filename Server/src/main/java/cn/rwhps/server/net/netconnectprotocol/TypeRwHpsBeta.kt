@@ -35,25 +35,25 @@ class TypeRwHpsBeta : TypeRwHps {
     override fun typeConnect(packet: Packet) {
         con.lastReceivedTime()
 
-        if (packet.type == PacketType.GAMECOMMAND_RECEIVE.type) {
+        if (packet.type == PacketType.GAMECOMMAND_RECEIVE) {
             con.receiveCommand(packet)
             con.player.lastMoveTime = concurrentSecond()
         } else {
             when (packet.type) {
-                PacketType.PREREGISTER_INFO_RECEIVE.type -> con.registerConnection(packet)
-                PacketType.REGISTER_PLAYER.type -> if (!con.getPlayerInfo(packet)) {
+                PacketType.PREREGISTER_INFO_RECEIVE -> con.registerConnection(packet)
+                PacketType.REGISTER_PLAYER -> if (!con.getPlayerInfo(packet)) {
                     con.disconnect()
                 }
-                PacketType.HEART_BEAT_RESPONSE.type -> {
+                PacketType.HEART_BEAT_RESPONSE -> {
                     val player = con.player
                     player.ping = (System.currentTimeMillis() - player.timeTemp).toInt() shr 1
                 }
-                PacketType.CHAT_RECEIVE.type-> con.receiveChat(packet)
-                PacketType.DISCONNECT.type -> con.disconnect()
-                PacketType.ACCEPT_START_GAME.type -> con.player.start = true
-                PacketType.SERVER_DEBUG_RECEIVE.type -> con.debug(packet)
+                PacketType.CHAT_RECEIVE-> con.receiveChat(packet)
+                PacketType.DISCONNECT -> con.disconnect()
+                PacketType.ACCEPT_START_GAME -> con.player.start = true
+                PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                 // 竞争 谁先到就用谁
-                PacketType.SYNC.type -> {
+                PacketType.SYNC -> {
                     val gameSavePacket = GameSavePacket(packet)
                     if (gameSavePacket.checkTick()) {
                         Data.game.gameSaveCache = gameSavePacket
@@ -63,7 +63,7 @@ class TypeRwHpsBeta : TypeRwHps {
                     }
                 }
 
-                0 -> {
+                PacketType.EMPTYP_ACKAGE -> {
                     // 忽略空包
                 }
 

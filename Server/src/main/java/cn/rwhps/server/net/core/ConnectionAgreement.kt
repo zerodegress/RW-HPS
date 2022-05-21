@@ -65,7 +65,7 @@ class ConnectionAgreement {
         val socketStream = DataOutputStream(socket.outputStream)
         protocolType = { packet: Packet ->
             socketStream.writeInt(packet.bytes.size)
-            socketStream.writeInt(packet.type)
+            socketStream.writeInt(packet.type.typeInt)
             socketStream.write(packet.bytes)
             socketStream.flush()
         }

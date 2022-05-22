@@ -121,6 +121,11 @@ If you meet any problem or have any questions, feel free to file an issue. Our g
 ### For educational purposes only
 - RW-HPS is a free and open source project and is only for educational purposes. You shall not use this project for any illegal purposes. The author or the developement team of this project will not be held responsible for any damages.
 
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/RW-HPS/RW-HPS.svg)](https://starchart.cc/RW-HPS/RW-HPS)
+
 ## License
 - [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html)
 <details>

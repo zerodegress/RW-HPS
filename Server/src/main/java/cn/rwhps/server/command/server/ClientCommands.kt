@@ -383,7 +383,8 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("teamlock", "clientCommands.teamlock") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
-                Data.game.lockTeam = "on" == args[0]
+                Data.game.lockTeam = ("on" == args[0] || "true" == args[0])
+                player.sendSystemMessage(player.i18NBundle.getinput("teamlock.info",Data.game.lockTeam))
             }
         }
         handler.register("killme", "clientCommands.killMe") { _: Array<String>?, player: Player ->

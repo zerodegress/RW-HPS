@@ -34,8 +34,10 @@ import java.net.BindException
 import java.net.ServerSocket
 
 /**
+ * NetGameServer服务
+ * 对外最少开放接口,尽量内部整合
+ *
  * @author RW-HPS/Dr
- * 遵守NetGameServer服务对外最少开放接口,尽量内部整合
  */
 class StartNet {
     private val connectChannel = Seq<Channel>(4)
@@ -106,7 +108,12 @@ class StartNet {
             val start = channelFutureTcp.channel()
             connectChannel.add(start)
             clog(Data.i18NBundle.getinput("server.start.end"))
-            start.closeFuture().sync()
+
+            /*
+             * Fix DeadLock
+             * io.netty.util.concurrent.DefaultPromise.await(DefaultPromise.java:253)
+             */
+            channelFutureTcp.sync()
         } catch (e: InterruptedException) {
             error("[TCP Start Error]", e)
         } catch (bindError: BindException) {
@@ -149,7 +156,10 @@ class StartNet {
     }
 
     fun stop() {
-        connectChannel.each { obj: Channel -> obj.close() }
+        connectChannel.each { obj: Channel ->
+            obj.close()
+            obj.parent()?.close();
+        }
     }
 
     private fun getEventLoopGroup(size: Int = 0): EventLoopGroup {

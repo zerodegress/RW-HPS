@@ -21,6 +21,7 @@ import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.Data.LINE_SEPARATOR
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
+import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.game.GameMaps.MapType
 import cn.rwhps.server.game.event.EventType.GameStartEvent
 import cn.rwhps.server.util.IsUtil.notIsBlank
@@ -319,10 +320,13 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("start", "clientCommands.start") { _: Array<String>?, player: Player ->
             if (isAdmin(player)) {
+                TimeTaskData.stopAutoStartTask()
+
                 if (TimeTaskData.PlayerAfkTask != null) {
                     TimeTaskData.stopPlayerAfkTask()
                     sendMessageLocal(player, "afk.clear", player.name)
                 }
+
                 if (Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size()) {
                     player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
@@ -381,7 +385,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
             }
         }
-        handler.register("teamlock", "<on/off>","clientCommands.teamlock") { args: Array<String>, player: Player ->
+        handler.register("teamlock", "[on/off]","clientCommands.teamlock") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
                 Data.game.lockTeam = ("on" == args[0] || "true" == args[0])
                 player.sendSystemMessage(player.i18NBundle.getinput("teamlock.info",Data.game.lockTeam))
@@ -477,5 +481,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 sendTeamData()
             }
         }
+
+        PluginManage.runRegisterServerClientCommands(handler)
     }
 }

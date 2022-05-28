@@ -31,9 +31,7 @@ interface AbstractEvent {
      * @param passwd 密码SHA256的16进
      * @return String[0]=密码是否正确(Boolean) String[1]=你可以给他设置一个名字
      */
-    fun registerPlayerConnectPasswdCheckEvent(abstractNetConnect: GameVersionServer, passwd: String): Array<String> {
-        return arrayOf("false", "")
-    }
+    fun registerPlayerConnectPasswdCheckEvent(abstractNetConnect: GameVersionServer, passwd: String): Array<String> = arrayOf("false", "")
 
     /**
      * 玩家连接时 [异步-ASync]
@@ -71,7 +69,4 @@ interface AbstractEvent {
 
     /** 玩家被解banIp [异步-ASync]  */
     fun registerPlayerIpUnbanEvent(ip: String) {}
-
-    /** Use Java AbstractEventJava */
-    abstract class AbstractEventJava : AbstractEvent
 }

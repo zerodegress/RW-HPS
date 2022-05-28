@@ -130,7 +130,7 @@ class PluginsLoad {
         @JvmField val version: String,
         @JvmField val main: Plugin,
         private val mkdir: Boolean = true,
-        private val skip: Boolean = true
+        private val skip: Boolean = false
         ) {
         init {
             if (mkdir) {

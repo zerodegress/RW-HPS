@@ -19,7 +19,7 @@ interface AbstractGlobalEvent {
      * 玩家加入 [同步-Synchronization]
      * @param connectionAgreement connectionAgreement
      */
-    fun registerNewConnectEvent(connectionAgreement: ConnectionAgreement) {}
+    fun registerNewConnectEvent(connectionAgreement: ConnectionAgreement): Boolean = false
 
     /**
      * 玩家加入 [同步-Synchronization]

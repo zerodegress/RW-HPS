@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
  * API随Server版本而进行版本更新
  * @author RW-HPS/Dr
  */
-class UpList : Plugin() {
+internal class UpList : Plugin() {
     private var upServerList = false
 
     /* DATA Cache */
@@ -128,7 +128,7 @@ class UpList : Plugin() {
             privateIp = "10.0.0.1"
         }
 
-        val resultUp = MessageFormat(addData).format(arrayOf(cutting(Data.config.ServerName,12),privateIp, Data.game.maps.mapName))
+        val resultUp = MessageFormat(addData).format(arrayOf(cutting(Data.config.ServerName,10),privateIp, Data.game.maps.mapName))
 
         val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultUp).contains(serverID)
         val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultUp).contains(serverID)
@@ -156,7 +156,7 @@ class UpList : Plugin() {
     private fun update() {
         val result0 = MessageFormat(updateData).format(arrayOf(
             cutting(Data.config.ServerName,12),
-            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,30),
+            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20),
             if (Data.game.isStartGame) "ingame" else "battleroom",
             Data.game.playerManage.playerGroup.size().toString()))
         HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)
@@ -172,6 +172,69 @@ class UpList : Plugin() {
             log["已删除"]
         } else {
             log["未上传 不需要删除"]
+        }
+    }
+
+
+    /**
+     * Inject multiple languages into the server
+     * @author RW-HPS/Dr
+     */
+    private class AddLang(val plugin: Plugin) {
+        init {
+            help()
+        }
+
+        private fun help() {
+            loadCN("uplist.help",
+                """
+        
+        [uplist add] 服务器上传到列表 显示配置文件端口
+        [uplist add (port)] 服务器上传到列表 服务器运行配置文件端口 显示自定义端口
+        [uplist update] 立刻更新列表服务器信息
+        [uplist remove] 取消服务器上传列表
+        [uplist help] 获取帮助
+        """.trimIndent())
+            loadEN("uplist.help",
+                """
+        
+        [uplist add] Server upload to list Show profile port
+        [uplist add (port)] Server upload to list Server running profile port Display custom port
+        [uplist update] Update list server information immediately
+        [uplist remove] Cancel server upload list
+        [uplist help] Get Help
+        """.trimIndent())
+            loadHK("uplist.help",
+                """
+        
+        [uplist add] 服务器上传到列表 显示配置文件端口
+        [uplist add (port)] 服务器上传到列表 服务器运行配置文件端口 显示自定义端口
+        [uplist update] 立刻更新列表服务器信息
+        [uplist remove] 取消服务器上传列表
+        [uplist help] 获取帮助
+        """.trimIndent())
+            loadRU("uplist.help",
+                """
+        
+        [uplist add] Загрузка сервера в список Показать порт профиля
+        [uplist add (port)] Загрузка сервера в список Порт запущенного профиля сервера Показать пользовательские порты
+        [uplist update] Немедленное обновление информации сервера списка
+        [uplist remove] Отмена загрузки сервера в список
+        [uplist help] Получить помощь
+        """.trimIndent())
+        }
+
+        private fun loadCN(k: String, v: String) {
+            plugin.loadLang("CN",k,v)
+        }
+        private fun loadEN(k: String, v: String) {
+            plugin.loadLang("EN",k,v)
+        }
+        private fun loadHK(k: String, v: String) {
+            plugin.loadLang("HK",k,v)
+        }
+        private fun loadRU(k: String, v: String) {
+            plugin.loadLang("RU",k,v)
         }
     }
 }

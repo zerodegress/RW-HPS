@@ -11,8 +11,10 @@ package cn.rwhps.server.plugin
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.plugin.event.AbstractEvent
+import cn.rwhps.server.plugin.event.AbstractGlobalEvent
 import cn.rwhps.server.util.file.FileUtil
 import cn.rwhps.server.util.game.CommandHandler
+import java.util.*
 
 /**
  * @author RW-HPS/Dr
@@ -24,12 +26,23 @@ abstract class Plugin {
     /**
      * 提供语言注入
      * @param lang String
+     * @param kv Properties
+     * @return 是否成功
+     */
+    @JvmOverloads
+    fun loadLang(lang: String,kv: Properties, cover: Boolean = false): Boolean {
+        return Data.i18NBundleMap[lang]?.addLang(kv,cover) == true
+    }
+    /**
+     * 提供语言注入
+     * @param lang String
      * @param k String
      * @param v String
      * @return 是否成功
      */
-    fun loadLang(lang: String,k: String, v: String): Boolean {
-        return Data.i18NBundleMap[lang]?.addLang(k,v) == true
+    @JvmOverloads
+    fun loadLang(lang: String,k: String, v: String, cover: Boolean = false): Boolean {
+        return Data.i18NBundleMap[lang]?.addLang(k,v,cover) == true
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
@@ -46,19 +59,29 @@ abstract class Plugin {
      */
     open fun registerServerCommands(handler: CommandHandler) {}
     /**
-     * 注册要在服务器端使用的Relay命令，例如从控制台0Relay
+     * 注册要在服务器端使用的Relay命令，例如从控制台-Relay
      * 这里注册的命令只有启动Relay协议 才会存在
      */
     open fun registerRelayCommands(handler: CommandHandler) {}
 
+
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3  */
-    open fun registerClientCommands(handler: CommandHandler) {}
+    open fun registerServerClientCommands(handler: CommandHandler) {}
+    /** 注册要在客户端使用的RELAY命令，例如来自RELAY内玩家 -3  */
+    open fun registerRelayClientCommands(handler: CommandHandler) {}
 
     /**
      * 注册事件
      * @return AbstractEvent实例
      */
     open fun registerEvents(): AbstractEvent? {
+        return null
+    }
+    /**
+     * 注册全局事件
+     * @return AbstractEvent实例
+     */
+    open fun registerGlobalEvents(): AbstractGlobalEvent? {
         return null
     }
 

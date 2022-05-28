@@ -17,6 +17,7 @@ object TimeTaskData {
     var CallTeamTask: ScheduledFuture<*>? = null
     var CallPingTask: ScheduledFuture<*>? = null
     var PlayerAfkTask: ScheduledFuture<*>? = null
+    var AutoStartTask: ScheduledFuture<*>? = null
 
     var CustomUpServerListTask: ScheduledFuture<*>? = null
     var UpServerListTask: ScheduledFuture<*>? = null
@@ -51,6 +52,10 @@ object TimeTaskData {
     fun stopPlayerAfkTask() {
         PlayerAfkTask?.cancel(true)
         PlayerAfkTask = null
+    }
+    fun stopAutoStartTask() {
+        AutoStartTask?.cancel(true)
+        AutoStartTask = null
     }
 
 

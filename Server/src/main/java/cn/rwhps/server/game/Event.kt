@@ -11,15 +11,23 @@ package cn.rwhps.server.game
 
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.NetServer
+import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
+import cn.rwhps.server.game.event.EventType
 import cn.rwhps.server.net.Administration.PlayerInfo
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.plugin.event.AbstractEvent
+import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.Time.millis
+import cn.rwhps.server.util.game.Events
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.debug
 import cn.rwhps.server.util.log.Log.error
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 /**
  * @author RW-HPS/Dr
@@ -57,7 +65,46 @@ class Event : AbstractEvent {
         Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
 
 
+        if (Data.game.playerManage.playerGroup.size() >= Data.config.AutoStartMinPlayerSize && TimeTaskData.AutoStartTask == null) {
+            var flagCount = 0
+            TimeTaskData.AutoStartTask = Threads.newThreadService2({
+                flagCount++
 
+                if (flagCount < 60) {
+                    if ((flagCount - 55) > 0) {
+                        Call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",(60 - flagCount)))
+                    }
+                    return@newThreadService2
+                }
+                TimeTaskData.stopAutoStartTask()
+
+                TimeTaskData.stopPlayerAfkTask()
+                if (Data.game.maps.mapData != null) {
+                    Data.game.maps.mapData!!.readMap()
+                }
+
+                val enc = NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()
+
+                Data.game.playerManage.playerGroup.each { e: Player ->
+                    try {
+                        e.con!!.sendTeamData(enc)
+                        e.con!!.sendStartGame()
+                        e.lastMoveTime = Time.concurrentSecond()
+                    } catch (err: IOException) {
+                        error("Start Error", err)
+                    }
+                }
+
+                Data.game.isStartGame = true
+                if (Data.game.sharedControl) {
+                    Data.game.playerManage.playerGroup.each { it.sharedControl = true }
+                }
+
+                Data.game.playerManage.updateControlIdentifier()
+                Call.testPreparationPlayer()
+                Events.fire(EventType.GameStartEvent())
+            },0,1,TimeUnit.SECONDS)
+        }
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
@@ -97,10 +144,15 @@ class Event : AbstractEvent {
         } else {
             Call.sendSystemMessage("player.disNoStart", player.name)
         }
+
+        if (Data.game.playerManage.playerGroup.size() <= Data.config.AutoStartMinPlayerSize && TimeTaskData.AutoStartTask != null) {
+            TimeTaskData.stopAutoStartTask()
+        }
     }
 
     override fun registerGameStartEvent() {
         Data.core.admin.playerDataCache.clear()
+        Log.clog("[Start New Game]")
     }
 
     override fun registerGameOverEvent() {

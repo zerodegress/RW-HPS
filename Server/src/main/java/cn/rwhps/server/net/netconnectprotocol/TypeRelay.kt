@@ -18,7 +18,7 @@ import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
 import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
-import cn.rwhps.server.util.PacketType
+import cn.rwhps.server.util.PacketType.*
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.game.CommandHandler
 
@@ -41,7 +41,7 @@ open class TypeRelay : TypeConnect {
     }
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-         return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+        return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)
@@ -53,54 +53,51 @@ open class TypeRelay : TypeConnect {
         val permissionStatus = con.permissionStatus
 
         // CPU branch prediction
-        if (packet.type == PacketType.PACKET_FORWARD_CLIENT_TO) {
-            if (permissionStatus == RelayStatus.HostPermission) {
-                when (packet.type) {
-                    PacketType.PACKET_FORWARD_CLIENT_TO  -> con.addRelaySend(packet)
-                    else -> {
-                        con.setlastSentPacket(packet)
-
-                        // Command?
-                        if (packet.type == PacketType.CHAT) {
-                            GameInputStream(packet).use {
-                                val message = it.readString()
-                                it.skip(1)
-                                if (it.isReadString() == con.name) {
-                                    if (message.startsWith(".")) {
-                                        val response = Data.RELAY_COMMAND.handleMessage(message, con)
-                                        if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                                        } else if (response.type != CommandHandler.ResponseType.valid) {
-                                            val text: String = when (response.type) {
-                                                CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                                CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                                else -> return@use
-                                            }
-                                            con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
-                                        }
+        if (permissionStatus == RelayStatus.HostPermission) {
+            when (packet.type) {
+                PACKET_FORWARD_CLIENT_TO  -> {
+                    con.addRelaySend(packet)
+                    return
+                }
+                CHAT -> {
+                    GameInputStream(packet).use {
+                        val message = it.readString()
+                        it.skip(1)
+                        if (it.isReadString() == con.name) {
+                            if (message.startsWith(".")) {
+                                val response = Data.RELAY_COMMAND.handleMessage(message, con)
+                                if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                                } else if (response.type != CommandHandler.ResponseType.valid) {
+                                    val text: String = when (response.type) {
+                                        CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                        CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                        else -> return@use
                                     }
+                                    con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
                                 }
                             }
                         }
                     }
+                    return
                 }
+                else -> {}
             }
-        } else {
-            when (packet.type) {
-                PacketType.HEART_BEAT -> {
-                    con.addGroup(packet)
-                    con.getPingData(packet)
-                }
-                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED -> {
-                }
-                PacketType.ACCEPT_START_GAME -> {
-                    con.relay!!.isStartGame = true
-                    con.sendResultPing(packet)
-                }
-                PacketType.DISCONNECT -> con.disconnect()
-                PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
-                else -> con.sendResultPing(packet)
-
         }
+
+        when (packet.type) {
+            HEART_BEAT -> {
+                con.addGroup(packet)
+                con.getPingData(packet)
+            }
+            PACKET_FORWARD_CLIENT_TO_REPEATED -> {
+            }
+            ACCEPT_START_GAME -> {
+                con.relay!!.isStartGame = true
+                con.sendResultPing(packet)
+            }
+            DISCONNECT -> con.disconnect()
+            SERVER_DEBUG_RECEIVE -> con.debug(packet)
+            else -> con.sendResultPing(packet)
 
         }
     }
@@ -108,7 +105,7 @@ open class TypeRelay : TypeConnect {
     protected fun relayCheck(packet: Packet): Boolean {
         con.lastReceivedTime()
 
-        if (packet.type == PacketType.SERVER_DEBUG_RECEIVE) {
+        if (packet.type == SERVER_DEBUG_RECEIVE) {
             con.permissionStatus = RelayStatus.Debug
         }
 
@@ -117,7 +114,7 @@ open class TypeRelay : TypeConnect {
         if (permissionStatus.ordinal < RelayStatus.PlayerPermission.ordinal) {
             // Initial Connection
             if (permissionStatus == RelayStatus.InitialConnection) {
-                if (packet.type == PacketType.PREREGISTER_INFO_RECEIVE) {
+                if (packet.type == PREREGISTER_INFO_RECEIVE) {
                     // Wait Certified
                     con.permissionStatus = RelayStatus.WaitCertified
 
@@ -131,7 +128,7 @@ open class TypeRelay : TypeConnect {
             }
 
             if (permissionStatus == RelayStatus.WaitCertified) {
-                if (packet.type == PacketType.RELAY_152_151_RETURN) {
+                if (packet.type == RELAY_152_151_RETURN) {
                     if (con.receiveVerifyClientValidity(packet)) {
                         // Certified End
                         con.permissionStatus = RelayStatus.CertifiedEnd
@@ -155,7 +152,7 @@ open class TypeRelay : TypeConnect {
             }
 
             if (permissionStatus == RelayStatus.CertifiedEnd) {
-                if (packet.type == PacketType.RELAY_118_117_RETURN) {
+                if (packet.type == RELAY_118_117_RETURN) {
                     con.sendRelayServerTypeReply(packet)
                 }
                 return true

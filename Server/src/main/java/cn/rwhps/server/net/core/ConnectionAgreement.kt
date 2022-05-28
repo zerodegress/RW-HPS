@@ -13,6 +13,7 @@ import cn.rwhps.server.game.event.EventGlobalType
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.GroupNet
 import cn.rwhps.server.net.handler.rudp.PackagingSocket
+import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log
 import io.netty.channel.ChannelHandlerContext
@@ -35,6 +36,8 @@ class ConnectionAgreement {
     val useAgreement: String
     @JvmField
     val ip: String
+    @JvmField
+    val ipLong: String
     internal val localPort: Int
     val id: String = UUID.randomUUID().toString()
 
@@ -53,6 +56,7 @@ class ConnectionAgreement {
 
         val channel = channelHandlerContext.channel()
         ip = convertIp(channel.remoteAddress().toString())
+        ipLong = IpUtil.ipToLong24(ip)
         localPort = (channel.localAddress() as InetSocketAddress).port
     }
 
@@ -75,6 +79,7 @@ class ConnectionAgreement {
         isClosed = { socket.isClosed }
 
         ip = convertIp(socket.remoteSocketAddressString)
+        ipLong = IpUtil.ipToLong24(ip)
         localPort = socket.localPort
     }
 
@@ -86,6 +91,7 @@ class ConnectionAgreement {
         isClosed = { false }
 
         ip = ""
+        ipLong = ""
         localPort = 0
     }
 

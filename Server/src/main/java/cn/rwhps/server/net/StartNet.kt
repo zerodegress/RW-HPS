@@ -110,10 +110,10 @@ class StartNet {
             clog(Data.i18NBundle.getinput("server.start.end"))
 
             /*
-             * Fix DeadLock
+             * No Fix DeadLock :(
              * io.netty.util.concurrent.DefaultPromise.await(DefaultPromise.java:253)
              */
-            channelFutureTcp.sync()
+            start.closeFuture().sync()
         } catch (e: InterruptedException) {
             error("[TCP Start Error]", e)
         } catch (bindError: BindException) {

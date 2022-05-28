@@ -74,17 +74,48 @@ class I18NBundle {
 
     /**
      * 向本地语言中加入自定义
-     * @param k String
-     * @param v String
+     * @param kv Properties
+     * @param cover 强制覆盖
      * @return 是否成功
      */
-    internal fun addLang(k: String, v: String): Boolean {
-        return if (languageData.containsKey(k)) {
-            false
-        } else {
-            languageData.put(k, v)
-            true
+    internal fun addLang(kv: Properties, cover: Boolean): Boolean {
+        var flag = cover
+
+        kv.forEach { key: Any, value: Any ->
+            if (cover) {
+                languageData.put(key as String, value as String)
+            } else {
+                flag = !languageData.containsKey(key as String)
+
+                if (flag) {
+                    languageData.put(key, value as String)
+                }
+            }
         }
+
+        return flag
+    }
+    /**
+     * 向本地语言中加入自定义
+     * @param k String
+     * @param v String
+     * @param cover 强制覆盖
+     * @return 是否成功
+     */
+    internal fun addLang(k: String, v: String, cover: Boolean): Boolean {
+        var flag = cover
+
+        if (cover) {
+            languageData.put(k, v)
+        } else {
+            flag = !languageData.containsKey(k)
+
+            if (flag) {
+                languageData.put(k, v)
+            }
+        }
+
+        return flag
     }
 
     /**

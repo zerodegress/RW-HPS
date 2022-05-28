@@ -50,6 +50,8 @@ data class BaseConfig(
     val MaxPlayer: Int = 10,
     /** 服务器最小Start人数 */
     val StartMinPlayerSize: Int = 0,
+    /** 服务器最小AutoStart人数 */
+    val AutoStartMinPlayerSize: Int = 4,
     /** 最大发言长度 */
     val MaxMessageLen: Int = 40,
     /** 最大单位数 */

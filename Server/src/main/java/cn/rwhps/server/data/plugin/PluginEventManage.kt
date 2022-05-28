@@ -139,19 +139,17 @@ internal class PluginEventManage {
 
             /* Sync */
             Events.on(NewConnectEvent::class.java) { e: NewConnectEvent ->
-                executorService.execute {
-                    pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
-                        obj.registerNewConnectEvent(e.connectionAgreement)
+                pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                    if (obj.registerNewConnectEvent(e.connectionAgreement)) {
+                        e.result = true
                     }
                 }
             }
 
             /* Sync */
             Events.on(NewCloseEvent::class.java) { e: NewCloseEvent ->
-                executorService.execute {
-                    pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
-                        obj.registerNewCloseEvent(e.connectionAgreement)
-                    }
+                pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                    obj.registerNewCloseEvent(e.connectionAgreement)
                 }
             }
         }

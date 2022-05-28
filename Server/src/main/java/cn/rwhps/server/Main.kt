@@ -26,6 +26,7 @@ import cn.rwhps.server.data.plugin.PluginManage.loadSize
 import cn.rwhps.server.data.plugin.PluginManage.runInit
 import cn.rwhps.server.data.plugin.PluginManage.runOnEnable
 import cn.rwhps.server.data.plugin.PluginManage.runRegisterEvents
+import cn.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import cn.rwhps.server.data.totalizer.TimeAndNumber
 import cn.rwhps.server.func.StrCons
 import cn.rwhps.server.game.Event
@@ -116,9 +117,8 @@ object Main {
 
         runOnEnable()
         runRegisterEvents()
+        runRegisterGlobalEvents()
         PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
-        PluginManage.runRegisterClientCommands(Data.CLIENT_COMMAND)
-
 
         /* Load Mod */
         clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load(getFolder(Data.Plugin_Mods_Path))))

@@ -15,7 +15,6 @@ import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import cn.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import cn.rwhps.server.plugin.PluginsLoad.PluginLoadData
-import cn.rwhps.server.plugin.event.AbstractEvent
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.alone.annotations.DidNotFinish
 import cn.rwhps.server.util.file.FileUtil
@@ -26,70 +25,63 @@ import java.io.IOException
 object PluginManage {
     private val pluginEventManage = PluginEventManage()
     private var pluginData: Seq<PluginLoadData>? = null
-    @JvmStatic
     val loadSize: Int
         get() = pluginData!!.size()
 
-    @JvmStatic
     fun run(cons: Cons<PluginLoadData?>) {
         pluginData!!.each { t: PluginLoadData? -> cons[t] }
     }
 
-    @JvmStatic
     fun init(fileUtil: FileUtil) {
         pluginData = resultPluginData(fileUtil)
     }
 
-    @JvmStatic
     fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean , skip: Boolean = false) {
         addPluginClass(name,author,description,version,main,mkdir,skip,pluginData!!)
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
-    @JvmStatic
     fun runOnEnable() {
         pluginData!!.each { e: PluginLoadData -> e.main.onEnable() }
     }
 
     /** 注册要在服务器端使用的任何命令，例如从控制台 */
-    @JvmStatic
     fun runRegisterCoreCommands(handler: CommandHandler) {
         pluginData!!.each { e: PluginLoadData -> e.main.registerCoreCommands(handler) }
     }
     /** 注册要在服务器端使用的任何命令，例如从控制台-Server */
-    @JvmStatic
     fun runRegisterServerCommands(handler: CommandHandler) {
         pluginData!!.each { e: PluginLoadData -> e.main.registerServerCommands(handler) }
     }
     /** 注册要在服务器端使用的任何命令，例如从控制台-Relay */
-    @JvmStatic
     fun runRegisterRelayCommands(handler: CommandHandler) {
         pluginData!!.each { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
     }
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 */
-    @JvmStatic
-    fun runRegisterClientCommands(handler: CommandHandler) {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerClientCommands(handler) }
+    fun runRegisterServerClientCommands(handler: CommandHandler) {
+        pluginData!!.each { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
+    }
+    /** 注册要在客户端使用的任何命令，例如来自RELAY内玩家 */
+    fun runRegisterRelayClientCommands(handler: CommandHandler) {
+        pluginData!!.each { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
     }
 
     /** 注册事件 -4  */
-    @JvmStatic
     fun runRegisterEvents() {
-        pluginData!!.each { e: PluginLoadData ->
-            val abstractEvent: AbstractEvent? = e.main.registerEvents()
-            abstractEvent?.let { add(it)}
-        }
+        pluginData!!.each { e: PluginLoadData -> e.main.registerEvents()?.let { add(it)} }
+    }
+    /** 注册事件 -4  */
+    fun runRegisterGlobalEvents() {
+        pluginData!!.each { e: PluginLoadData -> e.main.registerGlobalEvents()?.let { add(it)} }
     }
 
     /** 创建所有插件并注册命令后调用 -5  */
-    @JvmStatic
     fun runInit() {
         pluginData!!.each { e: PluginLoadData -> e.main.init() }
     }
 
     /** Server退出时执行 可以进行Plugin的数据保存  -6  */
-    @JvmStatic
     fun runOnDisable() {
         pluginData!!.each { e: PluginLoadData ->
             //e.main.pluginData.save()
@@ -97,7 +89,6 @@ object PluginManage {
         }
     }
 
-    @JvmStatic
     @DidNotFinish
     fun removePlugin(name: String) {
         pluginData!!.each({ e: PluginLoadData -> e.name.equals(name, ignoreCase = true) }) { p: PluginLoadData ->

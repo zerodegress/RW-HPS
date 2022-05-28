@@ -21,7 +21,6 @@ import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.IsUtil
-import cn.rwhps.server.util.StringFilteringUtil
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls

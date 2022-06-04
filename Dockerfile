@@ -14,7 +14,7 @@ RUN chmod +x gradlew
 # 注意: gradlew 在 Windows 中的 Docker 下，
 # 请保证为 Unix(LF) 行尾结束符，而不是 Windows(CR LF)，不然会报错: /usr/bin/env: ‘sh\r’: No such file or directory
 RUN ./gradlew jar
-RUN ls Server/build/libs -l
+RUN ls Server-All/build/libs -l
 RUN echo "build success"
 
 # final

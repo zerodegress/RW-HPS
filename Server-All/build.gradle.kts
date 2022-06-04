@@ -1,5 +1,5 @@
 dependencies {
-	implementation(project(":Server-All"))
+	implementation(project(":Server-Core"))
 }
 
 tasks.jar {

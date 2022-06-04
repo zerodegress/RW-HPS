@@ -1,3 +1,4 @@
 include ':TimeTaskQuartz'
-include ':Server'
+include ':Server-Core'
+include ':Server-All'
 //include ':FastUtil'

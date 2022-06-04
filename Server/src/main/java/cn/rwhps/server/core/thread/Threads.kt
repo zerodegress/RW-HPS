@@ -10,10 +10,11 @@
 package cn.rwhps.server.core.thread
 
 import cn.rwhps.server.struct.Seq
+import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.threads.GetNewThreadPool
+import cn.rwhps.timetask.task.TimeTaskManage
 import java.util.*
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 /**
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit
 object Threads {
     private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(3, "Core-")
     private val CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(3, "Core-Net-")
-    private val SERVICE = GetNewThreadPool.getNewScheduledThreadPool(10, "ScheduledExecutorPool-")
+    private val SERVICE = TimeTaskManage()
     private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")
 
     /** Execute runnable on exit  */
@@ -38,44 +39,6 @@ object Threads {
 
     internal fun closeNet() {
         CORE_NET_THREAD.shutdownNow()
-    }
-
-    /**
-     * 创建一个倒数计时器
-     * @param run Runnable
-     * @param endTime 多少时间后执行
-     * @param timeUnit 时间单位
-     * @param nameId NameID
-     * @return ScheduledFuture<*>
-     */
-	@JvmStatic
-    fun newThreadService(run: Runnable, endTime: Int, timeUnit: TimeUnit): ScheduledFuture<*> {
-        return SERVICE.schedule(
-            {
-                // 任务被取消
-                if (!Thread.currentThread().isInterrupted) {
-                    run.run()
-                }
-            }, endTime.toLong(), timeUnit)
-    }
-
-    /**
-     * 创建一个定时计时器
-     * @param run Runnable
-     * @param startTime 多长时间后开始
-     * @param endTime 执行间隔
-     * @param timeUnit 时间单位
-     * @param nameId NameID
-     * @return ScheduledFuture<*>
-     */
-	@JvmStatic
-	fun newThreadService2(run: Runnable, startTime: Int, endTime: Int, timeUnit: TimeUnit): ScheduledFuture<*> {
-        return SERVICE.scheduleAtFixedRate({
-            // 任务被取消
-            if (!Thread.currentThread().isInterrupted) {
-                run.run()
-            }
-        }, startTime.toLong(), endTime.toLong(), timeUnit)
     }
 
     @JvmStatic
@@ -101,5 +64,57 @@ object Threads {
     @JvmStatic
 	fun runSavePool() {
         SAVE_POOL.each { obj: Runnable -> obj.run() }
+    }
+
+
+    /**
+     * 创建一个倒数计时器
+     * @param run Runnable
+     * @param endTime 多少时间后执行
+     * @param timeUnit 时间单位
+     * @param nameId NameID
+     * @return ScheduledFuture<*>
+     */
+    @JvmStatic
+    fun newCountdown(taskFlag: CallTimeTask, endTime: Int, timeUnit: TimeUnit, run: Runnable) {
+        SERVICE.addCountdown(
+            taskFlag.name,taskFlag.group,taskFlag.description,
+            Time.concurrentMillis() + TimeUnit.MILLISECONDS.convert(endTime.toLong(),timeUnit),
+            run
+        )
+    }
+
+    /**
+     * 创建一个定时计时器
+     * @param run Runnable
+     * @param startTime 多长时间后开始
+     * @param intervalTime 执行间隔
+     * @param timeUnit 时间单位
+     * @param nameId NameID
+     * @return ScheduledFuture<*>
+     */
+    @JvmStatic
+    fun newTimedTask(taskFlag: CallTimeTask, startTime: Int, intervalTime: Int, timeUnit: TimeUnit, run: Runnable) {
+        SERVICE.addTimedTask(
+            taskFlag.name,taskFlag.group,taskFlag.description,
+            Time.concurrentMillis() + TimeUnit.MILLISECONDS.convert(startTime.toLong(),timeUnit),
+            TimeUnit.MILLISECONDS.convert(intervalTime.toLong(),timeUnit),
+            run
+        )
+    }
+
+    @JvmStatic
+    fun containsTimeTask(taskFlag: CallTimeTask): Boolean {
+        return SERVICE.contains(taskFlag.name,taskFlag.group)
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun closeTimeTask(taskFlag: CallTimeTask, run: Runnable? = null): Boolean {
+        val flag =  SERVICE.remove(taskFlag.name,taskFlag.group)
+        if (flag) {
+            run?.run()
+        }
+        return flag
     }
 }

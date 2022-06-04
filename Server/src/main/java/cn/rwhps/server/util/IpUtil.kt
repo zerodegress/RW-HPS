@@ -30,13 +30,13 @@ object IpUtil {
     }
 
     @JvmStatic
-    fun ipToLong24(strIp: String): String {
+    fun ipToLong24(strIp: String, ipPart: Boolean = true): String {
         return if (strIp == "0") {
             "0"
         } else {
             when (validIPAddressAll(strIp)) {
-                "IPv4" -> ipToLong(strIp)
-                "IPv6" -> ip2ToLongs(strIp)
+                "IPv4" -> ipToLong(strIp,ipPart)
+                "IPv6" -> ip2ToLongs(strIp,ipPart)
                 else -> {
                     Log.error("NETWORK_IP_ERROR",strIp)
                     ""
@@ -46,7 +46,7 @@ object IpUtil {
     }
 
     @JvmStatic
-    fun long24ToIp(strLong: String): String {
+    fun longToIp(strLong: String): String {
         return if (strLong.contains("&")) {
             longs2Ip(strLong)
         } else {
@@ -64,12 +64,12 @@ object IpUtil {
      * @param strIp
      * @return
      */
-    private fun ipToLong(strIp: String): String {
+    private fun ipToLong(strIp: String, ipPart: Boolean): String {
         if (strIp == "0") {
             return strIp
         }
         val ip = strIp.split(".").toTypedArray()
-        return ((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)).toString()
+        return ((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)).toString() + if (ipPart) ip[3].toLong() else ""
     }
 
     /**
@@ -99,13 +99,13 @@ object IpUtil {
      * 将 IPv6 地址转为 long 数组，只支持冒分十六进制表示法
      * 忽略最后一位 直接取段
      */
-    private fun ip2ToLongs(ipv6String: String): String {
+    private fun ip2ToLongs(ipv6String: String, ipPart: Boolean): String {
         val ipSlices = ipv6String.split(":").toTypedArray()
         require(ipSlices.size == 8) {
             "$ipv6String is not an ipv6 address."
         }
         val ipv6 = LongArray(2)
-        for (i in 0..6) {
+        for (i in 0..if (ipPart) 6 else 7) {
             val slice = ipSlices[i]
             // 以 16 进制解析
             val num = slice.toLong(16)

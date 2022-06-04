@@ -10,7 +10,8 @@
 package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.core.Call
-import cn.rwhps.server.core.thread.TimeTaskData
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
@@ -246,8 +247,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             Log.clog("[{0}]: {1}", player.name, message)
 
             // Afk Stop
-            if (player.isAdmin && TimeTaskData.PlayerAfkTask != null) {
-                TimeTaskData.stopPlayerAfkTask()
+            if (player.isAdmin && Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
+                Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
                 Call.sendSystemMessage(Data.i18NBundle.getinput("afk.clear", player.name))
             }
 

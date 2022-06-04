@@ -56,7 +56,7 @@ class ConnectionAgreement {
 
         val channel = channelHandlerContext.channel()
         ip = convertIp(channel.remoteAddress().toString())
-        ipLong = IpUtil.ipToLong24(ip)
+        ipLong = IpUtil.ipToLong24(ip,false)
         localPort = (channel.localAddress() as InetSocketAddress).port
     }
 
@@ -79,7 +79,7 @@ class ConnectionAgreement {
         isClosed = { socket.isClosed }
 
         ip = convertIp(socket.remoteSocketAddressString)
-        ipLong = IpUtil.ipToLong24(ip)
+        ipLong = IpUtil.ipToLong24(ip,false)
         localPort = socket.localPort
     }
 

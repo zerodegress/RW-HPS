@@ -103,7 +103,7 @@ public class LogCommands {
             relay.groupNet.disconnect();
             relay.sendMsg("您被管理员Ban 请勿占用公共资源");
             String ip = relay.getAdmin().getIp();
-            Data.core.admin.bannedIP24.add(IpUtil.long24ToIp(ip));
+            Data.core.admin.bannedIP24.add(IpUtil.longToIp(ip));
             relay.getAdmin().disconnect();
             con.sendDebug("OK " + ip);
         });

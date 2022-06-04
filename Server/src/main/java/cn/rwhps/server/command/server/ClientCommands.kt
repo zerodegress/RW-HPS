@@ -15,8 +15,10 @@ import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.sendTeamMessage
 import cn.rwhps.server.core.Call.testPreparationPlayer
 import cn.rwhps.server.core.Call.upDataGameData
-import cn.rwhps.server.core.thread.Threads.newThreadService
-import cn.rwhps.server.core.thread.TimeTaskData
+import cn.rwhps.server.core.NetServer
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.core.thread.Threads.newThreadCore
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.Data.LINE_SEPARATOR
 import cn.rwhps.server.data.global.NetStaticData
@@ -133,7 +135,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(localeUtil.getinput("err.startGame"))
                     return@register
                 }
-                if (TimeTaskData.PlayerAfkTask != null) {
+                if (Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
                     return@register
                 }
                 val admin = AtomicBoolean(true)
@@ -144,16 +146,15 @@ internal class ClientCommands(handler: CommandHandler) {
                     sendSystemMessageLocal("afk.end.noAdmin", player.name)
                     return@register
                 }
-                TimeTaskData.PlayerAfkTask = newThreadService({
+                Threads.newCountdown(CallTimeTask.PlayerAfkTask, 30, TimeUnit.SECONDS) {
                     Data.game.playerManage.playerGroup.each(
                         { p: Player -> p.isAdmin }) { i: Player ->
                         i.isAdmin = false
                         player.isAdmin = true
                         upDataGameData()
                         sendSystemMessageLocal("afk.end.ok", player.name)
-                        TimeTaskData.stopPlayerAfkTask()
                     }
-                }, 30, TimeUnit.SECONDS)
+                }
                 sendMessageLocal(player, "afk.start", player.name)
             }
         }
@@ -320,10 +321,10 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("start", "clientCommands.start") { _: Array<String>?, player: Player ->
             if (isAdmin(player)) {
-                TimeTaskData.stopAutoStartTask()
+                Threads.closeTimeTask(CallTimeTask.AutoStartTask)
 
-                if (TimeTaskData.PlayerAfkTask != null) {
-                    TimeTaskData.stopPlayerAfkTask()
+                if (Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
+                    Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
                     sendMessageLocal(player, "afk.clear", player.name)
                 }
 
@@ -331,6 +332,9 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
                 }
+
+                Data.game.isStartGame = true
+
                 if (Data.game.maps.mapData != null) {
                     Data.game.maps.mapData!!.readMap()
                 }
@@ -346,10 +350,6 @@ internal class ClientCommands(handler: CommandHandler) {
                         error("Start Error", err)
                     }
                 }
-                /*
-                if (Data.config.WinOrLose) {
-                }*/
-                Data.game.isStartGame = true
                 if (Data.game.sharedControl) {
                     Data.game.playerManage.playerGroup.each { it.sharedControl = true }
                 }

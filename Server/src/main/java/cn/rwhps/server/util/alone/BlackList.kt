@@ -9,8 +9,8 @@
 
 package cn.rwhps.server.util.alone
 
-import cn.rwhps.server.core.thread.Threads.newThreadService2
-import cn.rwhps.server.core.thread.TimeTaskData
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads.newTimedTask
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.Time.getTimeFutureMillis
 import cn.rwhps.server.util.Time.millis
@@ -52,9 +52,9 @@ class BlackList {
     }
 
     init {
-        TimeTaskData.BlackListCheckTask = newThreadService2({
+        newTimedTask(CallTimeTask.BlackListCheckTask, 0, 1, TimeUnit.HOURS){
             val time = millis()
             blackList.each({ it.time < time }) { value: BlackData -> blackList.remove(value) }
-        }, 0, 1, TimeUnit.HOURS)
+        }
     }
 }

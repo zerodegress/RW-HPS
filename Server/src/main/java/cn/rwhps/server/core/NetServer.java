@@ -9,7 +9,8 @@
 
 package cn.rwhps.server.core;
 
-import cn.rwhps.server.core.thread.TimeTaskData;
+import cn.rwhps.server.core.thread.CallTimeTask;
+import cn.rwhps.server.core.thread.Threads;
 import cn.rwhps.server.data.global.Data;
 import cn.rwhps.server.data.global.NetStaticData;
 import cn.rwhps.server.net.StartNet;
@@ -25,9 +26,12 @@ public class NetServer {
 
     public static void closeServer() {
         if (Data.game != null) {
+            Call.disAllPlayer();
             NetStaticData.startNet.each(StartNet::stop);
             //Threads.newThreadCoreNet();
-            TimeTaskData.INSTANCE.stopGameWinOrLoseCheckTask();
+
+            Threads.closeTimeTask(CallTimeTask.CallPingTask);
+            Threads.closeTimeTask(CallTimeTask.CallTeamTask);
 
             Data.game.getPlayerManage().playerGroup.clear();
             Data.game.getPlayerManage().playerAll.clear();
@@ -37,7 +41,6 @@ public class NetServer {
     }
 
     public static void reLoadServer() {
-        TimeTaskData.INSTANCE.stopGameWinOrLoseCheckTask();
         if (Data.vote!= null) {
             Data.vote.stopVote();
         }

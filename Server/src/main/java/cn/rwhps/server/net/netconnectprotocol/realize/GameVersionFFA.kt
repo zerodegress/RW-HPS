@@ -10,7 +10,8 @@
 package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.core.Call.sendMessage
-import cn.rwhps.server.core.thread.TimeTaskData
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.game.event.EventType.PlayerChatEvent
 import cn.rwhps.server.io.GameInputStream
@@ -35,8 +36,8 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
             var message: String? = stream.readString()
             var response: CommandResponse? = null
             clog("[{0}]: {1}", player.name, message)
-            if (player.isAdmin && TimeTaskData.PlayerAfkTask != null) {
-                TimeTaskData.stopPlayerAfkTask()
+            if (player.isAdmin && Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
+                Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
                 sendMessage(player, Data.i18NBundle.getinput("afk.clear", player.name))
             }
             if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {

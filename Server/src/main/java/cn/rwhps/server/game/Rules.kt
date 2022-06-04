@@ -8,9 +8,9 @@
  */
 package cn.rwhps.server.game
 
+import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
-import cn.rwhps.server.core.thread.Threads.newThreadService2
-import cn.rwhps.server.core.thread.TimeTaskData
+import cn.rwhps.server.core.thread.Threads.newTimedTask
 import cn.rwhps.server.custom.CustomEvent
 import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.global.Data
@@ -95,10 +95,6 @@ class Rules(private var config: BaseConfig) {
     var isAfk: Boolean = true
     /** Mpa Lock  */
     var mapLock: Boolean = false
-
-    /** AD  */
-    @JvmField
-    val serverUpID = ""
 
     /* */
     var lockTeam = false
@@ -189,12 +185,12 @@ class Rules(private var config: BaseConfig) {
 
     private fun autoLoadOrUpdate(config: BaseConfig) {
         if (config.AutoReLoadMap) {
-            TimeTaskData.AutoReLoadMapTask = newThreadService2({
+            newTimedTask(CallTimeTask.AutoUpdateMapsTask, 0, 1, TimeUnit.MINUTES){
                 if (notIsBlank(Data.game) && !Data.game.isStartGame) {
                     Data.game.mapsData.clear()
                     Data.game.checkMaps()
                 }
-            }, 0, 1, TimeUnit.MINUTES)
+            }
         }
     }
 }

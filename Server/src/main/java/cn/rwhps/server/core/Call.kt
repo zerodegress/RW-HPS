@@ -9,7 +9,9 @@
 
 package cn.rwhps.server.core
 
-import cn.rwhps.server.core.thread.Threads.newThreadService
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.core.thread.Threads.newCountdown
 import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
@@ -21,7 +23,6 @@ import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.stream.IntStream
 
@@ -178,14 +179,12 @@ object Call {
     /**
      *
      * @property oneSay Boolean
-     * @property gameOverTask ScheduledFuture<*>?
      * @property forcedReturn Boolean
      * @constructor
      */
-    private class SendGameTickCommand() : TimerTask() {
+    private class SendGameTickCommand : TimerTask() {
         private var oneSay = true
 
-        private var gameOverTask: ScheduledFuture<*>? = null
         @Volatile
         private var forcedReturn = false
 
@@ -203,13 +202,12 @@ object Call {
                 if (oneSay) {
                     oneSay = false
                     sendSystemMessageLocal("gameOver.oneMin")
-                    gameOverTask = newThreadService({gr()}, 1, TimeUnit.MINUTES)
+                    newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) {gr()}
                 }
             } else {
-                if (gameOverTask != null) {
+                if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
                     oneSay = true
-                    gameOverTask!!.cancel(true)
-                    gameOverTask = null
+                    Threads.closeTimeTask(CallTimeTask.GameOverTask)
                 }
             }
 
@@ -247,10 +245,7 @@ object Call {
         }
 
         override fun cancel(): Boolean {
-            if (gameOverTask != null) {
-                gameOverTask!!.cancel(true)
-                gameOverTask = null
-            }
+            Threads.closeTimeTask(CallTimeTask.GameOverTask)
             return super.cancel()
         }
 
@@ -261,8 +256,7 @@ object Call {
                 return
             }
             forcedReturn = true
-            gameOverTask?.cancel(true)
-            gameOverTask = null
+            Threads.closeTimeTask(CallTimeTask.GameOverTask)
 
             cancel()
             TimeTaskData.stopCallTickTask()

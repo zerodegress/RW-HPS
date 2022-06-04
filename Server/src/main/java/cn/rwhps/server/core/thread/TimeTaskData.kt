@@ -9,83 +9,11 @@
 
 package cn.rwhps.server.core.thread
 
-import cn.rwhps.server.util.IsUtil
 import java.util.*
-import java.util.concurrent.ScheduledFuture
 
 object TimeTaskData {
-    var CallTeamTask: ScheduledFuture<*>? = null
-    var CallPingTask: ScheduledFuture<*>? = null
-    var PlayerAfkTask: ScheduledFuture<*>? = null
-    var AutoStartTask: ScheduledFuture<*>? = null
-
-    var CustomUpServerListTask: ScheduledFuture<*>? = null
-    var UpServerListTask: ScheduledFuture<*>? = null
-    var UpServerListNewTask: ScheduledFuture<*>? = null
-
-
-    var GameWinOrLoseCheckTask: ScheduledFuture<*>? = null
-
-
-    var AutoReLoadMapTask: ScheduledFuture<*>? = null
-
     var CallTickPool: Timer? = null
     var CallTickTask: TimerTask? = null
-
-
-    /*
-     * 这一块为永久区
-     * 将不会执行 cancel
-     */
-    var BlackListCheckTask: ScheduledFuture<*>? = null
-    var ServerUploadDataTask: ScheduledFuture<*>? = null
-    var ServerUploadData_CheckTimeTask: ScheduledFuture<*>? = null
-
-    fun stopCallTeamTask() {
-        CallTeamTask?.cancel(true)
-        CallTeamTask = null
-    }
-    fun stopCallPingTask() {
-        CallPingTask?.cancel(true)
-        CallPingTask = null
-    }
-    fun stopPlayerAfkTask() {
-        PlayerAfkTask?.cancel(true)
-        PlayerAfkTask = null
-    }
-    fun stopAutoStartTask() {
-        AutoStartTask?.cancel(true)
-        AutoStartTask = null
-    }
-
-
-    fun stopCustomUpServerListTask(run: Runnable? = null) {
-        CustomUpServerListTask?.cancel(true)
-        if (IsUtil.isNull(CustomUpServerListTask)) run?.run()
-        CustomUpServerListTask = null
-
-    }
-    fun stopUpServerListTask(run: Runnable? = null) {
-        UpServerListTask?.cancel(true)
-        if (IsUtil.isNull(UpServerListTask)) run?.run()
-        UpServerListTask = null
-    }
-    fun stopUpServerListNewTask(run: Runnable? = null) {
-        UpServerListNewTask?.cancel(true)
-        if (IsUtil.isNull(UpServerListNewTask)) run?.run()
-        UpServerListNewTask = null
-    }
-    fun stopAutoReLoadMapTask() {
-        AutoReLoadMapTask?.cancel(true)
-        AutoReLoadMapTask = null
-    }
-
-
-    fun stopGameWinOrLoseCheckTask() {
-        GameWinOrLoseCheckTask?.cancel(true)
-        GameWinOrLoseCheckTask = null
-    }
-
 
     fun stopCallTickTask() {
         CallTickTask?.cancel()

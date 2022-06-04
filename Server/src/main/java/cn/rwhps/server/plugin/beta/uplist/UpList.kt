@@ -9,8 +9,8 @@
 
 package cn.rwhps.server.plugin.beta.uplist
 
+import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
-import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.json.Json
 import cn.rwhps.server.func.StrCons
@@ -150,7 +150,7 @@ internal class UpList : Plugin() {
             Log.clog(Data.i18NBundle.getinput("err.noOpen"))
         }
 
-        TimeTaskData.CustomUpServerListTask = Threads.newThreadService2({update()}, 50, 50, TimeUnit.SECONDS)
+        Threads.newTimedTask(CallTimeTask.CustomUpServerListTask, 50, 50, TimeUnit.SECONDS) { update() }
     }
 
     private fun update() {
@@ -165,11 +165,15 @@ internal class UpList : Plugin() {
 
     private fun remove(log: StrCons) {
         if (upServerList) {
-            HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", removeData)
-            HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", removeData)
-            upServerList = false
-            TimeTaskData.stopCustomUpServerListTask()
-            log["已删除"]
+            if (Threads.closeTimeTask(CallTimeTask.CustomUpServerListTask) {
+                    HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", removeData)
+                    HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", removeData)
+                }) {
+                upServerList = false
+                log["已删除"]
+                return
+            }
+            log["删除失败, 无法停止线程"]
         } else {
             log["未上传 不需要删除"]
         }

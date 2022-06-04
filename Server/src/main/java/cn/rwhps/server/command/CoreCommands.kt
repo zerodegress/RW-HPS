@@ -11,11 +11,9 @@ package cn.rwhps.server.command
 
 import cn.rwhps.server.command.relay.RelayCommands
 import cn.rwhps.server.command.server.ServerCommands
-import cn.rwhps.server.core.Call
-import cn.rwhps.server.core.Core
-import cn.rwhps.server.core.Initialization
+import cn.rwhps.server.core.*
+import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
-import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
@@ -28,6 +26,7 @@ import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.core.ServiceLoader
 import cn.rwhps.server.plugin.PluginsLoad
 import cn.rwhps.server.plugin.center.PluginCenter
+import cn.rwhps.server.util.alone.annotations.NeedHelp
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.log.Log
 import java.util.*
@@ -52,15 +51,15 @@ class CoreCommands(handler: CommandHandler) {
                 }
             }
         }
-        /*
+
         @NeedHelp
-        handler.register("stop", "serverCommands.stop") { _: Array<String>?, log: StrCons ->
+        handler.register("stop", "HIDE") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() == 0) {
                 log["Server does not start"]
                 return@register
             }
             NetServer.closeServer()
-        }*/
+        }
 
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION)]
@@ -118,8 +117,8 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
             NetStaticData.RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.ServerProtocol) as IRwHps
 
-            TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
-            TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)
+            Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
+            Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
 /*
             NetStaticData.protocolData.setTypeConnect(TypeRwHpsBeta());
             NetStaticData.protocolData.setNetConnectProtocol(GameVersionServerBeta(ConnectionAgreement()),157);
@@ -143,8 +142,8 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.ServerNetType = IRwHps.NetType.ServerTestProtocol
             NetStaticData.RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.ServerTestProtocol) as IRwHps
 
-            TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
-            TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)
+            Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
+            Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
 
             handler.handleMessage("startnetservice")
         }

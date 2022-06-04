@@ -11,8 +11,8 @@ package cn.rwhps.server.game
 
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.NetServer
+import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
-import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
@@ -65,20 +65,26 @@ class Event : AbstractEvent {
         Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
 
 
-        if (Data.game.playerManage.playerGroup.size() >= Data.config.AutoStartMinPlayerSize && TimeTaskData.AutoStartTask == null) {
+        if (Data.game.playerManage.playerGroup.size() >= Data.config.AutoStartMinPlayerSize && !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             var flagCount = 0
-            TimeTaskData.AutoStartTask = Threads.newThreadService2({
+            Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
+                if (Data.game.isStartGame) {
+                    Threads.closeTimeTask(CallTimeTask.AutoStartTask)
+                    return@newTimedTask
+                }
+
                 flagCount++
 
                 if (flagCount < 60) {
                     if ((flagCount - 55) > 0) {
                         Call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",(60 - flagCount)))
                     }
-                    return@newThreadService2
+                    return@newTimedTask
                 }
-                TimeTaskData.stopAutoStartTask()
 
-                TimeTaskData.stopPlayerAfkTask()
+                Threads.closeTimeTask(CallTimeTask.AutoStartTask)
+                Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
+
                 if (Data.game.maps.mapData != null) {
                     Data.game.maps.mapData!!.readMap()
                 }
@@ -103,7 +109,7 @@ class Event : AbstractEvent {
                 Data.game.playerManage.updateControlIdentifier()
                 Call.testPreparationPlayer()
                 Events.fire(EventType.GameStartEvent())
-            },0,1,TimeUnit.SECONDS)
+            }
         }
         // ConnectServer("127.0.0.1",5124,player.con)
     }
@@ -145,8 +151,8 @@ class Event : AbstractEvent {
             Call.sendSystemMessage("player.disNoStart", player.name)
         }
 
-        if (Data.game.playerManage.playerGroup.size() <= Data.config.AutoStartMinPlayerSize && TimeTaskData.AutoStartTask != null) {
-            TimeTaskData.stopAutoStartTask()
+        if (Data.game.playerManage.playerGroup.size() <= Data.config.AutoStartMinPlayerSize && !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
+            Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }
     }
 

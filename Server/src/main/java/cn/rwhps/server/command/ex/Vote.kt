@@ -10,7 +10,9 @@
 package cn.rwhps.server.command.ex
 
 import cn.rwhps.server.core.Call
-import cn.rwhps.server.core.thread.Threads.newThreadService2
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.core.thread.Threads.newTimedTask
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.game.event.EventType
@@ -23,7 +25,7 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.ceil
-
+//X86SMbj6UtmfhKpr6itHpUz
 
 /**
  * Vote 为游戏提供一个默认的Vote接口
@@ -162,14 +164,14 @@ class Vote {
         if (pass >= require) {
             end()
         } else {
-            countDownTask = newThreadService2(Runnable {
+            newTimedTask(CallTimeTask.VoteTask, 10, 10, TimeUnit.SECONDS){
                 this.reciprocal -= 10
                 voteIng()
                 if (this.reciprocal <= 0) {
                     end()
-                    countDownTask?.cancel(true)
+                    Threads.closeTimeTask(CallTimeTask.VoteTask)
                 }
-            }, 10, 10, TimeUnit.SECONDS)
+            }
             run()
         }
     }

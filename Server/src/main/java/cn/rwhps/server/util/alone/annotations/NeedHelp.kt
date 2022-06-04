@@ -16,14 +16,14 @@ package cn.rwhps.server.util.alone.annotations
  * In general, this doesn't change the behavior of the idea - it's just a token that indicates that the specified method is incomplete。
  * @author RW-HPS/Dr
  */
+@Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
-@kotlin.annotation.Retention(AnnotationRetention.BINARY)
 @Target(
     AnnotationTarget.ANNOTATION_CLASS,
     AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
+    AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
 )
 internal annotation class NeedHelp(
     val info_CN: String = "",

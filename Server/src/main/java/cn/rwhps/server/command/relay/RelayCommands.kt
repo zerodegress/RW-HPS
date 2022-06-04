@@ -55,7 +55,7 @@ class RelayCommands(handler: CommandHandler) {
                 val data = StringBuilder()
                 for (ipLong in Data.core.admin.bannedIP24) {
                     data.append(Data.LINE_SEPARATOR)
-                        .append("IP: ").append(IpUtil.long24ToIp(ipLong))
+                        .append("IP: ").append(IpUtil.longToIp(ipLong))
                 }
                 log[data.toString()]
             }

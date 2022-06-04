@@ -73,7 +73,8 @@ publishing {
 			version = "1.0.0"
 
 			//from (components.getByName("java"))
-			from (components.getByName("kotlin"))
+			//from (components.getByName("kotlin"))
+			artifact(File("build/libs/").listFiles()[0])
 
 			pom {
 				scm {

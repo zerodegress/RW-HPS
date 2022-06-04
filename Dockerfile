@@ -20,8 +20,8 @@ RUN echo "build success"
 # final
 FROM base AS final
 WORKDIR /app
-# 使用 Server/build/libs 即可
-COPY --from=build /src/Server/build/libs .
+# 使用 Server-All/build/libs 即可
+COPY --from=build /src/Server-All/build/libs .
 COPY --from=build /src/docker/java-jar.sh .
 COPY --from=build /src/docker/status.sh .
 COPY --from=build /src/docker/connect.sh .

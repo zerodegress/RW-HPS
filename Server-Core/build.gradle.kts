@@ -68,21 +68,12 @@ publishing {
 	publications {
 		create<MavenPublication>("maven") {
 			groupId = "com.github.RW-HPS"
-			artifactId = "Server"
+			artifactId = "Server-Core"
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
 			version = "1.0.0"
 
 			from (components.getByName("java"))
 			//from (components.getByName("kotlin"))
-
-			versionMapping {
-				usage("java-api") {
-					fromResolutionOf("runtimeClasspath")
-				}
-				usage("java-runtime") {
-					fromResolutionResult()
-				}
-			}
 
 			pom {
 				scm {

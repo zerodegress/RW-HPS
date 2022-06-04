@@ -1,10 +1,10 @@
 plugins {
-	kotlin("jvm") version "1.6.10"
 	`maven-publish`
 }
 
+
 //Netty Version
-val nettyVersion = "4.1.75.Final"
+val nettyVersion = "4.1.77.Final"
 
 /**
  * Fuck implementation
@@ -12,7 +12,7 @@ val nettyVersion = "4.1.75.Final"
 dependencies {
 	api("org.jetbrains.kotlin:kotlin-stdlib:1.6.20")
 
-//	api(project(":Util"))
+	implementation(project(":TimeTaskQuartz"))
 	//api "cn.hutool:hutool-socket:5.7.5"
 
 	api("io.netty:netty-buffer:$nettyVersion")
@@ -45,15 +45,26 @@ dependencies {
 
 	implementation("org.jline:jline-reader:3.21.0")
 	implementation("org.fusesource.jansi:jansi:2.4.0")
+
+	//compileOnly group: "org.bouncycastle", name: "bcprov-jdk15on", version: "1.69"
+
+	//compileOnly fileTree(dir:"libs",include:["*.jar"])
+	//compileOnly group: "org.quartz-scheduler", name: "quartz", version: "2.3.2"
+	//compileOnly group: "com.github.oshi", name: "oshi-core", version: "5.5.0"
+
+	testApi("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+
+
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-	kotlinOptions.jvmTarget = "1.8"
+tasks.test {
+	useJUnitPlatform()
 }
-
 
 tasks.jar {
-	exclude("META-INF/versions/9/module-info.class")
+	// Fuck Java 9
+	exclude("**/module-info.class")
+
 	exclude("META-INF/LICENSE.txt")
 	exclude("META-INF/LICENSE")
 	exclude("META-INF/NOTICE.txt")
@@ -71,9 +82,13 @@ tasks.jar {
 	exclude("META-INF/*/*/*/*.xml")
 
 	manifest {
-		attributes(mapOf("Main-Class" to "cn.rwhps.server.Main"))
-		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.LibraryManager"))
+		 attributes(mapOf("Main-Class" to "cn.rwhps.server.Main"))
+		 attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.LibraryManager"))
 	}
+
+	from(configurations.runtimeClasspath.get().map {
+		if (it.isDirectory) it else zipTree(it)
+	})
 }
 
 publishing {
@@ -84,7 +99,7 @@ publishing {
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
 			version = "1.0.0"
 
-			from (components["java"])
+			from (components.getByName("java"))
 			//from (components.getByName("kotlin"))
 
 			versionMapping {

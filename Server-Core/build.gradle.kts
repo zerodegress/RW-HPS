@@ -64,9 +64,12 @@ tasks.test {
 	useJUnitPlatform()
 }
 
-tasks.register("testBoth") {
-	doLast {
-		println("buildFinished()->构建结束")
+gradle.addBuildListener(object : BuildListener {
+	override fun settingsEvaluated(settings: Settings) {
+	}
+
+	override fun buildFinished(result: BuildResult) {
+		println("buildStarted()->构建结束")
 		publishing {
 			publications {
 				create<MavenPublication>("maven") {
@@ -110,4 +113,11 @@ tasks.register("testBoth") {
 			}
 		}
 	}
-}
+
+	override fun projectsEvaluated(gradle: Gradle) {
+	}
+
+	override fun projectsLoaded(gradle: Gradle) {
+
+	}
+})

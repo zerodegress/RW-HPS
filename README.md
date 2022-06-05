@@ -49,8 +49,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 #### Currently to be completed
 - [ ] Analog Layer
 - [ ] Vote (Bug :( )
-- [ ] 1.15.P*
-- [x] Load RWMOD
+- [x] 1.15.P*
 - [ ] Hot modify game progress
 - [ ] GamePanel
 

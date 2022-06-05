@@ -41,7 +41,7 @@ open class TypeRelay : TypeConnect {
     }
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+         return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)
@@ -133,7 +133,17 @@ open class TypeRelay : TypeConnect {
                         // Certified End
                         con.permissionStatus = RelayStatus.CertifiedEnd
                         if (!Data.config.SingleUserRelay) {
-                            con.relayDirectInspection()
+                            val port = con.port
+                            if (port == 5123) {
+                                con.relayDirectInspection()
+                            } else {
+                                val relayData = ServerUploadData.getRelayDataPort(port)
+                                if (relayData != null) {
+                                    con.relayDirectInspection(relayData.relay)
+                                } else {
+                                    con.relayDirectInspection()
+                                }
+                            }
                         } else {
                             NetStaticData.relay.setAddSize()
                             if (NetStaticData.relay.admin == null) {

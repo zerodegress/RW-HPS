@@ -9,16 +9,15 @@
 
 package cn.rwhps.server.command.server
 
+import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Call.sendMessageLocal
 import cn.rwhps.server.core.Call.sendSystemMessageLocal
 import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.sendTeamMessage
 import cn.rwhps.server.core.Call.testPreparationPlayer
 import cn.rwhps.server.core.Call.upDataGameData
-import cn.rwhps.server.core.NetServer
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
-import cn.rwhps.server.core.thread.Threads.newThreadCore
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.Data.LINE_SEPARATOR
 import cn.rwhps.server.data.global.NetStaticData
@@ -36,6 +35,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.stream.IntStream
 
 /**
  * @author RW-HPS/Dr
@@ -48,6 +48,22 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         player.sendSystemMessage(player.i18NBundle.getinput("err.noAdmin"))
         return false
+    }
+
+    private fun checkSiteNumb(int: String, player: Player): Boolean {
+        if (notIsNumeric(int)) {
+            player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
+            return false
+        }
+        if (int.toInt() < 0) {
+            player.sendSystemMessage(player.i18NBundle.getinput("err.noInt"))
+            return false
+        }
+        if (int.toInt() > (Data.config.MaxPlayer)) {
+            player.sendSystemMessage(player.i18NBundle.getinput("err.maxPlayer"))
+            return false
+        }
+        return true
     }
 
     init {
@@ -103,6 +119,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     Data.game.maps.mapPlayer = ""
                     player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
+                Call.sendSystemMessage(localeUtil.getinput("map.to",player.name,Data.game.maps.mapName))
                 upDataGameData()
             }
         }
@@ -155,7 +172,7 @@ internal class ClientCommands(handler: CommandHandler) {
                         sendSystemMessageLocal("afk.end.ok", player.name)
                     }
                 }
-                sendMessageLocal(player, "afk.start", player.name)
+                sendSystemMessageLocal("afk.start", player.name)
             }
         }
         handler.register("give", "<PlayerSerialNumber>", "clientCommands.give") { args: Array<String>, player: Player ->
@@ -258,9 +275,65 @@ internal class ClientCommands(handler: CommandHandler) {
                 player.addData("Summon", unit)
             }
         }
+        handler.register("pause", "clientCommands.pause") { _: Array<String>, player: Player ->
+            if (isAdmin(player)) {
+                if (!Data.game.isStartGame) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
+                    return@register
+                }
+                Data.game.gamePaused = true
+                Call.sendSystemMessage(player.i18NBundle.getinput("pause.ok"))
+            }
+        }
+        handler.register("unpause", "clientCommands.unpause") { _: Array<String>, player: Player ->
+            if (isAdmin(player)) {
+                if (!Data.game.isStartGame) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
+                    return@register
+                }
+                Data.game.gamePaused = true
+                Call.sendSystemMessage(player.i18NBundle.getinput("unpause.ok"))
+            }
+        }
+        handler.register("color", "<colorID>","clientCommands.color") { args: Array<String>, player: Player ->
+            if (Data.game.isStartGame) {
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+                return@register
+            }
+
+            if (checkSiteNumb(args[0],player)) {
+                player.color = args[0].toInt() -1
+                sendTeamData()
+            }
+        }
+        handler.register("iunit", "<SerialNumber> <unitID>","clientCommands.iunit") { args: Array<String>, player: Player ->
+            //(type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100
+            //Call.sendSystemMessage(player.i18NBundle.getinput("unpause.ok"))
+            if (Data.game.isStartGame) {
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+                return@register
+            }
+
+            if (checkSiteNumb(args[0],player)) {
+                val site = args[0].toInt() -1
+                val inPlayer: Player? = Data.game.playerManage.getPlayerArray(site)
+
+                if (inPlayer == null) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.no.site",site))
+                    return@register
+                }
+
+                inPlayer.startUnit = if (IntStream.of(1,2,3,4,100,101,102,103).anyMatch { it == args[1].toInt() }) args[1].toInt() else 1
+                sendTeamData()
+            }
+        }
 
 
-        handler.register("i", "<i...>", "HIDE") { _: Array<String>?, _: Player -> }
+        handler.register("i", "<i...>", "HIDE") { args: Array<String>?, player: Player ->
+            if (args.contentToString().contains("同步:对象ID:")) {
+                player.sync()
+            }
+        }
 
         /* QC */
         handler.register("credits", "<money>", "HIDE") { args: Array<String>, player: Player ->
@@ -316,6 +389,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 //Data.game.initUnit = (type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100;
                 Data.game.initUnit = args[0].toInt()
+                Data.game.playerManage.runPlayerArrayDataRunnable { it?.startUnit = args[0].toInt() }
                 upDataGameData()
             }
         }

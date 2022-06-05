@@ -50,6 +50,10 @@ class Player(
 	var site = 0
     /** */
     val credits = Data.game.credits
+    /** */
+    var startUnit = Data.game.initUnit
+    /** */
+    var color = 0
     /** (Markers)  */
 	var start = false
     /** Whether the player is dead  */

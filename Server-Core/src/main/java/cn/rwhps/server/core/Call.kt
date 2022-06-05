@@ -75,7 +75,7 @@ object Call {
 
     @JvmStatic
     fun sendTeamData() {
-        if (Data.game.gamePaused) {
+        if (Data.game.gameReConnectPaused) {
             return
         }
         try {
@@ -211,7 +211,7 @@ object Call {
                 }
             }
 
-            if (Data.game.gamePaused || forcedReturn) {
+            if (Data.game.gameReConnectPaused || forcedReturn || Data.game.gamePaused) {
                 return
             }
 

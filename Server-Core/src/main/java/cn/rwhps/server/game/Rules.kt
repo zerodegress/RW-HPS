@@ -80,6 +80,9 @@ class Rules(private var config: BaseConfig) {
 
     /** 重连暂停  */
     @Volatile
+    var gameReConnectPaused = false
+    /** 游戏暂停  */
+    @Volatile
     var gamePaused = false
 
     /** 重连缓存 GameSave  */
@@ -150,6 +153,7 @@ class Rules(private var config: BaseConfig) {
         mist = 2
         sharedControl = false
         gameSaveCache = null
+        gameReConnectPaused = false
         gamePaused = false
     }
 

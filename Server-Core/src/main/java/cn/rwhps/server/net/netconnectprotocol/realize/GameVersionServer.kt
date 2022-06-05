@@ -47,7 +47,7 @@ import kotlin.math.min
  */
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectServer {
-    protected val supportedVersion: Int = 151
+    protected var supportedVersion: Int = 170
     
     private val sync = ReentrantLock(true)
 
@@ -64,7 +64,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         internal set
 
     override val version: String
-        get() = "1.14 RW-HPS"
+        get() = "1.15.P8 RW-HPS"
 
     override fun sendSystemMessage(msg: String) {
         if (!player.noSay) {
@@ -566,12 +566,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     override fun sync() {
-        if (Data.game.gamePaused) {
+        if (Data.game.gameReConnectPaused) {
             player.sendSystemMessage("目前已有同步任务 请等待")
             return
         }
         try {
-            Data.game.gamePaused = true
+            Data.game.gameReConnectPaused = true
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             // 批量诱骗
             NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getDeceiveGameSave())
@@ -590,10 +590,10 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     }
                 }
             } catch (ex: Exception) {
-                connectionAgreement.close(NetStaticData.groupNet)
+                sendKick(ex.message.toString())
             } finally {
                 Data.game.gameSaveCache = null
-                Data.game.gamePaused = false
+                Data.game.gameReConnectPaused = false
             }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)

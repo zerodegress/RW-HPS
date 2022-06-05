@@ -97,5 +97,5 @@ open class TypeRwHps : TypeConnect {
     }
 
     override val version: String
-        get() = "${Data.SERVER_CORE_VERSION}: 1.1.0"
+        get() = "${Data.SERVER_CORE_VERSION}: 2.1.0"
 }

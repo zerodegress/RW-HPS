@@ -151,7 +151,7 @@ class Initialization {
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayProtocol.name,           GameVersionRelay::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayMulticastProtocol.name,  GameVersionRelayRebroadcast::class.java)
 
-            ServiceLoader.addService(ServiceType.ProtocolPacket,"ALLProtocol", GameVersionPacket::class.java)
+            ServiceLoader.addService(ServiceType.ProtocolPacket,IRwHps.NetType.ServerProtocol.name,         GameVersionPacket::class.java)
 
             ServiceLoader.addService(ServiceType.IRwHps,"IRwHps", RwHps::class.java)
 

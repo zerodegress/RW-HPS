@@ -27,6 +27,7 @@ import cn.rwhps.server.net.netconnectprotocol.internal.server.gameTickPacketInte
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.PacketType
+import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import cn.rwhps.server.util.encryption.Game
 import cn.rwhps.server.util.encryption.Sha
@@ -254,45 +255,54 @@ open class GameVersionPacket : AbstractNetPacket {
 
     @Throws(IOException::class)
     override fun writePlayer(player: Player, stream: GameOutputStream) {
-        if (Data.game.isStartGame) {
-            stream.writeByte(player.site)
-            stream.writeInt(player.ping)
-            stream.writeBoolean(Data.game.sharedControl)
-            stream.writeBoolean(player.controlThePlayer)
-            return
+        with (stream) {
+            if (Data.game.isStartGame) {
+                writeByte(player.site)
+                writeInt(player.ping)
+                writeBoolean(Data.game.sharedControl)
+                writeBoolean(player.sharedControl)
+                return
+            }
+            writeByte(player.site)
+            writeInt(Data.game.credits)
+            writeInt(player.team)
+            writeIsString(player.name)
+            writeBoolean(false)
+
+            /* -1 N/A ; -2 -  ; -99 HOST */
+            writeInt(if (player.con != null) player.ping else if (Time.concurrentSecond()-player.lastMoveTime > 120) -1 else -2)
+            writeLong(System.currentTimeMillis())
+            /* MS */
+            writeBoolean(false)
+            writeInt(0)
+
+            writeInt(player.site)
+            writeByte(0)
+
+            /* 共享控制 */
+            writeBoolean(Data.game.sharedControl)
+            /* 是否掉线 */
+            writeBoolean(player.sharedControl)
+            /* 是否投降 */
+            writeBoolean(false)
+            writeBoolean(false)
+            writeInt(-9999)
+
+            writeBoolean(false)
+            // 延迟后显示 （HOST)
+            writeInt(if (player.isAdmin) 1 else 0)
+
+            // Ai Difficulty Override
+            writeIsInt(1)
+            // Player Start Unit
+            writeIsInt(player.startUnit)
+            // ?
+            writeIsInt(0)
+            // Player Color
+            writeIsInt(player.color)
+            // ? Not > 0
+            writeInt(0)
         }
-        stream.writeByte(player.site)
-        // 并没有什么用
-        stream.writeInt(player.credits)
-        stream.writeInt(player.team)
-        stream.writeBoolean(true)
-        stream.writeString(player.name)
-        stream.writeBoolean(false)
-
-        /* -1 N/A  -2 -   -99 HOST */
-        stream.writeInt(player.ping)
-        stream.writeLong(System.currentTimeMillis())
-
-        /* Is AI */
-        stream.writeBoolean(false)
-        /* AI Difficu */
-        stream.writeInt(0)
-
-        stream.writeInt(player.site)
-        stream.writeByte(0)
-
-        /* 共享控制 */
-        stream.writeBoolean(Data.game.sharedControl)
-        /* 是否掉线 */
-        stream.writeBoolean(player.sharedControl)
-
-        /* 是否投降 */
-        stream.writeBoolean(false)
-        stream.writeBoolean(false)
-        stream.writeInt(-9999)
-        stream.writeBoolean(false)
-        // 延迟后显示 （HOST) [房主]
-        stream.writeInt(if (player.isAdmin) 1 else 0)
     }
 
     @Throws(IOException::class)
@@ -300,8 +310,8 @@ open class GameVersionPacket : AbstractNetPacket {
         val out = GameOutputStream()
         out.writeString("com.corrodinggames.rwhps.forward")
         out.writeInt(1)
-        out.writeInt(151)
-        out.writeInt(151)
+        out.writeInt(170)
+        out.writeInt(170)
         return out.createPacket(PacketType.PREREGISTER_INFO_RECEIVE)
     }
 
@@ -310,8 +320,8 @@ open class GameVersionPacket : AbstractNetPacket {
         val out = GameOutputStream()
         out.writeString("com.corrodinggames.rts")
         out.writeInt(4)
-        out.writeInt(151)
-        out.writeInt(151)
+        out.writeInt(170)
+        out.writeInt(170)
         out.writeString(name)
 
         if (IsUtil.isBlank(passwd)) {
@@ -324,7 +334,7 @@ open class GameVersionPacket : AbstractNetPacket {
         out.writeString("com.corrodinggames.rts.java")
         out.writeString(uuid)
         out.writeInt(1198432602)
-        out.writeString(Game.connectKey(key))
+        out.writeString(Game.connectKeyNew(key))
         return out.createPacket(PacketType.REGISTER_PLAYER)
     }
 }

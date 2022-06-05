@@ -17,6 +17,7 @@ import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.netconnectprotocol.`null`.NullNetPacket
 import cn.rwhps.server.net.netconnectprotocol.`null`.NullTypeConnect
 import cn.rwhps.server.util.log.Log
+import cn.rwhps.server.util.log.exp.ImplementedException
 
 /**
  * 核心协议实现
@@ -37,7 +38,11 @@ class RwHps(private val netType: IRwHps.NetType) : IRwHps {
 
     override val abstractNetPacket: AbstractNetPacket =
         try {
-            ServiceLoader.getService(ServiceType.ProtocolPacket,"ALLProtocol").newInstance() as AbstractNetPacket
+            try {
+                ServiceLoader.getService(ServiceType.ProtocolPacket, netType.name)
+            } catch (e: ImplementedException) {
+                ServiceLoader.getService(ServiceType.ProtocolPacket, IRwHps.NetType.ServerProtocol.name)
+            }.newInstance() as AbstractNetPacket
         } catch (e: Exception) {
             Log.fatal(e)
             NullNetPacket()

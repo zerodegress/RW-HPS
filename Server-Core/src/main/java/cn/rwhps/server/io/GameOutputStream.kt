@@ -81,6 +81,15 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
     fun writeInt(value: Int) {
         stream.writeInt(value)
     }
+    @Throws(IOException::class)
+    fun writeIsInt(value: Int?) {
+        if (IsUtil.isBlank(value)) {
+            writeBoolean(false)
+        } else {
+            writeBoolean(true)
+            writeInt(value!!)
+        }
+    }
 
     @Throws(IOException::class)
     fun writeShort(value: Short) {

@@ -42,8 +42,14 @@ class TypeRelayRebroadcast : TypeRelay {
         if (permissionStatus == RelayStatus.HostPermission) {
 
             when (packet.type) {
-                PacketType.PACKET_FORWARD_CLIENT_TO  -> con.addRelaySend(packet)
-                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED  -> con.multicastAnalysis(packet)
+                PacketType.PACKET_FORWARD_CLIENT_TO  -> {
+                    con.addRelaySend(packet)
+                    return
+                }
+                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED  -> {
+                    con.multicastAnalysis(packet)
+                    return
+                }
                 else -> {
                     con.setlastSentPacket(packet)
 
@@ -68,6 +74,7 @@ class TypeRelayRebroadcast : TypeRelay {
                             }
                         }
                     }
+                    return
                 }
             }
         }

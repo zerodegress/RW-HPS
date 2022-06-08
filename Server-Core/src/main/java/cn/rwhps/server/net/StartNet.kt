@@ -44,6 +44,7 @@ class StartNet {
     private var serverSocket: ServerSocket? = null
     private var startGameNetUdp: StartGameNetUdp? = null
     private val start: AbstractNet
+    private var errorIgnore = false
 
     internal val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(32)
 
@@ -78,8 +79,7 @@ class StartNet {
      * @param startPort Start Port
      * @param endPort End Port
      */
-    @JvmOverloads
-    fun openPort(port: Int,startPort:Int,endPort:Int,errorIgnore: Boolean = false) {
+    fun openPort(port: Int,startPort:Int,endPort:Int) {
         clog(Data.i18NBundle.getinput("server.start.open"))
         val bossGroup: EventLoopGroup = getEventLoopGroup(4)
         val workerGroup: EventLoopGroup = getEventLoopGroup()
@@ -115,9 +115,11 @@ class StartNet {
              */
             start.closeFuture().sync()
         } catch (e: InterruptedException) {
-            error("[TCP Start Error]", e)
+            if (!errorIgnore) error("[TCP Start Error]", e)
         } catch (bindError: BindException) {
-            error("[Port Bind Error]", bindError)
+            if (!errorIgnore) error("[Port Bind Error]", bindError)
+        } catch (e: Exception) {
+            if (!errorIgnore) error("[NET Error]", e)
         } finally {
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
@@ -160,7 +162,9 @@ class StartNet {
     }
 
     fun stop() {
-        connectChannel.each { obj: Channel -> obj.close() }
+        errorIgnore = true
+        connectChannel.each { obj: Channel -> obj.close().sync() }
+        errorIgnore = false
     }
 
     private fun getEventLoopGroup(size: Int = 0): EventLoopGroup {

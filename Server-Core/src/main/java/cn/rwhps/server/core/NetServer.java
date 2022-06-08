@@ -11,11 +11,15 @@ package cn.rwhps.server.core;
 
 import cn.rwhps.server.core.thread.CallTimeTask;
 import cn.rwhps.server.core.thread.Threads;
+import cn.rwhps.server.core.thread.TimeTaskData;
 import cn.rwhps.server.data.global.Data;
 import cn.rwhps.server.data.global.NetStaticData;
+import cn.rwhps.server.func.StrCons;
 import cn.rwhps.server.net.StartNet;
 import cn.rwhps.server.util.file.FileUtil;
 import cn.rwhps.server.util.log.Log;
+
+import static cn.rwhps.server.util.log.Log.clog;
 
 /**
  * @author RW-HPS/Dr
@@ -26,17 +30,28 @@ public class NetServer {
 
     public static void closeServer() {
         if (Data.game != null) {
+            TimeTaskData.INSTANCE.stopCallTickTask();
             Call.disAllPlayer();
             NetStaticData.startNet.each(StartNet::stop);
+            NetStaticData.startNet.clear();
+            Threads.closeNet();
             //Threads.newThreadCoreNet();
+
 
             Threads.closeTimeTask(CallTimeTask.CallPingTask);
             Threads.closeTimeTask(CallTimeTask.CallTeamTask);
+            Threads.closeTimeTask(CallTimeTask.PlayerAfkTask);
+            Threads.closeTimeTask(CallTimeTask.GameOverTask);
+            Threads.closeTimeTask(CallTimeTask.AutoStartTask);
+            Threads.closeTimeTask(CallTimeTask.AutoUpdateMapsTask);
+
+            Data.SERVER_COMMAND.handleMessage("uplist remove",  (StrCons) Log::clog);
 
             Data.game.getPlayerManage().playerGroup.clear();
             Data.game.getPlayerManage().playerAll.clear();
             Data.game = null;
-            Log.clog("Server closed");
+            System.gc();
+            clog("Server closed");
         }
     }
 
@@ -58,6 +73,6 @@ public class NetServer {
         FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
         fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
 
-        Log.clog("[Server Gameover completed]");
+        clog("[Server Gameover completed]");
     }
 }

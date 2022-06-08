@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
  */
 object Threads {
     private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(3, "Core-")
-    private val CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(3, "Core-Net-")
+    private var CORE_NET_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(3, "Core-Net-")
     private val SERVICE = TimeTaskManage()
     private val PLAYER_HEAT_THREAD = GetNewThreadPool.getNewFixedThreadPool(10, "Core-Heat-")
 
@@ -37,8 +37,10 @@ object Threads {
         PLAYER_HEAT_THREAD.shutdownNow()
     }
 
-    internal fun closeNet() {
+    @JvmStatic
+    fun closeNet() {
         CORE_NET_THREAD.shutdownNow()
+        CORE_NET_THREAD = GetNewThreadPool.getNewFixedThreadPool(3, "Core-Net-")
     }
 
     @JvmStatic

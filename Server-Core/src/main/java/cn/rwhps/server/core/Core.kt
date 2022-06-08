@@ -19,6 +19,7 @@ import kotlin.system.exitProcess
 object Core {
     @JvmStatic
     fun exit() {
+        NetServer.closeServer()
         Data.core.save()
         close()
         exitProcess(0)

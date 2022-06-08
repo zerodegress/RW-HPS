@@ -3,6 +3,7 @@ logs/
 /Server-All/build/
 /Server-Core/build/
 /TimeTaskQuartz/build/
+*/build/
 /timetask/build/
 config/
 *.gif

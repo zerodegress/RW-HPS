@@ -109,6 +109,12 @@ object ModManage {
     }
 
     @JvmStatic
+    fun clear() {
+        modsData.clear()
+        loadUnitsCount = 0
+    }
+    
+    @JvmStatic
     fun getModsList(): Seq<String> =
         modsData.keys().toSeq()
 }

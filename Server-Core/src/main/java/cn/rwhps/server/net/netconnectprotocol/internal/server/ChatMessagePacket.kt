@@ -18,25 +18,30 @@ import cn.rwhps.server.util.PacketType
 import java.io.IOException
 
 /**
- * 向玩家发送聊天消息
- * @param msg String    : 消息
- * @param sendBy String : 发送人名称
- * @param team Int      : 队伍 (判别颜色)
- * @return Packet       : 生成一个可发送的包
- * @throws IOException  : 未知
+ * Chat
+ * @author RW-HPS/Dr
+ */
+
+/**
+ * Send chat messages to players
+ * @param msg String    : Message
+ * @param sendBy String : Sender Name
+ * @param team Int      : Team (distinguishing color)
+ * @return Packet       : Generate a sendable package
+ * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
 internal fun chatMessagePacketInternal(msg: String, sendBy: String, team: Int): Packet {
     val o = GameOutputStream()
-    // 包内包含的消息
+    // The message contained in the package
     o.writeString(msg)
-    // 协议版本 (在旧版本中 这里分别为 0 1 2 3)
+    // Protocol version (in older versions here 0 1 2 3 respectively)
     o.writeByte(3)
-    // 发送人名称是否为空 并写入数据
+    // Whether the sender name is empty and write data
     o.writeIsString(sendBy)
-    // 队伍
+    // Team
     o.writeInt(team)
-    // 队伍
+    // Team
     o.writeInt(team)
     return o.createPacket(PacketType.CHAT)
 }

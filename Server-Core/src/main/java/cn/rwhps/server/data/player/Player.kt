@@ -48,6 +48,7 @@ class Player(
         set(value) { watch = (value == -3) ; field = value }
     /** List position  */
 	var site = 0
+        set(value) { color = site ; field = value }
     /** */
     val credits = Data.game.credits
     /** */

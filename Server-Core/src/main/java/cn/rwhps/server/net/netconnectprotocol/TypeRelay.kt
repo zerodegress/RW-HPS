@@ -22,6 +22,14 @@ import cn.rwhps.server.util.PacketType.*
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.game.CommandHandler
 
+/**
+ * Parse the [cn.rwhps.server.net.core.IRwHps.NetType.RelayProtocol] protocol
+ * @property con                GameVersionRelay
+ * @property conClass           Initialize
+ * @property abstractNetConnect AbstractNetConnect
+ * @property version            Parser version
+ * @author RW-HPS/Dr
+ */
 open class TypeRelay : TypeConnect {
     val con: GameVersionRelay
     var conClass: Class<out GameVersionRelay>? = null
@@ -41,7 +49,7 @@ open class TypeRelay : TypeConnect {
     }
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+         return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)

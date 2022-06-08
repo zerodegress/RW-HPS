@@ -20,6 +20,7 @@ import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnectRelay
+import cn.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInfo
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
@@ -27,7 +28,6 @@ import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.RandomUtil.getRandomIetterString
 import cn.rwhps.server.util.StringFilteringUtil.cutting
-import cn.rwhps.server.util.StringFilteringUtil.replaceChinese
 import cn.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import cn.rwhps.server.util.encryption.Sha
 import cn.rwhps.server.util.game.CommandHandler
@@ -47,24 +47,24 @@ import java.util.stream.IntStream
  * @Thanks : [Github 1dNDN](https://github.com/1dNDN)
  *
  * This test was done on :
- * Relay-CN (V. 3.2.0)
- * 2021.11.05 16:30
+ * Relay-CN (V. 6.0.0)
+ * 2022.6.8 00:00
  */
 
 /**
  * Relay protocol implementation
  * Direct forwarding consumes more bandwidth and the same effect as using VPN forwarding
  *
- * @property relay Relay example
- * @property relayPlayerQQ NO USE
- * @property site RELAY's internal location
- * @property connectUUID UUID of this connection
- * @property cachePacket Cached Package
- * @property betaGameVersion Is it a beta version
+ * @property permissionStatus       Connection authentication status
+ * @property relay                  Relay instance
+ * @property site                   Connect the forwarding location within the RELAY
+ * @property connectUUID            UUID of this connection
+ * @property cachePacket            Cached Package
+ * @property betaGameVersion        Is it a beta version
  * @property netConnectAuthenticate Connection validity verification
- * @property name player's name
- * @property registerPlayerId UUID-Hash code after player registration
- * @property version Protocol version
+ * @property name                   player's name
+ * @property registerPlayerId       UUID-Hash code after player registration
+ * @property version                Protocol version
  * @constructor
  *
  * @author RW-HPS/Dr
@@ -75,9 +75,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         internal set
 
     override var relay: Relay? = null
-        protected set
-
-    override var relayPlayerQQ: String? = ""
         protected set
 
     protected var site = 0
@@ -105,7 +102,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
 
     override val version: String
-        get() = "RELAY"
+        get() = "1.14 RELAY"
 
     override fun sendRelayServerInfo() {
         val cPacket: Packet? = Cache.packetCache["sendRelayServerInfo"]
@@ -347,12 +344,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     override fun addGroup(packet: Packet) {
-        relay!!.groupNet.broadcast(packet, null)
+        relay!!.groupNet.broadcastAndUDP(packet)
     }
 
     override fun addGroupPing(packet: Packet) {
         try {
-            relay!!.groupNet.broadcast(packet, null)
+            relay!!.groupNet.broadcastAndUDP(packet)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -628,11 +625,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     private fun newRelayId(id: String?, mod: Boolean, maxPlayer: Int = 10) {
-        val nName: Array<String> = if (IsUtil.isBlank(relayPlayerQQ)) arrayOf(replaceChinese(name,"?"),"") else arrayOf(name,relayPlayerQQ!!)
         relay = if (IsUtil.isBlank(id)) {
-            Relay.getRelay( playerName = nName, isMod = mod, betaGameVersion = betaGameVersion, maxPlayer = maxPlayer)
+            Relay.getRelay( playerName = name, isMod = mod, betaGameVersion = betaGameVersion, maxPlayer = maxPlayer)
         } else {
-            Relay.getRelay( id!!, nName, mod, betaGameVersion, maxPlayer)
+            Relay.getRelay( id!!, name, mod, betaGameVersion, maxPlayer)
         }
         relay!!.isMod = mod
         sendRelayServerId()

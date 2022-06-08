@@ -21,35 +21,40 @@ import cn.rwhps.server.util.PacketType
 import java.io.IOException
 
 /**
- * 向玩家发生更新Tick包
+ * Game Tick
+ * @author RW-HPS/Dr
+ */
+
+/**
+ * Update Tick packs to players
  * @param tick Int      : TICK
- * @return Packet       : 生成一个可发送的包
- * @throws IOException  : 未知
+ * @return Packet       : Generate a sendable package
+ * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
 internal fun gameTickPacketInternal(tick: Int): Packet {
     val o = GameOutputStream()
-    // 游戏TICK
+    // Game TICK
     o.writeInt(tick)
-    // 可读取的按键包长度
-    // 因为不存在按键包 所以这个包只会让客户端更新Tick
+    // Readable key pack length
+    // Because there is no button package, this package will only let the client update the Tick
     o.writeInt(0)
     return o.createPacket(PacketType.TICK)
 }
 
 /**
- * 向玩家发生指定Tick下的单个按键包(单位动作包)
+ * Sends a single key pack (unit action pack) under the specified Tick to the player
  * @param tick Int              : TICK
- * @param cmd GameCommandPacket : 按键包
- * @return Packet               : 生成一个可发送的包
- * @throws IOException          : 未知
+ * @param cmd GameCommandPacket : GameCommand Packet
+ * @return Packet               : Generate a sendable package
+ * @throws IOException          : Unknown
  */
 @Throws(IOException::class)
 internal fun gameTickCommandPacketInternal(tick: Int, cmd: GameCommandPacket): Packet {
     val o = GameOutputStream()
-    // 游戏TICK
+    // Game TICK
     o.writeInt(tick)
-    // 可读取的按键包长度
+    // Readable key pack length
     o.writeInt(1)
     val enc = CompressOutputStream.getGzipOutputStream("c", false)
     enc.writeBytes(cmd.bytes)
@@ -58,18 +63,18 @@ internal fun gameTickCommandPacketInternal(tick: Int, cmd: GameCommandPacket): P
 }
 
 /**
- * 向玩家发生指定Tick下的多个按键包(单位动作包)
+ * Generate multiple key packs (unit action packs) under the specified Tick to the player
  * @param tick Int                      : TICK
- * @param cmd Seq<GameCommandPacket>    : 多个按键包列表
- * @return Packet                       : 生成一个可发送的包
- * @throws IOException                  : 未知
+ * @param cmd Seq<GameCommandPacket>    : GameCommand Packets
+ * @return Packet                       : Generate a sendable package
+ * @throws IOException                  : Unknown
  */
 @Throws(IOException::class)
 internal fun gameTickCommandsPacketInternal(tick: Int, cmd: Seq<GameCommandPacket>): Packet {
     val o = GameOutputStream()
-    // 游戏TICK
+    // Game TICK
     o.writeInt(tick)
-    // 可读取的按键包长度
+    // Readable key pack length
     o.writeInt(cmd.size())
     for (c in cmd) {
         val enc = CompressOutputStream.getGzipOutputStream("c", false)

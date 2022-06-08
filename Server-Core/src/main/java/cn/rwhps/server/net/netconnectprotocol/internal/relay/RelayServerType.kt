@@ -19,16 +19,21 @@ import cn.rwhps.server.util.PacketType
 import java.io.IOException
 
 /**
- * 使玩家客户端弹出一个可输入的窗口
- *   输入的数据明文返回
- * @param msg String    : 提示的信息
- * @return Packet       : 生成一个可发送的包
- * @throws IOException  : 未知
+ * RELAY verification
+ * @author RW-HPS/Dr
+ */
+
+/**
+ * Make the player client pop up an inputable window
+ *   The input data is returned in plaintext
+ * @param msg String    : Prompt Information
+ * @return Packet       : Generate a sendable package
+ * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
 fun relayServerTypeInternal(msg: String): Packet {
     val o = GameOutputStream()
-    // 理论上是随机数？
+    // Theoretically random numbers?
     o.writeByte(1)
     o.writeInt(5) //可能和-AX一样
     // Msg
@@ -37,17 +42,17 @@ fun relayServerTypeInternal(msg: String): Packet {
 }
 
 /**
- * 解析 [relayServerTypeInternal] 返回的数据
- * @param packet Packet : 返回的包
- * @return String       : 解析出的数据 (玩家输入的明文)
- * @throws IOException  : 未知
+ * Parse the data returned by [relayServerTypeInternal]
+ * @param packet Packet : Returned Package
+ * @return String       : Parsed data (plaintext entered by the player)
+ * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
 fun relayServerTypeReplyInternal(packet: Packet): String {
     GameInputStream(packet).use { inStream ->
-        // 跳过前面没用的数据
+        // Skip the previously useless data
         inStream.skip(5)
-        // 读取数据 并去掉首尾空格
+        // Read data and remove leading and trailing spaces
         return inStream.readString().trim { it <= ' ' }
     }
 }

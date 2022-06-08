@@ -42,20 +42,35 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.min
 
 /**
+ * Common server implementation
+ *
+ * @property supportedversionBeta   Server is Beta
+ * @property supportedversionGame   Server Support Version String
+ * @property supportedVersionInt    Server Support Version Int
+ * @property sync                   Key lock to prevent concurrency
+ * @property connectKey             Authentication KEY
+ * @property relaySelect            Popup callback
+ * @property player                 Player
+ * @property permissionStatus       ServerStatus
+ * @property version                Protocol version
+ * @constructor
  *
  * @date 2020/9/5 17:02:33
+ * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectServer {
-    protected var supportedVersion: Int = 170
-    
-    private val sync = ReentrantLock(true)
+    open val supportedversionBeta = true
+    open val supportedversionGame = "1.15.P8"
+    open val supportedVersionInt  = 170
+
+    protected val sync = ReentrantLock(true)
 
     /** 玩家连接校验 */
-    private var connectKey: String? = null
+    protected var connectKey: String? = null
 
     /** 玩家弹窗 */
-    private var relaySelect: ((String) -> Unit)? = null
+    protected var relaySelect: ((String) -> Unit)? = null
 
 
     /** 玩家  */
@@ -88,7 +103,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun sendServerInfo(utilData: Boolean) {
         val o = GameOutputStream()
         o.writeString(Data.SERVER_ID)
-        o.writeInt(supportedVersion)
+        o.writeInt(supportedVersionInt)
         /* 地图 */
         o.writeInt(Data.game.maps.mapType.ordinal)
         o.writeString(Data.game.maps.mapPlayer + Data.game.maps.mapName)
@@ -151,7 +166,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             /* 共享控制 */
             o.writeBoolean(Data.game.sharedControl)
             /* 游戏暂停 */
-            o.writeBoolean(false)
+            o.writeBoolean(Data.game.gamePaused)
             sendPacket(o.createPacket(PacketType.TEAM_LIST))
         } catch (e: IOException) {
             Log.error("Team", e)
@@ -331,6 +346,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 if (boolean4) {
                     outStream.writeByte(inStream.readByte())
                 }
+
                 val boolean5 = inStream.readBoolean()
                 outStream.writeBoolean(boolean5)
                 if (boolean5) {
@@ -343,11 +359,14 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     }
                 }
                 outStream.transferToFixedLength(inStream,8)
+
                 outStream.writeString(inStream.readString())
-                //outStream.writeBoolean(inStream.readBoolean())
-                outStream.writeByte(inStream.readByte())
+                outStream.writeBoolean(inStream.readBoolean())
+
+                //outStream.writeByte(inStream.readByte())
                 inStream.readShort()
                 outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
+
                 outStream.transferTo(inStream)
                 Data.game.gameCommandCache.offer(GameCommandPacket(player.site, outStream.getPacketBytes()))
             }
@@ -492,8 +511,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             val o = GameOutputStream()
             o.writeString(Data.SERVER_ID)
             o.writeInt(1)
-            o.writeInt(supportedVersion)
-            o.writeInt(supportedVersion)
+            o.writeInt(supportedVersionInt)
+            o.writeInt(supportedVersionInt)
             o.writeString("com.corrodinggames.rts.server")
             o.writeString(Data.core.serverConnectUuid)
             o.writeInt(key)

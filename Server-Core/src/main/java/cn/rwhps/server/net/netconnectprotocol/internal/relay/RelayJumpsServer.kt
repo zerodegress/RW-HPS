@@ -18,18 +18,25 @@ import cn.rwhps.server.util.PacketType
 import java.io.IOException
 
 /**
- * 使用官方协议跳转到新服务器
- *  客户端主动连接
+ * RELAY Jump Server
+ * @author RW-HPS/Dr
+ */
+
+/**
+ * Jump to a new server using the official protocol
+ *  Client actively connects
  * @param ip String     : IP
- * @return Packet       : 生成一个可发送的包
- * @throws IOException  : 未知
+ * @return Packet       : Generate a sendable package
+ * @throws IOException  : Unknown
+ *
+ * @author RW-HPS/Dr
  */
 @Throws(IOException::class)
 internal fun fromRelayJumpsToAnotherServer(ip: String): Packet {
     val o = GameOutputStream()
-    // 包内包含的消息
+    // The message contained in the package
     o.writeByte(0)
-    // 协议版本? 我不知道
+    // Protocol version? (I don't know)
     o.writeInt(3)
     // Debug
     o.writeBoolean(false)

@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets
  * @date 2021/12/16 08:55:26
  */
 abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionAgreement) {
-    /** 连接转发标识 */
+    /** Connection For warding Identifier */
     var isConnectServer: Boolean = false
 
     var connectServer: ConnectServer? = null
@@ -55,7 +55,6 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
 
     /**
      * Set up try
-     * //@param status
      * Get try status
      * @return Boolean
      */

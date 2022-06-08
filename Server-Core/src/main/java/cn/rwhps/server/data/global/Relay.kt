@@ -54,7 +54,7 @@ class Relay {
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()
 
-    private constructor(id: String, playerName: Array<String>, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int) {
+    private constructor(id: String, playerName: String, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int) {
         serverRelayData.put(id.toInt(), this)
         this.id = id
         groupNet = GroupNet()
@@ -118,7 +118,7 @@ class Relay {
     fun sendMsg(msg: String) {
         try {
             admin!!.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
-            groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg), null)
+            groupNet.broadcastAndUDP(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -230,21 +230,21 @@ class Relay {
          * @param maxPlayer         Maximum number of people
          * @return Relay
          */
-        internal fun getRelay(id: String = "", playerName: Array<String>, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int): Relay {
+        internal fun getRelay(id: String = "", playerName: String, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int): Relay {
             var idRelay = id
             val relay: Relay =  if (id.isBlank()) {
-                                    while (true) {
-                                        val intId = rand.random(1000, 100000)
-                                        if (!serverRelayData.containsKey(intId)) {
-                                            idRelay = intId.toString()
-                                            debug(intId)
-                                            break
-                                        }
-                                    }
-                                    Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
-                                } else {
-                                    Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
-                                }
+                while (true) {
+                    val intId = rand.random(1000, 100000)
+                    if (!serverRelayData.containsKey(intId)) {
+                        idRelay = intId.toString()
+                        debug(intId)
+                        break
+                    }
+                }
+                Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
+            } else {
+                Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
+            }
             serverRelayData.put(idRelay.toInt(), relay)
             return relay
         }

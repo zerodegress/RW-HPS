@@ -33,16 +33,16 @@ abstract class GameObject() : SyncedObject {
         if (id == -1L) {
             return null
         }
-        val it: Iterator<GameObject> = fastGameObjectList.iterator()
 
-        while (it.hasNext()) {
-            val `object`: GameObject = it.next()
-            if (`object`.id == id) {
-                return `object`
-            }
+        var result: GameObject? = null
+
+        fastGameObjectList.each( { it.id == id }) { gameObject: GameObject -> result = gameObject }
+
+        if (result == null) {
+            Log.error("ReportDesync","getFromId:$id was not found")
+            return null
         }
-        Log.error("ReportDesync","getFromId:$id was not found")
-        return null
+        return result
     }
 
     /*

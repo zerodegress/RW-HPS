@@ -18,6 +18,10 @@ import cn.rwhps.server.net.core.AbstractNetPacket
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.log.exp.ImplementedException
 
+/**
+ * Not implemented
+ * @author RW-HPS/Dr
+ */
 class NullNetPacket : AbstractNetPacket {
     override fun getSystemMessagePacket(msg: String): Packet {
         throw ImplementedException("Not yet implemented")

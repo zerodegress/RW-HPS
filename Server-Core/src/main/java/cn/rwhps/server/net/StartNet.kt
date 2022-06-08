@@ -34,8 +34,8 @@ import java.net.BindException
 import java.net.ServerSocket
 
 /**
- * NetGameServer服务
- * 对外最少开放接口,尽量内部整合
+ * NetGameServer Service
+ * Open interfaces at least to the outside world, and try to integrate internally as much as possible
  *
  * @author RW-HPS/Dr
  */
@@ -49,7 +49,6 @@ class StartNet {
 
     constructor() {
         start = StartGameNetTcp(this)
-        //start = StartGamePortDivider(this)
     }
 
     constructor(abstractNetClass: Class<out AbstractNet>) {
@@ -63,8 +62,8 @@ class StartNet {
     }
 
     /**
-     * 在指定端口启动Game Server
-     * @param port 端口
+     * Start the Game Server on the specified port
+     * @param port Port
      */
     fun openPort(port: Int) {
         Data.config.RunPid = Data.core.pid
@@ -74,12 +73,13 @@ class StartNet {
     }
 
     /**
-     * 在指定端口范围启动Game Server
-     * @param port 主端口
+     * Start the Game Server in the specified port range
+     * @param port MainPort
      * @param startPort Start Port
      * @param endPort End Port
      */
-    fun openPort(port: Int,startPort:Int,endPort:Int) {
+    @JvmOverloads
+    fun openPort(port: Int,startPort:Int,endPort:Int,errorIgnore: Boolean = false) {
         clog(Data.i18NBundle.getinput("server.start.open"))
         val bossGroup: EventLoopGroup = getEventLoopGroup(4)
         val workerGroup: EventLoopGroup = getEventLoopGroup()
@@ -141,7 +141,7 @@ class StartNet {
             })
         try {
             //4.bind到指定端口，并返回一个channel，该端口就是监听UDP报文的端口
-            val channel: Channel = bootstrap.bind(5123).sync().channel()
+            val channel: Channel = bootstrap.bind(port).sync().channel()
             //5.等待channel的close
             channel.closeFuture().sync()
             //6.关闭group
@@ -151,15 +151,16 @@ class StartNet {
         }
     }
 
+    /**
+     * Get the number of connections
+     * @return Int
+     */
     fun getConnectSize(): Int {
         return start.getConnectSize()
     }
 
     fun stop() {
-        connectChannel.each { obj: Channel ->
-            obj.close()
-            obj.parent()?.close();
-        }
+        connectChannel.each { obj: Channel -> obj.close() }
     }
 
     private fun getEventLoopGroup(size: Int = 0): EventLoopGroup {

@@ -49,9 +49,10 @@ object ServiceLoader {
         }
     }
 
-    fun addService(serviceType: ServiceType, serviceName: String, service: Class<*>) {
+    @JvmOverloads
+    fun addService(serviceType: ServiceType, serviceName: String, service: Class<*>,cover: Boolean = false) {
         // 跳过已经存在的 只取第一个
-        if (ServiceLoaderData.containsKey(serviceType.name+serviceName)) {
+        if (ServiceLoaderData.containsKey(serviceType.name+serviceName) && !cover) {
             return
         }
         ServiceLoaderData[serviceType.name+serviceName] = service

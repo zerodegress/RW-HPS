@@ -17,30 +17,38 @@ import java.io.IOException
 /**
  * Only provide interface but not implement
  * As the interface of game CoreNet, it provides various version support for GameServer
- * @author RW-HPS/Dr
+ *
  * @date 2021/7/31/ 14:14
+ * @author RW-HPS/Dr
  */
 interface AbstractNetConnectRelay {
     val permissionStatus: DataPermissionStatus.RelayStatus
 
     /**
-     * 获取Relay的协议 无则为null
+     * Get the instance of Relay, null if none
      * @return Relay
      */
     val relay: Relay?
 
-    val relayPlayerQQ: String?
-
+    /**
+     * Cache the received packets
+     * @param packet Packet
+     */
     fun setCachePacket(packet: Packet)
+
+    /**
+     * Cache the last sent packet
+     * @param packet Packet
+     */
     fun setlastSentPacket(packet: Packet)
 
     /**
-     * 服务器握手
+     * Server handshake
      */
     fun sendRelayServerInfo()
 
     /**
-     * 检验ID直达
+     * Inspection ID Direct join Server
      * @throws IOException Error
      */
     @Throws(IOException::class)
@@ -49,7 +57,7 @@ interface AbstractNetConnectRelay {
     fun relayRegisterConnection(packet: Packet)
 
     /**
-     * ID直达
+     * Inspection ID Direct join Server
      * @param relay Relay
      * @throws IOException Error
      */
@@ -57,28 +65,28 @@ interface AbstractNetConnectRelay {
     fun relayDirectInspection(relay: Relay)
 
     /**
-     * 检测Relay的校验是否正确-发送
+     * Check if Relay's checksum is correct - send
      */
     fun sendVerifyClientValidity()
 
     /**
-     * 检测Relay的校验是否正确-校验
+     * Check whether the check of Relay is correct - check
      */
     fun receiveVerifyClientValidity(packet: Packet): Boolean
 
     /**
-     * Server类型
+     * Server type
      * @param msg RelayID
      */
     fun sendRelayServerType(msg: String, run: ((String) -> Unit)? = null)
 
     /**
-     * 类型回复
+     * Type Reply
      */
     fun sendRelayServerTypeReply(packet: Packet)
 
     /**
-     * 服务器Admin?
+     * Set up RELAY HOST
      */
     fun sendRelayServerId()
 
@@ -91,43 +99,40 @@ interface AbstractNetConnectRelay {
     fun receiveChat(p: Packet)
 
     /**
-     * 发送消息
+     * Send a message
      */
     fun getRelayT4(msg: String)
-    //fun sendRelayPlayerInfo()
-    //fun sendRelayPlayerConnectPacket(packet: Packet)
-    //fun getRelayUnitData(packet: Packet)
 
     /**
-     * 返回ping包
+     * Return Ping Packet
      * @param packet packet
      */
     fun getPingData(packet: Packet)
 
     /**
-     * 群发包
+     * Group Package
      * @param packet Packet
      */
     fun addGroup(packet: Packet)
 
     /**
-     * 群发ping包
+     * Group Ping Package
      * @param packet Packet
      */
     fun addGroupPing(packet: Packet)
 
     /**
-     * 连接Relay服务器
+     * Connect to Relay server
      */
     fun addRelayConnect()
 
     /**
-     * 连接Relay服务器
+     * Reconnect to Relay server
      */
     fun addReRelayConnect()
 
     /**
-     * 解析包
+     * Parse the package
      * @param packet Packet
      */
     fun addRelaySend(packet: Packet)
@@ -135,12 +140,12 @@ interface AbstractNetConnectRelay {
     fun sendCustomPacket(packet: Packet)
 
     /**
-     * 给HOST 发生 RELAY玩家断开
+     * Send RELAY to HOST Player disconnected
      */
     fun relayPlayerDisconnect()
 
     /**
-     * 多播复用
+     * Multicast Multiplexing
      * @param packet Packet
      */
     fun multicastAnalysis(packet: Packet)

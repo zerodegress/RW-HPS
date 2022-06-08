@@ -36,6 +36,8 @@ import java.io.IOException
 import java.math.BigInteger
 
 /**
+ * Provides support for most common packages for the server
+ *
  * @author RW-HPS/Dr
  */
 @MainProtocolImplementation

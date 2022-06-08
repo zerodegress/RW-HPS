@@ -11,6 +11,7 @@ package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
+import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
@@ -29,8 +30,8 @@ import java.util.stream.IntStream
  * @Thanks : [Github 1dNDN](https://github.com/1dNDN)
  *
  * This test was done on :
- * Relay-CN (V. 5.1.0)
- * 2022.1.26 20:00
+ * Relay-CN (V. 6.0.0)
+ * 2022.6.8 00:00
  */
 
 /**
@@ -38,7 +39,7 @@ import java.util.stream.IntStream
  * Can realize multicast and save bandwidth
  *
  * @property lastSentPacket Last packet sent
- * @property version Protocol version
+ * @property version        Protocol version
  * @constructor
  *
  * @author RW-HPS/Dr
@@ -47,7 +48,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
     private lateinit var lastSentPacket: Packet
 
     override val version: String
-        get() = "RELAY Rebroadcast"
+        get() = "1.14 RELAY Rebroadcast"
 
     override fun setlastSentPacket(packet: Packet) {
         lastSentPacket = packet
@@ -90,8 +91,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
              */
             if (nnn.lowercase(Locale.getDefault()).contains("server")
                 || nnn.lowercase(Locale.getDefault()).contains("relay")
-                || nnn.lowercase(Locale.getDefault()).contains("eess")
-                || nnn.lowercase(Locale.getDefault()).contains("uu.")) {
+                || nnn.lowercase(Locale.getDefault()).contains("eess")) {
                 relay!!.groupNet.disconnect() // Close Room
                 disconnect() // Close Connect & Reset Room
             }

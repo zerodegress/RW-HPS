@@ -118,8 +118,8 @@ interface AbstractNetConnectServer {
 
     /**
      * Extract the GameSave package
-     * @param packet packet
-     * @return 包
+     * @param packet Packet
+     * @return Packet
      * @throws IOException Error
      */
     @Throws(IOException::class)
@@ -158,13 +158,14 @@ interface AbstractNetConnectServer {
     }
 
     /**
-     * Server类型
-     * @param msg RelayID
+     * Server type
+     * @param msg Message
+     * @param run Callback
      */
     fun sendRelayServerType(msg: String, run: ((String) -> Unit)? = null)
 
     /**
-     * 类型回复
+     * Type Reply
      */
     fun sendRelayServerTypeReply(packet: Packet)
 }

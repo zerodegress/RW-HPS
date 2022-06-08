@@ -12,9 +12,12 @@ package cn.rwhps.server.plugin.beta.uplist
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.json.Json
 import cn.rwhps.server.func.StrCons
 import cn.rwhps.server.net.HttpRequestOkHttp
+import cn.rwhps.server.net.core.IRwHps
+import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.IsUtil
@@ -22,17 +25,33 @@ import cn.rwhps.server.util.StringFilteringUtil.cutting
 import cn.rwhps.server.util.encryption.Base64
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.log.Log
-import okhttp3.FormBody
-import java.text.MessageFormat
 import java.util.concurrent.TimeUnit
 
 /**
  * 为 服务器进入官方列表提供API支持
  * 并不打算开放源码 避免被滥用 (已经被滥用了 指漫天AD)
  * API随Server版本而进行版本更新
+ *
+ * DEV 保证 :
+ * V5开始将不会进行较大版本更新 一切由 [-4] 错误码 解决
  * @author RW-HPS/Dr
  */
 internal class UpList : Plugin() {
+    private val version = "Version=HPS#1"
+    private val privateIp: String
+        get() {
+            var privateIpTemp = IpUtil.getPrivateIp()
+            if (privateIpTemp.isNullOrBlank()) {
+                privateIpTemp = "10.0.0.1"
+            }
+            return privateIpTemp
+        }
+    private var port = Data.config.Port.toString()
+
+    private var versionBeta = true
+    private var versionGame = "1.15.P8"
+    private var versionGameInt = 170
+
     private var upServerList = false
 
     /* DATA Cache */
@@ -65,19 +84,25 @@ internal class UpList : Plugin() {
         }
     }
 
-    private fun initUpListData(port: String?): Boolean {
-        val formBody = FormBody.Builder()
-        formBody.add("Passwd", IsUtil.notIsBlank(Data.game.passwd).toString())
-        formBody.add("ServerName",Data.config.ServerName)
-        formBody.add("Port", port ?:Data.config.Port.toString())
-        formBody.add("MapName",Data.game.maps.mapName)
-        formBody.add("PlayerSize",Data.game.playerManage.playerGroup.size().toString())
-        formBody.add("PlayerMaxSize",Data.game.maxPlayer.toString())
+    private fun initUpListData(urlIn: String = ""): Boolean {
+        if (NetStaticData.ServerNetType == IRwHps.NetType.ServerProtocol || NetStaticData.ServerNetType == IRwHps.NetType.ServerTestProtocol) {
+            val con = NetStaticData.RwHps.typeConnect.abstractNetConnect as GameVersionServer
+            versionBeta = con.supportedversionBeta
+            versionGame = con.supportedversionGame
+            versionGameInt = con.supportedVersionInt
+        } else {
+            versionBeta = false
+            versionGame = "1.14-Other"
+            versionGameInt = 151
+        }
 
-        var resultUpList = HttpRequestOkHttp.doPost(Data.urlData.readString("Get.UpListData.Bak"), formBody)
 
-        if (resultUpList.isBlank()) {
-            resultUpList = HttpRequestOkHttp.doPost(Data.urlData.readString("Get.UpListData"), formBody)
+        val url = urlIn.ifBlank { Data.urlData.readString("Get.UpListData.Bak") }
+
+        var resultUpList = HttpRequestOkHttp.doPost(url, version)
+
+        if (resultUpList.isBlank() && urlIn.isBlank()) {
+            resultUpList = HttpRequestOkHttp.doPost(Data.urlData.readString("Get.UpListData"), version)
         }
 
         if (resultUpList.isBlank()) {
@@ -91,29 +116,31 @@ internal class UpList : Plugin() {
         } else if (resultUpList.startsWith("[-2]")) {
             Log.error("[Get UPLIST Data Error] IP prohibited")
             return false
+        } else if (resultUpList.startsWith("[-4]")) {
+            Log.error("[Get UPLIST Data Error] Version Error")
+            val newUrl = resultUpList.substring(8,resultUpList.length)
+            return if (newUrl == "Error") {
+                Log.error("[Get UPLIST Data Error] Version Error & New Error")
+                false
+            } else {
+                initUpListData(newUrl)
+            }
         }
 
         val json = Json(resultUpList)
-        Log.debug(resultUpList)
 
         serverID = Base64.decodeString(json.getData("id"))
         addData = Base64.decodeString(json.getData("add"))
         openData = Base64.decodeString(json.getData("open"))
         updateData = Base64.decodeString(json.getData("update"))
         removeData = Base64.decodeString(json.getData("remove"))
-
-        Log.debug(serverID)
-        Log.debug(addData)
-        Log.debug(openData)
-        Log.debug(updateData)
-
-        Log.debug(resultUpList)
         return true
     }
 
-    private fun add(log: StrCons, port: String? = null) {
+    private fun add(log: StrCons, port: String = "") {
         if (!upServerList) {
-            if (initUpListData(port)) {
+            if (initUpListData()) {
+                this.port = port.ifBlank { Data.config.Port.toString() }
                 Threads.newThreadCore { upServerList = true ; uplist() }
             }
         } else {
@@ -122,16 +149,22 @@ internal class UpList : Plugin() {
     }
 
     private fun uplist() {
+        var addData0= addData.replace("{RW-HPS.RW.VERSION}",versionGame)
+        addData0    = addData0.replace("{RW-HPS.RW.VERSION.INT}",versionGameInt.toString())
+        addData0    = addData0.replace("{RW-HPS.RW.IS.VERSION}",versionBeta.toString())
+        addData0    = addData0.replace("{RW-HPS.RW.IS.PASSWD}",Data.game.passwd.isNotBlank().toString())
+        addData0    = addData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
+        addData0    = addData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
+        addData0    = addData0.replace("{RW-HPS.S.PORT}",port)
+        addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20))
+        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size().toString())
+        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
-        var privateIp = IpUtil.getPrivateIp()
-        if (IsUtil.isBlank(privateIp)) {
-            privateIp = "10.0.0.1"
-        }
 
-        val resultUp = MessageFormat(addData).format(arrayOf(cutting(Data.config.ServerName,10),privateIp, Data.game.maps.mapName))
+        Log.debug(addData0)
 
-        val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", resultUp).contains(serverID)
-        val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", resultUp).contains(serverID)
+        val addGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", addData0).contains(serverID)
+        val addGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", addData0).contains(serverID)
         if (addGs1 || addGs4) {
             if (addGs1 && addGs4) {
                 Log.clog(Data.i18NBundle.getinput("err.yesList"))
@@ -142,8 +175,10 @@ internal class UpList : Plugin() {
             Log.clog(Data.i18NBundle.getinput("err.noList"))
         }
 
-        val checkPortGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", openData).contains("true")
-        val checkPortGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", openData).contains("true")
+        val openData0= openData.replace("{RW-HPS.S.PORT}",port)
+
+        val checkPortGs1 = HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", openData0).contains("true")
+        val checkPortGs4 = HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", openData0).contains("true")
         if (checkPortGs1 || checkPortGs4) {
             Log.clog(Data.i18NBundle.getinput("err.yesOpen"))
         } else {
@@ -154,13 +189,20 @@ internal class UpList : Plugin() {
     }
 
     private fun update() {
-        val result0 = MessageFormat(updateData).format(arrayOf(
-            cutting(Data.config.ServerName,12),
-            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20),
-            if (Data.game.isStartGame) "ingame" else "battleroom",
-            Data.game.playerManage.playerGroup.size().toString()))
-        HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", result0)
-        HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", result0)
+        var updateData0 = updateData.replace("{RW-HPS.RW.IS.PASSWD}",Data.game.passwd.isNotBlank().toString())
+        updateData0     = updateData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
+        updateData0     = updateData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
+        updateData0     = updateData0.replace("{RW-HPS.S.PORT}",port)
+        updateData0     = updateData0.replace("{RW-HPS.RW.MAP.NAME}",
+            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20))
+        updateData0     = updateData0.replace("{RW-HPS.S.STATUS}",
+            if (Data.game.isStartGame) "ingame" else "battleroom")
+        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size().toString())
+        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
+
+
+        HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", updateData0)
+        HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", updateData0)
     }
 
     private fun remove(log: StrCons) {

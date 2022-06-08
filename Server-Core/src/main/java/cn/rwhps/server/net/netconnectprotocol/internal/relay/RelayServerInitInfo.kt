@@ -18,10 +18,17 @@ import cn.rwhps.server.util.PacketType
 import java.io.IOException
 
 /**
- * 让客户端认为这是 RELAY 服务器
- *  用 RELAY 的初始化
- * @return Packet       : 生成一个可发送的包
- * @throws IOException  : 未知
+ * RELAY Join
+ * @author RW-HPS/Dr
+ */
+
+/**
+ * Let the client think this is the RELAY server
+ *  Initialization with RELAY
+ * @return Packet       : Generate a sendable package
+ * @throws IOException  : Unknown
+ *
+ * @author RW-HPS/Dr
  */
 @Throws(IOException::class)
 internal fun relayServerInitInfo(): Packet {

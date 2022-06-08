@@ -22,6 +22,8 @@ import java.io.IOException
 import java.util.concurrent.Executors
 
 /**
+ * Bulk support for connections
+ *
  * @author RW-HPS/Dr
  */
 class GroupNet {
@@ -31,16 +33,16 @@ class GroupNet {
     private val protocol = Seq<ConnectionAgreement>(8)
 
     /**
-     * 加入一个用户到群发列表
-     * @param channel 通道
+     * Add a user to the group list
+     * @param channel Channel
      */
     fun add(channel: Channel) {
         channelGroup.add(channel)
     }
 
     /**
-     * 加入一个用户到群发列表
-     * @param connectionAgreement UDP通道
+     * Add a user to the group list
+     * @param connectionAgreement UDP Channel
      */
     fun add(connectionAgreement: ConnectionAgreement) {
         protocol.add(connectionAgreement)
@@ -50,14 +52,14 @@ class GroupNet {
         if (Data.config.SingleUserRelay) {
             return
         }
-        broadcast(msg, null)
+        broadcastAndUDP(msg)
     }
 
     /**
-     * 群发一条消息
-     * @param msg 消息
+     * Group Message
+     * @param msg Message
      */
-    fun broadcast(msg: Any, str: String?) {
+    fun broadcastAndUDP(msg: Any) {
         singleTcpThreadExecutor.execute { channelGroup.writeAndFlush(msg) }
         singleUdpThreadExecutor.execute {
             protocol.each { e: ConnectionAgreement ->
@@ -76,7 +78,7 @@ class GroupNet {
     }
 
     /**
-     * 删除一个TCP通道
+     * Delete a TCP channel
      * @param channel Channel
      */
     fun remove(channel: Channel) {
@@ -84,21 +86,24 @@ class GroupNet {
     }
 
     /**
-     * 删除一个UDP通道
-     * @param connectionAgreement Protocol
+     * Delete a UDP channel
+     * @param connectionAgreement UDP Protocol
      */
     fun remove(connectionAgreement: ConnectionAgreement) {
         protocol.remove(connectionAgreement)
     }
 
     /**
-     * 刷新操作
-     * @return 是否成功
+     * Refresh Operation
+     * @return Whether succeed
      */
     fun flush(): ChannelGroup {
         return channelGroup.flush()
     }
 
+    /**
+     * Close all
+     */
     fun disconnect() {
         channelGroup.disconnect()
     }

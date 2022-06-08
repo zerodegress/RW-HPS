@@ -22,6 +22,14 @@ import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.Time.concurrentSecond
 import cn.rwhps.server.util.log.Log
 
+/**
+ * Parse the [cn.rwhps.server.net.core.IRwHps.NetType.ServerProtocol] protocol
+ * @property con                GameVersionRelay
+ * @property conClass           Initialize
+ * @property abstractNetConnect AbstractNetConnect
+ * @property version            Parser version
+ * @author RW-HPS/Dr
+ */
 open class TypeRwHpsJump : TypeConnect {
     val con: GameVersionServerJump
     var conClass: Class<out GameVersionServerJump>? = null

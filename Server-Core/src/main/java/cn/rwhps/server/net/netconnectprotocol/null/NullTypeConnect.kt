@@ -15,6 +15,10 @@ import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.util.log.exp.ImplementedException
 
+/**
+ * Not implemented
+ * @author RW-HPS/Dr
+ */
 internal class NullTypeConnect : TypeConnect {
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
         return NullTypeConnect()

@@ -22,6 +22,14 @@ import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.game.CommandHandler
 
+/**
+ * Parse the [cn.rwhps.server.net.core.IRwHps.NetType.RelayMulticastProtocol] protocol
+ * @property con                GameVersionRelay
+ * @property conClass           Initialize
+ * @property abstractNetConnect AbstractNetConnect
+ * @property version            Parser version
+ * @author RW-HPS/Dr
+ */
 class TypeRelayRebroadcast : TypeRelay {
     constructor(con: GameVersionRelay) : super(con)
 

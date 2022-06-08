@@ -1,8 +1,8 @@
 # RW-HPS - Concise API
 
 > 注:
-> - 本章节展示关于 `RW-HPS-core-api` 比较常用的 API 示例
-> - 请配合 `RW-HPS-core-api` 源码查看
+> - 本章节展示关于 `RW-HPS-Core` 比较常用的 API 示例
+> - 请配合 `RW-HPS-Core` 源码查看
 > - 本章仅提供 API 粗略介绍
 
 ----------------------

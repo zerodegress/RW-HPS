@@ -14,7 +14,7 @@
 2. 阅读 API 文档（见下文）
 
 ### RW-HPS-core API 文档导航
-请在 [CoreAPI目录](api/CoreAPI.md) 阅读 RW-HPS-core-api 使用文档。
+请在 [CoreAPI目录](api/CoreAPI.md) 阅读 RW-HPS-Core 使用文档。
 ### Plugin 帮助
 请在 [插件开发目录](plugin/README.md) 阅读 RW-HPS-Plugin 的各种操作
 

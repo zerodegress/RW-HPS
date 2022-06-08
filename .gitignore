@@ -1,5 +1,6 @@
 logs/
 /net/build/
+/Server-All/build/
 /Server-Core/build/
 /TimeTaskQuartz/build/
 /timetask/build/
@@ -63,50 +64,6 @@ com_crashlytics_export_strings.xml
 .externalToolBuilders/
 *.launch
 
-## NetBeans
-
-/nbproject/private/
-/android/nbproject/private/
-/core/nbproject/private/
-/desktop/nbproject/private/
-/html/nbproject/private/
-/ios/nbproject/private/
-/ios-moe/nbproject/private/
-
-/build/
-/android/build/
-/core/build/
-/desktop/build/
-/html/build/
-/ios/build/
-/ios-moe/build/
-
-/nbbuild/
-/android/nbbuild/
-/core/nbbuild/
-/desktop/nbbuild/
-/html/nbbuild/
-/ios/nbbuild/
-/ios-moe/nbbuild/
-
-/dist/
-/android/dist/
-/core/dist/
-/desktop/dist/
-/html/dist/
-/ios/dist/
-/ios-moe/dist/
-
-/nbdist/
-/android/nbdist/
-/core/nbdist/
-/desktop/nbdist/
-/html/nbdist/
-/ios/nbdist/
-/ios-moe/nbdist/
-
-nbactions.xml
-nb-configuration.xml
 
 ## Gradle
 

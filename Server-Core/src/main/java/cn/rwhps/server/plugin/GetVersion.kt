@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.plugin
 
+import cn.rwhps.server.plugin.GetVersion.Companion.equals
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.IsUtil.doubleToLong
 import cn.rwhps.server.util.StringFilteringUtil.StringMatcherData
@@ -101,24 +102,24 @@ class GetVersion(version: String) {
 
     val version: Double
         get() {
-        var version = toMainInt().toDouble()
-        val identifierArray = identifier.split("-").toTypedArray()
-        for (identifierData in identifierArray) {
-            val identifierUpCase = identifierData.uppercase(Locale.getDefault())
-            when {
-                identifierUpCase.contains("M") -> {
-                    version += identifierUpCase.replace("M", "").toInt() * 0.1
-                }
-                identifierUpCase.contains("RC") -> {
-                    version += 1.0
-                }
-                identifierUpCase.contains("DEV") -> {
-                    version += identifierUpCase.replace("DEV", "").toInt() * 0.001
+            var version = toMainInt().toDouble()
+            val identifierArray = identifier.split("-").toTypedArray()
+            for (identifierData in identifierArray) {
+                val identifierUpCase = identifierData.uppercase(Locale.getDefault())
+                when {
+                    identifierUpCase.contains("M") -> {
+                        version += identifierUpCase.replace("M", "").toInt() * 0.1
+                    }
+                    identifierUpCase.contains("RC") -> {
+                        version += 1.0
+                    }
+                    identifierUpCase.contains("DEV") -> {
+                        version += (identifierUpCase.replace("DEV", "").ifBlank { "1" }).toInt() * 0.001
+                    }
                 }
             }
+            return version
         }
-        return version
-    }
 
     fun getIfVersion(version: String): Boolean {
         return if (IsUtil.isBlank(version)) {

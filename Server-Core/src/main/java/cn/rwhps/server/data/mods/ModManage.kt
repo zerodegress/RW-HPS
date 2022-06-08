@@ -24,14 +24,20 @@ import cn.rwhps.server.util.log.Log
 /**
  * Mods 加载管理器
  */
-internal object ModManage {
+object ModManage {
     private const val coreName = "core_RW-HPS_units_159.zip"
     private val modsData = OrderedMap<String,ObjectMap<String, ModsIniData>>()
     private var loadUnitsCount = 0
     private var fileMods: FileUtil? = null
 
-    fun load(fileUtil: FileUtil): Int {
-        loadCore()
+    @JvmStatic
+    @JvmOverloads
+    fun load(fileUtil: FileUtil , coreMod: ModsLoad? = null): Int {
+        if (coreMod == null) {
+            loadCore()
+        } else {
+            modsData.put(coreName, coreMod.load())
+        }
         this.fileMods = fileUtil
         var loadCount = 0
         fileMods!!.fileList.each {
@@ -53,6 +59,7 @@ internal object ModManage {
         modsData.put(coreName, modsDataCache)
     }
 
+    @JvmStatic
     fun loadUnits() {
         modsData.values().forEach {
             loadUnitsCount += it.size
@@ -91,30 +98,7 @@ internal object ModManage {
         }
     }
 
-    fun test() {
-        val ls = FileUtil.getFile("Units.txt").readFileListStringData()
-
-        val stream: GameOutputStream = Data.utilData
-        stream.reset()
-        stream.writeInt(1)
-        stream.writeInt(ls.size())
-
-        ls.each {
-            val a = it.split("%#%")
-            stream.writeString(a[0])
-            stream.writeInt(a[1].toInt())
-            stream.writeBoolean(true)
-            if (a.size < 3) {
-                stream.writeBoolean(false)
-            } else {
-                stream.writeBoolean(true)
-                stream.writeString(a[2])
-            }
-            stream.writeLong(0)
-            stream.writeLong(0)
-        }
-    }
-
+    @JvmStatic
     fun reLoadMods(): Int {
         modsData.clear()
         loadUnitsCount = 0
@@ -124,6 +108,7 @@ internal object ModManage {
         return loadCount
     }
 
+    @JvmStatic
     fun getModsList(): Seq<String> =
         modsData.keys().toSeq()
-    }
+}

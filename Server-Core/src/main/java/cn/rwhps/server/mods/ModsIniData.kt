@@ -24,7 +24,7 @@ import java.util.regex.Pattern
  * Mods INI 解析器
  * @author RW-HPS/Dr
  */
-internal class ModsIniData {
+class ModsIniData {
     /** 提取在[ ] 中间  */
     private val g = Pattern.compile("\\s*\\[([^]]*)]\\s*")
 

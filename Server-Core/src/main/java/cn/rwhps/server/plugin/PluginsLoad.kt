@@ -33,15 +33,16 @@ class PluginsLoad {
         val dataName = Seq<String>()
         val dataImport = Seq<PluginImportData>()
         for (file in jarFileList) {
+            val zip = ZipDecoder(file)
             try {
-                val imp = ZipDecoder(file).getZipNameInputStream("plugin.json")
-                if (IsUtil.isBlank(imp)) {
+                val imp = zip.getZipNameInputStream("plugin.json")
+                if (imp == null) {
                     error("Invalid jar file", file.name)
                     continue
                 }
-                val imports = ZipDecoder(file).getZipNameInputStream("imports.json")
-                if (IsUtil.notIsBlank(imports)) {
-                    val importsJson = Json(FileUtil.readFileString(imports!!)).getArraySeqData("imports")
+                val imports = zip.getZipNameInputStream("imports.json")
+                if (imports != null) {
+                    val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
                     val lib = LibraryManager(Data.Plugin_Lib_Path)
                     importsJson.each {
                         lib.importLib(it.getData("group"), it.getData("name"), it.getData("version"))
@@ -49,7 +50,7 @@ class PluginsLoad {
                     lib.loadToClassLoader()
                 }
 
-                val json = Json(FileUtil.readFileString(imp!!))
+                val json = Json(FileUtil.readFileString(imp))
                 if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
                     warn("Plugin版本不兼容 Plugin名字为: ", json.getData("name"))
                     continue
@@ -69,6 +70,8 @@ class PluginsLoad {
                 }
             } catch (e: Exception) {
                 error("Failed to load", e)
+            } finally {
+                zip.close()
             }
         }
         var i = 0
@@ -131,7 +134,7 @@ class PluginsLoad {
         @JvmField val main: Plugin,
         private val mkdir: Boolean = true,
         private val skip: Boolean = false
-        ) {
+    ) {
         init {
             if (mkdir) {
                 main.pluginDataFileUtil = FileUtil.getFolder(Data.Plugin_Plugins_Path,true).toFolder(this.name)

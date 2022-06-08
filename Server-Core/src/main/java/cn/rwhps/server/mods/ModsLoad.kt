@@ -28,7 +28,7 @@ import java.util.regex.Pattern
  * Mods加载
  * @author RW-HPS/Dr
  */
-internal class ModsLoad {
+class ModsLoad {
     val a: Pattern = Pattern.compile("\\$\\{([^}]*)}")
     val b: Pattern = Pattern.compile("[A-Za-z_][A-Za-z_.\\d]*")
 

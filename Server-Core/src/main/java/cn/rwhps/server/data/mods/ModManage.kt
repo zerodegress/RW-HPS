@@ -31,12 +31,16 @@ object ModManage {
     private var fileMods: FileUtil? = null
 
     @JvmStatic
-    @JvmOverloads
-    fun load(fileUtil: FileUtil , coreMod: ModsLoad? = null): Int {
+    fun load(fileUtil: FileUtil): Int {
+        return load(fileUtil,"",null)
+    }
+
+    @JvmStatic
+    fun load(fileUtil: FileUtil , name: String, coreMod: ModsLoad?): Int {
         if (coreMod == null) {
             loadCore()
         } else {
-            modsData.put(coreName, coreMod.load())
+            modsData.put(name, coreMod.load())
         }
         this.fileMods = fileUtil
         var loadCount = 0
@@ -74,7 +78,7 @@ object ModManage {
             val modName = it.key
             val modData = it.value
 
-            val core = (modName == coreName)
+            val core = (modName.contains("core_RW-HPS_units_"))
 
             try {
                 modData.forEach { iniData ->
@@ -92,6 +96,7 @@ object ModManage {
                     stream.writeLong(0)
                 }
                 Log.debug("Load OK", if (core) "Core Units" else modName!!)
+                Log.debug(modName)
             } catch (e: Exception) {
                 Log.error(e)
             }
@@ -113,7 +118,7 @@ object ModManage {
         modsData.clear()
         loadUnitsCount = 0
     }
-    
+
     @JvmStatic
     fun getModsList(): Seq<String> =
         modsData.keys().toSeq()

@@ -1,6 +1,7 @@
 logs/
 /net/build/
 /Server-Core/build/
+/TimeTaskQuartz/build/
 /timetask/build/
 config/
 *.gif

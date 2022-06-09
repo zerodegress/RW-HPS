@@ -35,7 +35,7 @@ class PluginCenter {
                             "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                         }
                         else -> {
-                            "Unknown command. Check plugin help"
+                            "Unknown command. use [plugin help]"
                         }
                     }
             log[text]
@@ -58,13 +58,13 @@ class PluginCenter {
         PluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: StrCons ->
             val json = pluginCenterData.getJson(arg[0].toInt())
             if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
-                log["Plugin版本不兼容 Plugin名字为: {0}", json.getData("name")]
+                log["Plugin version is not compatible Plugin name is: {0}", json.getData("name")]
             } else {
                 HttpRequestOkHttp.downUrl(
                     url + json.getData("name") + ".jar",
                     getFolder(Data.Plugin_Plugins_Path).toFile(json.getData("name") + ".jar").file
                 )
-                log["安装完成 请重启服务器"]
+                log["Installation is complete, please restart the server"]
             }
         }
     }

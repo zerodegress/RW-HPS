@@ -22,6 +22,7 @@ object NetStaticData {
     @JvmField
     val groupNet = GroupNet()
     @JvmField
+    /** Single Room Mode No ID required */
     val relay = Relay("RW-HPS Beta Relay",groupNet)
     @JvmField
     val blackList = BlackList()

@@ -18,6 +18,7 @@ import cn.rwhps.server.custom.LoadCoreCustomPlugin
 import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData.initPx
 import cn.rwhps.server.data.mods.ModManage
 import cn.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import cn.rwhps.server.data.plugin.PluginManage
@@ -66,8 +67,8 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-
-        System.setProperty("file.encoding","UTF-8")
+        System.setProperty("org.jline.terminal.dumb", "true")
+        //clog(URLDecoder.decode(Main::class.java.protectionDomain.codeSource.location.path, "utf-8"))
 
         /* 尝试写一个UTF-8编码 */
         System.setProperty("file.encoding", "UTF-8")
@@ -85,9 +86,9 @@ object Main {
         /* 设置Log 并开启拷贝 */
         set("ALL")
         setCopyPrint(true)
+        //Logger.getLogger("io.netty").level = Level.OFF
+        Logger.getLogger("io.netty").level = Level.ALL
 
-
-        Logger.getLogger("io.netty").level = Level.OFF
 
         println(Data.i18NBundle.getinput("server.login"))
         clog("Load ing...")
@@ -114,7 +115,6 @@ object Main {
         /* 初始化Plugin */
         init(getFolder(Data.Plugin_Plugins_Path))
         LoadCoreCustomPlugin()
-
         runOnEnable()
         runRegisterEvents()
         runRegisterGlobalEvents()
@@ -134,6 +134,10 @@ object Main {
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
 
         /* 默认直接启动服务器 */
+        //Data.SERVER_COMMAND.handleMessage("startrelay",StrCons { obj: String -> clog(obj) })
+        /*val response = Data.SERVER_COMMAND.handleMessage("start",StrCons { obj: String -> clog(obj) })*/
+        //val response = Data.SERVER_COMMAND.handleMessage("startrelaytest", StrCons { obj: String -> clog(obj) })
+        //val response = Data.SERVER_COMMAND.handleMessage("start", StrCons { obj: String -> clog(obj) })
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {
@@ -141,7 +145,13 @@ object Main {
             }
         }
 
-        clog("Server Run PID : ${Data.core.pid}")
+        initPx()
+        clog(Data.core.pid.toString())
+/*
+        newThreadCore {
+            WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
+            StartNet(StartGamePortDivider::class.java).openPort(4994)
+        }*/
 
         /* 按键监听 */
         newThreadCore { inputMonitor() }
@@ -159,7 +169,7 @@ object Main {
     }
 
     private fun inputMonitor() {
-        /* #209 */
+        //# 209
         val idlingCount = TimeAndNumber(5, 10)
         var last = 0
 

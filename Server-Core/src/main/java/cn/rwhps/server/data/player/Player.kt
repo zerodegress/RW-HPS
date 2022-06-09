@@ -56,12 +56,11 @@ class Player(
     /** */
     var color = 0
     /** (Markers)  */
-	var start = false
+    @Volatile var start = false
     /** Whether the player is dead  */
 	var dead = false
     /** Last move time  */
-	@Volatile
-    var lastMoveTime: Int = 0
+	@Volatile var lastMoveTime: Int = 0
     /** Mute expiration time */
 	var muteTime: Long = 0
     /** Kick expiration time */
@@ -78,7 +77,7 @@ class Player(
         private set
 
     /** Shared control  */
-    var sharedControl = false
+    @Volatile var sharedControl = false
     val controlThePlayer: Boolean
         get() {
             return sharedControl || if (con == null || Time.concurrentSecond()-lastMoveTime > 120) {

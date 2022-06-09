@@ -148,6 +148,7 @@ object HttpRequestOkHttp {
         return result
     }
 
+    @JvmStatic
     fun doPostRw(url: String, param: String): String {
         val formBody = FormBody.Builder()
         val paramArray = param.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()

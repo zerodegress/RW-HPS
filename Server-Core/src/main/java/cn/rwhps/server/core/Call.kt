@@ -122,7 +122,7 @@ object Call {
     @JvmStatic
     fun testPreparationPlayer() {
         val timer = Timer()
-        timer.schedule(RandyTask(timer), 0, 100)
+        timer.schedule(RandyTask(timer), 200, 200)
     }
 
     /**
@@ -133,7 +133,7 @@ object Call {
      */
     private class RandyTask(private val timer: Timer) : TimerTask() {
         private var loadTime = 0
-        private val loadTimeMaxTry = 30
+        private val loadTimeMaxTry = Data.game.playerManage.playerGroup.size() * 3
         private var start = true
 
         override fun run() {
@@ -151,7 +151,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 0, 150)
+                timerNew.schedule(TimeTaskData.CallTickTask, 100, 150)
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()

@@ -134,7 +134,7 @@ class PluginsLoad {
         @JvmField val main: Plugin,
         private val mkdir: Boolean = true,
         private val skip: Boolean = false
-    ) {
+        ) {
         init {
             if (mkdir) {
                 main.pluginDataFileUtil = FileUtil.getFolder(Data.Plugin_Plugins_Path,true).toFolder(this.name)

@@ -32,6 +32,8 @@ class ModsLoad {
     val a: Pattern = Pattern.compile("\\$\\{([^}]*)}")
     val b: Pattern = Pattern.compile("[A-Za-z_][A-Za-z_.\\d]*")
 
+    var name: String = ""
+
     private val zipRead: ZipDecoder
 
     constructor(file: File) {
@@ -43,7 +45,7 @@ class ModsLoad {
 
 
     constructor(inStream: InputStream) {
-        this.zipRead = ZipDecoder (inStream)
+        this.zipRead = ZipDecoder(inStream)
     }
     constructor(zipInStream: ZipArchiveInputStream) {
         this.zipRead = ZipDecoder(zipInStream)
@@ -92,6 +94,30 @@ class ModsLoad {
 
         val result = OrderedMap<String,ModsIniData>()
 
+        var allUnits: ModsIniData? = null
+
+        /*
+         * Thanks DisCord (ShadowDude#1124)
+         * 找到了这部分的错误
+         */
+        fileMap.forEach { k: ObjectMap.Entry<String, ByteArray> ->
+            val namePath = k.key
+            val bytes = k.value
+
+            val name = namePath.split("/").toTypedArray()[namePath.split("/").toTypedArray().size - 1]
+
+            if (name == "all-units.template") {
+                allUnits = ModsIniData(bytes)
+                return@forEach
+            }
+
+            if (name == "mod-info.txt") {
+                this.name = ModsIniData(bytes).getValue("mod","title","")!!
+                Log.debug(this.name)
+                return@forEach
+            }
+        }
+
         fileMap.forEach { k: ObjectMap.Entry<String, ByteArray> ->
             val namePath = k.key
             val bytes = k.value
@@ -100,16 +126,17 @@ class ModsLoad {
             val filePath = namePath.substring(0,namePath.length - name.length)
 
 
-            // all-units.template 不作为 INI 读取
-            if (name == "all-units.template") {
+            // all-units.template 和 mod-info.txt 不作为 INI 读取
+            if (name == "all-units.template" || name == "mod-info.txt") {
                 return@forEach
             }
+
             // Fuck
             /**
              * 只读取ini文件
              * 此处批评 @华夏有衣 的阴间 xini文件
              */
-            if (!name.endsWith(".ini")) {
+            if (!name.endsWith("ini")) {
                 return@forEach
             }
 
@@ -121,8 +148,8 @@ class ModsLoad {
 
             copyFrom(modData, modData, filePath, orderedMap,allCaps,0)
 
-            if (orderedMap.containsKey("all-units.template")) {
-                copyFromAllUnit(modData,ModsIniData(orderedMap["all-units.template"]),orderedMap,allCaps)
+            if (allUnits != null) {
+                copyFromAllUnit(modData, allUnits!!,orderedMap,allCaps)
             }
 
             val copyFromSection = modData.checkEachModuleValue("@copyFromSection")
@@ -142,10 +169,12 @@ class ModsLoad {
         copyFrom(beRecorded,allUnit, orderedMap = orderedMap, allCaps = allCaps, deepLoop = 0)
     }
 
-    private fun copyFrom(beRecorded: ModsIniData, read: ModsIniData?, pathIn: String? = null, orderedMap: OrderedMap<String, ByteArray>, allCaps: OrderedMap<String, String>, deepLoop: Int) {
+    private fun copyFrom(beRecorded: ModsIniData, read: ModsIniData?,pathIn: String? = null, orderedMap: OrderedMap<String, ByteArray>, allCaps: OrderedMap<String, String>, deepLoop: Int) {
         if (deepLoop > 10) {
             throw RwGamaException.ModsException("[Load RwMod Error]  Too many deep loops")
         }
+
+        var pathNext = pathIn
 
         val str = read!!.getValue("core", "copyFrom")
         var copyData: ModsIniData? = null
@@ -159,24 +188,47 @@ class ModsLoad {
                     if (copyFrom.contains("..")) {
                         continue
                     }
+                    var path = ""
+                    copyFrom = copyFrom.replace("\\","/")
+
                     if (copyFrom.startsWith("ROOT:")) {
                         copyFrom = copyFrom.substring("ROOT:".length)
+                        path = copyFrom
+                    } else {
+                        if (pathIn != null) {
+                            path = "$pathIn$copyFrom"
+                        }
                     }
 
-                    var path = copyFrom
-                    if (pathIn != null) {
-                        path = "$pathIn$copyFrom"
-                    }
+                    //Log.debug(path)
 
                     var bytes: ByteArray? = orderedMap[path]
 
                     if (bytes == null) {
-                        val caps = allCaps[path.uppercase()] ?: throw RwGamaException.ModsException("[Load RwMod Error]  CopyFrom Not Found : $copyFrom")
-                        bytes = orderedMap[caps]
+                        val caps = allCaps[path.uppercase()]
+                        if (caps.isNullOrBlank().not()) {
+                            bytes = orderedMap[caps]
+                        }
                     }
 
                     if (bytes == null) {
-                        throw RwGamaException.ModsException("[Load RwMod Error]  File Not Found : $copyFrom")
+                        var bytesEach: ByteArray? = null
+                        orderedMap.each { k,v ->
+                            if (k.endsWith(path)) {
+
+                                val name = k.split("/").toTypedArray()[k.split("/").toTypedArray().size - 1]
+                                val filePath = k.substring(0,k.length - name.length)
+                                pathNext = filePath
+
+                                bytesEach = v
+                                return@each
+                            }
+                        }
+                        bytes = bytesEach
+                    }
+
+                    if (bytes == null) {
+                        throw RwGamaException.ModsException("[Load RwMod Error]  CopyFrom Not Found : ${beRecorded.getName()} : $copyFrom")
                     }
 
                     try {
@@ -185,7 +237,7 @@ class ModsLoad {
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-                    copyFrom(beRecorded, copyData, pathIn, orderedMap,allCaps,deepLoop+1)
+                    copyFrom(beRecorded, copyData, pathNext, orderedMap,allCaps,deepLoop+1)
                 }
             }
         }

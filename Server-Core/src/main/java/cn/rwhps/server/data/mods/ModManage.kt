@@ -51,9 +51,10 @@ object ModManage {
             }
 
             loadCount++
-            val modsDataCache = ModsLoad(it).load()
+            val modLoad = ModsLoad(it)
+            val modsDataCache = modLoad.load()
 
-            modsData.put(FileName.getFileName(it.name), modsDataCache)
+            modsData.put(modLoad.name.ifBlank { FileName.getFileName(it.name) }, modsDataCache)
         }
         return loadCount
     }
@@ -96,7 +97,6 @@ object ModManage {
                     stream.writeLong(0)
                 }
                 Log.debug("Load OK", if (core) "Core Units" else modName!!)
-                Log.debug(modName)
             } catch (e: Exception) {
                 Log.error(e)
             }
@@ -122,4 +122,4 @@ object ModManage {
     @JvmStatic
     fun getModsList(): Seq<String> =
         modsData.keys().toSeq()
-}
+    }

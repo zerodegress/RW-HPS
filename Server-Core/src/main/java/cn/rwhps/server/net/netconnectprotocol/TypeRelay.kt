@@ -93,6 +93,17 @@ open class TypeRelay : TypeConnect {
         }
 
         when (packet.type) {
+            // Thanks Discord vlad75724#3575
+            // Fix Server Not use 50M Maps
+            START_GAME,
+            CHAT,
+            TEAM_LIST -> {
+            }
+            SYNCCHECKSUM_STATUS,
+            HEART_BEAT_RESPONSE,
+            GAMECOMMAND_RECEIVE -> {
+                con.sendResultPing(packet)
+            }
             HEART_BEAT -> {
                 con.addGroup(packet)
                 con.getPingData(packet)

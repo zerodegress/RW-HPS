@@ -7,6 +7,27 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
+/**
+ * 声明 :
+ * 一切开发旨在学习，请勿用于非法用途
+ * RW-HPS 是完全免费且开放源代码的软件，仅供学习和娱乐用途使用
+ * RW-HPS 不会通过任何方式强制收取费用，或对使用者提出物质条件
+ * RW-HPS 由整个开源社区维护，并不是属于某个个体的作品，所有贡献者都享有其作品的著作权
+ *
+ * 若修改 RW-HPS 源代码再发布，或参考 RW-HPS 内部实现
+ * 则衍生项目必须在文章首部或 'RW-HPS' 相关内容首次出现的位置明确声明来源于本仓库 (https://github.com/RW-HPS/RW-HPS) 不得扭曲或隐藏免费且开源的事实
+ */
+/**
+ * Disclaimer :
+ * All development is for learning purposes only, please do not use it for illegal purposes
+ * RW-HPS is completely free and open source software for learning and entertainment purposes only
+ * RW-HPS does not impose fees or material conditions on users in any way.
+ * RW-HPS is maintained by the entire open source community and is not the work of a single individual, and all contributors own the copyright to their work
+ * The RW-HPS is maintained by the entire open source community and is not the work of any individual.
+ * If you modify the RW-HPS source code for redistribution, or refer to the RW-HPS internal implementation
+ * Derivative projects must explicitly state that they are from this repository (https://github.com/RW-HPS/RW-HPS) at the beginning of the article or at the first appearance of the 'RW-HPS' related content, without distorting or hiding the fact that they are free and open source
+ */
+
 package cn.rwhps.server
 
 import cn.rwhps.server.command.CoreCommands

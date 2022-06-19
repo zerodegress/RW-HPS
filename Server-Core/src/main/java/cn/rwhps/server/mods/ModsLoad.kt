@@ -13,6 +13,7 @@ import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.util.IsUtil.isBlank
 import cn.rwhps.server.util.ModsIniUtil
+import cn.rwhps.server.util.alone.annotations.NeedHelp
 import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.exp.RwGamaException
 import cn.rwhps.server.util.zip.zip.ZipDecoder
@@ -28,6 +29,7 @@ import java.util.regex.Pattern
  * Mods加载
  * @author RW-HPS/Dr
  */
+@NeedHelp
 class ModsLoad {
     val a: Pattern = Pattern.compile("\\$\\{([^}]*)}")
     val b: Pattern = Pattern.compile("[A-Za-z_][A-Za-z_.\\d]*")
@@ -140,7 +142,6 @@ class ModsLoad {
                 return@forEach
             }
 
-
             val modData = ModsIniData(bytes)
             if (modData.getValue("core", "dont_load").toBoolean()) {
                 return@forEach
@@ -179,8 +180,9 @@ class ModsLoad {
         val str = read!!.getValue("core", "copyFrom")
         var copyData: ModsIniData? = null
         if (str != null) {
-            val arrayOfString = str.split(",".toRegex()).toTypedArray()
-            mutableListOf(*arrayOfString as Array<*>).reverse()
+            // Fix .reversedArray()
+            // Thanks MinxyzGo
+            val arrayOfString = str.split(",".toRegex()).toTypedArray().reversedArray()
 
             for (copyFromIn in arrayOfString) {
                 var copyFrom = copyFromIn.trim ()
@@ -252,8 +254,7 @@ class ModsLoad {
         if (copyFromSectionValue.isNullOrEmpty()) {
             return
         }
-        val arrayOfString: Array<String> = copyFromSectionValue.split(",").toTypedArray()
-        mutableListOf(arrayOfString as Array<*>).reverse()
+        val arrayOfString: Array<String> = copyFromSectionValue.split(",").toTypedArray().reversedArray()
 
         for (sectionIn in arrayOfString) {
             val section = sectionIn.trim()

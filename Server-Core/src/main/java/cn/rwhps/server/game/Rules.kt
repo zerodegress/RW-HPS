@@ -21,6 +21,7 @@ import cn.rwhps.server.io.packet.GameCommandPacket
 import cn.rwhps.server.io.packet.GameSavePacket
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.util.IsUtil.notIsBlank
+import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.encryption.Base64.decodeString
 import cn.rwhps.server.util.encryption.Base64.isBase64
 import cn.rwhps.server.util.encryption.Sha.sha256Array
@@ -40,9 +41,15 @@ import java.util.concurrent.atomic.AtomicInteger
  * @author RW-HPS/Dr
  */
 class Rules(private var config: BaseConfig) {
+    /** End Time */
+    var endTime = 0
+        private set
     /** 是否已启动游戏  */
-    @JvmField
     var isStartGame = false
+        set(value) {
+            field = value
+            endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
+        }
 
     /** 倍数  */
     var income: Float

@@ -10,12 +10,12 @@
 package cn.rwhps.server.game.simulation
 
 abstract class PhysicalObject : RenderedObject() {
-    var cType: CollisionEngine.CollisionType? = null
-    var collisionId = 0
-    var halfObjectHeight = 0
-    var halfObjectWidth = 0
-    var objectHeight = 0
-    var objectWidth = 0
+    @JvmField var cType: CollisionEngine.CollisionType? = null
+    @JvmField var collisionId = 0
+    @JvmField var halfObjectHeight = 0
+    @JvmField var halfObjectWidth = 0
+    @JvmField var objectHeight = 0
+    @JvmField var objectWidth = 0
 
     // com.corrodinggames.rts.gameFramework.GameObject
     override fun remove() {

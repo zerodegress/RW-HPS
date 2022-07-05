@@ -12,10 +12,10 @@ package cn.rwhps.server.game.simulation
  * 渲染游戏对象
  */
 abstract class RenderedObject : GameObject() {
-    var x = 0f
-    var y = 0f
-    var height = 0.0f
-    var drawOrder = 0
+    @JvmField var x = 0f
+    @JvmField var y = 0f
+    @JvmField var height = 0.0f
+    @JvmField var drawOrder = 0
 
     class RenderedObjectComparator : Comparator<Any?> {
         override fun compare(object1: Any?, object2: Any?): Int {

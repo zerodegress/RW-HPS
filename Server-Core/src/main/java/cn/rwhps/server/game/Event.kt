@@ -65,7 +65,9 @@ class Event : AbstractEvent {
         Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
 
 
-        if (Data.game.playerManage.playerGroup.size() >= Data.config.AutoStartMinPlayerSize && !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
+        if (Data.config.AutoStartMinPlayerSize != -1 &&
+            Data.game.playerManage.playerGroup.size() >= Data.config.AutoStartMinPlayerSize &&
+            !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             var flagCount = 0
             Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
                 if (Data.game.isStartGame) {
@@ -151,7 +153,9 @@ class Event : AbstractEvent {
             Call.sendSystemMessage("player.disNoStart", player.name)
         }
 
-        if (Data.game.playerManage.playerGroup.size() <= Data.config.AutoStartMinPlayerSize && !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
+        if (Data.config.AutoStartMinPlayerSize != -1 &&
+            Data.game.playerManage.playerGroup.size() <= Data.config.AutoStartMinPlayerSize &&
+            !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }
     }

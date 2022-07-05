@@ -9,5 +9,35 @@
 
 package cn.rwhps.server.game.replay.block
 
-class PointF(val x: Float, val y: Float) {
+class PointF {
+    @JvmField var x: Float
+    @JvmField var y: Float
+    constructor() {
+        this.x = 0.00F
+        this.y = 0.00F
+    }
+
+    constructor(var1: Float, var2: Float) {
+        this.x = var1
+        this.y = var2
+    }
+
+    fun a(var1: Float, var2: Float) {
+        this.x = var1
+        this.y = var2
+    }
+
+    fun a(var1: PointF) {
+        this.x = var1.x
+        this.y = var1.y
+    }
+
+    fun set(var1: Float, var2: Float) {
+        this.x += var1
+        this.y += var2
+    }
+
+    fun describeContents(): Int {
+        return 0
+    }
 }

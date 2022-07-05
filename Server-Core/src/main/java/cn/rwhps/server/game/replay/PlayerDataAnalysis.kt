@@ -10,7 +10,7 @@
 package cn.rwhps.server.game.replay
 
 import cn.rwhps.server.game.replay.block.PointF
-import cn.rwhps.server.game.replay.block.Waypoint
+import cn.rwhps.server.game.simulation.units.Waypoint
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.struct.Seq
@@ -18,7 +18,7 @@ import cn.rwhps.server.util.log.Log.debug
 
 class PlayerDataAnalysis(inStream: GameInputStream) {
     val playerIndex: Int
-    val waypoint:Waypoint?
+    val waypoint: Waypoint?
 
     val boolean_1: Boolean
     val isCancel: Boolean

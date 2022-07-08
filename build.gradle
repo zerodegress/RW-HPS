@@ -1,7 +1,7 @@
 plugins {
-	id("org.jetbrains.kotlin.jvm") version "1.6.20"
+	id("org.jetbrains.kotlin.jvm") version "1.7.0"
 	//id "org.tabooproject.shrinkingkt" version "1.0.2"
-	//id("me.him188.maven-central-publish") version "1.0.0-dev-3"
+	id("me.him188.maven-central-publish") version "1.0.0-dev-3"
 
 }
 
@@ -13,6 +13,7 @@ allprojects {
 		maven{ url "https://maven.aliyun.com/nexus/content/groups/public/"}
 		maven{ url "https://jitpack.io" }
 		maven { url "https://plugins.gradle.org/m2/" }
+		maven { url "https://repo.spongepowered.org/repository/maven-public/" }
 		mavenCentral()
 	}
 
@@ -25,6 +26,13 @@ allprojects {
 	}
 	compileTestKotlin {
 		kotlinOptions.jvmTarget = "1.8"
+	}
+
+	tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+		kotlinOptions {
+			// Use Kotlin K2
+			freeCompilerArgs += '-Xuse-k2'
+		}
 	}
 
 	tasks.withType(JavaCompile) {

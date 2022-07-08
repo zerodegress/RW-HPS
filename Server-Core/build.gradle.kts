@@ -70,7 +70,6 @@ publishing {
 			groupId = "com.github.RW-HPS"
 			artifactId = "Server-Core"
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
-			version = "1.0.0"
 
 			from(components.getByName("java"))
 

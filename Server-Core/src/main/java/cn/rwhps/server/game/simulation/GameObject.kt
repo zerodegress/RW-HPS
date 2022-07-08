@@ -9,11 +9,11 @@
 
 package cn.rwhps.server.game.simulation
 
-import cn.rwhps.server.game.simulation.units.OrderableUnit
+//import cn.rwhps.server.game.simulation.units.OrderableUnit
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.log.Log
 import java.util.concurrent.ConcurrentLinkedQueue
-import cn.rwhps.server.game.simulation.units.Unit as Unit1
+//import cn.rwhps.server.game.simulation.units.Unit as Unit1
 
 
 abstract class GameObject() : SyncedObject {
@@ -66,14 +66,14 @@ abstract class GameObject() : SyncedObject {
             return result
         }
 
-
+/*
         fun getUnitFromId(id: Long): Unit1? {
             return getFromId(id) as Unit1?
         }
 
         fun getOrderableUnitFromId(id: Long): OrderableUnit? {
             return getFromId(id) as OrderableUnit?
-        }
+        }*/
 
         fun getNextUnitId(): Long {
             return unitId++

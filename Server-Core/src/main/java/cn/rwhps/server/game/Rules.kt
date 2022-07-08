@@ -111,7 +111,6 @@ class Rules(private var config: BaseConfig) {
     val mapsData = OrderedMap<String, MapData>(8)
 
     val tickGame = AtomicInteger(10)
-
     init {
         try {
             checkMaps()

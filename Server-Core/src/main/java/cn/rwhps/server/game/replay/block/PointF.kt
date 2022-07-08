@@ -22,7 +22,7 @@ class PointF {
         this.y = var2
     }
 
-    fun a(var1: Float, var2: Float) {
+    fun set(var1: Float, var2: Float) {
         this.x = var1
         this.y = var2
     }
@@ -32,7 +32,7 @@ class PointF {
         this.y = var1.y
     }
 
-    fun set(var1: Float, var2: Float) {
+    fun add(var1: Float, var2: Float) {
         this.x += var1
         this.y += var2
     }

@@ -10,22 +10,20 @@
 package cn.rwhps.server.game.simulation.units
 
 import cn.rwhps.server.game.GameUnitType.GameActions
-import cn.rwhps.server.game.simulation.GameObject
 import cn.rwhps.server.io.GameInputStream
-import cn.rwhps.server.game.simulation.units.Unit as Unit1
 
 class Waypoint(intream: GameInputStream) {
     val unitAction: GameActions
     /** 对应单位id ?  */
     // TODO 根据Enum反射获取实例 加入FastGameObject
-    val unit: Unit1?
+    //val unit: Unit1?
 
     /** 动作的目标位置 */
     var unitActionX = 1.0f
     var unitActionY = 1.0f
 
     /** 对应单位的id(单位把执行动作到..上) */
-    var targetUnit: Unit1?
+    //var targetUnit: Unit1?
 
     val d: Int
 
@@ -43,10 +41,10 @@ class Waypoint(intream: GameInputStream) {
         with (intream) {
             unitAction = readEnum(GameActions::class.java) as GameActions
             val unitId = readInt()
-            unit = if (unitId == -2) readString() else null
+            //unit = if (unitId == -2) readString() else null
             unitActionX = readFloat()
             unitActionY = readFloat()
-            targetUnit = GameObject.getUnitFromId(readLong())
+            //targetUnit = GameObject.getUnitFromId(readLong())
 
             d = readByte()
             float_1 = readFloat()

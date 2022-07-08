@@ -12,6 +12,7 @@ package cn.rwhps.server.util.zip.zip
 import cn.rwhps.server.game.GameMaps
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
+import cn.rwhps.server.util.file.FileStream
 import java.io.InputStream
 
 internal interface ZipDecoderUtils {
@@ -33,14 +34,12 @@ internal interface ZipDecoderUtils {
 
     /**
      * 获取ZIP内的指定后辍的文件名(全名+路径)与bytes
-     * @param endWith String
      * @return OrderedMap<String, ByteArray>
      */
     fun getSpecifiedSuffixInThePackageAllFileNameAndPath(endWithSeq: Seq<String>): OrderedMap<String, ByteArray>
 
     /**
-     * 获取ZIP内的指定结尾的文件名(全名+路径)与bytes
-     * @param endWith String
+     * 获取ZIP内可读文本的文件名(全名+路径)与bytes
      * @return OrderedMap<String, ByteArray>
      */
     fun modsLoadingDedicated(): OrderedMap<String, ByteArray>
@@ -61,4 +60,23 @@ internal interface ZipDecoderUtils {
     fun getTheFileBytesOfTheSpecifiedSuffixInTheZip(mapData: GameMaps.MapData): ByteArray
 
     fun getZipNameInputStream(name: String): InputStream?
+
+    /**
+     * 看看文件里有没有关键词 有的话他就是ini (确信)
+     * @param inputStream InputStream
+     * @return Boolean
+     */
+    fun isIni(inputStream: InputStream): Boolean {
+        var result = false
+        FileStream.readFileData(inputStream) {
+            if (it.contains("core", ignoreCase = true) ||
+                it.contains("action", ignoreCase = true)||
+                // AEA
+                it.contains("effect", ignoreCase = true)||
+                it.contains("template", ignoreCase = true)) {
+                result = true
+            }
+        }
+        return result
+    }
 }

@@ -66,6 +66,10 @@ object ExtractUtil {
         return result
     }
 
+    fun bytesToHex(byte: Byte): String {
+        return bytesToHex(byteArrayOf(byte))
+    }
+
     @JvmStatic
 	fun bytesToHex(bytes: ByteArray): String {
         val sb = StringBuffer()

@@ -165,13 +165,6 @@ object Log {
         log(2, tag, e)
     }
 
-    private fun logs(e: Exception): String {
-        val stringWriter = StringWriter()
-        val printWriter = PrintWriter(stringWriter)
-        e.printStackTrace(printWriter)
-        return stringWriter.buffer.toString()
-    }
-
     /**
      * WLog：
      * @param i Warning level -INT
@@ -204,25 +197,29 @@ object Log {
             }
             i1++
         }
-        sb.append("[")
-            .append(getMilliFormat(1)).append("] ") //.append(LINE_SEPARATOR)
-            .append(tag)
-            .append(": ")
-            .append(Data.LINE_SEPARATOR)
+        // [Time] Tag:
+        // Info
+        sb.append("[").append(getMilliFormat(1)).append("] ").append(tag).append(": ")
+        // 避免换行
+        if (lines.isNotEmpty()) {
+            sb.append(Data.LINE_SEPARATOR)
+        }
+
         for (line in lines) {
             sb.append(line)
                 .append(Data.LINE_SEPARATOR)
         }
+
+        // 去掉最后的换行
+        sb.deleteCharAt(sb.length -1)
+
         this.logPrint.write(sb)
         //println(sb)
     }
 
     @JvmStatic
     fun clog(text: String) {
-        val textCache = "[" +
-                        getMilliFormat(1) +
-                        "] " +
-                        text
+        val textCache = "[" + getMilliFormat(1) + "] " + text
         println(formatColors("$textCache&fr"))
     }
 

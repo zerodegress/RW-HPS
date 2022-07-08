@@ -13,7 +13,6 @@ import cn.rwhps.server.game.GameMaps
 import cn.rwhps.server.io.input.ReusableDisableSyncByteArrayInputStream
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
-import cn.rwhps.server.util.file.FileStream
 import cn.rwhps.server.util.io.IoRead
 import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.exp.FileException
@@ -171,16 +170,5 @@ internal class ZipStreamDecoder: ZipDecoderUtils {
 
     override fun getZipNameInputStream(name: String): InputStream? {
         throw ImplementedException("Not support")
-    }
-
-
-    private fun isIni(inputStream: InputStream): Boolean {
-        var result = false
-        FileStream.readFileData(inputStream) {
-            if (it.contains("core", ignoreCase = true) || it.contains("action", ignoreCase = true)) {
-                result = true
-            }
-        }
-        return result
     }
 }

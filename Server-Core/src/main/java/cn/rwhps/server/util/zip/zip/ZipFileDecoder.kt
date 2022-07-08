@@ -14,7 +14,6 @@ import cn.rwhps.server.io.input.ReusableDisableSyncByteArrayInputStream
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.alone.annotations.NeedToRefactor
-import cn.rwhps.server.util.file.FileStream.readFileData
 import cn.rwhps.server.util.io.IoRead
 import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.exp.FileException
@@ -214,15 +213,5 @@ internal class ZipFileDecoder: ZipDecoderUtils {
             Log.error(e)
         }
         return null
-    }
-
-    private fun isIni(inputStream: InputStream): Boolean {
-        var result = false
-        readFileData(inputStream) {
-            if (it.contains("core",ignoreCase = true) || it.contains("action",ignoreCase = true)) {
-                result = true
-            }
-        }
-        return result
     }
 }

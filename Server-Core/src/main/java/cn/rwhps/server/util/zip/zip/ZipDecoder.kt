@@ -71,11 +71,10 @@ class ZipDecoder {
     }
 
     /**
-     * 获取ZIP内的指定结尾的文件名(全名+路径)与bytes
+     * 获取ZIP内可读文本的文件名(全名+路径)与bytes
      * @param endWith String
      * @return OrderedMap<String, ByteArray>
      */
-
     fun modsLoadingDedicated(): OrderedMap<String, ByteArray> {
         return zipRead.modsLoadingDedicated()
     }

@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.io
 
+import cn.rwhps.server.io.output.AbstractByteArrayOutputStream
 import cn.rwhps.server.io.output.CompressOutputStream
 import cn.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import cn.rwhps.server.io.packet.Packet
@@ -20,7 +21,7 @@ import java.io.IOException
 /**
  * @author RW-HPS/Dr
  */
-open class GameOutputStream @JvmOverloads constructor(private var buffer: DisableSyncByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
+open class GameOutputStream @JvmOverloads constructor(private var buffer: AbstractByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
 
     private var stream: DataOutputStream = DataOutputStream(buffer)
 
@@ -33,7 +34,7 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
             stream.use { buffer.use {
                 stream.flush()
                 buffer.flush()
-                return Packet(type, buffer.toByteArray())
+                return Packet(type, buffer.toByteArray()!!)
             }}
         } catch (e: IOException) {
             throw RuntimeException(e)
@@ -45,7 +46,7 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
             stream.use { buffer.use {
                 stream.flush()
                 buffer.flush()
-                return buffer.toByteArray()
+                return buffer.toByteArray()!!
             }}
         } catch (e: IOException) {
             throw RuntimeException(e)
@@ -55,13 +56,17 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
     fun getByteArray(): ByteArray {
         stream.flush()
         buffer.flush()
-        return buffer.toByteArray()
+        return buffer.toByteArray()!!
     }
 
     fun size(): Int {
         return this.buffer.size()
     }
 
+    @Throws(IOException::class)
+    fun writeByte(value: Byte) {
+        writeByte(value.toInt())
+    }
     @Throws(IOException::class)
     fun writeByte(value: Int) {
         stream.writeByte(value)
@@ -73,6 +78,12 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
     }
 
     @Throws(IOException::class)
+    fun writeBytesAndLength(value: ByteArray) {
+        writeInt(value.size)
+        writeBytes(value)
+    }
+
+    @Throws(IOException::class)
     fun writeBoolean(value: Boolean) {
         stream.writeBoolean(value)
     }
@@ -80,6 +91,13 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
     @Throws(IOException::class)
     fun writeInt(value: Int) {
         stream.writeInt(value)
+    }
+    @Throws(IOException::class)
+    fun writeBackwardsInt(value: Int) {
+        stream.write(value ushr 0 and 0xFF)
+        stream.write(value ushr 8 and 0xFF)
+        stream.write(value ushr 16 and 0xFF)
+        stream.write(value ushr 24 and 0xFF)
     }
     @Throws(IOException::class)
     fun writeIsInt(value: Int?) {
@@ -94,6 +112,12 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Disabl
     @Throws(IOException::class)
     fun writeShort(value: Short) {
         stream.writeShort(value.toInt())
+    }
+
+    @Throws(IOException::class)
+    fun writeBackwardsShort(value: Short) {
+        stream.write(value.toInt() ushr 0 and 0xFF)
+        stream.write(value.toInt() ushr 8 and 0xFF)
     }
 
     @Throws(IOException::class)

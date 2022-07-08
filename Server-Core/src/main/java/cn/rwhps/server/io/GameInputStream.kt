@@ -9,15 +9,13 @@
 
 package cn.rwhps.server.io
 
+import cn.rwhps.server.io.input.CompressInputStream
 import cn.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import cn.rwhps.server.io.packet.Packet
-import cn.rwhps.server.util.io.CompressInputStream
-import java.io.Closeable
-import java.io.DataInputStream
-import java.io.IOException
-import java.io.OutputStream
+import java.io.*
 
 /**
+ * Read Bytes
  * @author RW-HPS/Dr
  */
 class GameInputStream : Closeable {
@@ -68,6 +66,16 @@ class GameInputStream : Closeable {
         return stream.readInt()
     }
 
+    @Throws(IOException::class)
+    fun readBackwardsInt(): Int {
+        val ch1: Int = buffer.read()
+        val ch2: Int = buffer.read()
+        val ch3: Int = buffer.read()
+        val ch4: Int = buffer.read()
+        if (ch1 or ch2 or ch3 or ch4 < 0) throw EOFException()
+        return (ch4 shl 24) + (ch3 shl 16) + (ch2 shl 8) + (ch1 shl 0)
+    }
+
     /**
      * Read a Short (2 byte)
      * @return Short
@@ -76,6 +84,13 @@ class GameInputStream : Closeable {
     @Throws(IOException::class)
     fun readShort(): Short {
         return stream.readShort()
+    }
+    @Throws(IOException::class)
+    fun readBackwardsShort(): Short {
+        val ch1: Int = buffer.read()
+        val ch2: Int = buffer.read()
+        if (ch1 or ch2 < 0) throw EOFException()
+        return ((ch2 shl 8) + (ch1 shl 0)).toShort()
     }
 
     /**

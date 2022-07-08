@@ -19,6 +19,7 @@ import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.game.event.EventType.GameOverEvent
 import cn.rwhps.server.io.packet.GameCommandPacket
 import cn.rwhps.server.struct.Seq
+import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log.error
 import java.io.IOException
@@ -184,13 +185,12 @@ object Call {
      */
     private class SendGameTickCommand : TimerTask() {
         private var oneSay = true
+        private var forcedClose = false
 
         @Volatile
         private var forcedReturn = false
 
         override fun run() {
-            //Data.game.playerManage.playerGroup[0].sync()
-
             // 检测人数是否符合Gameover
             val playerSize = Data.game.playerManage.playerGroup.size()
             if (playerSize == 0) {
@@ -211,36 +211,35 @@ object Call {
                 }
             }
 
+            if (Time.concurrentSecond() > Data.game.endTime) {
+                if (!forcedClose) {
+                    sendSystemMessageLocal("gameOver.forced")
+                }
+                forcedClose = true
+                if (Time.concurrentSecond() > Data.game.endTime + 60) {
+                    gr()
+                    return
+                }
+            }
+
+            // When synchronized; when suspended; when stopped; refuse to send Task
             if (Data.game.gameReConnectPaused || forcedReturn || Data.game.gamePaused) {
                 return
             }
 
             val time = Data.game.tickGame.getAndAdd(10)
-            when (val size = Data.game.gameCommandCache.size) {
-                0 -> {
-                    try {
-                        NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getTickPacket(time))
-                    } catch (e: IOException) {
-                        error("[ALL] Send Tick Failed", e)
-                    }
-                }
-                1 -> {
-                    val gameCommand = Data.game.gameCommandCache.poll()
-                    try {
-                        NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandPacket(time, gameCommand))
-                    } catch (e: IOException) {
-                        error("[ALL] Send Game Tick Error", e)
-                    }
-                }
-                else -> {
-                    val comm = Seq<GameCommandPacket>(size)
-                    IntStream.range(0, size).mapToObj { Data.game.gameCommandCache.poll() }.forEach { value: GameCommandPacket -> comm.add(value) }
-                    try {
+            try {
+                when (val size = Data.game.gameCommandCache.size) {
+                    0 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getTickPacket(time))
+                    1 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandPacket(time, Data.game.gameCommandCache.poll()))
+                    else -> {
+                        val comm = Seq<GameCommandPacket>(size)
+                        IntStream.range(0, size).mapToObj { Data.game.gameCommandCache.poll() }.forEach { value: GameCommandPacket -> comm.add(value) }
                         NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandsPacket(time, comm))
-                    } catch (e: IOException) {
-                        error("[ALL] Send Game Ticks Error", e)
                     }
                 }
+            } catch (e: IOException) {
+                error("[ALL] Send Tick Failed", e)
             }
         }
 

@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.net.handler.rudp
 
+import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.util.Time.concurrentMillis
 
@@ -17,16 +18,24 @@ import cn.rwhps.server.util.Time.concurrentMillis
  */
 internal class TimeoutDetection {
     companion object {
+        internal fun checkTimeoutDetection(typeConnect: TypeConnect?): Boolean {
+            if (typeConnect == null) {
+                return true
+            }
+
+            return checkTimeoutDetection(typeConnect.abstractNetConnect)
+        }
+
         internal fun checkTimeoutDetection(abstractNetConnect: AbstractNetConnect?): Boolean {
             if (abstractNetConnect == null) {
                 return true
             }
 
             return if (abstractNetConnect.inputPassword) {
-                /* 60s无反应判定close */
-                concurrentMillis() > abstractNetConnect.lastReceivedTime + 60 * 1000L
-            } else {
+                /* 3min No response judgmentclose */
                 concurrentMillis() > abstractNetConnect.lastReceivedTime + 180 * 1000L
+            } else {
+                concurrentMillis() > abstractNetConnect.lastReceivedTime + 300 * 1000L
             }
 
         }

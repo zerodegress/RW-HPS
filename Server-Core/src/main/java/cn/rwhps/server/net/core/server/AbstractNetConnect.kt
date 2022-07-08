@@ -72,6 +72,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
      * last time to Received Packet
      * @return Time
      */
+    @Volatile
     var lastReceivedTime: Long = Time.concurrentMillis()
         private set
 

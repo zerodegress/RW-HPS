@@ -21,9 +21,9 @@ import io.netty.handler.codec.MessageToByteEncoder
 /**
  *    1 2 3 4  5  6  7  8  ...
  *   +-+-+-+-+-+-+-+-+---------------+
- *   |0|0|0|0| 0| 0| 0| 0| Data|
+ *   |0 |0 |0 |0 |0|0|0|0| Data|
  *   +-+-+-+-+-+-+-+-+---------------+
- *   |  Type |Data length| Data
+ *   |Data length|  Type | Data
  *   +---------------+---------------+
  */
 internal class PacketEncoder : MessageToByteEncoder<Packet>() {

@@ -23,9 +23,9 @@ import io.netty.util.ReferenceCountUtil
 /**
  *    1 2 3 4  5  6  7  8  ...
  *   +-+-+-+-+-+-+-+-+---------------+
- *   |0|0|0|0| 0| 0| 0| 0| Data|
+ *   |0 |0 |0 |0 |0|0|0|0| Data|
  *   +-+-+-+-+-+-+-+-+---------------+
- *   |  Type |Data length| Data
+ *   |Data length|  Type | Data
  *   +---------------+---------------+
  */
 internal class PacketDecoder : ByteToMessageDecoder() {

@@ -51,7 +51,7 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
         if (evt is IdleStateEvent) {
             if (evt.state() == IdleState.WRITER_IDLE) {
                 val con: TypeConnect? = ctx.channel().attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
-                if (TimeoutDetection.checkTimeoutDetection(con?.abstractNetConnect)) {
+                if (TimeoutDetection.checkTimeoutDetection(con)) {
                     clear(ctx)
                 }
             }
@@ -60,6 +60,7 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
         }
     }
 
+    @Deprecated("Deprecated in Netty")
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
         // The remote host forcibly closed an existing connection
@@ -75,8 +76,7 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
     private fun clear(ctx: ChannelHandlerContext) {
         val channel = ctx.channel()
         try {
-            val attr = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY)
-            val con = attr.get()
+            val con = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
             if (con != null) {
                 con.abstractNetConnect.disconnect()
             } else {

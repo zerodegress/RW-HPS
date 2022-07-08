@@ -78,11 +78,11 @@ class TypeRelayRebroadcast : TypeRelay {
                                         }
                                         con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
                                     }
+                                    return
                                 }
                             }
                         }
                     }
-                    return
                 }
             }
         }

@@ -15,6 +15,8 @@ import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
+import cn.rwhps.server.data.totalizer.TimeAndNumber
+import cn.rwhps.server.game.GameUnitType
 import cn.rwhps.server.game.event.EventType.*
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
@@ -39,6 +41,7 @@ import cn.rwhps.server.util.log.Log
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.math.min
 
 /**
@@ -60,9 +63,13 @@ import kotlin.math.min
  */
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectServer {
-    open val supportedversionBeta = true
-    open val supportedversionGame = "1.15.P8"
-    open val supportedVersionInt  = 170
+    //open val supportedversionBeta = true
+    //open val supportedversionGame = "1.15.P8"
+    //open val supportedVersionInt  = 170
+    // TODO 170
+    open val supportedversionBeta = false
+    open val supportedversionGame = "1.14"
+    open val supportedVersionInt  = 151
 
     protected val sync = ReentrantLock(true)
 
@@ -71,6 +78,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
     /** 玩家弹窗 */
     protected var relaySelect: ((String) -> Unit)? = null
+    protected val turnStoneIntoGold = TimeAndNumber(5,10)
 
 
     /** 玩家  */
@@ -82,7 +90,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         get() = "1.15.P8 RW-HPS"
 
     override fun sendSystemMessage(msg: String) {
-        if (!player.noSay) {
+        if (!this::player.isInitialized || !player.noSay) {
             try {
                 sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
             } catch (e: IOException) {
@@ -309,72 +317,91 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     @Throws(IOException::class)
     override fun receiveCommand(p: Packet) {
         //PlayerOperationUnitEvent
-        sync.lock()
-        try {
-            GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
-                val outStream = GameOutputStream()
-                outStream.writeByte(inStream.readByte())
-                val boolean1 = inStream.readBoolean()
-                outStream.writeBoolean(boolean1)
-                if (boolean1) {
-                    outStream.writeInt(inStream.readInt())
-                    val int1 = inStream.readInt()
-                    //Log.error(int1)
-                    outStream.writeInt(int1)
-                    if (int1 == -2) {
-                        val nameUnit = inStream.readString()
-                        //Log.error(nameUnit)
-                        outStream.writeString(nameUnit)
-                    }
-                    outStream.transferToFixedLength(inStream,28)
-                    outStream.writeIsString(inStream)
-                }
-                outStream.transferToFixedLength(inStream,10)
-                val boolean3 = inStream.readBoolean()
-                outStream.writeBoolean(boolean3)
-                if (boolean3) {
-                    outStream.transferToFixedLength(inStream,8)
-                }
-                outStream.writeBoolean(inStream.readBoolean())
-                val int2 = inStream.readInt()
-                outStream.writeInt(int2)
-                for (i in 0 until int2) {
-                    outStream.transferToFixedLength(inStream,8)
-                }
-                val boolean4 = inStream.readBoolean()
-                outStream.writeBoolean(boolean4)
-                if (boolean4) {
+        sync.withLock {
+            var status = 0
+            try {
+                GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
+                    val outStream = GameOutputStream()
                     outStream.writeByte(inStream.readByte())
-                }
-
-                val boolean5 = inStream.readBoolean()
-                outStream.writeBoolean(boolean5)
-                if (boolean5) {
-                    if (player.getData<String>("Summon") != null) {
-                        gameSummon(player.getData<String>("Summon")!!,inStream.readFloat(),inStream.readFloat())
-                        player.removeData("Summon")
-                        return
-                    } else {
+                    val boolean1 = inStream.readBoolean()
+                    outStream.writeBoolean(boolean1)
+                    if (boolean1) {
+                        status = inStream.readInt()
+                        outStream.writeInt(status)
+                        val int1 = inStream.readInt()
+                        //Log.error(int1)
+                        outStream.writeInt(int1)
+                        if (int1 == -2) {
+                            val nameUnit = inStream.readString()
+                            //Log.error(nameUnit)
+                            outStream.writeString(nameUnit)
+                        }
+                        outStream.transferToFixedLength(inStream,28)
+                        outStream.writeIsString(inStream)
+                    }
+                    outStream.transferToFixedLength(inStream,10)
+                    val boolean3 = inStream.readBoolean()
+                    outStream.writeBoolean(boolean3)
+                    if (boolean3) {
                         outStream.transferToFixedLength(inStream,8)
                     }
+                    outStream.writeBoolean(inStream.readBoolean())
+                    val int2 = inStream.readInt()
+                    outStream.writeInt(int2)
+                    for (i in 0 until int2) {
+                        outStream.transferToFixedLength(inStream,8)
+                    }
+                    val boolean4 = inStream.readBoolean()
+                    outStream.writeBoolean(boolean4)
+                    if (boolean4) {
+                        outStream.writeByte(inStream.readByte())
+                    }
+
+                    val boolean5 = inStream.readBoolean()
+                    outStream.writeBoolean(boolean5)
+                    if (boolean5) {
+                        if (player.getData<String>("Summon") != null) {
+                            gameSummon(player.getData<String>("Summon")!!,inStream.readFloat(),inStream.readFloat())
+                            player.removeData("Summon")
+                            return
+                        } else {
+                            outStream.transferToFixedLength(inStream,8)
+                        }
+                    }
+                    outStream.transferToFixedLength(inStream,8)
+
+                    outStream.writeString(inStream.readString())
+                    outStream.writeBoolean(inStream.readBoolean())
+
+                    //outStream.writeByte(inStream.readByte())
+                    inStream.readShort()
+                    outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
+                    // TODO !
+                    if (player.turnStoneIntoGold && status == GameUnitType.GameActions.BUILD.ordinal) {
+                        if (turnStoneIntoGold.checkStatus()) {
+                            sendSystemMessage("建的太频繁了 休息一下吧 !")
+                            return@use
+                        } else {
+                            turnStoneIntoGold.count++
+                            outStream.writeBoolean(true)
+                            outStream.writeByte(0)
+                            outStream.writeFloat(0f)
+                            outStream.writeFloat(0f)
+                            //action type
+                            outStream.writeInt(5)
+                            outStream.writeInt(0)
+                            outStream.writeBoolean(false)
+                        }
+                    } else {
+                        outStream.transferTo(inStream)
+                    }
+                    Data.game.gameCommandCache.offer(GameCommandPacket(player.site, outStream.getPacketBytes()))
                 }
-                outStream.transferToFixedLength(inStream,8)
-
-                outStream.writeString(inStream.readString())
-                outStream.writeBoolean(inStream.readBoolean())
-
-                //outStream.writeByte(inStream.readByte())
-                inStream.readShort()
-                outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
-
-                outStream.transferTo(inStream)
-                Data.game.gameCommandCache.offer(GameCommandPacket(player.site, outStream.getPacketBytes()))
+            } catch (e: Exception) {
+                Log.error(e)
             }
-        } catch (e: Exception) {
-            Log.error(e)
-        } finally {
-            sync.unlock()
         }
+
     }
 
     @Throws(IOException::class)

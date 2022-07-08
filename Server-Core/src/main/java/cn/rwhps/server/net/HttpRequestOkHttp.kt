@@ -201,12 +201,10 @@ object HttpRequestOkHttp {
         } catch (e: Exception) {
             error(e)
         } finally {
-            if (output != null) {
-                try {
-                    output!!.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+            try {
+                output?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
         }
         return false

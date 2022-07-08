@@ -31,7 +31,7 @@ class ModsIniData {
     /** 分割 =  */
     private val h = Pattern.compile("\\s*([^=:]*)[=:](.*)")
     private val a = Pattern.compile("\\$\\{([^}]*)}")
-    private val b = Pattern.compile("[A-Za-z_][A-Za-z_.0-9]*")
+    private val b = Pattern.compile("[A-Za-z_][A-Za-z_.\\d]*")
 
     val modFileData = LinkedHashMap<String, LinkedHashMap<String, String>>()
 
@@ -62,19 +62,19 @@ class ModsIniData {
     }
 
     @Throws(IOException::class)
-    private fun readModFile(paramBufferedReader: BufferedReader) {
-        try {
+    private fun readModFile(paramBufferedReaderIn: BufferedReader) {
+        paramBufferedReaderIn.use { paramBufferedReader ->
             var str2: String? = null
             var lineString: String?
             while (paramBufferedReader.readLine().also { lineString = it } != null) {
                 if (lineString!!.startsWith(" ")) {
                     lineString = lineString!!.substring(1)
                 }
-                if (lineString!!.trim().startsWith("#") || lineString!!.trim().isEmpty()) {
+                if (lineString!!.trim().startsWith("#") || lineString!!.trim().isBlank()) {
                     continue
                 }
                 if (lineString!!.contains("[")) {
-                    val matcher1 = g.matcher(lineString)
+                    val matcher1 = g.matcher(lineString!!)
                     if (matcher1.matches()) {
                         str2 = matcher1.group(1).trim { it <= ' ' }
                         continue
@@ -83,27 +83,32 @@ class ModsIniData {
                 if (str2 != null && str2.startsWith("comment_")) {
                     continue
                 }
-                val matcher = h.matcher(lineString)
+                val matcher = h.matcher(lineString!!)
                 if (matcher.matches()) {
                     if (str2 == null) {
-                        Log.error("INI","This line is not in a [section]: \" $lineString \"");
+                        Log.error("INI","This line is not in a [section]: \" $lineString \"")
                         continue
                     }
                     val str3 = matcher.group(1).trim { it <= ' ' }
                     val str4 = matcher.group(2).trim { it <= ' ' }
-                    val linkedHashMap = modFileData.computeIfAbsent(str2, Function { _: String? -> LinkedHashMap() })
+                    val linkedHashMap = modFileData.computeIfAbsent(str2, Function { LinkedHashMap() })
                     linkedHashMap[str3] = str4
                 }
             }
-        } finally {
-            paramBufferedReader.close()
         }
     }
 
     fun getName(): String {
-        return this.modFileData.get("core")!!.get("name")!!
+        return this.modFileData["core"]!!["name"]!!
     }
 
+    /**
+     * 给指定节加入一个值
+     * @param name String
+     * @param k String
+     * @param def String?
+     * @return String?
+     */
     fun getValue(name: String, k: String , def: String? = null): String? {
         val data = this.modFileData[name]
         if (data != null) {
@@ -116,15 +121,21 @@ class ModsIniData {
     }
 
     fun addValue(name: String, key: String , value: String) {
-        val linkedHashMap = modFileData.computeIfAbsent(name, Function { _: String? -> LinkedHashMap() })
+        val linkedHashMap = modFileData.computeIfAbsent(name) { LinkedHashMap() }
 
         if (linkedHashMap[key] == null) {
             linkedHashMap[key] = value
         }
     }
 
+    /**
+     * 强制给指定节加入值
+     * @param name String
+     * @param key String
+     * @param value String
+     */
     fun addValue0(name: String, key: String , value: String) {
-        val linkedHashMap = modFileData.computeIfAbsent(name, Function { _: String? -> LinkedHashMap() })
+        val linkedHashMap = modFileData.computeIfAbsent(name) { LinkedHashMap() }
 
         linkedHashMap[key] = value
     }
@@ -139,7 +150,7 @@ class ModsIniData {
                 modFileData[k] = LinkedHashMap()
             }
 
-            v.forEach { (k1: String, v1: String?) ->
+            v.forEach { (k1: String, v1: String) ->
                 if (modFileData[k]!![k1] == null) {
                     modFileData[k]!![k1] = v1
                 }
@@ -174,15 +185,12 @@ class ModsIniData {
     }
 
     // 找到特点模块具有特定名字的模块 然后写入List
-    fun checkForASpecificModuleAndStartWithASpecificCharacter(moduleName: String,startWith: String): Seq<String> {
+    fun checkForASpecificModuleAndStartWithASpecificCharacter(moduleName: String, startWith: String): Seq<String> {
         val result = Seq<String>()
-        val moduleData = modFileData[moduleName]
-        if (moduleData != null) {
-            moduleData.forEach { (key: String, value: String) ->
-                if (key.startsWith(startWith)) {
-                    if ("IGNORE" != value) {
-                        result.add(key)
-                    }
+        modFileData[moduleName]?.forEach { (key: String, value: String) ->
+            if (key.startsWith(startWith)) {
+                if ("IGNORE" != value) {
+                    result.add(key)
                 }
             }
         }

@@ -365,7 +365,7 @@ class ModsLoad {
 
     private fun loadVariable(beRecorded: ModsIniData, moduleNameIn: String, paramString2: String,defineMap: ObjectMap<String,String>, gblbalMap: ObjectMap<String,String>): String {
         if (paramString2.contains(".")) {
-            val arrayOfString = ModsLoadUtil.b(paramString2, '.')
+            val arrayOfString = paramString2.split(".")
             if (arrayOfString.size != 2) {
                 throw RuntimeException("Unexpected key format: $paramString2")
             }

@@ -25,7 +25,7 @@ import cn.rwhps.server.util.log.Log
  * Mods 加载管理器
  */
 object ModManage {
-    private const val coreName = "core_RW-HPS_units_159.zip"
+    private const val coreName = "core_RW-HPS_units_114.zip"
     private val modsData = OrderedMap<String,ObjectMap<String, ModsIniData>>()
     private var loadUnitsCount = 0
     private var fileMods: FileUtil? = null
@@ -51,7 +51,7 @@ object ModManage {
             }
 
             loadCount++
-            val modLoad = ModsLoad(it)
+            val modLoad = ModsLoad(it.inputStream())
             val modsDataCache = modLoad.load()
 
             modsData.put(modLoad.name.ifBlank { FileName.getFileName(it.name) }, modsDataCache)

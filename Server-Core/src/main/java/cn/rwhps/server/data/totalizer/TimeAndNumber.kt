@@ -16,27 +16,28 @@ class TimeAndNumber(
     private val conutMax: Int
 ) {
     private var startTime = 0
-    private var time: Int = 0
     var count: Int = 0
         set(value) {
             if (field == 0) {
                 startTime = Time.concurrentSecond()
             }
-            time = Time.concurrentSecond()
             field = value
         }
 
     fun checkStatus(): Boolean {
-        return if ((time - startTime) > timeOut) {
-            reset()
-            false
+        if (count < conutMax) {
+            return false
         } else {
-            count > conutMax
+            if ((Time.concurrentSecond() - startTime) > timeOut) {
+                reset()
+                return false
+            }
+            return true
         }
     }
 
     fun reset() {
         startTime = 0
-        time = 0
+        count = 0
     }
 }

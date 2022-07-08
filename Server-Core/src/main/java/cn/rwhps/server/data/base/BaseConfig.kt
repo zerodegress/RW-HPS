@@ -11,14 +11,13 @@ package cn.rwhps.server.data.base
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.struct.Seq
-import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.inline.toGson
+import cn.rwhps.server.util.inline.toPrettyPrintingJson
 import cn.rwhps.server.util.log.Log.debug
 import cn.rwhps.server.util.log.Log.error
 import cn.rwhps.server.util.log.Log.warn
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import java.lang.reflect.Field
 
 
@@ -48,9 +47,11 @@ data class BaseConfig(
 
     /** 服务器最大人数 */
     val MaxPlayer: Int = 10,
-    /** 服务器最小Start人数 */
-    val StartMinPlayerSize: Int = 0,
-    /** 服务器最小AutoStart人数 */
+    /** 服务器最大游戏时间 (s) 2*60*60 (-1 为禁用) */
+    val MaxGameIngTime: Int = 7200,
+    /** 服务器最小Start人数 (-1 为禁用) */
+    val StartMinPlayerSize: Int = -1,
+    /** 服务器最小AutoStart人数 (-1 为禁用) */
     val AutoStartMinPlayerSize: Int = 4,
     /** 最大发言长度 */
     val MaxMessageLen: Int = 40,
@@ -83,6 +84,8 @@ data class BaseConfig(
 
     val AutoReLoadMap: Boolean = false,
 
+    val Turnstoneintogold: Boolean = false,
+
     val WebSupport: Boolean = false,
 
     var RunPid: Long = 0,
@@ -98,8 +101,7 @@ data class BaseConfig(
     }
 
     fun save() {
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        fileUtil.writeFile(gson.toJson(this))
+        fileUtil.writeFile(this.toPrettyPrintingJson())
     }
 
     fun coverField(name: String,value: Any): Boolean {
@@ -130,9 +132,8 @@ data class BaseConfig(
 
         @JvmStatic
         fun stringToClass(): BaseConfig {
-            val gson = Gson()
-            val json = fileUtil.readFileStringData()
-            val config = gson.fromJson(if (IsUtil.notIsBlank(json)) json else "{}", BaseConfig::class.java)
+
+            val config: BaseConfig = BaseConfig::class.java.toGson(fileUtil.readFileStringData())
 
             // PATH
             config.allName().each {

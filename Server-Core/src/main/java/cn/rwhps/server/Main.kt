@@ -23,10 +23,11 @@
  * RW-HPS is completely free and open source software for learning and entertainment purposes only
  * RW-HPS does not impose fees or material conditions on users in any way.
  * RW-HPS is maintained by the entire open source community and is not the work of a single individual, and all contributors own the copyright to their work
+ *
  * The RW-HPS is maintained by the entire open source community and is not the work of any individual.
  * If you modify the RW-HPS source code for redistribution, or refer to the RW-HPS internal implementation
  * Derivative projects must explicitly state that they are from this repository (https://github.com/RW-HPS/RW-HPS) at the beginning of the article or at the first appearance of the 'RW-HPS' related content, without distorting or hiding the fact that they are free and open source
- */
+*/
 
 package cn.rwhps.server
 
@@ -87,9 +88,6 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
-
-        System.setProperty("file.encoding","UTF-8")
-
         /* 尝试写一个UTF-8编码 */
         System.setProperty("file.encoding", "UTF-8")
         /* 覆盖输入输出流 */
@@ -106,7 +104,6 @@ object Main {
         /* 设置Log 并开启拷贝 */
         set("ALL")
         setCopyPrint(true)
-
 
         Logger.getLogger("io.netty").level = Level.OFF
 
@@ -151,8 +148,8 @@ object Main {
 
         /* 初始化Plugin Init */
         runInit()
-        clog(Data.i18NBundle.getinput("server.load.end"))
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
+        clog(Data.i18NBundle.getinput("server.load.end"))
 
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })

@@ -64,7 +64,7 @@ public class NetServer {
         }
         Call.killAllPlayer();
         Data.game.re();
-        Data.game.isStartGame = false;
+        Data.game.setStartGame(false);
 
         synchronized (net.udp.Data.waitData) {
             net.udp.Data.waitData.notify();

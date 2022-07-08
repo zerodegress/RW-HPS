@@ -57,7 +57,6 @@ internal class RelayClientCommands(handler: CommandHandler) {
     }
 
     private fun sendMsg(con: GameVersionRelay, msg: String) {
-        con.sendCustomPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
-
+        con.sendCustomPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(msg,"RELAY-CN",5))
     }
 }

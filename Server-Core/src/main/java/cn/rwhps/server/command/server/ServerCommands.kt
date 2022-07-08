@@ -158,6 +158,14 @@ internal class ServerCommands(handler: CommandHandler) {
         handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
             Data.game.playerManage.playerGroup.each { e: Player -> e.muteTime = 0 }
         }
+
+        handler.register("turnstoneintogold", "<PlayerSerialNumber>", "# turnstoneintogold") { arg: Array<String>, _: StrCons ->
+            val site = arg[0].toInt() - 1
+            val player = Data.game.playerManage.getPlayerArray(site)
+            if (player != null) {
+                player.turnStoneIntoGold = true
+            }
+        }
     }
 
     private fun registerPlayerStatusCommand(handler: CommandHandler) {

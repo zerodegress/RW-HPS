@@ -62,7 +62,14 @@ class CoreCommands(handler: CommandHandler) {
         }
 
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
-            log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION)]
+            log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
+            if (NetStaticData.ServerNetType == IRwHps.NetType.ServerProtocol || NetStaticData.ServerNetType == IRwHps.NetType.ServerTestProtocol) {
+                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size())]
+            } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
+                val size = AtomicInteger()
+                NetStaticData.startNet.each { e: StartNet -> size.addAndGet(e.getConnectSize()) }
+                log[localeUtil.getinput("status.versionS.relay", size.get())]
+            }
         }
         handler.register("setlanguage","[HK/CN/RU/EN]" ,"serverCommands.setlanguage") { arg: Array<String>, _: StrCons ->
             Initialization.initServerLanguage(Data.core.settings,arg[0])
@@ -101,73 +108,10 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     private fun registerStartServer(handler: CommandHandler) {
-        handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size() > 0) {
-                log["The server is not closed, please close"]
-                return@register
-            }
+        handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerProtocol,log)}
+        handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
 
-            /* Register Server Protocol Command */
-            ServerCommands(handler)
 
-            Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-            Data.game = Rules(Data.config)
-            Data.game.init()
-
-            NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
-            NetStaticData.RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.ServerProtocol) as IRwHps
-
-            Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
-            Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
-/*
-            NetStaticData.protocolData.setTypeConnect(TypeRwHpsBeta());
-            NetStaticData.protocolData.setNetConnectProtocol(GameVersionServerBeta(ConnectionAgreement()),157);
-            NetStaticData.protocolData.setNetConnectPacket(GameVersionPacketBeta(),"3.0.0");*/
-            //NetStaticData.protocolData.setNetConnectProtocol(new GameVersionFFA(null),151);
-            handler.handleMessage("startnetservice")
-        }
-        handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size() > 0) {
-                log["The server is not closed, please close"]
-                return@register
-            }
-
-            /* Register Server Protocol Command */
-            ServerCommands(handler)
-
-            Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-            Data.game = Rules(Data.config)
-            Data.game.init()
-
-            NetStaticData.ServerNetType = IRwHps.NetType.ServerTestProtocol
-            NetStaticData.RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.ServerTestProtocol) as IRwHps
-
-            Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
-            Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
-
-            handler.handleMessage("startnetservice")
-        }
-        /*
-        handler.register("startffa", "serverCommands.start.ffa") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size() > 0) {
-                log["The server is not closed, please close"]
-                return@register
-            }
-
-            /* Register Server Protocol Command */
-            ServerCommands(handler)
-
-            Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-            Data.game = Rules(Data.config)
-            Data.game.init()
-            TimeTaskData.CallTeamTask = Threads.newThreadService2({ Call.sendTeamData() }, 0, 2, TimeUnit.SECONDS)
-            TimeTaskData.CallPingTask = Threads.newThreadService2({ Call.sendPlayerPing() }, 0, 2, TimeUnit.SECONDS)
-
-            NetStaticData.protocolData.setTypeConnect(TypeRwHps(GameVersionFFA(ConnectionAgreement())))
-            NetStaticData.protocolData.setNetConnectPacket(GameVersionPacket(), "2.0.0")
-
-            handler.handleMessage("startnetservice")
-        }*/
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
                 log["The server is not closed, please close"]
@@ -212,7 +156,6 @@ class CoreCommands(handler: CommandHandler) {
 
         handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
             val startNetTcp = StartNet()
-            //val startNetTcp = StartNet(StartGamePortDivider::class.java)
             NetStaticData.startNet.add(startNetTcp)
             Threads.newThreadCoreNet {
                 if (arg != null && arg.size > 1) {
@@ -221,19 +164,36 @@ class CoreCommands(handler: CommandHandler) {
                     startNetTcp.openPort(Data.config.Port)
                 }
             }
-            /*
-            if (Data.config.UDPSupport) {
-                Threads.newThreadCoreNet {
-                    try {
-                        val startNet = StartNet()
-                        NetStaticData.startNet.add(startNet)
-                        startNet.startUdp(Data.config.Port)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            }*/
         }
+    }
+
+    /**
+     * 根据提供的协议来完成对应的初始化与设定
+     *
+     *
+     * @param handler CommandHandler 命令头
+     * @param netType NetType        协议
+     * @param log StrCons            Log打印
+     */
+    private fun startServer(handler: CommandHandler ,netType: IRwHps.NetType, log: StrCons) {
+        if (NetStaticData.startNet.size() > 0) {
+            log["The server is not closed, please close"]
+            return
+        }
+
+        /* Register Server Protocol Command */
+        ServerCommands(handler)
+
+        Log.set(Data.config.Log.uppercase(Locale.getDefault()))
+        Data.game = Rules(Data.config)
+        Data.game.init()
+
+        NetStaticData.ServerNetType = netType
+
+        Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
+        Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
+
+        handler.handleMessage("startnetservice")
     }
 
     companion object {

@@ -402,7 +402,8 @@ internal class ClientCommands(handler: CommandHandler) {
                     sendMessageLocal(player, "afk.clear", player.name)
                 }
 
-                if (Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size()) {
+                if (Data.config.StartMinPlayerSize != -1 &&
+                    Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size()) {
                     player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
                 }

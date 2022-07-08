@@ -10,7 +10,10 @@
 package cn.rwhps.server.data.plugin;
 
 import cn.rwhps.server.func.Prov;
+import cn.rwhps.server.io.GameInputStream;
+import cn.rwhps.server.io.GameOutputStream;
 import cn.rwhps.server.io.input.ReusableDisableSyncByteArrayInputStream;
+import cn.rwhps.server.io.output.ByteArrayOutputStream;
 import cn.rwhps.server.struct.ObjectMap;
 import cn.rwhps.server.struct.OrderedMap;
 import cn.rwhps.server.struct.SerializerTypeAll;
@@ -22,7 +25,10 @@ import cn.rwhps.server.util.zip.gzip.GzipDecoder;
 import cn.rwhps.server.util.zip.gzip.GzipEncoder;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
 
 /**
  * [PluginData] 的默认实现. 使用 '{@link AbstractPluginData#setData}' 自带创建 [Value] 并跟踪其改动.
@@ -36,7 +42,7 @@ class AbstractPluginData {
     private final OrderedMap<String, Value<?>> PLUGIN_DATA = new OrderedMap<>();
     private final ReusableDisableSyncByteArrayInputStream byteInputStream = new ReusableDisableSyncByteArrayInputStream();
     private final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-    private final DataOutputStream dataOutput = new DataOutputStream(byteStream);
+    private final GameOutputStream dataOutput = new GameOutputStream(byteStream);
     private FileUtil fileUtil;
 
     static {
@@ -196,11 +202,11 @@ class AbstractPluginData {
     protected static <T> void setSerializer(Class<T> type, final SerializerTypeAll.TypeWriter<T> writer, final SerializerTypeAll.TypeReader<T> reader) {
         SERIALIZERS.put(type, new SerializerTypeAll.TypeSerializer<T>() {
             @Override
-            public void write(DataOutput stream, T object) throws IOException {
+            public void write(GameOutputStream stream, T object) throws IOException {
                 writer.write(stream, object);
             }
             @Override
-            public T read(DataInput stream) throws IOException {
+            public T read(GameInputStream stream) throws IOException {
                 return reader.read(stream);
             }
         });
@@ -214,7 +220,7 @@ class AbstractPluginData {
         SerializerTypeAll.TypeSerializer<?> serializer = SERIALIZERS.get(type);
         try {
             this.byteInputStream.setBytes(bytes);
-            Object obj = serializer.read(new DataInputStream(byteInputStream));
+            Object obj = serializer.read(new GameInputStream(byteInputStream));
             if (obj == null) {
                 return null;
             }

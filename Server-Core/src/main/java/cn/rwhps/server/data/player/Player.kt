@@ -37,7 +37,7 @@ class Player(
     /** Player name  */
     @JvmField val name: String,
     /**   */
-    @JvmField val i18NBundle: I18NBundle
+    @JvmField val i18NBundle: I18NBundle,
 ) {
     /** is Admin  */
 	@JvmField
@@ -75,6 +75,9 @@ class Player(
 	var noSay = false
     var watch = false
         private set
+    /** 点石成金 */
+    var turnStoneIntoGold = Data.config.Turnstoneintogold
+
 
     /** Shared control  */
     @Volatile var sharedControl = false
@@ -188,6 +191,16 @@ class Player(
         con!!.connectServer = null
         Data.game.playerManage.playerGroup.add(this)
         Data.game.playerManage.playerAll.add(this)
+    }
+
+    // 买得起吗
+    fun canBuy(price: Int): Boolean {
+        return credits >= price
+    }
+
+
+    fun isEnemy(other: Player): Boolean {
+        return this.team != other.team
     }
 
     fun clear() {

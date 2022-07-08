@@ -9,8 +9,9 @@
 
 package cn.rwhps.server.struct;
 
-import java.io.DataInput;
-import java.io.DataOutput;
+import cn.rwhps.server.io.GameInputStream;
+import cn.rwhps.server.io.GameOutputStream;
+
 import java.io.IOException;
 
 /**
@@ -26,7 +27,7 @@ public class SerializerTypeAll {
          * @param param1T 输入的数据
          * @throws IOException Error
          */
-        void write(DataOutput param1DataOutput, T param1T) throws IOException;
+        void write(GameOutputStream param1DataOutput, T param1T) throws IOException;
 
         /**
          * 反序列化读取
@@ -34,7 +35,7 @@ public class SerializerTypeAll {
          * @return 反序列化后的数据
          * @throws IOException Error
          */
-        T read(DataInput param1DataInput) throws IOException;
+        T read(GameInputStream param1DataInput) throws IOException;
     }
 
     public interface TypeWriter<T> {
@@ -44,7 +45,7 @@ public class SerializerTypeAll {
          * @param param1T 输入的数据
          * @throws IOException Error
          */
-        void write(DataOutput param1DataOutput, T param1T) throws IOException;
+        void write(GameOutputStream param1DataOutput, T param1T) throws IOException;
     }
     public interface TypeReader<T> {
         /**
@@ -53,6 +54,6 @@ public class SerializerTypeAll {
          * @return 反序列化后的数据
          * @throws IOException Error
          */
-        T read(DataInput param1DataInput) throws IOException;
+        T read(GameInputStream param1DataInput) throws IOException;
     }
 }

@@ -12,6 +12,7 @@ package cn.rwhps.server.data.global
 import cn.rwhps.server.net.GroupNet
 import cn.rwhps.server.net.StartNet
 import cn.rwhps.server.net.core.IRwHps
+import cn.rwhps.server.net.core.ServiceLoader
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.alone.BlackList
 
@@ -28,6 +29,11 @@ object NetStaticData {
     val blackList = BlackList()
 
     var ServerNetType: IRwHps.NetType = IRwHps.NetType.NullProtocol
+        set(value) {
+            field = value
+            /* 设置协议后会自动初始化IRwHps */
+            RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(value) as IRwHps
+        }
     lateinit var RwHps: IRwHps
 
     @JvmField

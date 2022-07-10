@@ -36,7 +36,7 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
             stream.readInt()
             var name = stream.readString()
             Log.debug("name", name)
-            val passwd = stream.isReadString()
+            val passwd = stream.readIsString()
             Log.debug("passwd", passwd)
             stream.readString()
             val uuid = stream.readString()

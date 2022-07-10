@@ -56,15 +56,10 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                 }
 
                 ctx.executor().execute {
-                    if (type.abstractNetConnect.isConnectServer) {
-                        type.abstractNetConnect.connectServer!!.send(msg)
-                        return@execute
-                    }
                     try {
                         type.typeConnect(msg)
                     } catch (e: Exception) {
                         debug(e = e)
-                        //type.disconnect()
                     }
                 }
             }
@@ -76,8 +71,6 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
     @Deprecated("Deprecated in Netty")
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
-        //ctx.close()
-
         error(RuntimeException())
         error(cause == null)
         error(cause!!)

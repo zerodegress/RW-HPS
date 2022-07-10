@@ -13,6 +13,7 @@ import cn.rwhps.server.data.global.Cache
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.global.Relay
+import cn.rwhps.server.data.player.PlayerRelay
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
@@ -20,14 +21,16 @@ import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnectRelay
-import cn.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
+import cn.rwhps.server.net.netconnectprotocol.UniversalAnalysisOfGamePackages
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInfo
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
+import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.RandomUtil.getRandomIetterString
 import cn.rwhps.server.util.StringFilteringUtil.cutting
+import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import cn.rwhps.server.util.encryption.Sha
 import cn.rwhps.server.util.game.CommandHandler
@@ -47,8 +50,8 @@ import java.util.stream.IntStream
  * @Thanks : [Github 1dNDN](https://github.com/1dNDN)
  *
  * This test was done on :
- * Relay-CN (V. 6.0.0)
- * 2022.6.8 00:00
+ * Relay-CN (V. 6.0.1)
+ * 2022.7.9 18:00
  */
 
 /**
@@ -56,14 +59,17 @@ import java.util.stream.IntStream
  * Direct forwarding consumes more bandwidth and the same effect as using VPN forwarding
  *
  * @property permissionStatus       Connection authentication status
+ * @property netConnectAuthenticate Connection validity verification
  * @property relay                  Relay instance
  * @property site                   Connect the forwarding location within the RELAY
  * @property connectUUID            UUID of this connection
  * @property cachePacket            Cached Package
- * @property betaGameVersion        Is it a beta version
- * @property netConnectAuthenticate Connection validity verification
+ * @property relaySelect            Function1<String, Unit>?
  * @property name                   player's name
  * @property registerPlayerId       UUID-Hash code after player registration
+ * @property betaGameVersion        Is it a beta version
+ * @property clientVersion          clientVersion
+ * @property playerRelay            PlayerRelay?
  * @property version                Protocol version
  * @constructor
  *
@@ -74,6 +80,9 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     override var permissionStatus: RelayStatus = RelayStatus.InitialConnection
         internal set
 
+    /** Client computing proves non-Bot */
+    private var netConnectAuthenticate: NetConnectAuthenticate? = null
+
     override var relay: Relay? = null
         protected set
 
@@ -82,16 +91,23 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     private val connectUUID = UUID.randomUUID().toString()
 
     private var cachePacket: Packet? = null
-    private var betaGameVersion = false
 
-    private var netConnectAuthenticate: NetConnectAuthenticate? = null
+    private var relaySelect: ((String) -> Unit)? = null
 
     var name = "NOT NAME"
         protected set
-
     private var registerPlayerId: String? = null
+    private var betaGameVersion = false
+    internal var clientVersion = 151
+    var playerRelay: PlayerRelay? = null
+        internal set
 
-    private var relaySelect: ((String) -> Unit)? = null
+    // 延迟加载 减少内存占用
+
+    lateinit var relayKickData: ObjectMap<String,Int>
+        protected set
+    lateinit var relayPlayersData: ObjectMap<String,PlayerRelay>
+        protected set
 
     override fun setCachePacket(packet: Packet) {
         cachePacket = packet
@@ -120,11 +136,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     @Throws(IOException::class)
-    override fun relayDirectInspection() {
+    override fun relayDirectInspection(relay: Relay?) {
         GameInputStream(cachePacket!!).use { inStream ->
             inStream.readString()
             val packetVersion = inStream.readInt()
-            if (inStream.readInt() >= 157) {
+            clientVersion = inStream.readInt()
+            if (clientVersion >= 170) {
                 betaGameVersion = true
             }
             if (packetVersion >= 1) {
@@ -132,50 +149,22 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             }
             var queryString = ""
             if (packetVersion >= 2) {
-                queryString = inStream.isReadString()
+                queryString = inStream.readIsString()
             }
             if (packetVersion >= 3) {
                 name = inStream.readString()
-                //info(name)
-                //this.playerAdminName = StringFilteringUtil.replaceChinese(this.playerAdminName,"?");
             }
-            if (IsUtil.isBlank(queryString) || "RELAYCN".equals(queryString, ignoreCase = true)) {
-                sendRelayServerType(Data.i18NBundle.getinput("relay.hi", Data.SERVER_CORE_VERSION))
-            } else {
-                idCustom(queryString)
-            }
-        }
-    }
-
-    @Throws(IOException::class)
-    override fun relayDirectInspection(relay: Relay) {
-        try {
-            GameInputStream(cachePacket!!).use { inStream ->
-                inStream.readString()
-                val packetVersion = inStream.readInt()
-                if (inStream.readInt() >= 157) {
-                    betaGameVersion = true
-                }
-                if (packetVersion >= 1) {
-                    inStream.skip(4)
-                }
-                if (packetVersion >= 2) {
-                    inStream.isReadString()
-                }
-                if (packetVersion >= 3) {
-                    name = inStream.readString()
-                    //this.playerAdminName = StringFilteringUtil.replaceChinese(this.playerAdminName,"?");
-                }
-                this.relay = relay
-                if (this.relay != null) {
-                    addRelayConnect()
-                    this.relay!!.setAddSize()
+            if (relay == null) {
+                if (IsUtil.isBlank(queryString) || "RELAYCN".equals(queryString, ignoreCase = true)) {
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.hi", Data.SERVER_CORE_VERSION))
                 } else {
-                    //sendRelayServerType(Data.localeUtil.getinput("relay.server.no",queryString));
+                    idCustom(queryString)
                 }
+            } else {
+                this.relay = relay
+                addRelayConnect()
+                this.relay!!.setAddSize()
             }
-        } catch (e: Exception) {
-            //sendRelayServerType(Data.localeUtil.getinput("relay.server.no",queryString));
         }
     }
 
@@ -230,29 +219,49 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     @Throws(IOException::class)
     override fun receiveChat(p: Packet) {
         GameInputStream(p).use { inStream ->
-            val message: String = inStream.readString()
+            if (playerRelay != null) {
+                if (playerRelay!!.mute) {
+                    return
+                }
 
+                val message: String = inStream.readString()
 
-            if (message.startsWith(".")) {
-                val response = Data.RELAY_COMMAND.handleMessage(message, this)
-                if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                } else if (response.type != CommandHandler.ResponseType.valid) {
-                    val text: String = when (response.type) {
-                        CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                        CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                        else -> {
-                            if (!message.contains("self_")) {
-                                sendResultPing(p)
+                if (message.startsWith(".") || message.startsWith("-")) {
+                    val response = Data.RELAY_COMMAND.handleMessage(message, this)
+                    if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                    } else if (response.type != CommandHandler.ResponseType.valid) {
+                        val text: String = when (response.type) {
+                            CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                            CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                            else -> {
+                                if (!message.contains("self_")) {
+                                    sendResultPing(p)
+                                }
+                                return
                             }
+                        }
+                        sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
+                    }
+                } else {
+                    if (playerRelay!!.messageSimilarity.apply(playerRelay!!.lastSentMessage,message) > 0.80) {
+                        if (playerRelay!!.messageSimilarityCount.checkStatus()) {
+                            relay!!.admin!!.relayKickData.put("KICK$registerPlayerId",Time.concurrentSecond()+120)
+                            kick("相同的话不应该连续发送")
+                            return
+                        } else {
+                            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("您已经连续多次发言重复 您不应该这样做", "RELAY-CN-Check", 5))
+                            playerRelay!!.messageSimilarityCount.count++
                             return
                         }
                     }
-                    sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
+                    playerRelay!!.lastSentMessage = message
                 }
-            }
 
-            if (!message.contains("self_")) {
-                sendResultPing(p)
+                if (!message.contains("self_")) {
+                    sendResultPing(p)
+                }
+            } else {
+                disconnect()
             }
         }
     }
@@ -282,7 +291,13 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             if (relay!!.admin != null) {
                 // Log.debug("sendRelayServerId","Admin != null");
                 relay!!.removeAbstractNetConnect(site)
+                relayKickData = relay!!.admin!!.relayKickData
+                relayPlayersData = relay!!.admin!!.relayPlayersData
+            } else {
+                relayKickData = ObjectMap()
+                relayPlayersData = ObjectMap()
             }
+
             //Log.debug("sendRelayServerId","Set Admin");
             relay!!.admin = this
             //Log.debug(this == relay.getAdmin());
@@ -378,7 +393,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o1.writeInt(site)
             o1.writeInt(cachePacket!!.bytes.size + 8)
             o1.writeInt(cachePacket!!.bytes.size)
-            o1.writeInt(160)
+            o1.writeInt(PacketType.PREREGISTER_INFO_RECEIVE.typeInt)
             o1.writeBytes(cachePacket!!.bytes)
             relay!!.admin!!.sendPacket(o1.createPacket(PacketType.PACKET_FORWARD_CLIENT_FROM))
             connectionAgreement.add(relay!!.groupNet)
@@ -396,13 +411,30 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 stream.readString()
                 stream.skip(12)
                 stream.readString()
-                stream.isReadString()
+                stream.readIsString()
                 stream.readString()
                 if (IsUtil.isBlank(registerPlayerId)) {
                     registerPlayerId = stream.readString()
                 }
+
+                // Relay-EX
+                if (this.playerRelay == null) {
+                    this.playerRelay = relay!!.admin!!.relayPlayersData[registerPlayerId] ?: PlayerRelay(this, registerPlayerId!!, name).also {
+                        relay!!.admin!!.relayPlayersData.put(registerPlayerId,it)
+                    }
+
+                    this.playerRelay!!.nowName = name
+                    if (relay!!.admin!!.relayKickData.containsKey("KICK$registerPlayerId")) {
+                        if (relay!!.admin!!.relayKickData["KICK$registerPlayerId"] > Time.concurrentSecond()) {
+                            kick("您被这个房间踢出了 请稍等一段时间 或者换一个房间")
+                            return
+                        } else {
+                            relay!!.admin!!.relayKickData.remove("KICK$registerPlayerId")
+                        }
+                    }
+                }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
         }
         sendResultPing(packet)
     }
@@ -453,6 +485,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     return
                 }
                 abstractNetConnect?.sendPacket(Packet(type, bytes))
+
+                if (!relay!!.isStartGame) {
+                    if (type == PacketType.TEAM_LIST.typeInt) {
+                        abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
+                    }
+                }
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -497,6 +535,13 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         // Protocol not supported
     }
 
+    internal fun kick(msg: String) {
+        val o = GameOutputStream()
+        o.writeString(msg)
+        sendPacket(o.createPacket(PacketType.KICK))
+        disconnect()
+    }
+
     override fun disconnect() {
         if (super.isDis) {
             return
@@ -512,6 +557,9 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 } catch (e: IOException) {
                     error("[Relay disconnect] Send Exited", e)
                 }
+                if (!relay!!.isStartGame) {
+                    relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
+                }
             } else {
                 Relay.serverRelayIpData.remove(ip)
                 //relay.groupNet.disconnect();
@@ -519,14 +567,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     if (relay!!.getSize() > 0) {
                         // Move Room Admin
                         adminMoveNew()
-                        //Cache.relayAdminCache.addCache(name+ip,BigInteger(1, sha256Array(uuid+Data.core.serverConnectUuid)).toString(16).uppercase(Locale.ROOT))
                     }
                 } else {
                     // Close Room
                     relay!!.groupNet.disconnect()
                 }
             }
-            // Log.clog(String.valueOf(relay.getSize()));
             if (relay!!.getSize() <= 0 && !relay!!.closeRoom) {
                 relay!!.closeRoom = true
                 debug("[Relay] Gameover")
@@ -541,7 +587,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     private fun idCustom(inId: String) {
         var id = inId
         if (id.isEmpty()) {
-            sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", "空"))
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", "NULL / 空的"))
             return
         }
         // 过滤开头

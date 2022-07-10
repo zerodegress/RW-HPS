@@ -38,4 +38,13 @@ object NetStaticData {
 
     @JvmField
     var startNet = Seq<StartNet>(4)
+
+    @JvmStatic
+    fun checkServerStartNet(run : (()->Unit)?) : Boolean {
+        if (this::RwHps.isInitialized) {
+            run?.let { it() }
+            return true
+        }
+        return false
+    }
 }

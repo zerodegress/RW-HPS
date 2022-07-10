@@ -118,7 +118,7 @@ object Time {
     private class CurrentTimeMillisClock() {
         @Volatile
         var now: Long
-        protected fun scheduleTick() {
+        private fun scheduleTick() {
             ScheduledThreadPoolExecutor(1) { runnable: Runnable? ->
                 val thread = Thread(runnable, "current-time-millis")
                 thread.isDaemon = true

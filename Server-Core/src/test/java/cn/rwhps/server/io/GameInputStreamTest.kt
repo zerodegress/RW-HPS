@@ -105,7 +105,7 @@ internal class GameInputStreamTest {
         stream.writeUTF("RW-HPS Test !")
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).isReadString(),DataInputStream(ByteArrayInputStream(bytes)).use { if (it.readBoolean()) it.readUTF() else "" }) { "[GameInputStream] readString Error"}
+        assertEquals(GameInputStream(bytes).readIsString(),DataInputStream(ByteArrayInputStream(bytes)).use { if (it.readBoolean()) it.readUTF() else "" }) { "[GameInputStream] readString Error"}
     }
 
     @Disabled

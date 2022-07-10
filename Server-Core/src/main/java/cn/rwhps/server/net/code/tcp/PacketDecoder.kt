@@ -46,15 +46,6 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         if (readableBytes < HEADER_SIZE) {
             return
         }
-        /*
-        val addSock = ctx.channel().remoteAddress().toString()
-        val ip = addSock.substring(1, addSock.indexOf(':'))
-        if (NetStaticData.blackList.containsBlackList(ip)) {
-            error("Black")
-            ReferenceCountUtil.release(bufferIn)
-            ctx.close()
-        }
-        */
 
         /*
          * Someone may be sending a lot of packets to the server to take up broadband
@@ -65,16 +56,21 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         if (readableBytes > MAX_CONTENT_LENGTH) {
             warn("Package size exceeds maximum")
             ReferenceCountUtil.release(bufferIn)
-            /*
-            NetStaticData.blackList.addBlackList(ip)
-            debug("Add BlackList", ip)
-             */
             ctx.close()
             return
         }
         val readerIndex = bufferIn.readerIndex()
         val contentLength = bufferIn.readInt()
         val type = bufferIn.readInt()
+
+        /*
+         * This packet is an error packet and should not be present so disconnect
+         */
+        if (contentLength < 0 || type < 0) {
+            ReferenceCountUtil.release(bufferIn)
+            ctx.close()
+            return
+        }
         /*
          * Insufficient data length, reset the identification bit and read again
          */

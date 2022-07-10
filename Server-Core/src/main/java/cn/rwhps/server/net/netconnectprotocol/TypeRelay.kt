@@ -71,7 +71,7 @@ open class TypeRelay : TypeConnect {
                     GameInputStream(packet).use {
                         val message = it.readString()
                         it.skip(1)
-                        if (it.isReadString() == con.name) {
+                        if (it.readIsString() == con.name) {
                             if (message.startsWith(".")) {
                                 val response = Data.RELAY_COMMAND.handleMessage(message, con)
                                 if (response == null || response.type == CommandHandler.ResponseType.noCommand) {

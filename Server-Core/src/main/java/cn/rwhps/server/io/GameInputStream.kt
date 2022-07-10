@@ -21,20 +21,27 @@ import java.io.*
 class GameInputStream : Closeable {
     private val buffer: DisableSyncByteArrayInputStream
     private val stream: DataInputStream
+    val parseVersion: Int
 
-    internal constructor(buffer: DisableSyncByteArrayInputStream) {
+    @JvmOverloads
+    internal constructor(buffer: DisableSyncByteArrayInputStream, parseVersion: Int = 0) {
         this.buffer = buffer
         this.stream = DataInputStream(buffer)
-    }
-    
-    constructor(packet: Packet) {
-        this.buffer = DisableSyncByteArrayInputStream(packet.bytes)
-        this.stream = DataInputStream(buffer)
+        this.parseVersion = parseVersion
     }
 
-    constructor(bytes: ByteArray) {
+    @JvmOverloads
+    constructor(packet: Packet, parseVersion: Int = 0) {
+        this.buffer = DisableSyncByteArrayInputStream(packet.bytes)
+        this.stream = DataInputStream(buffer)
+        this.parseVersion = parseVersion
+    }
+
+    @JvmOverloads
+    constructor(bytes: ByteArray, parseVersion: Int = 0) {
         this.buffer = DisableSyncByteArrayInputStream(bytes)
         this.stream = DataInputStream(buffer)
+        this.parseVersion = parseVersion
     }
     /**
      * Read a Byte (1 byte)
@@ -137,8 +144,13 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun isReadString(): String {
+    fun readIsString(): String {
         return if (readBoolean()) readString() else ""
+    }
+
+    @Throws(IOException::class)
+    fun readIsInt(): Int {
+        return if (readBoolean()) readInt() else 0
     }
 
     /**

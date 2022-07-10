@@ -12,6 +12,7 @@ package cn.rwhps.server.data.global
 import cn.rwhps.server.command.ex.Vote
 import cn.rwhps.server.core.Application
 import cn.rwhps.server.data.base.BaseConfig
+import cn.rwhps.server.data.base.BaseRelayPublishConfig
 import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.game.Rules
 import cn.rwhps.server.io.output.CompressOutputStream
@@ -42,7 +43,7 @@ object Data {
 	 */
     /** 自定义包名  */
     const val SERVER_ID = "cn.rwhps.server"
-    const val SERVER_CORE_VERSION = "6.0.0-M2"
+    const val SERVER_CORE_VERSION = "6.0.0-M3"
     /** 单位数据缓存  */
 	@JvmField val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
 
@@ -63,6 +64,7 @@ object Data {
 
     lateinit var config: BaseConfig
     lateinit var configTest: BaseTestConfig
+    lateinit var configRelayPublish: BaseRelayPublishConfig
 
     /**
      * 可控变量

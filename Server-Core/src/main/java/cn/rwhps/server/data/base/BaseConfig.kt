@@ -88,7 +88,7 @@ data class BaseConfig(
 
     val WebSupport: Boolean = false,
 
-    var RunPid: Long = 0,
+    var RunPid: Long = 0
 ) {
 
     private fun checkValue() {

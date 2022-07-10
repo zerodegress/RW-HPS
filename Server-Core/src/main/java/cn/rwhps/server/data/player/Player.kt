@@ -15,13 +15,13 @@ import cn.rwhps.server.data.plugin.Value
 import cn.rwhps.server.data.totalizer.TimeAndNumber
 import cn.rwhps.server.func.Prov
 import cn.rwhps.server.net.core.IRwHps
-import cn.rwhps.server.net.game.ConnectServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.Time
+import cn.rwhps.server.util.log.exp.ImplementedException
 import cn.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
 import java.util.*
@@ -95,7 +95,6 @@ class Player(
     val reConnectData = TimeAndNumber(300,3)
 
     private val customData = ObjectMap<String, Value<*>>()
-    private var connectServer: ConnectServer? = null
 
     fun sendSystemMessage(@Nls text: String) {
         con?.sendSystemMessage(text)
@@ -150,6 +149,7 @@ class Player(
     }
 
     /**
+     * [Deprecated]
      * Local player connects to new server
      * For [IRwHps.NetType.ServerProtocol] :
      *  At this time, the local server only forwards the player data and has nothing to do with the local player.
@@ -176,21 +176,8 @@ class Player(
 
         if (con is GameVersionServerJump) {
             (con as GameVersionServerJump).jumpNewServer("$ip:$port")
-        } else {
-            connectServer = ConnectServer(ip,port,con!!)
         }
-    }
-
-    /**
-     * Disconnect this transit connection
-     * Switch the player to the local server
-     */
-    fun playerJumpsToAnotherServerClose() {
-        connectServer!!.close()
-        con!!.isConnectServer = false
-        con!!.connectServer = null
-        Data.game.playerManage.playerGroup.add(this)
-        Data.game.playerManage.playerAll.add(this)
+        throw ImplementedException("[PlayerJumpsToAnotherServer] NOT SUPPORT")
     }
 
     // 买得起吗

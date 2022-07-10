@@ -10,8 +10,9 @@
 package cn.rwhps.server.util.log.exp
 
 import cn.rwhps.server.util.log.ErrorCode
+import java.io.IOException
 
-class ParseException(type: String) : RuntimeException(ErrorCode.valueOf(type).error) {
+class ParseException(type: String) : IOException(ErrorCode.valueOf(type).error) {
     /**
      * Constructs a new json exception with the specified detail message.
      * The cause is not initialized, and may subsequently be initialized by a

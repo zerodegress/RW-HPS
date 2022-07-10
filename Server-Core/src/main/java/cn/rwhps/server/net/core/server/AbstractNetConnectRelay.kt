@@ -22,6 +22,7 @@ import java.io.IOException
  * @author RW-HPS/Dr
  */
 interface AbstractNetConnectRelay {
+    /** Safety Certificate */
     val permissionStatus: DataPermissionStatus.RelayStatus
 
     /**
@@ -49,20 +50,13 @@ interface AbstractNetConnectRelay {
 
     /**
      * Inspection ID Direct join Server
-     * @throws IOException Error
-     */
-    @Throws(IOException::class)
-    fun relayDirectInspection()
-
-    fun relayRegisterConnection(packet: Packet)
-
-    /**
-     * Inspection ID Direct join Server
      * @param relay Relay
      * @throws IOException Error
      */
     @Throws(IOException::class)
-    fun relayDirectInspection(relay: Relay)
+    fun relayDirectInspection(relay: Relay? = null)
+
+    fun relayRegisterConnection(packet: Packet)
 
     /**
      * Check if Relay's checksum is correct - send

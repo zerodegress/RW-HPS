@@ -15,7 +15,6 @@ import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.GroupNet
 import cn.rwhps.server.net.core.ConnectionAgreement
-import cn.rwhps.server.net.game.ConnectServer
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.log.Log
@@ -30,11 +29,6 @@ import java.nio.charset.StandardCharsets
  * @date 2021/12/16 08:55:26
  */
 abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionAgreement) {
-    /** Connection For warding Identifier */
-    var isConnectServer: Boolean = false
-
-    var connectServer: ConnectServer? = null
-
     /**
      * Get connection IP
      * @return IP

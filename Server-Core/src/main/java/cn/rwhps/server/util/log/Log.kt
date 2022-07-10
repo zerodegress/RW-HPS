@@ -26,7 +26,7 @@ import java.text.MessageFormat
 object Log {
     /** 默认 WARN  */
     private var LOG_GRADE = 5
-    private lateinit var logPrint: LogPrint<Any>
+    private lateinit var logPrint: (String) -> Unit
     private val LOG_CACHE = StringBuilder()
 
     @JvmStatic
@@ -37,14 +37,14 @@ object Log {
     @JvmStatic
 	fun setCopyPrint(system: Boolean) {
         logPrint =
-            if (system) object : LogPrint<Any> {
-                override fun write(t: Any) {
-                    println(t)
-                    LOG_CACHE.append(t)
+            if (system) {
+                { text: String ->
+                    println(text)
+                    LOG_CACHE.append(text).append(Data.LINE_SEPARATOR)
                 }
-            } else object : LogPrint<Any> {
-                override fun write(t: Any) {
-                    println(t)
+            } else {
+                { text: String ->
+                    println(text)
                 }
             }
     }
@@ -213,14 +213,14 @@ object Log {
         // 去掉最后的换行
         sb.deleteCharAt(sb.length -1)
 
-        this.logPrint.write(sb)
+        this.logPrint(sb.toString())
         //println(sb)
     }
 
     @JvmStatic
     fun clog(text: String) {
         val textCache = "[" + getMilliFormat(1) + "] " + text
-        println(formatColors("$textCache&fr"))
+        this.logPrint(formatColors("$textCache&fr"))
     }
 
     @JvmStatic

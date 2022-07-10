@@ -11,11 +11,12 @@ package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
-import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
+import cn.rwhps.server.net.netconnectprotocol.UniversalAnalysisOfGamePackages
+import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.StringFilteringUtil
 import cn.rwhps.server.util.log.Log.error
@@ -62,7 +63,13 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             }
             if (relay!!.admin != null) {
                 relay!!.removeAbstractNetConnect(site)
+                relayKickData = relay!!.admin!!.relayKickData
+                relayPlayersData = relay!!.admin!!.relayPlayersData
+            } else {
+                relayKickData = ObjectMap()
+                relayPlayersData = ObjectMap()
             }
+
             relay!!.admin = this
             val o = GameOutputStream()
             o.writeByte(1)
@@ -115,8 +122,6 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 val bytes = inStream.readAllBytes()
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
 
-
-
                 if (abstractNetConnect != null) {
                     val sendPacketData = Packet(type, bytes)
                     lastSentPacket = sendPacketData
@@ -125,10 +130,14 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
 
                 when (type) {
                     PacketType.KICK.typeInt -> {
-                        if (abstractNetConnect != null) {
-                            abstractNetConnect.relayPlayerDisconnect()
-                        }
+                        abstractNetConnect?.relayPlayerDisconnect()
                     }
+                    PacketType.TEAM_LIST.typeInt -> {
+                        if (!relay!!.isStartGame) {
+                            abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
+                        } else {}
+                    }
+                    else -> {}
                 }
             }
         } catch (e: IOException) {

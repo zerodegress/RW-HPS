@@ -72,9 +72,9 @@ internal class UpList : Plugin() {
         handler.register("uplist","[command...]","serverCommands.upserverlist") { args: Array<String>?, log: StrCons ->
             if (args != null && args.isNotEmpty()) {
                 when (args[0]) {
-                    "add" -> { if (args.size > 1) add(log,args[1]) else add(log) }
-                    "update" -> update()
-                    "remove" -> remove(log)
+                    "add" -> NetStaticData.checkServerStartNet { if (args.size > 1) add(log,args[1]) else add(log) }
+                    "update" -> NetStaticData.checkServerStartNet { update() }
+                    "remove" -> NetStaticData.checkServerStartNet { remove(log) }
                     "help" -> log[Data.i18NBundle.getinput("uplist.help")]
                     else -> log["Check UpList Command !"]
                 }

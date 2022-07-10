@@ -60,7 +60,6 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
         }
     }
 
-    @Deprecated("Deprecated in Netty")
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
         // The remote host forcibly closed an existing connection

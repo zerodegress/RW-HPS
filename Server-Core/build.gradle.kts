@@ -35,11 +35,12 @@ dependencies {
 	api("com.google.code.gson:gson:2.9.0")
 
 	api("org.apache.commons:commons-compress:1.21")
+	api("org.apache.commons:commons-text:1.9")
 
 
 	//compileOnly group: "com.ip2location", name: "ip2location-java", version: "8.5.0"
 	//compileOnly group: "com.alibaba", name: "fastjson", version: "1.2.58"
-	api("com.squareup.okhttp3:okhttp:4.9.3") {
+	api("com.squareup.okhttp3:okhttp:4.10.0") {
 		exclude(group = "org.jetbrains.kotlin")
 	}
 

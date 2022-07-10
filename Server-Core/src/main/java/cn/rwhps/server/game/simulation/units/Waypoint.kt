@@ -52,7 +52,7 @@ class Waypoint(intream: GameInputStream) {
             boolean_1 = readBoolean()
             boolean_2 = readBoolean()
             boolean_3 = readBoolean()
-            string_1 = isReadString()
+            string_1 = readIsString()
         }
     }
 }

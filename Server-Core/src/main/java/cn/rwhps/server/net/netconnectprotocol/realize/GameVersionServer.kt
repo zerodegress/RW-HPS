@@ -377,7 +377,9 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     inStream.readShort()
                     outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
                     // TODO !
-                    if (player.turnStoneIntoGold && status == GameUnitType.GameActions.BUILD.ordinal) {
+                    if (!player.turnStoneIntoGold && status != GameUnitType.GameActions.BUILD.ordinal) {
+                        outStream.transferTo(inStream)
+                    } else {
                         if (turnStoneIntoGold.checkStatus()) {
                             sendSystemMessage("建的太频繁了 休息一下吧 !")
                             return@use
@@ -392,8 +394,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                             outStream.writeInt(0)
                             outStream.writeBoolean(false)
                         }
-                    } else {
-                        outStream.transferTo(inStream)
                     }
                     Data.game.gameCommandCache.offer(GameCommandPacket(player.site, outStream.getPacketBytes()))
                 }
@@ -432,7 +432,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Log.debug(stream.readInt())
                 var name = stream.readString()
                 Log.debug("name", name)
-                val passwd = stream.isReadString()
+                val passwd = stream.readIsString()
                 Log.debug("passwd", passwd)
                 stream.readString()
                 val uuid = stream.readString()

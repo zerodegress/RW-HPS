@@ -1,3 +1,3 @@
-java -Xmx512M -Dfile.encoding=UTF-8 -jar Server.jar
+java -Xmx512M -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
 
 pause

@@ -20,10 +20,23 @@ import java.io.IOException
 /**
  * @author RW-HPS/Dr
  */
-class Packet(type0: Int, @JvmField val bytes: ByteArray) {
-    val type = PacketType.from(type0)
+class Packet {
+    val type: PacketType
+    @JvmField val bytes: ByteArray
 
-    init {
+    constructor(type0: Int, bytes: ByteArray) {
+        this.type = PacketType.from(type0)
+        this.bytes = bytes
+        check(type0)
+    }
+
+    constructor(type0: PacketType, bytes: ByteArray) {
+        this.type = type0
+        this.bytes = bytes
+    }
+
+
+    private fun check(type0: Int) {
         if (type == PacketType.NOT_RESOLVED) {
             Log.fatal("ERROR , $type0")
         }

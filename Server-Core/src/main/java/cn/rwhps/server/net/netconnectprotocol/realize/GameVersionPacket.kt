@@ -261,7 +261,8 @@ open class GameVersionPacket : AbstractNetPacket {
             if (Data.game.isStartGame) {
                 writeByte(player.site)
                 writeInt(player.ping)
-                writeBoolean(Data.game.sharedControl)
+                // 玩家是否可控
+                writeBoolean(player.controlThePlayer)
                 writeBoolean(player.sharedControl)
                 return
             }

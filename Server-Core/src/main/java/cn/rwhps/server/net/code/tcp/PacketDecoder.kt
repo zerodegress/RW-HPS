@@ -10,6 +10,8 @@
 package cn.rwhps.server.net.code.tcp
 
 import cn.rwhps.server.io.packet.Packet
+import cn.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
+import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.log.Log.warn
 import io.netty.buffer.ByteBuf
 import io.netty.channel.ChannelHandlerContext
@@ -56,7 +58,7 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         if (readableBytes > MAX_CONTENT_LENGTH) {
             warn("Package size exceeds maximum")
             ReferenceCountUtil.release(bufferIn)
-            ctx.close()
+            AcceptorIdleStateTrigger.clear(ctx)
             return
         }
         val readerIndex = bufferIn.readerIndex()
@@ -66,11 +68,12 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         /*
          * This packet is an error packet and should not be present so disconnect
          */
-        if (contentLength < 0 || type < 0) {
-            ReferenceCountUtil.release(bufferIn)
-            ctx.close()
+        if (contentLength < 0 || type < 0 || type >= 3000) {
+            AcceptorIdleStateTrigger.clear(ctx)
             return
         }
+
+
         /*
          * Insufficient data length, reset the identification bit and read again
          */
@@ -78,8 +81,15 @@ internal class PacketDecoder : ByteToMessageDecoder() {
             bufferIn.readerIndex(readerIndex)
             return
         }
+
+        val packetType = PacketType.from(type)
+        if (packetType == PacketType.NOT_RESOLVED) {
+            AcceptorIdleStateTrigger.clear(ctx)
+            return
+        }
+
         val b = ByteArray(contentLength)
         bufferIn.readBytes(b)
-        out.add(Packet(type, b))
+        out.add(Packet(packetType, b))
     }
 }

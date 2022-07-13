@@ -68,22 +68,24 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
         }
     }
 
-    /**
-     * 清理连接 释放资源
-     * @param ctx ChannelHandlerContext
-     */
-    private fun clear(ctx: ChannelHandlerContext) {
-        val channel = ctx.channel()
-        try {
-            val con = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
-            if (con != null) {
-                con.abstractNetConnect.disconnect()
-            } else {
-                channel.close()
-                ctx.close()
+    companion object {
+        /**
+         * Clean up connections and release resources
+         * @param ctx ChannelHandlerContext
+         */
+        internal fun clear(ctx: ChannelHandlerContext) {
+            val channel = ctx.channel()
+            try {
+                val con = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
+                if (con != null) {
+                    con.abstractNetConnect.disconnect()
+                } else {
+                    channel.close()
+                    ctx.close()
+                }
+            } finally {
+                //OVER_MAP.remove(channel.id().asLongText())
             }
-        } finally {
-            //OVER_MAP.remove(channel.id().asLongText())
         }
     }
 }

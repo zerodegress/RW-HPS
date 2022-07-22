@@ -24,6 +24,6 @@ object IoOutConversion {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun fileToStream(file: File, cover: Boolean): FileOutputStream =
-        FileOutputStream(file, cover)
+    fun fileToStream(file: File, tail: Boolean): FileOutputStream =
+        FileOutputStream(file, tail)
 }

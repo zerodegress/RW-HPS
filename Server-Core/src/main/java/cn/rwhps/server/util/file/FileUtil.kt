@@ -196,12 +196,12 @@ open class FileUtil {
     /**
      *
      * @param log Log
-     * @param cover 是否尾部写入
+     * @param tail 是否尾部写入
      */
-    open fun writeFile(log: Any, cover: Boolean = true) {
+    open fun writeFile(log: Any, tail: Boolean = false) {
         mkdir()
         try {
-            fileToOutStream(file, !cover).use { osw ->
+            fileToOutStream(file, tail).use { osw ->
                 osw.write(log.toString())
                 osw.flush()
             }
@@ -210,10 +210,10 @@ open class FileUtil {
         }
     }
 
-    open fun writeFileByte(bytes: ByteArray, cover: Boolean) {
+    open fun writeFileByte(bytes: ByteArray, tail: Boolean) {
         mkdir()
         try {
-            BufferedOutputStream(FileOutputStream(file, cover)).use { osw ->
+            BufferedOutputStream(FileOutputStream(file, tail)).use { osw ->
                 osw.write(bytes)
                 osw.flush()
             }
@@ -223,9 +223,9 @@ open class FileUtil {
     }
 
     @Throws(Exception::class)
-    open fun writeByteOutputStream(cover: Boolean): FileOutputStream {
+    open fun writeByteOutputStream(tail: Boolean): FileOutputStream {
         mkdir()
-        return fileToStream(file, cover)
+        return fileToStream(file, tail)
     }
 
     @Throws(IOException::class)

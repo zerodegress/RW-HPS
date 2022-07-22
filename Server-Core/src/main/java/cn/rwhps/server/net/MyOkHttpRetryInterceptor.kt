@@ -15,6 +15,13 @@ import okhttp3.Response
 import java.io.IOException
 import java.io.InterruptedIOException
 
+/**
+ * Try multiple times to avoid timeouts
+ * @property executionCount Int
+ * @property retryInterval Long
+ *
+ * @author RW-HPS/Dr
+ */
 class MyOkHttpRetryInterceptor internal constructor(builder: Builder) : Interceptor {
     //最大重试次数
     var executionCount : Int

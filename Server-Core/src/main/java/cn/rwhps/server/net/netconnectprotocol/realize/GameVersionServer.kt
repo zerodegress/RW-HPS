@@ -377,7 +377,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     inStream.readShort()
                     outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
                     // TODO !
-                    if (!player.turnStoneIntoGold && status != GameUnitType.GameActions.BUILD.ordinal) {
+                    if (!player.turnStoneIntoGold || status != GameUnitType.GameActions.BUILD.ordinal) {
                         outStream.transferTo(inStream)
                     } else {
                         if (turnStoneIntoGold.checkStatus()) {
@@ -621,26 +621,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             // 批量诱骗
             NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getDeceiveGameSave())
-
-            try {
-                synchronized(Data.game.gameSaveWaitObject) {
-                    Data.game.gameSaveWaitObject.wait(1000 * 30)
-
-                    if (Data.game.gameSaveCache == null) {
-                        return
-                    }
-                    try {
-                        NetStaticData.groupNet.broadcast(Data.game.gameSaveCache!!.convertGameSaveDataPacket())
-                    } catch (e: IOException) {
-                        Log.error(e)
-                    }
-                }
-            } catch (ex: Exception) {
-                sendKick(ex.message.toString())
-            } finally {
-                Data.game.gameSaveCache = null
-                Data.game.gameReConnectPaused = false
-            }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
         }

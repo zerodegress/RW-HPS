@@ -11,7 +11,6 @@ package cn.rwhps.server.game
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.core.thread.Threads.newTimedTask
-import cn.rwhps.server.custom.CustomEvent
 import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
@@ -48,7 +47,7 @@ class Rules(private var config: BaseConfig) {
     var isStartGame = false
         set(value) {
             field = value
-            endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
+            endTime = if (Data.config.MaxGameIngTime != -1) Time.concurrentSecond()+Data.config.MaxGameIngTime else Int.MAX_VALUE
         }
 
     /** 倍数  */
@@ -88,14 +87,11 @@ class Rules(private var config: BaseConfig) {
     /** 重连暂停  */
     @Volatile
     var gameReConnectPaused = false
+    @Volatile
+    var gameReConnectFlag = false
     /** 游戏暂停  */
     @Volatile
     var gamePaused = false
-
-    /** 重连缓存 GameSave  */
-    @Volatile
-    var gameSaveCache: GameSavePacket? = null
-    var gameSaveWaitObject = Object()
 
     /** PlayerManage  */
     var playerManage: PlayerManage
@@ -131,8 +127,6 @@ class Rules(private var config: BaseConfig) {
     }
 
     fun init() {
-        CustomEvent()
-
         isAfk = Data.core.settings.getData("Rules.IsAfk") { isAfk }
         mapLock = Data.core.settings.getData("Rules.MapLock") { mapLock }
 
@@ -158,8 +152,9 @@ class Rules(private var config: BaseConfig) {
         initUnit = 1
         mist = 2
         sharedControl = false
-        gameSaveCache = null
+
         gameReConnectPaused = false
+        gameReConnectFlag = false
         gamePaused = false
     }
 

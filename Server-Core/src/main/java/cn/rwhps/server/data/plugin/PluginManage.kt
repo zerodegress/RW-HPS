@@ -22,6 +22,10 @@ import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.log.Log.error
 import java.io.IOException
 
+/**
+ * Plugin Manager
+ * @author RW-HPS/Dr
+ */
 object PluginManage {
     private val pluginEventManage = PluginEventManage()
     private var pluginData: Seq<PluginLoadData>? = null

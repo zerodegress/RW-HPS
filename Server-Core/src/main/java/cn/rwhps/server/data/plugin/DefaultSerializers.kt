@@ -14,6 +14,7 @@ import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.Administration.PlayerAdminInfo
 import cn.rwhps.server.net.Administration.PlayerInfo
+import cn.rwhps.server.net.core.NetConnectProofOfWork
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
@@ -261,6 +262,7 @@ internal object DefaultSerializers {
         })
 
         AbstractPluginData.setSerializer(Packet::class.java, Packet.serializer)
+        AbstractPluginData.setSerializer(NetConnectProofOfWork::class.java, NetConnectProofOfWork.serializer)
     }
 
     @Throws(ClassNotFoundException::class)

@@ -25,10 +25,7 @@ import cn.rwhps.server.util.zip.gzip.GzipDecoder;
 import cn.rwhps.server.util.zip.gzip.GzipEncoder;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * [PluginData] 的默认实现. 使用 '{@link AbstractPluginData#setData}' 自带创建 [Value] 并跟踪其改动.
@@ -102,7 +99,14 @@ class AbstractPluginData {
         if (IsUtil.isBlank(fileUtil) || fileUtil.notExists() || fileUtil.length() < 1) {
             return;
         }
-        try (DataInputStream stream = new DataInputStream(GzipDecoder.getGzipInputStream(fileUtil.getInputsStream()))) {
+        try (InputStream stream = fileUtil.getInputsStream()) {
+            read(stream);
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void read(InputStream inStream) {
+        try (DataInputStream stream = new DataInputStream(GzipDecoder.getGzipInputStream(inStream))) {
             int amount = stream.readInt();
 
             for (int i = 0; i < amount; i++) {
@@ -189,6 +193,10 @@ class AbstractPluginData {
             Log.error("Write Data",e);
             throw new RuntimeException();
         }
+    }
+
+    public void cleanRam() {
+        PLUGIN_DATA.clear();
     }
 
     protected static SerializerTypeAll.TypeSerializer getSerializer(Class<?> type) {

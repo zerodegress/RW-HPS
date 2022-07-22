@@ -17,6 +17,10 @@ import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.threads.GetNewThreadPool
 
+/**
+ * New plugin event manager
+ * @author RW-HPS/Dr
+ */
 internal class PluginEventManage {
     companion object {
         private val pluginEventData = Seq<AbstractEvent>(8)

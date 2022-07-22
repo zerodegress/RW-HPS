@@ -11,6 +11,7 @@ package cn.rwhps.server.command.relay
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
+import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
@@ -61,10 +62,14 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
         handler.register("kickx","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
+                if (con.relay!!.isStartGame && con.relay!!.startGameTime < Time.concurrentSecond()) {
+                    sendMsg(con,"It's been five minutes, no more kicks")
+                    return@register
+                }
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
                 conTg?.let {
                     con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Time.concurrentSecond()+60)
-                    it.kick("你被踢出服务器")
+                    it.kick("you got kicked out of the server")
                     sendMsg(con,"Kick : ${args[0]} OK")
                 }
             }
@@ -72,11 +77,15 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
         handler.register("ban","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
+                if (con.relay!!.isStartGame && con.relay!!.startGameTime < Time.concurrentSecond()) {
+                    sendMsg(con,"It's been five minutes, no more kicks")
+                    return@register
+                }
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
-
                 conTg?.let {
                     con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Int.MAX_VALUE)
-                    it.kick("你被服务器 BAN")
+                    con.relayKickData.put("BAN"+it.ip, Int.MAX_VALUE)
+                    it.kick("you are banned by the server")
                     sendMsg(con,"BAN : ${args[0]} OK")
                 }
             }

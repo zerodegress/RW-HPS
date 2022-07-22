@@ -34,16 +34,21 @@ class RelayCommands(handler: CommandHandler) {
                 relay!!.groupNet.disconnect()
                 relay.sendMsg("You are banned by the administrator, please do not occupy public resources")
                 val ip = relay.admin!!.ip
-                Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(ip))
+                Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(ip,false))
                 relay.admin!!.disconnect()
                 log["OK!  $ip The *.*.*.0 segment is disabled"]
             }
+        }
 
+        handler.register("banip", "<ip>", "serverCommands.banrelay") { arg: Array<String>, log: StrCons ->
+            val ip = arg[0]
+            Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(ip,false))
+            log["OK!  $ip The *.*.*.0 segment is disabled"]
         }
 
         handler.register("unbanrelay", "<ip>", "serverCommands.unBanrelay") { arg: Array<String>, log: StrCons ->
             val ip = arg[0]
-            Data.core.admin.bannedIP24.remove(IpUtil.ipToLong24(ip))
+            Data.core.admin.bannedIP24.remove(IpUtil.ipToLong24(ip,false))
             log["OK!  $ip The *.*.*.0 segment is unDisabled"]
         }
 

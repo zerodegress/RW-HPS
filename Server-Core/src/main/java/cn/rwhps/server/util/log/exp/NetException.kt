@@ -9,4 +9,7 @@
 
 package cn.rwhps.server.util.log.exp
 
-class NetException(type: String) : Exception(type)
+open class NetException(type: String) : Exception(type) {
+
+    class PermissionException(type: String) : NetException(type)
+}

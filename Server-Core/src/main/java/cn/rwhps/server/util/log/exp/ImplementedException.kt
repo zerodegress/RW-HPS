@@ -11,4 +11,6 @@ package cn.rwhps.server.util.log.exp
 
 open class ImplementedException(string: String) : Exception(string) {
     class VoteImplementedException(type: String) : ImplementedException(type)
+
+    class PlayerImplementedException(type: String) : ImplementedException(type)
 }

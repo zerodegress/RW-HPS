@@ -40,7 +40,13 @@ object Log {
             if (system) {
                 { text: String ->
                     println(text)
-                    LOG_CACHE.append(text).append(Data.LINE_SEPARATOR)
+
+                    // Remove Color
+                    var textCache = text
+                    for (i in ColorCodes.VALUES.indices) {
+                        textCache = textCache.replace(ColorCodes.VALUES[i] , "")
+                    }
+                    LOG_CACHE.append(textCache).append(Data.LINE_SEPARATOR)
                 }
             } else {
                 { text: String ->

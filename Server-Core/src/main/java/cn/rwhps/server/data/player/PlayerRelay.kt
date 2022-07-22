@@ -6,11 +6,12 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
+
 package cn.rwhps.server.data.player
 
 import cn.rwhps.server.data.totalizer.TimeAndNumber
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
-import org.apache.commons.text.similarity.JaroWinklerSimilarity
+import cn.rwhps.server.util.Time
 
 /**
  * RELAY Detailed stats for players inside
@@ -41,8 +42,22 @@ class PlayerRelay(
     var mute = false
 
     var lastSentMessage: String = ""
-    val messageSimilarity = JaroWinklerSimilarity()
+        set(value) {
+            field = value
+            lastMessageTime = Time.concurrentSecond()
+        }
+    var lastMessageTime: Int = 0
+        private set
+
     val messageSimilarityCount = TimeAndNumber(60,5)
+
+    var disconnect: Boolean = false
+        set(value) {
+            field = value
+            disconnectTime = Time.concurrentSecond()
+        }
+    var disconnectTime: Int = 0
+        private set
 
     override fun toString(): String {
         return  """

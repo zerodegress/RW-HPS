@@ -6,6 +6,7 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
+
 package cn.rwhps.server.data.player
 
 import cn.rwhps.server.core.Call
@@ -18,6 +19,19 @@ import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+/**
+ * Player Manager
+ *
+ * @property maxPlayerSize Int
+ * @property amTeam Boolean
+ * @property sharedControlPlayer Int
+ * @property playerGroup Seq<Player>
+ * @property playerAll Seq<Player>
+ * @property playerData Array<Player?>
+ * @property moveLock ReentrantLock
+ *
+ * @author RW-HPS/Dr
+ */
 class PlayerManage(private val maxPlayerSize: Int) {
     /** 混战分配  */
     var amTeam = false

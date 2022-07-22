@@ -50,7 +50,7 @@ class Player(
 	var site = 0
         set(value) { color = site ; field = value }
     /** */
-    val credits = Data.game.credits
+    var credits = Data.game.credits
     /** */
     var startUnit = Data.game.initUnit
     /** */
@@ -96,30 +96,36 @@ class Player(
 
     private val customData = ObjectMap<String, Value<*>>()
 
+    @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendSystemMessage(@Nls text: String) {
-        con?.sendSystemMessage(text)
+        con?.sendSystemMessage(text) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
     }
 
+    @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendMessage(player: Player, @Nls text: String) {
-        con?.sendChatMessage(text, player.name, player.team)
+        con?.sendChatMessage(text, player.name, player.team) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
     }
 
+    @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendTeamData() {
-        con?.sendTeamData(NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket())
+        con?.sendTeamData(NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
     }
 
+    @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendPopUps(@Nls msg: String,run: ((String) -> Unit)) {
-        con?.sendRelayServerType(msg,run)
+        con?.sendRelayServerType(msg,run) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
     }
 
+    @Throws(ImplementedException.PlayerImplementedException::class)
     fun sync() {
-        con?.sync()
+        con?.sync() ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
     }
 
+    @Throws(ImplementedException.PlayerImplementedException::class)
     @JvmOverloads
     fun kickPlayer(@Nls text: String, time: Int = 0) {
         kickTime = Time.getTimeFutureMillis(time * 1000L)
-        con?.sendKick(text)
+        con?.sendKick(text) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
     }
 
 

@@ -10,17 +10,20 @@
 package cn.rwhps.server.net.netconnectprotocol
 
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.io.packet.GameSavePacket
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
+import cn.rwhps.server.net.core.server.AbstractNetConnectServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import cn.rwhps.server.util.ExtractUtil
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.Time.concurrentSecond
 import cn.rwhps.server.util.log.Log
+import java.io.IOException
 
 /**
  * Parse the [cn.rwhps.server.net.core.IRwHps.NetType.ServerProtocol] protocol
@@ -78,15 +81,24 @@ open class TypeRwHpsJump : TypeConnect {
                 PacketType.ACCEPT_START_GAME -> con.player.start = true
                 PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                 // 竞争 谁先到就用谁
-                PacketType.SYNC -> if (Data.game.gameSaveCache == null) {
-                    val gameSavePacket = GameSavePacket(packet)
-                    //gameSavePacket.analyze()
-                    //Core.exit()
+                PacketType.SYNC -> if (!Data.game.gameReConnectFlag) {
+                    val gameSavePacket = GameSavePacket(GameSavePacket(packet).cheatSync())
 
-                    if (gameSavePacket.checkTick()) {
-                        Data.game.gameSaveCache = gameSavePacket
-                        synchronized(Data.game.gameSaveWaitObject) {
-                            Data.game.gameSaveWaitObject.notifyAll()
+                    if (gameSavePacket.checkTick() && Data.game.gameReConnectPaused) {
+                        Data.game.gameReConnectFlag = true
+                        if (!Data.game.gameReConnectFlag) {
+                            try {
+                                try {
+                                    NetStaticData.groupNet.broadcast(gameSavePacket.convertGameSaveDataPacket())
+                                } catch (e: IOException) {
+                                    Log.error(e)
+                                }
+                            } catch (ex: Exception) {
+                                (abstractNetConnect as AbstractNetConnectServer).sendKick(ex.message.toString())
+                            } finally {
+                                Data.game.gameReConnectPaused = false
+                                Data.game.gameReConnectFlag = false
+                            }
                         }
                     }
                 }

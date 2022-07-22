@@ -54,7 +54,7 @@ open class GameVersionPacket : AbstractNetPacket {
     override fun getPingPacket(player: Player): Packet {
         player.timeTemp = System.currentTimeMillis()
         val o = GameOutputStream()
-        o.writeLong(1000L)
+        o.writeLong(0L)
         o.writeByte(0)
         return o.createPacket(PacketType.HEART_BEAT)
     }
@@ -72,7 +72,7 @@ open class GameVersionPacket : AbstractNetPacket {
         gameTickCommandsPacketInternal(tick,cmd)
 
     @Throws(IOException::class)
-    override fun getTeamDataPacket(): CompressOutputStream {
+    override fun getTeamDataPacket(startGame: Boolean): CompressOutputStream {
         Data.game.playerManage.updateControlIdentifier()
 
         val enc = CompressOutputStream.getGzipOutputStream("teams", true)
@@ -83,7 +83,7 @@ open class GameVersionPacket : AbstractNetPacket {
                 } else {
                     enc.writeBoolean(true)
                     enc.writeInt(0)
-                    writePlayer(player, enc)
+                    writePlayer(player, enc, startGame)
                 }
             } catch (e: Exception) {
                 error("[ALL/Player] Get Server Team Info", e)
@@ -256,9 +256,9 @@ open class GameVersionPacket : AbstractNetPacket {
     }
 
     @Throws(IOException::class)
-    override fun writePlayer(player: Player, stream: GameOutputStream) {
+    override fun writePlayer(player: Player, stream: GameOutputStream, startGame: Boolean) {
         with (stream) {
-            if (Data.game.isStartGame) {
+            if (startGame) {
                 writeByte(player.site)
                 writeInt(player.ping)
                 // 玩家是否可控

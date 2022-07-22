@@ -16,6 +16,10 @@ import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.log.exp.ParseException
 import java.io.IOException
 
+/**
+ * General parsing package
+ * @author RW-HPS/Dr
+ */
 object UniversalAnalysisOfGamePackages {
     @Throws(IOException::class)
     fun getPacketUnitName(bytes: ByteArray): Seq<String> {

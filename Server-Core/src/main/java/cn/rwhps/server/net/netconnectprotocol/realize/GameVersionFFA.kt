@@ -26,6 +26,13 @@ import cn.rwhps.server.util.log.Log.clog
 import java.io.IOException
 import kotlin.math.min
 
+/**
+ * FFA Test
+ *
+ * @property version String
+ *
+ * @author RW-HPS/Dr
+ */
 class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionServer(connectionAgreement!!) {
     override val version: String
         get() = "1.14 RW-HPS-FFA"

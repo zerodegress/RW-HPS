@@ -24,6 +24,14 @@ import cn.rwhps.server.util.log.Log
 import java.io.IOException
 import kotlin.math.min
 
+/**
+ * AD Server List?
+ *
+ * @property versionCil Int
+ * @constructor
+ *
+ * @author RW-HPS/Dr
+ */
 class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVersionServer(connectionAgreement) {
 
     private var versionCil = 170
@@ -67,7 +75,7 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
                      if (versionCil == 151) {
                          writePlayer(player, enc)
                      } else {
-                         NetStaticData.RwHps.abstractNetPacket.writePlayer(player, enc)
+                         NetStaticData.RwHps.abstractNetPacket.writePlayer(player, enc, Data.game.isStartGame)
                      }
 
                 }

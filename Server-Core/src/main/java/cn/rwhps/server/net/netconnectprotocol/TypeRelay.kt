@@ -147,7 +147,7 @@ open class TypeRelay : TypeConnect {
             }
 
             if (permissionStatus == RelayStatus.WaitCertified) {
-                if (packet.type == RELAY_152_151_RETURN) {
+                if (packet.type == RELAY_POW_RECEIVE) {
                     if (con.receiveVerifyClientValidity(packet)) {
                         // Certified End
                         con.permissionStatus = RelayStatus.CertifiedEnd
@@ -155,9 +155,12 @@ open class TypeRelay : TypeConnect {
                             con.relayDirectInspection()
                         } else {
                             NetStaticData.relay.setAddSize()
+                            // No HOST
                             if (NetStaticData.relay.admin == null) {
+                                // Set This is HOST
                                 con.sendRelayServerId()
                             } else {
+                                // Join RELAY
                                 con.addRelayConnect()
                             }
                         }

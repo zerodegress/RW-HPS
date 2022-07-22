@@ -47,7 +47,7 @@ class NullNetPacket : AbstractNetPacket {
         throw ImplementedException("Not yet implemented")
     }
 
-    override fun getTeamDataPacket(): CompressOutputStream {
+    override fun getTeamDataPacket(startGame: Boolean): CompressOutputStream {
         throw ImplementedException("Not yet implemented")
     }
 
@@ -75,7 +75,7 @@ class NullNetPacket : AbstractNetPacket {
         throw ImplementedException("Not yet implemented")
     }
 
-    override fun writePlayer(player: Player, stream: GameOutputStream) {
+    override fun writePlayer(player: Player, stream: GameOutputStream, startGame: Boolean) {
         throw ImplementedException("Not yet implemented")
     }
 

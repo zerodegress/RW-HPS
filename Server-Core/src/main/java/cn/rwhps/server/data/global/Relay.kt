@@ -13,15 +13,28 @@ import cn.rwhps.server.data.global.Data.LINE_SEPARATOR
 import cn.rwhps.server.math.Rand
 import cn.rwhps.server.net.GroupNet
 import cn.rwhps.server.net.core.DataPermissionStatus
+import cn.rwhps.server.net.core.NetConnectProofOfWork
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import cn.rwhps.server.struct.IntMap
+import cn.rwhps.server.struct.IntSeq
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil.isNumeric
+import cn.rwhps.server.util.IsUtil.notIsBlank
+import cn.rwhps.server.util.RandomUtil.getRandomString
+import cn.rwhps.server.util.StringFilteringUtil.cutting
+import cn.rwhps.server.util.Time
+import cn.rwhps.server.util.Time.concurrentSecond
+import cn.rwhps.server.util.Time.utcMillis
+import cn.rwhps.server.util.encryption.Md5.md5Formant
+import cn.rwhps.server.util.encryption.Sha.sha256Array
 import cn.rwhps.server.util.log.Log.debug
 import java.io.IOException
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
+import kotlin.concurrent.withLock
 
 class Relay {
     /**  */
@@ -39,6 +52,7 @@ class Relay {
     var closeRoom = false
 
     val serverUuid = UUID.randomUUID().toString()
+    val internalID : Int
     val id: String
     var isMod = false
     var minSize = 1
@@ -49,13 +63,17 @@ class Relay {
                 return
             }
             field = value
+            startGameTime = Time.concurrentSecond()+300
         }
+    var startGameTime = 0
+        private set
 
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()
 
-    private constructor(id: String, playerName: String, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int) {
-        serverRelayData.put(id.toInt(), this)
+    private constructor(internalID : Int, id: String, playerName: String, isMod: Boolean, betaGameVersion: Boolean, version: Int, maxPlayer: Int) {
+        serverRelayData.put(internalID, this)
+        this.internalID = internalID
         this.id = id
         groupNet = GroupNet()
         this.isMod = isMod
@@ -69,6 +87,7 @@ class Relay {
      * @constructor
      */
     internal constructor(id: String, groupNet: GroupNet) {
+        this.internalID = 0
         this.id = id
         this.groupNet = groupNet
     }
@@ -98,13 +117,17 @@ class Relay {
         }
 
     fun re() {
+        closeRoom = true
         abstractNetConnectIntMap.clear()
         site.set(0)
         admin = null
         isStartGame = false
-        if (isNumeric(id)) {
-            serverRelayData.remove(id.toInt())
-        }
+        removeRoom()
+    }
+
+    fun removeRoom(run: ()->Unit = {}) {
+        serverRelayData.remove(internalID)
+        run()
     }
 
     fun getAbstractNetConnect(site: Int): GameVersionRelay? {
@@ -175,18 +198,22 @@ class Relay {
             return false
         }
         val relay = other as Relay
-        return id == relay.id
+        return internalID == coverRelayID(relay.id)
     }
 
     override fun hashCode(): Int {
         return Objects.hash(id)
     }
 
+
+
     companion object {
         val serverRelayIpData = Seq<String>()
 
         private val serverRelayData = IntMap<Relay>()
         private val rand = Rand()
+
+        private val getRelayData = ReentrantLock(true)
 
         @JvmStatic
         val relayAllIP: String
@@ -206,19 +233,38 @@ class Relay {
                 serverRelayData.values().forEach(Consumer { e: Relay -> size.getAndAdd(e.getSize()) })
                 return size.get()
             }
+        val roomAllSize: Int
+            get() {
+                return serverRelayData.size
+            }
+
+        @get:Synchronized
+        internal val randPow: NetConnectProofOfWork
+            get() { return NetConnectProofOfWork() }
 
         @JvmStatic
-        fun getRelay(id: String): Relay? {
-            return if (isNumeric(id)) {
-                serverRelayData[id.toInt()]
-            } else {
-                null
-            }
-        }
+        fun getRelay(id: String): Relay? = getRelayData.withLock { serverRelayData[coverRelayID(id)] }
+
+        @JvmStatic
+        fun getCheckRelay(id: String): Boolean = getRelayData.withLock { serverRelayData.containsKey(coverRelayID(id)) }
 
         @JvmStatic
         fun sendAllMsg(msg: String) {
             serverRelayData.values().forEach(Consumer { e: Relay -> e.sendMsg(msg) })
+        }
+
+        internal fun coverRelayID(id: String): Int {
+            return if (isNumeric(id)) {
+                id.toInt()
+            } else {
+                id.hashCode().let {
+                    return if (it > 0) {
+                        -it
+                    } else {
+                        it
+                    }
+                }
+            }
         }
 
         /**
@@ -230,22 +276,22 @@ class Relay {
          * @param maxPlayer         Maximum number of people
          * @return Relay
          */
-        internal fun getRelay(id: String = "", playerName: String, isMod: Boolean, betaGameVersion: Boolean, maxPlayer: Int): Relay {
+        @Synchronized
+        internal fun getRelay(id: String = "", playerName: String, isMod: Boolean, betaGameVersion: Boolean, version: Int, maxPlayer: Int): Relay {
             var idRelay = id
             val relay: Relay =  if (id.isBlank()) {
-                while (true) {
-                    val intId = rand.random(1000, 100000)
-                    if (!serverRelayData.containsKey(intId)) {
-                        idRelay = intId.toString()
-                        debug(intId)
-                        break
-                    }
-                }
-                Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
-            } else {
-                Relay(idRelay,playerName,isMod,betaGameVersion,maxPlayer)
-            }
-            serverRelayData.put(idRelay.toInt(), relay)
+                                    while (true) {
+                                        val intId = rand.random(1000, 1000000)
+                                        if (!getCheckRelay(intId.toString())) {
+                                            idRelay = intId.toString()
+                                            debug(intId)
+                                            break
+                                        }
+                                    }
+                                    Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
+                                } else {
+                                    Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
+                                }
             return relay
         }
     }

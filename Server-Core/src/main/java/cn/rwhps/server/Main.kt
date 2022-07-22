@@ -38,6 +38,7 @@ import cn.rwhps.server.core.Initialization
 import cn.rwhps.server.core.thread.Threads.newThreadCore
 import cn.rwhps.server.custom.LoadCoreCustomPlugin
 import cn.rwhps.server.data.base.BaseConfig
+import cn.rwhps.server.data.base.BaseRelayPublishConfig
 import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.mods.ModManage
@@ -55,6 +56,9 @@ import cn.rwhps.server.game.Event
 import cn.rwhps.server.game.EventGlobal
 import cn.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import cn.rwhps.server.io.ConsoleStream
+import cn.rwhps.server.net.StartNet
+import cn.rwhps.server.net.handler.tcp.StartGamePortDivider
+import cn.rwhps.server.net.http.WebData
 import cn.rwhps.server.util.encryption.Base64.decodeString
 import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
 import cn.rwhps.server.util.file.FileUtil.Companion.setFilePath
@@ -104,8 +108,8 @@ object Main {
         /* 设置Log 并开启拷贝 */
         set("ALL")
         setCopyPrint(true)
-
-        Logger.getLogger("io.netty").level = Level.OFF
+        //Logger.getLogger("io.netty").level = Level.OFF
+        Logger.getLogger("io.netty").level = Level.ALL
 
         println(Data.i18NBundle.getinput("server.login"))
         clog("Load ing...")
@@ -114,10 +118,15 @@ object Main {
 
         Data.config = BaseConfig.stringToClass()
         Data.configTest = BaseTestConfig.stringToClass()
+        Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
         Data.core.load()
+
+       // ZipGame().jm()
 
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
+        clog(Data.i18NBundle.getinput("server.thanks"))
+
 
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
@@ -132,7 +141,6 @@ object Main {
         /* 初始化Plugin */
         init(getFolder(Data.Plugin_Plugins_Path))
         LoadCoreCustomPlugin()
-
         runOnEnable()
         runRegisterEvents()
         runRegisterGlobalEvents()
@@ -177,7 +185,7 @@ object Main {
     }
 
     private fun inputMonitor() {
-        /* #209 */
+        //# 209
         val idlingCount = TimeAndNumber(5, 10)
         var last = 0
 

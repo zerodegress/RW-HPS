@@ -87,7 +87,7 @@ class LoadConfig {
     fun save() {
         val map: MutableMap<String, Any> = HashMap()
         data.each { key: String, value: Any -> map[key] = value }
-        fileUtil.writeFile(toJson(map), false)
+        fileUtil.writeFile(toJson(map))
         clog("SAVE CONFIG OK")
     }
 }

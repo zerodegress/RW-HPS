@@ -80,7 +80,11 @@ data class BaseConfig(
 
     /** Whether to start reading mod for the first time */
     val GameOverUpList: Boolean = false,
-    val PasswdCheckApi: Boolean = false,
+
+    val WebGameBypassPort: Boolean = false,
+
+    val WebService: Boolean = false,
+    val SeparateWebPort: Int = 5124,
 
     val AutoReLoadMap: Boolean = false,
 

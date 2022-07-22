@@ -18,7 +18,7 @@ import kotlin.math.min
  * @author RW-HPS/Dr
  */
 object IsUtil {
-    private val PATTERN = Pattern.compile("[0-9]*")
+    private val PATTERN = Pattern.compile("[-+]?\\d+(?:\\.\\d+)?")
     private val PATTERNNegativeNumber = Pattern.compile("[-+]?[0-9]*")
     private val IPV4_PATTERN = Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")
     private const val IPV4_MAX_OCTET_VALUE = 255

@@ -77,6 +77,16 @@ object Time {
         return millis() + addTime
     }
 
+    @JvmStatic
+    fun getTimeSinceSecond(prevTime: Int): Int {
+        return concurrentSecond() - prevTime
+    }
+
+    @JvmStatic
+    fun getTimeFutureSecond(addTime: Int): Int {
+        return concurrentSecond() + addTime
+    }
+
     /**
      * 获取JDK当前时间
      */

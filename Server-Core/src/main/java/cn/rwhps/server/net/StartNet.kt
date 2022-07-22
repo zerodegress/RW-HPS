@@ -14,6 +14,7 @@ import cn.rwhps.server.net.code.rudp.PacketDecoderTest
 import cn.rwhps.server.net.core.AbstractNet
 import cn.rwhps.server.net.handler.rudp.StartGameNetUdp
 import cn.rwhps.server.net.handler.tcp.StartGameNetTcp
+import cn.rwhps.server.net.handler.tcp.StartGamePortDivider
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.log.Log
@@ -49,17 +50,18 @@ class StartNet {
     internal val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(32)
 
     constructor() {
-        start = StartGameNetTcp(this)
+        start = if (Data.config.WebGameBypassPort) StartGamePortDivider(this) else StartGameNetTcp(this)
     }
 
     constructor(abstractNetClass: Class<out AbstractNet>) {
-        start =
+        val startNet: AbstractNet? =
             try {
-                ReflectionUtils.accessibleConstructor(abstractNetClass,StartNet::class.java).newInstance(this) as AbstractNet
-            } catch (e: NoSuchMethodException) {
+                ReflectionUtils.accessibleConstructor(abstractNetClass,StartNet::class.java).newInstance(this)
+            } catch (e: Exception) {
                 Log.fatal("[StartNet Load Error] Use default implementation",e)
-                StartGameNetTcp(this)
+                null
             }
+        this.start = startNet ?:StartGameNetTcp(this)
     }
 
     /**
@@ -97,6 +99,7 @@ class StartNet {
                 .channel(runClass)
                 //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(start)
             clog(Data.i18NBundle.getinput("server.start.openPort"))
             val channelFutureTcp = serverBootstrapTcp.bind(port)

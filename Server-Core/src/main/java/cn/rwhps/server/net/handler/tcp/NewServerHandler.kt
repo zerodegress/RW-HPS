@@ -43,7 +43,7 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     type = NetStaticData.RwHps.typeConnect.getTypeConnect(connectionAgreement)
                     attr.setIfAbsent(type)
 
-                    if (Data.core.admin.bannedIP24.contains(IpUtil.ipToLong24(type.abstractNetConnect.ip))) {
+                    if (Data.core.admin.bannedIP24.contains(IpUtil.ipToLong24(type.abstractNetConnect.ip,false))) {
                         type.abstractNetConnect.disconnect()
                         return
                     }

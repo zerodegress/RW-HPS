@@ -18,10 +18,20 @@ package cn.rwhps.server.util
  * @author RW-HPS/Dr
  */
 enum class PacketType(val typeInt: Int) {
+    /**
+     * CUSTOM PACKET
+     */
     /* DEBUG */
     SERVER_DEBUG_RECEIVE(2000),
     SERVER_DEBUG(2001),
 
+    /* Ex */
+    GET_SERVER_INFO_RECEIVE(3000),
+    GET_SERVER_INFO(3000),
+
+    /**
+     * Game Core Packet
+     */
     /* Preregister */
     PREREGISTER_INFO_RECEIVE(160),
     PREREGISTER_INFO(161),
@@ -40,11 +50,11 @@ enum class PacketType(val typeInt: Int) {
     CHAT_RECEIVE(140),
     CHAT(141),
 
-
+    /* Net Status */
     KICK(150),
     DISCONNECT(111),
 
-
+    /* StartGame */
     START_GAME(120),
     ACCEPT_START_GAME(112),
 
@@ -58,8 +68,8 @@ enum class PacketType(val typeInt: Int) {
     /* Relay */
     RELAY_117(117),
     RELAY_118_117_RETURN(118),
-    RELAY_151(151),
-    RELAY_152_151_RETURN(152),
+    RELAY_POW(151),
+    RELAY_POW_RECEIVE(152),
 
     RELAY_VERSION_INFO(163),
     FORWARD_HOST_SET(170),

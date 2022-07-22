@@ -22,6 +22,9 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
 import java.util.concurrent.TimeUnit
 
+/**
+ * @author RW-HPS/Dr
+ */
 @Sharable
 open class AbstractNet(protected val startNet: StartNet): ChannelInitializer<SocketChannel>() {
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger()

@@ -9,6 +9,10 @@
 
 package cn.rwhps.server.net.core
 
+/**
+ * Permission Connect Status
+ * @author RW-HPS/Dr
+ */
 object DataPermissionStatus {
     enum class RelayStatus {
         InitialConnection,

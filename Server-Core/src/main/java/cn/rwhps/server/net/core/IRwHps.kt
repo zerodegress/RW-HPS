@@ -29,6 +29,8 @@ package cn.rwhps.server.net.core
  * ### 继承不稳定
  *
  * **[IRwHps] 可能会增加新的抽象属性或函数. 因此不适合被继承或实现.**
+ *
+ * @author RW-HPS/Dr
  */
 interface IRwHps {
     /**

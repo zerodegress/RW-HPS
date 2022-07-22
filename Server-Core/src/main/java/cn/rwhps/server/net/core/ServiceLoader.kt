@@ -14,6 +14,9 @@ import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.log.exp.ImplementedException
 import java.lang.reflect.Constructor
 
+/**
+ * @author RW-HPS/Dr
+ */
 object ServiceLoader {
     private val ServiceLoaderData:MutableMap<String,Class<*>> = HashMap()
     private val ServiceObjectData:MutableMap<String,Value<*>> = HashMap()

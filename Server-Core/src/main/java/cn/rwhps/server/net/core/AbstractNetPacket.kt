@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.net.core
 
+import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.output.CompressOutputStream
@@ -87,7 +88,7 @@ interface AbstractNetPacket {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun getTeamDataPacket(): CompressOutputStream
+    fun getTeamDataPacket(startGame: Boolean = Data.game.isStartGame): CompressOutputStream
 
     /**
      * 转换GameSave包
@@ -144,7 +145,7 @@ interface AbstractNetPacket {
      * @param stream Data流
      */
     @Throws(IOException::class)
-    fun writePlayer(player: Player, stream: GameOutputStream)
+    fun writePlayer(player: Player, stream: GameOutputStream, startGame: Boolean)
 
     /**
      * 获取连接包

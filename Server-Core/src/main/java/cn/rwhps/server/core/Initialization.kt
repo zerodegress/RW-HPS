@@ -10,8 +10,10 @@
 package cn.rwhps.server.core
 
 import cn.rwhps.server.Main
+import cn.rwhps.server.data.global.Cache
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.plugin.PluginData
+import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.net.HttpRequestOkHttp
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.core.ServiceLoader
@@ -19,6 +21,7 @@ import cn.rwhps.server.net.core.ServiceLoader.ServiceType
 import cn.rwhps.server.net.netconnectprotocol.*
 import cn.rwhps.server.net.netconnectprotocol.realize.*
 import cn.rwhps.server.util.I18NBundle
+import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.log.Log
 
 /**
@@ -101,6 +104,17 @@ class Initialization {
         Data.i18NBundle = Data.i18NBundleMap["EN"]
     }
 
+    private fun initRelay() {
+        try {
+            Cache.packetCache.put("sendSurrenderPacket",GameOutputStream().also {
+                it.writeString(".surrender")
+                it.writeByte(0)
+            }.createPacket(PacketType.CHAT_RECEIVE))
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
     companion object {
         @Volatile
         private var isClose = true
@@ -161,6 +175,7 @@ class Initialization {
     init {
         loadLang()
         initMaps()
+        initRelay()
 
         Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
             override fun run() {

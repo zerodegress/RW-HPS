@@ -16,10 +16,20 @@ import cn.rwhps.server.data.global.Data;
 import cn.rwhps.server.data.global.NetStaticData;
 import cn.rwhps.server.func.StrCons;
 import cn.rwhps.server.net.StartNet;
+import cn.rwhps.server.util.RandomUtil;
+import cn.rwhps.server.util.StringFilteringUtil;
+import cn.rwhps.server.util.Time;
+import cn.rwhps.server.util.encryption.Md5;
+import cn.rwhps.server.util.encryption.Sha;
 import cn.rwhps.server.util.file.FileUtil;
 import cn.rwhps.server.util.log.Log;
 
-import static cn.rwhps.server.util.log.Log.clog;
+import java.math.BigInteger;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static cn.rwhps.server.net.HttpRequestOkHttp.doPostRw;
 
 /**
  * @author RW-HPS/Dr
@@ -51,16 +61,13 @@ public class NetServer {
             Data.game.getPlayerManage().playerAll.clear();
             Data.game = null;
             System.gc();
-            clog("Server closed");
+            Log.clog("Server closed");
         }
     }
 
     public static void reLoadServer() {
         if (Data.vote!= null) {
             Data.vote.stopVote();
-        }
-        synchronized (Data.game.getGameSaveWaitObject()) {
-            Data.game.getGameSaveWaitObject().notifyAll();
         }
         Call.killAllPlayer();
         Data.game.re();
@@ -73,6 +80,6 @@ public class NetServer {
         FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
         fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
 
-        clog("[Server Gameover completed]");
+        Log.clog("[Server Gameover completed]");
     }
 }

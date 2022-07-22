@@ -11,7 +11,6 @@ package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
-import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet

@@ -11,7 +11,6 @@ package cn.rwhps.server.command.relay
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
-import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay

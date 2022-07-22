@@ -12,7 +12,9 @@ package cn.rwhps.server.io.packet
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.io.GameInputStream
+import cn.rwhps.server.io.inandout.GameInputStreamAndOutputStream
 import cn.rwhps.server.util.ExtractUtil
+import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.log.Log
 
 class GameSavePacket(val packet: Packet) {
@@ -37,7 +39,7 @@ class GameSavePacket(val packet: Packet) {
      * 解析 GameSave包
      */
     fun analyze() {
-        GameInputStream(packet).use { stream ->
+        GameInputStream(packet,151).use { stream ->
             stream.readByte()
             Log.clog("Tick : {0}",stream.readInt())
             Log.clog("{0}",stream.readInt())
@@ -49,84 +51,369 @@ class GameSavePacket(val packet: Packet) {
             stream.getDecodeStream(false).use { gameSave ->
                 Log.clog(gameSave.readString())
                 gameSave.readInt()
-                Log.clog("GameSave Version: {0}", gameSave.readInt())
+
+                val gameSaveVersion: Int
+                Log.clog("GameSave Version: {0}", gameSave.readInt().also { gameSaveVersion = it })
                 gameSave.readBoolean()
-                // GameSave Version > 23
-                gameSave.getDecodeStream(true).use { saveCompression ->
-                    // GameSave Version > 54
-                    saveCompression.getDecodeStream(false).use { customUnitsBlock ->
-                        // 我 不 知 道
-                        Log.clog("customUnitsBlock SKIP !  -> {0}",customUnitsBlock.getSize())
-                    }
-                    // GameSave Version > 56
-                    saveCompression.getDecodeStream(false).use { gameSetup ->
-                        if (gameSetup.readBoolean()) {
-                            gameSetup.readByte()
-
-                            // version
-                            gameSetup.readByte()
-                            Log.clog("fogMode : {0}",gameSetup.readInt())
-                            Log.clog("startingCredits : {0}",gameSetup.readInt())
-                            Log.clog("revealedMap : {0}",gameSetup.readBoolean())
-                            Log.clog("aiDifficulty : {0}",gameSetup.readInt())
-                            Log.clog("startingUnits : {0}",gameSetup.readInt())
-                            Log.clog("incomeMultiplier : {0}",gameSetup.readFloat())
-                            Log.clog("noNukes : {0}",gameSetup.readBoolean())
-                            Log.clog("? Boolean : {0}",gameSetup.readBoolean())
-                            Log.clog("sharedControl : {0}",gameSetup.readBoolean())
-                            // Version 1
-                            Log.clog("? Boolean : {0}",gameSetup.readBoolean())
-                            // Version 2
-                            Log.clog("? Boolean : {0}",gameSetup.readBoolean())
-                            // Version 3
-                            Log.clog("allowSpectators : {0}",gameSetup.readBoolean())
-                            Log.clog("lockedRoom : {0}",gameSetup.readBoolean())
-
-                            Log.clog("MaxUnit ? : {0}",gameSetup.readInt())
-                            Log.clog("MaxUnit ? : {0}",gameSetup.readInt())
+                if (gameSaveVersion >= 23) {
+                    gameSave.getDecodeStream(true).use { saveCompression ->
+                        if (gameSaveVersion >= 54) {
+                            saveCompression.getDecodeStream(false).use { customUnitsBlock ->
+                                // 我 不 知 道
+                                Log.clog("customUnitsBlock SKIP !  -> {0}", customUnitsBlock.getSize())
+                            }
                         }
-                    }
+                        if (gameSaveVersion >= 56) {
+                            saveCompression.getDecodeStream(false).use { gameSetup ->
+                                if (gameSetup.readBoolean()) {
+                                    gameSetup.readByte()
 
-                    Log.clog("MapName ? : {0}",saveCompression.readString())
+                                    // version
+                                    gameSetup.readByte()
+                                    Log.clog("fogMode : {0}", gameSetup.readInt())
+                                    Log.clog("startingCredits : {0}", gameSetup.readInt())
+                                    Log.clog("revealedMap : {0}", gameSetup.readBoolean())
+                                    Log.clog("aiDifficulty : {0}", gameSetup.readInt())
+                                    Log.clog("startingUnits : {0}", gameSetup.readInt())
+                                    Log.clog("incomeMultiplier : {0}", gameSetup.readFloat())
+                                    Log.clog("noNukes : {0}", gameSetup.readBoolean())
+                                    Log.clog("? Boolean : {0}", gameSetup.readBoolean())
+                                    Log.clog("sharedControl : {0}", gameSetup.readBoolean())
+                                    // Version 1
+                                    Log.clog("? Boolean : {0}", gameSetup.readBoolean())
+                                    // Version 2
+                                    Log.clog("? Boolean : {0}", gameSetup.readBoolean())
+                                    // Version 3
+                                    Log.clog("allowSpectators : {0}", gameSetup.readBoolean())
+                                    Log.clog("lockedRoom : {0}", gameSetup.readBoolean())
 
-                    // GameSave Version > 72
-                    if (saveCompression.readBoolean()) {
-                        val mapBytes = saveCompression.readStreamBytes()
-                        Log.clog("Reading remote map stream : Size: {0}",mapBytes.size)
-                    }
-
-                    /**
-                    if (u.bF.z && !u.bF.A && z3 && u.bF.aK != null && !z4) {
-                        u.cS = "";
-                        u.cT = u.bF.aK;
-                    }
-                    bjVar.a(bk.load_map);
-
-                    // z3 always = true ?
-                    if (z3) {
-                        u.a(true, true, s.normalSave);
-                        if (l.aj()) {
-                        u.dc = true;
+                                    Log.clog("MaxUnit : {0}", gameSetup.readInt())
+                                    Log.clog("MaxUnit : {0}", gameSetup.readInt())
+                                }
+                            }
                         }
-                    } else {
-                        u.a(true, s.normalSave);
+
+                        Log.clog("MapName ? : {0}", saveCompression.readString())
+
+                        if (gameSaveVersion >= 72) {
+                            if (saveCompression.readBoolean()) {
+                                val mapBytes = saveCompression.readStreamBytes()
+                                Log.clog("Reading remote map stream : Size: {0}", mapBytes.size)
+                            }
+                        }
+
+                        Log.clog("FirstActivation: move at : {0}", saveCompression.readInt())
+                        Log.clog("? Float : {0}", saveCompression.readFloat())
+                        Log.clog("? Float : {0}", saveCompression.readFloat())
+                        Log.clog("? Float : {0}", saveCompression.readFloat())
+
+
+                        if (gameSaveVersion >= 18) {
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                        }
+                        saveCompression.readInt() // 0
+
+                        if (gameSaveVersion >= 19) {
+                            // 没用找到标记位置 (读取未到达置顶位置)
+                            if (saveCompression.readShort() != "12345".toShort()) {
+                                Log.clog("Mark wasn't read for: End of Setup")
+                            }
+                        }
+
+                        if (saveCompression.readBoolean()) {
+                            val a = saveCompression.readInt()
+                            val b = saveCompression.readInt()
+                            for (i2 in 0 until a) {
+                                for (i3 in 0 until b) {
+                                    saveCompression.readByte()
+                                }
+                            }
+                        }
+
+                        if (gameSaveVersion >= 86) {
+                            saveCompression.readBoolean()
+                            saveCompression.readBoolean()
+                            saveCompression.readBoolean()
+                            saveCompression.readBoolean()
+                        }
+
+                        // MissionEngine Sync
+                        if (saveCompression.readBoolean()) {
+                            // But i don't want to write MissionEngine
+                            Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Float : {0}", saveCompression.readFloat())
+                            Log.clog("? Float : {0}", saveCompression.readFloat())
+                            Log.clog("? Float : {0}", saveCompression.readFloat())
+                            Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+
+                            val missionEngineVersion: Int
+                            Log.clog("MissionEngine Version : {0}", saveCompression.readInt().also { missionEngineVersion = it })
+
+                            if (missionEngineVersion >= 1) {
+                                val count = saveCompression.readInt()
+                                for ( i in 0 until count) {
+                                    val missionEngine = saveCompression.readString()
+                                    Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+
+                                    if (missionEngineVersion >= 2) {
+                                        Log.clog("? Int : {0}", saveCompression.readInt())
+                                        Log.clog("? Int : {0}", saveCompression.readInt())
+                                    }
+                                    if (missionEngineVersion >= 3) {
+                                        Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+                                    }
+                                    if (missionEngineVersion >= 4) {
+                                        Log.clog("? Int : {0}", saveCompression.readInt())
+                                    }
+
+                                }
+                            }
+                            if (missionEngineVersion >= 5) {
+                                Log.clog("? Int : {0}", saveCompression.readInt())
+                            }
+                            if (missionEngineVersion >= 6) {
+                                Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+                            }
+                        }
+
+                        if (gameSaveVersion >= 19) {
+                            // 没用找到标记位置 (读取未到达置顶位置)
+                            if (saveCompression.readShort() != "12345".toShort()) {
+                                Log.clog("Mark wasn't read for: Start of teams")
+                            }
+                        }
+
+                        if (gameSaveVersion >= 36) {
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                        }
+
+                        var maxPlayer = 8
+                        if (gameSaveVersion >= 49) {
+                            Log.clog("maxPlayer : {0}", saveCompression.readInt().also { maxPlayer = it })
+                            // Clear Player Array
+                            /*
+                            m.b(i2, false);
+                            for (int i3 = 0; i3 < m.f153a; i3++) {
+                                if (i3 >= i2 && !z && (n = m.n(i3)) != null) {
+                                    n.E();
+                                }
+                            }*/
+                        }
+
+                        for (i in 0 until maxPlayer) {
+                            val isAi = saveCompression.readBoolean()
+                            val isReplacing: Boolean
+                            if (gameSaveVersion >= 7) {
+                                isReplacing = saveCompression.readBoolean()
+                            }
+
+                            if (saveCompression.readBoolean()) {
+                                Log.clog("A")
+                                if (gameSaveVersion >= 2) {
+                                    val site = saveCompression.readByte()
+
+                                    saveCompression.skip(8)// Int+Int
+                                    Log.clog(saveCompression.readIsString())
+                                    saveCompression.skip(1)
+                                    saveCompression.skip(12) // Int+Long
+                                    saveCompression.skip(5)  // Boolean+Int
+                                    saveCompression.skip(5)  // Int+Byte
+                                    saveCompression.skip(2)  // Boolean *2
+                                    saveCompression.skip(6) // Boolean+Boolean+Int
+                                    saveCompression.readIsString(); saveCompression.skip(4)
+                                }
+                            } else {
+                                Log.clog("B")
+                            }
+                        }
+
+                        // not finished continue ....
+                        Log.clog("saveCompression SKIP !  -> {0}", saveCompression.getSize())
                     }
-                     */
-
-                    // not finished continue ....
-                    Log.clog("saveCompression SKIP !  -> {0}",saveCompression.getSize())
                 }
-
-                // GameSave Version > 19
-                if (gameSave.readShort() != "12345".toShort()) {
-                    Log.clog("Mark wasn't read for: End of Save")
-
-                }
-                gameSave.readString()
-
                 Log.clog("gameSave SKIP !  -> {0}",gameSave.getSize())
-
             }
+        }
+    }
+
+    /**
+     * 解析 GameSave包 并生成作弊包
+     */
+    fun cheatSync(): Packet {
+        Log.clog("check ${packet.bytes.size}")
+        GameInputStreamAndOutputStream(packet,151).use { stream ->
+            stream.readByteN()
+            stream.readIntN()
+            stream.readIntN()
+            stream.readFloatN()
+            stream.readFloatN()
+            stream.readBooleanN()
+            stream.readBooleanN()
+
+            stream.getDecodeStreamNoData(false).use { gameSave ->
+                gameSave.readStringN()
+                gameSave.readIntN()
+
+                val gameSaveVersion: Int
+                Log.clog("GameSave Version: {0}", gameSave.readInt().also { gameSaveVersion = it })
+                gameSave.readBooleanN()
+                if (gameSaveVersion >= 23) {
+                    gameSave.getDecodeStreamNoData(true).use { saveCompression ->
+                        if (gameSaveVersion >= 54) {
+                            saveCompression.getDecodeStreamN(false)
+                        }
+                        if (gameSaveVersion >= 56) {
+                            // gameSetup
+                            saveCompression.getDecodeStreamN(false)
+                        }
+
+                        Log.clog("MapName ? : {0}", saveCompression.readString())
+
+                        if (gameSaveVersion >= 72) {
+                            if (saveCompression.readBoolean()) {
+                                saveCompression.readStreamBytesN()
+                            }
+                        }
+
+                        saveCompression.readIntN()
+                        saveCompression.readFloatN()
+                        saveCompression.readFloatN()
+                        saveCompression.readFloatN()
+
+
+                        if (gameSaveVersion >= 18) {
+                            saveCompression.readIntN()
+                        }
+                        saveCompression.readIntN() // 0
+
+                        if (gameSaveVersion >= 19) {
+                            // 没用找到标记位置 (读取未到达置顶位置)
+                            if (saveCompression.readShort() != "12345".toShort()) {
+                                Log.clog("Mark wasn't read for: End of Setup")
+                            }
+                        }
+
+                        if (saveCompression.readBoolean()) {
+                            val a = saveCompression.readInt()
+                            val b = saveCompression.readInt()
+                            for (i2 in 0 until a) {
+                                for (i3 in 0 until b) {
+                                    saveCompression.readByte()
+                                }
+                            }
+                        }
+
+                        if (gameSaveVersion >= 86) {
+                            saveCompression.readBoolean()
+                            saveCompression.readBoolean()
+                            saveCompression.readBoolean()
+                            saveCompression.readBoolean()
+                        }
+
+                        // MissionEngine Sync
+                        if (saveCompression.readBoolean()) {
+                            // But i don't want to write MissionEngine
+                            Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                            Log.clog("? Float : {0}", saveCompression.readFloat())
+                            Log.clog("? Float : {0}", saveCompression.readFloat())
+                            Log.clog("? Float : {0}", saveCompression.readFloat())
+                            Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+
+                            val missionEngineVersion: Int
+                            Log.clog("MissionEngine Version : {0}", saveCompression.readInt().also { missionEngineVersion = it })
+
+                            if (missionEngineVersion >= 1) {
+                                val count = saveCompression.readInt()
+                                for ( i in 0 until count) {
+                                    val missionEngine = saveCompression.readString()
+                                    Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+
+                                    if (missionEngineVersion >= 2) {
+                                        Log.clog("? Int : {0}", saveCompression.readInt())
+                                        Log.clog("? Int : {0}", saveCompression.readInt())
+                                    }
+                                    if (missionEngineVersion >= 3) {
+                                        Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+                                    }
+                                    if (missionEngineVersion >= 4) {
+                                        Log.clog("? Int : {0}", saveCompression.readInt())
+                                    }
+
+                                }
+                            }
+                            if (missionEngineVersion >= 5) {
+                                Log.clog("? Int : {0}", saveCompression.readInt())
+                            }
+                            if (missionEngineVersion >= 6) {
+                                Log.clog("? Boolean : {0}", saveCompression.readBoolean())
+                            }
+                        }
+
+                        if (gameSaveVersion >= 19) {
+                            // 没用找到标记位置 (读取未到达置顶位置)
+                            if (saveCompression.readShort() != "12345".toShort()) {
+                                Log.clog("Mark wasn't read for: Start of teams")
+                            }
+                        }
+
+                        if (gameSaveVersion >= 36) {
+                            Log.clog("? Int : {0}", saveCompression.readInt())
+                        }
+
+                        var maxPlayer = 8
+                        if (gameSaveVersion >= 49) {
+                            Log.clog("maxPlayer : {0}", saveCompression.readInt().also { maxPlayer = it })
+                        }
+
+                        for (i in 0 until maxPlayer) {
+                            val isAi = saveCompression.readBoolean()
+                            val isReplacing: Boolean
+                            if (gameSaveVersion >= 7) {
+                                isReplacing = saveCompression.readBoolean()
+                            }
+
+                            if (saveCompression.readBoolean()) {
+                                Log.clog("A")
+                                if (gameSaveVersion >= 2) {
+                                    val site = saveCompression.readByte()
+                                    saveCompression.skip(4)
+                                    saveCompression.out.writeInt(100000)
+                                    saveCompression.skipN(4)// Int+Int
+                                    saveCompression.readIsStringN()
+                                    saveCompression.skipN(1)
+                                    saveCompression.skipN(12) // Int+Long
+                                    saveCompression.skipN(5)  // Boolean+Int
+                                    saveCompression.skipN(5)  // Int+Byte
+                                    saveCompression.skipN(2)  // Boolean *2
+                                    saveCompression.skipN(6) // Boolean+Boolean+Int
+                                    saveCompression.readIsStringN(); saveCompression.skipN(4)
+                                }
+                            } else {
+                                Log.clog("B")
+                            }
+                        }
+
+                        // not finished continue ....
+                        saveCompression.out.writeBytes(saveCompression.readAllBytes())
+                        gameSave.transferTo(saveCompression,true)
+                    }
+                }
+
+                gameSave.out.writeBytes(gameSave.readAllBytes())
+                stream.transferTo(gameSave)
+            }
+
+            return stream.out.createPacket(PacketType.SYNC)
         }
     }
 

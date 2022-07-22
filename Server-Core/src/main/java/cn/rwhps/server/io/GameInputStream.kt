@@ -18,9 +18,9 @@ import java.io.*
  * Read Bytes
  * @author RW-HPS/Dr
  */
-class GameInputStream : Closeable {
-    private val buffer: DisableSyncByteArrayInputStream
-    private val stream: DataInputStream
+open class GameInputStream : Closeable {
+    protected val buffer: DisableSyncByteArrayInputStream
+    protected val stream: DataInputStream
     val parseVersion: Int
 
     @JvmOverloads
@@ -49,7 +49,7 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readByte(): Int {
+    open fun readByte(): Int {
         return stream.readByte().toInt()
     }
 
@@ -59,7 +59,7 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readBoolean(): Boolean {
+    open fun readBoolean(): Boolean {
         return stream.readBoolean()
     }
 
@@ -69,12 +69,12 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readInt(): Int {
+    open fun readInt(): Int {
         return stream.readInt()
     }
 
     @Throws(IOException::class)
-    fun readBackwardsInt(): Int {
+    open fun readBackwardsInt(): Int {
         val ch1: Int = buffer.read()
         val ch2: Int = buffer.read()
         val ch3: Int = buffer.read()
@@ -89,11 +89,11 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readShort(): Short {
+    open fun readShort(): Short {
         return stream.readShort()
     }
     @Throws(IOException::class)
-    fun readBackwardsShort(): Short {
+    open fun readBackwardsShort(): Short {
         val ch1: Int = buffer.read()
         val ch2: Int = buffer.read()
         if (ch1 or ch2 < 0) throw EOFException()
@@ -106,7 +106,7 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readFloat(): Float {
+    open fun readFloat(): Float {
         return stream.readFloat()
     }
 
@@ -116,7 +116,7 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readLong(): Long {
+    open fun readLong(): Long {
         return stream.readLong()
     }
 
@@ -128,7 +128,7 @@ class GameInputStream : Closeable {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun readString(): String {
+    open fun readString(): String {
         return stream.readUTF()
     }
 
@@ -185,7 +185,7 @@ class GameInputStream : Closeable {
     }
 
     @Throws(IOException::class)
-    fun readStreamBytes(): ByteArray {
+    open fun readStreamBytes(): ByteArray {
         return buffer.readNBytes0(readInt())
     }
 
@@ -221,7 +221,7 @@ class GameInputStream : Closeable {
     }
 
     @Throws(IOException::class)
-    fun getDecodeStream(bl: Boolean): GameInputStream {
+    open fun getDecodeStream(bl: Boolean): GameInputStream {
         readString()
         val bytes = readStreamBytes()
         return CompressInputStream.getGzipInputStream(bl, bytes)

@@ -208,6 +208,14 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
     }
 
     @Throws(IOException::class)
+    fun flushEncodeData(inputStream: GameInputStream) {
+        writeString(inputStream.readString())
+        val length = inputStream.readInt()
+        writeInt(length)
+        transferToFixedLength(inputStream,length)
+    }
+
+    @Throws(IOException::class)
     fun flushMapData(mapSize: Int, bytes: ByteArray) {
         writeInt(mapSize)
         stream.write(bytes)

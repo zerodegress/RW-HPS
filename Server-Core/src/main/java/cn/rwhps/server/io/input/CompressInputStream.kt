@@ -10,12 +10,24 @@
 package cn.rwhps.server.io.input
 
 import cn.rwhps.server.io.GameInputStream
+import cn.rwhps.server.io.inandout.GameInputStreamAndOutputStream
 import cn.rwhps.server.util.zip.gzip.GzipDecoder
 
 object CompressInputStream {
     @JvmStatic
     internal fun getGzipInputStream(isGzip: Boolean, bytes: ByteArray): GameInputStream {
         return GameInputStream(
+            if (isGzip) {
+                DisableSyncByteArrayInputStream(GzipDecoder.getUnGzipBytes(bytes))
+            } else {
+                DisableSyncByteArrayInputStream(bytes)
+            }
+        )
+    }
+
+    @JvmStatic
+    internal fun getGzipInputStreamAndOutputStream(isGzip: Boolean, bytes: ByteArray): GameInputStreamAndOutputStream {
+        return GameInputStreamAndOutputStream(
             if (isGzip) {
                 DisableSyncByteArrayInputStream(GzipDecoder.getUnGzipBytes(bytes))
             } else {

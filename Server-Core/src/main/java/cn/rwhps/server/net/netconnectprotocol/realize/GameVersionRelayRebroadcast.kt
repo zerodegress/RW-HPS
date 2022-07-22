@@ -11,6 +11,7 @@ package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
+import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
@@ -31,8 +32,8 @@ import java.util.stream.IntStream
  * @Thanks : [Github 1dNDN](https://github.com/1dNDN)
  *
  * This test was done on :
- * Relay-CN (V. 6.0.0)
- * 2022.6.8 00:00
+ * Relay-CN (V. 6.1.0)
+ * 2022.7.22 10:00
  */
 
 /**
@@ -85,8 +86,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             // Multicast
             o.writeBoolean(true)
             sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", relay!!.id), "ADMIN", 5))
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", relay!!.id, relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "RELAY_CN-ADMIN", 5))
             //ping();
 
             val nnn = StringFilteringUtil.filterChines(name)
@@ -112,7 +113,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             GameInputStream(packet).use { inStream ->
                 val target = inStream.readInt()
                 val type = inStream.readInt()
-                //Log.clog(target+"   "+type);
+
+                //Log.clog("$target   $type");
 
                 if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
                     return

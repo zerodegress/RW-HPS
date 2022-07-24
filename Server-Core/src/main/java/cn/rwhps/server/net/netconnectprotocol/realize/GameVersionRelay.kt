@@ -705,7 +705,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 return
             }
             if (arry.size > 1) {
-                maxUnit = arry[0].toInt()
+                maxUnit = arry[1].toInt()
                 if  (maxUnit !in 0..Int.MAX_VALUE) {
                     sendRelayServerType(Data.i18NBundle.getinput("relay.id.maxUnit.re"))
                     return

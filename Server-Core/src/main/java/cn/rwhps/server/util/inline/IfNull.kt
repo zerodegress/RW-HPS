@@ -21,3 +21,11 @@ inline fun <T> T?.ifNull(blockNotNull: (T) -> Unit, block: () -> Unit): T? {
     }
     return this
 }
+
+inline fun <R,T> T?.ifNullResult(blockNotNull: (T) -> R, block: () -> R): R {
+    return if (this == null) {
+        block()
+    } else {
+        blockNotNull(this)
+    }
+}

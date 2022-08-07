@@ -9,6 +9,9 @@
 
 package cn.rwhps.server.util
 
+import cn.rwhps.server.struct.IntMap
+import cn.rwhps.server.util.inline.ifNullResult
+
 /**
  * The tag corresponding to the protocol number of the server
  *
@@ -85,6 +88,11 @@ enum class PacketType(val typeInt: Int) {
     NOT_RESOLVED(-1);
 
     companion object {
-        fun from(type: Int?): PacketType = values().find { it.typeInt == type } ?: NOT_RESOLVED
+        private val typeMap: IntMap<PacketType> = IntMap(values().size)
+        init {
+            values().forEach { typeMap.put(it.typeInt,it) }
+        }
+
+        fun from(type: Int?): PacketType = type.ifNullResult({ typeMap[it] }) { NOT_RESOLVED }
     }
 }

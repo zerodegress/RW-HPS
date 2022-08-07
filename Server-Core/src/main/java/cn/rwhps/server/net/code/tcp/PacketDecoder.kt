@@ -68,7 +68,7 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         /*
          * This packet is an error packet and should not be present so disconnect
          */
-        if (contentLength < 0 || type < 0 || type >= 3000) {
+        if (contentLength < 0 || type < 0) {
             AcceptorIdleStateTrigger.clear(ctx)
             return
         }

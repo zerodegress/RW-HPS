@@ -211,16 +211,19 @@ object Call {
                 }
             }
 
-            if (Time.concurrentSecond() > Data.game.endTime) {
-                if (!forcedClose) {
-                    sendSystemMessageLocal("gameOver.forced")
-                }
-                forcedClose = true
-                if (Time.concurrentSecond() > Data.game.endTime + 60) {
-                    gr()
-                    return
+            if (Data.config.MaxGameIngTime != -1) {
+                if (Time.concurrentSecond() > Data.game.endTime) {
+                    if (!forcedClose) {
+                        sendSystemMessageLocal("gameOver.forced")
+                    }
+                    forcedClose = true
+                    if (Time.concurrentSecond() > Data.game.endTime + 60) {
+                        gr()
+                        return
+                    }
                 }
             }
+
 
             // When synchronized; when suspended; when stopped; refuse to send Task
             if (Data.game.gameReConnectPaused || forcedReturn || Data.game.gamePaused) {

@@ -46,7 +46,7 @@ class Rules(private var config: BaseConfig) {
     var isStartGame = false
         set(value) {
             field = value
-            endTime = if (Data.config.MaxGameIngTime != -1) Time.concurrentSecond()+Data.config.MaxGameIngTime else Int.MAX_VALUE
+            endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
         }
 
     /** 倍数  */

@@ -4,7 +4,7 @@ plugins {
 
 
 //Netty Version
-val nettyVersion = "4.1.77.Final"
+val nettyVersion = "4.1.79.Final"
 
 /**
  * Fuck implementation
@@ -43,6 +43,7 @@ dependencies {
 	api("com.squareup.okhttp3:okhttp:4.10.0") {
 		exclude(group = "org.jetbrains.kotlin")
 	}
+	api("com.vdurmont:emoji-java:5.1.1")
 
 	implementation("org.jline:jline-reader:3.21.0")
 	implementation("org.fusesource.jansi:jansi:2.4.0")

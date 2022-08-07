@@ -295,7 +295,7 @@ open class GameVersionPacket : AbstractNetPacket {
             // 延迟后显示 （HOST)
             writeInt(if (player.isAdmin) 1 else 0)
             // TODO 170
-/*
+
             // Ai Difficulty Override
             writeIsInt(1)
             // Player Start Unit
@@ -305,7 +305,7 @@ open class GameVersionPacket : AbstractNetPacket {
             // Player Color
             writeIsInt(player.color)
             // ? Not > 0
-            writeInt(0)*/
+            writeInt(0)
         }
     }
 

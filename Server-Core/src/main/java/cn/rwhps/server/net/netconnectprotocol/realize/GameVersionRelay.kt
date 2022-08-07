@@ -261,12 +261,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     }
                 } else {
                     // 判定这句和最后一次发言的相同程度
-                    if (playerRelay!!.lastSentMessage == message || Time.getTimeSinceSecond(playerRelay!!.lastMessageTime) < 5) {
+                    if (playerRelay!!.lastSentMessage == message) {
                         // 检测是否达到上限 60s 五次
                         if (playerRelay!!.messageSimilarityCount.checkStatus()) {
                             // KICK 玩家
                             relay!!.admin!!.relayKickData.put("KICK$registerPlayerId",Time.concurrentSecond()+120)
-                            kick("相同的话不应该连续发送也不应该发言太快")
+                            kick("相同的话不应该连续发送")
                             return
                         } else {
                             // 提醒玩家 并累计数
@@ -589,28 +589,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 playerRelay!!.disconnect = true
                 if (!relay!!.isStartGame) {
                     relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
-                } else {
-                    val teamData = OrderedMap<Int,Int>()
-                    val nowTime = Time.concurrentSecond()
-                    val countSet = HashSet<Int>()
-                    relay!!.admin!!.relayPlayersData.values().forEach {
-                        var count = teamData[it.team] ?:0
-                        teamData.put(it.team,if (it.disconnect && nowTime-it.disconnectTime > 120) count else ++count)
-                        countSet.add(it.team)
-                    }
-
-                    if (countSet.size != relay!!.admin!!.relayPlayersData.size) {
-                        teamData.each { t, n ->
-                            if (n == 0) {
-                                relay!!.admin!!.relayPlayersData.values().forEach {
-                                    if (it.team == t) {
-                                        it.con.sendResultPing(Cache.packetCache["sendSurrenderPacket"])
-                                    }
-                                }
-                                relay!!.sendMsg("队伍: [ ${t+1}] 全员断开, 因此 此队伍投降")
-                            }
-                        }
-                    }
                 }
             } else {
                 Relay.serverRelayIpData.remove(ip)

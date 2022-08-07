@@ -87,6 +87,7 @@ open class TypeRwHps : TypeConnect {
                             try {
                                 try {
                                     NetStaticData.groupNet.broadcast(gameSavePacket.convertGameSaveDataPacket())
+                                    Data.game.tickGame.getAndAdd(10)
                                 } catch (e: IOException) {
                                     Log.error(e)
                                 }

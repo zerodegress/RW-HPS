@@ -38,6 +38,7 @@ import cn.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.log.Log.debug
 import cn.rwhps.server.util.log.Log.error
+import com.vdurmont.emoji.EmojiManager
 import java.io.IOException
 import java.util.*
 import java.util.stream.IntStream
@@ -639,9 +640,14 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         var id = inId.replace("\\s".toRegex(), "")
 
         if (id.isEmpty()) {
-            sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", "NULL / 空的"))
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.error.id", "什么都没输入就点击确认"))
             return
         }
+        if (EmojiManager.containsEmoji(id)) {
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.error.id", "不能使用Emoji"))
+            return
+        }
+
 
         if (id.startsWith("RA") || id.startsWith("RB")) {
             id = id.substring(1)
@@ -694,27 +700,55 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             newRoom = false
         }
 
-        var maxPlayer = -1
-        var maxUnit = 200
-        if (id.startsWith("P", ignoreCase = true)) {
-            id = id.substring(1)
-            val arry = if (id.contains("，")) id.split("，") else id.split(",")
-            maxPlayer = arry[0].toInt()
-            if  (maxPlayer !in 0..100) {
-                sendRelayServerType(Data.i18NBundle.getinput("relay.id.maxPlayer.re"))
-                return
+        val custom = CustomRelayData()
+
+        try {
+            if (id.startsWith("P", ignoreCase = true)) {
+                id = id.substring(1)
+                val arry = if (id.contains("，")) id.split("，") else id.split(",")
+                custom.MaxPlayerSize = arry[0].toInt()
+                if  (custom.MaxPlayerSize !in 0..100) {
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.id.maxPlayer.re"))
+                    return
+                }
+                if (arry.size > 1) {
+                    val unit = 200
+                    if (arry[1].contains("I", ignoreCase = true)) {
+                        val ay = arry[1].split("I", ignoreCase = true)
+                        if (ay.size > 1) {
+                            custom.MaxUnitSizt = ay[0].toInt()
+                            custom.Income = ay[1].toFloat()
+                        } else {
+                            custom.Income = ay[0].toFloat()
+                        }
+                    } else {
+                        custom.MaxUnitSizt = arry[1].toInt()
+                    }
+                    if  (custom.MaxUnitSizt !in 0..Int.MAX_VALUE) {
+                        sendRelayServerType(Data.i18NBundle.getinput("relay.id.maxUnit.re"))
+                        return
+                    }
+                }
             }
-            if (arry.size > 1) {
-                maxUnit = arry[0].toInt()
-                if  (maxUnit !in 0..Int.MAX_VALUE) {
-                    sendRelayServerType(Data.i18NBundle.getinput("relay.id.maxUnit.re"))
+            if (id.startsWith("I", ignoreCase = true)) {
+                id = id.substring(1)
+                val arry = if (id.contains("，")) id.split("，") else id.split(",")
+                custom.Income = arry[0].toFloat()
+                if  (custom.Income !in 0F..Float.MAX_VALUE) {
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.id.income.re"))
                     return
                 }
             }
+        } catch(e: NumberFormatException) {
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", e.message))
+            return
         }
 
         if (newRoom) {
-            newRelayId(mods,maxPlayer,maxUnit)
+            newRelayId(mods,custom)
+            if (custom.MaxPlayerSize != -1 || custom.MaxUnitSizt != 200) {
+                sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("自定义人数: ${custom.MaxPlayerSize} 自定义单位: ${custom.MaxUnitSizt}", "RELAY_CN-Custom", 5))
+            }
         } else {
             try {
                 relay = Relay.getRelay(id)
@@ -726,7 +760,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 }
             } catch (e: Exception) {
                 debug(e)
-                sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
+                sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", e.message))
             }
         }
     }
@@ -745,12 +779,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         relay!!.abstractNetConnectIntMap.values().forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
     }
 
-    private fun newRelayId(mod: Boolean, maxPlayer: Int, unitMax: Int) {
-        newRelayId(null, mod, maxPlayer,unitMax)
+    private fun newRelayId(mod: Boolean, customRelayData: CustomRelayData) {
+        newRelayId(null, mod, customRelayData)
     }
 
-    private fun newRelayId(id: String?, mod: Boolean, maxPlayerIn: Int = 10, unitMax: Int = 200) {
-        val maxPlayer = if (maxPlayerIn == -1) 10 else maxPlayerIn
+    private fun newRelayId(id: String?, mod: Boolean, customRelayData: CustomRelayData = CustomRelayData()) {
+        val maxPlayer = if (customRelayData.MaxPlayerSize == -1) 10 else customRelayData.MaxPlayerSize
 
         relay = if (IsUtil.isBlank(id)) {
             Relay.getRelay( playerName = name, isMod = mod, betaGameVersion = betaGameVersion, version = clientVersion, maxPlayer = maxPlayer)
@@ -760,15 +794,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
         relay!!.isMod = mod
 
-        if (maxPlayerIn != -1) {
-            customModePlayerSize(maxPlayer,unitMax)
+        if (customRelayData.MaxPlayerSize != -1 || customRelayData.Income != 1F) {
+            customModePlayerSize(customRelayData)
         }
 
         sendRelayServerId()
         relay!!.setAddSize()
     }
 
-    private fun customModePlayerSize(maxPlayer: Int, unitMax: Int) {
+    private fun customModePlayerSize(customRelayData: CustomRelayData) {
         val registerServer = GameOutputStream()
         registerServer.writeString(Data.SERVER_ID)
         registerServer.writeInt(1)
@@ -794,23 +828,22 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         sendPacket(o2.createPacket(PacketType.SERVER_INFO))
 
         val o = GameOutputStream()
-        /* Player position */
         o.writeInt(0)
         o.writeBoolean(false)
-        /* Largest player */
-        o.writeInt(maxPlayer)
-        o.flushEncodeData(CompressOutputStream.getGzipOutputStream("teams", true).also { for (i in 0 until maxPlayer) it.writeBoolean(false)})
-        /* 迷雾 */
+        /* RELAY Custom MaxPlayer */
+        o.writeInt(customRelayData.MaxPlayerSize)
+        o.flushEncodeData(CompressOutputStream.getGzipOutputStream("teams", true).also { for (i in 0 until customRelayData.MaxPlayerSize) it.writeBoolean(false)})
         o.writeInt(Data.game.mist)
         o.writeInt(Data.game.credits)
         o.writeBoolean(true)
-        /* AI Difficulty ?*/
         o.writeInt(1)
         o.writeByte(5)
-        o.writeInt(unitMax)
-        o.writeInt(unitMax)
+        // RELAY Custom MaxUnit
+        o.writeInt(customRelayData.MaxUnitSizt)
+        o.writeInt(customRelayData.MaxUnitSizt)
         o.writeInt(Data.game.initUnit)
-        o.writeFloat(Data.game.income)
+        // RELAY Custom income
+        o.writeFloat(customRelayData.Income)
         o.writeBoolean(Data.game.noNukes)
         o.writeBoolean(false)
         o.writeBoolean(false)
@@ -818,4 +851,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         o.writeBoolean(Data.game.gamePaused)
         sendPacket(o.createPacket(PacketType.TEAM_LIST))
     }
+
+    private data class CustomRelayData(
+        var MaxPlayerSize: Int   = -1,
+        var MaxUnitSizt:   Int   = 200,
+        var Income:        Float = 1f
+    )
 }

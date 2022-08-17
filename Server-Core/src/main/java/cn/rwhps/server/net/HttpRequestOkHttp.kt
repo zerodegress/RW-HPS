@@ -35,6 +35,7 @@ object HttpRequestOkHttp {
      * @param url HTTP URL
      * @return    Data
      */
+    @JvmStatic
     fun doGet(url: String?): String {
         if (url.isNullOrBlank()) {
             error("[GET URL] NULL")
@@ -59,6 +60,7 @@ object HttpRequestOkHttp {
      * @param param  Parameter (A=B&C=D)
      * @return       Data
      */
+    @JvmStatic
     fun doPost(url: String?, param: String): String {
         val formBody = FormBody.Builder()
         val paramArray = param.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -75,6 +77,7 @@ object HttpRequestOkHttp {
      * @param data    FormBody.Builder Parameter
      * @return        Data
      */
+    @JvmStatic
     fun doPost(url: String?, data: FormBody.Builder): String {
         if (url.isNullOrBlank()) {
             error("[POST URL] NULL")
@@ -95,6 +98,7 @@ object HttpRequestOkHttp {
      * @param param  JSON
      * @return       Data
      */
+    @JvmStatic
     fun doPostJson(url: String?, param: String?): String {
         if (url.isNullOrBlank() || param.isNullOrBlank()) {
             error("[POST Json URL] NULL")

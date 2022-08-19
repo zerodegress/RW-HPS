@@ -117,8 +117,8 @@ class CoreCommands(handler: CommandHandler) {
 
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
-                log["The server is not closed, please close"]
-                return@register
+                log["Server is started, closing..."]
+                NetServer.closeServer()
             }
 
             /* Register Relay Protocol Command */
@@ -137,8 +137,8 @@ class CoreCommands(handler: CommandHandler) {
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
-                log["The server is not closed, please close"]
-                return@register
+                log["Server is started, closing..."]
+                NetServer.closeServer()
             }
 
             /* Register Relay Protocol Command */
@@ -180,8 +180,8 @@ class CoreCommands(handler: CommandHandler) {
      */
     private fun startServer(handler: CommandHandler ,netType: IRwHps.NetType, log: StrCons) {
         if (NetStaticData.startNet.size() > 0) {
-            log["The server is not closed, please close"]
-            return
+            log["Server is started, closing..."]
+            NetServer.closeServer()
         }
 
         /* Register Server Protocol Command */

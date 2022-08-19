@@ -22,6 +22,7 @@ import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
 import cn.rwhps.server.util.log.Log.error
 import cn.rwhps.server.util.log.Log.logCache
 import java.lang.management.ManagementFactory
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -59,7 +60,7 @@ class Application {
         // 保存Plugin
         runOnDisable()
 
-        val fileUtil = getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
+        val fileUtil = getFolder(Data.Plugin_Log_Path).toFile(SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Date())+".log")
         fileUtil.writeFile(logCache, fileUtil.file.length() <= 1024 * 1024)
     }
 

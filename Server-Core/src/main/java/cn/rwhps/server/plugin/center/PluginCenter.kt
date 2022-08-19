@@ -45,7 +45,7 @@ class PluginCenter {
     private fun register() {
         PluginCommand.register("help", "") { _: Array<String?>?, log: StrCons ->
             log["plugin list  查看插件列表"];
-            log["plugin updatalist  更新插件列表"]
+            log["plugin updatelist  更新插件列表"]
             log["plugin install PluginID  安装指定id的插件"]
         }
         PluginCommand.register("updatelist", "") { _: Array<String?>?, log: StrCons ->

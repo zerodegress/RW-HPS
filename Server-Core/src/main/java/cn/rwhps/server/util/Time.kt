@@ -120,7 +120,8 @@ object Time {
             "yyyy-MM-dd HH:mm:ss",
             "yyyy-MM-dd'T'HH:mm:ss'Z'",
             "dd-MM-yyyy HH:mm:ss",
-            "MM-dd-yyyy HH:mm:ss"
+            "MM-dd-yyyy HH:mm:ss",
+            "yyyy-MM-dd_HH-mm-ss"
         )
         return SimpleDateFormat(ft[fot]).format(Date(gmt))
     }

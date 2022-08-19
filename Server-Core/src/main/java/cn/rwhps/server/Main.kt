@@ -109,7 +109,7 @@ object Main {
         Logger.getLogger("io.netty").level = Level.ALL
 
         println(Data.i18NBundle.getinput("server.login"))
-        clog("Load ing...")
+        clog("RW-HPS is loading...")
 
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 

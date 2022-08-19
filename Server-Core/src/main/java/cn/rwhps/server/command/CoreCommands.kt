@@ -105,7 +105,7 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     private fun registerCorex(handler: CommandHandler) {
-        handler.register("plugin", "<TEXT...>", "serverCommands.upserverlist") { arg: Array<String>, log: StrCons ->
+        handler.register("plugin", "<TEXT...>", "serverCommands.plugin") { arg: Array<String>, log: StrCons ->
             PluginCenter.pluginCenter.command(arg[0], log)
         }
     }

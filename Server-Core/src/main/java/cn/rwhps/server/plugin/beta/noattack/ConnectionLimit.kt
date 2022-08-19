@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @author RW-HPS/Dr
  */
-internal class ConnectionLimit: Plugin() {
+internal class ConnectionLimit : Plugin() {
     private var cacheTime: Long = Time.concurrentMillis() + 60 * 60 * 1000L // 1H
 
 

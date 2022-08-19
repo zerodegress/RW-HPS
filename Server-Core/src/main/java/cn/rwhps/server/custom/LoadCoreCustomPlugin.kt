@@ -10,6 +10,7 @@
 package cn.rwhps.server.custom
 
 import cn.rwhps.server.data.plugin.PluginManage
+import cn.rwhps.server.plugin.beta.httpapi.ApiMain
 import cn.rwhps.server.plugin.beta.noattack.ConnectionLimit
 import cn.rwhps.server.plugin.beta.uplist.UpList
 
@@ -21,5 +22,6 @@ internal class LoadCoreCustomPlugin {
         PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpList(), mkdir = false, skip = true)
         PluginManage.addPluginClass("ConnectionLimit","Dr","$coreEx ConnectionLimit","1.0", ConnectionLimit(), mkdir = false, skip = true)
         //PluginManage.addPluginClass("GamePanel","Dr","$coreEx GamePanel","1.0", GamePanel(),false)
+        PluginManage.addPluginClass("HttpApi", "zhou2008", "$coreEx HttpApi", "1.0", ApiMain(), mkdir = true, skip = true)
     }
 }

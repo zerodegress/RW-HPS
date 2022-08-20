@@ -72,7 +72,7 @@ object WebData {
         var urlData = ""
 
         if (url.contains("?")) {
-            getUrl = url.substring(0,url.lastIndexOf("?")-1)
+            getUrl = url.substring(0,url.lastIndexOf("?"))
             if (url.length > url.lastIndexOf("?")+1) {
                 urlData = url.substring(url.lastIndexOf("?")+1)
             }
@@ -92,7 +92,7 @@ object WebData {
         var urlData = ""
 
         if (url.contains("?")) {
-            getUrl = url.substring(0,url.lastIndexOf("?")-1)
+            getUrl = url.substring(0,url.lastIndexOf("?"))
             if (url.length > url.lastIndexOf("?")+1) {
                 urlData = url.substring(url.lastIndexOf("?")+1)
             }

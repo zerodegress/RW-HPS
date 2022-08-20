@@ -25,13 +25,22 @@ class SendWeb(
 ) {
     private var cacheData: ByteArray? = null
     var status: HttpResponseStatus = HttpResponseStatus.OK
-    private val hand  = "RW-HPS Web [Version: ${Data.SERVER_CORE_VERSION}]"
+    private val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
+        "Server" to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)") // 标准格式: Apache/2.4.1 (Unix)
+    private val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header
 
     fun setData(bytes: ByteArray) {
         cacheData = bytes
     }
     fun setData(string: String) {
         cacheData = string.toByteArray(Data.UTF_8)
+    }
+
+    fun addCookie(cKey: String, cValue: String) {
+        if (!appendHeaders.containsKey("Set-Cookie")) {
+            appendHeaders["Set-Cookie"] = arrayListOf()
+        }
+        appendHeaders["Set-Cookie"]?.add("$cKey=$cValue")
     }
 
     fun send404() {
@@ -52,7 +61,12 @@ class SendWeb(
             throw NullPointerException()
         }
         val defaultFullHttpResponse = DefaultFullHttpResponse(request.protocolVersion(), status)
-        defaultFullHttpResponse.headers().set("server",hand)
+        for (header in replaceHeaders) {
+            defaultFullHttpResponse.headers().set(header.key, header.value)
+        }
+        for (header in appendHeaders) {
+            defaultFullHttpResponse.headers().add(header.key, header.value)
+        }
 
         defaultFullHttpResponse.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, cacheData!!.size)
         defaultFullHttpResponse.content().writeBytes(cacheData)

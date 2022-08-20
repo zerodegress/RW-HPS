@@ -45,6 +45,7 @@ dependencies {
 	}
 	api("com.vdurmont:emoji-java:5.1.1")
 
+	implementation("org.apache.maven:maven-core:3.8.6")
 	implementation("org.jline:jline-reader:3.21.0")
 	implementation("org.fusesource.jansi:jansi:2.4.0")
 

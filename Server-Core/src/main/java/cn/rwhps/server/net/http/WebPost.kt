@@ -16,7 +16,7 @@ import cn.rwhps.server.util.log.exp.ImplementedException
  * @author RW-HPS/Dr
  */
 abstract class WebPost {
-    abstract fun post(getUrl: String, urlData: String,data: String, send: SendWeb)
+    abstract fun post(postUrl: String, urlData: String, data: String, send: SendWeb)
 
     protected fun stringResolveToJson(data: String, send: SendWeb) : Json {
         if (data.isEmpty()) {

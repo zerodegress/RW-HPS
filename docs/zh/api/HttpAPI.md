@@ -12,30 +12,56 @@
 {
   "enabled": true,
   "path": "/plugin/httpApi",
-  "token": "defaultToken"
+  "token": "defaultToken",
+  "salt": "CcbcJm4kQPg6dn59TTR2F40v69qNALTU"
 }
 ```
 
 ## 使用
 `HttpApi`会在游戏端口创建HTTP服务器,例如`127.0.0.1:5123`  
 默认路径为`/plugin/httpApi/<METHOD>`  
-目前只有`get`~~,以后会添加其他的,比如`POST`什么的~~  
 有以下api可用:
-- `about`
-- `info`
-- `gameinfo`
-- `plugins`
-- `mods`
+- **POST**
+  - `auth`
+  - `command`
+- **GET**
+  - `about`
+  - `info`
+  - `gameinfo`
+  - `plugins`
+  - `mods`
 
-调用需要加上`token`参数,否则服务器将返回403
+调用需要`cookie`,否则服务器将返回403
 ```json
 {
-  "code": 403,
-  "reason": "invalid token"
+    "code": 403,
+    "reason": "invalid cookie"
+}
+```
+
+### auth
+#### 认证
+需要`token`为参数,服务器会发送`cookie`到客户端
+```json
+{
+    "code": 200,
+    "data": "success"
+}
+```
+
+### command
+#### 执行命令
+需要`exec`为参数,返回执行结果  
+下列结果是`exec`为`plugins`的返回
+```json
+{
+  "code": 200,
+  "data": "name: UpList description: [Core Plugin] UpList author: Dr version: 1.0\nname: ConnectionLimit description: [Core Plugin Extend] ConnectionLimit author: Dr version: 1.0\nname: HttpApi description: [Core Plugin Extend] HttpApi author: zhou2008 version: 1.0\n"
 }
 ```
 
 ### about
+#### 返回系统信息
 ```json
 {
     "code": 200,
@@ -49,6 +75,7 @@
 ```
 
 ### info
+#### 服务器信息
 ```json
 {
     "code": 200,
@@ -67,6 +94,7 @@
 ```
 
 ### gameinfo
+#### 游戏信息
 ```json
 {
     "code": 200,
@@ -81,6 +109,7 @@
 ```
 
 ### plugins
+#### 插件列表
 ```json
 {
     "code": 200,
@@ -108,6 +137,7 @@
 ```
 
 ### mods
+#### mod列表
 ```json
 {
     "code": 200,

@@ -10,6 +10,7 @@
 package cn.rwhps.server.net.http
 
 import cn.rwhps.server.net.handler.tcp.GamePortWebSocket
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.exp.VariableException
 
 /**
@@ -42,6 +43,19 @@ object WebData {
         webSocketData[url] = GamePortWebSocket(webSocket)
     }
 
+    @JvmStatic
+    fun removeWebGetInstance(url: String) {
+        getData.remove(url)
+    }
+    @JvmStatic
+    fun removeWebPostInstance(url: String) {
+        postData.remove(url)
+    }
+    @JvmStatic
+    fun removeWebSocketInstance(url: String) {
+        webSocketData.remove(url)
+    }
+
     /**
      * 根据URL 获取实例
      *
@@ -60,7 +74,7 @@ object WebData {
         if (url.contains("?")) {
             getUrl = url.substring(0,url.lastIndexOf("?")-1)
             if (url.length > url.lastIndexOf("?")+1) {
-                urlData = url.substring(url.lastIndexOf("?"+1))
+                urlData = url.substring(url.lastIndexOf("?")+1)
             }
         }
 
@@ -80,7 +94,7 @@ object WebData {
         if (url.contains("?")) {
             getUrl = url.substring(0,url.lastIndexOf("?")-1)
             if (url.length > url.lastIndexOf("?")+1) {
-                urlData = url.substring(url.lastIndexOf("?"+1))
+                urlData = url.substring(url.lastIndexOf("?")+1)
             }
         }
 

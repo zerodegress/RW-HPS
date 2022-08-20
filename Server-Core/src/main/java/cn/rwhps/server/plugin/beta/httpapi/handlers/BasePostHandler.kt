@@ -22,7 +22,11 @@ open class BasePostHandler(needAuth: Boolean = true) : WebPost() {
     override fun post(postUrl: String, urlData: String, data: String, send: SendWeb) {
         param = stringResolveToJson(data, send)
         remote = send
-        if (needAuth && (send.request.headers().get(HttpHeaderNames.COOKIE)?.toCookie()?.get("token") != Sha.sha256(
+        if (remote.request.headers().get(HttpHeaderNames.ORIGIN) != null) {
+            remote.appendHeaders["Access-Control-Allow-Origin"] = arrayListOf(remote.request.headers().get(HttpHeaderNames.ORIGIN)) // 允许跨域
+            remote.appendHeaders["Access-Control-Allow-Credentials"] = arrayListOf("true")
+        }
+        if (needAuth && (remote.request.headers().get(HttpHeaderNames.COOKIE)?.toCookie()?.get("token") != Sha.sha256(
                 ConfigHelper.config.token + ConfigHelper.config.salt))) {
             send(BaseResp(code = 403, reason = "invalid cookie").toPrettyPrintingJson())
             return

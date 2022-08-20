@@ -25,9 +25,9 @@ class SendWeb(
 ) {
     private var cacheData: ByteArray? = null
     var status: HttpResponseStatus = HttpResponseStatus.OK
-    private val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
+    val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
         HttpHeaderNames.SERVER.toString() to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)")
-    private val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header
+    val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header
 
     fun setData(bytes: ByteArray) {
         cacheData = bytes

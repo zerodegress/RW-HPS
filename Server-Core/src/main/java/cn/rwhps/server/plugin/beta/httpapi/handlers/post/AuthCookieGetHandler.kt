@@ -6,6 +6,7 @@ import cn.rwhps.server.plugin.beta.httpapi.handlers.BasePostHandler
 import cn.rwhps.server.plugin.beta.httpapi.responses.BaseResp
 import cn.rwhps.server.util.encryption.Sha
 import cn.rwhps.server.util.inline.toPrettyPrintingJson
+import io.netty.handler.codec.http.HttpHeaderNames
 
 class AuthCookieGetHandler : BasePostHandler(false) {
     override fun post(postUrl: String, urlData: String, data: String, send: SendWeb) {

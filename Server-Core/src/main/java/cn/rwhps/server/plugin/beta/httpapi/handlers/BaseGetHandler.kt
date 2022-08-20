@@ -22,7 +22,11 @@ open class BaseGetHandler(needAuth: Boolean = true) : WebGet() {
     override fun get(getUrl: String, data: String, send: SendWeb) {
         param = stringResolveToJson(data)
         remote = send
-        if (needAuth && (send.request.headers().get(HttpHeaderNames.COOKIE)?.toCookie()?.get("token") != Sha.sha256(config.token + config.salt))) {
+        if (remote.request.headers().get(HttpHeaderNames.ORIGIN) != null) {
+            remote.appendHeaders["Access-Control-Allow-Origin"] = arrayListOf(remote.request.headers().get(HttpHeaderNames.ORIGIN)) // 允许跨域
+            remote.appendHeaders["Access-Control-Allow-Credentials"] = arrayListOf("true")
+        }
+        if (needAuth && (remote.request.headers().get(HttpHeaderNames.COOKIE)?.toCookie()?.get("token") != Sha.sha256(config.token + config.salt))) {
             send(BaseResp(code = 403, reason = "invalid cookie").toPrettyPrintingJson())
             return
         }

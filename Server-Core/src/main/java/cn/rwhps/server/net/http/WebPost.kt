@@ -10,6 +10,7 @@
 package cn.rwhps.server.net.http
 
 import cn.rwhps.server.data.json.Json
+import cn.rwhps.server.util.log.exp.ImplementedException
 
 /**
  * @author RW-HPS/Dr
@@ -17,17 +18,23 @@ import cn.rwhps.server.data.json.Json
 abstract class WebPost {
     abstract fun get(getUrl: String, urlData: String,data: String, send: SendWeb)
 
-    protected fun stringResolveToJson(data: String) : Json {
-        return if (data.contains("&")) {
+    protected fun stringResolveToJson(data: String, send: SendWeb) : Json {
+        if (data.isEmpty()) {
+            return Json(LinkedHashMap<String, String>());
+        }
+        val hd = send.request.headers().get("Content-Type").trim()
+        if (hd.contains("application/x-www-form-urlencoded",true)) {
             val paramArray: Array<String> = data.split("&".toRegex()).toTypedArray()
             val listMap = LinkedHashMap<String, String>()
             for (pam in paramArray) {
                 val keyValue = pam.split("=".toRegex()).toTypedArray()
                 listMap[keyValue[0]] = keyValue[1]
             }
-            Json(listMap)
+            return Json(listMap)
+        } else if (hd.contains("application/json",true)) {
+            return Json(data)
         } else {
-            Json(data)
+            throw ImplementedException(data);
         }
     }
 }

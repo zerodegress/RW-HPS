@@ -13,6 +13,7 @@ import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.inline.ifNullResult
 import cn.rwhps.server.util.serialization.JSONSerializer
 import cn.rwhps.server.util.serialization.JsonFormatTool
 import com.google.gson.Gson
@@ -34,7 +35,7 @@ class Json {
     }
 
     fun getData(str: String): String {
-        return (jsonObject as LinkedHashMap<*, *>)[str] as String
+        return (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as String }) { "" }
     }
 
     fun getDataNull(str: String): String? {

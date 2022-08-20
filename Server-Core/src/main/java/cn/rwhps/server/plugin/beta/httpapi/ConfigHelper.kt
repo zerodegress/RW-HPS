@@ -1,19 +1,19 @@
 package cn.rwhps.server.plugin.beta.httpapi
 
 import cn.rwhps.server.util.file.FileUtil
-import com.google.gson.Gson
+import cn.rwhps.server.util.inline.toGson
+import cn.rwhps.server.util.inline.toPrettyPrintingJson
 
 object ConfigHelper {
-    private val gson = Gson()
     var config: Config = Config()
 
     fun init(configFile: FileUtil) {
         if (configFile.notExists()) {
             configFile.createNewFile()
-            configFile.writeFile(gson.toJson(config))
+            configFile.writeFile(config.toPrettyPrintingJson())
             println(configFile.path)
         } else {
-            config = gson.fromJson(configFile.readFileStringData(), Config::class.java)
+            config = Config::class.java.toGson(configFile.readFileStringData())
         }
     }
 }

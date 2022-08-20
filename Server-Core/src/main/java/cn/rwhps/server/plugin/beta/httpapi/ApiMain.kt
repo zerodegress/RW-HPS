@@ -20,7 +20,11 @@ class ApiMain : Plugin() {
         Log.info("HttpApi server started with token ${config.token}")
     }
 
-//    override fun onDisable() {
-//
-//    }
+    override fun onDisable() {
+        WebData.removeWebGetInstance("${config.path}/get/about")
+        WebData.removeWebGetInstance("${config.path}/get/info")
+        WebData.removeWebGetInstance("${config.path}/get/gameinfo")
+        WebData.removeWebGetInstance("${config.path}/get/plugins")
+        WebData.removeWebGetInstance("${config.path}/get/mods")
+    }
 }

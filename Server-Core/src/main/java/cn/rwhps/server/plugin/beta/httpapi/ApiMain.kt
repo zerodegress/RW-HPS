@@ -12,6 +12,7 @@ class ApiMain : Plugin() {
         ConfigHelper.init(configFile)
         if (!config.enabled) return
         if (config.token == "defaultToken") Log.warn("Please change the token,don't use the default token!")
+        WebData.addWebGetInstance("${config.path}/get/auth", AuthCookieHandler()) //懒得用post
         WebData.addWebGetInstance("${config.path}/get/about", AboutHandler())
         WebData.addWebGetInstance("${config.path}/get/info", InfoHandler())
         WebData.addWebGetInstance("${config.path}/get/gameinfo", GameInfoHandler())

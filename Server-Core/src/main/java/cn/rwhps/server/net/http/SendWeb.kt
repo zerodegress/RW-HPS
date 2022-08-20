@@ -36,11 +36,11 @@ class SendWeb(
         cacheData = string.toByteArray(Data.UTF_8)
     }
 
-    fun addCookie(cKey: String, cValue: String) {
+    fun addCookie(cKey: String, cValue: String, maxAge: Int) {
         if (!appendHeaders.containsKey(HttpHeaderNames.SET_COOKIE.toString())) {
             appendHeaders[HttpHeaderNames.SET_COOKIE.toString()] = arrayListOf()
         }
-        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue")
+        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue; Max-Age=$maxAge")
     }
 
     fun send404() {

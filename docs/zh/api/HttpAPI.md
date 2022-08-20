@@ -12,7 +12,8 @@
 {
   "enabled": true,
   "path": "/plugin/httpApi",
-  "token": "defaultToken"
+  "token": "defaultToken",
+  "salt": "CcbcJm4kQPg6dn59TTR2F40v69qNALTU"
 }
 ```
 
@@ -21,17 +22,27 @@
 默认路径为`/plugin/httpApi/<METHOD>`  
 目前只有`get`~~,以后会添加其他的,比如`POST`什么的~~  
 有以下api可用:
+- `auth`
 - `about`
 - `info`
 - `gameinfo`
 - `plugins`
 - `mods`
 
-调用需要加上`token`参数,否则服务器将返回403
+调用需要`cookie`,否则服务器将返回403
 ```json
 {
-  "code": 403,
-  "reason": "invalid token"
+    "code": 403,
+    "reason": "invalid cookie"
+}
+```
+
+### auth
+需要`token`为参数,服务器会发送`cookie`到客户端
+```json
+{
+    "code": 200,
+    "data": "success"
 }
 ```
 

@@ -5,15 +5,21 @@
 > - 本章节**不是**关于 `UPLIST-API` 的章节
 
 ## 启用
-`HttpApi`插件默认启用,如需关闭请前往`data/plugins/HttpApi/HttpApi.json`  
-它看起来是这样的:
+`HttpApi`插件默认启用,但是它的所需功能并未默认开启,如需启用请前往`data/Config.json`  
+将`WebGameBypassPort`后面的`false`改为`true`  
+插件的配置文件在`data/plugins/HttpApi/HttpApi.json`
 ```json
-{"enabled":true,"listen":"127.0.0.1","port":8080,"token":"defaultToken"}
+{
+  "enabled": true,
+  "path": "/plugin/httpApi",
+  "token": "defaultToken"
+}
 ```
-其中,`enabled`代表是否启用,你只需将`true`改为`false`即可关闭
 
 ## 使用
-`HttpApi`会在`listen`监听`port`端口,例如`127.0.0.1:8080`  
+`HttpApi`会在游戏端口创建HTTP服务器,例如`127.0.0.1:5123`  
+默认路径为`/plugin/httpApi/<METHOD>`  
+目前只有`get`~~,以后会添加其他的,比如`POST`什么的~~  
 有以下api可用:
 - `about`
 - `info`

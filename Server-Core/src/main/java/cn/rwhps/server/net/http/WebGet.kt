@@ -19,6 +19,9 @@ abstract class WebGet {
 
 
     protected fun stringResolveToJson(data: String) : Json {
+        if (data.isEmpty()) {
+            return Json(LinkedHashMap<String, String>())
+        }
         val paramArray: Array<String> = data.split("&".toRegex()).toTypedArray()
         val listMap = LinkedHashMap<String, String>()
         for (pam in paramArray) {

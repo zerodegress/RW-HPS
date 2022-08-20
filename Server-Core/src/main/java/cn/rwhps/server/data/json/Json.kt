@@ -48,7 +48,7 @@ class Json {
     }
 
     fun getArrayData(str: String): Json? {
-        val rArray = (jsonObject as LinkedHashMap<*, *>)[str] as ArrayList<*>
+        val rArray = (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
         for (o in rArray) {
             val r = o as LinkedHashMap<*, *>
             if (IsUtil.notIsBlank(r)) {
@@ -60,7 +60,7 @@ class Json {
 
     fun getArraySeqData(str: String): Seq<Json> {
         val result = Seq<Json>()
-        val rArray = (jsonObject as LinkedHashMap<*, *>)[str] as ArrayList<*>
+        val rArray = (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
         for (o in rArray) {
             val r = o as LinkedHashMap<*, *>
             if (IsUtil.notIsBlank(r)) {
@@ -72,7 +72,7 @@ class Json {
 
     fun getArraySeqData(): Seq<Json> {
         val result = Seq<Json>()
-        val rArray = (jsonObject as LinkedHashMap<*, *>)["result"] as ArrayList<*>
+        val rArray = (jsonObject as LinkedHashMap<*, *>)["result"].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
         for (o in rArray) {
             val r = o as LinkedHashMap<*, *>
             if (IsUtil.notIsBlank(r)) {

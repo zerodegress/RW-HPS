@@ -10,6 +10,7 @@
 package cn.rwhps.server.net.http
 
 import cn.rwhps.server.net.handler.tcp.GamePortWebSocket
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.exp.VariableException
 
 /**
@@ -40,6 +41,19 @@ object WebData {
             throw VariableException.RepeatAddException("[AddWebSocketInstance] Repeat Add")
         }
         webSocketData[url] = GamePortWebSocket(webSocket)
+    }
+
+    @JvmStatic
+    fun removeWebGetInstance(url: String) {
+        getData.remove(url)
+    }
+    @JvmStatic
+    fun removeWebPostInstance(url: String) {
+        postData.remove(url)
+    }
+    @JvmStatic
+    fun removeWebSocketInstance(url: String) {
+        webSocketData.remove(url)
     }
 
     /**
@@ -78,9 +92,9 @@ object WebData {
         var urlData = ""
 
         if (url.contains("?")) {
-            getUrl = url.substring(0,url.lastIndexOf("?")-1)
+            getUrl = url.substring(0,url.lastIndexOf("?"))
             if (url.length > url.lastIndexOf("?")+1) {
-                urlData = url.substring(url.lastIndexOf("?"+1))
+                urlData = url.substring(url.lastIndexOf("?")+1)
             }
         }
 

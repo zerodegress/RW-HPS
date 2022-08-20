@@ -10,7 +10,7 @@ import cn.rwhps.server.util.encryption.Sha
 import cn.rwhps.server.util.inline.toPrettyPrintingJson
 import io.netty.handler.codec.http.HttpHeaderNames
 
-open class BaseHandler(needAuth: Boolean = true) : WebGet() {
+open class BaseGetHandler(needAuth: Boolean = true) : WebGet() {
     private lateinit var remote: SendWeb
     private var needAuth = true
     lateinit var param: Json

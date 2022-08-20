@@ -13,6 +13,7 @@ import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.inline.ifNullResult
 import cn.rwhps.server.util.serialization.JSONSerializer
 import cn.rwhps.server.util.serialization.JsonFormatTool
 import com.google.gson.Gson
@@ -34,7 +35,7 @@ class Json {
     }
 
     fun getData(str: String): String {
-        return (jsonObject as LinkedHashMap<*, *>)[str] as String
+        return (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as String }) { "" }
     }
 
     fun getDataNull(str: String): String? {
@@ -47,7 +48,7 @@ class Json {
     }
 
     fun getArrayData(str: String): Json? {
-        val rArray = (jsonObject as LinkedHashMap<*, *>)[str] as ArrayList<*>
+        val rArray = (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
         for (o in rArray) {
             val r = o as LinkedHashMap<*, *>
             if (IsUtil.notIsBlank(r)) {
@@ -59,7 +60,7 @@ class Json {
 
     fun getArraySeqData(str: String): Seq<Json> {
         val result = Seq<Json>()
-        val rArray = (jsonObject as LinkedHashMap<*, *>)[str] as ArrayList<*>
+        val rArray = (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
         for (o in rArray) {
             val r = o as LinkedHashMap<*, *>
             if (IsUtil.notIsBlank(r)) {
@@ -71,7 +72,7 @@ class Json {
 
     fun getArraySeqData(): Seq<Json> {
         val result = Seq<Json>()
-        val rArray = (jsonObject as LinkedHashMap<*, *>)["result"] as ArrayList<*>
+        val rArray = (jsonObject as LinkedHashMap<*, *>)["result"].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
         for (o in rArray) {
             val r = o as LinkedHashMap<*, *>
             if (IsUtil.notIsBlank(r)) {

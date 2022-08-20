@@ -65,7 +65,9 @@ class SendWeb(
             defaultFullHttpResponse.headers().set(header.key, header.value)
         }
         for (header in appendHeaders) {
-            defaultFullHttpResponse.headers().add(header.key, header.value)
+            for (value in header.value) {
+                defaultFullHttpResponse.headers().add(header.key, value)
+            }
         }
 
         defaultFullHttpResponse.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, cacheData!!.size)

@@ -21,12 +21,12 @@ import io.netty.handler.codec.http.HttpResponseStatus
  */
 class SendWeb(
     private val channel: Channel,
-    private val request: HttpRequest
+    val request: HttpRequest
 ) {
     private var cacheData: ByteArray? = null
     var status: HttpResponseStatus = HttpResponseStatus.OK
     private val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
-        "Server" to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)") // 标准格式: Apache/2.4.1 (Unix)
+        HttpHeaderNames.SERVER.toString() to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)")
     private val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header
 
     fun setData(bytes: ByteArray) {
@@ -37,10 +37,10 @@ class SendWeb(
     }
 
     fun addCookie(cKey: String, cValue: String) {
-        if (!appendHeaders.containsKey("Set-Cookie")) {
-            appendHeaders["Set-Cookie"] = arrayListOf()
+        if (!appendHeaders.containsKey(HttpHeaderNames.SET_COOKIE.toString())) {
+            appendHeaders[HttpHeaderNames.SET_COOKIE.toString()] = arrayListOf()
         }
-        appendHeaders["Set-Cookie"]?.add("$cKey=$cValue")
+        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue")
     }
 
     fun send404() {

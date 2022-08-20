@@ -10,7 +10,6 @@
 package cn.rwhps.server.net.http
 
 import cn.rwhps.server.net.handler.tcp.GamePortWebSocket
-import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.exp.VariableException
 
 /**
@@ -99,9 +98,9 @@ object WebData {
         }
 
         if (postData.containsKey(getUrl)) {
-            postData[getUrl]!!.get(getUrl,urlData,data,sendWeb)
+            postData[getUrl]!!.post(getUrl,urlData,data,sendWeb)
         } else if (postData.containsKey(wildcard)) {
-            postData[wildcard]!!.get(getUrl,urlData,data,sendWeb)
+            postData[wildcard]!!.post(getUrl,urlData,data,sendWeb)
         } else {
             sendWeb.send404()
         }

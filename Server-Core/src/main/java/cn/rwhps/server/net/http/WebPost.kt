@@ -13,5 +13,5 @@ package cn.rwhps.server.net.http
  * @author RW-HPS/Dr
  */
 abstract class WebPost : WebBase() {
-    abstract fun get(getUrl: String, urlData: String,data: String, send: SendWeb)
+    abstract fun post(getUrl: String, urlData: String, data: String, send: SendWeb)
 }

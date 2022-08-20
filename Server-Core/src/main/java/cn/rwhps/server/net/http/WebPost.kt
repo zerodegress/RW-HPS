@@ -9,25 +9,9 @@
 
 package cn.rwhps.server.net.http
 
-import cn.rwhps.server.data.json.Json
-
 /**
  * @author RW-HPS/Dr
  */
-abstract class WebPost {
+abstract class WebPost : WebBase() {
     abstract fun get(getUrl: String, urlData: String,data: String, send: SendWeb)
-
-    protected fun stringResolveToJson(data: String) : Json {
-        return if (data.contains("&")) {
-            val paramArray: Array<String> = data.split("&".toRegex()).toTypedArray()
-            val listMap = LinkedHashMap<String, String>()
-            for (pam in paramArray) {
-                val keyValue = pam.split("=".toRegex()).toTypedArray()
-                listMap[keyValue[0]] = keyValue[1]
-            }
-            Json(listMap)
-        } else {
-            Json(data)
-        }
-    }
 }

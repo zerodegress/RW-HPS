@@ -14,7 +14,8 @@ class AuthCookieHandler : BasePostHandler(false) {
             send(BaseResp(code = 403, reason = "invalid token").toPrettyPrintingJson())
             return
         }
-        send.addCookie("token", Sha.sha256(config.token + config.salt), 31536000) // 1年
-        send(BaseResp(data = "success").toPrettyPrintingJson())
+        val result = Sha.sha256(config.token + config.salt)
+        send.addCookie("token", result, 31536000) // 1年
+        send(BaseResp(data = result).toPrettyPrintingJson())
     }
 }

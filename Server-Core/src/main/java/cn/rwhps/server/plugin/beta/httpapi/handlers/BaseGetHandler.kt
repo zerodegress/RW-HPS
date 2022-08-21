@@ -23,8 +23,8 @@ open class BaseGetHandler(needAuth: Boolean = true) : WebGet() {
         param = stringResolveToJson(data)
         remote = send
         if (remote.request.headers().get(HttpHeaderNames.ORIGIN) != null) {
-            remote.appendHeaders["Access-Control-Allow-Origin"] = arrayListOf(remote.request.headers().get(HttpHeaderNames.ORIGIN)) // 允许跨域
-            remote.appendHeaders["Access-Control-Allow-Credentials"] = arrayListOf("true")
+            remote.setHead("Access-Control-Allow-Origin", remote.request.headers().get(HttpHeaderNames.ORIGIN)) // 允许跨域
+            remote.setHead("Access-Control-Allow-Credentials","true")
         }
         if (needAuth && (remote.request.headers().get(HttpHeaderNames.COOKIE)?.toCookie()?.get("token") != Sha.sha256(config.token + config.salt))) {
             send(BaseResp(code = 403, reason = "invalid cookie").toPrettyPrintingJson())

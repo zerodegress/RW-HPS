@@ -23,8 +23,8 @@ open class BasePostHandler(needAuth: Boolean = true) : WebPost() {
         param = stringResolveToJson(data, send)
         remote = send
         if (remote.request.headers().get(HttpHeaderNames.ORIGIN) != null) {
-            remote.appendHeaders["Access-Control-Allow-Origin"] = arrayListOf(remote.request.headers().get(HttpHeaderNames.ORIGIN)) // 允许跨域
-            remote.appendHeaders["Access-Control-Allow-Credentials"] = arrayListOf("true")
+            remote.setHead("Access-Control-Allow-Origin", remote.request.headers().get(HttpHeaderNames.ORIGIN)) // 允许跨域
+            remote.setHead("Access-Control-Allow-Credentials","true")
         }
         if (needAuth && (remote.request.headers().get(HttpHeaderNames.COOKIE)?.toCookie()?.get("token") != Sha.sha256(
                 ConfigHelper.config.token + ConfigHelper.config.salt))) {

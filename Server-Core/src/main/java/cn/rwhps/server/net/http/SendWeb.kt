@@ -25,9 +25,9 @@ class SendWeb(
 ) {
     private var cacheData: ByteArray? = null
     var status: HttpResponseStatus = HttpResponseStatus.OK
-    val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
+    private val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
         HttpHeaderNames.SERVER.toString() to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)")
-    val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header
+    private val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header,用于需要重复的header
 
     fun setData(bytes: ByteArray) {
         cacheData = bytes
@@ -41,6 +41,17 @@ class SendWeb(
             appendHeaders[HttpHeaderNames.SET_COOKIE.toString()] = arrayListOf()
         }
         appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue; Max-Age=$maxAge")
+    }
+
+    fun addHead(key: String, value: String) {
+        if (!appendHeaders.containsKey(key)) {
+            appendHeaders[key] = arrayListOf()
+        }
+        appendHeaders[key]?.add(value)
+    }
+
+    fun setHead(key: String, value: String) {
+        replaceHeaders[key] = value
     }
 
     fun send404() {

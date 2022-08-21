@@ -4,8 +4,8 @@ import cn.rwhps.server.net.http.WebData
 import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.plugin.beta.httpapi.ConfigHelper.config
 import cn.rwhps.server.plugin.beta.httpapi.handlers.get.*
-import cn.rwhps.server.plugin.beta.httpapi.handlers.post.AuthCookieGetHandler
-import cn.rwhps.server.plugin.beta.httpapi.handlers.post.CommandGetHandler
+import cn.rwhps.server.plugin.beta.httpapi.handlers.post.AuthCookieHandler
+import cn.rwhps.server.plugin.beta.httpapi.handlers.post.CommandHandler
 import cn.rwhps.server.util.log.Log
 
 class ApiMain : Plugin() {
@@ -16,15 +16,15 @@ class ApiMain : Plugin() {
         if (config.token == "defaultToken") Log.warn("Please change the token,don't use the default token!")
 
         // POST
-        WebData.addWebPostInstance("${config.path}/post/auth", AuthCookieGetHandler())
-        WebData.addWebPostInstance("${config.path}/post/command", CommandGetHandler())
+        WebData.addWebPostInstance("${config.path}/post/auth", AuthCookieHandler())
+        WebData.addWebPostInstance("${config.path}/post/command", CommandHandler())
 
         // GET
-        WebData.addWebGetInstance("${config.path}/get/about", AboutGetHandler())
-        WebData.addWebGetInstance("${config.path}/get/info", InfoGetHandler())
-        WebData.addWebGetInstance("${config.path}/get/gameinfo", GameInfoGetHandler())
-        WebData.addWebGetInstance("${config.path}/get/plugins", PluginsGetHandler())
-        WebData.addWebGetInstance("${config.path}/get/mods", ModsGetHandler())
+        WebData.addWebGetInstance("${config.path}/get/about", AboutHandler())
+        WebData.addWebGetInstance("${config.path}/get/info", InfoHandler())
+        WebData.addWebGetInstance("${config.path}/get/gameinfo", GameInfoHandler())
+        WebData.addWebGetInstance("${config.path}/get/plugins", PluginsHandler())
+        WebData.addWebGetInstance("${config.path}/get/mods", ModsHandler())
         Log.info("HttpApi server started with token ${config.token}")
     }
 

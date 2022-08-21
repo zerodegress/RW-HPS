@@ -8,7 +8,7 @@ import cn.rwhps.server.plugin.beta.httpapi.responses.BaseResp
 import cn.rwhps.server.plugin.beta.httpapi.responses.PluginsResp
 import cn.rwhps.server.util.inline.toPrettyPrintingJson
 
-class PluginsGetHandler : BaseGetHandler() {
+class PluginsHandler : BaseGetHandler() {
     override fun get(getUrl: String, data: String, send: SendWeb) {
         super.get(getUrl, data, send)
         val plugins: ArrayList<PluginsResp> = arrayListOf()

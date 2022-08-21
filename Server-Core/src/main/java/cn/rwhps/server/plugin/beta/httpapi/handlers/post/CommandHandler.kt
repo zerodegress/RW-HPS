@@ -9,7 +9,7 @@ import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.inline.toPrettyPrintingJson
 import java.net.URLDecoder
 
-class CommandGetHandler : BasePostHandler() {
+class CommandHandler : BasePostHandler() {
     override fun post(postUrl: String, urlData: String, data: String, send: SendWeb) {
         super.post(postUrl, urlData, data, send)
         val command = URLDecoder.decode(param.getData("exec"), "UTF-8")

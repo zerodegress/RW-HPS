@@ -40,7 +40,7 @@ class SendWeb(
         if (!appendHeaders.containsKey(HttpHeaderNames.SET_COOKIE.toString())) {
             appendHeaders[HttpHeaderNames.SET_COOKIE.toString()] = arrayListOf()
         }
-        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue; Max-Age=$maxAge")
+        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue; Max-Age=$maxAge; Path=/")
     }
 
     fun addHead(key: String, value: String) {

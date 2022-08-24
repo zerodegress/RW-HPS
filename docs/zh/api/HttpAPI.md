@@ -12,8 +12,7 @@
 {
   "enabled": true,
   "path": "/plugin/httpApi",
-  "token": "defaultToken",
-  "salt": "CcbcJm4kQPg6dn59TTR2F40v69qNALTU"
+  "token": "defaultToken"
 }
 ```
 
@@ -22,7 +21,6 @@
 默认路径为`/plugin/httpApi/<METHOD>`  
 有以下api可用:
 - **POST**
-  - `auth`
   - `command`
 - **GET**
   - `about`
@@ -31,26 +29,16 @@
   - `plugins`
   - `mods`
 
-调用需要`cookie`,否则服务器将返回403
+调用需要`token`为参数,否则服务器将返回403
 ```json
 {
     "code": 403,
-    "reason": "invalid cookie"
-}
-```
-
-### auth
-#### 认证
-需要`token`为参数,服务器会发送`cookie`到客户端
-```json
-{
-    "code": 200,
-    "data": "success"
+    "reason": "invalid token"
 }
 ```
 
 ### command
-#### 执行命令
+**执行命令**  
 需要`exec`为参数,返回执行结果  
 下列结果是`exec`为`plugins`的返回
 ```json
@@ -61,7 +49,7 @@
 ```
 
 ### about
-#### 返回系统信息
+**返回系统信息**  
 ```json
 {
     "code": 200,
@@ -75,7 +63,7 @@
 ```
 
 ### info
-#### 服务器信息
+**服务器信息**  
 ```json
 {
     "code": 200,
@@ -94,7 +82,7 @@
 ```
 
 ### gameinfo
-#### 游戏信息
+**游戏信息**  
 ```json
 {
     "code": 200,
@@ -109,7 +97,7 @@
 ```
 
 ### plugins
-#### 插件列表
+**插件列表**  
 ```json
 {
     "code": 200,
@@ -137,7 +125,7 @@
 ```
 
 ### mods
-#### mod列表
+**mod列表**  
 ```json
 {
     "code": 200,

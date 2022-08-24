@@ -4,7 +4,6 @@ import cn.rwhps.server.net.http.WebData
 import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.plugin.beta.httpapi.ConfigHelper.config
 import cn.rwhps.server.plugin.beta.httpapi.handlers.get.*
-import cn.rwhps.server.plugin.beta.httpapi.handlers.post.AuthCookieHandler
 import cn.rwhps.server.plugin.beta.httpapi.handlers.post.CommandHandler
 import cn.rwhps.server.util.log.Log
 
@@ -16,7 +15,7 @@ class ApiMain : Plugin() {
         if (config.token == "defaultToken") Log.warn("Please change the token,don't use the default token!")
 
         // POST
-        WebData.addWebPostInstance("${config.path}/post/auth", AuthCookieHandler())
+        //WebData.addWebPostInstance("${config.path}/post/auth", AuthCookieHandler())
         WebData.addWebPostInstance("${config.path}/post/command", CommandHandler())
 
         // GET
@@ -30,7 +29,7 @@ class ApiMain : Plugin() {
 
     override fun onDisable() {
         // POST
-        WebData.removeWebPostInstance("${config.path}/get/auth")
+        //WebData.removeWebPostInstance("${config.path}/get/auth")
         WebData.removeWebPostInstance("${config.path}/get/command")
         // GET
         WebData.removeWebGetInstance("${config.path}/get/about")

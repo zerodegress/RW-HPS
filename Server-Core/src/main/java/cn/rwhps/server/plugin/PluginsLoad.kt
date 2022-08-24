@@ -11,7 +11,6 @@ package cn.rwhps.server.plugin
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.json.Json
-import cn.rwhps.server.dependent.LibraryManager
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.file.FileUtil
@@ -40,15 +39,15 @@ class PluginsLoad {
                     error("Invalid jar file", file.name)
                     continue
                 }
-                val imports = zip.getZipNameInputStream("imports.json")
-                if (imports != null) {
-                    val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
-                    val lib = LibraryManager(Data.Plugin_Lib_Path)
-                    importsJson.each {
-                        lib.importLib(it.getData("group"), it.getData("name"), it.getData("version"))
-                    }
-                    lib.loadToClassLoader()
-                }
+//                val imports = zip.getZipNameInputStream("imports.json")
+//                if (imports != null) {
+//                    val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
+//                    val lib = LibraryManager(Data.Plugin_Lib_Path)
+//                    importsJson.each {
+//                        lib.importLib(it.getData("group"), it.getData("name"), it.getData("version"))
+//                    }
+//                    lib.loadToClassLoader()
+//                }
 
                 val json = Json(FileUtil.readFileString(imp))
                 if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {

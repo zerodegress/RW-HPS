@@ -22,9 +22,13 @@ tasks.jar {
 	exclude("META-INF/*/*/*.xml")
 	exclude("META-INF/*/*/*/*.xml")
 
+	exclude("META-INF/DEPENDENCIES")
+	exclude("META-INF/sisu/javax.inject.Named")
+	exclude("about.html")
+
 	manifest {
 		attributes(mapOf("Main-Class" to "cn.rwhps.server.Main"))
-		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.LibraryManager"))
+//		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.LibraryManager"))
 	}
 
 	from(configurations.runtimeClasspath.get().map {

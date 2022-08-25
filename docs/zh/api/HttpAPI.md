@@ -18,7 +18,7 @@
 
 ## 使用
 `HttpApi`会在游戏端口创建HTTP服务器,例如`127.0.0.1:5123`  
-默认路径为`/plugin/httpApi/<METHOD>`  
+默认路径为`/plugin/httpApi/<METHOD>`
 有以下api可用:
 - **POST**
   - `command`
@@ -28,6 +28,10 @@
   - `gameinfo`
   - `plugins`
   - `mods`
+- **WS**
+  - `info`
+
+注意: ws的路径**是**`/WebSocket/httpApi`,而**不是**`/plugin/httpApi/ws`
 
 调用需要`token`为参数,否则服务器将返回403
 ```json
@@ -36,6 +40,8 @@
     "reason": "invalid token"
 }
 ```
+
+## POST
 
 ### command
 **执行命令**  
@@ -47,6 +53,8 @@
   "data": "name: UpList description: [Core Plugin] UpList author: Dr version: 1.0\nname: ConnectionLimit description: [Core Plugin Extend] ConnectionLimit author: Dr version: 1.0\nname: HttpApi description: [Core Plugin Extend] HttpApi author: zhou2008 version: 1.0\n"
 }
 ```
+
+## GET
 
 ### about
 **返回系统信息**  
@@ -134,5 +142,24 @@
             "name": "core_RW-HPS_units_159.zip"
         }
     ]
+}
+```
+
+## WS
+
+### info
+连接成功后先发送`token`,否则服务器将返回`invalid token`  
+之后客户端随便发点什么,服务器就会返回和GET里的info差不多的内容
+```json
+{
+    "isRunning": true,
+    "serverPort": 5123,
+    "online": 0,
+    "maxOnline": 10,
+    "serverMap": "Crossing Large (10p)",
+    "serverSubtitle": "",
+    "serverName": "RW-HPS",
+    "needPassword": false,
+    "gameStarted": false
 }
 ```

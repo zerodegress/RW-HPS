@@ -20,11 +20,10 @@ abstract class BaseWsHandler : WebSocket() {
                 type.canAccess = true
             } else {
                 channel.writeAndFlush(TextWebSocketFrame("invalid token"))
+                channel.close()
             }
         } else if(type.canAccess) {
             run(msg, channel)
-        } else {
-            channel.writeAndFlush(TextWebSocketFrame("invalid token"))
         }
     }
 

@@ -5,6 +5,7 @@ import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.plugin.beta.httpapi.ConfigHelper.config
 import cn.rwhps.server.plugin.beta.httpapi.handlers.get.*
 import cn.rwhps.server.plugin.beta.httpapi.handlers.post.CommandHandler
+import cn.rwhps.server.plugin.beta.httpapi.handlers.ws.InfoWsHandler
 import cn.rwhps.server.util.log.Log
 
 class ApiMain : Plugin() {
@@ -24,6 +25,9 @@ class ApiMain : Plugin() {
         WebData.addWebGetInstance("${config.path}/get/gameinfo", GameInfoHandler())
         WebData.addWebGetInstance("${config.path}/get/plugins", PluginsHandler())
         WebData.addWebGetInstance("${config.path}/get/mods", ModsHandler())
+
+        // WS
+        WebData.addWebSocketInstance("${WebData.WS_URL}/plugin/httpApi/info", InfoWsHandler())
         Log.info("HttpApi server started with token ${config.token}")
     }
 
@@ -37,5 +41,7 @@ class ApiMain : Plugin() {
         WebData.removeWebGetInstance("${config.path}/get/gameinfo")
         WebData.removeWebGetInstance("${config.path}/get/plugins")
         WebData.removeWebGetInstance("${config.path}/get/mods")
+        // WS
+        WebData.removeWebSocketInstance("${WebData.WS_URL}/plugin/httpApi/info")
     }
 }

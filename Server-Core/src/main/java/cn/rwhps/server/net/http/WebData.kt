@@ -20,6 +20,8 @@ object WebData {
     private val postData: MutableMap<String, WebPost> = HashMap()
     private val webSocketData: MutableMap<String, GamePortWebSocket> = HashMap()
 
+    const val WS_URL = "/WebSocket"
+
     @JvmStatic
     fun addWebGetInstance(url: String, webGet: WebGet) {
         if (getData.containsKey(url)) {

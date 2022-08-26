@@ -29,7 +29,7 @@ public class Seq<T> implements Iterable<T> {
      * Provides direct access to the underlying array. If the Array's generic type is not Object, this field may only be accessed
      * if the {@link Seq#Seq(boolean, int, Class)} constructor was used.
      */
-    public T[] items;
+    private T[] items;
 
     private int size;
     public boolean ordered;

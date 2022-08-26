@@ -22,6 +22,7 @@ import cn.rwhps.server.net.netconnectprotocol.*
 import cn.rwhps.server.net.netconnectprotocol.realize.*
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.PacketType
+import cn.rwhps.server.util.encryption.Rsa
 import cn.rwhps.server.util.log.Log
 
 /**
@@ -115,6 +116,16 @@ class Initialization {
         }
     }
 
+    private fun initRsa() {
+        try {
+            val rsa = Rsa().buildKeyPair()
+            Rsa.getPublicKey(rsa.public)
+            Rsa.getPrivateKey(rsa.private)
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
     companion object {
         @Volatile
         private var isClose = true
@@ -146,6 +157,8 @@ class Initialization {
                         country.contains("CN") ||
                         country.contains("RU") -> country
                         else -> "EN"
+                    }.also {
+                        pluginData.setData("serverCountry",it)
                     }
                 }
 
@@ -161,11 +174,13 @@ class Initialization {
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name,  TypeRelayRebroadcast::class.java)
 
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerProtocol.name,          GameVersionServer::class.java)
+            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerProtocolOld.name,       GameVersionServerOld::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerTestProtocol.name,      GameVersionServerJump::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayProtocol.name,           GameVersionRelay::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayMulticastProtocol.name,  GameVersionRelayRebroadcast::class.java)
 
             ServiceLoader.addService(ServiceType.ProtocolPacket,IRwHps.NetType.ServerProtocol.name,         GameVersionPacket::class.java)
+            ServiceLoader.addService(ServiceType.ProtocolPacket,IRwHps.NetType.ServerProtocolOld.name,      GameVersionPacketOld::class.java)
 
             ServiceLoader.addService(ServiceType.IRwHps,"IRwHps", RwHps::class.java)
 
@@ -175,7 +190,9 @@ class Initialization {
     init {
         loadLang()
         initMaps()
+        // 初始化 投降
         initRelay()
+        //initRsa()
 
         Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
             override fun run() {

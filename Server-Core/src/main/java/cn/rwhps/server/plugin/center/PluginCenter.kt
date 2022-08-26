@@ -57,12 +57,12 @@ class PluginCenter {
         }
         PluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: StrCons ->
             val json = pluginCenterData.getJson(arg[0].toInt())
-            if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
-                log["Plugin version is not compatible Plugin name is: {0}", json.getData("name")]
+            if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
+                log["Plugin version is not compatible Plugin name is: {0}", json.getString("name")]
             } else {
                 HttpRequestOkHttp.downUrl(
-                    url + json.getData("name") + ".jar",
-                    getFolder(Data.Plugin_Plugins_Path).toFile(json.getData("name") + ".jar").file
+                    url + json.getString("name") + ".jar",
+                    getFolder(Data.Plugin_Plugins_Path).toFile(json.getString("name") + ".jar").file
                 )
                 log["Installation is complete, please restart the server"]
             }
@@ -79,8 +79,8 @@ class PluginCenter {
                 for (i in 0 until pluginCenterData.size()) {
                     json = pluginCenterData[i]
                     stringBuilder.append("ID: ").append(i).append("  ")
-                        .append("Name: ").append(json.getData("name")).append("  ")
-                        .append("Description: ").append(json.getData("description")).append(Data.LINE_SEPARATOR)
+                        .append("Name: ").append(json.getString("name")).append("  ")
+                        .append("Description: ").append(json.getString("description")).append(Data.LINE_SEPARATOR)
                 }
                 return stringBuilder.toString()
             }

@@ -11,6 +11,7 @@ package cn.rwhps.server.plugin
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.json.Json
+import cn.rwhps.server.dependent.LibraryManager
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.file.FileUtil
@@ -39,31 +40,31 @@ class PluginsLoad {
                     error("Invalid jar file", file.name)
                     continue
                 }
-//                val imports = zip.getZipNameInputStream("imports.json")
-//                if (imports != null) {
-//                    val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
-//                    val lib = LibraryManager(Data.Plugin_Lib_Path)
-//                    importsJson.each {
-//                        lib.importLib(it.getData("group"), it.getData("name"), it.getData("version"))
-//                    }
-//                    lib.loadToClassLoader()
-//                }
+                val imports = zip.getZipNameInputStream("imports.json")
+                if (imports != null) {
+                    val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
+                    val lib = LibraryManager()
+                    importsJson.each {
+                        lib.implementation(it.getString("group"), it.getString("module"), it.getString("version"))
+                    }
+                    lib.loadToClassLoader()
+                }
 
                 val json = Json(FileUtil.readFileString(imp))
-                if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getData("supportedVersions"))) {
-                    warn("Plugin版本不兼容 Plugin名字为: ", json.getData("name"))
+                if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
+                    warn("Plugin版本不兼容 Plugin名字为: ", json.getString("name"))
                     continue
                 }
-                if (IsUtil.isBlank(json.getDataNull("import"))) {
-                    val mainPlugin = loadClass(file, json.getData("main"))
+                if (IsUtil.isBlank(json.getString("import"))) {
+                    val mainPlugin = loadClass(file, json.getString("main"))
                     data.add(PluginLoadData(
-                        json.getData("name"),
-                        json.getData("author"),
-                        json.getData("description"),
-                        json.getData("version"),
+                        json.getString("name"),
+                        json.getString("author"),
+                        json.getString("description"),
+                        json.getString("version"),
                         mainPlugin
                     ))
-                    dataName.add(json.getData("name"))
+                    dataName.add(json.getString("name"))
                 } else {
                     dataImport.add(PluginImportData(json, file))
                 }
@@ -77,17 +78,17 @@ class PluginsLoad {
         val count = dataImport.size()
         while (i < count) {
             dataImport.each { e: PluginImportData ->
-                if (dataName.contains(e.pluginData.getDataNull("import"))) {
+                if (dataName.contains(e.pluginData.getString("import"))) {
                     try {
-                        val mainPlugin = loadClass(e.file, e.pluginData.getData("main"))
+                        val mainPlugin = loadClass(e.file, e.pluginData.getString("main"))
                         data.add(PluginLoadData(
-                            e.pluginData.getData("name"),
-                            e.pluginData.getData("author"),
-                            e.pluginData.getData("description"),
-                            e.pluginData.getData("version"),
+                            e.pluginData.getString("name"),
+                            e.pluginData.getString("author"),
+                            e.pluginData.getString("description"),
+                            e.pluginData.getString("version"),
                             mainPlugin
                         ))
-                        dataName.add(e.pluginData.getData("name"))
+                        dataName.add(e.pluginData.getString("name"))
                         dataImport.remove(e)
                     } catch (err: Exception) {
                         error("Failed to load", e)
@@ -108,7 +109,7 @@ class PluginsLoad {
      * @throws InvocationTargetException 如果基础构造函数引发异常
      * @throws ExceptionInInitializerError 如果此方法引发的初始化失败
      */
-    @Throws(Exception::class)
+    @Throws(InstantiationException::class, InvocationTargetException::class, ExceptionInInitializerError::class)
     private fun loadClass(file: File, main: String): Plugin {
         val classLoader = URLClassLoader(arrayOf(file.toURI().toURL()), ClassLoader.getSystemClassLoader())
         Log.info(file.name)

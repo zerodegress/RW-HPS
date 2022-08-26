@@ -29,8 +29,8 @@ object IpUtil {
     }
 
     @JvmStatic
-    fun ipToLong24(strIp: String, ipAll: Boolean = true): String {
-        return ipToLong(strIp,ipAll)
+    fun ipToLong24(strIp: String, separateAddress: Boolean = true): String {
+        return ipToLong(strIp,separateAddress)
     }
 
     @JvmStatic
@@ -48,12 +48,12 @@ object IpUtil {
      * @param strIp
      * @return
      */
-    private fun ipToLong(strIp: String, ipAll: Boolean): String {
+    private fun ipToLong(strIp: String, separateAddress: Boolean): String {
         if (strIp == "0") {
             return strIp
         }
         val ip = strIp.split(".").toTypedArray()
-        return (((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)) + if (ipAll) ip[3].toLong() else 0).toString()
+        return (((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)) + if (separateAddress) ip[3].toLong() else 0).toString()
     }
 
     /**

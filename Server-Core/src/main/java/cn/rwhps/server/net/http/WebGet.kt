@@ -15,12 +15,24 @@ import cn.rwhps.server.data.json.Json
  * @author RW-HPS/Dr
  */
 abstract class WebGet {
-    abstract fun get(getUrl: String, data: String, send: SendWeb)
+    /**
+     * 开发者不应该在类中缓存任何数据
+     * 因为 GET/POST 不是长链接 只是一个短链接 当请求发送完毕 那么就会被 Close
+     * 不支持 Keep
+     * HTTP Service 仅对 本次的调用负责
+     * 是线程不安全的
+     */
+    /**
+     * 处理数据
+     * @param accept AcceptWeb
+     * @param send SendWeb
+     */
+    abstract fun get(accept: AcceptWeb, send: SendWeb)
 
 
     protected fun stringResolveToJson(data: String) : Json {
         if (data.isEmpty()) {
-            return Json(LinkedHashMap<String, String>())
+            return Json(LinkedHashMap<String, String>());
         }
         val paramArray: Array<String> = data.split("&".toRegex()).toTypedArray()
         val listMap = LinkedHashMap<String, String>()

@@ -30,7 +30,9 @@ enum class PacketType(val typeInt: Int) {
 
     /* Ex */
     GET_SERVER_INFO_RECEIVE(3000),
-    GET_SERVER_INFO(3000),
+    GET_SERVER_INFO(3001),
+    UPDATA_CLASS_RECEIVE(3010),
+    STATUS_RESULT(3999),
 
     /**
      * Game Core Packet

@@ -224,7 +224,6 @@ object Call {
                 }
             }
 
-
             // When synchronized; when suspended; when stopped; refuse to send Task
             if (Data.game.gameReConnectPaused || forcedReturn || Data.game.gamePaused) {
                 return
@@ -237,11 +236,18 @@ object Call {
                     1 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandPacket(time, Data.game.gameCommandCache.poll()))
                     else -> {
                         val comm = Seq<GameCommandPacket>(size)
-                        IntStream.range(0, size).mapToObj { Data.game.gameCommandCache.poll() }.forEach { value: GameCommandPacket -> comm.add(value) }
+                        /*
+                         *  poll() 存在一直情况 在需求的内容不够的情况下
+                         *  例如 多线程的情况下 或者? 会直接将不够的用 Null 填充
+                         */
+                        IntStream.range(0, size).mapToObj { Data.game.gameCommandCache.poll() }
+                                // Fix NPE
+                            .filter {data: GameCommandPacket? -> data != null}
+                            .forEach { value: GameCommandPacket -> comm.add(value) }
                         NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandsPacket(time, comm))
                     }
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 error("[ALL] Send Tick Failed", e)
             }
         }

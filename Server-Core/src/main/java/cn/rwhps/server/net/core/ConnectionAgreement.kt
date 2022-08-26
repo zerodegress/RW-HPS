@@ -13,6 +13,7 @@ import cn.rwhps.server.game.event.EventGlobalType
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.GroupNet
 import cn.rwhps.server.net.handler.rudp.PackagingSocket
+import cn.rwhps.server.util.IPCountry
 import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log
@@ -34,10 +35,10 @@ class ConnectionAgreement {
 
     val isClosed: ()->Boolean
     val useAgreement: String
-    @JvmField
     val ip: String
-    @JvmField
-    val ipLong: String
+    val ipLong24: String
+    val ipCountry: String
+    val ipCountryAll: String
     internal val localPort: Int
     val id: String = UUID.randomUUID().toString()
 
@@ -56,7 +57,9 @@ class ConnectionAgreement {
 
         val channel = channelHandlerContext.channel()
         ip = convertIp(channel.remoteAddress().toString())
-        ipLong = IpUtil.ipToLong24(ip,false)
+        ipLong24 = IpUtil.ipToLong24(ip,false)
+        ipCountry = IPCountry.getIpCountry(ip)
+        ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = (channel.localAddress() as InetSocketAddress).port
     }
 
@@ -79,7 +82,9 @@ class ConnectionAgreement {
         isClosed = { socket.isClosed }
 
         ip = convertIp(socket.remoteSocketAddressString)
-        ipLong = IpUtil.ipToLong24(ip,false)
+        ipLong24 = IpUtil.ipToLong24(ip,false)
+        ipCountry = IPCountry.getIpCountry(ip)
+        ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = socket.localPort
     }
 
@@ -91,7 +96,9 @@ class ConnectionAgreement {
         isClosed = { false }
 
         ip = ""
-        ipLong = ""
+        ipLong24 = ""
+        ipCountry = ""
+        ipCountryAll = ""
         localPort = 0
     }
 

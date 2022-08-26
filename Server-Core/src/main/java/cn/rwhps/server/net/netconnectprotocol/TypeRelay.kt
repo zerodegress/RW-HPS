@@ -12,12 +12,15 @@ package cn.rwhps.server.net.netconnectprotocol
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.io.GameInputStream
+import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
+import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus.*
 import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
+import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.PacketType.*
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.game.CommandHandler
@@ -124,64 +127,75 @@ open class TypeRelay : TypeConnect {
     protected fun relayCheck(packet: Packet): Boolean {
         con.lastReceivedTime()
 
-        if (packet.type == SERVER_DEBUG_RECEIVE) {
-            con.permissionStatus = RelayStatus.Debug
-        }
-
         val permissionStatus = con.permissionStatus
 
         if (permissionStatus.ordinal < RelayStatus.PlayerPermission.ordinal) {
-            // Initial Connection
-            if (permissionStatus == RelayStatus.InitialConnection) {
-                if (packet.type == PREREGISTER_INFO_RECEIVE) {
-                    // Wait Certified
-                    con.permissionStatus = RelayStatus.WaitCertified
 
-                    con.setCachePacket(packet)
-                    con.sendRelayServerInfo()
-                    con.sendVerifyClientValidity()
-                } else {
-                    con.disconnect()
+            when (permissionStatus) {
+                // Initial Connection
+                InitialConnection -> {
+                    if (packet.type == PREREGISTER_INFO_RECEIVE) {
+                        con.permissionStatus = GetPlayerInfo
+                        con.setCachePacket(packet)
+                        val registerServer = GameOutputStream()
+                        registerServer.writeString(Data.SERVER_ID_RELAY_GET)
+                        registerServer.writeInt(1)
+                        registerServer.writeInt(0)
+                        registerServer.writeInt(0)
+                        registerServer.writeString("com.corrodinggames.rts.server")
+                        registerServer.writeString(Data.SERVER_RELAY_UUID)
+                        registerServer.writeInt("Dr @ 2022".hashCode())
+                        con.sendPacket(registerServer.createPacket(PacketType.PREREGISTER_INFO))
+                    }
+                    return true
                 }
-                return true
-            }
-
-            if (permissionStatus == RelayStatus.WaitCertified) {
-                if (packet.type == RELAY_POW_RECEIVE) {
-                    if (con.receiveVerifyClientValidity(packet)) {
-                        // Certified End
-                        con.permissionStatus = RelayStatus.CertifiedEnd
-                        if (!Data.config.SingleUserRelay) {
-                            con.relayDirectInspection()
-                        } else {
-                            NetStaticData.relay.setAddSize()
-                            // No HOST
-                            if (NetStaticData.relay.admin == null) {
-                                // Set This is HOST
-                                con.sendRelayServerId()
-                            } else {
-                                // Join RELAY
-                                con.addRelayConnect()
-                            }
-                        }
-                    } else {
+                GetPlayerInfo -> {
+                    if (packet.type == REGISTER_PLAYER) {
+                        con.relayRegisterConnection(packet)
+                        // Wait Certified
+                        con.permissionStatus = WaitCertified
+                        con.sendRelayServerInfo()
                         con.sendVerifyClientValidity()
                     }
-                } else {
+                    return true
+                }
+                WaitCertified -> {
+                    if (packet.type == RELAY_POW_RECEIVE) {
+                        if (con.receiveVerifyClientValidity(packet)) {
+                            // Certified End
+                            con.permissionStatus = RelayStatus.CertifiedEnd
+                            if (!Data.config.SingleUserRelay) {
+                                con.relayDirectInspection()
+                            } else {
+                                NetStaticData.relay.setAddSize()
+                                // No HOST
+                                if (NetStaticData.relay.admin == null) {
+                                    // Set This is HOST
+                                    con.sendRelayServerId()
+                                } else {
+                                    // Join RELAY
+                                    con.addRelayConnect()
+                                }
+                            }
+                        } else {
+                            con.sendVerifyClientValidity()
+                        }
+                    } else {
+                        con.disconnect()
+                    }
+                    return true
+                }
+                CertifiedEnd -> {
+                    if (packet.type == RELAY_118_117_RETURN) {
+                        con.sendRelayServerTypeReply(packet)
+                    }
+                    return true
+                }
+                // 你肯定没验证
+                else -> {
                     con.disconnect()
                 }
-                return true
             }
-
-            if (permissionStatus == RelayStatus.CertifiedEnd) {
-                if (packet.type == RELAY_118_117_RETURN) {
-                    con.sendRelayServerTypeReply(packet)
-                }
-                return true
-            }
-
-            // 你肯定没验证
-            con.disconnect()
         }
         return false
     }

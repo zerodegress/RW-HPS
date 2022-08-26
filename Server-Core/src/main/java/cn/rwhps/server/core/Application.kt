@@ -17,11 +17,9 @@ import cn.rwhps.server.data.plugin.PluginManage.runOnDisable
 import cn.rwhps.server.net.Administration
 import cn.rwhps.server.util.IsUtil.isBlank
 import cn.rwhps.server.util.RandomUtil.getRandomString
-import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.file.FileUtil
-import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.error
-import cn.rwhps.server.util.log.Log.logCache
 import java.lang.management.ManagementFactory
 import java.util.*
 
@@ -60,8 +58,7 @@ class Application {
         // 保存Plugin
         runOnDisable()
 
-        val fileUtil = getFolder(Data.Plugin_Log_Path).toFile(Time.getMilliFormat(5)+".log")
-        fileUtil.writeFile(logCache, fileUtil.file.length() <= 1024 * 1024)
+        Log.saveLog()
     }
 
     val javaHeap: Long

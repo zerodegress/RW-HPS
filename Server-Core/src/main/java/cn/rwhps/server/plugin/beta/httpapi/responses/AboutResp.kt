@@ -1,8 +1,10 @@
 package cn.rwhps.server.plugin.beta.httpapi.responses
 
+import cn.rwhps.server.data.global.Data
+
 data class AboutResp(
-    val system: String = System.getProperty("os.name"),
+    val system: String = Data.core.osName,
     val arch: String = System.getProperty("os.arch"),
     val jvmName: String = System.getProperty("java.vm.name"),
-    val jvmVersion: String = System.getProperty("java.version")
+    val jvmVersion: String = Data.core.javaVersion
 )

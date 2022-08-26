@@ -42,7 +42,8 @@ class Relay {
 
     var closeRoom = false
 
-    val serverUuid = UUID.randomUUID().toString()
+   // val serverUuid = UUID.randomUUID().toString()
+    val serverUuid = Data.SERVER_RELAY_UUID
     val internalID : Int
     val id: String
     var isMod = false
@@ -113,7 +114,6 @@ class Relay {
         site.set(0)
         admin = null
         isStartGame = false
-        removeRoom()
     }
 
     fun removeRoom(run: ()->Unit = {}) {
@@ -196,8 +196,6 @@ class Relay {
         return Objects.hash(id)
     }
 
-
-
     companion object {
         val serverRelayIpData = Seq<String>()
 
@@ -228,6 +226,16 @@ class Relay {
             get() {
                 return serverRelayData.size
             }
+        val roomNoStartSize: Int
+            get() {
+                val size = AtomicInteger()
+                serverRelayData.values().forEach(Consumer { e: Relay -> if (!e.isStartGame) size.incrementAndGet() })
+                return size.get()
+            }
+        val roomPublicSize: Int
+            get() {
+                return 0
+            }
 
         @get:Synchronized
         internal val randPow: NetConnectProofOfWork
@@ -242,6 +250,38 @@ class Relay {
         @JvmStatic
         fun sendAllMsg(msg: String) {
             serverRelayData.values().forEach(Consumer { e: Relay -> e.sendMsg(msg) })
+        }
+
+        @JvmStatic
+        fun getAllRelayIpCountry(): Map<String,Int> {
+            return mutableMapOf<String, Int>().also {
+                mutableMapOf<String, AtomicInteger>().also { temp ->
+                    Relay.serverRelayData.values().forEach { relay ->
+                        temp.computeIfAbsent(relay.admin!!.ipCountry) { AtomicInteger(0) }.incrementAndGet()
+                        relay.abstractNetConnectIntMap.values().forEach { connect ->
+                            temp.computeIfAbsent(connect.ipCountry) { AtomicInteger(0) }.incrementAndGet()
+                        }
+                    }
+                }.forEach { (country, count) ->
+                    it[country] = count.get()
+                }
+            }
+        }
+
+        @JvmStatic
+        fun getAllRelayVersion(): Map<Int,Int> {
+            return mutableMapOf<Int, Int>().also {
+                mutableMapOf<Int, AtomicInteger>().also { temp ->
+                    Relay.serverRelayData.values().forEach { relay ->
+                        temp.computeIfAbsent(relay.admin!!.clientVersion) { AtomicInteger(0) }.incrementAndGet()
+                        relay.abstractNetConnectIntMap.values().forEach { connect ->
+                            temp.computeIfAbsent(connect.clientVersion) { AtomicInteger(0) }.incrementAndGet()
+                        }
+                    }
+                }.forEach { (version, count) ->
+                    it[version] = count.get()
+                }
+            }
         }
 
         internal fun coverRelayID(id: String): Int {
@@ -272,7 +312,7 @@ class Relay {
             var idRelay = id
             val relay: Relay =  if (id.isBlank()) {
                                     while (true) {
-                                        val intId = rand.random(1000, 1000000)
+                                        val intId = rand.random(1000, 100000)
                                         if (!getCheckRelay(intId.toString())) {
                                             idRelay = intId.toString()
                                             debug(intId)

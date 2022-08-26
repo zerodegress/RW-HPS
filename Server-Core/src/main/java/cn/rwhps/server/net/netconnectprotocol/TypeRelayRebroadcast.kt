@@ -48,7 +48,6 @@ class TypeRelayRebroadcast : TypeRelay {
         val permissionStatus = con.permissionStatus
 
         if (permissionStatus == RelayStatus.HostPermission) {
-
             when (packet.type) {
                 PacketType.PACKET_FORWARD_CLIENT_TO  -> {
                     con.addRelaySend(packet)
@@ -60,7 +59,6 @@ class TypeRelayRebroadcast : TypeRelay {
                 }
                 else -> {
                     con.setlastSentPacket(packet)
-
                     // Command?
                     if (packet.type == PacketType.CHAT) {
                         GameInputStream(packet).use {
@@ -91,6 +89,7 @@ class TypeRelayRebroadcast : TypeRelay {
             // 快速抛弃
             PacketType.START_GAME,
             PacketType.CHAT,
+            PacketType.SERVER_INFO,
             PacketType.TEAM_LIST -> {
             }
 
@@ -117,8 +116,9 @@ class TypeRelayRebroadcast : TypeRelay {
                     //PacketType.PACKET_ADD_CHAT -> con.addRelayAccept(packet)
                     PacketType.DISCONNECT -> con.disconnect()
                     PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
+                    PacketType.GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
                     else ->
-                        //Log.clog(packet.toString());
+                        //Log.clog(packet.type.name);
                         con.sendResultPing(packet)
                 }
             }

@@ -10,12 +10,14 @@
 package cn.rwhps.server.net.core
 
 /**
+ * 安全认证
  * Permission Connect Status
  * @author RW-HPS/Dr
  */
 object DataPermissionStatus {
     enum class RelayStatus {
         InitialConnection,
+        GetPlayerInfo,
         WaitCertified,
         CertifiedEnd,
         PlayerPermission,
@@ -26,5 +28,12 @@ object DataPermissionStatus {
     enum class ServerStatus {
         InitialConnection,
         CertifiedEnd;
+    }
+
+    enum class DevConnectStatus {
+        InitialConnection,
+        WaitCertified,
+        CertifiedEnd,
+        Master;
     }
 }

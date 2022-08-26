@@ -76,6 +76,7 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
 
+
 /**
  * Welcome to Bugs RW-HPS !
  * Welcome to the RW-HPS Team !
@@ -89,8 +90,16 @@ object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
+        /* 设置Log 并开启拷贝 */
+        set("ALL")
+        setCopyPrint(true)
+        //Logger.getLogger("io.netty").level = Level.OFF
+        Logger.getLogger("io.netty").level = Level.ALL
+
+
         /* 尝试写一个UTF-8编码 */
         System.setProperty("file.encoding", "UTF-8")
+        System.setProperty("java.net.preferIPv4Stack","true")
         /* 覆盖输入输出流 */
         inputMonitorInit()
         // 强制 UTF-8 我不愿意解决奇奇怪怪的问题
@@ -101,12 +110,6 @@ object Main {
         }
 
         Initialization()
-
-        /* 设置Log 并开启拷贝 */
-        set("ALL")
-        setCopyPrint(true)
-        //Logger.getLogger("io.netty").level = Level.OFF
-        Logger.getLogger("io.netty").level = Level.ALL
 
         println(Data.i18NBundle.getinput("server.login"))
         clog("RW-HPS is loading...")

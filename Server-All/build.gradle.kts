@@ -28,7 +28,8 @@ tasks.jar {
 
 	manifest {
 		attributes(mapOf("Main-Class" to "cn.rwhps.server.Main"))
-//		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.LibraryManager"))
+		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.AgentAttachData"))
+		attributes(mapOf("Can-Redefine-Classes" to  "true"))
 	}
 
 	from(configurations.runtimeClasspath.get().map {

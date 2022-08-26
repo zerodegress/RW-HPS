@@ -15,8 +15,11 @@ import cn.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.PacketType
+import io.netty.buffer.ByteBuf
+import io.netty.buffer.ByteBufAllocator
 import java.io.DataOutputStream
 import java.io.IOException
+
 
 /**
  * @author RW-HPS/Dr
@@ -53,6 +56,23 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
         }
     }
 
+    fun getByteBuf(type: Int): ByteBuf {
+        try {
+            stream.use { buffer.use {
+                stream.flush()
+                buffer.flush()
+                val bytes= buffer.toByteArray()!!
+                val buf = ByteBufAllocator.DEFAULT.buffer(bytes.size+8)
+                buf.writeInt(bytes.size)
+                buf.writeInt(type)
+                buf.writeBytes(bytes)
+                return buf
+            }}
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
+    }
+
     fun getByteArray(): ByteArray {
         stream.flush()
         buffer.flush()
@@ -64,79 +84,93 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
     }
 
     @Throws(IOException::class)
-    fun writeByte(value: Byte) {
+    fun writeByte(value: Byte): GameOutputStream {
         writeByte(value.toInt())
+        return this
     }
     @Throws(IOException::class)
-    fun writeByte(value: Int) {
+    fun writeByte(value: Int): GameOutputStream  {
         stream.writeByte(value)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeBytes(value: ByteArray) {
+    fun writeBytes(value: ByteArray): GameOutputStream  {
         buffer.writeBytes(value)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeBytesAndLength(value: ByteArray) {
+    fun writeBytesAndLength(value: ByteArray): GameOutputStream  {
         writeInt(value.size)
         writeBytes(value)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeBoolean(value: Boolean) {
+    fun writeBoolean(value: Boolean): GameOutputStream  {
         stream.writeBoolean(value)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeInt(value: Int) {
+    fun writeInt(value: Int): GameOutputStream  {
         stream.writeInt(value)
+        return this
     }
     @Throws(IOException::class)
-    fun writeBackwardsInt(value: Int) {
+    fun writeBackwardsInt(value: Int): GameOutputStream  {
         stream.write(value ushr 0 and 0xFF)
         stream.write(value ushr 8 and 0xFF)
         stream.write(value ushr 16 and 0xFF)
         stream.write(value ushr 24 and 0xFF)
+        return this
     }
     @Throws(IOException::class)
-    fun writeIsInt(value: Int?) {
+    fun writeIsInt(value: Int?): GameOutputStream  {
         if (IsUtil.isBlank(value)) {
             writeBoolean(false)
         } else {
             writeBoolean(true)
             writeInt(value!!)
         }
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeShort(value: Short) {
+    fun writeShort(value: Short): GameOutputStream  {
         stream.writeShort(value.toInt())
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeBackwardsShort(value: Short) {
+    fun writeBackwardsShort(value: Short) : GameOutputStream {
         stream.write(value.toInt() ushr 0 and 0xFF)
         stream.write(value.toInt() ushr 8 and 0xFF)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeFloat(value: Int) {
+    fun writeFloat(value: Int): GameOutputStream  {
         stream.writeFloat(value.toFloat())
+        return this
     }
     @Throws(IOException::class)
-    fun writeFloat(value: Float) {
+    fun writeFloat(value: Float): GameOutputStream  {
         stream.writeFloat(value)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeLong(value: Long) {
+    fun writeLong(value: Long): GameOutputStream  {
         stream.writeLong(value)
+        return this
     }
 
     @Throws(IOException::class)
-    fun writeString(value: String) {
+    fun writeString(value: String): GameOutputStream  {
         stream.writeUTF(value)
+        return this
     }
 
     @Throws(IOException::class)

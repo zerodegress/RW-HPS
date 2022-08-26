@@ -27,7 +27,7 @@ class ApiMain : Plugin() {
         WebData.addWebGetInstance("${config.path}/get/mods", ModsHandler())
 
         // WS
-        WebData.addWebSocketInstance("${WebData.WS_URL}/plugin/httpApi/info", InfoWsHandler())
+        WebData.addWebSocketInstance("${WebData.WS_URI}/plugin/httpApi/info", InfoWsHandler())
         Log.info("HttpApi server started with token ${config.token}")
     }
 
@@ -42,6 +42,6 @@ class ApiMain : Plugin() {
         WebData.removeWebGetInstance("${config.path}/get/plugins")
         WebData.removeWebGetInstance("${config.path}/get/mods")
         // WS
-        WebData.removeWebSocketInstance("${WebData.WS_URL}/plugin/httpApi/info")
+        WebData.removeWebSocketInstance("${WebData.WS_URI}/plugin/httpApi/info")
     }
 }

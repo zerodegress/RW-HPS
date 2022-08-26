@@ -10,8 +10,10 @@
 package cn.rwhps.server.net
 
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.net.code.rudp.PacketDecoderTest
 import cn.rwhps.server.net.core.AbstractNet
+import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.handler.rudp.StartGameNetUdp
 import cn.rwhps.server.net.handler.tcp.StartGameNetTcp
 import cn.rwhps.server.net.handler.tcp.StartGamePortDivider
@@ -24,6 +26,7 @@ import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.*
 import io.netty.channel.epoll.Epoll
+import io.netty.channel.epoll.EpollChannelOption
 import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
@@ -95,17 +98,30 @@ class StartNet {
         }
         try {
             val serverBootstrapTcp = ServerBootstrap()
-            serverBootstrapTcp.group(bossGroup, workerGroup)
+            val child = serverBootstrapTcp.group(bossGroup, workerGroup)
                 .channel(runClass)
                 //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(start)
-            clog(Data.i18NBundle.getinput("server.start.openPort"))
-            val channelFutureTcp = serverBootstrapTcp.bind(port)
 
+            val epoolStartThread = Epoll.isAvailable() && NetStaticData.ServerNetType.ordinal in IRwHps.NetType.RelayProtocol.ordinal..IRwHps.NetType.RelayMulticastProtocol.ordinal
+            if (epoolStartThread) {
+                child.option(EpollChannelOption.SO_REUSEPORT, true)
+            }
+
+            clog(Data.i18NBundle.getinput("server.start.openPort"))
+
+            val channelFutureTcp = serverBootstrapTcp.bind(port)
             for (i in startPort..endPort) {
                 serverBootstrapTcp.bind(i)
+            }
+
+            if (epoolStartThread) {
+                val cpuNum = Runtime.getRuntime().availableProcessors()
+                for (i in 0 until cpuNum) {
+                    serverBootstrapTcp.bind(port)
+                }
             }
 
             val start = channelFutureTcp.channel()

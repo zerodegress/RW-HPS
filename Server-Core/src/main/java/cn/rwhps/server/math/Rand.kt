@@ -61,7 +61,7 @@ class Rand : Random {
      *
      * Subclasses should override this, as this is used by all other methods.
      */
-    override fun nextLong(): Long {
+    fun nextLongNew(): Long {
         var s1 = seed0
         val s0 = seed1
         seed0 = s0
@@ -71,7 +71,7 @@ class Rand : Random {
 
     /** This protected method is final because, contrary to the superclass, it's not used anymore by the other methods.  */
     override fun next(bits: Int): Int {
-        return (nextLong() and (1L shl bits) - 1).toInt()
+        return (nextLongNew() and (1L shl bits) - 1).toInt()
     }
 
     /**
@@ -81,7 +81,7 @@ class Rand : Random {
      * This implementation uses [.nextLong] internally.
      */
     override fun nextInt(): Int {
-        return nextLong().toInt()
+        return nextLongNew().toInt()
     }
 
     /**
@@ -94,7 +94,7 @@ class Rand : Random {
      * @return the next pseudo-random `int` value between `0` (inclusive) and `n` (exclusive).
      */
     override fun nextInt(n: Int): Int {
-        return nextLong(n.toLong()).toInt()
+        return nextLongNew(n.toLong()).toInt()
     }
 
     /**
@@ -107,10 +107,10 @@ class Rand : Random {
      * @param n the positive bound on the random number to be returned.
      * @return the next pseudo-random `long` value between `0` (inclusive) and `n` (exclusive).
      */
-    fun nextLong(n: Long): Long {
+    fun nextLongNew(n: Long): Long {
         require(n > 0) { "n must be positive" }
         while (true) {
-            val bits = nextLong() ushr 1
+            val bits = nextLongNew() ushr 1
             val value = bits % n
             if (bits - value + (n - 1) >= 0) {
                 return value
@@ -126,7 +126,7 @@ class Rand : Random {
      * This implementation uses [.nextLong] internally.
      */
     override fun nextDouble(): Double {
-        return (nextLong() ushr 11) * NORM_DOUBLE
+        return (nextLongNew() ushr 11) * NORM_DOUBLE
     }
 
     /**
@@ -137,7 +137,7 @@ class Rand : Random {
      * This implementation uses [.nextLong] internally.
      */
     override fun nextFloat(): Float {
-        return ((nextLong() ushr 40) * NORM_FLOAT).toFloat()
+        return ((nextLongNew() ushr 40) * NORM_FLOAT).toFloat()
     }
 
     /**
@@ -147,7 +147,7 @@ class Rand : Random {
      * This implementation uses [.nextLong] internally.
      */
     override fun nextBoolean(): Boolean {
-        return nextLong() and 1 != 0L
+        return nextLongNew() and 1 != 0L
     }
 
     /**
@@ -162,7 +162,7 @@ class Rand : Random {
         var i = bytes.size
         while (i != 0) {
             n = min(i, 8)
-            var bits = nextLong()
+            var bits = nextLongNew()
             while (n-- != 0) {
                 bytes[--i] = bits.toByte()
                 bits = bits shr 8

@@ -205,6 +205,7 @@ internal class ClientCommands(handler: CommandHandler) {
             if (isAdmin(player)) {
                 Data.game.playerManage.amTeam = "on" == args[0]
                 if (Data.game.playerManage.amTeam) {
+                    Data.game.lockTeam = true
                     Data.game.playerManage.amYesPlayerTeam()
                 } else {
                     Data.game.playerManage.amNoPlayerTeam()

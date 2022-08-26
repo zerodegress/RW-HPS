@@ -13,6 +13,7 @@ import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.plugin.beta.httpapi.ApiMain
 import cn.rwhps.server.plugin.beta.noattack.ConnectionLimit
 import cn.rwhps.server.plugin.beta.uplist.UpList
+import cn.rwhps.server.plugin.beta.upstatistics.GetServerData
 
 internal class LoadCoreCustomPlugin {
     private val core = "[Core Plugin]"
@@ -20,8 +21,10 @@ internal class LoadCoreCustomPlugin {
     private val amusement = "[Amusement Plugin]"
     init {
         PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpList(), mkdir = false, skip = true)
+        PluginManage.addPluginClass("DataCollection","Dr","$core DataCollection","1.0", GetServerData(),false)
+
         PluginManage.addPluginClass("ConnectionLimit","Dr","$coreEx ConnectionLimit","1.0", ConnectionLimit(), mkdir = false, skip = true)
-        //PluginManage.addPluginClass("GamePanel","Dr","$coreEx GamePanel","1.0", GamePanel(),false)
         PluginManage.addPluginClass("HttpApi", "zhou2008", "$coreEx HttpApi", "1.0", ApiMain(), mkdir = true, skip = true)
+
     }
 }

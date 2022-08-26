@@ -82,7 +82,7 @@ open class TypeRwHpsJump : TypeConnect {
                 PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                 // 竞争 谁先到就用谁
                 PacketType.SYNC -> if (!Data.game.gameReConnectFlag) {
-                    val gameSavePacket = GameSavePacket(GameSavePacket(packet).cheatSync())
+                    val gameSavePacket = GameSavePacket(packet)
 
                     if (gameSavePacket.checkTick() && Data.game.gameReConnectPaused) {
                         Data.game.gameReConnectFlag = true

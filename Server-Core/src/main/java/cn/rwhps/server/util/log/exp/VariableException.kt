@@ -21,5 +21,7 @@ class VariableException(type: String) : RuntimeException(ErrorCode.valueOf(type)
 
     class MapRuntimeException(type: String) : RuntimeException(ErrorCode.valueOf(type).error)
 
-    class RepeatAddException(info: String) : RuntimeException(info)
+    class RepeatAddException(info: String) : Exception(info)
+
+    class TabooAddException(info: String) : Exception(info)
 }

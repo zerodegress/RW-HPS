@@ -2,6 +2,7 @@ package cn.rwhps.server.plugin.beta.httpapi.handlers.post
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.func.StrCons
+import cn.rwhps.server.net.http.AcceptWeb
 import cn.rwhps.server.net.http.SendWeb
 import cn.rwhps.server.plugin.beta.httpapi.handlers.BasePostHandler
 import cn.rwhps.server.plugin.beta.httpapi.responses.BaseResp
@@ -10,10 +11,11 @@ import cn.rwhps.server.util.inline.toPrettyPrintingJson
 import java.net.URLDecoder
 
 class CommandHandler : BasePostHandler() {
-    override fun post(postUrl: String, urlData: String, data: String, send: SendWeb) {
-        super.post(postUrl, urlData, data, send)
-        val command = URLDecoder.decode(param.getData("exec"), "UTF-8")
-        if (command.isEmpty()) send(BaseResp(data = "参数错误").toPrettyPrintingJson())
+    override fun post(accept: AcceptWeb, send: SendWeb) {
+        super.post(accept, send)
+        val param = stringResolveToJson(accept)
+        val command = URLDecoder.decode(param.getString("exec"), "UTF-8")
+        if (command.isEmpty()) send(send,BaseResp(data = "参数错误").toPrettyPrintingJson())
         var text = ""
         val response = Data.SERVER_COMMAND.handleMessage(command,
             StrCons { obj: String -> text += "$obj${Data.LINE_SEPARATOR}" })
@@ -33,7 +35,7 @@ class CommandHandler : BasePostHandler() {
             }
         }
         if (text.isNotEmpty()) {
-            send(BaseResp(data = text).toPrettyPrintingJson())
+            send(send,BaseResp(data = text).toPrettyPrintingJson())
         }
     }
 }

@@ -15,7 +15,6 @@ import cn.rwhps.server.game.event.EventGlobalType.NewConnectEvent
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.TypeConnect
-import cn.rwhps.server.util.IpUtil
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log.debug
 import cn.rwhps.server.util.log.Log.error
@@ -43,7 +42,7 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     type = NetStaticData.RwHps.typeConnect.getTypeConnect(connectionAgreement)
                     attr.setIfAbsent(type)
 
-                    if (Data.core.admin.bannedIP24.contains(IpUtil.ipToLong24(type.abstractNetConnect.ip,false))) {
+                    if (Data.core.admin.bannedIP24.contains(connectionAgreement.ipLong24)) {
                         type.abstractNetConnect.disconnect()
                         return
                     }

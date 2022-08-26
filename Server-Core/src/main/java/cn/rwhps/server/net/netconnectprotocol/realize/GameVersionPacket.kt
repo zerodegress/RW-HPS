@@ -294,7 +294,6 @@ open class GameVersionPacket : AbstractNetPacket {
             writeBoolean(false)
             // 延迟后显示 （HOST)
             writeInt(if (player.isAdmin) 1 else 0)
-            // TODO 170
 
             // Ai Difficulty Override
             writeIsInt(1)
@@ -314,8 +313,8 @@ open class GameVersionPacket : AbstractNetPacket {
         val out = GameOutputStream()
         out.writeString("com.corrodinggames.rwhps.forward")
         out.writeInt(1)
-        out.writeInt(170)
-        out.writeInt(170)
+        out.writeInt(172)
+        out.writeInt(172)
         return out.createPacket(PacketType.PREREGISTER_INFO_RECEIVE)
     }
 
@@ -324,8 +323,8 @@ open class GameVersionPacket : AbstractNetPacket {
         val out = GameOutputStream()
         out.writeString("com.corrodinggames.rts")
         out.writeInt(4)
-        out.writeInt(170)
-        out.writeInt(170)
+        out.writeInt(172)
+        out.writeInt(172)
         out.writeString(name)
 
         if (IsUtil.isBlank(passwd)) {
@@ -337,7 +336,7 @@ open class GameVersionPacket : AbstractNetPacket {
 
         out.writeString("com.corrodinggames.rts.java")
         out.writeString(uuid)
-        out.writeInt(1198432602)
+        out.writeInt(678359601)
         out.writeString(Game.connectKeyNew(key))
         return out.createPacket(PacketType.REGISTER_PLAYER)
     }

@@ -10,31 +10,32 @@
 package cn.rwhps.server.net.http
 
 import cn.rwhps.server.data.json.Json
+import cn.rwhps.server.util.inline.ifNullResult
 import cn.rwhps.server.util.log.exp.ImplementedException
 
 /**
  * @author RW-HPS/Dr
  */
 abstract class WebPost {
-    abstract fun post(postUrl: String, urlData: String, data: String, send: SendWeb)
+    abstract fun post(accept: AcceptWeb, send: SendWeb)
 
-    protected fun stringResolveToJson(data: String, send: SendWeb) : Json {
-        if (data.isEmpty()) {
-            return Json(LinkedHashMap<String, String>());
+    protected fun stringResolveToJson(accept: AcceptWeb) : Json {
+        if (accept.data.isEmpty()) {
+            return Json(LinkedHashMap<String, String>())
         }
-        val hd = send.request.headers().get("Content-Type").trim()
-        if (hd.contains("application/x-www-form-urlencoded",true)) {
-            val paramArray: Array<String> = data.split("&".toRegex()).toTypedArray()
+        val hd = accept.getHeaders("Content-Type").ifNullResult({ it.trim()}) { "" }
+        return if (hd.contains("application/x-www-form-urlencoded",true)) {
+            val paramArray: Array<String> = accept.data.split("&".toRegex()).toTypedArray()
             val listMap = LinkedHashMap<String, String>()
             for (pam in paramArray) {
                 val keyValue = pam.split("=".toRegex()).toTypedArray()
                 listMap[keyValue[0]] = keyValue[1]
             }
-            return Json(listMap)
+            Json(listMap)
         } else if (hd.contains("application/json",true)) {
-            return Json(data)
+            Json(accept.data)
         } else {
-            throw ImplementedException(data);
+            throw ImplementedException(accept.data)
         }
     }
 }

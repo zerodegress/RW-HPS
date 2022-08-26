@@ -72,20 +72,34 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
 
             relay!!.admin = this
             val o = GameOutputStream()
-            o.writeByte(1)
-            o.writeBoolean(true)
-            o.writeBoolean(true)
-            o.writeBoolean(true)
-            o.writeString(Data.core.serverConnectUuid)
-            o.writeBoolean(relay!!.isMod) //MOD
-            // List OPEN
-            o.writeBoolean(false)
-            o.writeBoolean(true)
-            o.writeString("{{RW-HPS }}.Room ID : " + relay!!.id)
-            // Multicast
-            o.writeBoolean(true)
+            if (clientVersion == 172) {
+                o.writeByte(2)
+                o.writeBoolean(true)
+                o.writeBoolean(true)
+                o.writeBoolean(true)
+                o.writeString(relay!!.serverUuid)
+                o.writeBoolean(relay!!.isMod) //MOD
+                o.writeBoolean(false)
+                o.writeBoolean(true)
+                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                o.writeBoolean(true)
+                o.writeIsString(registerPlayerId)
+            } else {
+                o.writeByte(1)
+                o.writeBoolean(true)
+                o.writeBoolean(true)
+                o.writeBoolean(true)
+                o.writeString(relay!!.serverUuid)
+                o.writeBoolean(relay!!.isMod) //MOD
+                // List OPEN
+                o.writeBoolean(false)
+                o.writeBoolean(true)
+                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                // 多播
+                o.writeBoolean(true)
+            }
             sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", relay!!.id, relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "RELAY_CN-ADMIN", 5))
             //ping();
 
@@ -112,8 +126,6 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             GameInputStream(packet).use { inStream ->
                 val target = inStream.readInt()
                 val type = inStream.readInt()
-
-                //Log.clog("$target   $type");
 
                 if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
                     return

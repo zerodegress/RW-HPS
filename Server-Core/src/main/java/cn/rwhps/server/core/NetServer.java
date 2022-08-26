@@ -16,7 +16,7 @@ import cn.rwhps.server.data.global.Data;
 import cn.rwhps.server.data.global.NetStaticData;
 import cn.rwhps.server.func.StrCons;
 import cn.rwhps.server.net.StartNet;
-import cn.rwhps.server.util.file.FileUtil;
+import cn.rwhps.server.net.core.IRwHps;
 import cn.rwhps.server.util.log.Log;
 
 /**
@@ -32,6 +32,7 @@ public class NetServer {
             Call.disAllPlayer();
             NetStaticData.startNet.each(StartNet::stop);
             NetStaticData.startNet.clear();
+            NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);
             Threads.closeNet();
             //Threads.newThreadCoreNet();
 
@@ -65,8 +66,7 @@ public class NetServer {
             net.udp.Data.waitData.notify();
         }
 
-        FileUtil fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt");
-        fileUtil.writeFile(Log.getLogCache(), fileUtil.getFile().length() <= 1024 * 1024);
+        Log.saveLog();
 
         Log.clog("[Server Gameover completed]");
     }

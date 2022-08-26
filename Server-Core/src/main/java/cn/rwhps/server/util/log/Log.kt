@@ -12,6 +12,7 @@ package cn.rwhps.server.util.log
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.plugin.Plugin
 import cn.rwhps.server.util.Time.getMilliFormat
+import cn.rwhps.server.util.file.FileUtil
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.MessageFormat
@@ -171,6 +172,33 @@ object Log {
         log(2, tag, e)
     }
 
+    @JvmStatic
+    fun clog(text: String) {
+        val textCache = "[" + getMilliFormat(1) + "] " + text
+        this.logPrint(formatColors("$textCache&fr"))
+    }
+
+    @JvmStatic
+	fun clog(text: String, vararg obj: Any?) {
+        clog(MessageFormat(text).format(obj))
+    }
+
+    @JvmStatic
+    fun testPrint(`object`: Any) {
+        info(`object`)
+    }
+
+    @JvmStatic
+    fun testPlugin(plugin: Plugin) {
+        plugin.init()
+    }
+
+    @JvmStatic
+    fun saveLog() {
+        val fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
+        fileUtil.writeFile(logCache, fileUtil.file.length() <= 1024 * 1024)
+    }
+
     /**
      * WLog：
      * @param i Warning level -INT
@@ -223,17 +251,6 @@ object Log {
         //println(sb)
     }
 
-    @JvmStatic
-    fun clog(text: String) {
-        val textCache = "[" + getMilliFormat(1) + "] " + text
-        this.logPrint(formatColors("$textCache&fr"))
-    }
-
-    @JvmStatic
-	fun clog(text: String, vararg obj: Any?) {
-        clog(MessageFormat(text).format(obj))
-    }
-
     private fun formatColors(text: String): String {
         var textCache = text
         for (i in ColorCodes.CODES.indices) {
@@ -241,16 +258,6 @@ object Log {
             textCache = textCache.replace("[${ColorCodes.CODES[i]}]", ColorCodes.VALUES[i])
         }
         return textCache
-    }
-
-    @JvmStatic
-    fun testPrint(`object`: Any) {
-        info(`object`)
-    }
-
-    @JvmStatic
-    fun testPlugin(plugin: Plugin) {
-        plugin.init()
     }
 
     private enum class Logg(private val logg: Int) {

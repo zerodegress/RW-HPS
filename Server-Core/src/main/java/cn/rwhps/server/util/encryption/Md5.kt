@@ -107,12 +107,17 @@ object Md5 {
 
     @JvmStatic
     private fun byteArrayToHex(byteArray: ByteArray): String {
-        val resultCharArray = CharArray(byteArray.size * 2)
-        var index = 0
-        for (b in byteArray) {
-            resultCharArray[index++] = HEX_DIGITS[b.toInt().ushr(4) and 0xFF]
-            resultCharArray[index++] = HEX_DIGITS[b.toInt() and 0xF]
+        return with(StringBuilder()) {
+            byteArray.forEach {
+                val hex = it.toInt() and (0xFF)
+                val hexStr = Integer.toHexString(hex)
+                if (hexStr.length == 1) {
+                    this.append("0").append(hexStr)
+                } else {
+                    this.append(hexStr)
+                }
+            }
+            this.toString()
         }
-        return String(resultCharArray)
     }
 }

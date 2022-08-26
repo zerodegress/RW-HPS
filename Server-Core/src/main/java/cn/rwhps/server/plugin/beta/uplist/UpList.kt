@@ -85,7 +85,7 @@ internal class UpList : Plugin() {
     }
 
     private fun initUpListData(urlIn: String = ""): Boolean {
-        if (NetStaticData.ServerNetType == IRwHps.NetType.ServerProtocol || NetStaticData.ServerNetType == IRwHps.NetType.ServerTestProtocol) {
+        if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
             val con = NetStaticData.RwHps.typeConnect.abstractNetConnect as GameVersionServer
             versionBeta = con.supportedversionBeta
             versionGame = con.supportedversionGame
@@ -129,11 +129,11 @@ internal class UpList : Plugin() {
 
         val json = Json(resultUpList)
 
-        serverID = Base64.decodeString(json.getData("id"))
-        addData = Base64.decodeString(json.getData("add"))
-        openData = Base64.decodeString(json.getData("open"))
-        updateData = Base64.decodeString(json.getData("update"))
-        removeData = Base64.decodeString(json.getData("remove"))
+        serverID = Base64.decodeString(json.getString("id"))
+        addData = Base64.decodeString(json.getString("add"))
+        openData = Base64.decodeString(json.getString("open"))
+        updateData = Base64.decodeString(json.getString("update"))
+        removeData = Base64.decodeString(json.getString("remove"))
         return true
     }
 

@@ -37,6 +37,16 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
         get() = connectionAgreement.ip
 
     /**
+     * Get connection IP Country
+     * @return IP
+     */
+    val ipCountry: String
+        get() = connectionAgreement.ipCountry
+
+    val ipCountryAll: String
+        get() = connectionAgreement.ipCountryAll
+
+    /**
      * Get the local port used
      * @return Port
      */
@@ -131,6 +141,20 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
             sendPacket(o.createPacket(PacketType.SERVER_DEBUG))
         } catch (_: Exception) {
         }
+    }
+
+    /**
+     * @param packet Packet
+     */
+    fun exCommand(packet: Packet) {
+
+    }
+
+    /**
+     * @param str String
+     */
+    fun sendExCommand(packet: Packet) {
+        sendPacket(packet)
     }
 
     protected fun close(groupNet: GroupNet?) {

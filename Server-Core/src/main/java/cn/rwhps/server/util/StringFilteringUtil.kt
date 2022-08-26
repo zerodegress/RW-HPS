@@ -154,6 +154,7 @@ object StringFilteringUtil {
      * @param character
      * @return
      */
+    @JvmStatic
     fun filterChines(character: String): String {
         return character.replace("[^(a-zA-Z0-9\\u4e00-\\u9fa5)]".toRegex(), "")
     }

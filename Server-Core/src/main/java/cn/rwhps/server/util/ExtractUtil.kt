@@ -66,6 +66,7 @@ object ExtractUtil {
         return result
     }
 
+    @JvmStatic
     fun bytesToHex(byte: Byte): String {
         return bytesToHex(byteArrayOf(byte))
     }

@@ -58,6 +58,7 @@ object Time {
      * @param prevTime - 必须是纳秒
      * @return - 自prevTime以来经过的时间（以纳秒为单位）
      */
+    @JvmStatic
     fun getTimeSinceNanos(prevTime: Long): Long {
         return nanos() - prevTime
     }
@@ -121,7 +122,7 @@ object Time {
             "yyyy-MM-dd'T'HH:mm:ss'Z'",
             "dd-MM-yyyy HH:mm:ss",
             "MM-dd-yyyy HH:mm:ss",
-            "yyyy-MM-dd_HH-mm-ss"
+            "yyyy-MM-dd_HH-mm-ss",
         )
         return SimpleDateFormat(ft[fot]).format(Date(gmt))
     }

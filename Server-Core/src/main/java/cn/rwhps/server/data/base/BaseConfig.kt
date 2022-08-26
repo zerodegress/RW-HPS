@@ -81,10 +81,15 @@ data class BaseConfig(
     /** Whether to start reading mod for the first time */
     val GameOverUpList: Boolean = false,
 
+    /** GamePort HttpPort 共用 */
     val WebGameBypassPort: Boolean = false,
 
+    /** 单独起 HTTP 服务 */
     val WebService: Boolean = false,
+    /** 单独的 Port */
     val SeparateWebPort: Int = 5124,
+    val SSL: Boolean = false,
+    val SSLPasswd: String = "RW-HPS",
 
     val AutoReLoadMap: Boolean = false,
 

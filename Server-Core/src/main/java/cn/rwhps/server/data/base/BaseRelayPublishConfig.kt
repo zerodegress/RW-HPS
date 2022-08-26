@@ -25,7 +25,10 @@ import java.lang.reflect.Field
  * @author RW-HPS/Dr
  */
 data class BaseRelayPublishConfig(
-    val MainID: String = "R",
+    val MainID: String = "",
+    val MainServer: Boolean = true,
+    val MainServerIP: String = "",
+    val MainServerPort: Int = 4993,
 ) {
 
     fun save() {

@@ -19,6 +19,7 @@ import java.util.function.Consumer
 
 @ChannelHandler.Sharable
 class GamePortWebSocket(private val webSocket: WebSocket) : SimpleChannelInboundHandler<TextWebSocketFrame>() {
+    /** 已经连接这个Ws的通道 */
     val connected: MutableSet<Channel> = HashSet(4)
 
 
@@ -33,12 +34,21 @@ class GamePortWebSocket(private val webSocket: WebSocket) : SimpleChannelInbound
         super.channelInactive(ctx)
     }
 
+    /**
+     * 给已经连接这个Ws所有人群发消息
+     * @param msg String?
+     */
     fun broadCast(msg: String?) {
         connected.forEach(Consumer { x: Channel ->
             x.writeAndFlush(TextWebSocketFrame(msg))
         })
     }
 
+    /**
+     * 检查某个连接是否在群发内
+     * @param channel Channel
+     * @return Boolean
+     */
     fun hasChannel(channel: Channel): Boolean {
         return connected.contains(channel)
     }

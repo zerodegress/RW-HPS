@@ -11,6 +11,7 @@ package cn.rwhps.server.net.handler.tcp
 
 import cn.rwhps.server.net.http.SendWeb
 import cn.rwhps.server.net.http.WebData
+import cn.rwhps.server.net.http.WebData.WS_URI
 import cn.rwhps.server.util.log.Log
 import io.netty.buffer.ByteBuf
 import io.netty.channel.*
@@ -68,7 +69,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
                     ctx.close()
                 }
             } else {
-                ctx.channel().pipeline().addLast(HttpServerCodec(),HttpObjectAggregator(1048576))
+                ctx.channel().pipeline().addLast(HttpServerCodec(), HttpObjectAggregator(1048576))
                 ctx.channel().pipeline().addLast(object : SimpleChannelInboundHandler<Any>() {
                     @Throws(Exception::class)
                     override fun channelRead0(ctx: ChannelHandlerContext, msg: Any) {
@@ -78,7 +79,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
                             val url = request.uri()
 
                             if (request.method().equals(HttpMethod.GET)) {
-                                WebData.runWebGetInstance(url, SendWeb(ctx.channel(),request))
+                                WebData.runWebGetInstance(url, request, SendWeb(ctx.channel(), request))
                                 return
                             } else if (request.method().equals(HttpMethod.POST)) {
                                 if (msg is HttpContent) {
@@ -86,7 +87,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
                                     val content = httpContent.content()
                                     val buf = StringBuilder()
                                     buf.append(content.toString(CharsetUtil.UTF_8))
-                                    WebData.runWebPostInstance(url, buf.toString(), SendWeb(ctx.channel(),request))
+                                    WebData.runWebPostInstance(url, buf.toString(), request, SendWeb(ctx.channel(), request))
                                     return
                                 }
                             }
@@ -99,9 +100,5 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
         }
         ctx.pipeline().remove("GamePortDivider")
         super.channelRead(ctx, msg)
-    }
-
-    companion object {
-        private const val WS_URI = "/WebSocket"
     }
 }

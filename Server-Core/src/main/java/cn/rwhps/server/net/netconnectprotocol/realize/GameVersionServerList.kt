@@ -56,6 +56,7 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
 
             sendTeamData0(team())
             sendServerInfo0(false)
+            sendTeamData0(team())
 
 
             sendSystemMessage("对着你需要的信息点击, 就和操作玩家一样\n点击踢出就可以得到相应的信息")
@@ -65,11 +66,13 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
 
     private fun team(): CompressOutputStream {
         val enc = CompressOutputStream.getGzipOutputStream("teams", true)
-         for (player in adList.items) {
+
+         for (i in 0 until 100) {
             try {
-                if (player == null) {
+                if (i >= adList.size()) {
                     enc.writeBoolean(false)
                 } else {
+                    val player = adList[i]
                     enc.writeBoolean(true)
                     enc.writeInt(0)
                      if (versionCil == 151) {
@@ -186,13 +189,6 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
     }
 
     fun writePlayer(player: Player, stream: GameOutputStream) {
-        if (Data.game.isStartGame) {
-            stream.writeByte(player.site)
-            stream.writeInt(player.ping)
-            stream.writeBoolean(Data.game.sharedControl)
-            stream.writeBoolean(player.controlThePlayer)
-            return
-        }
         stream.writeByte(player.site)
         // 并没有什么用
         stream.writeInt(player.credits)
@@ -245,18 +241,15 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
 
 
         init {
-            addAD("这里是战队信息-数据来源[中文网]","")
-            addAD("星联","751683594")
-            addAD("起源","1159654906")
-            addAD("鹤影","695487561")
-            addAD("逆风者","432780995")
-            addAD("E.C.A","932050316")
-            addAD("这里是游戏交流群-数据来源[中文网]","")
-            addAD("[无数据]","")
-            addAD("这里是Mod群-数据来源[中文网/群]","")
-            addAD("白菜-模组","[ 657468243 ]\n白菜的模组交流群\n可以玩到还在测试的白菜模组\n群友们可以一起聊天打铁\n不定期举办活动")
-            addAD("copyright RCN. ","")
-            addAD("仅供测试","")
+            addAD("须知 房间不开 玩家禁言","")
+            addAD("星联 751683594","751683594")
+            addAD("起源 1159654906","1159654906")
+            addAD("黑森林 780922783","780922783")
+            addAD("古城 280372011","280372011")
+            addAD("RW-HPS 901913920","901913920")
+            addAD("RWELAY-CN 867997110","867997110")
+            addAD("------------------","")
+            addAD("仅供测试 [RW-HPS] 衍生物","")
             addAD("目标是提供一个公告版","")
             addAD("RW-HPS@der.kim","")
         }

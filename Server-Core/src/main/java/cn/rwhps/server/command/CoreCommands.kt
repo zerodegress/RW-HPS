@@ -22,14 +22,17 @@ import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.mods.ModManage
 import cn.rwhps.server.data.plugin.PluginManage
+import cn.rwhps.server.dependent.HotLoadClass
 import cn.rwhps.server.func.StrCons
 import cn.rwhps.server.game.Rules
 import cn.rwhps.server.net.StartNet
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.core.ServiceLoader
+import cn.rwhps.server.net.handler.tcp.StartHttp
 import cn.rwhps.server.plugin.PluginsLoad
 import cn.rwhps.server.plugin.center.PluginCenter
 import cn.rwhps.server.util.alone.annotations.NeedHelp
+import cn.rwhps.server.util.file.FileUtil
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.log.Log
 import java.util.*
@@ -66,7 +69,7 @@ class CoreCommands(handler: CommandHandler) {
 
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
-            if (NetStaticData.ServerNetType == IRwHps.NetType.ServerProtocol || NetStaticData.ServerNetType == IRwHps.NetType.ServerTestProtocol) {
+            if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
                 log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size())]
             } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
                 val size = AtomicInteger()
@@ -133,7 +136,7 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice 5201 5500")
+            handler.handleMessage("startnetservice")
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
@@ -153,7 +156,7 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayMulticastProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice 5200 5500")
+            handler.handleMessage("startnetservice")
         }
 
 
@@ -165,6 +168,14 @@ class CoreCommands(handler: CommandHandler) {
                     startNetTcp.openPort(Data.config.Port, arg[0].toInt(), arg[1].toInt())
                 } else {
                     startNetTcp.openPort(Data.config.Port)
+                }
+            }
+
+            Threads.newThreadCoreNet {
+                if (Data.config.WebService) {
+                    val startNetTcp1 = StartNet(StartHttp::class.java)
+                    NetStaticData.startNet.add(startNetTcp1)
+                    startNetTcp1.openPort(Data.config.SeparateWebPort)
                 }
             }
         }
@@ -212,6 +223,7 @@ class CoreCommands(handler: CommandHandler) {
 
         // Test (孵化器）
         handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: StrCons ->
+            HotLoadClass().load(FileUtil.getFile("a.class").readFileByte())
         }
         handler.register("logg", "<1>", "serverCommands.exit") { _: Array<String>, _: StrCons ->
         }

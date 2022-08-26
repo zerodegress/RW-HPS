@@ -21,13 +21,17 @@ import io.netty.handler.codec.http.HttpResponseStatus
  */
 class SendWeb(
     private val channel: Channel,
-    val request: HttpRequest
+    private val request: HttpRequest
 ) {
     private var cacheData: ByteArray? = null
     var status: HttpResponseStatus = HttpResponseStatus.OK
-    private val replaceHeaders: MutableMap<String, String> = mutableMapOf( // 覆盖原header
-        HttpHeaderNames.SERVER.toString() to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)")
-    private val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf() // 附加的header,用于需要重复的header
+    /** 覆盖原header */
+    private val replaceHeaders: MutableMap<String, String> = mutableMapOf(
+        /* 默认头 使用 RW-HPS 自定义 */
+        HttpHeaderNames.SERVER.toString() to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)"
+    )
+    /** 附加的header,用于需要重复的header */
+    private val appendHeaders: MutableMap<String, ArrayList<String>> = mutableMapOf()
 
     fun setData(bytes: ByteArray) {
         cacheData = bytes
@@ -40,14 +44,14 @@ class SendWeb(
         if (!appendHeaders.containsKey(HttpHeaderNames.SET_COOKIE.toString())) {
             appendHeaders[HttpHeaderNames.SET_COOKIE.toString()] = arrayListOf()
         }
-        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]?.add("$cKey=$cValue; Max-Age=$maxAge; Path=/")
+        appendHeaders[HttpHeaderNames.SET_COOKIE.toString()]!!.add("$cKey=$cValue; Max-Age=$maxAge; Path=/")
     }
 
     fun addHead(key: String, value: String) {
         if (!appendHeaders.containsKey(key)) {
             appendHeaders[key] = arrayListOf()
         }
-        appendHeaders[key]?.add(value)
+        appendHeaders[key]!!.add(value)
     }
 
     fun setHead(key: String, value: String) {
@@ -77,7 +81,7 @@ class SendWeb(
         }
         for (header in appendHeaders) {
             for (value in header.value) {
-                defaultFullHttpResponse.headers().add(header.key, value)
+                defaultFullHttpResponse.headers().add(header.key, header.value)
             }
         }
 

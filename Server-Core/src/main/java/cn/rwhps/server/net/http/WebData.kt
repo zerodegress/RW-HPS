@@ -11,6 +11,7 @@ package cn.rwhps.server.net.http
 
 import cn.rwhps.server.net.handler.tcp.GamePortWebSocket
 import cn.rwhps.server.util.log.exp.VariableException
+import io.netty.handler.codec.http.HttpRequest
 
 /**
  * @author RW-HPS/Dr
@@ -20,12 +21,15 @@ object WebData {
     private val postData: MutableMap<String, WebPost> = HashMap()
     private val webSocketData: MutableMap<String, GamePortWebSocket> = HashMap()
 
-    const val WS_URL = "/WebSocket"
+    internal val WS_URI = "/WebSocket"
 
     @JvmStatic
     fun addWebGetInstance(url: String, webGet: WebGet) {
         if (getData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebGetInstance] Repeat Add")
+        }
+        if (url.startsWith(WebData.WS_URI)) {
+            throw VariableException.TabooAddException("[AddWebGetInstance] TabooA Add, Can not be used WebSocket URL")
         }
         getData[url] = webGet
     }
@@ -33,6 +37,9 @@ object WebData {
     fun addWebPostInstance(url: String, webPost: WebPost) {
         if (postData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebPostInstance] Repeat Add")
+        }
+        if (url.startsWith(WebData.WS_URI)) {
+            throw VariableException.TabooAddException("[AddWebGetInstance] TabooA Add, Can not be used WebSocket URL")
         }
         postData[url] = webPost
     }
@@ -67,7 +74,7 @@ object WebData {
      * @param url String
      * @param sendWeb SendWeb
      */
-    internal fun runWebGetInstance(url: String, sendWeb: SendWeb) {
+    internal fun runWebGetInstance(url: String, request: HttpRequest, sendWeb: SendWeb) {
         val wildcard = "${url.substring(0,url.lastIndexOf("/")+1)}*"
         var getUrl = url
         var urlData = ""
@@ -80,14 +87,15 @@ object WebData {
         }
 
         if (getData.containsKey(getUrl)) {
-            getData[getUrl]?.get(getUrl,urlData,sendWeb)
+            getData[getUrl]?.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
         } else if (getData.containsKey(wildcard)) {
-            getData[wildcard]!!.get(getUrl,urlData,sendWeb)
+            getData[wildcard]!!.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
         } else {
             sendWeb.send404()
         }
     }
-    internal fun runWebPostInstance(url: String, data: String, sendWeb: SendWeb) {
+
+    internal fun runWebPostInstance(url: String, data: String, request: HttpRequest, sendWeb: SendWeb) {
         val wildcard = "${url.substring(0,url.lastIndexOf("/")+1)}*"
         var getUrl = url
         var urlData = ""
@@ -100,9 +108,9 @@ object WebData {
         }
 
         if (postData.containsKey(getUrl)) {
-            postData[getUrl]!!.post(getUrl,urlData,data,sendWeb)
+            postData[getUrl]!!.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
         } else if (postData.containsKey(wildcard)) {
-            postData[wildcard]!!.post(getUrl,urlData,data,sendWeb)
+            postData[wildcard]!!.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
         } else {
             sendWeb.send404()
         }

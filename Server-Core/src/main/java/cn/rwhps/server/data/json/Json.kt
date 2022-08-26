@@ -13,10 +13,13 @@ import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.inline.getDataResult
+import cn.rwhps.server.util.inline.getDataResultObject
 import cn.rwhps.server.util.inline.ifNullResult
-import cn.rwhps.server.util.serialization.JSONSerializer
-import cn.rwhps.server.util.serialization.JsonFormatTool
+import cn.rwhps.server.util.inline.toPrettyPrintingJson
 import com.google.gson.Gson
+import org.json.JSONArray
+import org.json.JSONObject
 
 //Json
 //写的越久，BUG越多，伤痕越疼，脾气越差/-活得越久 故事越多 伤痕越疼，脾气越差
@@ -24,38 +27,55 @@ import com.google.gson.Gson
  * @author RW-HPS/Dr
  */
 class Json {
-    private val jsonObject: Any
+    private val jsonObject: JSONObject
 
     constructor(json: String) {
-        jsonObject = JSONSerializer.deserialize(json)
+        jsonObject = JSONObject(json)
     }
 
     constructor(json: LinkedHashMap<*, *>) {
+        jsonObject = JSONObject(json)
+    }
+
+    constructor(json: JSONObject) {
         jsonObject = json
     }
 
-    fun getData(str: String): String {
-        return (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as String }) { "" }
+    @JvmOverloads
+    fun getString(str: String, defaultValue: String = ""): String {
+        return jsonObject.getDataResult(defaultValue) {
+            it.getString(str)
+        }!!
+    }
+    @JvmOverloads
+    fun getInt(str: String, defaultValue: Int? = null): Int? {
+        return jsonObject.getDataResult(defaultValue) {
+            it.getInt(str)
+        }
+    }
+    @JvmOverloads
+    fun getLong(str: String, defaultValue: Long? = null): Long? {
+        return jsonObject.getDataResult(defaultValue) {
+            it.getLong(str)
+        }
+    }
+    @JvmOverloads
+    fun getBoolean(str: String, defaultValue: Boolean? = null): Boolean? {
+        return jsonObject.getDataResult(defaultValue) {
+            it.getBoolean(str)
+        }
     }
 
-    fun getDataNull(str: String): String? {
-        return (jsonObject as LinkedHashMap<*, *>)[str] as String?
-    }
 
     fun getInnerMap(): Map<String, Any> {
-        @Suppress("UNCHECKED_CAST")
-        return jsonObject as LinkedHashMap<String, Any>
+        return jsonObject.toMap()
     }
 
-    fun getArrayData(str: String): Json? {
-        val rArray = (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
-        for (o in rArray) {
-            val r = o as LinkedHashMap<*, *>
-            if (IsUtil.notIsBlank(r)) {
-                return Json(r)
-            }
-        }
-        return null
+    fun getArrayData(str: String, key: String): JsonArray {
+        val rArray = JsonArray(jsonObject.getDataResultObject({ JSONArray() }) {
+            it.getJSONArray(str)
+        })
+        return rArray
     }
 
     fun getArraySeqData(str: String): Seq<Json> {
@@ -90,7 +110,7 @@ class Json {
          */
         @JvmStatic
         fun toJson(map: Map<String, Any>): String {
-            return JsonFormatTool.formatJson(JSONSerializer.serialize(map))
+            return map.toPrettyPrintingJson()
         }
 
         /**
@@ -100,7 +120,7 @@ class Json {
          */
         @JvmStatic
         fun toJson(map: ObjectMap<String, Any>): String {
-            return JsonFormatTool.formatJson(JSONSerializer.serialize(map))
+            return HashMap<String,Any>().also { map.each { key, value -> it[key] = value } }.toPrettyPrintingJson()
         }
 
         @JvmStatic

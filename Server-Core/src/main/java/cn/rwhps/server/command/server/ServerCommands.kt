@@ -14,7 +14,6 @@ import cn.rwhps.server.core.Call.sendMessage
 import cn.rwhps.server.core.Call.sendSystemMessage
 import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.upDataGameData
-import cn.rwhps.server.core.thread.TimeTaskData
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.Data.LINE_SEPARATOR
 import cn.rwhps.server.data.global.NetStaticData
@@ -28,7 +27,6 @@ import cn.rwhps.server.game.event.EventType.PlayerBanEvent
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.Font16
 import cn.rwhps.server.util.IsUtil
-import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.Time.getTimeFutureMillis
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.game.Events
@@ -132,6 +130,9 @@ internal class ServerCommands(handler: CommandHandler) {
         handler.register("maplock", "<off/on>", "serverCommands.maplock") { arg: Array<String>, _: StrCons ->
             Data.game.mapLock = "on" == arg[0]
         }
+        handler.register("dogfightlock", "<off/on>", "serverCommands.dogfightLock") { arg: Array<String>, _: StrCons ->
+            Data.game.dogfightLock = "on" == arg[0]
+        }
         handler.register("kill", "<PlayerSerialNumber>", "serverCommands.kill") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
                 val site = arg[0].toInt() - 1
@@ -179,7 +180,7 @@ internal class ServerCommands(handler: CommandHandler) {
                     data.append(LINE_SEPARATOR)
                         .append(player.name)
                         .append(" / ")
-                        .append("ID: ").append(player.uuid)
+                        .append("Site: ").append(player.site)
                         .append(" / ")
                         .append("IP: ").append(player.con!!.ip)
                         .append(" / ")
@@ -251,8 +252,8 @@ internal class ServerCommands(handler: CommandHandler) {
         }
 
         handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: StrCons ->
-            if (!Data.game.isStartGame || Data.game.mapLock) {
-                log["游戏未开始 & 地图被锁定"]
+            if (Data.game.isStartGame) {
+                log["游戏开始"]
                 return@register
             }
             val response = StringBuilder(arg[0])
@@ -284,24 +285,7 @@ internal class ServerCommands(handler: CommandHandler) {
                 Data.game.maps.mapName = name
                 Data.game.maps.mapPlayer = ""
             }
-
-            TimeTaskData.stopCallTickTask()
-            Data.game.isStartGame = false
-
-            val enc = NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()
-
-            Data.game.playerManage.playerGroup.each { e: Player ->
-                try {
-                    e.con!!.sendTeamData(enc)
-                    e.con!!.sendStartGame()
-                    e.lastMoveTime = Time.concurrentSecond()
-                } catch (err: IOException) {
-                    error("Start Error", err)
-                }
-            }
-            Data.game.isStartGame = true
-            Data.game.playerManage.updateControlIdentifier()
-            Call.testPreparationPlayer()
+            Call.upDataGameData(false)
         }
         handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
             val cache = Seq<Array<ByteArray>>()

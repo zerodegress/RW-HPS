@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * @author RW-HPS/Dr
  */
-internal class ConnectionLimit : Plugin() {
+internal class ConnectionLimit: Plugin() {
     private var cacheTime: Long = Time.concurrentMillis() + 60 * 60 * 1000L // 1H
 
 
@@ -39,7 +39,7 @@ internal class ConnectionLimit : Plugin() {
              * TimeAndNumber(10,5) is Triggered when five new connections are reached within ten seconds
              *
              */
-            val limit = netLimit.computeIfAbsent(connectionAgreement.ipLong){ LimitData(0, TimeAndNumber(5,5)) }
+            val limit = netLimit.computeIfAbsent(connectionAgreement.ipLong24){ LimitData(0, TimeAndNumber(5,5)) }
             limit.LastUpdateTime = Time.concurrentSecond() + 60 * 60
 
 
@@ -47,10 +47,10 @@ internal class ConnectionLimit : Plugin() {
             var flag = false
 
             if (limit.limit.checkStatus()) {
-                netLimitList.add(connectionAgreement.ipLong)
+                netLimitList.add(connectionAgreement.ipLong24)
                 flag = true
             } else {
-                if (netLimitList.contains(connectionAgreement.ipLong)) {
+                if (netLimitList.contains(connectionAgreement.ipLong24)) {
                     flag = true
                 } else {
                     limit.limit.count++

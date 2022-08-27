@@ -37,7 +37,7 @@ import javax.net.ssl.SSLEngine
 
 internal class StartHttp(startNet: StartNet) : AbstractNet(startNet) {
     var socketChannel: SocketChannel? = null
-    private val sslContext = getSslContext()
+    private var sslContext: SSLContext? = null
 
     private fun isHttpReq(head: String): Boolean {
         return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith("HEAD ") || head.startsWith("PUT ")
@@ -45,7 +45,10 @@ internal class StartHttp(startNet: StartNet) : AbstractNet(startNet) {
 
     override fun initChannel(socketChannel: SocketChannel) {
         if (Data.config.SSL) {
-            val sslEngine: SSLEngine = sslContext.createSSLEngine()
+            if (sslContext == null) {
+                sslContext = getSslContext()
+            }
+            val sslEngine: SSLEngine = sslContext!!.createSSLEngine()
             sslEngine.useClientMode = false
             socketChannel.pipeline().addLast("ssl", SslHandler(sslEngine))
         }

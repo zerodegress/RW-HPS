@@ -152,7 +152,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 100, Data.config.Tick.toLong())
+                timerNew.schedule(TimeTaskData.CallTickTask, 100, Data.config.TickTime.toLong())
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()
@@ -163,7 +163,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 0, Data.config.Tick.toLong())
+                timerNew.schedule(TimeTaskData.CallTickTask, 0, Data.config.TickTime.toLong())
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()
@@ -230,7 +230,7 @@ object Call {
                 return
             }
 
-            val time = Data.game.tickGame.getAndAdd(10)
+            val time = Data.game.tickGame.getAndAdd(Data.config.Tick)
             try {
                 when (val size = Data.game.gameCommandCache.size) {
                     0 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getTickPacket(time))

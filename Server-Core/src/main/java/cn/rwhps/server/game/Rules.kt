@@ -169,7 +169,7 @@ class Rules(private var config: BaseConfig) {
 
     fun checkMaps() {
         val list = getFolder(Data.Plugin_Maps_Path).fileListNotNullSizeSort
-        list.each { e: File ->
+        list.eachAll { e: File ->
             val original = if (isBase64(e.name)) decodeString(e.name) else e.name
             val postpone = original.substring(original.lastIndexOf("."))
             val name = original.substring(0, original.length - postpone.length)
@@ -186,9 +186,9 @@ class Rules(private var config: BaseConfig) {
                             }
                 ".zip" ->   try {
                                 val zipTmx = ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("tmx")
-                                zipTmx.each { zipMapName: String -> mapsData.put(zipMapName, MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip, zipMapName, original)) }
+                                zipTmx.eachAll { zipMapName: String -> mapsData.put(zipMapName, MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip, zipMapName, original)) }
                                 val zipSave = ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("save")
-                                zipSave.each { zipSaveName: String -> mapsData.put(zipSaveName, MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.zip, zipSaveName, original)) }
+                                zipSave.eachAll { zipSaveName: String -> mapsData.put(zipSaveName, MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.zip, zipSaveName, original)) }
                             } catch (exception: Exception) {
                                 error("ZIP READ", exception)
                             }

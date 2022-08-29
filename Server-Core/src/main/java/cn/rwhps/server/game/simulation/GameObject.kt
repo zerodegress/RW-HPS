@@ -57,7 +57,7 @@ abstract class GameObject() : SyncedObject {
 
             var result: GameObject? = null
 
-            fastGameObjectList.each( { it.id == id }) { gameObject: GameObject -> result = gameObject }
+            fastGameObjectList.eachFind( { it.id == id }) { gameObject: GameObject -> result = gameObject }
 
             if (result == null) {
                 Log.error("ReportDesync","getFromId:$id was not found")

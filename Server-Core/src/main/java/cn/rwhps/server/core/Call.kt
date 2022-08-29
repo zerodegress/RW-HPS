@@ -42,17 +42,17 @@ object Call {
 
     @JvmStatic
     fun sendMessageLocal(player: Player, text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.sendMessage(player, e.i18NBundle.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.eachAll { e: Player -> e.sendMessage(player, e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
     fun sendTeamMessage(team: Int, player: Player, text: String) {
-        Data.game.playerManage.playerGroup.eachBooleanIfs({ e: Player -> e.team == team }) { p: Player -> p.sendMessage(player, "[TEAM] $text") }
+        Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == team }) { p: Player -> p.sendMessage(player, "[TEAM] $text") }
     }
 
     @JvmStatic
     fun sendSystemTeamMessageLocal(team: Int, text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.eachBooleanIfs({ e: Player -> e.team == team }) { p: Player -> p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == team }) { p: Player -> p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
@@ -66,12 +66,12 @@ object Call {
 
     @JvmStatic
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.eachAll { e: Player -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
     fun sendSystemMessage(text: String, vararg obj: Any) {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+        Data.game.playerManage.playerGroup.eachAll { e: Player -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmStatic
@@ -81,7 +81,7 @@ object Call {
         }
         try {
             val enc = NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()
-            Data.game.playerManage.playerGroup.each { e: Player -> e.con!!.sendTeamData(enc) }
+            Data.game.playerManage.playerGroup.eachAll { e: Player -> e.con!!.sendTeamData(enc) }
         } catch (e: IOException) {
             error("[ALL] Send Team Error", e)
         }
@@ -89,13 +89,13 @@ object Call {
 
     @JvmStatic
     fun sendPlayerPing() {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.con!!.sendPing() }
+        Data.game.playerManage.playerGroup.eachAll { e: Player -> e.con!!.sendPing() }
     }
 
     @JvmStatic
     @JvmOverloads
     fun upDataGameData(unitData: Boolean = false) {
-        Data.game.playerManage.playerGroup.each { e: Player ->
+        Data.game.playerManage.playerGroup.eachAll { e: Player ->
             try {
                 e.con!!.sendServerInfo(unitData)
             } catch (err: IOException) {
@@ -106,7 +106,7 @@ object Call {
 
     @JvmStatic
     fun killAllPlayer() {
-        Data.game.playerManage.playerGroup.each { e: Player ->
+        Data.game.playerManage.playerGroup.eachAll { e: Player ->
             try {
                 e.kickPlayer("Game Over")
             } catch (err: IOException) {
@@ -117,7 +117,7 @@ object Call {
 
     @JvmStatic
     fun disAllPlayer() {
-        Data.game.playerManage.playerGroup.each { e: Player -> e.con!!.disconnect() }
+        Data.game.playerManage.playerGroup.eachAll { e: Player -> e.con!!.disconnect() }
     }
 
     @JvmStatic
@@ -134,13 +134,13 @@ object Call {
      */
     private class RandyTask(private val timer: Timer) : TimerTask() {
         private var loadTime = 0
-        private val loadTimeMaxTry = Data.game.playerManage.playerGroup.size() * 3
+        private val loadTimeMaxTry = Data.game.playerManage.playerGroup.size * 3
         private var start = true
 
         override fun run() {
             start = true
 
-            Data.game.playerManage.playerGroup.each { p: Player ->
+            Data.game.playerManage.playerGroup.eachAll { p: Player ->
                 if (!p.start) {
                     loadTime += 1
                     start = false
@@ -152,7 +152,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 100, 150)
+                timerNew.schedule(TimeTaskData.CallTickTask, 100, Data.config.Tick.toLong())
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()
@@ -163,7 +163,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 0, 150)
+                timerNew.schedule(TimeTaskData.CallTickTask, 0, Data.config.Tick.toLong())
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()
@@ -189,10 +189,11 @@ object Call {
 
         @Volatile
         private var forcedReturn = false
+        private val comm = Seq<GameCommandPacket>(16)
 
         override fun run() {
             // 检测人数是否符合Gameover
-            val playerSize = Data.game.playerManage.playerGroup.size()
+            val playerSize = Data.game.playerManage.playerGroup.size
             if (playerSize == 0) {
                 gr()
                 return
@@ -235,7 +236,6 @@ object Call {
                     0 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getTickPacket(time))
                     1 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandPacket(time, Data.game.gameCommandCache.poll()))
                     else -> {
-                        val comm = Seq<GameCommandPacket>(size)
                         /*
                          *  poll() 存在一直情况 在需求的内容不够的情况下
                          *  例如 多线程的情况下 或者? 会直接将不够的用 Null 填充
@@ -245,6 +245,7 @@ object Call {
                             .filter {data: GameCommandPacket? -> data != null}
                             .forEach { value: GameCommandPacket -> comm.add(value) }
                         NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandsPacket(time, comm))
+                        comm.clear()
                     }
                 }
             } catch (e: Exception) {

@@ -130,7 +130,6 @@ open class TypeRelay : TypeConnect {
         val permissionStatus = con.permissionStatus
 
         if (permissionStatus.ordinal < RelayStatus.PlayerPermission.ordinal) {
-
             when (permissionStatus) {
                 // Initial Connection
                 InitialConnection -> {
@@ -146,6 +145,8 @@ open class TypeRelay : TypeConnect {
                         registerServer.writeString(Data.SERVER_RELAY_UUID)
                         registerServer.writeInt("Dr @ 2022".hashCode())
                         con.sendPacket(registerServer.createPacket(PacketType.PREREGISTER_INFO))
+                    } else if (packet.type == SERVER_DEBUG_RECEIVE) {
+                        con.debug(packet)
                     }
                     return true
                 }
@@ -163,7 +164,7 @@ open class TypeRelay : TypeConnect {
                     if (packet.type == RELAY_POW_RECEIVE) {
                         if (con.receiveVerifyClientValidity(packet)) {
                             // Certified End
-                            con.permissionStatus = RelayStatus.CertifiedEnd
+                            con.permissionStatus = CertifiedEnd
                             if (!Data.config.SingleUserRelay) {
                                 con.relayDirectInspection()
                             } else {

@@ -31,10 +31,6 @@ interface AbstractNetConnectRelay {
      */
     val relay: Relay?
 
-    /**
-     * Cache the received packets
-     * @param packet Packet
-     */
     fun setCachePacket(packet: Packet)
 
     /**

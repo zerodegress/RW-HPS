@@ -180,16 +180,14 @@ open class FileUtil {
     val fileListNotNullSize: Seq<File>
         get() {
             val list = Seq<File>()
-            fileList.eachBooleanIfs({ e: File -> e.length() > 0 }) { value: File -> list.add(value) }
+            fileList.eachAllFind({ e: File -> e.length() > 0 }) { value: File -> list.add(value) }
             return list
         }
 
     val fileListNotNullSizeSort: Seq<File>
         get() {
-            val list = fileListNotNullSize
-            list.sort { o1, o2 ->
-                o1.name.compareTo(o2.name)
-            }
+            val list: Seq<File> = fileListNotNullSize
+            list.sortWith { o1, o2 -> o1.name.compareTo(o2.name) }
             return list
         }
 

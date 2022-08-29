@@ -956,7 +956,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
 
         /** Returns a new array containing the remaining values. */
         public Seq<V> toSeq(){
-            return toSeq(new Seq<>(true, map.size));
+            return toSeq(new Seq<>(map.size));
         }
 
         /** Adds the remaining values to the specified array. */
@@ -1002,7 +1002,7 @@ public class ObjectMap<K, V> implements Iterable<ObjectMap.Entry<K, V>>{
 
         /** Returns a new array containing the remaining keys. */
         public Seq<K> toSeq(){
-            return toSeq(new Seq<>(true, map.size));
+            return toSeq(new Seq<>(map.size));
         }
 
         /** Adds the remaining keys to the array. */

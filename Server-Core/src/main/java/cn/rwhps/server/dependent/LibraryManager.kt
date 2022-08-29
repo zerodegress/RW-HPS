@@ -62,14 +62,14 @@ class LibraryManager : AgentAttachData() {
         Log.clog(Data.i18NBundle.getinput("server.load.jar"));
         load();
         val loader = getClassLoader()
-        load.each {
+        load.eachAll {
             if (!loadEnd.contains(it)) {
                 if (loader(it)) {
                     loadEnd.add(it)
                 }
             }
         }
-        dependenciesFile.each {
+        dependenciesFile.eachAll {
             if (!loadEnd.contains(it)) {
                 if (loader(it)) {
                     loadEnd.add(it)
@@ -82,7 +82,7 @@ class LibraryManager : AgentAttachData() {
      * 下载依赖
      */
     private fun load() {
-        dependenciesDown.each {
+        dependenciesDown.eachAll {
             val file = FileUtil.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
             if (!file.exists()) {
                 HttpRequestOkHttp.downUrl(it.getDownUrl(),file).also {
@@ -156,14 +156,14 @@ class LibraryManager : AgentAttachData() {
 
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     private fun getDepend(importData: ImportData, down: Boolean) {
-        source.each {
+        source.eachAll {
             val result = HttpRequestOkHttp.doGet(importData.getDownPom(it))
             if (result.isNotBlank() && !result.trim().equals("404 Not Found",true)) {
                 importData.mainSource = it
                 try {
                     val mavenreader = MavenXpp3Reader()
                     val model = mavenreader.read(DisableSyncByteArrayInputStream(result.toByteArray()))
-                    val project = MavenProject(model)
+                    val project = MavenProject(model).model
                     for (lib in project.dependencies) {
                         when (lib.scope) {
                             "test","provided" -> {}
@@ -176,7 +176,7 @@ class LibraryManager : AgentAttachData() {
                 if (down) {
                     dependenciesDown.add(importData)
                 }
-                return@each
+                return@eachAll
             }
         }
     }

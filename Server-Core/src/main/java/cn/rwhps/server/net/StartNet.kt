@@ -182,7 +182,7 @@ class StartNet {
 
     fun stop() {
         errorIgnore = true
-        connectChannel.each { obj: Channel -> obj.close().sync() }
+        connectChannel.eachAll { obj: Channel -> obj.close().sync() }
         errorIgnore = false
     }
 

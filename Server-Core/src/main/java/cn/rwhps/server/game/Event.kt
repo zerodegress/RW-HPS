@@ -66,7 +66,7 @@ class Event : AbstractEvent {
 
 
         if (Data.config.AutoStartMinPlayerSize != -1 &&
-            Data.game.playerManage.playerGroup.size() >= Data.config.AutoStartMinPlayerSize &&
+            Data.game.playerManage.playerGroup.size >= Data.config.AutoStartMinPlayerSize &&
             !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             var flagCount = 0
             Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
@@ -93,7 +93,7 @@ class Event : AbstractEvent {
 
                 val enc = NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()
 
-                Data.game.playerManage.playerGroup.each { e: Player ->
+                Data.game.playerManage.playerGroup.eachAll { e: Player ->
                     try {
                         e.con!!.sendTeamData(enc)
                         e.con!!.sendStartGame()
@@ -105,7 +105,7 @@ class Event : AbstractEvent {
 
                 Data.game.isStartGame = true
                 if (Data.game.sharedControl) {
-                    Data.game.playerManage.playerGroup.each { it.sharedControl = true }
+                    Data.game.playerManage.playerGroup.eachAll { it.sharedControl = true }
                 }
 
                 Data.game.playerManage.updateControlIdentifier()
@@ -131,7 +131,7 @@ class Event : AbstractEvent {
     }
 
     override fun registerPlayerLeaveEvent(player: Player) {
-        if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size() > 0) {
+        if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 0) {
             try {
                 val p = Data.game.playerManage.playerGroup[0]
                 p.isAdmin = true
@@ -154,7 +154,7 @@ class Event : AbstractEvent {
         }
 
         if (Data.config.AutoStartMinPlayerSize != -1 &&
-            Data.game.playerManage.playerGroup.size() <= Data.config.AutoStartMinPlayerSize &&
+            Data.game.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&
             !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }

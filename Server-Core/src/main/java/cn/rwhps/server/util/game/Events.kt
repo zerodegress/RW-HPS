@@ -41,10 +41,10 @@ object Events {
     @Suppress("UNCHECKED_CAST")
     fun <T> fire(type1: Class<*>, type: T) {
         if (EVENTS[type] != null) {
-            EVENTS[type]?.each { e: Cons<*> -> (e as Cons<T>)[type] }
+            EVENTS[type]?.eachAll { e: Cons<*> -> (e as Cons<T>)[type] }
         }
         if (EVENTS[type1] != null) {
-            EVENTS[type1]?.each { e: Cons<*> -> (e as Cons<T>)[type] }
+            EVENTS[type1]?.eachAll { e: Cons<*> -> (e as Cons<T>)[type] }
         }
     }
 }

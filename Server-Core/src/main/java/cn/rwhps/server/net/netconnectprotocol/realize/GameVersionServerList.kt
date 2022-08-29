@@ -69,7 +69,7 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
 
          for (i in 0 until 100) {
             try {
-                if (i >= adList.size()) {
+                if (i >= adList.size) {
                     enc.writeBoolean(false)
                 } else {
                     val player = adList[i]
@@ -228,12 +228,12 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
         val adInfoList = Seq<String>(100)
 
         fun addAD(ad: String, info: String) {
-            if (adList.size() >= 99) {
+            if (adList.size >= 99) {
                 return
             }
             val ad = Player(null,"",ad, Data.i18NBundle)
             ad.team = 1
-            ad.site = adList.size()
+            ad.site = adList.size
             ad.ping = 0
             adList.add(ad)
             adInfoList.add(info)

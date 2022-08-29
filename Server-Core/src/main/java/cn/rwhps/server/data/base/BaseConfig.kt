@@ -57,6 +57,8 @@ data class BaseConfig(
     val MaxMessageLen: Int = 40,
     /** 最大单位数 */
     val MaxUnit: Int = 200,
+    val Tick: Int = 10,
+    val TickTime: Int = 100,
 
     val DefIncome: Float = 1f,
     /** only Admin */
@@ -106,7 +108,10 @@ data class BaseConfig(
             warn("MaxPlayer < StartMinPlayerSize , Reset !")
             coverField("StartMinPlayerSize",0)
         }
-
+        if (MaxPlayer > 100) {
+            warn("MaxPlayer > GameMaxPlayerSize , Reset !")
+            coverField("MaxPlayer",100)
+        }
     }
 
     fun save() {
@@ -145,7 +150,7 @@ data class BaseConfig(
             val config: BaseConfig = BaseConfig::class.java.toGson(fileUtil.readFileStringData())
 
             // PATH
-            config.allName().each {
+            config.allName().eachAll {
                 val data = System.getProperties().getProperty("rwhps.config.$it")
                 if (data != null) {
                     if (config.coverField(it,data)) {

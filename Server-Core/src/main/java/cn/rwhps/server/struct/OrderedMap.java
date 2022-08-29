@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
  * 还可以使用{@link #orderedKeys()}
  * 访问键并更改顺序。有一些额外的放置和删除开销
  * 如果将用于与ObjectMap相比具有更快的迭代速度并且顺序实际上并不重要
- * 则可以通过将{@link OrderedMap＃orderedKeys()}的{@link Seq＃ordered}设置为false来大大减少删除期间的复制。
+ * 则可以通过将{@link OrderedMap＃orderedKeys()}的{@link Seq ＃ordered}设置为false来大大减少删除期间的复制。
  * @author Nathan Sweet
  */
 @SuppressWarnings("unchecked")
@@ -50,11 +50,6 @@ public class OrderedMap<K, V> extends ObjectMap<K, V>{
         keys = new Seq<>(capacity);
     }
 
-    public OrderedMap(OrderedMap<? extends K, ? extends V> map){
-        super(map);
-        keys = new Seq<>(map.keys);
-    }
-
     @Override
     public V put(K key, V value){
         if(!containsKey(key)) {
@@ -65,7 +60,7 @@ public class OrderedMap<K, V> extends ObjectMap<K, V>{
 
     @Override
     public V remove(K key){
-        keys.remove(key, false);
+        keys.remove(key);
         return super.remove(key);
     }
 

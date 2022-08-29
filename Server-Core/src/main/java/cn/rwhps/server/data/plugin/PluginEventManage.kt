@@ -38,19 +38,19 @@ internal class PluginEventManage {
         private fun registerEventAll() {
             /* Sync */
             Events.on(PlayerJoinEvent::class.java) { e: PlayerJoinEvent ->
-                pluginEventData.each { p: AbstractEvent ->
+                pluginEventData.eachAll { p: AbstractEvent ->
                     p.registerPlayerJoinEvent(e.player)
                 }
             }
             /* Sync */
             Events.on(PlayerReJoinEvent::class.java) { e: PlayerReJoinEvent ->
-                pluginEventData.each { p: AbstractEvent ->
+                pluginEventData.eachAll { p: AbstractEvent ->
                     p.registerPlayerReJoinEvent(e.player)
                 }
             }
             /* Sync */
             Events.on(PlayerConnectPasswdCheckEvent::class.java) { e: PlayerConnectPasswdCheckEvent ->
-                pluginEventData.each { p: AbstractEvent ->
+                pluginEventData.eachAll { p: AbstractEvent ->
                     val strings = p.registerPlayerConnectPasswdCheckEvent(e.abstractNetConnect, e.passwd)
                     e.result = strings[0].toBoolean()
                     e.name = strings[1]
@@ -60,7 +60,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerConnectEvent::class.java) { e: PlayerConnectEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerConnectEvent(e.player)
                     }
                 }
@@ -68,7 +68,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerLeaveEvent::class.java) { e: PlayerLeaveEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerLeaveEvent(e.player)
                     }
                 }
@@ -76,7 +76,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerChatEvent::class.java) { e: PlayerChatEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerChatEvent(e.player, e.message)
                     }
                 }
@@ -84,7 +84,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(GameStartEvent::class.java) { _: GameStartEvent? ->
                 executorService.execute {
-                    pluginEventData.each { obj: AbstractEvent ->
+                    pluginEventData.eachAll { obj: AbstractEvent ->
                         obj.registerGameStartEvent()
                     }
                 }
@@ -92,7 +92,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(GameOverEvent::class.java) { _: GameOverEvent? ->
                 executorService.execute {
-                    pluginEventData.each { obj: AbstractEvent ->
+                    pluginEventData.eachAll { obj: AbstractEvent ->
                         obj.registerGameOverEvent()
                     }
                 }
@@ -100,7 +100,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerBanEvent::class.java) { e: PlayerBanEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerBanEvent(e.player)
                     }
                 }
@@ -108,7 +108,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerUnbanEvent::class.java) { e: PlayerUnbanEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerUnbanEvent(e.player)
                     }
                 }
@@ -116,7 +116,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerIpBanEvent::class.java) { e: PlayerIpBanEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerIpBanEvent(e.player)
                     }
                 }
@@ -124,7 +124,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(PlayerIpUnbanEvent::class.java) { e: PlayerIpUnbanEvent ->
                 executorService.execute {
-                    pluginEventData.each { p: AbstractEvent ->
+                    pluginEventData.eachAll { p: AbstractEvent ->
                         p.registerPlayerIpUnbanEvent(e.ip)
                     }
                 }
@@ -135,7 +135,7 @@ internal class PluginEventManage {
             /* ASync */
             Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
                 executorService.execute {
-                    pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                    pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
                         obj.registerServerLoadEvent()
                     }
                 }
@@ -143,7 +143,7 @@ internal class PluginEventManage {
 
             /* Sync */
             Events.on(NewConnectEvent::class.java) { e: NewConnectEvent ->
-                pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
                     if (obj.registerNewConnectEvent(e.connectionAgreement)) {
                         e.result = true
                     }
@@ -152,7 +152,7 @@ internal class PluginEventManage {
 
             /* Sync */
             Events.on(NewCloseEvent::class.java) { e: NewCloseEvent ->
-                pluginGlobalEventData.each { obj: AbstractGlobalEvent ->
+                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
                     obj.registerNewCloseEvent(e.connectionAgreement)
                 }
             }

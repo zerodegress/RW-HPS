@@ -79,20 +79,20 @@ class ModsLoad {
         val fileMap = OrderedMap<String, ByteArray>()
 
         // 对文件夹进行排序
-        seq.sort { name1, name2 ->
+        seq.sortWith { name1, name2 ->
             val filePath1 = name1.substring(0, name1.length - name1.split("/").toTypedArray()[name1.split("/").toTypedArray().size - 1].length)
             val filePath2 = name2.substring(0, name2.length - name2.split("/").toTypedArray()[name2.split("/").toTypedArray().size - 1].length)
 
             // 根目录最低优先
             if (filePath1 == "" || filePath2 == "") {
-                return@sort 0
+                return@sortWith 0
             }
 
-            return@sort filePath1.compareTo(filePath2)
+            return@sortWith filePath1.compareTo(filePath2)
         }
 
         // 排序后重构文件夹
-        seq.each { fileMap.put(it,orderedMap[it]) }
+        seq.eachAll { fileMap.put(it,orderedMap[it]) }
 
         val result = OrderedMap<String,ModsIniData>()
 
@@ -154,7 +154,7 @@ class ModsLoad {
             }
 
             val copyFromSection = modData.checkEachModuleValue("@copyFromSection")
-            copyFromSection.each {
+            copyFromSection.eachAll {
                 copyFromSection(modData,it,it,0)
             }
 
@@ -261,11 +261,11 @@ class ModsLoad {
             if (section.isNotBlank()) {
                 val sectionList = beRecorded.checkForASpecificModuleAndStartWithASpecificCharacter(section,"")
 
-                if (sectionList.size() == 0) {
+                if (sectionList.size == 0) {
                     Log.warn("[$key] @copyFromSection: Could not find keys in target section : $section")
                 }
 
-                sectionList.each {
+                sectionList.eachAll {
                     val str3 = beRecorded.getValue(section,it)
 
                     if (str3 != null) {
@@ -283,8 +283,8 @@ class ModsLoad {
         val global = beRecorded.checkForKeysStartingWithASpecificName("@global ")
         val gblbalMap = ObjectMap<String,String>()
 
-        global.each { moduleName ->
-            beRecorded.checkForASpecificModuleAndStartWithASpecificCharacter(moduleName,"@global ").each {
+        global.eachAll { moduleName ->
+            beRecorded.checkForASpecificModuleAndStartWithASpecificCharacter(moduleName,"@global ").eachAll {
                 val str2: String = it.substring("@global ".length).trim()
                 ModsIniUtil.nameCheck(str2)
 
@@ -299,7 +299,7 @@ class ModsLoad {
 
             val defineMap = ObjectMap<String,String>()
 
-            beRecorded.checkForASpecificModuleAndStartWithASpecificCharacter(moduleName,"@define ").each {
+            beRecorded.checkForASpecificModuleAndStartWithASpecificCharacter(moduleName,"@define ").eachAll {
                 val str2: String = it.substring("@define ".length).trim()
                 ModsIniUtil.nameCheck(str2)
 

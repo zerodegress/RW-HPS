@@ -20,7 +20,7 @@ import cn.rwhps.server.util.game.CommandHandler
 class RelayCommands(handler: CommandHandler) {
     private fun registerRelayCommand(handler: CommandHandler) {
         handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
-            if (Relay.serverRelayIpData.size() == 0) {
+            if (Relay.serverRelayIpData.size == 0) {
                 log["No players are currently in the server."]
             } else {
                 log[Relay.relayAllIP]
@@ -53,10 +53,10 @@ class RelayCommands(handler: CommandHandler) {
         }
 
         handler.register("bans",  "serverCommands.bans") { _: Array<String>, log: StrCons ->
-            if (Data.core.admin.bannedIP24.size() == 0) {
+            if (Data.core.admin.bannedIP24.size == 0) {
                 log["No bans are currently in the server."]
             } else {
-                log["Bans: {0}", Data.core.admin.bannedIP24.size()]
+                log["Bans: {0}", Data.core.admin.bannedIP24.size]
                 val data = StringBuilder()
                 for (ipLong in Data.core.admin.bannedIP24) {
                     data.append(Data.LINE_SEPARATOR)

@@ -60,7 +60,7 @@ class CoreCommands(handler: CommandHandler) {
 
         @NeedHelp
         handler.register("stop", "HIDE") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size() == 0) {
+            if (NetStaticData.startNet.size == 0) {
                 log["Server does not start"]
                 return@register
             }
@@ -70,10 +70,10 @@ class CoreCommands(handler: CommandHandler) {
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size())]
+                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size)]
             } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
                 val size = AtomicInteger()
-                NetStaticData.startNet.each { e: StartNet -> size.addAndGet(e.getConnectSize()) }
+                NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
                 log[localeUtil.getinput("status.versionS.relay", size.get())]
             }
         }
@@ -92,7 +92,7 @@ class CoreCommands(handler: CommandHandler) {
             }
         }
         handler.register("mods", "serverCommands.mods") { _: Array<String>?, log: StrCons ->
-            ModManage.getModsList().each {
+            ModManage.getModsList().eachAll {
                 log[localeUtil.getinput("mod.info", it)]
             }
         }
@@ -119,7 +119,7 @@ class CoreCommands(handler: CommandHandler) {
 
 
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size() > 0) {
+            if (NetStaticData.startNet.size > 0) {
                 log["The server is not closed, please close"]
                 return@register
             }
@@ -136,10 +136,10 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice")
+            handler.handleMessage("startnetservice 5201 5500") //5200 6500
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size() > 0) {
+            if (NetStaticData.startNet.size > 0) {
                 log["The server is not closed, please close"]
                 return@register
             }
@@ -190,7 +190,7 @@ class CoreCommands(handler: CommandHandler) {
      * @param log StrCons            Log打印
      */
     private fun startServer(handler: CommandHandler ,netType: IRwHps.NetType, log: StrCons) {
-        if (NetStaticData.startNet.size() > 0) {
+        if (NetStaticData.startNet.size > 0) {
             log["The server is not closed, please close"]
             return
         }

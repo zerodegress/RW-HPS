@@ -67,7 +67,7 @@ data class BaseRelayPublishConfig(
             val config: BaseRelayPublishConfig = BaseRelayPublishConfig::class.java.toGson(fileUtil.readFileStringData())
 
             // PATH
-            config.allName().each {
+            config.allName().eachAll {
                 val data = System.getProperties().getProperty("rwhps.relay.config.$it")
                 if (data != null) {
                     if (config.coverField(it,data)) {

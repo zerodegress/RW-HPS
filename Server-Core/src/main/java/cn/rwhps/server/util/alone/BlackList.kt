@@ -17,19 +17,13 @@ import cn.rwhps.server.util.Time.millis
 import java.util.concurrent.TimeUnit
 
 class BlackList {
-    private val blackList = Seq<BlackData>(false, 16)
+    private val blackList = Seq<BlackData>(16)
     fun addBlackList(str: String) {
         blackList.add(BlackData(str, getTimeFutureMillis(3600 * 1000L)))
     }
 
     fun containsBlackList(str: String): Boolean {
-        val result = BooleanArray(1)
-        blackList.each { e: BlackData ->
-            if (e.ip == str) {
-                result[0] = true
-            }
-        }
-        return result[0]
+        return blackList.find { it.ip == str } != null
     }
 
     private class BlackData(val ip: String, val time: Long) {
@@ -54,7 +48,7 @@ class BlackList {
     init {
         newTimedTask(CallTimeTask.BlackListCheckTask, 0, 1, TimeUnit.HOURS){
             val time = millis()
-            blackList.each({ it.time < time }) { value: BlackData -> blackList.remove(value) }
+            blackList.eachAllFind({ it.time < time }) { value: BlackData -> blackList.remove(value) }
         }
     }
 }

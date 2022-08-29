@@ -157,7 +157,7 @@ internal class UpList : Plugin() {
         addData0    = addData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         addData0    = addData0.replace("{RW-HPS.S.PORT}",port)
         addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20))
-        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size().toString())
+        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size.toString())
         addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
 
@@ -197,7 +197,7 @@ internal class UpList : Plugin() {
             if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20))
         updateData0     = updateData0.replace("{RW-HPS.S.STATUS}",
             if (Data.game.isStartGame) "ingame" else "battleroom")
-        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size().toString())
+        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size.toString())
         updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
 

@@ -156,7 +156,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
                 val admin = AtomicBoolean(true)
-                Data.game.playerManage.playerGroup.each({ p: Player -> p.isAdmin },{ _: Player -> admin.set(false) })
+                Data.game.playerManage.playerGroup.eachAllFind({ p: Player -> p.isAdmin },{ _: Player -> admin.set(false) })
                 if (admin.get() && Data.config.OneAdmin) {
                     player.isAdmin = true
                     upDataGameData()
@@ -164,7 +164,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
                 Threads.newCountdown(CallTimeTask.PlayerAfkTask, 30, TimeUnit.SECONDS) {
-                    Data.game.playerManage.playerGroup.each(
+                    Data.game.playerManage.playerGroup.eachAllFind(
                         { p: Player -> p.isAdmin }) { i: Player ->
                         i.isAdmin = false
                         player.isAdmin = true
@@ -228,8 +228,8 @@ internal class ClientCommands(handler: CommandHandler) {
             player.sendSystemMessage(
                 player.i18NBundle.getinput(
                     "status.version",
-                    Data.game.playerManage.playerGroup.size(),
-                    Data.core.admin.bannedIPs.size(),
+                    Data.game.playerManage.playerGroup.size,
+                    Data.core.admin.bannedIPs.size,
                     Data.SERVER_CORE_VERSION,
                     NetStaticData.RwHps.typeConnect.version
                 )
@@ -258,7 +258,7 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("sync",  "clientCommands.sync") { _: Array<String>?, player: Player ->
             run {
-                if (Data.game.playerManage.playerGroup.size() == 1) {
+                if (Data.game.playerManage.playerGroup.size == 0) {
                     player.sendSystemMessage("Only one player, Ban Sync")
                 } else {
                     player.sync()
@@ -404,7 +404,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
 
                 if (Data.config.StartMinPlayerSize != -1 &&
-                    Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size()) {
+                    Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size) {
                     player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
                     return@register
                 }
@@ -417,7 +417,7 @@ internal class ClientCommands(handler: CommandHandler) {
 
                 val enc = NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()
 
-                Data.game.playerManage.playerGroup.each { e: Player ->
+                Data.game.playerManage.playerGroup.eachAll { e: Player ->
                     try {
                         e.con!!.sendTeamData(enc)
                         e.con!!.sendStartGame()
@@ -427,7 +427,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     }
                 }
                 if (Data.game.sharedControl) {
-                    Data.game.playerManage.playerGroup.each { it.sharedControl = true }
+                    Data.game.playerManage.playerGroup.eachAll { it.sharedControl = true }
                 }
                 Data.game.playerManage.updateControlIdentifier()
                 testPreparationPlayer()

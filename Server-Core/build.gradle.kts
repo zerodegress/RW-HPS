@@ -42,14 +42,16 @@ dependencies {
 	}
 
 
-	implementation("org.apache.maven:maven-core:3.8.6")
+	//implementation("org.apache.maven:maven-core:3.8.6")
+	implementation("org.apache.maven:maven-project:2.2.1")
+	implementation("org.apache.maven:maven-model:3.8.6")
 	implementation("org.lionsoul:ip2region:1.7.2")
 	implementation("org.jline:jline-reader:3.21.0")
 	implementation("org.fusesource.jansi:jansi:2.4.0")
 
 
 	compileOnly("commons-io:commons-io:2.11.0")
-	compileOnly("it.unimi.dsi:fastutil:8.5.8")
+	api("it.unimi.dsi:fastutil-core:8.5.8")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.8.2")
 }

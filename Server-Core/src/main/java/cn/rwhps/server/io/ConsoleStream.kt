@@ -22,10 +22,10 @@ class ConsoleStream {
         override fun complete(reader: LineReader, line: ParsedLine, candidates: MutableList<Candidate>) {
             val cmd = line.line().substring(0, line.cursor()).split(' ')[0]
             val candidatesList = Seq<String>()
-            Data.SERVER_COMMAND.commandList.each {
+            Data.SERVER_COMMAND.commandList.eachAll {
                 if (it.text.startsWith(cmd,ignoreCase = true)) {
                     if (it.text == cmd) {
-                        return@each
+                        return@eachAll
                     }
                     candidatesList.add(it.text)
                 }

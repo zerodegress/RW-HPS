@@ -44,7 +44,7 @@ class PluginsLoad {
                 if (imports != null) {
                     val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
                     val lib = LibraryManager()
-                    importsJson.each {
+                    importsJson.eachAll {
                         lib.implementation(it.getString("group"), it.getString("module"), it.getString("version"))
                     }
                     lib.loadToClassLoader()
@@ -75,9 +75,9 @@ class PluginsLoad {
             }
         }
         var i = 0
-        val count = dataImport.size()
+        val count = dataImport.size
         while (i < count) {
-            dataImport.each { e: PluginImportData ->
+            dataImport.eachAll { e: PluginImportData ->
                 if (dataName.contains(e.pluginData.getString("import"))) {
                     try {
                         val mainPlugin = loadClass(e.file, e.pluginData.getString("main"))

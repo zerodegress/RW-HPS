@@ -12,7 +12,7 @@ class ModsHandler : BaseGetHandler() {
     override fun get(accept: AcceptWeb, send: SendWeb) {
         super.get(accept, send)
         val mods: ArrayList<ModsResp> = arrayListOf()
-        ModManage.getModsList().each {
+        ModManage.getModsList().eachAll {
             mods.add(ModsResp(it))
         }
         send(send,BaseResp(data = mods).toPrettyPrintingJson())

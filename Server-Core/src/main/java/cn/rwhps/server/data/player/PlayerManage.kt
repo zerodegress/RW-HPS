@@ -41,11 +41,11 @@ class PlayerManage(private val maxPlayerSize: Int) {
 
     /** Online players   */
     @JvmField
-    val playerGroup = Seq<Player>(16)
+    val playerGroup = Seq<Player>(16,true)
 
     /** ALL players  */
     @JvmField
-    val playerAll = Seq<Player>(16)
+    val playerAll = Seq<Player>(16,true)
 
     /** 队伍数据  */
     private val playerData = arrayOfNulls<Player?>(maxPlayerSize)
@@ -55,7 +55,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
     fun addPlayer(con: GameVersionServer, uuid: String, name: String, i18NBundle: I18NBundle = Data.i18NBundle): Player {
         val player = Player(con, uuid, name, i18NBundle)
         if (Data.config.OneAdmin) {
-            if (playerGroup.size() == 0) {
+            if (playerGroup.size == 0) {
                 player.isAdmin = true
             }
         }
@@ -76,10 +76,15 @@ class PlayerManage(private val maxPlayerSize: Int) {
         removePlayerArray(player.site)
     }
     fun removePlayerArray(size: Int) {
-        playerData[size] = null
+        moveLock.withLock {
+            playerData[size] = null
+        }
     }
     fun setPlayerArray(size: Int, player: Player?) {
-        playerData[size] = player
+        moveLock.withLock {
+            playerData[size] = player
+
+        }
     }
     fun getPlayerArray(size: Int): Player? {
         return playerData[size]
@@ -93,21 +98,23 @@ class PlayerManage(private val maxPlayerSize: Int) {
     }
 
     fun updateControlIdentifier() {
-        var int3 = 0
-        for (i in 0 until maxPlayerSize) {
-            val player1 = playerData[i]
-            if (player1 != null && player1.controlThePlayer) {
-                if (player1.controlThePlayer) {
-                    int3 = int3 or 1 shl i
+        moveLock.withLock {
+            var int3 = 0
+            for (i in 0 until maxPlayerSize) {
+                val player1 = playerData[i]
+                if (player1 != null && player1.controlThePlayer) {
+                    if (player1.controlThePlayer) {
+                        int3 = int3 or 1 shl i
+                    }
                 }
             }
+            sharedControlPlayer = int3
         }
-        sharedControlPlayer = int3
     }
 
     fun cleanPlayerAllData() {
-        playerGroup.each { it.kickPlayer("CleanAllPlayer")}
-        playerAll.each { it.kickPlayer("CleanAllPlayer")}
+        playerGroup.eachAll { it.kickPlayer("CleanAllPlayer")}
+        playerAll.eachAll { it.kickPlayer("CleanAllPlayer")}
 
         Arrays.fill(playerData, null)
         playerAll.clear()
@@ -144,17 +151,21 @@ class PlayerManage(private val maxPlayerSize: Int) {
     }
 
     fun amYesPlayerTeam() {
-        for (i in 0 until maxPlayerSize) {
-            if (playerData[i] != null) {
-                playerData[i]!!.team = i
+        moveLock.withLock {
+            for (i in 0 until maxPlayerSize) {
+                if (playerData[i] != null) {
+                    playerData[i]!!.team = i
+                }
             }
         }
     }
 
     fun amNoPlayerTeam() {
-        for (i in 0 until maxPlayerSize) {
-            if (playerData[i] != null) {
-                playerData[i]!!.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
+        moveLock.withLock {
+            for (i in 0 until maxPlayerSize) {
+                if (playerData[i] != null) {
+                    playerData[i]!!.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
+                }
             }
         }
     }

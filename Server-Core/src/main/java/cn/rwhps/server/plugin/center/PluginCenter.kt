@@ -19,13 +19,13 @@ import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
 import cn.rwhps.server.util.game.CommandHandler
 
 class PluginCenter {
-    private val PluginCommand = CommandHandler("")
+    private val pluginCommand = CommandHandler("")
     private var pluginCenterData: PluginCenterData
     private val url: String = Data.urlData.readString("Get.Plugin.Core")
 
 
     fun command(str: String?, log: StrCons) {
-        val response = PluginCommand.handleMessage(str, log)
+        val response = pluginCommand.handleMessage(str, log)
         if (response.type != CommandHandler.ResponseType.valid) {
             val text: String = when (response.type) {
                         CommandHandler.ResponseType.manyArguments -> {
@@ -43,19 +43,19 @@ class PluginCenter {
     }
 
     private fun register() {
-        PluginCommand.register("help", "") { _: Array<String?>?, log: StrCons ->
-            log["plugin list  查看插件列表"];
-            log["plugin updatelist  更新插件列表"]
+        pluginCommand.register("help", "") { _: Array<String?>?, log: StrCons ->
+            log["plugin list  查看插件列表"]
+            log["plugin updatalist  更新插件列表"]
             log["plugin install PluginID  安装指定id的插件"]
         }
-        PluginCommand.register("updatelist", "") { _: Array<String?>?, log: StrCons ->
+        pluginCommand.register("updatelist", "") { _: Array<String?>?, log: StrCons ->
             pluginCenterData = PluginCenterData(url + "PluginData")
             log["更新插件列表完成"]
         }
-        PluginCommand.register("list", "") { _: Array<String?>?, log: StrCons ->
+        pluginCommand.register("list", "") { _: Array<String?>?, log: StrCons ->
             log[pluginCenterData.pluginData]
         }
-        PluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: StrCons ->
+        pluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: StrCons ->
             val json = pluginCenterData.getJson(arg[0].toInt())
             if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
                 log["Plugin version is not compatible Plugin name is: {0}", json.getString("name")]
@@ -76,7 +76,7 @@ class PluginCenter {
             get() {
                 val stringBuilder = StringBuilder()
                 var json: Json
-                for (i in 0 until pluginCenterData.size()) {
+                for (i in 0 until pluginCenterData.size) {
                     json = pluginCenterData[i]
                     stringBuilder.append("ID: ").append(i).append("  ")
                         .append("Name: ").append(json.getString("name")).append("  ")

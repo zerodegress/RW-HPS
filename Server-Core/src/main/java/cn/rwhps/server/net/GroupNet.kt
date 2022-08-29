@@ -62,7 +62,7 @@ class GroupNet {
     fun broadcastAndUDP(msg: Any) {
         singleTcpThreadExecutor.execute { channelGroup.writeAndFlush(msg) }
         singleUdpThreadExecutor.execute {
-            protocol.each { e: ConnectionAgreement ->
+            protocol.eachAll { e: ConnectionAgreement ->
                 try {
                     e.send((msg as Packet))
                 } catch (ioException: IOException) {

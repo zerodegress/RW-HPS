@@ -89,11 +89,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     protected var site = 0
 
-    private val connectUUID = UUID.randomUUID().toString()
+    protected val connectUUID = UUID.randomUUID().toString()
 
-    private var cachePacket: Packet? = null
+    protected var cachePacket: Packet? = null
+        private set
 
-    private var relaySelect: ((String) -> Unit)? = null
+    protected var relaySelect: ((String) -> Unit)? = null
 
     var name = "NOT NAME"
         protected set
@@ -121,7 +122,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     override fun setlastSentPacket(packet: Packet) {
     }
-
 
     override val version: String
         get() = "1.14 RELAY"
@@ -329,7 +329,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             relay!!.admin = this
             //Log.debug(this == relay.getAdmin());
             val o = GameOutputStream()
-            if (clientVersion == 172) {
+            if (clientVersion >= 172) {
                 o.writeByte(2)
                 o.writeBoolean(true)
                 o.writeBoolean(true)
@@ -424,7 +424,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             relay!!.setAbstractNetConnect(this)
             site = relay!!.getSite()
             val o = GameOutputStream()
-            if (clientVersion == 172) {
+            if (clientVersion >= 172) {
                 o.writeByte(1)
                 o.writeInt(site)
                 // ?
@@ -506,7 +506,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     override fun addReRelayConnect() {
         try {
             val o = GameOutputStream()
-            if (clientVersion == 172) {
+            if (clientVersion >= 172) {
                 o.writeByte(1)
                 o.writeInt(site)
                 // ?
@@ -552,19 +552,21 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 inStream.skip(4)
                 val bytes = inStream.readAllBytes()
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
-                if (PacketType.KICK.typeInt == type) {
-                    val gameOutputStream = GameOutputStream()
-                    gameOutputStream.writeString(GameInputStream(bytes).readString().replace("\\d".toRegex(), ""))
-                    abstractNetConnect?.sendPacket(gameOutputStream.createPacket(type))
-                    relayPlayerDisconnect()
-                    return
-                }
                 abstractNetConnect?.sendPacket(Packet(type, bytes))
 
-                if (!relay!!.isStartGame) {
-                    if (type == PacketType.TEAM_LIST.typeInt) {
-                        abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
+                when (type) {
+                    PacketType.KICK.typeInt -> {
+                        abstractNetConnect?.relayPlayerDisconnect()
                     }
+                    PacketType.TEAM_LIST.typeInt -> {
+                        if (!relay!!.isStartGame) {
+                            abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
+                        } else {}
+                    }
+                    PacketType.RETURN_TO_BATTLEROOM.typeInt -> {
+                        relay!!.isStartGame = false
+                    }
+                    else -> {}
                 }
             }
         } catch (e: IOException) {
@@ -760,7 +762,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     return
                 }
                 if (arry.size > 1) {
-                    val unit = 200
                     if (arry[1].contains("I", ignoreCase = true)) {
                         val ay = arry[1].split("I", ignoreCase = true)
                         if (ay.size > 1) {
@@ -799,6 +800,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             }
         } else {
             try {
+                if (id.contains(".")) {
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", "不能包含 [ . ]"))
+                    return
+                }
                 relay = Relay.getRelay(id)
                 if (relay != null) {
                     addRelayConnect()
@@ -818,13 +823,17 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
             return false
         }
+        if (str.contains(".")) {
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", "不能包含 [ . ]"))
+            return false
+        }
         return true
     }
 
     private fun adminMoveNew() {
         relay!!.updateMinSize()
         relay!!.getAbstractNetConnect(relay!!.minSize)!!.sendRelayServerId()
-        relay!!.abstractNetConnectIntMap.values().forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
+        relay!!.abstractNetConnectIntMap.values.forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
     }
 
     private fun newRelayId(mod: Boolean, customRelayData: CustomRelayData) {

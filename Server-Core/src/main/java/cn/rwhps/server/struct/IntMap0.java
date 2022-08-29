@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
  * @author Nathan Sweet
  */
 @SuppressWarnings("unchecked")
-public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
+public class IntMap0<V> implements Iterable<IntMap0.Entry<V>>{
     private static final int PRIME1 = 0xbe1f14b1;
     private static final int PRIME2 = 0xb4b82e39;
     private static final int PRIME3 = 0xced1c241;
@@ -49,8 +49,8 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     private Values values1, values2;
     private Keys keys1, keys2;
 
-    public static <V> IntMap<V> of(Object... values){
-        IntMap<V> map = new IntMap<>();
+    public static <V> IntMap0<V> of(Object... values){
+        IntMap0<V> map = new IntMap0<>();
 
         for(int i = 0; i < values.length / 2; i++){
             Object key = values[i * 2];
@@ -62,7 +62,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     }
 
     /** Creates a new map with an initial capacity of 51 and a load factor of 0.8. */
-    public IntMap(){
+    public IntMap0(){
         this(51, 0.8f);
     }
 
@@ -70,7 +70,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
      * Creates a new map with a load factor of 0.8.
      * @param initialCapacity If not a power of two, it is increased to the next nearest power of two.
      */
-    public IntMap(int initialCapacity){
+    public IntMap0(int initialCapacity){
         this(initialCapacity, 0.8f);
     }
 
@@ -79,7 +79,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
      * growing the backing table.
      * @param initialCapacity If not a power of two, it is increased to the next nearest power of two.
      */
-    public IntMap(int initialCapacity, float loadFactor){
+    public IntMap0(int initialCapacity, float loadFactor){
         if(initialCapacity < 0) {
             throw new IllegalArgumentException("initialCapacity must be >= 0: " + initialCapacity);
         }
@@ -105,7 +105,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     }
 
     /** Creates a new map identical to the specified map. */
-    public IntMap(IntMap<? extends V> map){
+    public IntMap0(IntMap0<? extends V> map){
         this((int)Math.floor(map.capacity * map.loadFactor), map.loadFactor);
         stashSize = map.stashSize;
         System.arraycopy(map.keyTable, 0, keyTable, 0, map.keyTable.length);
@@ -194,7 +194,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
         return null;
     }
 
-    public void putAll(IntMap<? extends V> map){
+    public void putAll(IntMap0<? extends V> map){
         for(Entry<? extends V> entry : map.entries()) {
             put(entry.key, entry.value);
         }
@@ -703,10 +703,10 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
         if(obj == this) {
             return true;
         }
-        if(!(obj instanceof IntMap)) {
+        if(!(obj instanceof IntMap0)) {
             return false;
         }
-        IntMap<V> other = (IntMap)obj;
+        IntMap0<V> other = (IntMap0)obj;
         if(other.size != size) {
             return false;
         }
@@ -864,12 +864,12 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     private static class MapIterator<V>{
         static final int INDEX_ILLEGAL = -2;
         static final int INDEX_ZERO = -1;
-        final IntMap<V> map;
+        final IntMap0<V> map;
         public boolean hasNext;
         int nextIndex, currentIndex;
         boolean valid = true;
 
-        public MapIterator(IntMap<V> map){
+        public MapIterator(IntMap0<V> map){
             this.map = map;
             reset();
         }
@@ -917,7 +917,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     public static class Entries<V> extends MapIterator<V> implements Iterable<Entry<V>>, Iterator<Entry<V>>{
         private final Entry<V> entry = new Entry();
 
-        public Entries(IntMap map){
+        public Entries(IntMap0 map){
             super(map);
         }
 
@@ -963,7 +963,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     }
 
     public static class Values<V> extends MapIterator<V> implements Iterable<V>, Iterator<V>{
-        public Values(IntMap<V> map){
+        public Values(IntMap0<V> map){
             super(map);
         }
 
@@ -1001,7 +1001,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
 
         /** Returns a new array containing the remaining values. */
         public Seq<V> toArray(){
-            Seq array = new Seq(true, map.size);
+            Seq<V> array = new Seq<V>( map.size);
             while(hasNext) {
                 array.add(next());
             }
@@ -1015,7 +1015,7 @@ public class IntMap<V> implements Iterable<IntMap.Entry<V>>{
     }
 
     public static class Keys extends MapIterator{
-        public Keys(IntMap map){
+        public Keys(IntMap0 map){
             super(map);
         }
 

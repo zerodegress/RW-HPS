@@ -44,10 +44,10 @@ object ModManage {
         }
         this.fileMods = fileUtil
         var loadCount = 0
-        fileMods!!.fileList.each {
+        fileMods!!.fileList.eachAll {
             // 只读取 RWMOD 和 ZIP
             if (!it.name.endsWith(".rwmod") && !it.name.endsWith(".zip")) {
-                return@each
+                return@eachAll
             }
 
             loadCount++

@@ -124,7 +124,7 @@ class Vote {
      * 正常投票
      */
     private fun normalDistribution() {
-        require = Data.game.playerManage.playerGroup.size()
+        require = Data.game.playerManage.playerGroup.size
         endNoMsg = { Call.sendSystemMessageLocal("vote.done.no", command + " " + (targetPlayer?.name ?:""), pass, this.require) }
         endYesMsg = { Call.sendSystemMessageLocal("vote.ok") }
         votePlayerIng = { Call.sendSystemMessage("vote.y.ing", command,pass,this.require) }
@@ -137,7 +137,7 @@ class Vote {
      */
     private fun teamOnly() {
         val require = AtomicInteger(0)
-        Data.game.playerManage.playerGroup.eachBooleanIfs({ e: Player -> e.team == player.team }) { _: Player -> require.getAndIncrement() }
+        Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == player.team }) { _: Player -> require.getAndIncrement() }
         this.require = require.get()
         endNoMsg = { Call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?:""),pass,this.require) }
         endYesMsg = { Call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
@@ -237,7 +237,7 @@ class Vote {
             commandStartData["surrender"] = { it.isTeam = true ; it.teamOnly() }
 
             commandEndData["gameover"] = { Events.fire(EventType.GameOverEvent()) }
-            commandEndData["surrender"] = { Log.clog("Surrender") ; Data.game.playerManage.playerGroup.eachBooleanIfs({ e: Player -> e.team == it.player.team }) { p: Player -> p.con!!.sendSurrender() } }
+            commandEndData["surrender"] = { Log.clog("Surrender") ; Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == it.player.team }) { p: Player -> p.con!!.sendSurrender() } }
         }
 
         fun testVoet(player: Player): Boolean {

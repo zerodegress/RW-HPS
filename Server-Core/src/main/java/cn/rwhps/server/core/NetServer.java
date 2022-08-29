@@ -15,9 +15,9 @@ import cn.rwhps.server.core.thread.TimeTaskData;
 import cn.rwhps.server.data.global.Data;
 import cn.rwhps.server.data.global.NetStaticData;
 import cn.rwhps.server.func.StrCons;
-import cn.rwhps.server.net.StartNet;
 import cn.rwhps.server.net.core.IRwHps;
 import cn.rwhps.server.util.log.Log;
+import kotlin.Unit;
 
 /**
  * @author RW-HPS/Dr
@@ -30,7 +30,10 @@ public class NetServer {
         if (Data.game != null) {
             TimeTaskData.INSTANCE.stopCallTickTask();
             Call.disAllPlayer();
-            NetStaticData.startNet.each(StartNet::stop);
+            NetStaticData.startNet.eachAll(e ->{
+                    e.stop();
+                    return Unit.INSTANCE;
+            });
             NetStaticData.startNet.clear();
             NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);
             Threads.closeNet();

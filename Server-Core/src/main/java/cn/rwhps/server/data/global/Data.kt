@@ -45,7 +45,7 @@ object Data {
     const val SERVER_ID = "cn.rwhps.server"
     const val SERVER_ID_RELAY = "cn.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "cn.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "6.4.0-DEV"
+    const val SERVER_CORE_VERSION = "6.4.0"
     const val TOPT_KEY = "cn.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     /** 单位数据缓存  */

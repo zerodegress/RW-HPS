@@ -19,6 +19,7 @@ import cn.rwhps.server.struct.IntMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil.isNumeric
 import cn.rwhps.server.util.Time
+import cn.rwhps.server.util.Time.concurrentSecond
 import cn.rwhps.server.util.log.Log.debug
 import java.io.IOException
 import java.util.*
@@ -31,7 +32,7 @@ class Relay {
     /**  */
     @JvmField
     val groupNet: GroupNet
-    val abstractNetConnectIntMap = IntMap<GameVersionRelay>()
+    val abstractNetConnectIntMap = IntMap<GameVersionRelay>(10,true)
 
 
     var admin: GameVersionRelay? = null
@@ -42,6 +43,8 @@ class Relay {
 
     var closeRoom = false
 
+    val roomCreateTime = Time.concurrentSecond()
+
    // val serverUuid = UUID.randomUUID().toString()
     val serverUuid = Data.SERVER_RELAY_UUID
     val internalID : Int
@@ -51,7 +54,7 @@ class Relay {
         private set
     var isStartGame: Boolean = false
         set(value) {
-            if (field) {
+            if (field && value) {
                 return
             }
             field = value
@@ -95,7 +98,7 @@ class Relay {
                 .append("Protocol: ").append(admin!!.useConnectionAgreement)
                 .append(" / ")
                 .append("Admin: true")
-            abstractNetConnectIntMap.values().forEach(Consumer { e: GameVersionRelay ->
+            abstractNetConnectIntMap.values.forEach(Consumer { e: GameVersionRelay ->
                 str.append(LINE_SEPARATOR)
                     .append(e.name)
                     .append(" / ")
@@ -171,12 +174,12 @@ class Relay {
     }
 
     fun getRandAdmin(): GameVersionRelay? {
-        return abstractNetConnectIntMap.values().toArray().random()
+        return if (abstractNetConnectIntMap.isEmpty()) null else abstractNetConnectIntMap.toArrayValues().random()
     }
 
     fun updateMinSize() {
         try {
-            minSize = Arrays.stream(abstractNetConnectIntMap.keys().toArray().toArray()).min().asInt
+            minSize = abstractNetConnectIntMap.toArrayKey().toArray(Int::class.java).min()
         } catch (_: Exception) {
         }
     }
@@ -197,9 +200,9 @@ class Relay {
     }
 
     companion object {
-        val serverRelayIpData = Seq<String>()
+        val serverRelayIpData = Seq<String>(true)
 
-        private val serverRelayData = IntMap<Relay>()
+        private val serverRelayData = IntMap<Relay>(128,true)
         private val rand = Rand()
 
         private val getRelayData = ReentrantLock(true)
@@ -208,7 +211,7 @@ class Relay {
         val relayAllIP: String
             get() {
                 val str = StringBuilder(10)
-                serverRelayData.values().forEach(Consumer { e: Relay ->
+                serverRelayData.values.forEach(Consumer { e: Relay ->
                     str.append(LINE_SEPARATOR)
                         .append(e.id)
                         .append(e.allIP)
@@ -219,7 +222,7 @@ class Relay {
         val allSize: Int
             get() {
                 val size = AtomicInteger()
-                serverRelayData.values().forEach(Consumer { e: Relay -> size.getAndAdd(e.getSize()) })
+                serverRelayData.values.forEach(Consumer { e: Relay -> size.getAndAdd(e.getSize()) })
                 return size.get()
             }
         val roomAllSize: Int
@@ -229,13 +232,10 @@ class Relay {
         val roomNoStartSize: Int
             get() {
                 val size = AtomicInteger()
-                serverRelayData.values().forEach(Consumer { e: Relay -> if (!e.isStartGame) size.incrementAndGet() })
+                serverRelayData.values.forEach(Consumer { e: Relay -> if (!e.isStartGame) size.incrementAndGet() })
                 return size.get()
             }
-        val roomPublicSize: Int
-            get() {
-                return 0
-            }
+        val roomPublicSize: Int = 0
 
         @get:Synchronized
         internal val randPow: NetConnectProofOfWork
@@ -249,16 +249,16 @@ class Relay {
 
         @JvmStatic
         fun sendAllMsg(msg: String) {
-            serverRelayData.values().forEach(Consumer { e: Relay -> e.sendMsg(msg) })
+            serverRelayData.values.forEach(Consumer { e: Relay -> e.sendMsg(msg) })
         }
 
         @JvmStatic
         fun getAllRelayIpCountry(): Map<String,Int> {
             return mutableMapOf<String, Int>().also {
                 mutableMapOf<String, AtomicInteger>().also { temp ->
-                    Relay.serverRelayData.values().forEach { relay ->
+                    Relay.serverRelayData.values.forEach { relay ->
                         temp.computeIfAbsent(relay.admin!!.ipCountry) { AtomicInteger(0) }.incrementAndGet()
-                        relay.abstractNetConnectIntMap.values().forEach { connect ->
+                        relay.abstractNetConnectIntMap.values.forEach { connect ->
                             temp.computeIfAbsent(connect.ipCountry) { AtomicInteger(0) }.incrementAndGet()
                         }
                     }
@@ -272,14 +272,23 @@ class Relay {
         fun getAllRelayVersion(): Map<Int,Int> {
             return mutableMapOf<Int, Int>().also {
                 mutableMapOf<Int, AtomicInteger>().also { temp ->
-                    Relay.serverRelayData.values().forEach { relay ->
+                    Relay.serverRelayData.values.forEach { relay ->
                         temp.computeIfAbsent(relay.admin!!.clientVersion) { AtomicInteger(0) }.incrementAndGet()
-                        relay.abstractNetConnectIntMap.values().forEach { connect ->
+                        relay.abstractNetConnectIntMap.values.forEach { connect ->
                             temp.computeIfAbsent(connect.clientVersion) { AtomicInteger(0) }.incrementAndGet()
                         }
                     }
                 }.forEach { (version, count) ->
                     it[version] = count.get()
+                }
+            }
+        }
+
+        internal fun cleanRoom() {
+            val time = concurrentSecond() - 12 * 60 * 60
+            serverRelayData.forEach {
+                if (it.value.roomCreateTime < time) {
+                    it.value.removeRoom()
                 }
             }
         }

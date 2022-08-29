@@ -9,7 +9,6 @@
 
 package cn.rwhps.server.command.server
 
-import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Call.sendMessage
 import cn.rwhps.server.core.Call.sendSystemMessage
 import cn.rwhps.server.core.Call.sendTeamData
@@ -145,7 +144,7 @@ internal class ServerCommands(handler: CommandHandler) {
             }
         }
         handler.register("giveadmin", "<PlayerSerialNumber...>", "serverCommands.giveadmin") { arg: Array<String>, _: StrCons ->
-            Data.game.playerManage.playerGroup.each(
+            Data.game.playerManage.playerGroup.eachAllFind(
                 { p: Player -> p.isAdmin }) { i: Player ->
                 val player = Data.game.playerManage.getPlayerArray(arg[0].toInt())
                 if (player != null) {
@@ -157,7 +156,7 @@ internal class ServerCommands(handler: CommandHandler) {
             }
         }
         handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
-            Data.game.playerManage.playerGroup.each { e: Player -> e.muteTime = 0 }
+            Data.game.playerManage.playerGroup.eachAll { e: Player -> e.muteTime = 0 }
         }
 
         handler.register("turnstoneintogold", "<PlayerSerialNumber>", "# turnstoneintogold") { arg: Array<String>, _: StrCons ->
@@ -171,10 +170,10 @@ internal class ServerCommands(handler: CommandHandler) {
 
     private fun registerPlayerStatusCommand(handler: CommandHandler) {
         handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
-            if (Data.game.playerManage.playerGroup.size() == 0) {
+            if (Data.game.playerManage.playerGroup.size == 0) {
                 log["No players are currently in the server."]
             } else {
-                log["Players: {0}", Data.game.playerManage.playerGroup.size()]
+                log["Players: {0}", Data.game.playerManage.playerGroup.size]
                 val data = StringBuilder()
                 for (player in Data.game.playerManage.playerGroup) {
                     data.append(LINE_SEPARATOR)
@@ -285,7 +284,7 @@ internal class ServerCommands(handler: CommandHandler) {
                 Data.game.maps.mapName = name
                 Data.game.maps.mapPlayer = ""
             }
-            Call.upDataGameData(false)
+            upDataGameData(false)
         }
         handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
             val cache = Seq<Array<ByteArray>>()
@@ -306,7 +305,7 @@ internal class ServerCommands(handler: CommandHandler) {
             // 偏移量
             var off = 0
 
-            cache.each {
+            cache.eachAll {
                 var i = 0
                 var lg = true
                 for ((height, lineArray) in it.withIndex()) {

@@ -30,10 +30,10 @@ object PluginManage {
     private val pluginEventManage = PluginEventManage()
     private var pluginData: Seq<PluginLoadData>? = null
     val loadSize: Int
-        get() = pluginData!!.size()
+        get() = pluginData!!.size
 
     fun run(cons: Cons<PluginLoadData?>) {
-        pluginData!!.each { t: PluginLoadData? -> cons[t] }
+        pluginData!!.eachAll { t: PluginLoadData? -> cons[t] }
     }
 
     fun init(fileUtil: FileUtil) {
@@ -46,48 +46,48 @@ object PluginManage {
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
     fun runOnEnable() {
-        pluginData!!.each { e: PluginLoadData -> e.main.onEnable() }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.onEnable() }
     }
 
     /** 注册要在服务器端使用的任何命令，例如从控制台 */
     fun runRegisterCoreCommands(handler: CommandHandler) {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerCoreCommands(handler) }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerCoreCommands(handler) }
     }
     /** 注册要在服务器端使用的任何命令，例如从控制台-Server */
     fun runRegisterServerCommands(handler: CommandHandler) {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerServerCommands(handler) }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerCommands(handler) }
     }
     /** 注册要在服务器端使用的任何命令，例如从控制台-Relay */
     fun runRegisterRelayCommands(handler: CommandHandler) {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
     }
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 */
     fun runRegisterServerClientCommands(handler: CommandHandler) {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
     }
     /** 注册要在客户端使用的任何命令，例如来自RELAY内玩家 */
     fun runRegisterRelayClientCommands(handler: CommandHandler) {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
     }
 
     /** 注册事件 -4  */
     fun runRegisterEvents() {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerEvents()?.let { add(it)} }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerEvents()?.let { add(it)} }
     }
     /** 注册事件 -4  */
     fun runRegisterGlobalEvents() {
-        pluginData!!.each { e: PluginLoadData -> e.main.registerGlobalEvents()?.let { add(it)} }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerGlobalEvents()?.let { add(it)} }
     }
 
     /** 创建所有插件并注册命令后调用 -5  */
     fun runInit() {
-        pluginData!!.each { e: PluginLoadData -> e.main.init() }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.init() }
     }
 
     /** Server退出时执行 可以进行Plugin的数据保存  -6  */
     fun runOnDisable() {
-        pluginData!!.each { e: PluginLoadData ->
+        pluginData!!.eachAll { e: PluginLoadData ->
             //e.main.pluginData.save()
             e.main.onDisable()
         }
@@ -95,7 +95,7 @@ object PluginManage {
 
     @DidNotFinish
     fun removePlugin(name: String) {
-        pluginData!!.each({ e: PluginLoadData -> e.name.equals(name, ignoreCase = true) }) { p: PluginLoadData ->
+        pluginData!!.eachFind({ e: PluginLoadData -> e.name.equals(name, ignoreCase = true) }) { p: PluginLoadData ->
             pluginData!!.remove(p)
             //p.main.onUnLoad();
             try {

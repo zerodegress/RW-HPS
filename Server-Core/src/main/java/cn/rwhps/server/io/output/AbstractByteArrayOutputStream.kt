@@ -53,7 +53,7 @@ abstract class AbstractByteArrayOutputStream : OutputStream() {
      * @param newCount  缓冲区的大小（如果创建一个）
      */
     protected fun needNewBuffer(newCount: Int) {
-        if (currentBufferIndex < buffers.size() - 1) {
+        if (currentBufferIndex < buffers.size - 1) {
             //回收旧缓冲区
             filledBufferSum += currentBuffer!!.size
             currentBufferIndex++
@@ -70,7 +70,7 @@ abstract class AbstractByteArrayOutputStream : OutputStream() {
             }
             currentBufferIndex++
             currentBuffer = ByteArray(newBufferSize)
-            buffers.add(currentBuffer)
+            buffers.add(currentBuffer!!)
         }
     }
 

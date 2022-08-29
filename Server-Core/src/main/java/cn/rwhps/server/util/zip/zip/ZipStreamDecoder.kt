@@ -102,7 +102,7 @@ internal class ZipStreamDecoder: ZipDecoderUtils {
                 while (zipStream.nextZipEntry.also { zipEntry = it } != null) {
                     val nameCache = zipEntry!!.name
 
-                    endWithSeq.each({ nameCache.endsWith(it) }) { _: String ->
+                    endWithSeq.eachAllFind({ nameCache.endsWith(it) }) { _: String ->
                         //Log.debug(nameCache,name)
                         data.put(nameCache, multiplexingReadStream.readInputStreamBytes(zipStream))
                     }

@@ -136,7 +136,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
         findNameIn?.let { findName ->
             var count = 0
-            con.relay!!.abstractNetConnectIntMap.values().forEach {
+            con.relay!!.abstractNetConnectIntMap.values.forEach {
                 if (it.playerRelay!!.name.contains(findName,ignoreCase = true)) {
                     conTg = it
                     count++
@@ -153,7 +153,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
         }
 
         findSiteIn?.let {findSite ->
-            con.relay!!.abstractNetConnectIntMap.values().forEach {
+            con.relay!!.abstractNetConnectIntMap.values.forEach {
                 if (it.playerRelay!!.site == findSite) {
                     conTg = it
                 }

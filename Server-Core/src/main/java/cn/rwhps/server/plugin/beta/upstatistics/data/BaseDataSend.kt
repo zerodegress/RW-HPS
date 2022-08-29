@@ -36,14 +36,14 @@ data class BaseDataSend(
     ) {
     companion object {
         data class ServerData(
-            val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.each { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
+            val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
             val MaxPlayer: Int                      = Data.config.MaxPlayer,
             val PlayerVersion: Int                  = (NetStaticData.RwHps.typeConnect.abstractNetConnect as GameVersionServer).supportedVersionInt,
             val IpPlayerCountry: Map<String,Int>,
         )
 
         data class RelayData(
-            val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.each { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
+            val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
             val RoomAllSize: Int                    = Relay.roomAllSize,
             val RoomNoStartSize: Int                = Relay.roomNoStartSize,
             val RoomPublicListSize: Int             = Relay.roomPublicSize,

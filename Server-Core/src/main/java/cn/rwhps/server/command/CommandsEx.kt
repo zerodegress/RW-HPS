@@ -38,7 +38,7 @@ class CommandsEx(handler: CommandHandler) {
             when (NetStaticData.ServerNetType) {
                 ServerProtocol, ServerProtocolOld, ServerTestProtocol -> {
                     out.writeString("PlayerSize")
-                    out.writeInt(Data.game.playerManage.playerGroup.size())
+                    out.writeInt(Data.game.playerManage.playerGroup.size)
                     out.writeString("MaxPlayer")
                     out.writeInt(Data.config.MaxPlayer)
 
@@ -70,7 +70,7 @@ class CommandsEx(handler: CommandHandler) {
                 RelayProtocol,RelayMulticastProtocol -> {
                     out.writeString("PlayerSize")
                     val size = AtomicInteger()
-                    NetStaticData.startNet.each { e: StartNet -> size.addAndGet(e.getConnectSize()) }
+                    NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
                     out.writeInt(size.get())
 
                     out.writeString("RoomAllSize")

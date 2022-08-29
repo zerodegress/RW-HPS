@@ -15,6 +15,7 @@ import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.Administration.PlayerAdminInfo
 import cn.rwhps.server.net.Administration.PlayerInfo
 import cn.rwhps.server.net.core.NetConnectProofOfWork
+import cn.rwhps.server.plugin.beta.upstatistics.data.BaseDataSend
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
@@ -94,11 +95,12 @@ internal object DefaultSerializers {
         AbstractPluginData.setSerializer(Seq::class.java, object : TypeSerializer<Seq<*>> {
             @Throws(IOException::class)
             override fun write(stream: GameOutputStream, objectData: Seq<*>) {
-                stream.writeInt(objectData.size())
-                if (objectData.size() != 0) {
-                    val ser = AbstractPluginData.getSerializer(objectData[0].javaClass)
-                        ?: throw IllegalArgumentException(objectData[0].javaClass.toString() + " does not have a serializer registered!")
-                    stream.writeString(objectData[0].javaClass.name)
+                stream.writeInt(objectData.size)
+                if (objectData.size != 0) {
+                    val first = objectData.first()!!
+                    val ser = AbstractPluginData.getSerializer(first.javaClass)
+                        ?: throw IllegalArgumentException(first.javaClass.toString() + " does not have a serializer registered!")
+                    stream.writeString(first.javaClass.name)
                     for (element in objectData) {
                         ser.write(stream, element)
                     }
@@ -263,6 +265,7 @@ internal object DefaultSerializers {
 
         AbstractPluginData.setSerializer(Packet::class.java, Packet.serializer)
         AbstractPluginData.setSerializer(NetConnectProofOfWork::class.java, NetConnectProofOfWork.serializer)
+        AbstractPluginData.setSerializer(BaseDataSend::class.java, BaseDataSend.serializer)
     }
 
     @Throws(ClassNotFoundException::class)

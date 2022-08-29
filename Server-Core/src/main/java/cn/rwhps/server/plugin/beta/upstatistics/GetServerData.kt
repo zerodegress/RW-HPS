@@ -48,7 +48,7 @@ class GetServerData : Plugin() {
                             IsServer = true,
                             ServerData = BaseDataSend.Companion.ServerData(
                                 IpPlayerCountry = mutableMapOf<String, Int>().also {
-                                    Data.game.playerManage.playerGroup.each {  player ->
+                                    Data.game.playerManage.playerGroup.eachAll {  player ->
                                         val ipCountry = player.con!!.ipCountry
                                         if (it.containsKey(ipCountry)) {
                                             it[ipCountry] = it[ipCountry]!! + 1

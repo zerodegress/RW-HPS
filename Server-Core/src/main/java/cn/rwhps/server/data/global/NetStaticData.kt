@@ -33,7 +33,7 @@ object NetStaticData {
             field = value
             if (value != IRwHps.NetType.NullProtocol) {
                 /* 设置协议后会自动初始化IRwHps */
-                RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, "IRwHps", IRwHps.NetType::class.java).newInstance(value) as IRwHps
+                RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(value) as IRwHps
             }
         }
     lateinit var RwHps: IRwHps

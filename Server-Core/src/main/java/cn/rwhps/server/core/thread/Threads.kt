@@ -65,7 +65,7 @@ object Threads {
 
     @JvmStatic
 	fun runSavePool() {
-        SAVE_POOL.each { obj: Runnable -> obj.run() }
+        SAVE_POOL.eachAll { obj: Runnable -> obj.run() }
     }
 
 

@@ -114,7 +114,7 @@ internal class ZipFileDecoder: ZipDecoderUtils {
                 while (entries.hasMoreElements()) {
                     zipEntry = entries.nextElement() as ZipArchiveEntry
                     val nameCache = zipEntry.name
-                    endWithSeq.each({ nameCache.endsWith(it) }) { _: String ->
+                    endWithSeq.eachAllFind({ nameCache.endsWith(it) }) { _: String ->
                         //Log.debug(nameCache,name)
                         data.put(nameCache, multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry)))
                     }

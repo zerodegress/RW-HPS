@@ -30,6 +30,7 @@ class Administration(pluginData: PluginData) {
     val bannedIP24: Seq<String>
     val bannedUUIDs: Seq<String>
     val whitelist: Seq<String>
+    val banQQ: Seq<Long>
     val playerDataCache = ObjectMap<String, PlayerInfo>()
     val playerAdminData: ObjectMap<String, PlayerAdminInfo>
 
@@ -52,6 +53,7 @@ class Administration(pluginData: PluginData) {
         bannedIP24 = pluginData.getData("bannedIPs") { Seq() }
         bannedUUIDs = pluginData.getData("bannedUUIDs") { Seq() }
         whitelist = pluginData.getData("whitelist") { Seq() }
+        banQQ = pluginData.getData("banQQ") { Seq() }
         playerAdminData = pluginData.getData("playerAdminData") { ObjectMap() }
         addSavePool {
             pluginData.setData("bannedIPs", bannedIPs)

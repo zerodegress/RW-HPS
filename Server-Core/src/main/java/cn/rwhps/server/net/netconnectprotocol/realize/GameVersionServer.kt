@@ -326,7 +326,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         status = inStream.readInt()
                         outStream.writeInt(status)
                         val int1 = inStream.readInt()
-                        //Log.error(int1)
                         outStream.writeInt(int1)
                         if (int1 == -2) {
                             val nameUnit = inStream.readString()
@@ -463,7 +462,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 inputPassword = false
                 val re = AtomicBoolean(false)
                 if (Data.game.isStartGame) {
-                    Data.game.playerManage.playerAll.each({ i: Player -> i.uuid == uuid }) { e: Player ->
+                    Data.game.playerManage.playerAll.eachAllFind({ i: Player -> i.uuid == uuid }) { e: Player ->
                         re.set(true)
                         this.player = e
                         player.con = this
@@ -478,7 +477,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         return false
                     }
                 } else {
-                    if (Data.game.playerManage.playerGroup.size() >= Data.game.maxPlayer) {
+                    if (Data.game.playerManage.playerGroup.size >= Data.game.maxPlayer) {
                         if (IsUtil.isBlank(Data.config.MaxPlayerAd)) {
                             sendKick("服务器没有位置 # The server has no free location")
                         } else {
@@ -578,7 +577,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             if (!Data.game.isStartGame) {
                 Data.game.playerManage.playerAll.remove(player)
                 player.clear()
-                Data.game.playerManage.removePlayerArray(player.site)
+                Data.game.playerManage.removePlayerArray(player)
             }
             Events.fire(PlayerLeaveEvent(player))
         }

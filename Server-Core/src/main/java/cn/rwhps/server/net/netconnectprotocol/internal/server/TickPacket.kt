@@ -75,7 +75,7 @@ internal fun gameTickCommandsPacketInternal(tick: Int, cmd: Seq<GameCommandPacke
     // Game TICK
     o.writeInt(tick)
     // Readable key pack length
-    o.writeInt(cmd.size())
+    o.writeInt(cmd.size)
     for (c in cmd) {
         val enc = CompressOutputStream.getGzipOutputStream("c", false)
         enc.writeBytes(c.bytes)

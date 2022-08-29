@@ -72,7 +72,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
 
             relay!!.admin = this
             val o = GameOutputStream()
-            if (clientVersion == 172) {
+            if (clientVersion >= 172) {
                 o.writeByte(2)
                 o.writeBoolean(true)
                 o.writeBoolean(true)
@@ -149,6 +149,9 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                         if (!relay!!.isStartGame) {
                             abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
                         } else {}
+                    }
+                    PacketType.RETURN_TO_BATTLEROOM.typeInt -> {
+                        relay!!.isStartGame = false
                     }
                     else -> {}
                 }

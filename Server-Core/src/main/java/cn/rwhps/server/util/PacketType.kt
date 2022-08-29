@@ -62,6 +62,7 @@ enum class PacketType(val typeInt: Int) {
     /* StartGame */
     START_GAME(120),
     ACCEPT_START_GAME(112),
+    RETURN_TO_BATTLEROOM(122),
 
     /* GameStart Commands */
     TICK(10),
@@ -90,11 +91,12 @@ enum class PacketType(val typeInt: Int) {
     NOT_RESOLVED(-1);
 
     companion object {
-        private val typeMap: IntMap<PacketType> = IntMap(values().size)
+        private val typeMap: IntMap<PacketType> =
+            IntMap(values().size)
         init {
-            values().forEach { typeMap.put(it.typeInt,it) }
+            values().forEach { typeMap[it.typeInt] = it }
         }
 
-        fun from(type: Int?): PacketType = type.ifNullResult({ typeMap[it] }) { NOT_RESOLVED }
+        fun from(type: Int): PacketType = typeMap[type].ifNullResult({ it }) { NOT_RESOLVED }
     }
 }

@@ -30,14 +30,20 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
 
     @Throws(java.lang.Exception::class)
     override fun channelRegistered(ctx: ChannelHandlerContext?) {
-        super.channelRegistered(ctx)
-        connectNum.incrementAndGet()
+        try {
+            super.channelRegistered(ctx)
+        } finally {
+            connectNum.incrementAndGet()
+        }
     }
 
     @Throws(java.lang.Exception::class)
     override fun channelUnregistered(ctx: ChannelHandlerContext?) {
-        super.channelUnregistered(ctx)
-        connectNum.decrementAndGet()
+        try {
+            super.channelUnregistered(ctx)
+        } finally {
+            connectNum.decrementAndGet()
+        }
     }
 
     @Throws(Exception::class)

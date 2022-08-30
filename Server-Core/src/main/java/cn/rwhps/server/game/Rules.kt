@@ -18,6 +18,7 @@ import cn.rwhps.server.data.player.PlayerManage
 import cn.rwhps.server.game.GameMaps.MapData
 import cn.rwhps.server.io.packet.GameCommandPacket
 import cn.rwhps.server.struct.OrderedMap
+import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil.notIsBlank
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.encryption.Base64.decodeString
@@ -79,7 +80,7 @@ class Rules(private var config: BaseConfig) {
     val passwd: String = if (notIsBlank(Data.config.Passwd)) BigInteger(1, sha256Array(Data.config.Passwd)).toString(16).uppercase() else ""
 
     /** 按键包缓存  */
-    val gameCommandCache = LinkedBlockingQueue<GameCommandPacket>()
+    val gameCommandCache = Seq<GameCommandPacket>(16,true)
 
 
 

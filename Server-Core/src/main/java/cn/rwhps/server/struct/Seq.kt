@@ -40,6 +40,7 @@ class Seq<T>: MutableList<T> {
     override fun add(index: Int, element: T) = list.add(index, element)
     override fun addAll(elements: Collection<T>): Boolean = list.addAll(elements)
     override fun addAll(index: Int, elements: Collection<T>): Boolean = list.addAll(index, elements)
+    fun addElements(index: Int, a: Array<T>) = list.addElements(index, a)
     fun pop(): T = list.pop()
     fun peek(): T = list.peek()
     fun first(): T =list.first()
@@ -49,11 +50,13 @@ class Seq<T>: MutableList<T> {
     override fun listIterator(index: Int): MutableListIterator<T> = list.listIterator(index)
     fun any(): Boolean = list.any()
     override fun get(index: Int): T = list[index]
+    fun getElements(from: Int, a: Array<T?>, offset: Int, length: Int) = list.getElements(from, a, offset, length)
     override fun indexOf(element: @UnsafeVariance T): Int = list.indexOf(element)
     override fun lastIndexOf(element: @UnsafeVariance T): Int = list.lastIndexOf(element)
     override fun remove(element: T): Boolean = list.remove(element)
     override fun removeAt(index: Int): T = list.removeAt(index)
     override fun removeAll(elements: Collection<T>): Boolean = list.removeAll(elements.toSet())
+    fun removeElements(from: Int, to: Int) = list.removeElements(from, to)
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = list.subList(fromIndex, toIndex)
     override fun set(index: Int, element: T): T = list.set(index, element)
     override fun retainAll(elements: Collection<T>): Boolean = list.retainAll(elements.toSet())
@@ -76,6 +79,13 @@ class Seq<T>: MutableList<T> {
             fun add(index: Int, element: T) = list.add(index, element)
             fun addAll(elements: Collection<T>): Boolean = list.addAll(elements)
             fun addAll(index: Int, elements: Collection<T>): Boolean = list.addAll(index, elements)
+            /**
+             * Add (hopefully quickly) elements to this type-specific list.
+             *
+             * @param index the index at which to add elements.
+             * @param a the array containing the elements.
+             */
+            fun addElements(index: Int, a: Array<T>) = list.addElements(index, a)
 
             fun pop(): T = removeAt(size - 1)
             fun peek(): T = get(size - 1)
@@ -89,12 +99,29 @@ class Seq<T>: MutableList<T> {
 
             operator fun get(index: Int): T = list[index]
 
+            /**
+             * Copies (hopefully quickly) elements of this type-specific list into the given array.
+             *
+             * @param from the start index (inclusive).
+             * @param a the destination array.
+             * @param offset the offset into the destination array where to store the first element copied.
+             * @param length the number of elements to be copied.
+             */
+            fun getElements(from: Int, a: Array<T?>, offset: Int, length: Int) = list.getElements(from, a, offset, length)
+
             fun indexOf(element: @UnsafeVariance T): Int = list.indexOf(element)
             fun lastIndexOf(element: @UnsafeVariance T): Int = list.lastIndexOf(element)
 
             fun remove(element: T): Boolean = list.remove(element)
             fun removeAt(index: Int): T = list.removeAt(index)
             fun removeAll(elements: Collection<T>): Boolean = list.removeAll(elements.toSet())
+            /**
+             * Removes (hopefully quickly) elements of this type-specific list.
+             *
+             * @param from the start index (inclusive).
+             * @param to the end index (exclusive).
+             */
+            fun removeElements(from: Int, to: Int) = list.removeElements(from, to)
 
             fun subList(fromIndex: Int, toIndex: Int): MutableList<T> = list.subList(fromIndex, toIndex)
 

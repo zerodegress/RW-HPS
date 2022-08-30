@@ -141,7 +141,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(0)
         o.writeBoolean(false)
         val cmd = GameCommandPacket(player.site, o.getPacketBytes())
-        Data.game.gameCommandCache.offer(cmd)
+        Data.game.gameCommandCache.add(cmd)
     }
 
     @Throws(IOException::class)
@@ -188,7 +188,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(0)
         o.writeBoolean(false)
         val cmd = GameCommandPacket(player.site, o.getPacketBytes())
-        Data.game.gameCommandCache.offer(cmd)
+        Data.game.gameCommandCache.add(cmd)
     }
 
     @Throws(IOException::class)
@@ -235,7 +235,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(0)
         o.writeBoolean(false)
         val cmd = GameCommandPacket(player.site, o.getPacketBytes())
-        Data.game.gameCommandCache.offer(cmd)
+        Data.game.gameCommandCache.add(cmd)
     }
 
     @Throws(IOException::class)
@@ -282,7 +282,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(0)
         o.writeBoolean(false)
         val cmd = GameCommandPacket(player.site, o.getPacketBytes())
-        Data.game.gameCommandCache.offer(cmd)
+        Data.game.gameCommandCache.add(cmd)
     }
 
     @Throws(IOException::class)
@@ -329,6 +329,6 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         o.writeInt(0)
         o.writeBoolean(false)
         val cmd = GameCommandPacket(player.site, o.getPacketBytes())
-        Data.game.gameCommandCache.offer(cmd)
+        Data.game.gameCommandCache.add(cmd)
     }
 }

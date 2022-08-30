@@ -247,7 +247,7 @@ internal class ServerCommands(handler: CommandHandler) {
                 log["Not Numeric, Invalid coordinates"]
                 return@register
             }
-            Data.game.gameCommandCache.offer(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
+            Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
         }
 
         handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: StrCons ->

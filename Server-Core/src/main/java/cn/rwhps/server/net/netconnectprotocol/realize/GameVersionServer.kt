@@ -228,7 +228,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             out.writeBoolean(false)
 
             val cmd = GameCommandPacket(player.site, out.getByteArray())
-            Data.game.gameCommandCache.offer(cmd)
+            Data.game.gameCommandCache.add(cmd)
             Call.sendSystemMessage(Data.i18NBundle.getinput("player.surrender", player.name))
         } catch (ignored: Exception) {
         }
@@ -391,7 +391,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                             outStream.writeBoolean(false)
                         }
                     }
-                    Data.game.gameCommandCache.offer(GameCommandPacket(player.site, outStream.getPacketBytes()))
+                    Data.game.gameCommandCache.add(GameCommandPacket(player.site, outStream.getPacketBytes()))
                 }
             } catch (e: Exception) {
                 Log.error(e)
@@ -546,7 +546,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun gameSummon(unit: String, x: Float, y: Float) {
         sync.lock()
         try {
-            Data.game.gameCommandCache.offer(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(player.site,unit,x, y))
+            Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(player.site,unit,x, y))
         } catch (e: Exception) {
             Log.error(e)
         } finally {

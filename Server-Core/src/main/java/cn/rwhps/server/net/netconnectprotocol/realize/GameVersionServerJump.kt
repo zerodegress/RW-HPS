@@ -101,7 +101,7 @@ class GameVersionServerJump(connectionAgreement: ConnectionAgreement) : GameVers
                 inStream.readShort()
                 outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
                 outStream.transferTo(inStream)
-                Data.game.gameCommandCache.offer(GameCommandPacket(player.site, outStream.getPacketBytes()))
+                Data.game.gameCommandCache.add(GameCommandPacket(player.site, outStream.getPacketBytes()))
             }
         } catch (e: Exception) {
             Log.error(e)

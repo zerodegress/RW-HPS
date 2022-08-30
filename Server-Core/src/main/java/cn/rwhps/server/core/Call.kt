@@ -25,7 +25,6 @@ import cn.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
-import java.util.stream.IntStream
 
 /**
  * @author RW-HPS/Dr
@@ -187,6 +186,8 @@ object Call {
         private var oneSay = true
         private var forcedClose = false
 
+        private val tick = Data.config.Tick
+
         @Volatile
         private var forcedReturn = false
         private val comm = Seq<GameCommandPacket>(16)
@@ -230,20 +231,18 @@ object Call {
                 return
             }
 
-            val time = Data.game.tickGame.getAndAdd(Data.config.Tick)
+            val time = Data.game.tickGame.getAndAdd(tick)
             try {
                 when (val size = Data.game.gameCommandCache.size) {
                     0 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getTickPacket(time))
-                    1 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandPacket(time, Data.game.gameCommandCache.poll()))
+                    1 -> NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandPacket(time, Data.game.gameCommandCache.removeAt(0)))
                     else -> {
-                        /*
-                         *  poll() 存在一直情况 在需求的内容不够的情况下
-                         *  例如 多线程的情况下 或者? 会直接将不够的用 Null 填充
-                         */
-                        IntStream.range(0, size).mapToObj { Data.game.gameCommandCache.poll() }
-                                // Fix NPE
-                            .filter {data: GameCommandPacket? -> data != null}
-                            .forEach { value: GameCommandPacket -> comm.add(value) }
+                        val lterator = Data.game.gameCommandCache.listIterator()
+                        var sizeTemp = size
+                        while (sizeTemp-- != 0) {
+                            comm.add(lterator.next())
+                            lterator.remove()
+                        }
                         NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getGameTickCommandsPacket(time, comm))
                         comm.clear()
                     }

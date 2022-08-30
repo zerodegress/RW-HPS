@@ -10,11 +10,16 @@
 package cn.rwhps.server.core
 
 import cn.rwhps.server.Main
+import cn.rwhps.server.core.thread.CallTimeTask
+import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.data.global.Cache
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
+import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.data.plugin.PluginData
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.net.HttpRequestOkHttp
+import cn.rwhps.server.net.StartNet
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.core.ServiceLoader
 import cn.rwhps.server.net.core.ServiceLoader.ServiceType
@@ -22,8 +27,17 @@ import cn.rwhps.server.net.netconnectprotocol.*
 import cn.rwhps.server.net.netconnectprotocol.realize.*
 import cn.rwhps.server.util.I18NBundle
 import cn.rwhps.server.util.PacketType
+import cn.rwhps.server.util.Time
+import cn.rwhps.server.util.encryption.Aes
 import cn.rwhps.server.util.encryption.Rsa
+import cn.rwhps.server.util.inline.toPrettyPrintingJson
 import cn.rwhps.server.util.log.Log
+import java.io.DataOutputStream
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author RW-HPS/Dr
@@ -126,6 +140,64 @@ class Initialization {
         }
     }
 
+    private fun initGetServerData() {
+        Threads.newTimedTask(CallTimeTask.ServerUpStatistics,0, 5, TimeUnit.SECONDS) {
+            if (NetStaticData.ServerNetType != IRwHps.NetType.NullProtocol) {
+                val data = when (NetStaticData.ServerNetType) {
+                    IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
+                        BaseDataSend(
+                            IsServer = true,
+                            ServerData = BaseDataSend.Companion.ServerData(
+                                IpPlayerCountry = mutableMapOf<String, Int>().also {
+                                    Data.game.playerManage.playerGroup.eachAll {  player ->
+                                        val ipCountry = player.con!!.ipCountry
+                                        if (it.containsKey(ipCountry)) {
+                                            it[ipCountry] = it[ipCountry]!! + 1
+                                        } else {
+                                            it[ipCountry] = 1
+                                        }
+                                    }
+                                }
+                            )
+                        )
+                    }
+
+                    IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
+                        BaseDataSend(
+                            IsServer = false,
+                            RelayData = BaseDataSend.Companion.RelayData()
+                        )
+                    }
+                    else -> {
+                        BaseDataSend(
+                            IsServerRun = false,
+                            IsServer = true
+                        )
+                    }
+                }
+
+                try {
+                    val out = GameOutputStream()
+                    out.writeString("RW-HPS Statistics Data")
+                    out.writeString(Data.core.serverConnectUuid)
+                    out.writeBytesAndLength(Aes.aesEncryptToBytes(data.toPrettyPrintingJson().toByteArray(Data.UTF_8),"RW-HPS Statistics Data"))
+                    val packet = out.createPacket(PacketType.SERVER_DEBUG_RECEIVE)
+                    Socket().use {
+                        it.connect(InetSocketAddress(InetAddress.getByName("relay.der.kim"), 6001), 3000)
+                        DataOutputStream(it.getOutputStream()).use { outputStream ->
+                            outputStream.writeInt(packet.bytes.size)
+                            outputStream.writeInt(packet.type.typeInt)
+                            outputStream.write(packet.bytes)
+                            outputStream.flush()
+                        }
+                        it.close()
+                    }
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
     companion object {
         @Volatile
         private var isClose = true
@@ -153,9 +225,7 @@ class Initialization {
                     }
                 } else {
                     when {
-                        country.contains("HK") ||
-                        country.contains("CN") ||
-                        country.contains("RU") -> country
+                        country.contains("HK") || country.contains("CN") || country.contains("RU") -> country
                         else -> "EN"
                     }.also {
                         pluginData.setData("serverCountry",it)
@@ -185,6 +255,36 @@ class Initialization {
             ServiceLoader.addService(ServiceType.IRwHps,"IRwHps", RwHps::class.java)
 
         }
+
+        private data class BaseDataSend(
+            val SendTime: Int                             = Time.concurrentSecond(),
+            val ServerRunPort: Int                        = Data.config.Port,
+            val ServerNetType: String                     = NetStaticData.ServerNetType.name,
+            val System: String                            = Data.core.osName,
+            val JavaVersion: String                       = Data.core.javaVersion,
+            val IsServerRun: Boolean                      = true,
+            val IsServer: Boolean,
+            val ServerData: ServerData? = null,
+            val RelayData: RelayData? = null,
+        ) {
+            companion object {
+                data class ServerData(
+                    val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
+                    val MaxPlayer: Int                      = Data.config.MaxPlayer,
+                    val PlayerVersion: Int                  = (NetStaticData.RwHps.typeConnect.abstractNetConnect as GameVersionServer).supportedVersionInt,
+                    val IpPlayerCountry: Map<String,Int>,
+                )
+
+                data class RelayData(
+                    val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
+                    val RoomAllSize: Int                    = Relay.roomAllSize,
+                    val RoomNoStartSize: Int                = Relay.roomNoStartSize,
+                    val RoomPublicListSize: Int             = Relay.roomPublicSize,
+                    val PlayerVersion: Map<Int,Int>         = Relay.getAllRelayVersion(),
+                    val IpPlayerCountry: Map<String,Int>    = Relay.getAllRelayIpCountry()
+                )
+            }
+        }
     }
 
     init {
@@ -193,6 +293,7 @@ class Initialization {
         // 初始化 投降
         initRelay()
         //initRsa()
+        initGetServerData()
 
         Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
             override fun run() {

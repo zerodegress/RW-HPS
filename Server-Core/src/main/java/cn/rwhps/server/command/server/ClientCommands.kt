@@ -191,9 +191,9 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.isAdmin = false
                     newAdmin!!.isAdmin = true
                     upDataGameData()
-                    sendMessageLocal(player, "give.ok", player.name)
+                    sendMessageLocal(player, "give.ok", newAdmin.name)
                 } else {
-                    sendMessageLocal(player, "give.noPlayer", player.name)
+                    sendMessageLocal(player, "give.noPlayer")
                 }
             }
         }

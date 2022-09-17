@@ -37,23 +37,4 @@ public class SerializerTypeAll {
          */
         T read(GameInputStream param1DataInput) throws IOException;
     }
-
-    public interface TypeWriter<T> {
-        /**
-         * 序列化写入
-         * @param param1DataOutput 输出流
-         * @param param1T 输入的数据
-         * @throws IOException Error
-         */
-        void write(GameOutputStream param1DataOutput, T param1T) throws IOException;
-    }
-    public interface TypeReader<T> {
-        /**
-         * 反序列化读取
-         * @param param1DataInput 输入流
-         * @return 反序列化后的数据
-         * @throws IOException Error
-         */
-        T read(GameInputStream param1DataInput) throws IOException;
-    }
 }

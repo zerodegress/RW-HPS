@@ -58,7 +58,7 @@ data class BaseConfig(
     /** 最大单位数 */
     val MaxUnit: Int = 200,
     val Tick: Int = 10,
-    val TickTime: Int = 100,
+    val TickTime: Int = 150,
 
     val DefIncome: Float = 1f,
     /** only Admin */

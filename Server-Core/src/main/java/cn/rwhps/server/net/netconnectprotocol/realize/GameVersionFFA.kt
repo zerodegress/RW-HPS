@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.net.netconnectprotocol.realize
 
+import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Call.sendMessage
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
@@ -45,7 +46,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
             clog("[{0}]: {1}", player.name, message)
             if (player.isAdmin && Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
-                sendMessage(player, Data.i18NBundle.getinput("afk.clear", player.name))
+                Call.sendSystemMessageLocal("afk.clear", player.name)
             }
             if (message!!.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
                 val strEnd = min(message.length, 3)

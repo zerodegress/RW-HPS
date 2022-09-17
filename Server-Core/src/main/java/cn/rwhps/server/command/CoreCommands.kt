@@ -11,10 +11,7 @@ package cn.rwhps.server.command
 
 import cn.rwhps.server.command.relay.RelayCommands
 import cn.rwhps.server.command.server.ServerCommands
-import cn.rwhps.server.core.Call
-import cn.rwhps.server.core.Core
-import cn.rwhps.server.core.Initialization
-import cn.rwhps.server.core.NetServer
+import cn.rwhps.server.core.*
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
 import cn.rwhps.server.data.base.BaseConfig
@@ -156,7 +153,7 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayMulticastProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice")
+            handler.handleMessage("startnetservice 5200 5500")
         }
 
 

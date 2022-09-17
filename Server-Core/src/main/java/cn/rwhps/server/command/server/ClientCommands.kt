@@ -11,7 +11,9 @@ package cn.rwhps.server.command.server
 
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Call.sendMessageLocal
+import cn.rwhps.server.core.Call.sendSystemMessage
 import cn.rwhps.server.core.Call.sendSystemMessageLocal
+import cn.rwhps.server.core.Call.sendSystemTeamMessageLocal
 import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.sendTeamMessage
 import cn.rwhps.server.core.Call.testPreparationPlayer
@@ -191,9 +193,9 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.isAdmin = false
                     newAdmin!!.isAdmin = true
                     upDataGameData()
-                    sendMessageLocal(player, "give.ok", player.name)
+                    sendSystemMessage("give.ok", player.name)
                 } else {
-                    sendMessageLocal(player, "give.noPlayer", player.name)
+                    player.sendSystemMessage(player.getinput("give.noPlayer", player.name))
                 }
             }
         }
@@ -400,7 +402,7 @@ internal class ClientCommands(handler: CommandHandler) {
 
                 if (Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
                     Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
-                    sendMessageLocal(player, "afk.clear", player.name)
+                    Call.sendSystemMessageLocal("afk.clear", player.name)
                 }
 
                 if (Data.config.StartMinPlayerSize != -1 &&

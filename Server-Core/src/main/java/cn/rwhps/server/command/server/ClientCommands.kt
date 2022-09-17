@@ -196,6 +196,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     sendSystemMessage("give.ok", player.name)
                 } else {
                     player.sendSystemMessage(player.getinput("give.noPlayer", player.name))
+
                 }
             }
         }

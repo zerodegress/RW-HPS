@@ -24,6 +24,7 @@ import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.RelayStatus
 import cn.rwhps.server.net.core.NetConnectProofOfWork
 import cn.rwhps.server.net.core.server.AbstractNetConnect
+import cn.rwhps.server.net.core.server.AbstractNetConnectData
 import cn.rwhps.server.net.core.server.AbstractNetConnectRelay
 import cn.rwhps.server.net.netconnectprotocol.UniversalAnalysisOfGamePackages
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
@@ -31,6 +32,7 @@ import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInfo
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
 import cn.rwhps.server.struct.ObjectMap
+import cn.rwhps.server.util.GameOtherUtil.getBetaVersion
 import cn.rwhps.server.util.IsUtil
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.Time
@@ -77,7 +79,7 @@ import java.util.stream.IntStream
  * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
-open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectRelay {
+open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectData, AbstractNetConnectRelay {
     override var permissionStatus: RelayStatus = RelayStatus.InitialConnection
         internal set
 
@@ -96,12 +98,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     protected var relaySelect: ((String) -> Unit)? = null
 
-    var name = "NOT NAME"
+    override var name = "NOT NAME"
         protected set
-    var registerPlayerId: String? = null
+    override var registerPlayerId: String? = null
         protected set
-    private var betaGameVersion = false
-    internal var clientVersion = 151
+    override var betaGameVersion = false
+        protected set
+    override var clientVersion = 151
+        protected set
+
     var playerRelay: PlayerRelay? = null
         internal set
 
@@ -147,9 +152,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             inStream.readString()
             val packetVersion = inStream.readInt()
             clientVersion = inStream.readInt()
-            if (clientVersion > 151) {
-                betaGameVersion = true
-            }
+            betaGameVersion = getBetaVersion(clientVersion)
+
             if (packetVersion >= 1) {
                 inStream.skip(4)
             }

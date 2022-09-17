@@ -9,7 +9,7 @@
 
 package cn.rwhps.server.command.server
 
-import cn.rwhps.server.core.Call.sendMessage
+import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.Call.sendSystemMessage
 import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.upDataGameData
@@ -151,7 +151,7 @@ internal class ServerCommands(handler: CommandHandler) {
                     i.isAdmin = false
                     player.isAdmin = true
                     upDataGameData()
-                    sendMessage(player, localeUtil.getinput("give.ok", player.name))
+                    Call.sendSystemMessageLocal("give.ok", player.name)
                 }
             }
         }

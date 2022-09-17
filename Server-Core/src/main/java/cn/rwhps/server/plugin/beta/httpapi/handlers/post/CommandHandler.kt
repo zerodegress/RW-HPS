@@ -17,8 +17,7 @@ class CommandHandler : BasePostHandler() {
         val command = URLDecoder.decode(param.getString("exec"), "UTF-8")
         if (command.isEmpty()) send(send,BaseResp(data = "参数错误").toPrettyPrintingJson())
         var text = ""
-        val response = Data.SERVER_COMMAND.handleMessage(command,
-            StrCons { obj: String -> text += "$obj${Data.LINE_SEPARATOR}" })
+        val response = Data.SERVER_COMMAND.handleMessage(command, StrCons { obj: String -> text += "$obj${Data.LINE_SEPARATOR}" })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {
                 text = when (response.type) {

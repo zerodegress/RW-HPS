@@ -17,6 +17,7 @@ import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.data.plugin.PluginData
+import cn.rwhps.server.func.Prov
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.net.HttpRequestOkHttp
 import cn.rwhps.server.net.StartNet
@@ -213,7 +214,7 @@ class Initialization {
         internal fun initServerLanguage(pluginData: PluginData, country: String = "") {
             val serverCountry =
                 if (country.isBlank()) {
-                    pluginData.getData("serverCountry") {
+                    pluginData.getData("serverCountry", Prov {
                         val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.ServerLanguage.Bak"))
 
                         when {
@@ -222,7 +223,7 @@ class Initialization {
                             countryUrl.contains("俄罗斯") -> "RU"
                             else -> "EN"
                         }
-                    }
+                    })
                 } else {
                     when {
                         country.contains("HK") || country.contains("CN") || country.contains("RU") -> country
@@ -256,7 +257,7 @@ class Initialization {
 
         }
 
-        private data class BaseDataSend(
+        internal data class BaseDataSend(
             val SendTime: Int                             = Time.concurrentSecond(),
             val ServerRunPort: Int                        = Data.config.Port,
             val ServerNetType: String                     = NetStaticData.ServerNetType.name,

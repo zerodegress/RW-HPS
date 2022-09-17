@@ -30,8 +30,7 @@ public abstract class ReflectionUtils {
      *
      * @since 3.0.5
      */
-    public static final MethodFilter USER_DECLARED_METHODS =
-            (method -> !method.isBridge() && !method.isSynthetic() && method.getDeclaringClass() != Object.class);
+    public static final MethodFilter USER_DECLARED_METHODS = (method -> !method.isBridge() && !method.isSynthetic() && method.getDeclaringClass() != Object.class);
 
     /**
      * Pre-built FieldFilter that matches all non-static, non-final fields.

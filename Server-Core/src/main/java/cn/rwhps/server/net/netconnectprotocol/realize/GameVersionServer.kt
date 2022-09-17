@@ -26,6 +26,7 @@ import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.DataPermissionStatus.ServerStatus
 import cn.rwhps.server.net.core.server.AbstractNetConnect
+import cn.rwhps.server.net.core.server.AbstractNetConnectData
 import cn.rwhps.server.net.core.server.AbstractNetConnectServer
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import cn.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
@@ -62,10 +63,17 @@ import kotlin.math.min
  * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
-open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectServer {
+open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
     open val supportedversionBeta = true
-    open val supportedversionGame = "1.15.P8"
-    open val supportedVersionInt  = 170
+    open val supportedversionGame = "1.15.P10"
+    open val supportedVersionInt  = 173
+
+    override val name: String get() = player.name
+    override val registerPlayerId: String? get() = player.uuid
+
+    override val betaGameVersion: Boolean get() = supportedversionBeta
+    override val clientVersion: Int get() = supportedVersionInt
+
 
 
     protected val sync = ReentrantLock(true)
@@ -423,9 +431,10 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         try {
             GameInputStream(p).use { stream ->
                 stream.readString()
-                Log.debug(stream.readInt())
-                Log.debug(stream.readInt())
-                Log.debug(stream.readInt())
+                Log.debug("本包协议版本",stream.readInt())
+                val version = stream.readInt()
+                Log.debug("客户端版本",version)
+                Log.debug("客户端包协议版本",stream.readInt())
                 var name = stream.readString()
                 Log.debug("name", name)
                 val passwd = stream.readIsString()
@@ -438,11 +447,20 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Log.debug("token", token)
                 Log.debug(token, connectKey!!)
 
-                /*
-                if (!token.equals(playerConnectKey)) {
-                    sendKick("You Open Mod?");
-                    return false;
-                }*/
+
+
+                if (supportedVersionInt > version) {
+                    sendKick("Your 'Rusted Warfare' Game is out of date, please update")
+                    return false
+                } else if (supportedVersionInt < version) {
+                    sendKick("Your 'Rusted Warfare' client is newer then the server. Server is old version")
+                    return false
+                }
+                if (token != connectKey) {
+                    Log.debug("New Player kicked","Integrity Check Failed: expectedResponse=$connectKey  clientResponse=$token")
+                    sendKick("Your 'Rusted Warfare' client is different to the server. Game can not be synchronized.")
+                    return false
+                }
 
                 val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
                 Events.fire(playerConnectPasswdCheck)

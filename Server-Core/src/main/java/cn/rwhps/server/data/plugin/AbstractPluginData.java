@@ -1,6 +1,6 @@
 /*
  * Copyright 2020-2022 RW-HPS Team and contributors.
- *  
+ *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
@@ -18,6 +18,7 @@ import cn.rwhps.server.struct.ObjectMap;
 import cn.rwhps.server.struct.OrderedMap;
 import cn.rwhps.server.struct.SerializerTypeAll;
 import cn.rwhps.server.util.IsUtil;
+import cn.rwhps.server.util.alone.annotations.NeedToRefactor;
 import cn.rwhps.server.util.file.FileUtil;
 import cn.rwhps.server.util.log.Log;
 import cn.rwhps.server.util.log.exp.VariableException;
@@ -33,6 +34,7 @@ import java.io.*;
  * 此类型处于实验性阶段. 使用其中定义的属性和函数是安全的, 但将来可能会新增成员抽象函数.
  * @author RW-HPS/Dr
  */
+@NeedToRefactor
 @SuppressWarnings("unchecked")
 class AbstractPluginData {
     private static final ObjectMap<Class<?>, SerializerTypeAll.TypeSerializer<?>> SERIALIZERS = new ObjectMap<>();
@@ -205,19 +207,6 @@ class AbstractPluginData {
 
     protected static <T> void setSerializer(Class<?> type, SerializerTypeAll.TypeSerializer<T> ser) {
         SERIALIZERS.put(type, ser);
-    }
-
-    protected static <T> void setSerializer(Class<T> type, final SerializerTypeAll.TypeWriter<T> writer, final SerializerTypeAll.TypeReader<T> reader) {
-        SERIALIZERS.put(type, new SerializerTypeAll.TypeSerializer<T>() {
-            @Override
-            public void write(GameOutputStream stream, T object) throws IOException {
-                writer.write(stream, object);
-            }
-            @Override
-            public T read(GameInputStream stream) throws IOException {
-                return reader.read(stream);
-            }
-        });
     }
 
     private  <T> T getObject(Class<T> type, byte[] bytes) {

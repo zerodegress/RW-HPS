@@ -34,7 +34,7 @@ object Game {
         }
     }
 
-    // 1.15
+    // 1.15.P8
     @JvmStatic
     fun connectKeyNew(paramInt: Int): String {
         return buildString {
@@ -51,4 +51,25 @@ object Game {
             append("d:${paramInt * 5}")
         }
     }
+
+    // 1.15.P10
+    @JvmStatic
+    fun connectKeyP10(paramInt: Int): String {
+        return buildString {
+            append("c:${paramInt}")
+            append("m:${paramInt * 87 + 24}")
+            append("0:${paramInt * 44000}")
+            append("1:${paramInt}")
+            append("2:${paramInt * 13000}")
+            append("3:${paramInt + 28000}")
+            append("4:${paramInt * 75000}")
+            append("5:${paramInt + 160000}")
+            append("6:${paramInt * 850000}")
+            append("7:${paramInt * 1800000}")
+            append("8:${paramInt * 3800000}")
+            append("t1:${paramInt * 4000.0 * 11.0}")
+            append("d:${paramInt * 5}")
+        }
+    }
+
 }

@@ -104,7 +104,7 @@ object Main {
         inputMonitorInit()
         // 强制 UTF-8 我不愿意解决奇奇怪怪的问题
         if (!System.getProperty("file.encoding").equals("UTF-8", ignoreCase = true)) {
-            clog("Please use UTF-8 !!!  -> java -Dfile.encoding=UTF-8 -jar Server.jar")
+            clog("Please use UTF-8 !!!  -> java -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -jar Server.jar")
             clog("For non-UTF8 problems, please solve it yourself")
             Core.mandatoryExit()
         }

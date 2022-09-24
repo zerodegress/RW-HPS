@@ -20,7 +20,7 @@ Gradle是一个基于Apache Ant和Apache Maven概念的项目自动化建构工�
 等待完毕即可
 
 3.使用  
-在目录build/libs下即可获得编译好的Server Jar  
+在目录 `Server-All/build/libs` 下即可获得编译好的Server Jar  
 
 **更多教程 请参阅[Google](https://google.com) or [Baidu](https://baidu.com) or [Bing](https://bing.com)**
  

@@ -92,7 +92,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         internal set
 
     override val version: String
-        get() = "1.15.P8 RW-HPS"
+        get() = "1.15.P10 RW-HPS"
 
     override fun sendSystemMessage(msg: String) {
         if (!this::player.isInitialized || !player.noSay) {
@@ -541,7 +541,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         // 生成随机Key;
         val keyLen = 6
         val key = RandomUtil.getRandomIntString(keyLen).toInt()
-        connectKey = Game.connectKey(key)
+        connectKey = Game.connectKeyP10(key)
         GameInputStream(p).use { stream ->
             // Game Pkg Name
             stream.readString()

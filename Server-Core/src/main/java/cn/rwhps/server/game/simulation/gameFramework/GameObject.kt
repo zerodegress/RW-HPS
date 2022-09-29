@@ -7,9 +7,10 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.game.simulation
+package cn.rwhps.server.game.simulation.gameFramework
 
 //import cn.rwhps.server.game.simulation.units.OrderableUnit
+import cn.rwhps.server.game.simulation.SyncedObject
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.log.Log
 import java.util.concurrent.ConcurrentLinkedQueue

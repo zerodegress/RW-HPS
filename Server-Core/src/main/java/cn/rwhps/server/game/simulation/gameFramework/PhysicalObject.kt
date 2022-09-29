@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.game.simulation
+package cn.rwhps.server.game.simulation.gameFramework
 
 abstract class PhysicalObject : RenderedObject() {
     @JvmField var cType: CollisionEngine.CollisionType? = null

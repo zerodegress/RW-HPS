@@ -7,7 +7,14 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.game.simulation
+package cn.rwhps.server.game.simulation.gameFramework.miss
 
-class MissionEngine {
+enum class WinConditions {
+    none,
+    allUnitsAndBuildings,
+    allBuildings,
+    mainBuildings,
+    commandCenter,
+    noConstructionOrTech,
+    requiredObjectives
 }

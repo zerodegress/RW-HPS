@@ -7,12 +7,16 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.game.simulation;
+package cn.rwhps.server.game.simulation.gameFramework;
+
+import cn.rwhps.server.util.alone.annotations.GameSimulationLayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@GameSimulationLayer.GameSimulationLayer_ModuleBasicallyTheSame
 public class CollisionEngine {
+
     public static final byte coll_all = 1;
     public static final byte coll_basic = 3;
     public static final byte coll_basicJumpThough = 4;

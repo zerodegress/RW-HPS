@@ -58,7 +58,7 @@ git clone git@github.com:RW-HPS/RW-HPS.git
 等待完毕即可
 
 4.使用  
-在目录build/libs下即可获得编译好的Server Jar
+在目录 `Server-All/build/libs` 下即可获得编译好的Server Jar
 
 5.运行  
 在你喜欢的目录下运行jar

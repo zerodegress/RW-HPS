@@ -6,7 +6,7 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
-package cn.rwhps.server.game.simulation
+package cn.rwhps.server.game.simulation.gameFramework
 
 /**
  * 渲染游戏对象

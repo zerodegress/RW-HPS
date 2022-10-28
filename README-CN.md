@@ -167,6 +167,13 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 请在游戏使用.help查看更多
 </details>
 
+##游戏对应最终服务端版本合集
+| 游戏版本 | RW-HPS版本 | 我要飞飞 |
+|:----:|:----:|:----:|
+|   1.14   |   6.0.0-M3（测试版）   |   [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/6.0.0-M3)   |
+|   1.15.P8   |   6.0.1   |   [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/6.0.0-M3)   |
+|   1.15.P10   |   6.4.2   |   [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/6.4.2)   |
+
 ## 赞助
 RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如果没有适当的资金支持，为项目维护和开发新功能所需的工作量是不可持续的。  
 请注意，赞助是全自愿的。赞助者不会获得特权，不赞助也可以使用全部的功能。

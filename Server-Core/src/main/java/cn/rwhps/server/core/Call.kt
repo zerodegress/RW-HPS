@@ -17,10 +17,12 @@ import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.game.event.EventType.GameOverEvent
+import cn.rwhps.server.game.simulation.gameFramework.GameData
 import cn.rwhps.server.io.packet.GameCommandPacket
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.game.Events
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
@@ -89,6 +91,11 @@ object Call {
     @JvmStatic
     fun sendPlayerPing() {
         Data.game.playerManage.playerGroup.eachAll { e: Player -> e.con!!.sendPing() }
+    }
+
+    @JvmStatic
+    fun sendCheckData() {
+        NetStaticData.groupNet.broadcast(GameData.getGameCheck())
     }
 
     @JvmStatic
@@ -187,10 +194,35 @@ object Call {
         private var forcedClose = false
 
         private val tick = Data.config.Tick
+        private val olinPlayer = Data.game.playerManage.playerGroup.size-1
 
         @Volatile
         private var forcedReturn = false
         private val comm = Seq<GameCommandPacket>(16)
+
+        init {
+            Threads.newTimedTask(CallTimeTask.AutoCheckTask,0,1,TimeUnit.SECONDS) {
+                var lastWinTeam: Int = -1
+                var lastWinCount: Int = 0
+                for (size in 0 until olinPlayer) {
+                    Data.game.playerManage.getPlayerArray(size)!!.also {
+                        it.survive = GameData.getWin(size)
+                        if (it.survive && it.team != lastWinTeam) {
+                            lastWinTeam = it.team
+                            lastWinCount++
+                        }
+                        //Log.clog("Player: {0} , survive: {1}",it.name,GameData.getWin(size))
+                    }
+                }
+                if (lastWinCount == 1) {
+                    val last = Data.game.playerManage.getPlayersNameOnTheSameTeam(lastWinTeam).toArray(String::class.java).contentToString()
+                    Log.clog("Last Win Player: {0}",last)
+                    Call.sendSystemMessageLocal("survive.player",last)
+                    Threads.closeTimeTask(CallTimeTask.AutoCheckTask)
+                }
+
+            }
+        }
 
         override fun run() {
             // 检测人数是否符合Gameover
@@ -265,6 +297,7 @@ object Call {
             }
             forcedReturn = true
             Threads.closeTimeTask(CallTimeTask.GameOverTask)
+            Threads.closeTimeTask(CallTimeTask.AutoCheckTask)
 
             cancel()
             TimeTaskData.stopCallTickTask()

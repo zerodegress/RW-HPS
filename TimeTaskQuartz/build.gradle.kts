@@ -1,8 +1,6 @@
-plugins {
-	`maven-publish`
-}
-
 dependencies {
+	// Users should not operate Quartz
+	// Hence the RunTime
 	implementation("org.quartz-scheduler:quartz:2.3.2")
 }
 

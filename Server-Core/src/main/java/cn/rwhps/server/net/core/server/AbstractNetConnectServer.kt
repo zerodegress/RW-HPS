@@ -117,6 +117,15 @@ interface AbstractNetConnectServer {
     fun receiveCommand(p: Packet)
 
     /**
+     * Check player data correctness
+     * @param p Packet
+     * @return Pass
+     * @throws IOException Error
+     */
+    @Throws(IOException::class)
+    fun receiveCheckPacket(packet: Packet)
+
+    /**
      * Extract the GameSave package
      * @param packet Packet
      * @return Packet

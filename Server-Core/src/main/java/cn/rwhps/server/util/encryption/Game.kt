@@ -34,7 +34,7 @@ object Game {
         }
     }
 
-    // 1.15.P8
+    // 1.15
     @JvmStatic
     fun connectKeyNew(paramInt: Int): String {
         return buildString {
@@ -71,5 +71,4 @@ object Game {
             append("d:${paramInt * 5}")
         }
     }
-
 }

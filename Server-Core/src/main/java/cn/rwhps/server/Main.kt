@@ -41,7 +41,6 @@ import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.base.BaseRelayPublishConfig
 import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.data.global.Data
-import cn.rwhps.server.data.mods.ModManage
 import cn.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.data.plugin.PluginManage.init
@@ -55,6 +54,8 @@ import cn.rwhps.server.func.StrCons
 import cn.rwhps.server.game.Event
 import cn.rwhps.server.game.EventGlobal
 import cn.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
+import cn.rwhps.server.game.simulation.GameHeadlessEvent
+import cn.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import cn.rwhps.server.io.ConsoleStream
 import cn.rwhps.server.util.encryption.Base64.decodeString
 import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
@@ -104,7 +105,7 @@ object Main {
         inputMonitorInit()
         // 强制 UTF-8 我不愿意解决奇奇怪怪的问题
         if (!System.getProperty("file.encoding").equals("UTF-8", ignoreCase = true)) {
-            clog("Please use UTF-8 !!!  -> java -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -jar Server.jar")
+            clog("Please use UTF-8 !!!  -> java -Dfile.encoding=UTF-8 -jar Server.jar")
             clog("For non-UTF8 problems, please solve it yourself")
             Core.mandatoryExit()
         }
@@ -112,7 +113,7 @@ object Main {
         Initialization()
 
         println(Data.i18NBundle.getinput("server.login"))
-        clog("RW-HPS is loading...")
+        clog("Load ing...")
 
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
@@ -120,13 +121,9 @@ object Main {
         Data.configTest = BaseTestConfig.stringToClass()
         Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
         Data.core.load()
-
-       // ZipGame().jm()
-
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
-
 
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
@@ -136,6 +133,9 @@ object Main {
         /* Event加载 */
         add(Event())
         add(EventGlobal())
+
+        add(GameHeadlessEvent())
+        add(GameHeadlessEventGlobal())
         clog(Data.i18NBundle.getinput("server.load.events"))
 
         /* 初始化Plugin */
@@ -146,9 +146,6 @@ object Main {
         runRegisterGlobalEvents()
         PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
 
-        /* Load Mod */
-        clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load(getFolder(Data.Plugin_Mods_Path))))
-        ModManage.loadUnits()
         //ModManage.test()
 
         /* 加载完毕 */
@@ -167,10 +164,12 @@ object Main {
             }
         }
 
-        clog("Server Run PID : ${Data.core.pid}")
+        clog(Data.core.pid.toString())
 
         /* 按键监听 */
         newThreadCore { inputMonitor() }
+
+        Test.startGameCore()
     }
 
     /**
@@ -200,6 +199,7 @@ object Main {
                     last = 1
                     continue
                 }
+                //Log.skipping(EggsException.MoneyNotEnoughException("KFC Crazy Thursday need ¥50."))
                 reader.printAbove("force exit")
                 exitProcess(255)
             } catch (e: EndOfFileException) {
@@ -218,8 +218,7 @@ object Main {
             }
 
             try {
-                val response = Data.SERVER_COMMAND.handleMessage(line,
-                    StrCons { obj: String -> clog(obj) })
+                val response = Data.SERVER_COMMAND.handleMessage(line, StrCons { obj: String -> clog(obj) })
                 if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
                     if (response.type != CommandHandler.ResponseType.valid) {
                         val text = when (response.type) {

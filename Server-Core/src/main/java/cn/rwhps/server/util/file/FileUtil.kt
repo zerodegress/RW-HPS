@@ -307,7 +307,8 @@ open class FileUtil {
          * 默认的地址前缀
          * 如果不为null将会直接使用path而不是使用jar的位置
          */
-		private var defaultFilePath: String
+		var defaultFilePath: String
+            private set
 
         /**
          * 加载默认的文件路径

@@ -62,7 +62,10 @@ class Administration(pluginData: PluginData) {
             pluginData.setData("whitelist", whitelist)
             pluginData.setData("playerAdminData", playerAdminData)
         }
-        addSavePool { Data.config.save() }
+        addSavePool {
+            Data.config.save()
+            Data.configRelayPublish.save()
+        }
     }
 
     /**

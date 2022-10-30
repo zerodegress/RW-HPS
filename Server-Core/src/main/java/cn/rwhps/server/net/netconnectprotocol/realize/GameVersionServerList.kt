@@ -244,7 +244,7 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
             addAD("须知 房间不开 玩家禁言","")
             addAD("星联 751683594","751683594")
             addAD("起源 1159654906","1159654906")
-            addAD("黑森林 780922783","780922783")
+            addAD("碳化战争 780922783","780922783")
             addAD("古城 280372011","280372011")
             addAD("RW-HPS 901913920","901913920")
             addAD("RWELAY-CN 867997110","867997110")

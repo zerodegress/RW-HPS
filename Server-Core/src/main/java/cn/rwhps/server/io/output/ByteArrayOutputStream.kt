@@ -22,7 +22,7 @@ import java.io.OutputStream
  * 创建新的字节数组输出流 缓冲容量为 {@value AbstractByteArrayOutputStream#DEFAULT_SIZE} 字节 尽管它的大小在必要时会增加
  * 默认为512bytes
  */
-class ByteArrayOutputStream @JvmOverloads constructor(size: Int = DEFAULT_SIZE) : AbstractByteArrayOutputStream() {
+open class ByteArrayOutputStream @JvmOverloads constructor(size: Int = DEFAULT_SIZE) : AbstractByteArrayOutputStream() {
     override fun write(b: ByteArray, off: Int, len: Int) {
         if (off < 0
             || off > b.size

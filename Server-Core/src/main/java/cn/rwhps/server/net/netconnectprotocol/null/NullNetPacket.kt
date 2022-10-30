@@ -67,7 +67,7 @@ class NullNetPacket : AbstractNetPacket {
         throw ImplementedException("Not yet implemented")
     }
 
-    override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float): GameCommandPacket {
+    override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float, size: Int): GameCommandPacket {
         throw ImplementedException("Not yet implemented")
     }
 

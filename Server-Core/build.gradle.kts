@@ -1,19 +1,21 @@
-plugins {
-	`maven-publish`
-}
-
-
 //Netty Version
-val nettyVersion = "4.1.79.Final"
+val nettyVersion = "4.1.82.Final"
 
 /**
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
+	api("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")
+	//implementation(kotlin("reflect"))
+
 
 	//implementation(project(":RUDP"))
 	implementation(project(":TimeTaskQuartz"))
+	implementation(project(":Lwjgl-Headless"))
+	implementation(project(":Slick-Headless"))
+
+	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
+	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
 	// 并没有使用 AIO
 	//api "cn.hutool:hutool-socket:5.7.5"
 
@@ -25,15 +27,22 @@ dependencies {
 	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
 	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
 
+	//api fileTree(dir:"libs",include:["ChainMarket-23fc7f989f.jar"])
+	implementation(fileTree(mapOf("dir" to "libs", "include" to "*.jar")))
+
 	api("com.github.deng-rui:RUDP:2.0.0")
+	//api("com.github.jmecn:TMXLoader:v0.2")
+	//api("com.github.deng-rui:Compress-Zip:1.0.0")
 
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
 	api("com.google.code.gson:gson:2.9.0")
-	api("org.json:json:20220320")
+	api("org.json:json:20220924")
 
 	api("org.apache.commons:commons-compress:1.21")
 
+	//compileOnly group: "com.ip2location", name: "ip2location-java", version: "8.5.0"
+	//compileOnly group: "com.alibaba", name: "fastjson", version: "1.2.58"
 	api("com.squareup.okhttp3:okhttp:4.10.0") {
 		exclude(group = "org.jetbrains.kotlin")
 	}
@@ -52,14 +61,25 @@ dependencies {
 
 	compileOnly("commons-io:commons-io:2.11.0")
 	api("it.unimi.dsi:fastutil-core:8.5.8")
+	//compileOnly group: "org.bouncycastle", name: "bcprov-jdk15on", version: "1.69"
 
-	testApi("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+	//compileOnly fileTree(dir:"libs",include:["*.jar"])
+	//compileOnly group: "com.github.oshi", name: "oshi-core", version: "5.5.0"
+
+	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }
 
 tasks.test {
 	useJUnitPlatform()
 }
 
+tasks.jar {
+	/*
+	into("/Agent") {
+		from("libs/game-lib.jar")
+	}*/
+	//archiveFile.get().asFile.copyTo(File("$rwPath\\game-lib.jar"), true)
+}
 
 publishing {
 	publications {

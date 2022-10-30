@@ -15,15 +15,20 @@ enum class CallTimeTask(
     ) {
     CallPingTask(                   "[Core]Server",   "Update player delay"),
     CallTeamTask(                   "[Core]Server",   "Update player team list"),
+    CallCheckTask(                  "[Core]Server",   "Update player check data"),
+
     PlayerAfkTask(                  "[Core]Server",   "Transfer of authority"),
     GameOverTask(                   "[Core]Server",   "Check gameover"),
     VoteTask(                       "[Core]Server",   "Vote"),
     AutoStartTask(                  "[Corex]Server",  "Start automatically"),
     AutoUpdateMapsTask(             "[Corex]Server",  "Auto update maps"),
+    AutoCheckTask(                  "[Corex]Server",  "Auto Check player survives"),
+
 
     CustomUpServerListTask(         "UpList",         "[Plugin UpList] Update Data"),
     UpServerListTask(               "UpList",         "Core"),
     UpServerListNewTask(            "UpList",         "Core"),
+
 
     BlackListCheckTask(             "[Netx]",         "超时去除"),
     ServerUploadDataTask(           "[RCN]",          "列表更新"),
@@ -31,6 +36,7 @@ enum class CallTimeTask(
     RelayRoom_CheckTimeTask(        "[RCN]",          "房间超时机制"),
     ServerStatusUpdate(             "[RCN]",          "状态更新"),
     ServerIDCheckUpdate(            "[RCN]",          "检查ID过期"),
+
 
     ServerUpStatistics(             "[RW-HPS]",       "统计数据更新")
 }

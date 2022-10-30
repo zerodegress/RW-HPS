@@ -132,12 +132,18 @@ internal class PluginEventManage {
         }
 
         private fun registerGlobalEventAll() {
-            /* ASync */
+            /* Sync */
+            Events.on(GameLibLoadEvent::class.java) { _: GameLibLoadEvent ->
+                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
+                    obj.registerGameLibLoadEvent()
+                }
+            }
+
+            /* Sync */
+            // 不应该 ASync 避免部分配置未加载
             Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
-                executorService.execute {
-                    pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
-                        obj.registerServerLoadEvent()
-                    }
+                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
+                    obj.registerServerLoadEvent()
                 }
             }
 

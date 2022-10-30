@@ -12,7 +12,10 @@ package cn.rwhps.server.plugin.event
 import cn.rwhps.server.net.core.ConnectionAgreement
 
 interface AbstractGlobalEvent {
-    /** 服务器初始化 [异步-ASync]  */
+    /** 游戏核心初始化完毕 [同步-Sync]  */
+    fun registerGameLibLoadEvent() {}
+
+    /** 服务器初始化 [同步-Sync]  */
     fun registerServerLoadEvent() {}
 
     /**

@@ -11,6 +11,7 @@ package cn.rwhps.timetask.task
 
 import cn.rwhps.timetask.run.RunnableRun
 import org.quartz.*
+import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.impl.StdSchedulerFactory
 import java.util.*
 
@@ -54,7 +55,7 @@ class TimeTaskManage {
     }
 
     /**
-     * 创建一个定时计时器
+     * 创建一个定时循环计时器
      * @param name 名字
      * @param group 组
      * @param description 描述
@@ -74,6 +75,29 @@ class TimeTaskManage {
             .withIdentity(name, group)
             .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(intervalTime).repeatForever())
             .startAt(Date(startTime))
+            .build()
+        scheduler.scheduleJob(jobDetail, trigger)
+    }
+
+    /**
+     * 创建一个定时循环计时器
+     * @param name 名字
+     * @param group 组
+     * @param description 描述
+     * @param corn 执行间隔
+     * @param runnable Runnable
+     */
+    fun addTimedTask(name: String, group: String, description: String, corn: String, runnable: Runnable) {
+        val key = JobKey(name, group)
+        val jobDetail = JobBuilder.newJob(RunnableRun::class.java).withIdentity(key).build()
+        val dataMap = JobDataMap()
+        dataMap["run"] = { runnable.run() }
+
+        val trigger: Trigger = TriggerBuilder.newTrigger()
+            .usingJobData(dataMap)
+            .withDescription(description)
+            .withIdentity(name, group)
+            .withSchedule(cronSchedule(corn))
             .build()
         scheduler.scheduleJob(jobDetail, trigger)
     }

@@ -362,8 +362,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
             sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
             //getRelayT4(Data.localeUtil.getinput("relay.server.admin.connect",relay.getId()));
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
             //ping();
 
             //debug(name)
@@ -455,7 +455,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o1.writeBytes(cachePacket!!.bytes)
             relay!!.admin!!.sendPacket(o1.createPacket(PacketType.PACKET_FORWARD_CLIENT_FROM))
             connectionAgreement.add(relay!!.groupNet)
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
         } catch (e: IOException) {
             e.printStackTrace()
         } finally {
@@ -556,6 +556,13 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 inStream.skip(4)
                 val bytes = inStream.readAllBytes()
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
+                if (PacketType.KICK.typeInt == type) {
+                    val gameOutputStream = GameOutputStream()
+                    gameOutputStream.writeString(GameInputStream(bytes).readString().replace("\\d".toRegex(), ""))
+                    abstractNetConnect?.sendPacket(gameOutputStream.createPacket(type))
+                    relayPlayerDisconnect()
+                    return
+                }
                 abstractNetConnect?.sendPacket(Packet(type, bytes))
 
                 when (type) {

@@ -55,7 +55,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
     fun addPlayer(con: GameVersionServer, uuid: String, name: String, i18NBundle: I18NBundle = Data.i18NBundle): Player {
         val player = Player(con, uuid, name, i18NBundle)
         if (Data.config.OneAdmin) {
-            if (playerGroup.size == 0) {
+            if ((playerGroup.size == 0 && name != Data.headlessName) || (containsName(Data.headlessName) != null && playerGroup.size == 1)) {
                 player.isAdmin = true
             }
         }
@@ -90,11 +90,30 @@ class PlayerManage(private val maxPlayerSize: Int) {
         return playerData[size]
     }
 
+    fun containsName(name: String): Player? {
+        for (player in playerData) {
+            if (player!= null && player.name == name) {
+                return player
+            }
+        }
+        return null
+    }
+
 
     fun runPlayerArrayDataRunnable(run: (Player?) -> Unit) {
         for (player in playerData) {
             run(player)
         }
+    }
+
+    fun getPlayersNameOnTheSameTeam(team: Int): Seq<String> {
+        val result = Seq<String>()
+        for (player in playerData) {
+            if (player!= null && player.team == team) {
+                result.add(player.name)
+            }
+        }
+        return result
     }
 
     fun updateControlIdentifier() {
@@ -128,6 +147,12 @@ class PlayerManage(private val maxPlayerSize: Int) {
 
     private fun autoPlayerTeam(player: Player) {
         moveLock.withLock {
+            if (player.name == Data.headlessName) {
+                playerData[Data.config.MaxPlayer] = player
+                player.site = Data.config.MaxPlayer
+                player.team = -3
+                return
+            }
             if (amTeam) {
                 for (i in 0 until maxPlayerSize) {
                     if (playerData[i] == null) {

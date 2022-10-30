@@ -58,7 +58,7 @@ class Player(
     /** (Markers)  */
     @Volatile var start = false
     /** Whether the player is dead  */
-	var dead = false
+	var survive = true
     /** Last move time  */
 	@Volatile var lastMoveTime: Int = 0
     /** Mute expiration time */

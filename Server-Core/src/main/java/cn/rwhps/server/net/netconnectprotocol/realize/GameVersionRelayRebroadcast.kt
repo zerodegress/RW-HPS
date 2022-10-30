@@ -11,7 +11,6 @@ package cn.rwhps.server.net.netconnectprotocol.realize
 
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
-import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.packet.Packet
@@ -100,8 +99,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 o.writeBoolean(true)
             }
             sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", relay!!.id), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
             //ping();
 
             val nnn = StringFilteringUtil.filterChines(name)

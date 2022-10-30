@@ -10,10 +10,8 @@
 package cn.rwhps.server.command.server
 
 import cn.rwhps.server.core.Call
-import cn.rwhps.server.core.Call.sendMessageLocal
 import cn.rwhps.server.core.Call.sendSystemMessage
 import cn.rwhps.server.core.Call.sendSystemMessageLocal
-import cn.rwhps.server.core.Call.sendSystemTeamMessageLocal
 import cn.rwhps.server.core.Call.sendTeamData
 import cn.rwhps.server.core.Call.sendTeamMessage
 import cn.rwhps.server.core.Call.testPreparationPlayer
@@ -196,7 +194,6 @@ internal class ClientCommands(handler: CommandHandler) {
                     sendSystemMessage("give.ok", player.name)
                 } else {
                     player.sendSystemMessage(player.getinput("give.noPlayer", player.name))
-
                 }
             }
         }
@@ -246,6 +243,10 @@ internal class ClientCommands(handler: CommandHandler) {
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0])) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
+                    return@register
+                }
+                if (args[0].toInt()  == Data.config.MaxPlayer+1) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
                     return@register
                 }
                 val site = args[0].toInt() - 1
@@ -313,22 +314,24 @@ internal class ClientCommands(handler: CommandHandler) {
         handler.register("iunit", "<SerialNumber> <unitID>","clientCommands.iunit") { args: Array<String>, player: Player ->
             //(type == 1) ? 1 : (type == 2) ? 2 : (type ==3) ? 3 : (type == 4) ? 4 : 100
             //Call.sendSystemMessage(player.i18NBundle.getinput("unpause.ok"))
-            if (Data.game.isStartGame) {
-                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
-                return@register
-            }
-
-            if (checkSiteNumb(args[0],player)) {
-                val site = args[0].toInt() -1
-                val inPlayer: Player? = Data.game.playerManage.getPlayerArray(site)
-
-                if (inPlayer == null) {
-                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.no.site",site))
+            if (isAdmin(player)) {
+                if (Data.game.isStartGame) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                     return@register
                 }
 
-                inPlayer.startUnit = if (IntStream.of(1,2,3,4,100,101,102,103).anyMatch { it == args[1].toInt() }) args[1].toInt() else 1
-                sendTeamData()
+                if (checkSiteNumb(args[0], player)) {
+                    val site = args[0].toInt() - 1
+                    val inPlayer: Player? = Data.game.playerManage.getPlayerArray(site)
+
+                    if (inPlayer == null) {
+                        player.sendSystemMessage(player.i18NBundle.getinput("err.player.no.site", site))
+                        return@register
+                    }
+
+                    inPlayer.startUnit = if (IntStream.of(1, 2, 3, 4, 100, 101, 102, 103).anyMatch { it == args[1].toInt() }) args[1].toInt() else 1
+                    sendTeamData()
+                }
             }
         }
 
@@ -399,6 +402,11 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("start", "clientCommands.start") { _: Array<String>?, player: Player ->
             if (isAdmin(player)) {
+                if (Data.game.isStartGame) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+                    return@register
+                }
+
                 Threads.closeTimeTask(CallTimeTask.AutoStartTask)
 
                 if (Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
@@ -502,6 +510,12 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
+
+                if (args[0].toInt()  == Data.config.MaxPlayer+1 || args[1].toInt()  == Data.config.MaxPlayer+1) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
+                    return@register
+                }
+
                 Data.game.playerManage.movePlayerSite(args[0].toInt(),args[1].toInt(),args[2].toInt(),true)
             }
         }

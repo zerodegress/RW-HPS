@@ -68,7 +68,8 @@ enum class PacketType(val typeInt: Int) {
     TICK(10),
     GAMECOMMAND_RECEIVE(20),
     SYNCCHECKSUM_STATUS(31),
-    _30(30),
+    SYNC_CHECK(30),
+    SYNC_CHECK_RECEIVE(31),
     SYNC(35),
 
     /* Relay */

@@ -32,7 +32,8 @@ object Data {
     const val Plugin_Data_Path = "/data"
     const val Plugin_Save_Path = "/data/save"
     const val Plugin_Cache_Path = "/data/cache"
-    const val Plugin_Lib_Path = "/data/lib"
+    const val Plugin_Lib_Path = "/data/libs"
+    const val Plugin_GameCore_Lib_Path = "/data/coreLibs"
     const val Plugin_Log_Path = "/data/log"
     const val Plugin_Maps_Path = "/data/maps"
     const val Plugin_Plugins_Path = "/data/plugins"
@@ -45,8 +46,7 @@ object Data {
     const val SERVER_ID = "cn.rwhps.server"
     const val SERVER_ID_RELAY = "cn.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "cn.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "6.4.2"
-
+    const val SERVER_CORE_VERSION = "1.0.0.0-DEV"
     const val TOPT_KEY = "cn.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     /** 单位数据缓存  */
@@ -79,5 +79,9 @@ object Data {
 
     @JvmField var vote: Vote? = null
     var bindForcibly = false
+
+    @Volatile var loadGame = false
+
+    val headlessName: String = "RW-HPS Core Headless"
 
 }

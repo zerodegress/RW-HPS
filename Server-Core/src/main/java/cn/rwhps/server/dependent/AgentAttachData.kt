@@ -23,7 +23,7 @@ open class AgentAttachData {
 
         /** JRE将在启动main()之前调用方法  */
         @JvmStatic
-        fun agentmain(a: String?, inst: Instrumentation?) {
+        fun agentmain(name: String?, inst: Instrumentation?) {
             instPrivate = inst
         }
     }

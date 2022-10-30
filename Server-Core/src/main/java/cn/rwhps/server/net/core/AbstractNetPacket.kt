@@ -129,7 +129,7 @@ interface AbstractNetPacket {
      * @param x Float
      * @param y Float
      */
-    fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float): GameCommandPacket
+    fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float, size: Int = 0): GameCommandPacket
 
     /**
      * 退出

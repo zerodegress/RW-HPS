@@ -12,6 +12,7 @@ package cn.rwhps.server.io
 import cn.rwhps.server.io.input.CompressInputStream
 import cn.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import cn.rwhps.server.io.packet.Packet
+import cn.rwhps.server.util.inline.ifNullResult
 import java.io.*
 
 /**
@@ -197,7 +198,17 @@ open class GameInputStream : Closeable {
 
     @Throws(IOException::class)
     fun readEnum(clazz: Class<*>): Enum<*>? {
-        return clazz.enumConstants[readInt()] as Enum<*>
+        return readInt().let {
+            if (it < 0) {
+                null
+            } else {
+                clazz.enumConstants[it].ifNullResult({
+                    it as Enum<*>
+                }) {
+                    null
+                }
+            }
+        }
     }
 
     /**

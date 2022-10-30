@@ -15,6 +15,7 @@ import cn.rwhps.server.core.thread.TimeTaskData;
 import cn.rwhps.server.data.global.Data;
 import cn.rwhps.server.data.global.NetStaticData;
 import cn.rwhps.server.func.StrCons;
+import cn.rwhps.server.game.simulation.gameFramework.GameData;
 import cn.rwhps.server.net.core.IRwHps;
 import cn.rwhps.server.util.log.Log;
 import kotlin.Unit;
@@ -29,7 +30,9 @@ public class NetServer {
     public static void closeServer() {
         if (Data.game != null) {
             TimeTaskData.INSTANCE.stopCallTickTask();
+
             Call.disAllPlayer();
+
             NetStaticData.startNet.eachAll(e ->{
                     e.stop();
                     return Unit.INSTANCE;
@@ -39,7 +42,9 @@ public class NetServer {
             Threads.closeNet();
             //Threads.newThreadCoreNet();
 
+            GameData.clean();
 
+            Threads.closeTimeTask(CallTimeTask.AutoCheckTask);
             Threads.closeTimeTask(CallTimeTask.CallPingTask);
             Threads.closeTimeTask(CallTimeTask.CallTeamTask);
             Threads.closeTimeTask(CallTimeTask.PlayerAfkTask);
@@ -47,7 +52,7 @@ public class NetServer {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask);
             Threads.closeTimeTask(CallTimeTask.AutoUpdateMapsTask);
 
-            Data.SERVER_COMMAND.handleMessage("uplist remove",  (StrCons) Log::clog);
+            Data.SERVER_COMMAND.handleMessage("uplist remove", (StrCons) Log::clog);
 
             Data.game.getPlayerManage().playerGroup.clear();
             Data.game.getPlayerManage().playerAll.clear();

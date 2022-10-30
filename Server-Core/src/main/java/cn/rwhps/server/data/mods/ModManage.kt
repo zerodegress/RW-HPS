@@ -9,65 +9,40 @@
 
 package cn.rwhps.server.data.mods
 
-import cn.rwhps.server.Main
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.game.simulation.gameFramework.GameUnitData
 import cn.rwhps.server.io.GameOutputStream
-import cn.rwhps.server.mods.ModsIniData
-import cn.rwhps.server.mods.ModsLoad
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
-import cn.rwhps.server.util.file.FileName
-import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.alone.annotations.NeedToRefactor
 import cn.rwhps.server.util.log.Log
 
 /**
  * Mods 加载管理器
  */
 object ModManage {
-    private const val coreName = "core_RW-HPS_units_173.zip"
-    private val modsData = OrderedMap<String,ObjectMap<String, ModsIniData>>()
+    private val coreName = "RW-HPS CoreUnits 174"
+    private var enabledMods = OrderedMap<String,ObjectMap<String, Int>>()
+    private var enabledModsName = Seq<String>()
     private var loadUnitsCount = 0
-    private var fileMods: FileUtil? = null
 
     @JvmStatic
-    fun load(fileUtil: FileUtil): Int {
-        return load(fileUtil,"",null)
-    }
+    fun load(): Int {
+        enabledMods = GameUnitData.getUnitData(coreName)
+        enabledModsName.clear()
 
-    @JvmStatic
-    fun load(fileUtil: FileUtil , name: String, coreMod: ModsLoad?): Int {
-        if (coreMod == null) {
-            loadCore()
-        } else {
-            modsData.put(name, coreMod.load())
-        }
-        this.fileMods = fileUtil
-        var loadCount = 0
-        fileMods!!.fileList.eachAll {
-            // 只读取 RWMOD 和 ZIP
-            if (!it.name.endsWith(".rwmod") && !it.name.endsWith(".zip")) {
-                return@eachAll
-            }
+        enabledModsName.add(coreName)
 
-            loadCount++
-            val modLoad = ModsLoad(it.inputStream())
-            val modsDataCache = modLoad.load()
-
-            modsData.put(modLoad.name.ifBlank { FileName.getFileName(it.name) }, modsDataCache)
-        }
-        return loadCount
-    }
-
-    private fun loadCore() {
-        val modsDataCache = ModsLoad(Main::class.java.getResourceAsStream("/$coreName")!!).load()
-        modsData.put(coreName, modsDataCache)
+        return enabledMods.size -1
     }
 
     @JvmStatic
     fun loadUnits() {
-        modsData.values().forEach {
-            loadUnitsCount += it.size
+        enabledMods.forEach {
+            if (enabledModsName.contains(it.key)) {
+                loadUnitsCount += it.value.size
+            }
         }
 
         val stream: GameOutputStream = Data.utilData
@@ -75,51 +50,49 @@ object ModManage {
         stream.writeInt(1)
         stream.writeInt(loadUnitsCount)
 
-        modsData.forEach {
-            val modName = it.key
-            val modData = it.value
-
-            val core = (modName.contains("core_RW-HPS_units_"))
-
-            try {
-                modData.forEach { iniData ->
-
-                    stream.writeString(iniData.key)
-                    stream.writeInt(iniData.value.getMd5())
-                    stream.writeBoolean(true)
-                    if (core) {
-                        stream.writeBoolean(false)
-                    } else {
+        enabledMods.forEach {
+            val modGroup = it.key
+            if (enabledModsName.contains(modGroup)) {
+                val modData = it.value
+                try {
+                    val core = modGroup == coreName
+                    modData.forEach { iniData ->
+                        stream.writeString(iniData.key)
+                        stream.writeInt(iniData.value)
                         stream.writeBoolean(true)
-                        stream.writeString(modName!!)
+                        if (core) {
+                            stream.writeBoolean(false)
+                        } else {
+                            stream.writeBoolean(true)
+                            stream.writeString(modGroup)
+                        }
+                        stream.writeLong(0)
+                        stream.writeLong(0)
                     }
-                    stream.writeLong(0)
-                    stream.writeLong(0)
+                    Log.debug("Load OK", if (core) "Core Units" else modGroup!!)
+                } catch (e: Exception) {
+                    Log.error(e)
                 }
-                Log.debug("Load OK", if (core) "Core Units" else modName!!)
-            } catch (e: Exception) {
-                Log.error(e)
             }
         }
     }
 
+    @NeedToRefactor
     @JvmStatic
     fun reLoadMods(): Int {
-        modsData.clear()
-        loadUnitsCount = 0
+        //modsData.clear()
+        //loadUnitsCount = 0
 
-        val loadCount = load(fileMods!!)
-        loadUnits()
-        return loadCount
+        //val loadCount = load(fileMods!!)
+        //loadUnits()
+        return 0
     }
 
     @JvmStatic
     fun clear() {
-        modsData.clear()
         loadUnitsCount = 0
     }
 
     @JvmStatic
-    fun getModsList(): Seq<String> =
-        modsData.keys().toSeq()
-    }
+    fun getModsList(): Seq<String> = enabledMods.keys().toSeq()
+}

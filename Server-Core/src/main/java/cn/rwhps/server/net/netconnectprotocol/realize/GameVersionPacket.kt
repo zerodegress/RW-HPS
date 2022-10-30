@@ -164,7 +164,7 @@ open class GameVersionPacket : AbstractNetPacket {
         return cachePacket
     }
 
-    override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float): GameCommandPacket {
+    override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float, size: Int): GameCommandPacket {
         Data.game.playerManage.updateControlIdentifier()
 
         val outStream = GameOutputStream()
@@ -199,8 +199,8 @@ open class GameVersionPacket : AbstractNetPacket {
         outStream.writeFloat(y)
         // Tager
         outStream.writeLong(-1L)
-        //?
-        outStream.writeByte(42)
+        // 如果生成圆 那么这就是半径
+        outStream.writeByte(size)
         outStream.writeFloat(1)
         outStream.writeFloat(1)
         outStream.writeBoolean(false)

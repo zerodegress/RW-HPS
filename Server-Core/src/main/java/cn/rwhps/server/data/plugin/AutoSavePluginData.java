@@ -16,3 +16,4 @@ public class AutoSavePluginData extends AbstractPluginData {
     public AutoSavePluginData() {
     }
 }
+

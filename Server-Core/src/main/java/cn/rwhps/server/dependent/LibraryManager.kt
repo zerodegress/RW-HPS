@@ -36,9 +36,13 @@ class LibraryManager : AgentAttachData() {
      * 导入本地的依赖
      * @param file FileUtil
      */
+    fun customImportLib(file: File) {
+        dependenciesFile.add(file)
+    }
     fun customImportLib(file: FileUtil) {
         dependenciesFile.add(file.file)
     }
+
 
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     @JvmOverloads

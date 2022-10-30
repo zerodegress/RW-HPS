@@ -18,6 +18,8 @@ import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.data.totalizer.TimeAndNumber
 import cn.rwhps.server.game.GameUnitType
 import cn.rwhps.server.game.event.EventType.*
+import cn.rwhps.server.game.simulation.gameFramework.GameData
+import cn.rwhps.server.game.simulation.gameFramework.GameEngine
 import cn.rwhps.server.io.GameInputStream
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.io.output.CompressOutputStream
@@ -39,6 +41,7 @@ import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.game.CommandHandler.CommandResponse
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log
+import com.corrodinggames.rts.gameFramework.j.al
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
@@ -65,8 +68,8 @@ import kotlin.math.min
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
     open val supportedversionBeta = true
-    open val supportedversionGame = "1.15.P10"
-    open val supportedVersionInt  = 173
+    open val supportedversionGame = "1.15.P14"
+    open val supportedVersionInt  = 174
 
     override val name: String get() = player.name
     override val registerPlayerId: String? get() = player.uuid
@@ -409,6 +412,46 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     @Throws(IOException::class)
+    @Suppress("UNCHECKED_CAST")
+    override fun receiveCheckPacket(packet: Packet) {
+        var syncFlag = false
+        GameInputStream(packet).use { stream ->
+            stream.readByte()
+            val intUnknown_A = stream.readInt()
+            val tick = stream.readInt()
+            if (stream.readBoolean()) {
+                //stream.readLong()stream.readLong()
+                stream.skip(16)
+                stream.getDecodeStream(false).use { checkList ->
+                    checkList.readInt()
+                    if (checkList.readInt() != GameEngine.netEngine.am.b.size) {
+                        Log.debug("RustedWarfare", "checkSumSize!=syncCheckList.size()");
+                    }
+                    val checkTypeList: ArrayList<al> = GameEngine.netEngine.am.b as ArrayList<al>
+                    for (checkType in checkTypeList) {
+                        val server = checkList.readLong()
+                        val client = checkList.readLong()
+                        if (server != client) {
+                            syncFlag = true
+                            Log.debug("RustedWarfare", "CheckType: ${checkType.a} Checksum: $intUnknown_A Server: $server Client: $client");
+                        }
+                        val tickServer = Data.game.tickGame.get()
+                        if (tickServer >= intUnknown_A) {
+                            Log.debug("RustedWarfare", "Not marking desync, already resynced before tick: $tickServer <= $tick");
+                            return;
+                        }
+
+                    }
+                }
+            }
+        }
+
+        if (syncFlag) {
+            sync()
+        }
+    }
+
+    @Throws(IOException::class)
     override fun getGameSaveData(packet: Packet): ByteArray {
         GameInputStream(packet).use { stream ->
             val o = GameOutputStream()
@@ -612,10 +655,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 sendKick("不支持重连 # Does not support reconnection")
                 return
             }
-            if (player.reConnectData.checkStatus()) {
-                player.kickPlayer("不要一直尝试重连",300)
-                return
-            }
             player.reConnectData.count++
             super.isDis = false
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getStartGamePacket())
@@ -630,13 +669,18 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             player.sendSystemMessage("目前已有同步任务 请等待")
             return
         }
+        if (player.reConnectData.checkStatus()) {
+            player.kickPlayer("不要一直尝试重连",300)
+            return
+        }
         try {
             Data.game.gameReConnectPaused = true
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
-            // 批量诱骗
-            NetStaticData.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getDeceiveGameSave())
+            NetStaticData.groupNet.broadcast(GameData.getGameData())
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
+        } finally {
+            Data.game.gameReConnectPaused = false
         }
     }
 

@@ -20,6 +20,7 @@ import cn.rwhps.server.util.log.Log.error
 import java.lang.reflect.Field
 
 
+
 /**
  * Save data for serialization and deserialization
  * @author RW-HPS/Dr
@@ -27,6 +28,7 @@ import java.lang.reflect.Field
 data class BaseRelayPublishConfig(
     val MainID: String = "",
     val MainServer: Boolean = true,
+    val UpList: Boolean = false,
     val MainServerIP: String = "",
     val MainServerPort: Int = 4993,
 ) {

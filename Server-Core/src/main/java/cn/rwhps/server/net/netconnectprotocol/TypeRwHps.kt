@@ -10,20 +10,16 @@
 package cn.rwhps.server.net.netconnectprotocol
 
 import cn.rwhps.server.data.global.Data
-import cn.rwhps.server.data.global.NetStaticData
-import cn.rwhps.server.io.packet.GameSavePacket
 import cn.rwhps.server.io.packet.Packet
 import cn.rwhps.server.net.core.ConnectionAgreement
 import cn.rwhps.server.net.core.TypeConnect
 import cn.rwhps.server.net.core.server.AbstractNetConnect
-import cn.rwhps.server.net.core.server.AbstractNetConnectServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.util.ExtractUtil
 import cn.rwhps.server.util.PacketType
 import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.Time.concurrentSecond
 import cn.rwhps.server.util.log.Log
-import java.io.IOException
 
 /**
  * Parse the [cn.rwhps.server.net.core.IRwHps.NetType.ServerProtocol] protocol
@@ -77,29 +73,9 @@ open class TypeRwHps : TypeConnect {
                 PacketType.DISCONNECT -> con.disconnect()
                 PacketType.ACCEPT_START_GAME -> con.player.start = true
                 PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
-                // 竞争 谁先到就用谁
-                PacketType.SYNC -> if (!Data.game.gameReConnectFlag) {
-                    val gameSavePacket = GameSavePacket(packet)
 
-                    if (gameSavePacket.checkTick() && Data.game.gameReConnectPaused) {
-                        Data.game.gameReConnectFlag = true
-                        if (!Data.game.gameReConnectFlag) {
-                            try {
-                                try {
-                                    NetStaticData.groupNet.broadcast(gameSavePacket.convertGameSaveDataPacket())
-                                    Data.game.tickGame.getAndAdd(10)
-                                } catch (e: IOException) {
-                                    Log.error(e)
-                                }
-                            } catch (ex: Exception) {
-                                (abstractNetConnect as AbstractNetConnectServer).sendKick(ex.message.toString())
-                            } finally {
-                                Data.game.gameReConnectPaused = false
-                                Data.game.gameReConnectFlag = false
-                            }
-                        }
-                    }
-                }
+                PacketType.SYNC_CHECK_RECEIVE -> con.receiveCheckPacket(packet)
+                PacketType.SYNC -> Log.debug("[RW-HPS Type SYNC]","Received packages that should not have been received")
 
                 PacketType.RELAY_118_117_RETURN -> con.sendRelayServerTypeReply(packet)
 

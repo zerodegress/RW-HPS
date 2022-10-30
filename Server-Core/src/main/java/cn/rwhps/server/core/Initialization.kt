@@ -17,6 +17,7 @@ import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.global.Relay
 import cn.rwhps.server.data.plugin.PluginData
+import cn.rwhps.server.dependent.HeadlessProxyClass
 import cn.rwhps.server.func.Prov
 import cn.rwhps.server.io.GameOutputStream
 import cn.rwhps.server.net.HttpRequestOkHttp
@@ -39,6 +40,7 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+
 
 /**
  * @author RW-HPS/Dr
@@ -295,6 +297,9 @@ class Initialization {
         initRelay()
         //initRsa()
         initGetServerData()
+
+
+        HeadlessProxyClass()
 
         Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
             override fun run() {

@@ -14,4 +14,5 @@ package cn.rwhps.server.util.log.exp
  */
 class RwGamaException {
     class ModsException(type: String) : Exception(type)
+    class RwGamaOtherException(type: String) : Exception(type)
 }

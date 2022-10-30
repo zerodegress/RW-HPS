@@ -86,8 +86,6 @@ class Rules(private var config: BaseConfig) {
     /** 重连暂停  */
     @Volatile
     var gameReConnectPaused = false
-    @Volatile
-    var gameReConnectFlag = false
     /** 游戏暂停  */
     @Volatile
     var gamePaused = false
@@ -120,7 +118,7 @@ class Rules(private var config: BaseConfig) {
         }
         NetStaticData.relay.isMod = config.SingleUserRelayMod
         autoLoadOrUpdate(config)
-        val maxPlayer = config.MaxPlayer
+        val maxPlayer = config.MaxPlayer+1
         this.maxPlayer = maxPlayer
         playerManage = PlayerManage(maxPlayer)
         income = Data.config.DefIncome
@@ -152,7 +150,7 @@ class Rules(private var config: BaseConfig) {
         tickGame.set(10)
 
         income = config.DefIncome
-        val maxPlayer = config.MaxPlayer
+        val maxPlayer = config.MaxPlayer+1
         this.maxPlayer = maxPlayer
         playerManage = PlayerManage(maxPlayer)
 
@@ -163,7 +161,6 @@ class Rules(private var config: BaseConfig) {
         playerManage.amTeam = dogfightLock
 
         gameReConnectPaused = false
-        gameReConnectFlag = false
         gamePaused = false
     }
 

@@ -13,6 +13,9 @@ import cn.rwhps.server.net.core.ConnectionAgreement
 
 class EventGlobalType {
     /** 服务器初始化  */
+    class GameLibLoadEvent
+
+    /** 服务器初始化  */
     class ServerLoadEvent
 
     class NewConnectEvent(val connectionAgreement: ConnectionAgreement) {

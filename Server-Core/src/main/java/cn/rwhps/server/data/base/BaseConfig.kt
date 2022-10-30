@@ -67,7 +67,7 @@ data class BaseConfig(
     val IpCheckMultiLanguageSupport: Boolean = false,
 
     /** 是否启用重连 */
-    val ReConnect: Boolean = false,
+    val ReConnect: Boolean = true,
     /** 是否启用胜负判定 */
     val WinOrLose: Boolean = false,
     /** 胜负判定时间 */

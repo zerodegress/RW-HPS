@@ -1,5 +1,9 @@
 [Engilsh version / 英文介绍](README.md)
 
+# 新版本开发中
+- [ ] 使用 XVFB
+- [x] 使用 无头 Lwjgl
+
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
 ![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)

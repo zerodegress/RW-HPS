@@ -1,6 +1,10 @@
-[Chinese version / 中文介绍](README-CN.md)
-
+[Chinese version / 中文介绍](README-CN.md)  
 **Welcome to provide better translation**
+
+# New version under development
+- [ ] Use XVFB
+- [x] Use Headless Lwjgl
+
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)

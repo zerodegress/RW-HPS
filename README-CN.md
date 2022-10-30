@@ -117,7 +117,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 </details>
 
 #### 目前待完成
-- [ ] 模拟层
+- [x] 模拟层
 - [ ] Vote (Bug :( )
 - [x] 1.15.P*
 - [ ] 热修改游戏进度

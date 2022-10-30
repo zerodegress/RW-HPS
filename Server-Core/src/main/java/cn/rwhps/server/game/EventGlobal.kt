@@ -11,12 +11,23 @@ package cn.rwhps.server.game
 
 import cn.rwhps.server.core.Initialization
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.mods.ModManage
 import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.net.Administration
 import cn.rwhps.server.plugin.event.AbstractGlobalEvent
 import cn.rwhps.server.util.Time
+import cn.rwhps.server.util.log.Log
+
 
 class EventGlobal : AbstractGlobalEvent {
+    override fun registerGameLibLoadEvent() {
+        /* Load Mod */
+        Log.clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load()))
+        ModManage.loadUnits()
+
+        Log.clog("Load Game Core END !")
+    }
+
     override fun registerServerLoadEvent() {
         Data.core.admin.addChatFilter(object : Administration.ChatFilter {
             override fun filter(player: Player, message: String?): String? {

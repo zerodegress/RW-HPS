@@ -84,8 +84,8 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 
 | Configuration 		| CPU                     | RAM 	| System 			 | Disk 	  | Java Version |
 |:--- 		|:------------------------|:---     |:-----------|:--------|:---       |
-| Recommended 	| ARMv7 Processor rev 5 + | 128MB      | Any        | 64M HDD | Java 11   |
-| Minimum 	| Any                     | 64M      | Any        | 16M HDD | Java 11   |
+| Recommended 	| ARMv7 Processor rev 5 + | 512MB      | Any        | 256M HDD | Java 11   |
+| Minimum 	| Any                     | 256M      | Any        | 128M HDD | Java 11   |
 
 ## Server Command List
 Depending on the startup protocol, the server command will change accordingly    

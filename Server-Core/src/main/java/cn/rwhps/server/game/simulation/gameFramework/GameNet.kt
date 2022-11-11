@@ -30,7 +30,7 @@ object GameNet {
             }
             */
             netEngine.y = playerName
-            val kVar2 = ad.b("127.0.0.1",false)
+            val kVar2 = ad.b("127.0.0.1:${Data.config.Port}",false)
             netEngine.a(kVar2)
             val it: Iterator<*> = netEngine.aM.iterator()
             while (it.hasNext()) {

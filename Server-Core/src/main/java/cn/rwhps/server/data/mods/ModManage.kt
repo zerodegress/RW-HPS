@@ -22,7 +22,7 @@ import cn.rwhps.server.util.log.Log
  * Mods 加载管理器
  */
 object ModManage {
-    private val coreName = "RW-HPS CoreUnits 174"
+    private val coreName = "RW-HPS CoreUnits"
     private var enabledMods = OrderedMap<String,ObjectMap<String, Int>>()
     private var enabledModsName = Seq<String>()
     private var loadUnitsCount = 0

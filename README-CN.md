@@ -152,8 +152,8 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 
 | 配置 		| CPU                     | 内存 	| 系统 			 | 硬盘大小 	   | Java      |
 |:--- 		|:------------------------|:---     |:-------|:---------|:---       |
-| 建议配置 	| ARMv7 Processor rev 5 + | 128MB      | Linux~ | 64MB HDD | Java 11   |
-| 最低配置 	| 任何                      | 64M      | 任何     | 16M HDD  | Java 11   |
+| 建议配置 	| ARMv7 Processor rev 5 + | 512MB      | Linux~ | 256MB HDD | Java 11   |
+| 最低配置 	| 任何                      | 256M      | 任何     | 128M HDD  | Java 11   |
 
 ## 服务器命令列表
 根据服务器使用的协议不同,命令也会发生改变  

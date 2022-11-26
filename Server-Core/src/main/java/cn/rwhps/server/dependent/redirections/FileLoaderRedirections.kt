@@ -5,11 +5,12 @@ import cn.rwhps.asm.api.Redirection
 import cn.rwhps.asm.redirections.AsmRedirections
 import cn.rwhps.server.util.alone.annotations.GameSimulationLayer
 import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.zip.zip.ZipDecoder
 import org.newdawn.slick.util.ResourceLoader
 
 @GameSimulationLayer.GameSimulationLayer_KeyWords("FileLoader: ")
 class FileLoaderRedirections : MainRedirections {
-    val a = ZipFileSystemLocation(FileUtil.getFile("a.zip").zipDecoder)
+    val a = ZipFileSystemLocation(ZipDecoder(FileLoaderRedirections::class.java.getResourceAsStream("/font.zip")!!))
 
     init {
         ResourceLoader.addResourceLocation(a)

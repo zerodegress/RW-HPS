@@ -40,7 +40,6 @@ import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.base.BaseRelayPublishConfig
 import cn.rwhps.server.data.base.BaseTestConfig
 import cn.rwhps.server.data.global.Data
-import cn.rwhps.server.data.global.NetStaticData.initPx
 import cn.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.data.plugin.PluginManage.init
@@ -57,11 +56,6 @@ import cn.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import cn.rwhps.server.game.simulation.GameHeadlessEvent
 import cn.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import cn.rwhps.server.io.ConsoleStream
-import cn.rwhps.server.net.StartNet
-import cn.rwhps.server.net.api.WebGetRelayInfo
-import cn.rwhps.server.net.api.WebPostRelayHttp
-import cn.rwhps.server.net.handler.tcp.StartHttp
-import cn.rwhps.server.net.http.WebData
 import cn.rwhps.server.util.encryption.Base64.decodeString
 import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
 import cn.rwhps.server.util.file.FileUtil.Companion.setFilePath
@@ -120,7 +114,6 @@ object Main {
         Data.configTest = BaseTestConfig.stringToClass()
         Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
         Data.core.load()
-        RCNBind.load()
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
@@ -170,26 +163,14 @@ object Main {
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
         /* 默认直接启动服务器 */
-        //val response = Data.SERVER_COMMAND.handleMessage("startrelay",StrCons { obj: String -> clog(obj) })
-        val response = Data.SERVER_COMMAND.handleMessage("start",StrCons { obj: String -> clog(obj) })
-        //val response = Data.SERVER_COMMAND.handleMessage("startrelaytest", StrCons { obj: String -> clog(obj) })
-        //val response = Data.SERVER_COMMAND.handleMessage("start", StrCons { obj: String -> clog(obj) })
-        //val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {
                 clog("Please check the command , Unable to use StartCommand inside Config to start the server")
             }
         }
 
-        initPx()
-        clog(Data.core.pid.toString())
-
-
-        newThreadCore {
-            WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
-            WebData.addWebPostInstance("/api/cn2", WebPostRelayHttp())
-            StartNet(StartHttp::class.java).openPort(4994)
-        }
+        clog("Run JVM Pid : {0}",Data.core.pid.toString())
 
         /* 按键监听 */
         newThreadCore { inputMonitor() }

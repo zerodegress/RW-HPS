@@ -1,5 +1,5 @@
 //Netty Version
-val nettyVersion = "4.1.82.Final"
+val nettyVersion = "4.1.85.Final"
 
 /**
  * Fuck implementation
@@ -11,8 +11,9 @@ dependencies {
 
 	//implementation(project(":RUDP"))
 	implementation(project(":TimeTaskQuartz"))
-	implementation(project(":Lwjgl-Headless"))
-	implementation(project(":Slick-Headless"))
+	implementation(project(":ASM-Framework"))
+	//implementation(project(":Slick-Headless"))
+	//implementation(project(":Game-Headless"))
 
 	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
 	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
@@ -28,7 +29,11 @@ dependencies {
 	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
 
 	//api fileTree(dir:"libs",include:["ChainMarket-23fc7f989f.jar"])
-	implementation(fileTree(mapOf("dir" to "libs", "include" to "*.jar")))
+	//api fileTree(dir:"libs",include:["ChainMarket-23fc7f989f.jar"])
+	implementation(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
+	implementation(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
+	implementation(fileTree(mapOf("dir" to "libs", "include" to "lwjgl.jar")))
+	//implementation(fileTree(mapOf("dir" to "libs", "include" to "*.jar")))
 
 	api("com.github.deng-rui:RUDP:2.0.0")
 	//api("com.github.jmecn:TMXLoader:v0.2")
@@ -36,7 +41,7 @@ dependencies {
 
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
-	api("com.google.code.gson:gson:2.9.0")
+	api("com.google.code.gson:gson:2.10")
 	api("org.json:json:20220924")
 
 	api("org.apache.commons:commons-compress:1.21")
@@ -60,7 +65,7 @@ dependencies {
 
 
 	compileOnly("commons-io:commons-io:2.11.0")
-	api("it.unimi.dsi:fastutil-core:8.5.8")
+	api("it.unimi.dsi:fastutil-core:8.5.9")
 	//compileOnly group: "org.bouncycastle", name: "bcprov-jdk15on", version: "1.69"
 
 	//compileOnly fileTree(dir:"libs",include:["*.jar"])
@@ -74,10 +79,6 @@ tasks.test {
 }
 
 tasks.jar {
-	/*
-	into("/Agent") {
-		from("libs/game-lib.jar")
-	}*/
 	//archiveFile.get().asFile.copyTo(File("$rwPath\\game-lib.jar"), true)
 }
 

@@ -59,7 +59,10 @@ internal interface ZipDecoderUtils {
     @Throws(Exception::class)
     fun getTheFileBytesOfTheSpecifiedSuffixInTheZip(mapData: GameMaps.MapData): ByteArray
 
-    fun getZipNameInputStream(name: String): InputStream?
+    fun getZipNameInputStream(nameIn: String): InputStream?
+
+    fun getZipAllBytes(): OrderedMap<String, ByteArray>
+
 
     /**
      * 看看文件里有没有关键词 有的话他就是ini (确信)

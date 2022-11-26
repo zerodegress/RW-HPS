@@ -16,8 +16,8 @@ internal class GameSimulationLayer {
         AnnotationTarget.ANNOTATION_CLASS,
         AnnotationTarget.CLASS,
         AnnotationTarget.FUNCTION,
-        AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
+        AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER,
+        AnnotationTarget.EXPRESSION
     )
     internal annotation class GameSimulationLayer_Processing
 
@@ -27,8 +27,8 @@ internal class GameSimulationLayer {
         AnnotationTarget.ANNOTATION_CLASS,
         AnnotationTarget.CLASS,
         AnnotationTarget.FUNCTION,
-        AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
+        AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER,
+        AnnotationTarget.EXPRESSION
     )
     internal annotation class GameSimulationLayer_SameAsOldVersion_NeedToMigrateNewVersion
 
@@ -39,7 +39,8 @@ internal class GameSimulationLayer {
         AnnotationTarget.CLASS,
         AnnotationTarget.FUNCTION,
         AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
+        AnnotationTarget.PROPERTY_SETTER,
+        AnnotationTarget.EXPRESSION
     )
     internal annotation class GameSimulationLayer_ModuleBasicallyTheSame
 
@@ -49,8 +50,20 @@ internal class GameSimulationLayer {
         AnnotationTarget.ANNOTATION_CLASS,
         AnnotationTarget.CLASS,
         AnnotationTarget.FUNCTION,
-        AnnotationTarget.PROPERTY_GETTER,
-        AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
+        AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER,
+        AnnotationTarget.EXPRESSION
     )
     internal annotation class GameSimulationLayer_DidNotFinish
+
+    @Retention(AnnotationRetention.SOURCE)
+    @MustBeDocumented
+    @Target(
+        AnnotationTarget.ANNOTATION_CLASS,
+        AnnotationTarget.CLASS,
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER,
+        AnnotationTarget.EXPRESSION,
+        AnnotationTarget.PROPERTY
+    )
+    internal annotation class GameSimulationLayer_KeyWords(val keyWords: String)
 }

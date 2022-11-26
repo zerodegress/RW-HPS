@@ -9,6 +9,8 @@
 
 package cn.rwhps.server.net.core
 
+import cn.rwhps.server.util.alone.annotations.NeedHelp
+
 /**
  * RW-HPS Protocol 接口. 是 RW-HPS 协议实现的接口.
  *
@@ -35,13 +37,16 @@ package cn.rwhps.server.net.core
 interface IRwHps {
     /**
      * 服务器的协议
+     * 主要提供 包的解析 功能
      */
     val typeConnect: TypeConnect
-
     /**
      * 服务器Packet协议
+     * 作为游戏功能的主要实现
      */
     val abstractNetPacket: AbstractNetPacket
+
+    //val gameEngine:
 
     enum class NetType {
         /** (默认) Server协议 原汁原味服务器实现 */
@@ -62,5 +67,15 @@ interface IRwHps {
         companion object {
             fun from(type: String?): NetType = values().find { it.name == type } ?: NullProtocol
         }
+    }
+
+    /**
+     * 暂时没法分离 GameEngine
+     */
+    @NeedHelp
+    enum class GameHeadlessType {
+        GameEngine,
+        GameData,
+        GameNet;
     }
 }

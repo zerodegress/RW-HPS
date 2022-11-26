@@ -99,6 +99,7 @@ open class TypeRelay : TypeConnect {
             // Thanks Discord vlad75724#3575
             // Fix Server Not use 50M Maps
             START_GAME,
+            SERVER_INFO,
             CHAT,
             TEAM_LIST -> {
             }

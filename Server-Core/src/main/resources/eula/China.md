@@ -114,6 +114,8 @@
    1. 游戏可持续发展 :
       1. 当您同意本协议时, 即代表您不会使用本作品获取, 储存用户隐私信息
       2. 为了列表的健康, 当您使用本作品时, 请合理使用 [UPList] 功能
+   2. 游戏协议实现 :
+      1. 协议版权 均受 RW-HPS-Simulation 许可证约束 (https://github.com/RW-HPS/RW-HPS/tree/master/Server-Core/src/main/java/cn/rwhps/server/game/LICENSE)
 
 #### 5. 免责声明：
    1. 您在下载并使用本作品时均被视为已经仔细阅读本协议并完全同意。凡以任何方式使用本作品，或直接、间接使用本作品，均被视为自愿接受相关声明和用户服务协议的约束。

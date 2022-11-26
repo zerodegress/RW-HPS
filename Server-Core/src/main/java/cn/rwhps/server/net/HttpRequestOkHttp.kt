@@ -9,18 +9,14 @@
 
 package cn.rwhps.server.net
 
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.error
-import okhttp3.FormBody
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.Request.Builder
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+
 
 /**
  * HTTP
@@ -177,6 +173,7 @@ object HttpRequestOkHttp {
 
     @JvmStatic
     fun downUrl(url: String?, file: File?): Boolean {
+        Log.clog(url!!)
         if (url.isNullOrBlank() || file == null) {
             error("[DownUrl URL] NULL")
             return false

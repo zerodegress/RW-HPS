@@ -52,11 +52,6 @@ class GetVersion(version: String) {
     val patch: Int
 
     /**
-     * 迭代号
-     */
-    val iterate: Int
-
-    /**
      * 先行版本号识别符
      */
     val identifier: String
@@ -77,7 +72,7 @@ class GetVersion(version: String) {
      * - 核心版本号只允许 `x.y` 和`x.y.z` 的存在
      * - `1.0-RC` 是合法的
      * - `1.0.0-RC` 也是合法的, 与 `1.0-RC` 一样
-     * - `1.0.0.0-RC` 是合法的, 与 `1.0-RC` 一样
+     * - `1.0.0.0-RC` 是不合法的, 将会抛出一个 {@link IllegalArgumentException}
      *
      * 注意情况:
      * - 第一个 `+` 之后的所有内容全部识别为元数据
@@ -88,9 +83,8 @@ class GetVersion(version: String) {
         major = getVersion.getInt(1)
         minor = getVersion.getInt(2)
         patch = getVersion.getInt(3)
-        iterate = getVersion.getInt(4)
-        identifier = getVersion.getString(5)
-        metadata = getVersion.getString(6)
+        identifier = getVersion.getString(4)
+        metadata = getVersion.getString(5)
     }
 
     /**
@@ -102,7 +96,7 @@ class GetVersion(version: String) {
      * @return
      */
     private fun toMainInt(): Int {
-        return major * 10000 + minor * 1000 + patch * 100 + iterate * 10
+        return major * 1000 + minor * 100 + patch * 10
     }
 
     val version: Double
@@ -137,7 +131,6 @@ class GetVersion(version: String) {
                 "major=" + major +
                 ", minor=" + minor +
                 ", patch=" + patch +
-                ", iterate=" + iterate +
                 ", identifier='" + identifier + '\'' +
                 ", metadata='" + metadata + '\'' +
                 '}'
@@ -185,6 +178,6 @@ class GetVersion(version: String) {
 
     companion object {
         private const val versionMatch =
-            "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:\\.(0|[1-9]\\d*))?(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+            "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:\\.(0|[1-9]\\d*))?(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
     }
 }

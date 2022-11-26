@@ -101,4 +101,8 @@ class ZipDecoder {
     fun getZipNameInputStream(name: String): InputStream? {
         return zipRead.getZipNameInputStream(name)
     }
+
+    fun getZipAllBytes(): OrderedMap<String, ByteArray> {
+        return zipRead.getZipAllBytes()
+    }
 }

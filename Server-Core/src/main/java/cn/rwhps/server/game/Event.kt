@@ -38,6 +38,10 @@ class Event : AbstractEvent {
             player.kickPlayer(player.getinput("kick.name.failed"))
             return
         }
+        if (player.name == Data.headlessName) {
+            player.kickPlayer("Forbidden name")
+            return
+        }
 
         if (Data.core.admin.bannedUUIDs.contains(player.uuid)) {
             try {

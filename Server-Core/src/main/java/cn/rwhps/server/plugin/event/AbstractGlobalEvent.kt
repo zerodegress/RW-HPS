@@ -10,6 +10,7 @@
 package cn.rwhps.server.plugin.event
 
 import cn.rwhps.server.net.core.ConnectionAgreement
+import cn.rwhps.server.net.core.IRwHps
 
 interface AbstractGlobalEvent {
     /** 游戏核心初始化完毕 [同步-Sync]  */
@@ -17,6 +18,9 @@ interface AbstractGlobalEvent {
 
     /** 服务器初始化 [同步-Sync]  */
     fun registerServerLoadEvent() {}
+
+    /** 启动了新协议 [同步-Sync]  */
+    fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) {}
 
     /**
      * 玩家加入 [同步-Synchronization]

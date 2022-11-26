@@ -11,6 +11,7 @@ package cn.rwhps.server.util
 
 import cn.rwhps.server.struct.IntMap
 import cn.rwhps.server.util.inline.ifNullResult
+import cn.rwhps.server.util.log.exp.VariableException
 
 /**
  * The tag corresponding to the protocol number of the server
@@ -69,7 +70,6 @@ enum class PacketType(val typeInt: Int) {
     GAMECOMMAND_RECEIVE(20),
     SYNCCHECKSUM_STATUS(31),
     SYNC_CHECK(30),
-    SYNC_CHECK_RECEIVE(31),
     SYNC(35),
 
     /* Relay */
@@ -92,10 +92,15 @@ enum class PacketType(val typeInt: Int) {
     NOT_RESOLVED(-1);
 
     companion object {
-        private val typeMap: IntMap<PacketType> =
-            IntMap(values().size)
+        private val typeMap: IntMap<PacketType> = IntMap(values().size)
+
         init {
-            values().forEach { typeMap[it.typeInt] = it }
+            values().forEach {
+                if (typeMap.containsKey(it.typeInt)) {
+                    throw VariableException.RepeatAddException("[PacketType]")
+                }
+                typeMap[it.typeInt] = it
+            }
         }
 
         fun from(type: Int): PacketType = typeMap[type].ifNullResult({ it }) { NOT_RESOLVED }

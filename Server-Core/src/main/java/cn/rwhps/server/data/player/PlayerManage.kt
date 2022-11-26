@@ -100,9 +100,13 @@ class PlayerManage(private val maxPlayerSize: Int) {
     }
 
 
-    fun runPlayerArrayDataRunnable(run: (Player?) -> Unit) {
+    fun runPlayerArrayDataRunnable(skipHd: Boolean = false, run: (Player?) -> Unit) {
         for (player in playerData) {
-            run(player)
+            if (player != null && player.name == Data.headlessName && skipHd) {
+                // S K I P
+            } else {
+                run(player)
+            }
         }
     }
 
@@ -201,7 +205,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
             val newIndex = newLocationIn - 1
 
             if (newIndex >= 0) {
-                /* 位置不能过限*/
+                /* 位置不能过限 */
                 if (oldIndex < maxPlayerSize && newIndex < maxPlayerSize) {
                     val od = getPlayerArray(oldIndex)
                     val nw = getPlayerArray(newIndex)

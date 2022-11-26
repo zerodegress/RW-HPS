@@ -33,13 +33,9 @@ class ZipFileUtil : FileUtil {
     private constructor(file: File, filepath: String, ismkdir: Boolean = false): super(file,filepath,ismkdir) {
     }
 
-    override fun exists(): Boolean {
-        return file.exists()
-    }
+    override fun exists(): Boolean = file.exists()
 
-    override fun notExists(): Boolean {
-        return !file.exists()
-    }
+    override fun notExists(): Boolean = !file.exists()
 
     override fun writeFile(log: Any, cover: Boolean) {
         throw ImplementedException("不应该使用这个")

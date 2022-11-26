@@ -197,14 +197,14 @@ internal class ZipFileDecoder: ZipDecoderUtils {
         throw FileException("CANNOT_FIND_FILE")
     }
 
-    override fun getZipNameInputStream(name: String): InputStream? {
+    override fun getZipNameInputStream(nameIn: String): InputStream? {
         try {
             val entries = zipFile.entries
             var ze: ZipEntry
             while (entries.hasMoreElements()) {
                 ze = entries.nextElement()
                 if (!ze.isDirectory) {
-                    if (ze.name == name) {
+                    if (ze.name == nameIn) {
                         return zipFile.getInputStream(ze)
                     }
                 }
@@ -213,5 +213,26 @@ internal class ZipFileDecoder: ZipDecoderUtils {
             Log.error(e)
         }
         return null
+    }
+
+    override fun getZipAllBytes(): OrderedMap<String, ByteArray> {
+        val data = OrderedMap<String, ByteArray>(8)
+        try {
+            var zipEntry: ZipArchiveEntry
+            IoRead.MultiplexingReadStream().use { multiplexingReadStream ->
+                val entries = zipFile.entriesInPhysicalOrder
+                while (entries.hasMoreElements()) {
+                    zipEntry = entries.nextElement() as ZipArchiveEntry
+                    if (!zipEntry.isDirectory) {
+                        val nameCache = zipEntry.name
+                        val bytes = multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry))
+                        data.put(nameCache,bytes)
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            Log.error(e)
+        }
+        return data
     }
 }

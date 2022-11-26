@@ -286,6 +286,7 @@ internal class ServerCommands(handler: CommandHandler) {
             }
             upDataGameData(false)
         }
+
         handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
             val cache = Seq<Array<ByteArray>>()
 
@@ -323,6 +324,20 @@ internal class ServerCommands(handler: CommandHandler) {
                 off += i
             }
         }
+
+        handler.register("addmoney", "<PlayerSerialNumber> <money>", "serverCommands.addmoney") { arg: Array<String>, log: StrCons ->
+            if (!Data.game.isStartGame) {
+                log[localeUtil.getinput("err.noStartGame")]
+                return@register
+            }
+            val site = arg[0].toInt() - 1
+            val player = Data.game.playerManage.getPlayerArray(site)
+            if (player != null) {
+                player.credits += arg[1].toInt()
+                player.sync()
+            }
+        }
+
     }
 
     companion object {

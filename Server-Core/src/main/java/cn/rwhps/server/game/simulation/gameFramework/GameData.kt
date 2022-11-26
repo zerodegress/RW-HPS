@@ -10,14 +10,18 @@
 package cn.rwhps.server.game.simulation.gameFramework
 
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.io.packet.Packet
+import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.util.PacketType
+import cn.rwhps.server.util.alone.annotations.GameSimulationLayer
 import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.gameFramework.j.al
 import com.corrodinggames.rts.gameFramework.l
 import com.corrodinggames.rts.gameFramework.j.`as` as GameNetOutStream
 
 object GameData {
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("gameSave")
     @JvmStatic
     fun getGameData(): Packet {
         val gameEngine: l = GameEngine.gameEngine
@@ -35,6 +39,7 @@ object GameData {
         return Packet(35,arVar.b(35).c)
     }
 
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("30")
     @JvmStatic
     fun getGameCheck(): Packet {
         val netEngine = GameEngine.netEngine
@@ -49,17 +54,24 @@ object GameData {
         return Packet(PacketType.SYNC_CHECK,arVar.b(PacketType.SYNC_CHECK.typeInt).c)
     }
 
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("is victorious!")
     @JvmStatic
     fun getWin(team: Int): Boolean {
         val teamData: n = n.k(team) ?: return false
 
-        // [is victorious!]
         return !teamData.b() && !teamData.G && !teamData.F && !teamData.E
     }
 
+
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("exited!")
     @JvmStatic
     fun clean() {
+        if (NetStaticData.ServerNetType != IRwHps.NetType.ServerProtocol) {
+            return
+        }
         val gameEngine: l = GameEngine.gameEngine
-        gameEngine.bX.b("exited");
+        //gameEngine.bX.b("exited");
+        InterruptedException().printStackTrace()
+        Thread.sleep(100)
     }
 }

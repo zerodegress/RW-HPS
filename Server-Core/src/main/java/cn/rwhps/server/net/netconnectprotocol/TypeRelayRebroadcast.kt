@@ -91,10 +91,12 @@ class TypeRelayRebroadcast : TypeRelay {
             PacketType.CHAT,
             PacketType.SERVER_INFO,
             PacketType.TEAM_LIST -> {
+                //Log.clog("抛弃 {0}",packet.type.typeInt)
             }
 
             PacketType.HEART_BEAT -> {
                 con.getPingData(packet)
+                // 直接组播 Ping 包, 避免被 [PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED] 转发 丢失性能?
                 //con.addGroup(packet)
             }
 
@@ -106,20 +108,19 @@ class TypeRelayRebroadcast : TypeRelay {
 
             else -> {
                 when (packet.type) {
-                    //141 -> con.receiveChat(packet)
                     PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
                     PacketType.REGISTER_PLAYER -> con.relayRegisterConnection(packet)
                     PacketType.ACCEPT_START_GAME -> {
                         con.relay!!.isStartGame = true
                         con.sendResultPing(packet)
                     }
-                    //PacketType.PACKET_ADD_CHAT -> con.addRelayAccept(packet)
                     PacketType.DISCONNECT -> con.disconnect()
                     PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                     PacketType.GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
                     else ->
                         //Log.clog(packet.type.name);
                         con.sendResultPing(packet)
+
                 }
             }
         }
@@ -127,5 +128,5 @@ class TypeRelayRebroadcast : TypeRelay {
     }
 
     override val version: String
-        get() = "2.1.0"
+        get() = "${Data.SERVER_CORE_VERSION}: 2.2.0"
 }

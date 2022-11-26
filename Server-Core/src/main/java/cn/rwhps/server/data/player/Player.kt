@@ -14,6 +14,7 @@ import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.plugin.Value
 import cn.rwhps.server.data.totalizer.TimeAndNumber
 import cn.rwhps.server.func.Prov
+import cn.rwhps.server.game.simulation.pivatedata.PrivateClass_Player
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import cn.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
@@ -39,26 +40,59 @@ class Player(
     /**   */
     @JvmField val i18NBundle: I18NBundle,
 ) {
+    internal var playerPrivateData: PrivateClass_Player? = null
+
     /** is Admin  */
 	@JvmField
     var isAdmin = false
     var superAdmin = false
+
     /** Team number  */
 	var team = 0
-        set(value) { watch = (value == -3) ; field = value }
+        set(value) { watch = (value == -3) ; color = value; field = value }
     /** List position  */
 	var site = 0
-        set(value) { color = site ; field = value }
+
     /** */
-    var credits = Data.game.credits
+    var credits
+        get() =  if (!Data.game.isStartGame) Data.game.credits else playerPrivateData?.credits ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+        set(value) {
+            if (!Data.game.isStartGame) {
+                Data.game.credits = value
+            } else {
+                if (playerPrivateData == null) {
+                    throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+                }
+                playerPrivateData!!.credits = value
+            }
+        }
+    /** Is the player alive  */
+    val survive get() = if (!Data.game.isStartGame) true else playerPrivateData?.survive ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+    /** 单位击杀数 */
+    val unitsKilled get() = playerPrivateData?.unitsKilled ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+    /** 建筑毁灭数 */
+    val buildingsKilled get() = playerPrivateData?.buildingsKilled ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+    /** 单实验单位击杀数 */
+    val experimentalsKilled get() = playerPrivateData?.experimentalsKilled ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+    /** 单位被击杀数 */
+    val unitsLost get() = playerPrivateData?.unitsLost ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+    /** 建筑被毁灭数 */
+    val buildingsLost get() = playerPrivateData?.buildingsLost ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+    /** 单实验单位被击杀数 */
+    val experimentalsLost get() = playerPrivateData?.experimentalsLost ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+
     /** */
     var startUnit = Data.game.initUnit
     /** */
     var color = 0
+    /** Ping */
+    var ping = 50
+
     /** (Markers)  */
     @Volatile var start = false
-    /** Whether the player is dead  */
-	var survive = true
+    var watch = false
+        private set
+
     /** Last move time  */
 	@Volatile var lastMoveTime: Int = 0
     /** Mute expiration time */
@@ -66,17 +100,13 @@ class Player(
     /** Kick expiration time */
 	var kickTime: Long = 0
 	var timeTemp: Long = 0
-    /** Ping */
-	var ping = 50
-	@JvmField
     var lastMessageTime: Long = 0
-    @JvmField
     var lastSentMessage: String? = ""
 	var noSay = false
-    var watch = false
-        private set
+
     /** 点石成金 */
     var turnStoneIntoGold = Data.config.Turnstoneintogold
+
 
 
     /** Shared control  */

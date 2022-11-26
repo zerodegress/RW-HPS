@@ -67,9 +67,9 @@ import kotlin.math.min
  */
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
-    open val supportedversionBeta = true
-    open val supportedversionGame = "1.15.P14"
-    open val supportedVersionInt  = 174
+    open val supportedversionBeta = false
+    open val supportedversionGame = "1.15"
+    open val supportedVersionInt  = 176
 
     override val name: String get() = player.name
     override val registerPlayerId: String? get() = player.uuid

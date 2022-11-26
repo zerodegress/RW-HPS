@@ -111,10 +111,11 @@ object Call {
     }
 
     @JvmStatic
-    fun killAllPlayer() {
+    @JvmOverloads
+    fun killAllPlayer(msg: String = "Game Over") {
         Data.game.playerManage.playerGroup.eachAll { e: Player ->
             try {
-                e.kickPlayer("Game Over")
+                e.kickPlayer(msg)
             } catch (err: IOException) {
                 error("[ALL] Kick All Player Error", e)
             }
@@ -203,15 +204,14 @@ object Call {
         init {
             Threads.newTimedTask(CallTimeTask.AutoCheckTask,0,1,TimeUnit.SECONDS) {
                 var lastWinTeam: Int = -1
-                var lastWinCount: Int = 0
-                for (size in 0 until olinPlayer) {
-                    Data.game.playerManage.getPlayerArray(size)!!.also {
-                        it.survive = GameData.getWin(size)
-                        if (it.survive && it.team != lastWinTeam) {
-                            lastWinTeam = it.team
-                            lastWinCount++
-                        }
-                        //Log.clog("Player: {0} , survive: {1}",it.name,GameData.getWin(size))
+                var lastWinCount: Int = 90
+                Data.game.playerManage.runPlayerArrayDataRunnable(true) {
+                    if (it == null) {
+                        return@runPlayerArrayDataRunnable
+                    }
+                    if (it.survive && it.team != lastWinTeam) {
+                        lastWinTeam = it.team
+                        lastWinCount++
                     }
                 }
                 if (lastWinCount == 1) {
@@ -220,8 +220,26 @@ object Call {
                     Call.sendSystemMessageLocal("survive.player",last)
                     Threads.closeTimeTask(CallTimeTask.AutoCheckTask)
                 }
-
+                Data.game.playerManage.updateControlIdentifier()
             }
+
+            /*
+            Threads.newTimedTask(CallTimeTask.TestStatus,0,5,TimeUnit.SECONDS) {
+                Data.game.playerManage.runPlayerArrayDataRunnable(true) {
+                    if (it == null) {
+                        return@runPlayerArrayDataRunnable
+                    }
+                    try {
+                        Log.clog("Name: ${it.name}")
+                        Log.clog("credits: ${it.credits}")
+                        Log.clog("survive: ${it.survive}")
+                        Log.clog("unitsKilled: ${it.unitsKilled}")
+                        Log.clog("buildingsKilled: ${it.buildingsKilled}")
+                    } catch (e: Exception) {
+                        Log.error(e)
+                    }
+                }
+            }*/
         }
 
         override fun run() {

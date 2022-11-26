@@ -12,8 +12,10 @@ package cn.rwhps.server.game.simulation
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.game.simulation.gameFramework.GameData
 import cn.rwhps.server.game.simulation.gameFramework.GameNet
+import cn.rwhps.server.game.simulation.pivatedata.PrivateClass_Player
 import cn.rwhps.server.plugin.event.AbstractEvent
 import cn.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
@@ -33,5 +35,9 @@ class GameHeadlessEvent : AbstractEvent {
         Log.clog("Stop GameHeadless")
         GameNet.newConnect()
         Log.clog("ReRun GameHeadless")
+    }
+
+    override fun registerPlayerJoinEvent(player: Player) {
+        player.playerPrivateData = PrivateClass_Player.getPlayerData(player.site)
     }
 }

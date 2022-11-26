@@ -11,11 +11,13 @@ package cn.rwhps.server.game.simulation.gameFramework
 
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.OrderedMap
+import cn.rwhps.server.util.alone.annotations.GameSimulationLayer
 import com.corrodinggames.rts.game.units.custom.l
 
 object GameUnitData {
-    @Suppress("UNCHECKED_CAST")
 
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("NULL")
+    @Suppress("UNCHECKED_CAST")
     fun getUnitData(coreName: String): OrderedMap<String, ObjectMap<String, Int>> {
         val modsData = OrderedMap<String, ObjectMap<String, Int>>()
         val gameUnitDataList: List<l> = l.c as List<l>

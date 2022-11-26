@@ -24,6 +24,8 @@ enum class CallTimeTask(
     AutoUpdateMapsTask(             "[Corex]Server",  "Auto update maps"),
     AutoCheckTask(                  "[Corex]Server",  "Auto Check player survives"),
 
+    TestStatus(                  "[TEST]",  "Auto Check player survives"),
+
 
     CustomUpServerListTask(         "UpList",         "[Plugin UpList] Update Data"),
     UpServerListTask(               "UpList",         "Core"),

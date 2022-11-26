@@ -63,8 +63,8 @@ class LibraryManager : AgentAttachData() {
     }
 
     fun loadToClassLoader() {
-        Log.clog(Data.i18NBundle.getinput("server.load.jar"));
-        load();
+        Log.clog(Data.i18NBundle.getinput("server.load.jar"))
+        load()
         val loader = getClassLoader()
         load.eachAll {
             if (!loadEnd.contains(it)) {
@@ -89,8 +89,8 @@ class LibraryManager : AgentAttachData() {
         dependenciesDown.eachAll {
             val file = FileUtil.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
             if (!file.exists()) {
-                HttpRequestOkHttp.downUrl(it.getDownUrl(),file).also {
-                    if (it) {
+                HttpRequestOkHttp.downUrl(it.getDownUrl(),file).also { success ->
+                    if (success) {
                         load.add(file)
                     } else {
                         Log.clog("Download Failed ${file.name}")
@@ -175,7 +175,7 @@ class LibraryManager : AgentAttachData() {
                             else -> {}
                         }
                     }
-                } catch (ex: Exception) {
+                } catch (_: Exception) {
                 }
                 if (down) {
                     dependenciesDown.add(importData)
@@ -220,7 +220,7 @@ class LibraryManager : AgentAttachData() {
         }
     }
 
-    public enum class UrlData(val url: String) {
+    enum class UrlData(val url: String) {
         Maven("https://repo1.maven.org/maven2"),
         MavenAli("https://maven.aliyun.com/repository/central"),
         JitPack("https://jitpack.io"),

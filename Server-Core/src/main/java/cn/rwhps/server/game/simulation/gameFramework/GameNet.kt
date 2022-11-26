@@ -10,18 +10,21 @@
 package cn.rwhps.server.game.simulation.gameFramework
 
 import cn.rwhps.server.data.global.Data
+import cn.rwhps.server.util.alone.annotations.GameSimulationLayer
 import cn.rwhps.server.util.log.Log
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.c
 import java.io.IOException
 
 object GameNet {
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("lastNetworkPlayerName")
     fun newConnect() {
         try {
             val settingsEngine = GameEngine.settingsEngine
             val netEngine = GameEngine.netEngine
 
             settingsEngine.lastNetworkPlayerName = Data.headlessName
+
             val playerName = settingsEngine.lastNetworkPlayerName
             /*
             val c = a.a().c()

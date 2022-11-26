@@ -33,7 +33,6 @@ package cn.rwhps.server
 
 import cn.rwhps.server.command.CoreCommands
 import cn.rwhps.server.command.LogCommands
-import cn.rwhps.server.core.Core
 import cn.rwhps.server.core.Initialization
 import cn.rwhps.server.core.thread.Threads.newThreadCore
 import cn.rwhps.server.custom.LoadCoreCustomPlugin
@@ -62,17 +61,16 @@ import cn.rwhps.server.util.file.FileUtil.Companion.getFolder
 import cn.rwhps.server.util.file.FileUtil.Companion.setFilePath
 import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.game.Events
+import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.clog
 import cn.rwhps.server.util.log.Log.info
 import cn.rwhps.server.util.log.Log.set
 import cn.rwhps.server.util.log.Log.setCopyPrint
 import org.fusesource.jansi.AnsiConsole
-import org.jline.reader.EndOfFileException
-import org.jline.reader.LineReader
-import org.jline.reader.LineReaderBuilder
-import org.jline.reader.UserInterruptException
-import org.jline.terminal.TerminalBuilder
+import org.jline.reader.*
+import java.io.ByteArrayOutputStream
 import java.io.InterruptedIOException
+import java.io.PrintStream
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -97,18 +95,13 @@ object Main {
         //Logger.getLogger("io.netty").level = Level.OFF
         Logger.getLogger("io.netty").level = Level.ALL
 
-
-        /* 尝试写一个UTF-8编码 */
-        System.setProperty("file.encoding", "UTF-8")
-        System.setProperty("java.net.preferIPv4Stack","true")
         /* 覆盖输入输出流 */
         inputMonitorInit()
-        // 强制 UTF-8 我不愿意解决奇奇怪怪的问题
-        if (!System.getProperty("file.encoding").equals("UTF-8", ignoreCase = true)) {
-            clog("Please use UTF-8 !!!  -> java -Dfile.encoding=UTF-8 -jar Server.jar")
-            clog("For non-UTF8 problems, please solve it yourself")
-            Core.mandatoryExit()
-        }
+
+        // F U C K IPV6
+        System.setProperty("java.net.preferIPv4Stack","true")
+        // F U C K Termux
+        System.setProperty("java.awt.headless","true")
 
         Initialization()
 
@@ -124,6 +117,21 @@ object Main {
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
+
+
+        //FFAAnalysis().test()
+        /*
+        val a = FileUtil.getFolder(Data.Plugin_Data_Path,true).toFolder("c")
+        val aa = FileUtil.getFolder(Data.Plugin_Data_Path,true).toFile("Delicious-Bold.otf").readFileByte()
+        val bb = FileUtil.getFolder(Data.Plugin_Data_Path,true).toFile("Roboto-Regular.ttf").readFileByte()
+        a.fileList.eachAll {
+            Log.clog(it.name)
+            if (it.name.endsWith("ttf")) {
+                a.toFile(it.name).writeFileByte(bb)
+            } else {
+                a.toFile(it.name).writeFileByte(aa)
+            }
+        }*/
 
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
@@ -154,8 +162,6 @@ object Main {
         /* 初始化Plugin Init */
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
-        clog(Data.i18NBundle.getinput("server.load.end"))
-
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
@@ -164,12 +170,10 @@ object Main {
             }
         }
 
-        clog(Data.core.pid.toString())
+        clog("Run JVM Pid : {0}",Data.core.pid.toString())
 
         /* 按键监听 */
         newThreadCore { inputMonitor() }
-
-        Test.startGameCore()
     }
 
     /**
@@ -177,10 +181,18 @@ object Main {
      * Win的CMD就是个垃圾
      */
     private fun inputMonitorInit() {
+        // 构建彩色输出
         AnsiConsole.systemInstall()
 
-        val terminal = TerminalBuilder.builder().encoding("UTF-8").build()
-        reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
+        reader = LineReaderBuilder.builder().completer(ConsoleStream.TabCompleter).build()
+
+        //val bakOut = System.out
+        System.setOut(MyPrintStream {
+            reader.printAbove(it)
+        })
+        System.setErr(MyPrintStream {
+            Log.debug(it)
+        })
     }
 
     private fun inputMonitor() {
@@ -247,6 +259,38 @@ object Main {
             }
         }
     }
+
+    private class MyPrintStream(private val block: (String) -> Unit) : PrintStream(ByteArrayOutputStream()) {
+        private val bufOut = out as ByteArrayOutputStream
+
+        var last = -1
+        override fun write(b: Int) {
+            if (last == 13 && b == 10) {// \r\n
+                last = -1
+                return
+            }
+            last = b
+            if (b == 13 || b == 10) flush()
+            else super.write(b)
+        }
+
+        override fun write(buf: ByteArray, off: Int, len: Int) {
+            if (len < 0) throw ArrayIndexOutOfBoundsException(len)
+            for (i in 0 until len)
+                write(buf[off + i].toInt())
+        }
+
+        @Synchronized
+        override fun flush() {
+            val str = try {
+                bufOut.toString()
+            } finally {
+                bufOut.reset()
+            }
+            block(str)
+        }
+    }
+
 }
 
 // 你的身体是为你服务的 而不是RW-HPS(?)  !

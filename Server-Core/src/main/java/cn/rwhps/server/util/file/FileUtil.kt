@@ -9,16 +9,19 @@
 
 package cn.rwhps.server.util.file
 
+import cn.rwhps.server.core.Core
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.IsUtil
+import cn.rwhps.server.util.encryption.Md5
 import cn.rwhps.server.util.io.IoOutConversion.fileToOutStream
 import cn.rwhps.server.util.io.IoOutConversion.fileToStream
 import cn.rwhps.server.util.io.IoRead.readFileToByteArray
 import cn.rwhps.server.util.io.IoReadConversion.fileToReadStream
 import cn.rwhps.server.util.io.IoReadConversion.fileToStream
 import cn.rwhps.server.util.log.Log.error
+import cn.rwhps.server.util.zip.zip.ZipDecoder
 import java.io.*
 import java.net.URLDecoder.decode
 
@@ -77,10 +80,11 @@ open class FileUtil {
 
     protected val isNewFile: Boolean
 
-    constructor(file: File) {
+    @JvmOverloads
+    constructor(file: File, isNewFile: Boolean = false) {
         this.file = file
         this.path = file.path
-        this.isNewFile = false
+        this.isNewFile = isNewFile
     }
 
     constructor(filepath: String, isNewFile: Boolean = false) {
@@ -99,38 +103,53 @@ open class FileUtil {
         this.isNewFile = isNewFile
     }
 
-    open fun exists(): Boolean {
-        return file.exists()
-    }
+    val name: String get() = file.name
 
-    open fun notExists(): Boolean {
-        return !file.exists()
-    }
+    open fun exists(): Boolean = file.exists()
+
+    open fun notExists(): Boolean = !file.exists()
 
     fun length(): Long {
         return file.length()
     }
 
     fun toFile(filename: String): FileUtil {
+        var fileUtil = this
+        var fileName = filename
+
+        if (filename.contains("/")) {
+            fileName = filename.split("/").toTypedArray()[filename.split("/").toTypedArray().size - 1]
+            fileUtil = fileUtil.toFolder(filename.replace(fileName,""))
+        }
+
         return if (isNewFile) {
-            FileUtil(File(this.path + "/" + filename))
+            FileUtil(File(fileUtil.path + "/" + fileName),isNewFile)
         } else {
-            file = File(this.path + "/" + filename)
+            file = File(fileUtil.path + "/" + fileName)
             path = this.path + "/" + filename
             this
         }
     }
 
     fun toFolder(filename: String): FileUtil {
+        if (filename == "") {
+            return this
+        }
         var to = this.path
         to += if ("/" == filename[0].toString()) {
             filename.substring(1, filename.length)
         } else {
             "/$filename"
         }
+        // 过滤末尾 /
+        to = if (to.endsWith("/")) {
+            to.substring(0, to.length-1)
+        } else {
+            "/$to"
+        }
 
         return if (isNewFile) {
-            FileUtil(File(to),to,true)
+            FileUtil(File(to),to,true,isNewFile)
         } else {
             this.file = File(to)
             this.path = to
@@ -191,6 +210,12 @@ open class FileUtil {
             return list
         }
 
+    val zipDecoder: ZipDecoder
+        get() = ZipDecoder(this.getInputsStream())
+
+    val md5: String?
+        get() = Md5.md5(getInputsStream())
+
     /**
      *
      * @param log Log
@@ -208,7 +233,7 @@ open class FileUtil {
         }
     }
 
-    open fun writeFileByte(bytes: ByteArray, tail: Boolean) {
+    open fun writeFileByte(bytes: ByteArray, tail: Boolean = false) {
         mkdir()
         try {
             BufferedOutputStream(FileOutputStream(file, tail)).use { osw ->
@@ -217,6 +242,7 @@ open class FileUtil {
             }
         } catch (e: Exception) {
             error("writeByteFile", e)
+            Core.exit()
         }
     }
 
@@ -273,7 +299,7 @@ open class FileUtil {
     }
 
     fun mkdir() {
-        file.parentFile.mkdirs()
+        file.parentFile?.mkdirs()
 
         if (file.isDirectory) {
             return

@@ -56,6 +56,7 @@ open class TypeRwHps : TypeConnect {
         con.lastReceivedTime()
 
         //Log.debug(packet.type,ExtractUtil.bytesToHex(packet.bytes))
+
         if (packet.type == PacketType.GAMECOMMAND_RECEIVE) {
             con.receiveCommand(packet)
             con.player.lastMoveTime = concurrentSecond()
@@ -71,10 +72,10 @@ open class TypeRwHps : TypeConnect {
                 }
                 PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
                 PacketType.DISCONNECT -> con.disconnect()
-                PacketType.ACCEPT_START_GAME -> con.player.start = true
+                PacketType.ACCEPT_START_GAME -> if (Data.game.isStartGame) con.player.start = true
                 PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
 
-                PacketType.SYNC_CHECK_RECEIVE -> con.receiveCheckPacket(packet)
+                PacketType.SYNCCHECKSUM_STATUS -> con.receiveCheckPacket(packet)
                 PacketType.SYNC -> Log.debug("[RW-HPS Type SYNC]","Received packages that should not have been received")
 
                 PacketType.RELAY_118_117_RETURN -> con.sendRelayServerTypeReply(packet)

@@ -529,6 +529,18 @@ public abstract class ReflectionUtils {
         }
     }
 
+    @Nullable
+    public static boolean findSuperClass(Class<?> clazz, @Nullable Class<?> sup) {
+        Class<?> searchType = clazz;
+        while (Object.class != searchType && searchType != null) {
+            if (clazz == sup) {
+                return true;
+            }
+            searchType = searchType.getSuperclass();
+        }
+        return false;
+    }
+
 
     // Field handling
 

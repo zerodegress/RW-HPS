@@ -9,12 +9,18 @@
 
 package cn.rwhps.server.dependent
 
-import cn.rwhps.lwjgl.headless.agent.LwjglAgent
-import cn.rwhps.lwjgl.headless.api.Redirection
-import cn.rwhps.lwjgl.headless.redirections.LwjglRedirections
+import cn.rwhps.asm.agent.AsmAgent
+import cn.rwhps.asm.api.Redirection
+import cn.rwhps.asm.redirections.AsmRedirections
+import cn.rwhps.server.dependent.redirections.FileLoaderRedirections
+import cn.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
+import cn.rwhps.server.dependent.redirections.slick.SlickRedirections
 import cn.rwhps.server.game.event.EventGlobalType
-import cn.rwhps.server.util.file.FileUtil
+import cn.rwhps.server.util.ReflectionUtils
 import cn.rwhps.server.util.game.Events
+import cn.rwhps.server.util.log.Log
+import com.corrodinggames.librocket.a
+import com.corrodinggames.librocket.scripts.Root
 
 class HeadlessProxyClass : AgentAttachData() {
     init {
@@ -22,28 +28,30 @@ class HeadlessProxyClass : AgentAttachData() {
     }
 
     private fun initProxyClass() {
-        LwjglAgent.partialMethod["android/util/Log"] = arrayOf("a","(ILjava/lang/String;Ljava/lang/String;)I")
+        LwjglRedirections().register()
+        SlickRedirections().register()
+        FileLoaderRedirections().register()
 
-        // 设置 重定向文件PATH类
-        LwjglAgent.partialMethod["com/corrodinggames/rts/gameFramework/e/c"] = arrayOf("f","()Ljava/lang/String;")
-        LwjglAgent.partialMethod["com/corrodinggames/rts/gameFramework/e/c"] = arrayOf("b","()Ljava/lang/String;")
+        AsmAgent.allMethod.add("org/newdawn/slick/util/DefaultLogSystem")
+        AsmAgent.allMethod.add("com/LibRocket")
+        AsmAgent.allMethod.add("com/corrodinggames/librocket/scripts/ScriptEngine")
+        AsmAgent.addPartialMethod("com/corrodinggames/librocket/b" , arrayOf("closeDocument","(Lcom/ElementDocument;)V"))
+        AsmAgent.addPartialMethod("com/corrodinggames/librocket/b" , arrayOf("closeActiveDocument","()V"))
+        AsmAgent.addPartialMethod("com/corrodinggames/librocket/scripts/Root" , arrayOf("resume","()V")) { obj: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
+            (ReflectionUtils.findField(Root::class.java,"guiEngine")!!.get(obj) as a).f()
+        }
 
-        // 设置 使指定方法无效
-        LwjglAgent.partialMethod["com/corrodinggames/librocket/scripts/Root"] = arrayOf("resume","()V")
-        LwjglAgent.partialMethod["com/corrodinggames/librocket/scripts/Root"] = arrayOf("resumeNonMenu","()V")
+        AsmAgent.addPartialMethod("com/corrodinggames/librocket/scripts/Root" , arrayOf("resumeNonMenu","()V")) { obj: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
+            (ReflectionUtils.findField(Root::class.java,"guiEngine")!!.get(obj) as a).a(false)
+        }
 
-        // 重定向部分文件系统
-        val filePath = FileUtil.defaultFilePath+"data/"
-        LwjglRedirections.customRedirection["Lcom/corrodinggames/rts/gameFramework/e/c;f()Ljava/lang/String;"] =
-            Redirection { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? -> filePath }
-        LwjglRedirections.customRedirection["Lcom/corrodinggames/rts/gameFramework/e/c;b()Ljava/lang/String;"] =
-            Redirection { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? -> filePath }
 
-        LwjglRedirections.customRedirection["Landroid/util/Log;a(ILjava/lang/String;Ljava/lang/String;)I"] =
+        AsmAgent.addPartialMethod("android/util/Log", arrayOf("a","(ILjava/lang/String;Ljava/lang/String;)I"))
+        AsmRedirections.customRedirection["Landroid/util/Log;a(ILjava/lang/String;Ljava/lang/String;)I"] =
             Redirection { _: Any?, _: String?, _: Class<*>?, args: Array<Any?>? ->
                 args?.let {
                     args[2]?.let {
-                        //Log.clog(it.toString())
+                        Log.all(it.toString())
                         if (it.toString().contains("----- Game init finished in")) {
                             loadFlagGame = GameInitStatus.LoadEndMods
                         }
@@ -56,7 +64,8 @@ class HeadlessProxyClass : AgentAttachData() {
                 0
             }
 
-        LwjglAgent.agentmain("", this.instrumentation)
+
+        AsmAgent.agentmain("", this.instrumentation)
     }
 
     private enum class GameInitStatus {

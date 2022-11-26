@@ -1,8 +1,6 @@
 include ':TimeTaskQuartz'
-//include ':TimeTask'
-//include ':RUDP'
-include ':Lwjgl-Headless'
-include ':Slick-Headless'
+
+include ':ASM-Framework'
+
 include ':Server-Core'
 include ':Server-All'
-//include ':FastUtil'

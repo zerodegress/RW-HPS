@@ -147,6 +147,12 @@ internal class PluginEventManage {
                 }
             }
 
+            Events.on(ServerStartTypeEvent::class.java) { e: ServerStartTypeEvent ->
+                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
+                    obj.registerServerStartTypeEvent(e.serverNetType)
+                }
+            }
+
             /* Sync */
             Events.on(NewConnectEvent::class.java) { e: NewConnectEvent ->
                 pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->

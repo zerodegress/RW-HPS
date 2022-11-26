@@ -17,4 +17,6 @@ object GameEngine {
     val netEngine: ad = gameEngine.bX
 
     val settingsEngine = gameEngine.bQ
+
+    val gameStatistics = gameEngine.bY
 }

@@ -12,7 +12,7 @@ package cn.rwhps.server.util
 object GameOtherUtil {
     @JvmStatic
     fun getBetaVersion(version: Int): Boolean {
-        if (version in 152 .. 173) {
+        if (version in 152 .. 175) {
             return true
         }
         return false

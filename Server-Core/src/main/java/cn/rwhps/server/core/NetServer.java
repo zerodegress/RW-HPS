@@ -29,13 +29,15 @@ public class NetServer {
 
     public static void closeServer() {
         if (Data.game != null) {
+            Data.INSTANCE.setExitFlag(true);
+
             TimeTaskData.INSTANCE.stopCallTickTask();
 
-            Call.disAllPlayer();
+            Call.killAllPlayer("Server Close");
 
             NetStaticData.startNet.eachAll(e ->{
-                    e.stop();
-                    return Unit.INSTANCE;
+                e.stop();
+                return Unit.INSTANCE;
             });
             NetStaticData.startNet.clear();
             NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);
@@ -57,6 +59,7 @@ public class NetServer {
             Data.game.getPlayerManage().playerGroup.clear();
             Data.game.getPlayerManage().playerAll.clear();
             Data.game = null;
+
             System.gc();
             Log.clog("Server closed");
         }
@@ -66,6 +69,10 @@ public class NetServer {
         if (Data.vote!= null) {
             Data.vote.stopVote();
         }
+        TimeTaskData.INSTANCE.stopCallTickTask();
+        Threads.closeTimeTask(CallTimeTask.GameOverTask);
+
+
         Call.killAllPlayer();
         Data.game.re();
         Data.game.setStartGame(false);

@@ -17,6 +17,7 @@ import cn.rwhps.server.core.Initialization
 import cn.rwhps.server.core.NetServer
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.core.ServiceLoader
 import cn.rwhps.server.data.base.BaseConfig
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.global.NetStaticData
@@ -27,7 +28,6 @@ import cn.rwhps.server.func.StrCons
 import cn.rwhps.server.game.Rules
 import cn.rwhps.server.net.StartNet
 import cn.rwhps.server.net.core.IRwHps
-import cn.rwhps.server.net.core.ServiceLoader
 import cn.rwhps.server.net.handler.tcp.StartHttp
 import cn.rwhps.server.plugin.PluginsLoad
 import cn.rwhps.server.plugin.center.PluginCenter
@@ -133,8 +133,7 @@ class CoreCommands(handler: CommandHandler) {
 
             NetStaticData.ServerNetType = IRwHps.NetType.RelayProtocol
             NetStaticData.RwHps =
-                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
-                    .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
+                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
             handler.handleMessage("startnetservice 5201 5500") //5200 6500
         }

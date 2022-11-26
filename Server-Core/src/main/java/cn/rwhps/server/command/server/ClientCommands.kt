@@ -500,7 +500,7 @@ internal class ClientCommands(handler: CommandHandler) {
         }
 
          */
-        handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
+        handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register

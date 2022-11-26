@@ -10,6 +10,7 @@
 package cn.rwhps.server.util.zip.zip
 
 import cn.rwhps.server.game.GameMaps
+import cn.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import cn.rwhps.server.io.input.ReusableDisableSyncByteArrayInputStream
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.struct.Seq
@@ -168,7 +169,39 @@ internal class ZipStreamDecoder: ZipDecoderUtils {
         throw ImplementedException("Not support")
     }
 
-    override fun getZipNameInputStream(name: String): InputStream? {
-        throw ImplementedException("Not support")
+    override fun getZipNameInputStream(nameIn: String): InputStream? {
+        var zipEntry: ZipArchiveEntry?
+        try {
+            IoRead.MultiplexingReadStream().use { multiplexingReadStream ->
+                while (zipStream.nextZipEntry.also { zipEntry = it } != null) {
+                    val nameCache = zipEntry!!.name
+                    Log.clog(nameCache)
+                    //val name = nameCache.split("/").toTypedArray()[nameCache.split("/").toTypedArray().size - 1]
+                    if (nameIn == nameCache) {
+                        return DisableSyncByteArrayInputStream(multiplexingReadStream.readInputStreamBytes(zipStream))
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            Log.error(e)
+        }
+        return null
+    }
+
+    override fun getZipAllBytes(): OrderedMap<String, ByteArray> {
+        val data = OrderedMap<String, ByteArray>(8)
+        try {
+            var zipEntry: ZipArchiveEntry?
+            IoRead.MultiplexingReadStream().use { multiplexingReadStream ->
+                while (zipStream.nextZipEntry.also { zipEntry = it } != null) {
+                    val nameCache = zipEntry!!.name
+                    val bytes = multiplexingReadStream.readInputStreamBytes(zipStream)
+                    data.put(nameCache,bytes)
+                }
+            }
+        } catch (e: IOException) {
+            Log.error(e)
+        }
+        return data
     }
 }

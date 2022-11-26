@@ -12,10 +12,10 @@ package cn.rwhps.server.util.alone.annotations
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
 @Target(
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
+        AnnotationTarget.ANNOTATION_CLASS,
+        AnnotationTarget.CLASS,
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, 
+        AnnotationTarget.EXPRESSION
 )
 internal annotation class MigrationWaiting(val status: String = "")

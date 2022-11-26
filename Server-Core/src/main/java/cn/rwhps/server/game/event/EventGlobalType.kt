@@ -10,6 +10,7 @@
 package cn.rwhps.server.game.event
 
 import cn.rwhps.server.net.core.ConnectionAgreement
+import cn.rwhps.server.net.core.IRwHps
 
 class EventGlobalType {
     /** 服务器初始化  */
@@ -17,6 +18,9 @@ class EventGlobalType {
 
     /** 服务器初始化  */
     class ServerLoadEvent
+
+    /** 启动了新协议  */
+    class ServerStartTypeEvent(val serverNetType: IRwHps.NetType)
 
     class NewConnectEvent(val connectionAgreement: ConnectionAgreement) {
         var result = false

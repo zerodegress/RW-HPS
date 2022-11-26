@@ -40,7 +40,7 @@ object Log {
         logPrint =
             if (system) {
                 { text: String ->
-                    println(text)
+                    System.out.println(text)
 
                     // Remove Color
                     var textCache = text
@@ -170,6 +170,23 @@ object Log {
     @JvmStatic
     fun track(tag: Any, e: Exception) {
         log(2, tag, e)
+    }
+
+    @JvmStatic
+    fun all(e: Exception) {
+        log(1, "ALL", e)
+    }
+    @JvmStatic
+    fun all(tag: Any, e: Exception) {
+        log(1, tag, e)
+    }
+    @JvmStatic
+    fun all(e: Any) {
+        logs(1, "ALL", e)
+    }
+    @JvmStatic
+    fun all(tag: Any, e: Any) {
+        logs(1, tag, e)
     }
 
     @JvmStatic

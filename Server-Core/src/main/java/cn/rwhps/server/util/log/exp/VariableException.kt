@@ -24,4 +24,6 @@ class VariableException(type: String) : RuntimeException(ErrorCode.valueOf(type)
     class RepeatAddException(info: String) : Exception(info)
 
     class TabooAddException(info: String) : Exception(info)
+
+    class TypeMismatchException(info: String) : Exception(info)
 }

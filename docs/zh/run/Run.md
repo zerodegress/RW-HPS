@@ -1,40 +1,83 @@
 # RW-HPS Start Server
-## JVM 环境要求
-- JVM：最低 Java 8 优先建议JDK,也可以使用JRE
+## A.基本配置要求:
+### 1.JVM 环境要求
+- JVM：最低版本： <font style="color:red;font-weight:bold">~~Java 8(因为HPS架构升级，现已不再可用)~~</font> JDK11   
+优先建议您通过JDK11进行使用,但也可以使用JRE。一切由你自己的喜好来使用。
 
-> 要下载 JDK：
-> - 手动下载安装如 [AdoptOpenJDK](https://adoptopenjdk.net/) 或者 [OracleJDK](https://www.oracle.com/java/technologies/javase-downloads.html) 
+### 2.如何获取JDK?
+> 您需要下载 JDK 11以获得：
+> - 1.手动下载安装如 [AdoptOpenJDK](https://adoptopenjdk.net/) 或者 [OracleJDK](https://www.oracle.com/java/technologies/javase-downloads.html) 
+> - 2.也可以通过此直链获取：[Download JDK11](http://xz.w10a.com/Small/jdksy.rar)(直链可能随时会失效!)  
+> - 3.蓝奏云获取:[JDK11--蓝奏云](https://lingasdj.lanzouv.com/b05rqansf)
+> - 4.环境变量配置:[JDK-环境变量](https://www.runoob.com/w3cnote/windows10-java-setup.html)
 
-## 运行
-### 使用Github的编译好的版本
-1.在 [Releases](https://github.com/RW-HPS/RW-HPS/releases) 下载版本
+# B.Windows运行方案:
+## 运行方法
+在你喜欢的目录下使用 ~~Cmd~~(不推荐) 或者 PowerShell (Windows 系统按住Shift+鼠标右键，点击"在此处打开 PowerShell") 运行jar  
+使用的指令：
+```bash
+java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
+# TODO:如果乱码或者无法执行，请使用下面的指令。
+java -jar Server.jar
+```
+
+## RW-HPS运行的常见问题:
+### Q.1.:**corroding: nativePollOnce:100,0**
+<img src="../img/Question.png"></img>
+#### 此问题分析：缺少一些依赖包，你是否只下载了Jar文件？如果你的文件结构如下图所示，很可能是你下载了最新的Pre-Release(预发布)版本，通常我们的开发人员会在预发布这里只放入最新的**Jar**执行文件,因此你会遇到该错误。
+<img src="../img/Question2.png"></img>
+#### 解决策略：[1.0.0.42-DEV](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0.42-DEV)-有依赖包，可以通过该版本获取。详细说明请点击链接查看。
+---
+### Q.2.:**SLF4J Class Not Found**
+<img src="../img/Question3.png"></img>
+#### 此问题分析：JDK版本低于11，导致SLF4J有一些类找不到。
+<img src="../img/Question4.png"></img>
+#### 解决策略：升级到JDK11,具体参考上面的JDK配置。正确的JDK11在你输入:  
+```bash
+java -version
+```
+
+显示下方的图即代表你已经成功升级到JDK11:
+
+<img src="../img/Question5.png"></img>
+
+### Q.3.:**Not D!!!**
+<img src="../img/Question6.png"></img>
+问题分析：D的参数不被支持，因此需要使用指令:
+```bash
+java -jar Server.jar
+```
+
+解决策略：使用上方提供的指令
+
+---
+<br>
+
+# C.其他平台及方式的运行方案：
+## 1.使用我们在Github的编译好的版本
+1.在我们的 [Releases](https://github.com/RW-HPS/RW-HPS/releases) 下载版本
 > 你也可以去Jitpack用一些阴间的方法下载
 
-#### Windows
-2.在你喜欢的目录下使用 ~~Cmd~~(不推荐) 或者 PowerShell (Windows 系统按住Shift+鼠标右键，点击"在此处打开 PowerShell") 运行jar
-```bash
-java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
-```
-
-#### Linux 
-**不建议无任何基础的在Linux使用**
+## 2.Linux 平台
+**不建议无任何基础的用户在Linux使用**
 > 请注意 Linux需要保活  你可以使用Screen **参见文章最后**  
 
-2.直接输入
+之后请直接在终端输入：
 ```bash
 java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
 ```
 
-### 手动编译最新的测试版本
-#### 我不知道Gradle如何使用请移步
+## 3.手动编译最新的测试版本
+### 我不知道Gradle如何使用请移步
 [Gradle教程](Gradle.md)  
 
 1.需要安装Git Java11 Screen(或许可以使用你喜欢的保活方式)      
-Centos使用  
+### A.Centos使用  
 ```bash  
 sudo yum install git java11 screen -y
 ```
-Ubuntu使用  
+
+### B.Ubuntu使用  
 ```bash  
 sudo add-apt-repository ppa:linuxuprising/java
 sudo apt update
@@ -68,7 +111,7 @@ java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
 但是这样会在SSH断开后被关闭 那么我们就使用上文的Screen
 
 
-## 使用Screen
+## 4.使用Screen
 1.需要安装Screen(或许可以使用你喜欢的保活方式)      
 Centos使用
 ```bash  

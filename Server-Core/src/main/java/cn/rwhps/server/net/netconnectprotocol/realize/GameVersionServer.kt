@@ -67,7 +67,7 @@ import kotlin.math.min
  */
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
-    open val supportedversionBeta = false
+    open val supportedversionBeta = true
     open val supportedversionGame = "1.15"
     open val supportedVersionInt  = 176
 

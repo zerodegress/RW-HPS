@@ -26,6 +26,7 @@ import cn.rwhps.server.data.plugin.PluginManage
 import cn.rwhps.server.dependent.HotLoadClass
 import cn.rwhps.server.func.StrCons
 import cn.rwhps.server.game.Rules
+import cn.rwhps.server.game.event.EventGlobalType
 import cn.rwhps.server.net.StartNet
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.net.handler.tcp.StartHttp
@@ -34,6 +35,7 @@ import cn.rwhps.server.plugin.center.PluginCenter
 import cn.rwhps.server.util.alone.annotations.NeedHelp
 import cn.rwhps.server.util.file.FileUtil
 import cn.rwhps.server.util.game.CommandHandler
+import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -70,7 +72,7 @@ class CoreCommands(handler: CommandHandler) {
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size)]
+                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size, NetStaticData.RwHps.typeConnect.version, NetStaticData.RwHps.typeConnect.abstractNetConnect.version)]
             } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
                 val size = AtomicInteger()
                 NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
@@ -177,6 +179,7 @@ class CoreCommands(handler: CommandHandler) {
                     startNetTcp1.openPort(Data.config.SeparateWebPort)
                 }
             }
+            Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
         }
     }
 

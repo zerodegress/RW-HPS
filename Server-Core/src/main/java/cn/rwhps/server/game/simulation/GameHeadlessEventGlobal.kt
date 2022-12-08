@@ -17,6 +17,7 @@ import cn.rwhps.server.game.simulation.gameFramework.GameNet
 import cn.rwhps.server.net.core.IRwHps
 import cn.rwhps.server.plugin.event.AbstractGlobalEvent
 import cn.rwhps.server.util.log.Log
+import cn.rwhps.server.util.log.exp.RwGamaException
 
 class GameHeadlessEventGlobal : AbstractGlobalEvent {
     var newGameInit = false
@@ -46,9 +47,11 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
         }
         newGameInit = true
 
-        GameStartInit.init()
-
         Log.clog(Data.i18NBundle.getinput("server.load.headless"))
-        com.corrodinggames.rts.java.Main.main(arrayOf("-disable_vbos","-disable_atlas","-nomusic","-nosound","-nodisplay"))
+        if (GameStartInit.init()) {
+            com.corrodinggames.rts.java.Main.main(arrayOf("-disable_vbos","-disable_atlas","-nomusic","-nosound","-nodisplay"))
+        } else {
+            throw RwGamaException.RwGamaOtherException("Load Res Error")
+        }
     }
 }

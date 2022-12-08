@@ -31,7 +31,6 @@ object GameStartInit {
             }
             libMg.loadToClassLoader()
 
-
             val resFile = FileUtil.getFolder(Data.Plugin_Cache_Path).toFile("Game-Res.zip")
             val assetsFile = FileUtil.getFolder(Data.Plugin_Cache_Path).toFile("Game-Assets.zip")
             val temp = FileUtil(File(".").canonicalPath,true)

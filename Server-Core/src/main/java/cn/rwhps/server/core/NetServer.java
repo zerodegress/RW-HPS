@@ -71,6 +71,7 @@ public class NetServer {
         }
         TimeTaskData.INSTANCE.stopCallTickTask();
         Threads.closeTimeTask(CallTimeTask.GameOverTask);
+        Threads.closeTimeTask(CallTimeTask.AutoCheckTask);
 
 
         Call.killAllPlayer();

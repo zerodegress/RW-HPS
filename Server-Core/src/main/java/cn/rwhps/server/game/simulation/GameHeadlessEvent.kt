@@ -12,6 +12,7 @@ package cn.rwhps.server.game.simulation
 import cn.rwhps.server.core.Call
 import cn.rwhps.server.core.thread.CallTimeTask
 import cn.rwhps.server.core.thread.Threads
+import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.game.simulation.gameFramework.GameData
 import cn.rwhps.server.game.simulation.gameFramework.GameNet
@@ -38,6 +39,7 @@ class GameHeadlessEvent : AbstractEvent {
     }
 
     override fun registerPlayerJoinEvent(player: Player) {
+        Data.game.playerManage.containsName(Data.headlessName)?.sendTeamData()
         player.playerPrivateData = PrivateClass_Player.getPlayerData(player.site)
     }
 }

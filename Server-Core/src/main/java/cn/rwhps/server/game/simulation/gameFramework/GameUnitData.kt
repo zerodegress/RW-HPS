@@ -9,10 +9,14 @@
 
 package cn.rwhps.server.game.simulation.gameFramework
 
+import cn.rwhps.server.core.Call
 import cn.rwhps.server.struct.ObjectMap
 import cn.rwhps.server.struct.OrderedMap
 import cn.rwhps.server.util.alone.annotations.GameSimulationLayer
+import cn.rwhps.server.util.log.Log
 import com.corrodinggames.rts.game.units.custom.l
+import com.corrodinggames.rts.game.units.y
+import com.corrodinggames.rts.gameFramework.w
 
 object GameUnitData {
 
@@ -33,5 +37,22 @@ object GameUnitData {
             }
         }
         return modsData
+    }
+
+    fun kill() {
+        for (fastUnit in w.er.a()) {
+            if (fastUnit is y) {
+                w.er.remove(fastUnit)
+                GameEngine.gameEngine.bU.a(fastUnit)
+                Log.clog(fastUnit.r().i())
+                Call.sendSystemMessage("删掉了一个单位: ${fastUnit.r().i()}")
+            }
+        }
+
+        GameEngine.updateGameFPS!!()
+        // 让 Core 完成记载
+        Thread.sleep(100)
+
+        Call.sendSync(false)
     }
 }

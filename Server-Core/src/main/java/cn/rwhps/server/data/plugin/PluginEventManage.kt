@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.data.plugin
 
+import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.game.event.EventGlobalType.*
 import cn.rwhps.server.game.event.EventType.*
 import cn.rwhps.server.plugin.event.AbstractEvent
@@ -91,7 +92,7 @@ internal class PluginEventManage {
             }
             /* ASync */
             Events.on(GameOverEvent::class.java) { _: GameOverEvent? ->
-                executorService.execute {
+                if (Data.game.isGameover) {
                     pluginEventData.eachAll { obj: AbstractEvent ->
                         obj.registerGameOverEvent()
                     }

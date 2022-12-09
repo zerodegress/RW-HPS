@@ -9,6 +9,7 @@
 
 package cn.rwhps.server.game.simulation.gameFramework
 
+import cn.rwhps.server.dependent.redirections.slick.AppGameContainerUpdate
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
 
@@ -19,4 +20,8 @@ object GameEngine {
     val settingsEngine = gameEngine.bQ
 
     val gameStatistics = gameEngine.bY
+
+    val updateGameFPS: (()->Unit)? get() {
+        return AppGameContainerUpdate.updateGameFPS
+    }
 }

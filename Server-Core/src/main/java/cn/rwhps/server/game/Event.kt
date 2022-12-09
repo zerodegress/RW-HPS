@@ -38,7 +38,7 @@ class Event : AbstractEvent {
             player.kickPlayer(player.getinput("kick.name.failed"))
             return
         }
-        if (player.name == Data.headlessName) {
+        if (player.name == Data.headlessName && Data.game.playerManage.playerGroup.size > 1) {
             player.kickPlayer("Forbidden name")
             return
         }

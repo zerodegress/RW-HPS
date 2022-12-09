@@ -28,6 +28,10 @@ import java.util.jar.JarFile
 class LibraryManager : AgentAttachData() {
     private val source = Seq<UrlData>()
 
+    init {
+        source.add(UrlData.Maven)
+    }
+
     fun addSource(source: UrlData) {
         this.source.add(source)
     }
@@ -93,9 +97,11 @@ class LibraryManager : AgentAttachData() {
                     if (success) {
                         load.add(file)
                     } else {
-                        Log.clog("Download Failed ${file.name}")
+                        Log.fatal("Download Failed ${file.name}")
                     }
                 }
+            } else {
+                load.add(file)
             }
         }
     }
@@ -111,10 +117,10 @@ class LibraryManager : AgentAttachData() {
             { file: File ->
                 try {
                     f.invoke(ClassLoader.getSystemClassLoader(), file.toURI().toURL())
-                    Log.info("Load Lib Jar", file.name)
+                    Log.debug("Load Lib Jar", file.name)
                     true
                 } catch (classLoad: Exception) {
-                    Log.error("Jar 1.8 Load", classLoad)
+                    Log.fatal("Jar 1.8 Load", classLoad)
                     false
                 }
             }
@@ -122,10 +128,10 @@ class LibraryManager : AgentAttachData() {
             { file: File ->
                 try {
                     instrumentation.appendToSystemClassLoaderSearch(JarFile(file))
-                    Log.info("Load Lib Jar", file.name)
+                    Log.debug("Load Lib Jar", file.name)
                     true
                 } catch (classLoad: Exception) {
-                    Log.error("Jar 1.8+ Load", classLoad)
+                    Log.fatal("Jar 1.8+ Load", classLoad)
                     false
                 }
             }
@@ -151,7 +157,7 @@ class LibraryManager : AgentAttachData() {
         val savePath = "$module-$version.jar"
         val groupLibData = ImportGroupData(group,module,version)
         if (tempGroup.contains(groupLibData)) {
-            Log.clog(module)
+            Log.debug("[Maven module]",module)
             return
         }
         tempGroup.add(groupLibData)

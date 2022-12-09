@@ -46,6 +46,7 @@ class Rules(private var config: BaseConfig) {
     var isStartGame = false
         set(value) {
             field = value
+            isGameover = value
             endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
         }
 
@@ -109,6 +110,8 @@ class Rules(private var config: BaseConfig) {
     val mapsData = OrderedMap<String, MapData>(8)
 
     val tickGame = AtomicInteger(10)
+    var isGameover = false
+
     init {
         try {
             checkMaps()
@@ -172,23 +175,23 @@ class Rules(private var config: BaseConfig) {
             val name = original.substring(0, original.length - postpone.length)
             when (postpone) {
                 ".tmx" ->   try {
-                                mapsData.put(name, MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.file, name))
-                            } catch (exception: Exception) {
-                                error("read tmx Maps", exception)
-                            }
+                    mapsData.put(name, MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.file, name))
+                } catch (exception: Exception) {
+                    error("read tmx Maps", exception)
+                }
                 ".save" ->  try {
-                                mapsData.put(name, MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.file, name))
-                            } catch (exception: Exception) {
-                                error("read save Maps", exception)
-                            }
+                    mapsData.put(name, MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.file, name))
+                } catch (exception: Exception) {
+                    error("read save Maps", exception)
+                }
                 ".zip" ->   try {
-                                val zipTmx = ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("tmx")
-                                zipTmx.eachAll { zipMapName: String -> mapsData.put(zipMapName, MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip, zipMapName, original)) }
-                                val zipSave = ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("save")
-                                zipSave.eachAll { zipSaveName: String -> mapsData.put(zipSaveName, MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.zip, zipSaveName, original)) }
-                            } catch (exception: Exception) {
-                                error("ZIP READ", exception)
-                            }
+                    val zipTmx = ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("tmx")
+                    zipTmx.eachAll { zipMapName: String -> mapsData.put(zipMapName, MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip, zipMapName, original)) }
+                    val zipSave = ZipDecoder(e).getTheFileNameOfTheSpecifiedSuffixInTheZip("save")
+                    zipSave.eachAll { zipSaveName: String -> mapsData.put(zipSaveName, MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.zip, zipSaveName, original)) }
+                } catch (exception: Exception) {
+                    error("ZIP READ", exception)
+                }
                 else -> {}
             }
         }

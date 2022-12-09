@@ -137,7 +137,7 @@ class CoreCommands(handler: CommandHandler) {
             NetStaticData.RwHps =
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice 5201 5500") //5200 6500
+            handler.handleMessage("startnetservice") //5200 6500
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size > 0) {
@@ -157,7 +157,7 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayMulticastProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice 5200 5500")
+            handler.handleMessage("startnetservice")
         }
 
 

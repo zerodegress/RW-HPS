@@ -12,6 +12,7 @@ package cn.rwhps.server.dependent.redirections.slick
 import cn.rwhps.asm.api.Redirection
 import cn.rwhps.server.data.global.Data
 import cn.rwhps.server.dependent.redirections.lwjgl.LwjglProperties
+import cn.rwhps.server.game.simulation.gameFramework.GameEngine
 import cn.rwhps.server.util.ReflectionUtils
 import org.newdawn.slick.AppGameContainer
 import java.lang.reflect.Method
@@ -22,7 +23,6 @@ import java.lang.reflect.Method
  * set amount of time, configurable by the SystemProperty [LwjglProperties.DISPLAY_UPDATE].
  */
 class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = getTime()) : Redirection {
-
     var methodSetup: Method? = null
     var methodGetDelta: Method? = null
     var methodGameLoop: Method? = null
@@ -44,6 +44,10 @@ class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = 
             methodSetup?.invoke(appGameContainer)
             methodGetDelta?.invoke(appGameContainer)
 
+            if (updateGameFPS == null) {
+                updateGameFPS = { methodGameLoop?.invoke(appGameContainer) }
+            }
+
             while (!Data.exitFlag) {
                 Thread.sleep(time)
                 methodGameLoop?.invoke(appGameContainer)
@@ -56,6 +60,8 @@ class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = 
 
     companion object {
         const val DESC = "Lorg/newdawn/slick/AppGameContainer;start()V"
+
+        internal var updateGameFPS: (()->Unit)? = null
 
         private fun getTime(): Long {
             return try {

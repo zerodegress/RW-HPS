@@ -63,6 +63,7 @@ import cn.rwhps.server.util.game.CommandHandler
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.clog
+import cn.rwhps.server.util.log.Log.fatal
 import cn.rwhps.server.util.log.Log.info
 import cn.rwhps.server.util.log.Log.set
 import cn.rwhps.server.util.log.Log.setCopyPrint
@@ -253,7 +254,7 @@ object Main {
                     return
                 } else {
                     clog("InputMonitor Error")
-                    info(e)
+                    fatal(e)
                     idlingCount.count++
                 }
             }

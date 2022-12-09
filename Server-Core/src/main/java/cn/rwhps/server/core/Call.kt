@@ -18,12 +18,15 @@ import cn.rwhps.server.data.global.NetStaticData
 import cn.rwhps.server.data.player.Player
 import cn.rwhps.server.game.event.EventType.GameOverEvent
 import cn.rwhps.server.game.simulation.gameFramework.GameData
+import cn.rwhps.server.game.simulation.gameFramework.GameEngine
 import cn.rwhps.server.io.packet.GameCommandPacket
 import cn.rwhps.server.struct.Seq
 import cn.rwhps.server.util.Time
 import cn.rwhps.server.util.game.Events
 import cn.rwhps.server.util.log.Log
 import cn.rwhps.server.util.log.Log.error
+import com.corrodinggames.rts.game.n
+import com.corrodinggames.rts.gameFramework.bo
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -96,6 +99,22 @@ object Call {
     @JvmStatic
     fun sendCheckData() {
         NetStaticData.groupNet.broadcast(GameData.getGameCheck())
+    }
+
+    @JvmStatic
+    @JvmOverloads
+    fun sendSync(displayInformation: Boolean = true) {
+        try {
+            Data.game.gameReConnectPaused = true
+            if (displayInformation) {
+                sendSystemMessage("同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
+            }
+            NetStaticData.groupNet.broadcast(GameData.getGameData())
+        } catch (e: Exception) {
+            error("[Player] Send GameSave ReConnect Error", e)
+        } finally {
+            Data.game.gameReConnectPaused = false
+        }
     }
 
     @JvmStatic

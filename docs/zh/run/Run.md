@@ -24,13 +24,13 @@ java -jar Server.jar
 ## RW-HPS运行的常见问题:
 ### Q.1.:**corroding: nativePollOnce:100,0**
 <img src="../img/Question.png"></img>
-#### 此问题分析：缺少一些依赖包，你是否只下载了Jar文件？如果你的文件结构如下图所示，很可能是你下载了最新的Pre-Release(预发布)版本，通常我们的开发人员会在预发布这里只放入最新的**Jar**执行文件,因此你会遇到该错误。
+#### 此问题分析：如果长时间卡在这个位置, 那么就是缺少一些依赖包，你是否只下载了Jar文件？如果你的文件结构如下图所示，很可能是你下载了最新的Pre-Release(预发布)版本，通常我们的开发人员会在预发布这里只放入最新的**Jar**执行文件,因此你会遇到该错误。
 <img src="../img/Question2.png"></img>
 #### 解决策略：[1.0.0.42-DEV](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0.42-DEV)-有依赖包，可以通过该版本获取。详细说明请点击链接查看。
 ---
 ### Q.2.:**SLF4J Class Not Found**
 <img src="../img/Question3.png"></img>
-#### 此问题分析：JDK版本低于11，导致SLF4J有一些类找不到。
+#### 此问题分析：JDK版本低于11，导致SLF4J有一些类找不到(正常现象) 本问题主要是Java不调用 `LibraryManager` 导致无法加载核心依赖。
 <img src="../img/Question4.png"></img>
 #### 解决策略：升级到JDK11,具体参考上面的JDK配置。正确的JDK11在你输入:  
 ```bash
@@ -41,22 +41,34 @@ java -version
 
 <img src="../img/Question5.png"></img>
 
-### Q.3.:**Not D!!!**
-<img src="../img/Question6.png"></img>
-问题分析：D的参数不被支持，因此需要使用指令:
+### Q.3.:**Not D!!!**  
+<img src="../img/Question6.png"></img>  
+
+#### 问题分析：D的参数不被支持，因此需要使用指令:  
 ```bash
 java -jar Server.jar
 ```
 
-解决策略：使用上方提供的指令
+#### 解决策略：使用上方提供的指令
 
+### Q.3.:**Not D!!!**
+<img src="../img/Question6.png"></img>  
+
+#### 问题分析：D的参数不被支持，因此需要使用指令:  
+```bash
+java -jar Server.jar
+```
+
+#### 解决策略：手动设置 
+**GBK** `java -Dfile.encoding=GBK -jar Server.jar`   
+或者   
+**UTF-8**`java -Dfile.encoding=UTF-8 -jar Server.jar`  
 ---
 <br>
 
 # C.其他平台及方式的运行方案：
 ## 1.使用我们在Github的编译好的版本
 1.在我们的 [Releases](https://github.com/RW-HPS/RW-HPS/releases) 下载版本
-> 你也可以去Jitpack用一些阴间的方法下载
 
 ## 2.Linux 平台
 **不建议无任何基础的用户在Linux使用**
@@ -64,7 +76,7 @@ java -jar Server.jar
 
 之后请直接在终端输入：
 ```bash
-java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
+java -Djava.net.preferIPv4Stack=true -jar Server.jar
 ```
 
 ## 3.手动编译最新的测试版本
@@ -106,7 +118,7 @@ git clone git@github.com:RW-HPS/RW-HPS.git
 5.运行  
 在你喜欢的目录下运行jar
 ```bash
-java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
+java -Djava.net.preferIPv4Stack=true -jar Server.jar
 ```
 但是这样会在SSH断开后被关闭 那么我们就使用上文的Screen
 

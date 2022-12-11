@@ -95,7 +95,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         internal set
 
     override val version: String
-        get() = "1.15.P10 RW-HPS"
+        get() = "1.15 RW-HPS"
 
     override fun sendSystemMessage(msg: String) {
         if (!this::player.isInitialized || !player.noSay) {
@@ -505,13 +505,16 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     return false
                 }
 
-                val playerConnectPasswdCheck = PlayerConnectPasswdCheckEvent(this, passwd)
-                Events.fire(playerConnectPasswdCheck)
-                if (playerConnectPasswdCheck.result) {
-                    return true
-                }
-                if (IsUtil.notIsBlank(playerConnectPasswdCheck.name)) {
-                    name = playerConnectPasswdCheck.name
+                // Check Passwd
+                if ("" != Data.game.passwd) {
+                    if (passwd != Data.game.passwd) {
+                        try {
+                            sendErrorPasswd()
+                        } catch (ioException: IOException) {
+                            Log.debug("Event Passwd", ioException)
+                        }
+                        return true
+                    }
                 }
 
                 val playerJoinName = PlayerJoinNameEvent(name)

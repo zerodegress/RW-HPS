@@ -105,11 +105,11 @@ Please use .help in the game to see more
 ## version collection
 The game corresponds to the final server version collection
 
-| Game Version | RW-HPS version | Download Link |
-|:----:|:----:|:----:|
-|   1.14   |   6.0.0-M3（beta）   |   [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/6.0.0-M3)   |
-|   1.15.P8   |   6.0.1   |   [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/6.0.1)   |
-|   1.15.P10   |   6.4.2   |   [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/6.4.2)   |
+| Game Version |   RW-HPS version   |                             Download Link                             |
+|:------------:|:------------------:|:---------------------------------------------------------------------:|
+|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                Delete                                 |
+| ~~1.15.P8~~  |     ~~6.0.1~~      |                                Delete                                |
+|     1.15     |      1.0.0-M2      | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0-M2) |
 
 ## Sponsorship
 RW-HPS is a open source project released under AGPL V3. However, the amount of work required to maintain and develop new features for the project is not sustainable without your generous dedications.

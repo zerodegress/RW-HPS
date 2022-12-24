@@ -11,11 +11,14 @@ package net.rwhps.server.data.base
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
+import net.rwhps.server.util.log.Log.error
 import java.lang.reflect.Field
+
 
 
 /**
@@ -28,6 +31,7 @@ data class BaseRelayPublishConfig(
     val UpList: Boolean = false,
     val MainServerIP: String = "",
     val MainServerPort: Int = 4993,
+    val BindCustom: MutableMap<String,Array<String>> = mutableMapOf(),
 ) {
 
     fun save() {
@@ -36,7 +40,7 @@ data class BaseRelayPublishConfig(
 
     private fun coverField(name: String,value: Any): Boolean {
         try {
-            val field: Field = net.rwhps.server.util.ReflectionUtils.findField(this::class.java, name) ?:return false
+            val field: Field = ReflectionUtils.findField(this::class.java, name) ?:return false
             field.isAccessible = true
             field.set(this,value)
             field.isAccessible = false

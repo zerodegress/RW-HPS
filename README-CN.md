@@ -1,8 +1,10 @@
 [Engilsh version / 英文介绍](README.md)
 
 # 新版本开发中
-- [ ] 使用 XVFB
-- [x] 使用 无头 Lwjgl
+- [x] 使用 无头 Lwjgl  
+  
+欢迎各位前来PR  
+目前我们正需要重构 (Event/Net/Docs), 欢迎提供更好的思路
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)

@@ -19,6 +19,7 @@ import net.rwhps.server.util.IsUtil.isBlank
 import net.rwhps.server.util.RandomUtil.getRandomString
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.log.Log.error
 import java.lang.management.ManagementFactory
 import java.util.*
 

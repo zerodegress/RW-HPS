@@ -2,9 +2,10 @@
 **Welcome to provide better translation**
 
 # New version under development
-- [ ] Use XVFB
 - [x] Use Headless Lwjgl
-
+  
+Welcome everyone to come to PR. 
+We are currently in need of refactoring (EventNetDocs), welcome to provide better ideas
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)

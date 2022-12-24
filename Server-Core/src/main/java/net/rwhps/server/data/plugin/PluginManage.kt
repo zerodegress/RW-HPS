@@ -10,12 +10,16 @@
 package net.rwhps.server.data.plugin
 
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
+import net.rwhps.server.func.Cons
 import net.rwhps.server.plugin.Plugin
+import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import net.rwhps.server.plugin.PluginsLoad.PluginLoadData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.annotations.DidNotFinish
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 
 /**
@@ -28,7 +32,7 @@ object PluginManage {
     val loadSize: Int
         get() = pluginData!!.size
 
-    fun run(cons: net.rwhps.server.func.Cons<PluginLoadData?>) {
+    fun run(cons: Cons<PluginLoadData?>) {
         pluginData!!.eachAll { t: PluginLoadData? -> cons[t] }
     }
 
@@ -46,24 +50,24 @@ object PluginManage {
     }
 
     /** 注册要在服务器端使用的任何命令，例如从控制台 */
-    fun runRegisterCoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+    fun runRegisterCoreCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerCoreCommands(handler) }
     }
     /** 注册要在服务器端使用的任何命令，例如从控制台-Server */
-    fun runRegisterServerCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+    fun runRegisterServerCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerCommands(handler) }
     }
     /** 注册要在服务器端使用的任何命令，例如从控制台-Relay */
-    fun runRegisterRelayCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+    fun runRegisterRelayCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
     }
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 */
-    fun runRegisterServerClientCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+    fun runRegisterServerClientCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
     }
     /** 注册要在客户端使用的任何命令，例如来自RELAY内玩家 */
-    fun runRegisterRelayClientCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+    fun runRegisterRelayClientCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
     }
 

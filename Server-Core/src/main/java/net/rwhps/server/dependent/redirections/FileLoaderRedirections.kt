@@ -4,23 +4,22 @@ import android.content.res.AssetManager
 import com.corrodinggames.rts.gameFramework.e.c
 import com.corrodinggames.rts.gameFramework.l
 import com.corrodinggames.rts.gameFramework.utility.ae
-import com.corrodinggames.rts.gameFramework.utility.af
 import com.corrodinggames.rts.gameFramework.utility.j
 import net.rwhps.asm.agent.AsmAgent
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.slick.ZipFileSystemLocation
+import net.rwhps.server.game.event.EventType
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import org.newdawn.slick.util.ClasspathLocation
 import org.newdawn.slick.util.FileSystemLocation
 import org.newdawn.slick.util.ResourceLoader
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.IOException
+import java.io.*
+
 
 /**
  * 通过 ASM 来覆写 游戏的文件系统来达到自定义位置
@@ -153,6 +152,32 @@ class FileLoaderRedirections : MainRedirections {
             } catch (e2: IOException) {
                 Log.error(obj.a + "Could not find asset:" + str3)
                 null
+            }
+        }
+
+        // 临时方案, 没时间
+        AsmAgent.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("c","(Ljava/lang/String;Z)Ljava/io/OutputStream;")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any> ->
+            val obj = obj as c
+            var str = args[0].toString().replace(resAndAssetsPath,"").replace("\\","/")
+
+            val f: String = obj.f(str)
+            val z = args[1].toString().toBoolean()
+            val a2 = ae.a(f)
+            if (a2 != null && !f.endsWith(".rwmod")) {
+                return@addPartialMethod a2.c(f, z)
+            } else {
+                // Bug?
+                val cache = resAndAssetsPath+"assets"
+                if (f.startsWith(cache)) {
+                    val cache1 = f.substring(cache.length)
+                    if (cache1.startsWith(FileUtil.getPath(""))) {
+                        if (cache1.endsWith("replay")) {
+                            Events.fire(EventType.HessStartEvent())
+                        }
+                        return@addPartialMethod FileUtil(File(cache1)).writeByteOutputStream(z)
+                    }
+                }
+                return@addPartialMethod FileOutputStream(f, z)
             }
         }
     }

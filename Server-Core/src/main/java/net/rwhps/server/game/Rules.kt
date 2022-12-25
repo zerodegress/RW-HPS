@@ -43,6 +43,7 @@ class Rules(private var config: BaseConfig) {
     var endTime = 0
         private set
     /** 是否已启动游戏  */
+    @Volatile
     var isStartGame = false
         set(value) {
             field = value

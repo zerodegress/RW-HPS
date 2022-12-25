@@ -38,8 +38,9 @@ class GameHeadlessEvent : AbstractEvent {
         Log.clog("ReRun GameHeadless")
     }
 
-    override fun registerPlayerJoinEvent(player: Player) {
-        Data.game.playerManage.containsName(Data.headlessName)?.sendTeamData()
-        player.playerPrivateData = PrivateClass_Player.getPlayerData(player.site)
+    override fun registerHessStartEvent() {
+        Data.game.playerManage.playerAll.eachAll { player ->
+            player.playerPrivateData = PrivateClass_Player.getPlayerData(player.site)
+        }
     }
 }

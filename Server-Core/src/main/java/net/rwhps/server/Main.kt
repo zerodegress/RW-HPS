@@ -104,6 +104,8 @@ object Main {
         System.setProperty("java.net.preferIPv4Stack","true")
         // F U C K Termux
         System.setProperty("java.awt.headless","true")
+        // F U C K UTF-8
+        System.setProperty("file.encoding","UTF-8")
 
         Initialization()
 
@@ -175,9 +177,6 @@ object Main {
         reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
         //val bakOut = System.out
-        System.setOut(MyPrintStream {
-            reader.printAbove(it)
-        })
         System.setErr(MyPrintStream {
             Log.debug(it)
         })

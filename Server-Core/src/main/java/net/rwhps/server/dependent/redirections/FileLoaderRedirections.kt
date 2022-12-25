@@ -22,7 +22,6 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
 
-
 /**
  * 通过 ASM 来覆写 游戏的文件系统来达到自定义位置
  * 不要骂了 只能这样写了
@@ -35,9 +34,10 @@ class FileLoaderRedirections : MainRedirections {
     private val font = ZipFileSystemLocation(CompressionDecoderUtils.lz77Stream(FileUtil.getInternalFileStream("/font.7z")))
 
     init {
+        // Mkdie Mods Folder
         FileUtil.getFolder(Data.Plugin_Mods_Path).mkdir()
 
-        // 去掉自带的一堆垃圾
+        // Get rid of the pile of garbage that comes with you
         ResourceLoader.removeAllResourceLocations()
 
         ResourceLoader.addResourceLocation(ClasspathLocation())
@@ -47,7 +47,7 @@ class FileLoaderRedirections : MainRedirections {
 
     fun register() {
         // 重定向部分文件系统 (mods maps replay)
-        val filePath = FileUtil.getPath("${Data.Plugin_Data_Path}/")
+        val filePath = FileUtil.getPath(Data.Plugin_Data_Path)+"/"
         // 设置 重定向文件PATH类
         AsmAgent.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("f","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             filePath
@@ -154,43 +154,6 @@ class FileLoaderRedirections : MainRedirections {
                 Log.error(obj.a + "Could not find asset:" + str3)
                 null
             }
-        }
-        /* 这部分无任何改动,仅开发Debug使用 */
-        AsmAgent.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("j","(Ljava/lang/String;)Lcom/corrodinggames/rts/gameFramework/utility/j;")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any> ->
-            val obj = obj as c
-            var str = args[0].toString()
-
-            //Log.clog(str)
-            val jVar: j
-            val f: String = obj.f(str)
-            val a2: af? = ae.a(f)
-            if (a2 != null && !f.endsWith(".rwmod")) {
-                return@addPartialMethod a2.b(f, true)
-            }
-            if (str.startsWith("/SD/") || str.startsWith("\\SD\\")) {
-                val substring = str.substring("/SD/".length)
-                var str2 = substring
-                if (str2.startsWith("rustedWarfare/")) {
-                    str2 = str2.substring("rustedWarfare/".length)
-                }
-                val str3: String = obj.b() + str2
-                jVar = try {
-                    val h: File = obj.h(str3) ?: return@addPartialMethod null
-                    j(FileInputStream(h), h.absolutePath)
-                } catch (e: FileNotFoundException) {
-                    return@addPartialMethod null
-                }
-            } else if (obj.c(str)) {
-                jVar = try {
-                    val h2: File = obj.h(str) ?: return@addPartialMethod null
-                    j(FileInputStream(h2), h2.absolutePath)
-                } catch (e2: FileNotFoundException) {
-                    return@addPartialMethod null
-                }
-            } else {
-                jVar = obj.i(str)
-            }
-            return@addPartialMethod jVar
         }
     }
 }

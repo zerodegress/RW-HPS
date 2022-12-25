@@ -288,7 +288,7 @@ object Call {
 
             when (Data.game.playerManage.playerGroup.size) {
                 0 -> gr()
-                1 -> if (oneSay) {
+                1,2 -> if (oneSay) {
                     oneSay = false
                     sendSystemMessageLocal("gameOver.oneMin")
                     newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) {gr()}

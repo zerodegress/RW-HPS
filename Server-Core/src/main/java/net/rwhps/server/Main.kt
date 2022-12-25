@@ -70,6 +70,7 @@ import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
+import org.jline.terminal.TerminalBuilder
 import java.io.ByteArrayOutputStream
 import java.io.InterruptedIOException
 import java.io.PrintStream
@@ -170,7 +171,8 @@ object Main {
         // 构建彩色输出
         AnsiConsole.systemInstall()
 
-        reader = LineReaderBuilder.builder().completer(ConsoleStream.TabCompleter).build()
+        val terminal = TerminalBuilder.builder().encoding("UTF-8").build()
+        reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
         //val bakOut = System.out
         System.setOut(MyPrintStream {

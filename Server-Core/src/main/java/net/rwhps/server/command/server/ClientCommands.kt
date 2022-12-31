@@ -296,7 +296,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                     return@register
                 }
-                Data.game.gamePaused = true
+                Data.game.gamePaused = false
                 Call.sendSystemMessage(player.i18NBundle.getinput("unpause.ok"))
             }
         }

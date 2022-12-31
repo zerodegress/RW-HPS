@@ -508,7 +508,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
                 // Check Passwd
                 // TODO: 有可能被相同名字利用
-                if ("" != Data.game.passwd && GameData.checkHess(name)) {
+                if ("" != Data.game.passwd && !GameData.checkHess(name)) {
                     if (passwd != Data.game.passwd) {
                         try {
                             sendErrorPasswd()

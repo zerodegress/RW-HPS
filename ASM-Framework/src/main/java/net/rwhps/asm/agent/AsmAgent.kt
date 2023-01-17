@@ -9,9 +9,7 @@
 
 package net.rwhps.asm.agent
 
-import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.api.Transformer
-import net.rwhps.asm.redirections.AsmRedirections
 import net.rwhps.asm.transformer.AllMethodsTransformer
 import net.rwhps.asm.transformer.AsmUtil
 import net.rwhps.asm.transformer.PartialMethodTransformer
@@ -25,18 +23,22 @@ import java.security.ProtectionDomain
 /**
  * A JavaAgent calling the [AllMethodsTransformer].
  */
-class AsmAgent : ClassFileTransformer {
+class AsmAgent : ClassFileTransformer, AsmCore() {
 
     private val transformer: Transformer = AllMethodsTransformer()
     private val partialMethodTransformer: Transformer = PartialMethodTransformer()
 
+    init {
+        setAgent(this)
+    }
+
     @Throws(IllegalClassFormatException::class)
-    override fun transform(loader: ClassLoader, className: String, classBeingRedefined: Class<*>?, protectionDomain: ProtectionDomain, classfileBuffer: ByteArray): ByteArray {
+    override fun transform(loader: ClassLoader?, className: String, classBeingRedefined: Class<*>?, protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray): ByteArray {
         // 这个是单纯的 Debug 用的
-        if (className.contains("coSSSSSSSS")) {
+        if (className.contains("or00g/new00dawn/slick/GameContainer")) {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
-            return AsmUtil.write(node, ClassWriter.COMPUTE_FRAMES).also { a -> FileOutputStream("a.class").also { it.write(a); it.flush() }}
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).also { a -> FileOutputStream("a.class").also { it.write(a); it.flush() }}
         }
         // 覆写 lwjgl 并跳过 RW-HPS 包
         if (className.contains("lwjgl") && !className.contains("rwhps")
@@ -45,44 +47,19 @@ class AsmAgent : ClassFileTransformer {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
             // TODO: make writer.getClassLoader() return the given loader?
-            return AsmUtil.write(node, ClassWriter.COMPUTE_FRAMES)
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
         }
         // 匹配指定 Class 的指定方法
         if (partialMethod.containsKey(className)) {
             val node = AsmUtil.read(classfileBuffer)
             partialMethodTransformer.transform(node, partialMethod[className])
-            return AsmUtil.write(node, ClassWriter.COMPUTE_FRAMES)
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
                 //.also { a -> FileOutputStream("${className.replace("/","")}.class").also { it.write(a); it.flush() }}
         }
         return classfileBuffer
     }
 
     companion object {
-        private val partialMethod = HashMap<String, ArrayList<Array<String>>>()
-        val allMethod = ArrayList<String>()
-
-        /**
-         * 加入 指定 Class 的指定方法代理
-         *
-         *
-         * @param desc String
-         * @param p Array<String>
-         * @param redirection Redirection
-         */
-        @JvmStatic
-        @JvmOverloads
-        fun addPartialMethod(desc: String, p: Array<String>, redirection: Redirection? = null) {
-            if (partialMethod.containsKey(desc)) {
-                partialMethod[desc]!!.add(p)
-            } else {
-                partialMethod[desc] = ArrayList<Array<String>>().also { it.add(p) }
-            }
-            redirection?.let {
-                // 这里构造 Desc 并且 加入对应的 取代
-                AsmRedirections.redirect("L"+desc+";"+p[0]+p[1], it)
-            }
-        }
-
         fun agentmain(instrumentation: Instrumentation) {
             instrumentation.addTransformer(AsmAgent())
         }

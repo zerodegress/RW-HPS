@@ -330,7 +330,7 @@ open class FileUtil {
          * 默认的地址前缀
          * 如果不为null将会直接使用path而不是使用jar的位置
          */
-		var defaultFilePath: String
+        private var defaultFilePath: String = ""
             private set
 
         /**
@@ -343,7 +343,7 @@ open class FileUtil {
             val jarName = pathSplit[pathSplit.size - 1]
             val jarPath = path.replace(jarName, "")
 
-            defaultFilePath = decode(jarPath, "UTF-8")
+            setFilePath(decode(jarPath, "UTF-8"))
 		}
 
         /**
@@ -351,8 +351,16 @@ open class FileUtil {
          * @param customFilePath String
          */
         @JvmStatic
-        fun setFilePath(customFilePath: String? = null) {
-            if (customFilePath != null) {
+        fun setFilePath(customFilePathIn: String? = null) {
+            if (customFilePathIn != null) {
+                var cache = customFilePathIn
+                // Windows 不允许文件夹存在 :
+                // 同时 获取的位置前面会有 /
+                // 例如 /A:/a/a.jar
+                if (Data.core.isWindows && cache.contains(":")) {
+                    cache = cache.substring(1)
+                }
+                val customFilePath = cache.replace("\\","/")
                 defaultFilePath =
                     if (customFilePath.endsWith("/")) {
                         customFilePath
@@ -418,9 +426,14 @@ open class FileUtil {
             return cehckFolderPath(splice1,splice2)
         }
 
+        @JvmStatic
+        fun getJarPath(): String {
+            return this::class.java.protectionDomain.codeSource.location.path
+        }
+
         private fun cehckFolderPath(defPath:String, path: String): String {
             if (path == "") {
-                return path
+                return defPath
             }
 
             var to = if ("/" == path[0].toString()) {

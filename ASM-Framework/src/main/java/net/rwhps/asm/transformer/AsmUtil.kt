@@ -21,8 +21,8 @@ object AsmUtil {
         return result
     }
 
-    fun write(classNode: ClassNode, vararg flags: Int): ByteArray {
-        val writer = ClassWriter(toFlag(*flags))
+    fun write(loader: ClassLoader?, classNode: ClassNode, vararg flags: Int): ByteArray {
+        val writer = SafeClassWriter(null,loader,toFlag(*flags))
         classNode.accept(writer)
         return writer.toByteArray()
     }

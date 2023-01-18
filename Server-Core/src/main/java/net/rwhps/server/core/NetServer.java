@@ -13,12 +13,23 @@ import kotlin.Unit;
 import net.rwhps.server.core.thread.CallTimeTask;
 import net.rwhps.server.core.thread.Threads;
 import net.rwhps.server.core.thread.TimeTaskData;
+import net.rwhps.server.data.HessModuleManage;
 import net.rwhps.server.data.global.Data;
 import net.rwhps.server.data.global.NetStaticData;
 import net.rwhps.server.func.StrCons;
-import net.rwhps.server.game.simulation.gameFramework.GameData;
 import net.rwhps.server.net.core.IRwHps;
+import net.rwhps.server.util.RandomUtil;
+import net.rwhps.server.util.StringFilteringUtil;
+import net.rwhps.server.util.Time;
+import net.rwhps.server.util.encryption.digest.DigestUtil;
 import net.rwhps.server.util.log.Log;
+
+import java.math.BigInteger;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.rwhps.server.net.HttpRequestOkHttp.doPostRw;
 
 /**
  * @author RW-HPS/Dr
@@ -44,7 +55,7 @@ public class NetServer {
             Threads.closeNet();
             //Threads.newThreadCoreNet();
 
-            GameData.clean();
+            HessModuleManage.INSTANCE.getHps().getGameData().clean();
 
             Threads.closeTimeTask(CallTimeTask.AutoCheckTask);
             Threads.closeTimeTask(CallTimeTask.CallPingTask);

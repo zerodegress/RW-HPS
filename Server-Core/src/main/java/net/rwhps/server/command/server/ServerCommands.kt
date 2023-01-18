@@ -13,10 +13,10 @@ import net.rwhps.server.core.Call
 import net.rwhps.server.core.Call.sendSystemMessage
 import net.rwhps.server.core.Call.sendTeamData
 import net.rwhps.server.core.Call.upDataGameData
+import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.mods.ModManage
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.func.StrCons
@@ -337,7 +337,6 @@ internal class ServerCommands(handler: CommandHandler) {
                 player.sync()
             }
         }
-
     }
 
     companion object {

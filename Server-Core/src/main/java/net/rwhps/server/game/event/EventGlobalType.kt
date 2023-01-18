@@ -14,7 +14,7 @@ import net.rwhps.server.net.core.IRwHps
 
 class EventGlobalType {
     /** 服务器初始化  */
-    class GameLibLoadEvent
+    class GameLibLoadEvent(val loadID: String)
 
     /** 服务器初始化  */
     class ServerLoadEvent

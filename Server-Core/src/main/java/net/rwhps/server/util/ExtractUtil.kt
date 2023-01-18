@@ -10,6 +10,7 @@
 package net.rwhps.server.util
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.util.log.Log
 import java.nio.charset.Charset
 
 
@@ -126,11 +127,6 @@ object ExtractUtil {
     }
 
     @JvmStatic
-    fun bytesToHex(byte: Byte): String {
-        return bytesToHex(byteArrayOf(byte))
-    }
-
-    @JvmStatic
 	fun bytesToHex(bytes: ByteArray): String {
         val sb = StringBuffer()
         for (aByte in bytes) {
@@ -141,5 +137,13 @@ object ExtractUtil {
             sb.append(hex).append(" ")
         }
         return sb.toString()
+    }
+
+    fun tryRunTest(run: ()->Unit) {
+        try {
+            run()
+        } catch (e: Exception) {
+            Log.error(e)
+        }
     }
 }

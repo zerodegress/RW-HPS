@@ -9,8 +9,6 @@
 
 package net.rwhps.server.util
 
-import kotlin.jvm.Throws
-
 /**
  * 等待并且获取 直到得到有效值
  */

@@ -9,7 +9,7 @@
 
 package net.rwhps.server.io.packet
 
-import net.rwhps.server.util.ExtractUtil
+import net.rwhps.server.util.inline.toStringHex
 
 /**
  * @author RW-HPS/Dr
@@ -23,7 +23,7 @@ class GameCommandPacket(val sendBy: Int, val bytes: ByteArray) {
         return  """
                 GameCommandPacket {
                     Bytes=${bytes.contentToString()}
-                    BytesHex=${ExtractUtil.bytesToHex(bytes)}
+                    BytesHex=${bytes.toStringHex()}
                     sendBy=${sendBy}
                 }
                 """.trimIndent()

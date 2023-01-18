@@ -7,27 +7,26 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("StringUtils")
+@file:JvmName("InlineUtils")
 @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.util.ExtractUtil.bytesToHex
-import net.rwhps.server.util.ExtractUtil.hexToByteArray
+import net.rwhps.server.util.HexUtil
 
 
 fun Byte.toStringHex() : String {
-    return bytesToHex(this)
+    return HexUtil.encodeHexStr(byteArrayOf(this))
 }
 
 fun ByteArray.toStringHex() : String {
-    return bytesToHex(this)
+    return HexUtil.encodeHexStr(this)
 }
 
 fun String.hexToByte() : Byte {
-    return hexToByteArray(this)[0]
+    return HexUtil.decodeHex(this)[0]
 }
 
 fun String.hexToBytes() : ByteArray {
-    return hexToByteArray(this)
+    return HexUtil.decodeHex(this)
 }

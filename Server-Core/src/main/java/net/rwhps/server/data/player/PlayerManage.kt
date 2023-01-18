@@ -155,6 +155,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
                 playerData[Data.config.MaxPlayer] = player
                 player.site = Data.config.MaxPlayer
                 player.team = -3
+                player.start = true
                 return
             }
             if (amTeam) {

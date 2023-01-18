@@ -7,12 +7,9 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.data.mods
+package net.rwhps.server.data
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.game.simulation.gameFramework.GameData
-import net.rwhps.server.game.simulation.gameFramework.GameNet
-import net.rwhps.server.game.simulation.gameFramework.GameUnitData
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
@@ -46,7 +43,7 @@ object ModManage {
      */
     @JvmStatic
     fun load(): Int {
-        enabledMods = GameUnitData.getUnitData(coreName)
+        enabledMods = HessModuleManage.hps.gameUnitData.getUnitData(coreName)
         enabledModsName.clear()
 
         //enabledModsName.add(coreName)
@@ -109,9 +106,9 @@ object ModManage {
      */
     @JvmStatic
     fun reLoadMods(): Int {
-        GameData.clean()
-        GameUnitData.reloadUnitData()
-        GameNet.newConnect()
+        HessModuleManage.hps.gameData.clean()
+        HessModuleManage.hps.gameUnitData.reloadUnitData()
+        HessModuleManage.hps.gameNet.newConnect()
 
         return load().run { loadUnits() }
     }

@@ -16,12 +16,21 @@ import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.core.NetConnectProofOfWork
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.struct.IntMap
+import net.rwhps.server.struct.IntSeq
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil.isNumeric
+import net.rwhps.server.util.IsUtil.notIsBlank
+import net.rwhps.server.util.RandomUtil.getRandomString
+import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.Time.concurrentSecond
+import net.rwhps.server.util.Time.utcMillis
+import net.rwhps.server.util.encryption.digest.DigestUtil.md5Hex
+import net.rwhps.server.util.encryption.digest.DigestUtil.sha256
+import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import java.io.IOException
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
@@ -191,14 +200,11 @@ class Relay {
         size.decrementAndGet()
     }
 
-    fun getRandAdmin(): GameVersionRelay? {
-        return if (abstractNetConnectIntMap.isEmpty()) null else abstractNetConnectIntMap.toArrayValues().random()
-    }
-
     fun updateMinSize() {
         try {
-            minSize = abstractNetConnectIntMap.toArrayKey().toArray(Int::class.java).min()
-        } catch (_: Exception) {
+            minSize = abstractNetConnectIntMap.toArrayKey().toIntArray().min()
+        } catch (e: Exception) {
+            Log.error("[RELAY updateMinSize]",e)
         }
     }
 

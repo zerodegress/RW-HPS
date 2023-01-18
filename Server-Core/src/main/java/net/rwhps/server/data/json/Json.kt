@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.alone.annotations.NeedToRefactor
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.inline.getDataResult
 import net.rwhps.server.util.inline.getDataResultObject
@@ -21,11 +22,14 @@ import net.rwhps.server.util.inline.toPrettyPrintingJson
 import org.json.JSONArray
 import org.json.JSONObject
 
-//Json
 //写的越久，BUG越多，伤痕越疼，脾气越差/-活得越久 故事越多 伤痕越疼，脾气越差
 /**
+ * Json 模块
+ * 我不能保证可用 , 需要与 Json/Gson 一起被重构
+ *
  * @author RW-HPS/Dr
  */
+@NeedToRefactor
 class Json {
     private val jsonObject: JSONObject
 

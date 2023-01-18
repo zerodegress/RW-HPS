@@ -57,8 +57,8 @@ data class BaseConfig(
     val MaxMessageLen: Int = 40,
     /** 最大单位数 */
     val MaxUnit: Int = 200,
-    val Tick: Int = 10,
-    val TickTime: Int = 150,
+    val Tick: Int = 6,
+    val TickTime: Int = 100,
 
     val DefIncome: Float = 1f,
     /** only Admin */

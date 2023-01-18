@@ -1,7 +1,16 @@
-package net.rwhps.server.dependent.redirections
+/*
+ * Copyright 2020-2023 RW-HPS Team and contributors.
+ *  
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
 
-import net.rwhps.asm.agent.AsmCore
+package net.rwhps.server.dependent.redirections.game
+
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
@@ -38,8 +47,8 @@ class FileLoaderRedirections : MainRedirections {
         FileUtil.getFolder(Data.Plugin_Mods_Path).mkdir()
     }
 
-    fun register() {
-        AsmCore.addPartialMethod("org/newdawn/slick/util/ResourceLoader" , arrayOf("<clinit>","()V")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
+    override fun register() {
+        redirect("org/newdawn/slick/util/ResourceLoader" , arrayOf("<clinit>","()V")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
             val classIn = obj as Class<*>
             val classLoader = classIn.classLoader
 
@@ -56,44 +65,44 @@ class FileLoaderRedirections : MainRedirections {
             list.add(SilckClassPathProperties.ClasspathLocation.toClass(classLoader)!!.accessibleConstructor().newInstance())
             list.add(SilckClassPathProperties.FileSystemLocation.toClass(classLoader)!!.accessibleConstructor(File::class.java).newInstance(fileSystemLocation))
             resourceLoader.findField("locations")!!.set(null,list)
-            return@addPartialMethod null
+            return@redirect null
         }
 
         // 重定向部分文件系统 (mods maps replay)
         val filePath = FileUtil.getPath(Data.Plugin_Data_Path)+"/"
         // 设置 重定向文件PATH类
-        AsmCore.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("f","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
+        redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("f","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             filePath
         }
-        AsmCore.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("b","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
+        redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("b","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             filePath
         }
 
         // 重定向资源文件系统 (Res FileSystem)
         val resAndAssetsPath = FileUtil.getPath(Data.Plugin_GameCore_Data_Path)+"/"
-        AsmCore.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("a","(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
+        redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("a","(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
             val listFiles: Seq<File> = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFolder(args[0].toString()).fileList
             for (file in listFiles) {
                 val name: String = FileName.getFileNameNoSuffix(file.name)
                 if (name == args[1]) {
-                    return@addPartialMethod "${resAndAssetsPath}${args[0]}/${file.name}"
+                    return@redirect "${resAndAssetsPath}${args[0]}/${file.name}"
                 }
             }
-            return@addPartialMethod null
+            return@redirect null
         }
 
         // 重定向资源文件系统 (Assets FileSystem)
-        AsmCore.addPartialMethod("android/content/res/AssetManager" , arrayOf("a","(Ljava/lang/String;I)Ljava/io/InputStream;")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
-            return@addPartialMethod FileInputStream("${resAndAssetsPath}assets/${args[0]}")
+        redirect("android/content/res/AssetManager" , arrayOf("a","(Ljava/lang/String;I)Ljava/io/InputStream;")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
+            return@redirect FileInputStream("${resAndAssetsPath}assets/${args[0]}")
         }
 
-        AsmCore.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("f","(Ljava/lang/String;)Ljava/lang/String;")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any> ->
+        redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("f","(Ljava/lang/String;)Ljava/lang/String;")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any> ->
             var d: String = (run_FileSystem(obj,"d",String::class.java).invoke(obj,args[0].toString()) as String).replace("\\","/")
 
             val path = args[0].toString().replace("\\","/")
             // 跳过已经绝对路径的
             if (path.contains(filePath)) {
-                return@addPartialMethod path
+                return@redirect path
             }
 
             /* 覆写 MOD 加载器路径 */
@@ -113,7 +122,7 @@ class FileLoaderRedirections : MainRedirections {
 
             val cc = ReflectionUtils.findField(Class.forName("com.corrodinggames.rts.gameFramework.l",true,obj::class.java.classLoader),"aU",Boolean::class.java)!!
 
-            return@addPartialMethod if (cc.get(null) as Boolean) {
+            return@redirect if (cc.get(null) as Boolean) {
                 if (d.startsWith("/SD/rusted_warfare_maps")) {
                     d = "/SD/mods/maps" + d.substring("/SD/rusted_warfare_maps".length)
                     //l.e(fileSystemAsm + "convertAbstractPath: Changing to:" + d)
@@ -146,7 +155,7 @@ class FileLoaderRedirections : MainRedirections {
         }
 
         // 重定向 流系统
-        AsmCore.addPartialMethod("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("i","(Ljava/lang/String;)Lcom/corrodinggames/rts/gameFramework/utility/j;")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any> ->
+        redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("i","(Ljava/lang/String;)Lcom/corrodinggames/rts/gameFramework/utility/j;")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any> ->
             var str = args[0].toString().replace(resAndAssetsPath,"").replace("\\","/")
 
             if (str.startsWith("assets/") || str.startsWith("assets\\")) {
@@ -154,7 +163,7 @@ class FileLoaderRedirections : MainRedirections {
             }
             val str2: String = str
             val str3 = resAndAssetsPath+"assets/"+str2
-            return@addPartialMethod  try {
+            return@redirect  try {
                 try {
                     findNewClass_AssetInputStream(obj,InputStream::class.java,String::class.java,String::class.java).newInstance(
                         // AssetManager

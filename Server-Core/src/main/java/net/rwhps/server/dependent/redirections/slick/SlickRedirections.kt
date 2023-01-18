@@ -15,15 +15,12 @@ import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.alone.annotations.NeedHelp
-import net.rwhps.server.util.inline.accessibleConstructor
-import net.rwhps.server.util.inline.findMethod
-import net.rwhps.server.util.inline.readAsClassBytes
-import net.rwhps.server.util.inline.toClass
+import net.rwhps.server.util.inline.*
 
 @NeedHelp
 @AsmMark.ClassLoaderCompatible
 class SlickRedirections : MainRedirections {
-    fun register() {
+    override fun register() {
         AsmCore.addPartialMethod("org/newdawn/slick/AppGameContainer" , arrayOf("start","()V"))
         redirect(AppGameContainerUpdate.DESC, AppGameContainerUpdate())
 

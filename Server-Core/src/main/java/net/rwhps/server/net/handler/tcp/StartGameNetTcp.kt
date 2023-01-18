@@ -20,6 +20,6 @@ internal class StartGameNetTcp : AbstractNet() {
         val pipeline = socketChannel.pipeline()
         addTimeOut(pipeline)
         addPacketDecoderAndEncoder(pipeline)
-        addNewServerHandler(pipeline)
+        addNewServerHandlerExecutorGroup(pipeline)
     }
 }

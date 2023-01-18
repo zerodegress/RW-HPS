@@ -55,13 +55,13 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     }
                 }
 
-                ctx.executor().execute {
+                //ctx.executor().execute {
                     try {
                         type.typeConnect(msg)
                     } catch (e: Exception) {
                         debug(e = e)
                     }
-                }
+                //}
             }
         } catch (ss: Exception) {
             error(ss)

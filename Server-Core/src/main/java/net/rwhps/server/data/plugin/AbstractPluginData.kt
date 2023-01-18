@@ -146,7 +146,7 @@ internal open class AbstractPluginData {
         try {
             DataOutputStream(getGzipOutputStream(fileUtil!!.writeByteOutputStream(false))).use { stream ->
                 stream.writeInt(pluginData.size)
-                for (entry in pluginData.entries()) {
+                for (entry in pluginData) {
                     stream.writeUTF(entry.key)
                     when (val value = entry.value.data!!) {
                         is Boolean -> {

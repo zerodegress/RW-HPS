@@ -12,6 +12,11 @@ package net.rwhps.server.struct
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectList
 import it.unimi.dsi.fastutil.objects.ObjectLists
+import net.rwhps.server.data.plugin.AbstractPluginData
+import net.rwhps.server.data.plugin.DefaultSerializers
+import net.rwhps.server.io.GameInputStream
+import net.rwhps.server.io.GameOutputStream
+import java.io.IOException
 
 /**
  * 可调整大小，有序的对象数组
@@ -184,6 +189,45 @@ class Seq<T>: MutableList<T> {
             @Suppress("UNCHECKED_CAST")
             override fun <K> toArray(classJava: Class<K>): Array<K> = list.toArray(java.lang.reflect.Array.newInstance(classJava, size) as Array<out K>)
 
+        }
+
+        /*
+         * serializer
+         */
+        val serializer = object : SerializerTypeAll.TypeSerializer<Seq<*>> {
+            @Throws(IOException::class)
+            override fun write(stream: GameOutputStream, objectData: Seq<*>) {
+                stream.writeInt(objectData.size)
+                if (objectData.size != 0) {
+                    val first = objectData.first()!!
+                    val ser = AbstractPluginData.getSerializer(first.javaClass) ?: throw DefaultSerializers.getError(first.javaClass.toString())
+                    stream.writeString(first.javaClass.name)
+                    for (element in objectData) {
+                        ser.write(stream, element)
+                    }
+                }
+            }
+
+            @Throws(IOException::class)
+            override fun read(stream: GameInputStream): Seq<*>? {
+                return try {
+                    val size = stream.readInt()
+                    val arr = Seq<Any>(size)
+                    if (size == 0) {
+                        return arr
+                    }
+                    val type = stream.readString()
+                    val ser = AbstractPluginData.getSerializer(DefaultSerializers.lookup(type)) ?: throw DefaultSerializers.getError(type)
+
+                    for (i in 0 until size) {
+                        arr.add(ser.read(stream))
+                    }
+                    arr
+                } catch (e: ClassNotFoundException) {
+                    e.printStackTrace()
+                    null
+                }
+            }
         }
     }
 }

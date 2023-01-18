@@ -9,6 +9,7 @@
 
 package net.rwhps.server.data.plugin
 
+import net.rwhps.server.custom.RCNBind
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -91,44 +92,8 @@ internal object DefaultSerializers {
     }
 
     private fun registerMap() {
-        AbstractPluginData.setSerializer(Seq::class.java, object : TypeSerializer<Seq<*>> {
-            @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Seq<*>) {
-                stream.writeInt(objectData.size)
-                if (objectData.size != 0) {
-                    val first = objectData.first()!!
-                    val ser = AbstractPluginData.getSerializer(first.javaClass) ?: throw getError(first.javaClass.toString())
-                    stream.writeString(first.javaClass.name)
-                    for (element in objectData) {
-                        ser.write(stream, element)
-                    }
-                }
-            }
+        AbstractPluginData.setSerializer(Seq::class.java, Seq.serializer)
 
-            @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Seq<*>? {
-                 return try {
-                    val size = stream.readInt()
-                    val arr = Seq<Any>(size)
-                    if (size == 0) {
-                        return arr
-                    }
-                    val type = stream.readString()
-                    val ser = AbstractPluginData.getSerializer(lookup(type))
-                     requireNotNull(ser) {
-                         "$type does not have a serializer registered!"
-                     }
-
-                     for (i in 0 until size) {
-                        arr.add(ser.read(stream))
-                    }
-                    arr
-                } catch (e: ClassNotFoundException) {
-                    e.printStackTrace()
-                    null
-                }
-            }
-        })
         AbstractPluginData.setSerializer(ObjectMap::class.java, object : TypeSerializer<ObjectMap<*, *>> {
             @Throws(IOException::class)
             override fun write(stream: GameOutputStream, map: ObjectMap<*, *>) {
@@ -255,10 +220,11 @@ internal object DefaultSerializers {
 
         AbstractPluginData.setSerializer(Packet::class.java, Packet.serializer)
         AbstractPluginData.setSerializer(NetConnectProofOfWork::class.java, NetConnectProofOfWork.serializer)
+        AbstractPluginData.setSerializer(RCNBind.BindData::class.java, RCNBind.serializer)
     }
 
     @Throws(ClassNotFoundException::class)
-    private fun lookup(name: String): Class<*> {
+    fun lookup(name: String): Class<*> {
         return Class.forName(name)
     }
 

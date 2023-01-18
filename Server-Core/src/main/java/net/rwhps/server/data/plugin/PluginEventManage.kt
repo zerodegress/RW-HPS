@@ -40,6 +40,10 @@ internal class PluginEventManage {
             /* Sync */
             Events.on(PlayerJoinEvent::class.java) { e: PlayerJoinEvent ->
                 pluginEventData.eachAll { p: AbstractEvent ->
+                    // 当前一个断开了链接 那么没必要执行后面的事件
+                    if (e.player.con == null) {
+                        return@eachAll
+                    }
                     p.registerPlayerJoinEvent(e.player)
                 }
             }
@@ -124,8 +128,10 @@ internal class PluginEventManage {
 
         private fun registerGlobalEventAll() {
             /* Sync */
-            Events.on(GameLibLoadEvent::class.java) { _: GameLibLoadEvent ->
-                pluginGlobalEventData.eachAll(AbstractGlobalEvent::registerGameLibLoadEvent)
+            Events.on(GameLibLoadEvent::class.java) { e: GameLibLoadEvent ->
+                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
+                    obj.registerGameLibLoadEvent(e.loadID)
+                }
             }
 
             /* Sync */

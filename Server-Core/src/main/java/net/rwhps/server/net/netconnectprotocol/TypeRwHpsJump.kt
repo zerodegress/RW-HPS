@@ -15,10 +15,10 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
-import net.rwhps.server.util.ExtractUtil
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.Time.concurrentSecond
+import net.rwhps.server.util.inline.toStringHex
 import net.rwhps.server.util.log.Log
 
 /**
@@ -89,7 +89,7 @@ open class TypeRwHpsJump : TypeConnect {
                 else -> {
                     Log.warn("[Unknown Package]", """
                         Type : ${packet.type} Length : ${packet.bytes.size}
-                        Hex : ${ExtractUtil.bytesToHex(packet.bytes)}
+                        Hex : ${packet.bytes.toStringHex()}
                     """.trimIndent())
                 }
             }

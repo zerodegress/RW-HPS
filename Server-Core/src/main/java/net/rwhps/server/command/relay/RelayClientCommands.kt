@@ -11,10 +11,15 @@ package net.rwhps.server.command.relay
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.io.GameOutputStream
+import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.CommandHandler
 
@@ -57,6 +62,27 @@ internal class RelayClientCommands(handler: CommandHandler) {
             } else {
                 sendMsg(con,"You Is ADMIN !")
             }
+        }
+
+        handler.register("sync", "#SYNC-Test") { _: Array<String>, con: GameVersionRelay ->
+            val p = GameOutputStream().apply {
+                writeByte(0)
+                writeInt(0)
+                writeInt(0)
+                writeBoolean(true)
+                writeLong(0)
+                writeLong(0)
+                flushEncodeData(CompressOutputStream.getGzipOutputStream("checkList",false).apply {
+                    writeInt(0)
+                    writeInt(15) // checkSumSize!=syncCheckList.size()
+                    for (i in 0 until 15) {
+                        writeLong(0)
+                        writeLong(0)
+                    }
+                })
+                writeBoolean(true)
+            }
+            con.sendResultPing(p.createPacket(PacketType.SYNCCHECKSUM_STATUS))
         }
 
         handler.register("kickx","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->

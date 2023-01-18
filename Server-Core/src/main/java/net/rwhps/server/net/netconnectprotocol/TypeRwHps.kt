@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -15,10 +15,10 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
-import net.rwhps.server.util.ExtractUtil
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.Time.concurrentSecond
+import net.rwhps.server.util.inline.toStringHex
 import net.rwhps.server.util.log.Log
 
 /**
@@ -55,8 +55,6 @@ open class TypeRwHps : TypeConnect {
     override fun typeConnect(packet: Packet) {
         con.lastReceivedTime()
 
-        //Log.debug(packet.type,ExtractUtil.bytesToHex(packet.bytes))
-
         if (packet.type == PacketType.GAMECOMMAND_RECEIVE) {
             con.receiveCommand(packet)
             con.player.lastMoveTime = concurrentSecond()
@@ -72,7 +70,11 @@ open class TypeRwHps : TypeConnect {
                 }
                 PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
                 PacketType.DISCONNECT -> con.disconnect()
-                PacketType.ACCEPT_START_GAME -> if (Data.game.isStartGame) con.player.start = true
+                PacketType.ACCEPT_START_GAME -> {
+                    if (Data.game.isStartGame) {
+                        con.player.start = true
+                    }
+                }
                 PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
 
                 PacketType.SYNCCHECKSUM_STATUS -> con.receiveCheckPacket(packet)
@@ -87,7 +89,7 @@ open class TypeRwHps : TypeConnect {
                 else -> {
                     Log.warn("[Unknown Package]", """
                         Type : ${packet.type} Length : ${packet.bytes.size}
-                        Hex : ${ExtractUtil.bytesToHex(packet.bytes)}
+                        Hex : ${packet.bytes.toStringHex()}
                     """.trimIndent())
                 }
             }

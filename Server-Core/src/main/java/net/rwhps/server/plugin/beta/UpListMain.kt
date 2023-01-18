@@ -1,13 +1,13 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
- *  
+ * Copyright 2020-2023 RW-HPS Team and contributors.
+ *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.plugin.beta.uplist
+package net.rwhps.server.plugin.beta
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
  * V5开始将不会进行较大版本更新 一切由 [-4] 错误码 解决
  * @author RW-HPS/Dr
  */
-internal class UpList : Plugin() {
+internal class UpListMain : Plugin() {
     private val version = "Version=HPS#1"
     private val privateIp: String
         get() {

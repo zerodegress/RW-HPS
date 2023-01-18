@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -46,6 +46,9 @@ import java.util.stream.IntStream
  * @author RW-HPS/Dr
  */
 class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : GameVersionRelay(connectionAgreement) {
+    // last Unwrapped Or Normal Packet From Server
+    @Volatile
+    //@get:Synchronized
     private lateinit var lastSentPacket: Packet
 
     override val version: String
@@ -136,8 +139,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
 
                 if (abstractNetConnect != null) {
                     val sendPacketData = Packet(type, bytes)
-                    lastSentPacket = sendPacketData
                     abstractNetConnect.sendPacket(sendPacketData)
+                    lastSentPacket = sendPacketData
                 }
 
                 when (type) {

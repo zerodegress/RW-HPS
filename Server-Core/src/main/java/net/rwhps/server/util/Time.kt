@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -18,11 +18,11 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 object Time {
-    /** 高并发下的效率提升  */
+    /** Efficiency improvement under high concurrency  */
     private val INSTANCE = CurrentTimeMillisClock()
 
     /**
-     * @return 系统计时器的当前值，以纳秒为单位.
+     * @return The current value of the system timer in nanoseconds.
      */
     @JvmStatic
     fun nanos(): Long {
@@ -30,7 +30,7 @@ object Time {
     }
 
     /**
-     * @return 当前时间与1970年1月1日午夜之间的差值（以毫秒为单位）.
+     * @return The difference, in milliseconds, between the current time and midnight on January 1, 1970.
      */
     @JvmStatic
     fun millis(): Long {
@@ -38,7 +38,7 @@ object Time {
     }
 
     /**
-     * @return 当前时间与1970年1月1日午夜之间的差值（以毫秒为单位）.
+     * @return The difference, in milliseconds, between the current time and midnight on January 1, 1970.
      */
     @JvmStatic
     fun concurrentMillis(): Long {
@@ -46,7 +46,7 @@ object Time {
     }
 
     /**
-     * @return 当前时间与1970年1月1日午夜之间的差值（以秒为单位）.
+     * @return The difference, in seconds, between the current time and midnight on January 1, 1970.
      */
     @JvmStatic
     fun concurrentSecond(): Int {
@@ -54,9 +54,10 @@ object Time {
     }
 
     /**
-     * 获取自上次以来经过的纳秒数
-     * @param prevTime - 必须是纳秒
-     * @return - 自prevTime以来经过的时间（以纳秒为单位）
+     * Gets the number of nanoseconds elapsed since the last
+     *
+     * @param prevTime - must be nanoseconds
+     * @return - Elapsed time in nanoseconds since [prevTime]
      */
     @JvmStatic
     fun getTimeSinceNanos(prevTime: Long): Long {
@@ -64,9 +65,10 @@ object Time {
     }
 
     /**
-     * 获取自上次以来经过的毫秒数
-     * @param prevTime - 必须是毫秒
-     * @return - 自prevTime以来经过的时间（以毫秒为单位）
+     * Get the number of milliseconds elapsed since the last
+     *
+     * @param prevTime - must be milliseconds
+     * @return - Elapsed time in milliseconds since [prevTime]
      */
     @JvmStatic
     fun getTimeSinceMillis(prevTime: Long): Long {
@@ -89,7 +91,7 @@ object Time {
     }
 
     /**
-     * 获取JDK当前时间
+     * Get JDK current time
      */
     @JvmStatic
     val utcMillis: Long

@@ -1,6 +1,6 @@
 # RW-HPS 最终用户许可协议
 
-### 修改 ©2022 RW-HPS.Team <RW-HPS@der.kim>
+### 修改 ©2023 RW-HPS.Team <RW-HPS@der.kim>
 ### 版权所有 © 2022 James Clef <qwq233@qwq2333.top, qwq2333.top>
 
 ## 正文
@@ -116,6 +116,7 @@
       2. 为了列表的健康, 当您使用本作品时, 请合理使用 [UPList] 功能
    2. 游戏协议实现 :
       1. 协议版权 均受 RW-HPS-Simulation 许可证约束 (https://github.com/RW-HPS/RW-HPS/tree/master/Server-Core/src/main/java/cn/rwhps/server/game/LICENSE)
+      2. 游戏 `Headless` 实现均保持在 `STEAM` 源码一致性, 不提供任何修改
 
 #### 5. 免责声明：
    1. 您在下载并使用本作品时均被视为已经仔细阅读本协议并完全同意。凡以任何方式使用本作品，或直接、间接使用本作品，均被视为自愿接受相关声明和用户服务协议的约束。

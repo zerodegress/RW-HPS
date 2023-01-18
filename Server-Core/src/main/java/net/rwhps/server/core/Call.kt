@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -13,11 +13,11 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newCountdown
 import net.rwhps.server.core.thread.TimeTaskData
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.event.EventType.GameOverEvent
-import net.rwhps.server.game.simulation.gameFramework.GameData
 import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Time
@@ -121,7 +121,7 @@ object Call {
      */
     @JvmStatic
     fun sendCheckData() {
-        NetStaticData.groupNet.broadcast(GameData.getGameCheck())
+        NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameData.getGameCheck())
     }
 
     @JvmStatic
@@ -132,7 +132,7 @@ object Call {
             if (displayInformation) {
                 sendSystemMessage("同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             }
-            NetStaticData.groupNet.broadcast(GameData.getGameData())
+            NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameData.getGameData())
         } catch (e: Exception) {
             error("[Player] Send GameSave ReConnect Error", e)
         } finally {
@@ -172,7 +172,7 @@ object Call {
     @JvmStatic
     fun testPreparationPlayer() {
         val timer = Timer()
-        timer.schedule(RandyTask(timer), 200, 200)
+        timer.schedule(RandyTask(timer), 500, 500)
     }
 
     /**
@@ -263,24 +263,6 @@ object Call {
                 }
                 Data.game.playerManage.updateControlIdentifier()
             }
-
-            /*
-            Threads.newTimedTask(CallTimeTask.TestStatus,0,5,TimeUnit.SECONDS) {
-                Data.game.playerManage.runPlayerArrayDataRunnable(true) {
-                    if (it == null) {
-                        return@runPlayerArrayDataRunnable
-                    }
-                    try {
-                        Log.clog("Name: ${it.name}")
-                        Log.clog("credits: ${it.credits}")
-                        Log.clog("survive: ${it.survive}")
-                        Log.clog("unitsKilled: ${it.unitsKilled}")
-                        Log.clog("buildingsKilled: ${it.buildingsKilled}")
-                    } catch (e: Exception) {
-                        Log.error(e)
-                    }
-                }
-            }*/
         }
 
         override fun run() {

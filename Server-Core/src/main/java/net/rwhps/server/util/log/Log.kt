@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -31,12 +31,12 @@ object Log {
     private val LOG_CACHE = StringBuilder()
 
     @JvmStatic
-	fun set(log: String) {
+    fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()
     }
 
     @JvmStatic
-	fun setCopyPrint(system: Boolean) {
+    fun setCopyPrint(system: Boolean) {
         logPrint =
             if (system) {
                 { error:Boolean, text: String ->
@@ -59,7 +59,7 @@ object Log {
     }
 
     @JvmStatic
-	val logCache: String
+    val logCache: String
         get() {
             val result = LOG_CACHE.toString()
             LOG_CACHE.delete(0, LOG_CACHE.length)
@@ -110,7 +110,7 @@ object Log {
     }
 
     @JvmStatic
-	fun error(tag: Any, e: Any) {
+    fun error(tag: Any, e: Any) {
         logs(6, tag, e)
     }
 
@@ -127,7 +127,7 @@ object Log {
         logs(5, "WARN", e)
     }
     @JvmStatic
-	fun warn(tag: Any, e: Any) {
+    fun warn(tag: Any, e: Any) {
         logs(5, tag, e)
     }
 
@@ -144,7 +144,7 @@ object Log {
         logs(4, "INFO", e)
     }
     @JvmStatic
-	fun info(tag: Any, e: Any) {
+    fun info(tag: Any, e: Any) {
         logs(4, tag, e)
     }
 
@@ -161,7 +161,7 @@ object Log {
         logs(3, "DEBUG", e)
     }
     @JvmStatic
-	fun debug(tag: Any, e: Any) {
+    fun debug(tag: Any, e: Any) {
         logs(3, tag, e)
     }
 
@@ -198,7 +198,7 @@ object Log {
     }
 
     @JvmStatic
-	fun clog(text: String, vararg obj: Any?) {
+    fun clog(text: String, vararg obj: Any?) {
         clog(MessageFormat(text).format(obj))
     }
 
@@ -282,7 +282,7 @@ object Log {
     private enum class Logg(private val logg: Int) {
         /* Log level defaults to WARN */
         /* ALL during development */
-        OFF(8), FATAL(7), ERROR(6), WARN(5), INFO(4), DEBUG(3), TRACE(2), ALL(1);
+        OFF(8), FATAL(7), ERROR(6), WARN(5), INFO(4), DEBUG(3), TRACK(2), ALL(1);
 
         open fun getLogg(): Int {
             return logg

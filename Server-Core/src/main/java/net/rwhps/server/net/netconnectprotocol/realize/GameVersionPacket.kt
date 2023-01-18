@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -21,20 +21,13 @@ import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.AbstractNetPacket
 import net.rwhps.server.net.netconnectprotocol.internal.server.*
-import net.rwhps.server.net.netconnectprotocol.internal.server.chatMessagePacketInternal
-import net.rwhps.server.net.netconnectprotocol.internal.server.gameTickCommandPacketInternal
-import net.rwhps.server.net.netconnectprotocol.internal.server.gameTickCommandsPacketInternal
-import net.rwhps.server.net.netconnectprotocol.internal.server.gameTickPacketInternal
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
-import net.rwhps.server.util.encryption.Game
-import net.rwhps.server.util.encryption.digest.DigestUtil
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
-import java.math.BigInteger
 
 /**
  * Provides support for most common packages for the server

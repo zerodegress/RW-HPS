@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *  
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -38,7 +38,6 @@ import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
 import net.rwhps.server.data.base.BaseConfig
 import net.rwhps.server.data.base.BaseRelayPublishConfig
-import net.rwhps.server.data.base.BaseTestConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.data.plugin.PluginManage
@@ -104,8 +103,6 @@ object Main {
         System.setProperty("java.net.preferIPv4Stack","true")
         // F U C K Termux
         System.setProperty("java.awt.headless","true")
-        // F U C K UTF-8
-        System.setProperty("file.encoding","UTF-8")
 
         Initialization()
 
@@ -115,7 +112,6 @@ object Main {
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
         Data.config = BaseConfig.stringToClass()
-        Data.configTest = BaseTestConfig.stringToClass()
 
         Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
 
@@ -154,7 +150,7 @@ object Main {
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage("start", StrCons { obj: String -> clog(obj) })
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {
                 clog("Please check the command , Unable to use StartCommand inside Config to start the server")
@@ -176,7 +172,6 @@ object Main {
         val terminal = TerminalBuilder.builder().encoding("UTF-8").build()
         reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
-        //val bakOut = System.out
         System.setErr(MyPrintStream {
             Log.debug(it)
         })

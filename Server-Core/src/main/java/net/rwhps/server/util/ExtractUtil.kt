@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,6 +10,7 @@
 package net.rwhps.server.util
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.util.log.Log
 import java.nio.charset.Charset
 
 
@@ -126,11 +127,6 @@ object ExtractUtil {
     }
 
     @JvmStatic
-    fun bytesToHex(byte: Byte): String {
-        return bytesToHex(byteArrayOf(byte))
-    }
-
-    @JvmStatic
 	fun bytesToHex(bytes: ByteArray): String {
         val sb = StringBuffer()
         for (aByte in bytes) {
@@ -141,5 +137,13 @@ object ExtractUtil {
             sb.append(hex).append(" ")
         }
         return sb.toString()
+    }
+
+    fun tryRunTest(run: ()->Unit) {
+        try {
+            run()
+        } catch (e: Exception) {
+            Log.error(e)
+        }
     }
 }

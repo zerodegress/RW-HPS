@@ -1,12 +1,12 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.dependent.LibraryManager
-import net.rwhps.server.game.simulation.gameFramework.GameData
 import net.rwhps.server.net.HttpRequestOkHttp
+import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
+import java.lang.reflect.Method
 
 /**
  * 游戏 资源文件 初始化
@@ -15,33 +15,21 @@ import net.rwhps.server.util.log.Log
  */
 object GameStartInit {
     /** Res的MD5 */
-    private val resMd5 = "6d61d95d9fd7ef679d0013efad1466de"
+    private const val resMd5 = "6d61d95d9fd7ef679d0013efad1466de"
     /** Assets的MD5 */
-    private val assetsMd5 = "b594e7e8d2a0ad925c8ac0e00edbdbad"
+    private const val assetsMd5 = "b594e7e8d2a0ad925c8ac0e00edbdbad"
 
-    fun init(): Boolean {
+    fun init(load: GameModularLoadClass): Boolean {
         try {
             // 清除无用缓存
-            GameData.cleanCache()
+            FileUtil.getFolder(Data.Plugin_Cache_Path).delete()
 
             // 加载游戏依赖
-            val gameCoreLibs = FileUtil.getFolder(Data.Plugin_GameCore_Lib_Path,true)
             CompressionDecoderUtils.zipStream(GameStartInit::class.java.getResourceAsStream("/libs.zip")!!).use {
-                it.getSpecifiedSuffixInThePackage("jar",true).each { k, v ->
-                    gameCoreLibs.toFile(k).run {
-                        if (!exists()) {
-                            writeFileByte(v,true)
-                        }
-                    }
+                it.getSpecifiedSuffixInThePackage("jar",true).each { _, v ->
+                    load.addSourceJar(v)
                 }
             }
-
-            // 加载jar
-            val libMg = LibraryManager()
-            gameCoreLibs.fileList.eachAll {
-                libMg.customImportLib(it)
-            }
-            libMg.loadToClassLoader()
 
 
             val resFile = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("Game-Res.zip")
@@ -83,5 +71,11 @@ object GameStartInit {
             return false
         }
         return true
+    }
+
+    fun start(load: GameModularLoadClass) {
+        val testAClass: Class<*> = load.findClass("com.corrodinggames.rts.java.Main")!!
+        val mainMethod: Method = testAClass.getDeclaredMethod("main", Array<String>::class.java)
+        mainMethod.invoke(null, arrayOf("-disable_vbos","-disable_atlas","-nomusic","-nosound","-nodisplay"))
     }
 }

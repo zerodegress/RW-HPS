@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -14,13 +14,14 @@ import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelPipeline
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
+import io.netty.util.concurrent.DefaultEventExecutorGroup
 import io.netty.util.concurrent.EventExecutorGroup
 import net.rwhps.server.net.code.tcp.PacketDecoder
 import net.rwhps.server.net.code.tcp.PacketEncoder
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 import net.rwhps.server.net.handler.tcp.NewServerHandler
 import net.rwhps.server.util.log.exp.ImplementedException
-import net.rwhps.server.util.threads.GetNewThreadPool.getEventLoopGroup
+import net.rwhps.server.util.threads.ThreadFactoryName
 import java.util.concurrent.TimeUnit
 
 /**
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit
 open class AbstractNet : ChannelInitializer<SocketChannel>() {
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger()
     private var newServerHandler: NewServerHandler = NewServerHandler()
-    private val ioGroup: EventExecutorGroup = getEventLoopGroup(32)
+    private val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(64, ThreadFactoryName.nameThreadFactory("IO-Group"))
 
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {

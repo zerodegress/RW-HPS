@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -20,6 +20,7 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil.isNumeric
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.Time.concurrentSecond
+import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import java.io.IOException
 import java.util.*
@@ -191,14 +192,11 @@ class Relay {
         size.decrementAndGet()
     }
 
-    fun getRandAdmin(): GameVersionRelay? {
-        return if (abstractNetConnectIntMap.isEmpty()) null else abstractNetConnectIntMap.toArrayValues().random()
-    }
-
     fun updateMinSize() {
         try {
-            minSize = abstractNetConnectIntMap.toArrayKey().toArray(Int::class.java).min()
-        } catch (_: Exception) {
+            minSize = abstractNetConnectIntMap.toArrayKey().toIntArray().min()
+        } catch (e: Exception) {
+            Log.error("[RELAY updateMinSize]",e)
         }
     }
 

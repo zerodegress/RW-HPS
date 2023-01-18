@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -91,44 +91,8 @@ internal object DefaultSerializers {
     }
 
     private fun registerMap() {
-        AbstractPluginData.setSerializer(Seq::class.java, object : TypeSerializer<Seq<*>> {
-            @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Seq<*>) {
-                stream.writeInt(objectData.size)
-                if (objectData.size != 0) {
-                    val first = objectData.first()!!
-                    val ser = AbstractPluginData.getSerializer(first.javaClass) ?: throw getError(first.javaClass.toString())
-                    stream.writeString(first.javaClass.name)
-                    for (element in objectData) {
-                        ser.write(stream, element)
-                    }
-                }
-            }
+        AbstractPluginData.setSerializer(Seq::class.java, Seq.serializer)
 
-            @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Seq<*>? {
-                 return try {
-                    val size = stream.readInt()
-                    val arr = Seq<Any>(size)
-                    if (size == 0) {
-                        return arr
-                    }
-                    val type = stream.readString()
-                    val ser = AbstractPluginData.getSerializer(lookup(type))
-                     requireNotNull(ser) {
-                         "$type does not have a serializer registered!"
-                     }
-
-                     for (i in 0 until size) {
-                        arr.add(ser.read(stream))
-                    }
-                    arr
-                } catch (e: ClassNotFoundException) {
-                    e.printStackTrace()
-                    null
-                }
-            }
-        })
         AbstractPluginData.setSerializer(ObjectMap::class.java, object : TypeSerializer<ObjectMap<*, *>> {
             @Throws(IOException::class)
             override fun write(stream: GameOutputStream, map: ObjectMap<*, *>) {
@@ -258,7 +222,7 @@ internal object DefaultSerializers {
     }
 
     @Throws(ClassNotFoundException::class)
-    private fun lookup(name: String): Class<*> {
+    fun lookup(name: String): Class<*> {
         return Class.forName(name)
     }
 

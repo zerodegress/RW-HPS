@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 RW-HPS Team and contributors.
+ * Copyright 2020-2023 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -415,7 +415,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         try {
             GameInputStream(packet).use { inStream ->
                 val out = GameOutputStream()
-                //out.writeBytes(inStream.readNBytes(8))
                 out.transferToFixedLength(inStream,8)
                 out.writeByte(1)
                 out.writeByte(60)
@@ -465,7 +464,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeByte(0)
                 o.writeInt(site)
                 o.writeString(registerPlayerId!!)
-                o.writeBoolean(false)
+                o.writeIsString(registerPlayerId!!)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
             }
 
@@ -516,8 +515,14 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     kick("您被这个房间BAN了 请稍等一段时间 或者换一个房间")
                     return
                 }
-                if (relay!!.admin!!.relayKickData.containsKey("KICK$registerPlayerId")) {
-                    if (relay!!.admin!!.relayKickData["KICK$registerPlayerId"] > Time.concurrentSecond()) {
+
+                var time: Int? = relay!!.admin!!.relayKickData["KICK$registerPlayerId"]
+                if (time == null) {
+                    time = relay!!.admin!!.relayKickData["KICK${connectionAgreement.ipLong24}"]
+                }
+
+                if (time != null) {
+                    if (time > Time.concurrentSecond()) {
                         kick("您被这个房间踢出了 请稍等一段时间 或者换一个房间")
                         return
                     } else {
@@ -547,7 +552,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeByte(0)
                 o.writeInt(site)
                 o.writeString(registerPlayerId!!)
-                o.writeBoolean(false)
+                o.writeIsString(registerPlayerId!!)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
             }
             relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
@@ -661,7 +666,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             if (this !== relay!!.admin) {
                 relay!!.removeAbstractNetConnect(site)
                 try {
-                    relay!!.updateMinSize()
                     sendResultPing(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
                 } catch (e: IOException) {
                     error("[Relay disconnect] Send Exited", e)
@@ -844,6 +848,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     private fun adminMoveNew() {
+        // 更新最小玩家
         relay!!.updateMinSize()
         relay!!.getAbstractNetConnect(relay!!.minSize)!!.sendRelayServerId()
         relay!!.abstractNetConnectIntMap.values.forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
@@ -923,9 +928,9 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     private data class CustomRelayData(
-        var MaxPlayerSize: Int   = -1,
-        var MaxUnitSizt:   Int   = 200,
-        var Income:        Float = 1f
+        var MaxPlayerSize: Int = -1,
+        var MaxUnitSizt: Int = 200,
+        var Income: Float = 1f,
     )
 
 }

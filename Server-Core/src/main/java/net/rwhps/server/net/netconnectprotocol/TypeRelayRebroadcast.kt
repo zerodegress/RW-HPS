@@ -107,6 +107,8 @@ class TypeRelayRebroadcast : TypeRelay {
                 con.sendResultPing(packet)
             }
 
+            PacketType.DISCONNECT -> con.disconnect()
+
             else -> {
                 when (packet.type) {
                     PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
@@ -115,10 +117,14 @@ class TypeRelayRebroadcast : TypeRelay {
                         con.relay!!.isStartGame = true
                         con.sendResultPing(packet)
                     }
-                    PacketType.DISCONNECT -> con.disconnect()
+
                     PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                     PacketType.GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
-                    else -> con.sendResultPing(packet)
+                    else -> {
+                        if (permissionStatus != RelayStatus.HostPermission) {
+                            con.sendResultPing(packet)
+                        }
+                    }
                 }
             }
         }

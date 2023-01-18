@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.plugin.beta.uplist
+package net.rwhps.server.plugin.beta
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
  * V5开始将不会进行较大版本更新 一切由 [-4] 错误码 解决
  * @author RW-HPS/Dr
  */
-internal class UpList : Plugin() {
+internal class UpListMain : Plugin() {
     private val version = "Version=HPS#1"
     private val privateIp: String
         get() {

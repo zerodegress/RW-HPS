@@ -1,6 +1,6 @@
 package net.rwhps.server.plugin.beta.httpapi.handlers.get
 
-import net.rwhps.server.data.mods.ModManage
+import net.rwhps.server.data.ModManage
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.plugin.beta.httpapi.handlers.BaseGetHandler

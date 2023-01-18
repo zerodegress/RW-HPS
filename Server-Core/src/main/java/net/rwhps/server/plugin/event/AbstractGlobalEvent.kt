@@ -14,7 +14,7 @@ import net.rwhps.server.net.core.IRwHps
 
 interface AbstractGlobalEvent {
     /** 游戏核心初始化完毕 [同步-Sync]  */
-    fun registerGameLibLoadEvent() { /* Optional use of plugins */ }
+    fun registerGameLibLoadEvent(loadID: String) { /* Optional use of plugins */ }
 
     /** 服务器初始化 [同步-Sync]  */
     fun registerServerLoadEvent() { /* Optional use of plugins */ }

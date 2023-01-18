@@ -10,7 +10,7 @@
 package net.rwhps.server.dependent.redirections.slick
 
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
-import net.rwhps.server.util.compression.core.CompressionDecoder
+import net.rwhps.server.struct.OrderedMap
 import org.newdawn.slick.util.ResourceLocation
 import java.io.InputStream
 import java.net.URL
@@ -23,10 +23,9 @@ import java.net.URL
  * @constructor
  * @author RW-HPS/Dr
  */
-class ZipFileSystemLocation(private val compressionDecoder: CompressionDecoder) : ResourceLocation {
-    val a = compressionDecoder.getZipAllBytes()
+class ZipFileSystemLocation(private val data: OrderedMap<String, ByteArray>) : ResourceLocation {
     override fun getResourceAsStream(ref: String): InputStream? {
-        return a.get(ref)?.let { DisableSyncByteArrayInputStream(it) }
+        return data.get(ref)?.let { DisableSyncByteArrayInputStream(it) }
     }
 
     override fun getResource(ref: String?): URL? {

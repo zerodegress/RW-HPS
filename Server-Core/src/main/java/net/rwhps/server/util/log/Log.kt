@@ -233,7 +233,7 @@ object Log {
     }
 
     private fun logs(i: Int, tag: Any, e: Any, error: Boolean = false) {
-        if (this.LOG_GRADE > i) {
+        if (this.LOG_GRADE > i && !error) {
             return
         }
         val sb = StringBuilder()

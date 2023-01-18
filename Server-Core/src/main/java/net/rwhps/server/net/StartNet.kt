@@ -81,7 +81,7 @@ class StartNet {
      */
     fun openPort(port: Int,startPort:Int,endPort:Int) {
         clog(Data.i18NBundle.getinput("server.start.open"))
-        val bossGroup: EventLoopGroup = getEventLoopGroup(4)
+        val bossGroup: EventLoopGroup = getEventLoopGroup()
         val workerGroup: EventLoopGroup = getEventLoopGroup()
         val runClass: Class<out ServerChannel>
 

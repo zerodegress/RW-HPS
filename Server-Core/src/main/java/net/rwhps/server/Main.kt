@@ -33,7 +33,6 @@ package net.rwhps.server
 
 import net.rwhps.server.command.CoreCommands
 import net.rwhps.server.command.LogCommands
-import net.rwhps.server.core.Core
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
@@ -56,15 +55,7 @@ import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import net.rwhps.server.game.simulation.GameHeadlessEvent
 import net.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import net.rwhps.server.io.ConsoleStream
-import net.rwhps.server.net.StartNet
-import net.rwhps.server.net.api.WebGetRelayInfo
-import net.rwhps.server.net.api.WebPostRelayCommands
-import net.rwhps.server.net.api.WebPostRelayHttp
-import net.rwhps.server.net.handler.tcp.StartHttp
-import net.rwhps.server.net.http.WebData
-import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.encryption.Base64.decodeString
-import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.file.FileUtil.Companion.setFilePath
 import net.rwhps.server.util.game.CommandHandler
@@ -80,10 +71,8 @@ import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.InterruptedIOException
 import java.io.PrintStream
-import java.net.Socket
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess

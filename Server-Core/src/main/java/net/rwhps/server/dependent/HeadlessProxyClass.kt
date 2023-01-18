@@ -23,7 +23,6 @@ import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.inline.findMethod
-import net.rwhps.server.util.inline.readAsClassBytes
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
 import java.io.File

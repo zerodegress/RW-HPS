@@ -9,9 +9,7 @@
 
 package net.rwhps.server.plugin.beta
 
-import net.rwhps.server.core.NetServer
 import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.GameStartInit
 import net.rwhps.server.plugin.Plugin

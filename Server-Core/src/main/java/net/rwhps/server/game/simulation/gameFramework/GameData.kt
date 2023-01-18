@@ -22,7 +22,6 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.WaitResultUtil
-import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
 import com.corrodinggames.rts.gameFramework.j.`as` as GameNetOutStream

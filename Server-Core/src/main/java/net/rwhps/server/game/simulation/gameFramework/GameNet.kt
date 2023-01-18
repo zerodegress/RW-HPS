@@ -11,7 +11,6 @@ package net.rwhps.server.game.simulation.gameFramework
 
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.c
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.simulation.core.AbstractGameNet
 import net.rwhps.server.util.log.Log
 import java.io.IOException

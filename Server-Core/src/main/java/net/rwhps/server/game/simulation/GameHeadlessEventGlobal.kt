@@ -18,12 +18,7 @@ import net.rwhps.server.game.GameStartInit
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.util.GameModularLoadClass
-import net.rwhps.server.util.file.FileUtil
-import net.rwhps.server.util.inline.findMethod
-import net.rwhps.server.util.inline.readAsClassBytes
 import net.rwhps.server.util.log.Log
-import java.io.File
-import java.lang.reflect.Method
 
 class GameHeadlessEventGlobal : AbstractGlobalEvent {
     var newGameInit = false

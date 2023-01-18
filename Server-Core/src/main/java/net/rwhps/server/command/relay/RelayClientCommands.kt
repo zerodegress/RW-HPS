@@ -11,7 +11,6 @@ package net.rwhps.server.command.relay
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -19,7 +18,6 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAn
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.CommandHandler
 

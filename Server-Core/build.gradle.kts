@@ -1,17 +1,14 @@
 //Netty Version
-val nettyVersion = "4.1.85.Final"
+val nettyVersion = "4.1.86.Final"
 
 /**
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")
+	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
 
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
-
-	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
-	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
 
 	api("io.netty:netty-buffer:$nettyVersion")
 	api("io.netty:netty-codec:$nettyVersion")
@@ -21,16 +18,10 @@ dependencies {
 	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
 	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
 
-	//api fileTree(dir:"libs",include:["ChainMarket-23fc7f989f.jar"])
-	//api fileTree(dir:"libs",include:["ChainMarket-23fc7f989f.jar"])
-	implementation(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
-	implementation(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
-	implementation(fileTree(mapOf("dir" to "libs", "include" to "lwjgl.jar")))
-	//implementation(fileTree(mapOf("dir" to "libs", "include" to "*.jar")))
+	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
+	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
 
 	api("com.github.deng-rui:RUDP:2.0.0")
-	//implementation(fileTree(mapOf("dir" to "libs", "include" to "RUDP.jar")))
-	//api("com.github.jmecn:TMXLoader:v0.2")
 
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖

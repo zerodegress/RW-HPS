@@ -17,7 +17,6 @@ import net.rwhps.server.util.ReflectionUtils
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
-import kotlin.jvm.Throws
 
 /**
  * Reflection

@@ -9,7 +9,6 @@
 
 package net.rwhps.server.data.plugin
 
-import net.rwhps.server.custom.RCNBind
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -220,7 +219,6 @@ internal object DefaultSerializers {
 
         AbstractPluginData.setSerializer(Packet::class.java, Packet.serializer)
         AbstractPluginData.setSerializer(NetConnectProofOfWork::class.java, NetConnectProofOfWork.serializer)
-        AbstractPluginData.setSerializer(RCNBind.BindData::class.java, RCNBind.serializer)
     }
 
     @Throws(ClassNotFoundException::class)

@@ -15,7 +15,6 @@ import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.inline.toClass
 import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.net.URLClassLoader
 
 /**
  * Broken Java parent delegation mechanism

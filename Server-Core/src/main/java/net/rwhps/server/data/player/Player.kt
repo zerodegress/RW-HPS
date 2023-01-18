@@ -9,13 +9,13 @@
 
 package net.rwhps.server.data.player
 
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.func.Prov
-import net.rwhps.server.game.event.EventType
-import net.rwhps.server.game.simulation.pivatedata.PrivateClass_Player
+import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
@@ -23,7 +23,6 @@ import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
@@ -42,19 +41,19 @@ class Player(
     /**   */
     @JvmField val i18NBundle: I18NBundle,
 ) {
-    internal var playerPrivateData: PrivateClass_Player = PrivateClass_Player.initValue
+    internal var playerPrivateData: AbstractPlayerData = HessModuleManage.hps.gameData.getDefPlayerData()
 
     /** is Admin  */
-    @JvmField
+	@JvmField
     var isAdmin = false
     var superAdmin = false
 
     /** Team number  */
-    var team = 0
+	var team = 0
         set(value) { watch = (value == -3) ; field = value }
     /** List position  */
-    var site = 0
-        set(value) { color = value ; field = value }
+	var site = 0
+        set(value) { color = value % 10 ; field = value }
 
     /** */
     var credits
@@ -92,15 +91,15 @@ class Player(
         private set
 
     /** Last move time  */
-    @Volatile var lastMoveTime: Int = 0
+	@Volatile var lastMoveTime: Int = 0
     /** Mute expiration time */
-    var muteTime: Long = 0
+	var muteTime: Long = 0
     /** Kick expiration time */
-    var kickTime: Long = 0
-    var timeTemp: Long = 0
+	var kickTime: Long = 0
+	var timeTemp: Long = 0
     var lastMessageTime: Long = 0
     var lastSentMessage: String? = ""
-    var noSay = false
+	var noSay = false
 
     /** 点石成金 */
     var turnStoneIntoGold = Data.config.Turnstoneintogold
@@ -233,12 +232,12 @@ class Player(
             return true
         }
         return  if (other == null || javaClass != other.javaClass) {
-            false
-        } else if (other is Player) {
-            uuid == other.uuid
-        } else {
-            uuid == other.toString()
-        }
+                    false
+                } else if (other is Player) {
+                    uuid == other.uuid
+                } else {
+                    uuid == other.toString()
+                }
     }
 
     override fun hashCode(): Int {

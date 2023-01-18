@@ -12,7 +12,8 @@ package net.rwhps.server.dependent
 import net.rwhps.asm.agent.AsmAgent
 import net.rwhps.asm.agent.AsmCore
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.dependent.redirections.FileLoaderRedirections
+import net.rwhps.server.dependent.redirections.game.FileLoaderRedirections
+import net.rwhps.server.dependent.redirections.game.IteratorSecurityRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
 import net.rwhps.server.game.event.EventGlobalType
@@ -40,6 +41,8 @@ class HeadlessProxyClass : AgentAttachData() {
         SlickRedirections().register()
         /* 注册无头FileSystem */
         FileLoaderRedirections().register()
+        /**/
+        IteratorSecurityRedirections().register()
 
         // 直接空实现
         AsmCore.allMethod.add("org/newdawn/slick/util/DefaultLogSystem")
@@ -106,6 +109,7 @@ class HeadlessProxyClass : AgentAttachData() {
                                     load.loadClassBytes(name.replace("/","."),v)
                                 }
                             }
+                            // 注入 接口
                             load.loadClassBytes("$pkg.GameEngine", byteArrayOf())!!.findMethod("init")!!.invoke(null)
                         }
 

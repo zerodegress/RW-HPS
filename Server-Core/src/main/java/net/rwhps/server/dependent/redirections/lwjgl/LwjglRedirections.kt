@@ -23,7 +23,7 @@ class LwjglRedirections : MainRedirections {
     private val startTime = System.nanoTime()
 
 
-    fun register() {
+    override fun register() {
         redirect(AppGameContainerUpdate.DESC, AppGameContainerUpdate())
 
         redirect("Lorg/lwjgl/opengl/Display;isCreated()Z", Redirection.of(true))

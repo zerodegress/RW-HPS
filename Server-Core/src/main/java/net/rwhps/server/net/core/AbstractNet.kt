@@ -14,13 +14,14 @@ import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelPipeline
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
+import io.netty.util.concurrent.DefaultEventExecutorGroup
 import io.netty.util.concurrent.EventExecutorGroup
 import net.rwhps.server.net.code.tcp.PacketDecoder
 import net.rwhps.server.net.code.tcp.PacketEncoder
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 import net.rwhps.server.net.handler.tcp.NewServerHandler
 import net.rwhps.server.util.log.exp.ImplementedException
-import net.rwhps.server.util.threads.GetNewThreadPool.getEventLoopGroup
+import net.rwhps.server.util.threads.ThreadFactoryName
 import java.util.concurrent.TimeUnit
 
 /**
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit
 open class AbstractNet : ChannelInitializer<SocketChannel>() {
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger()
     private var newServerHandler: NewServerHandler = NewServerHandler()
-    private val ioGroup: EventExecutorGroup = getEventLoopGroup(32)
+    private val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(64, ThreadFactoryName.nameThreadFactory("IO-Group"))
 
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {

@@ -11,12 +11,14 @@ package net.rwhps.server.dependent.redirections.lwjgl
 
 import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.util.ByteBufferInputStream
+import net.rwhps.server.util.alone.annotations.AsmMark
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 import javax.imageio.ImageIO
 
+@AsmMark.ClassLoaderCompatible
 enum class STBIImageRedirection : Redirection {
     INSTANCE;
 

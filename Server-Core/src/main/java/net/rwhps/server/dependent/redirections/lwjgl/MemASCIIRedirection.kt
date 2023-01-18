@@ -10,8 +10,10 @@
 package net.rwhps.server.dependent.redirections.lwjgl
 
 import net.rwhps.asm.api.Redirection
+import net.rwhps.server.util.alone.annotations.AsmMark
 import java.nio.ByteBuffer
 
+@AsmMark.ClassLoaderCompatible
 enum class MemASCIIRedirection : Redirection {
     INSTANCE;
 

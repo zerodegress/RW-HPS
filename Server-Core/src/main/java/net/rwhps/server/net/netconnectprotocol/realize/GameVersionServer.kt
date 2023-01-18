@@ -9,18 +9,16 @@
 
 package net.rwhps.server.net.netconnectprotocol.realize
 
-import com.corrodinggames.rts.gameFramework.j.al
 import net.rwhps.server.core.Call
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.game.event.EventType.*
-import net.rwhps.server.game.simulation.gameFramework.GameData
-import net.rwhps.server.game.simulation.gameFramework.GameEngine
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -415,37 +413,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     @Throws(IOException::class)
     @Suppress("UNCHECKED_CAST")
     override fun receiveCheckPacket(packet: Packet) {
-        var syncFlag = false
-        GameInputStream(packet).use { stream ->
-            stream.readByte()
-            val intUnknown_A = stream.readInt()
-            val tick = stream.readInt()
-            if (stream.readBoolean()) {
-                //stream.readLong()stream.readLong()
-                stream.skip(16)
-                stream.getDecodeStream(false).use { checkList ->
-                    checkList.readInt()
-                    if (checkList.readInt() != GameEngine.netEngine.am.b.size) {
-                        Log.debug("RustedWarfare", "checkSumSize!=syncCheckList.size()");
-                    }
-                    val checkTypeList: ArrayList<al> = GameEngine.netEngine.am.b as ArrayList<al>
-                    for (checkType in checkTypeList) {
-                        val server = checkList.readLong()
-                        val client = checkList.readLong()
-                        if (server != client) {
-                            syncFlag = true
-                            Log.debug("RustedWarfare", "CheckType: ${checkType.a} Checksum: $intUnknown_A Server: $server Client: $client");
-                        }
-                        val tickServer = Data.game.tickGame.get()
-                        if (tickServer >= intUnknown_A) {
-                            Log.debug("RustedWarfare", "Not marking desync, already resynced before tick: $tickServer <= $tick");
-                            return;
-                        }
-
-                    }
-                }
-            }
+        // 忽略 可信端 的不同步
+        if (HessModuleManage.hps.gameData.checkHess(player.name)) {
+            return
         }
+
+        val syncFlag = HessModuleManage.hps.gameData.verifyGameSync(packet)
 
         if (syncFlag) {
             sync()
@@ -508,7 +481,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
                 // Check Passwd
                 // TODO: 有可能被相同名字利用
-                if ("" != Data.game.passwd && !GameData.checkHess(name)) {
+                if ("" != Data.game.passwd && !HessModuleManage.hps.gameData.checkHess(name)) {
                     if (passwd != Data.game.passwd) {
                         try {
                             sendErrorPasswd()
@@ -681,7 +654,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         try {
             Data.game.gameReConnectPaused = true
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
-            NetStaticData.groupNet.broadcast(GameData.getGameData())
+            NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameData.getGameData())
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
         } finally {

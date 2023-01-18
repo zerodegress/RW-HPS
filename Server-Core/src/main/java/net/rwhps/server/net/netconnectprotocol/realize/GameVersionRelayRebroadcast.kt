@@ -11,6 +11,7 @@ package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -46,6 +47,9 @@ import java.util.stream.IntStream
  * @author RW-HPS/Dr
  */
 class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : GameVersionRelay(connectionAgreement) {
+    // last Unwrapped Or Normal Packet From Server
+    @Volatile
+    //@get:Synchronized
     private lateinit var lastSentPacket: Packet
 
     override val version: String
@@ -136,8 +140,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
 
                 if (abstractNetConnect != null) {
                     val sendPacketData = Packet(type, bytes)
-                    lastSentPacket = sendPacketData
                     abstractNetConnect.sendPacket(sendPacketData)
+                    lastSentPacket = sendPacketData
                 }
 
                 when (type) {

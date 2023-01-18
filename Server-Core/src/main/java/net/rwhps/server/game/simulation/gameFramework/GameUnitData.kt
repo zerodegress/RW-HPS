@@ -14,21 +14,18 @@ import com.corrodinggames.rts.game.units.custom.l
 import com.corrodinggames.rts.game.units.y
 import com.corrodinggames.rts.gameFramework.w
 import net.rwhps.server.core.Call
+import net.rwhps.server.game.simulation.core.AbstractGameUnitData
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.log.Log
 
-object GameUnitData {
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("Failed to reserve memory pre-mod load")
-    fun reloadUnitData() {
+internal class GameUnitData : AbstractGameUnitData {
+    override fun reloadUnitData() {
         ag.h()
     }
 
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("NULL")
     @Suppress("UNCHECKED_CAST")
-    fun getUnitData(coreName: String): OrderedMap<String, ObjectMap<String, Int>> {
+    override fun getUnitData(coreName: String): OrderedMap<String, ObjectMap<String, Int>> {
         val modsData = OrderedMap<String, ObjectMap<String, Int>>()
         val gameUnitDataList: List<l> = l.c as List<l>
 
@@ -54,8 +51,6 @@ object GameUnitData {
                 Call.sendSystemMessage("删掉了一个单位: ${fastUnit.r().i()}")
             }
         }
-
-        GameEngine.updateGameFPS!!()
         // 让 Core 完成记载
         Thread.sleep(100)
 

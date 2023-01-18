@@ -12,23 +12,22 @@ package net.rwhps.server.game.simulation.gameFramework
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.c
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.game.simulation.core.AbstractGameNet
 import net.rwhps.server.util.log.Log
 import java.io.IOException
 
-object GameNet {
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("lastNetworkPlayerName")
-    fun newConnect() {
+internal class GameNet : AbstractGameNet {
+    override fun newConnect(ip: String, name: String) {
         try {
-            val settingsEngine = GameEngine.settingsEngine
+            //val settingsEngine = GameEngine.settingsEngine
             val netEngine = GameEngine.netEngine
 
-            settingsEngine.lastNetworkPlayerName = Data.headlessName
+            //settingsEngine.lastNetworkPlayerName = name
 
-            val playerName = settingsEngine.lastNetworkPlayerName
+            //val playerName = settingsEngine.lastNetworkPlayerName
 
-            netEngine.y = playerName
-            val kVar2 = ad.b("127.0.0.1:${Data.config.Port}",false)
+            netEngine.y = name
+            val kVar2 = ad.b(ip,false)
             netEngine.a(kVar2)
             val it: Iterator<*> = netEngine.aM.iterator()
             while (it.hasNext()) {

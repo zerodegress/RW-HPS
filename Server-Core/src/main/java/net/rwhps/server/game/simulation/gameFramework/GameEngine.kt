@@ -11,17 +11,28 @@ package net.rwhps.server.game.simulation.gameFramework
 
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
-import net.rwhps.server.dependent.redirections.slick.AppGameContainerUpdate
+import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.game.simulation.core.AbstractGameData
+import net.rwhps.server.game.simulation.core.AbstractGameModule
+import net.rwhps.server.game.simulation.core.AbstractGameNet
+import net.rwhps.server.game.simulation.core.AbstractGameUnitData
 
-object GameEngine {
+internal object GameEngine {
     val gameEngine: l = l.B()
     val netEngine: ad = gameEngine.bX
 
-    val settingsEngine = gameEngine.bQ
+    val settingsEngine = gameEngine.bQ!!
 
-    val gameStatistics = gameEngine.bY
+    val gameStatistics = gameEngine.bY!!
 
-    val updateGameFPS: (()->Unit)? get() {
-        return AppGameContainerUpdate.updateGameFPS
+    @JvmStatic
+    fun init() {
+        val loader = GameEngine.javaClass.classLoader
+        HessModuleManage.addGameModule(loader.toString(), object: AbstractGameModule {
+            override val useClassLoader: ClassLoader = loader
+            override val gameData: AbstractGameData = GameData()
+            override val gameNet: AbstractGameNet = GameNet()
+            override val gameUnitData: AbstractGameUnitData = GameUnitData()
+        })
     }
 }

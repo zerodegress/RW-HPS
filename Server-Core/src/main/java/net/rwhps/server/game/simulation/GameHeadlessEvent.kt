@@ -12,11 +12,8 @@ package net.rwhps.server.game.simulation
 import net.rwhps.server.core.Call
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.Player
-import net.rwhps.server.game.simulation.gameFramework.GameData
-import net.rwhps.server.game.simulation.gameFramework.GameNet
-import net.rwhps.server.game.simulation.pivatedata.PrivateClass_Player
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
@@ -32,15 +29,15 @@ class GameHeadlessEvent : AbstractEvent {
 
         Call.killAllPlayer()
 
-        GameData.clean()
+        HessModuleManage.hps.gameData.clean()
         Log.clog("Stop GameHeadless")
-        GameNet.newConnect()
+        HessModuleManage.hps.gameNet.newConnect()
         Log.clog("ReRun GameHeadless")
     }
 
     override fun registerHessStartEvent() {
         Data.game.playerManage.playerAll.eachAll { player ->
-            player.playerPrivateData = PrivateClass_Player.getPlayerData(player.site)
+            player.playerPrivateData = HessModuleManage.hps.gameData.getPlayerData(player.site)
         }
     }
 }

@@ -10,27 +10,43 @@
 package net.rwhps.server.game.simulation
 
 import net.rwhps.server.core.Core
+import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.game.GameStartInit
-import net.rwhps.server.game.simulation.gameFramework.GameNet
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
+import net.rwhps.server.util.GameModularLoadClass
+import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.inline.findMethod
+import net.rwhps.server.util.inline.readAsClassBytes
 import net.rwhps.server.util.log.Log
+import java.io.File
+import java.lang.reflect.Method
 
 class GameHeadlessEventGlobal : AbstractGlobalEvent {
     var newGameInit = false
     var newGameFlag = false
 
-    override fun registerGameLibLoadEvent() {
+    override fun registerGameLibLoadEvent(loadID: String) {
+        if (HessModuleManage.hpsLoader != loadID) {
+            Log.clog("Run GameHeadless ID: $loadID , But No Init newConnect")
+            return
+        }
         if (newGameFlag) {
             return
         }
         newGameFlag = true
 
-        GameNet.newConnect()
+        /* Load Mod */
+        Log.clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load()))
+        ModManage.loadUnits()
+        Log.clog("Load Game Core END !")
+
+        HessModuleManage.hps.gameNet.newConnect()
         Log.clog(Data.i18NBundle.getinput("server.load.end"))
-        Log.clog("Run GameHeadless")
+        Log.clog("Run GameHeadless ID: $loadID")
     }
 
     override fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) {
@@ -46,9 +62,17 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
         }
         newGameInit = true
 
-        GameStartInit.init()
+        val load = GameModularLoadClass(
+            Thread.currentThread().contextClassLoader,
+            Thread.currentThread().contextClassLoader.parent
+        )
+        GameStartInit.init(load)
 
         Log.clog(Data.i18NBundle.getinput("server.load.headless"))
-        com.corrodinggames.rts.java.Main.main(arrayOf("-disable_vbos","-disable_atlas","-nomusic","-nosound","-nodisplay"))
+
+        // 设置 RW-HPS 主要使用的 Hess
+        HessModuleManage.hpsLoader = load.toString()
+
+        GameStartInit.start(load)
     }
 }

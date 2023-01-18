@@ -33,12 +33,12 @@ package net.rwhps.server
 
 import net.rwhps.server.command.CoreCommands
 import net.rwhps.server.command.LogCommands
+import net.rwhps.server.core.Core
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
 import net.rwhps.server.data.base.BaseConfig
 import net.rwhps.server.data.base.BaseRelayPublishConfig
-import net.rwhps.server.data.base.BaseTestConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.data.plugin.PluginManage
@@ -56,7 +56,15 @@ import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import net.rwhps.server.game.simulation.GameHeadlessEvent
 import net.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import net.rwhps.server.io.ConsoleStream
+import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.api.WebGetRelayInfo
+import net.rwhps.server.net.api.WebPostRelayCommands
+import net.rwhps.server.net.api.WebPostRelayHttp
+import net.rwhps.server.net.handler.tcp.StartHttp
+import net.rwhps.server.net.http.WebData
+import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.encryption.Base64.decodeString
+import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.file.FileUtil.Companion.setFilePath
 import net.rwhps.server.util.game.CommandHandler
@@ -72,8 +80,10 @@ import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.InterruptedIOException
 import java.io.PrintStream
+import java.net.Socket
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -104,8 +114,6 @@ object Main {
         System.setProperty("java.net.preferIPv4Stack","true")
         // F U C K Termux
         System.setProperty("java.awt.headless","true")
-        // F U C K UTF-8
-        System.setProperty("file.encoding","UTF-8")
 
         Initialization()
 
@@ -115,7 +123,6 @@ object Main {
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
         Data.config = BaseConfig.stringToClass()
-        Data.configTest = BaseTestConfig.stringToClass()
 
         Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
 
@@ -154,7 +161,7 @@ object Main {
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage("start", StrCons { obj: String -> clog(obj) })
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {
                 clog("Please check the command , Unable to use StartCommand inside Config to start the server")
@@ -176,7 +183,6 @@ object Main {
         val terminal = TerminalBuilder.builder().encoding("UTF-8").build()
         reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
-        //val bakOut = System.out
         System.setErr(MyPrintStream {
             Log.debug(it)
         })

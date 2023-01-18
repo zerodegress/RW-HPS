@@ -13,4 +13,12 @@ object FileName {
     fun getFileName(string: String): String {
         return string.split("/").toTypedArray()[string.split("/").toTypedArray().size - 1]
     }
+
+    fun getFileNameNoSuffix(name: String): String {
+        return if (name.contains(".")) {
+            name.substring(0, name.lastIndexOf(46.toChar()))
+        } else {
+            name
+        }
+    }
 }

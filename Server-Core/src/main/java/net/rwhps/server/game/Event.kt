@@ -13,11 +13,11 @@ import net.rwhps.server.core.Call
 import net.rwhps.server.core.NetServer
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.event.EventType
-import net.rwhps.server.game.simulation.gameFramework.GameData
 import net.rwhps.server.net.Administration.PlayerInfo
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.Time
@@ -33,11 +33,11 @@ import java.util.concurrent.TimeUnit
  */
 class Event : AbstractEvent {
     override fun registerPlayerJoinEvent(player: Player) {
-        if (player.name.isBlank() || player.name.length > 20) {
+        if (player.name.isBlank() || player.name.length > 30) {
             player.kickPlayer(player.getinput("kick.name.failed"))
             return
         }
-        if (GameData.checkHess(player.name)) {
+        if (HessModuleManage.hps.gameData.checkHess(player.name)) {
             player.kickPlayer("Forbidden name")
             return
         }

@@ -10,8 +10,8 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.core.Initialization
+import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.mods.ModManage
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.net.Administration
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
@@ -20,14 +20,6 @@ import net.rwhps.server.util.log.Log
 
 
 class EventGlobal : AbstractGlobalEvent {
-    override fun registerGameLibLoadEvent() {
-        /* Load Mod */
-        Log.clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load()))
-        ModManage.loadUnits()
-
-        Log.clog("Load Game Core END !")
-    }
-
     override fun registerServerLoadEvent() {
         Data.core.admin.addChatFilter(object : Administration.ChatFilter {
             override fun filter(player: Player, message: String?): String? {

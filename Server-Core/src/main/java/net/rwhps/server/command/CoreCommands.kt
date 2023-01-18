@@ -15,10 +15,11 @@ import net.rwhps.server.core.*
 import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.base.BaseConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.mods.ModManage
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.HotLoadClass
 import net.rwhps.server.func.StrCons
@@ -69,7 +70,7 @@ class CoreCommands(handler: CommandHandler) {
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size, NetStaticData.RwHps.typeConnect.version, NetStaticData.RwHps.typeConnect.abstractNetConnect.version)]
+                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size, NetStaticData.RwHps.typeConnect.version, NetStaticData.RwHps.typeConnect.abstractNetConnect.version, HessModuleManage.hps.useClassLoader)]
             } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
                 val size = AtomicInteger()
                 NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
@@ -90,7 +91,7 @@ class CoreCommands(handler: CommandHandler) {
                 log[localeUtil.getinput("plugin.info", e!!.name, e.description, e.author, e.version)]
             }
         }
-        handler.register("mods", "serverCommands.mods") { arg: Array<String>?, log: StrCons ->
+        handler.register("mods", "serverCommands.mods") { _: Array<String>?, log: StrCons ->
             for ((index, name) in ModManage.getModsList().withIndex()){
                 log[localeUtil.getinput("mod.info", index,name)]
             }

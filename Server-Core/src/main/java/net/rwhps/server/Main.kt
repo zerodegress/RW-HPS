@@ -55,6 +55,10 @@ import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import net.rwhps.server.game.simulation.GameHeadlessEvent
 import net.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import net.rwhps.server.io.ConsoleStream
+import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.api.WebGetRelayInfo
+import net.rwhps.server.net.handler.tcp.StartHttp
+import net.rwhps.server.net.http.WebData
 import net.rwhps.server.util.encryption.Base64.decodeString
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.file.FileUtil.Companion.setFilePath
@@ -159,6 +163,12 @@ object Main {
 
         /* 按键监听 */
         newThreadCore { inputMonitor() }
+
+        newThreadCore {
+            WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
+
+            StartNet(StartHttp::class.java).openPort(5000)
+        }
     }
 
     /**

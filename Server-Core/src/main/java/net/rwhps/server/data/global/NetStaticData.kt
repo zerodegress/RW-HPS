@@ -22,9 +22,12 @@ import net.rwhps.server.util.alone.BlackList
 object NetStaticData {
     @JvmField
     val groupNet = GroupNet()
-    @JvmField
     /** Single Room Mode No ID required */
     val relay = Relay("RW-HPS Beta Relay",groupNet)
+        get() {
+            field.closeRoom = false
+            return field
+        }
     @JvmField
     val blackList = BlackList()
 

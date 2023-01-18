@@ -44,9 +44,9 @@ java -version
 ### Q.3.:**Not D!!!**  
 <img src="../img/Question6.png"></img>  
 
-#### 问题分析：D的参数不被支持，因此需要使用指令:  
+#### 问题分析：D的参数不被支持(可能是被.分割了) ，因此需要使用指令:  
 ```bash
-java -jar Server.jar
+java -D"file.encoding=UTF-8" -jar Server.jar
 ```
 
 #### 解决策略：使用上方提供的指令
@@ -54,15 +54,12 @@ java -jar Server.jar
 ### Q.3.:**Not D!!!**
 <img src="../img/Question6.png"></img>  
 
-#### 问题分析：D的参数不被支持，因此需要使用指令:  
-```bash
-java -jar Server.jar
-```
+#### 问题分析：D的参数不被支持，因此需要使用指令:
 
 #### 解决策略：手动设置 
-**GBK** `java -Dfile.encoding=GBK -jar Server.jar`   
+**GBK** `java -D"file.encoding=GBK" -jar Server.jar`   
 或者   
-**UTF-8**`java -Dfile.encoding=UTF-8 -jar Server.jar`  
+**UTF-8**`java -D"file.encoding=UTF-8" -jar Server.jar`  
 ---
 <br>
 

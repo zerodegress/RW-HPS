@@ -9,6 +9,7 @@
 
 package net.rwhps.server.data.plugin
 
+import net.rwhps.server.custom.RCNBind
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -86,6 +87,17 @@ internal object DefaultSerializers {
             @Throws(IOException::class)
             override fun read(stream: GameInputStream): Boolean {
                 return stream.readBoolean()
+            }
+        })
+        AbstractPluginData.setSerializer(ByteArray::class.java, object : TypeSerializer<ByteArray> {
+            @Throws(IOException::class)
+            override fun write(stream: GameOutputStream, objectData: ByteArray) {
+                stream.writeBytesAndLength(objectData)
+            }
+
+            @Throws(IOException::class)
+            override fun read(stream: GameInputStream): ByteArray {
+                return stream.readStreamBytes()
             }
         })
     }
@@ -219,6 +231,7 @@ internal object DefaultSerializers {
 
         AbstractPluginData.setSerializer(Packet::class.java, Packet.serializer)
         AbstractPluginData.setSerializer(NetConnectProofOfWork::class.java, NetConnectProofOfWork.serializer)
+        AbstractPluginData.setSerializer(RCNBind.BindData::class.java, RCNBind.serializer)
     }
 
     @Throws(ClassNotFoundException::class)

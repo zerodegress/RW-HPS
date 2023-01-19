@@ -83,13 +83,11 @@ internal class PluginEventManage {
                 pluginEventData.eachAll(AbstractEvent::registerGameStartEvent)
             }
             /* Sync */
-            Events.on(HessStartEvent::class.java) { _: HessStartEvent? ->
-                pluginEventData.eachAll(AbstractEvent::registerHessStartEvent)
-            }
-            /* Sync */
-            Events.on(GameOverEvent::class.java) { _: GameOverEvent? ->
+            Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
                 if (Data.game.isGameover) {
-                    pluginEventData.eachAll(AbstractEvent::registerGameOverEvent)
+                    pluginEventData.eachAll { p: AbstractEvent ->
+                        p.registerGameOverEvent(e.gameOverData)
+                    }
                 }
             }
             /* ASync */

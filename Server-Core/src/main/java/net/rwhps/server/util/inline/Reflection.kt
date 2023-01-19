@@ -64,7 +64,13 @@ fun Class<*>.findField(name: String, type: Class<*>? = null): Field? {
  * @return Class<*>?
  */
 fun String.toClassAutoLoader(obj: Any): Class<*>? {
-    return this.toClass(obj.javaClass.classLoader)
+    return if (obj is Class<*>) {
+        this.toClass(obj.classLoader)
+    } else if (obj is ClassLoader) {
+        this.toClass(obj)
+    } else {
+        this.toClass(obj.javaClass.classLoader)
+    }
 }
 
 /**

@@ -343,7 +343,7 @@ open class FileUtil {
             val jarName = pathSplit[pathSplit.size - 1]
             val jarPath = path.replace(jarName, "")
 
-            setFilePath(decode(jarPath, "UTF-8"))
+            setFilePath(decode(jarPath, Data.UTF_8))
 		}
 
         /**
@@ -428,7 +428,7 @@ open class FileUtil {
 
         @JvmStatic
         fun getJarPath(): String {
-            return this::class.java.protectionDomain.codeSource.location.path
+            return decode(this::class.java.protectionDomain.codeSource.location.path, Data.UTF_8)
         }
 
         private fun cehckFolderPath(defPath:String, path: String): String {

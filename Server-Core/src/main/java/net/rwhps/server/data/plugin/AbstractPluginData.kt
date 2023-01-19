@@ -60,7 +60,7 @@ internal open class AbstractPluginData {
         if (SERIALIZERS.containsKey(T::class.java)) {
             pluginData.put(name, Value(data))
         } else {
-            throw VariableException.ObjectMapRuntimeException("UNSUPPORTED_SERIALIZATION")
+            throw VariableException.ObjectMapRuntimeException("${T::class.java} : UNSUPPORTED_SERIALIZATION")
         }
     }
 
@@ -120,7 +120,7 @@ internal open class AbstractPluginData {
                         4 -> pluginData.put(key, Value(stream.readUTF()))
                         5 -> {
                             /* 把String转为Class,来进行反序列化 */
-                            val classCache: Class<*> = Class.forName(stream.readUTF().replace("cn.rwhps.server", "net.rwhps.server"))
+                            val classCache: Class<*> = Class.forName(stream.readUTF().replace("net.rwhps.server", "net.rwhps.server"))
                             length = stream.readInt()
                             bytes = ByteArray(length)
                             stream.read(bytes)
@@ -139,12 +139,13 @@ internal open class AbstractPluginData {
         }
     }
 
-    fun save() {
+    @JvmOverloads
+    fun save(outputStream: OutputStream = fileUtil!!.writeByteOutputStream(false)) {
         if (isBlank(fileUtil) || fileUtil!!.notExists()) {
             return
         }
         try {
-            DataOutputStream(getGzipOutputStream(fileUtil!!.writeByteOutputStream(false))).use { stream ->
+            DataOutputStream(getGzipOutputStream(outputStream)).use { stream ->
                 stream.writeInt(pluginData.size)
                 for (entry in pluginData) {
                     stream.writeUTF(entry.key)

@@ -14,8 +14,6 @@ import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.log.exp.ImplementedException
 
 interface AbstractGameData {
-    fun checkHess(name: String): Boolean
-
     @GameSimulationLayer.GameSimulationLayer_KeyWords("gameSave")
     fun getGameData(): Packet
 

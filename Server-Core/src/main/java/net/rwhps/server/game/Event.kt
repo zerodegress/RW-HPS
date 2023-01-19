@@ -13,7 +13,7 @@ import net.rwhps.server.core.Call
 import net.rwhps.server.core.NetServer
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
@@ -35,10 +35,6 @@ class Event : AbstractEvent {
     override fun registerPlayerJoinEvent(player: Player) {
         if (player.name.isBlank() || player.name.length > 30) {
             player.kickPlayer(player.getinput("kick.name.failed"))
-            return
-        }
-        if (HessModuleManage.hps.gameData.checkHess(player.name)) {
-            player.kickPlayer("Forbidden name")
             return
         }
 
@@ -157,7 +153,7 @@ class Event : AbstractEvent {
         Log.clog("[Start New Game]")
     }
 
-    override fun registerGameOverEvent() {
+    override fun registerGameOverEvent(gameOverData: GameOverData?) {
         if (Data.game.maps.mapData != null) {
             Data.game.maps.mapData!!.clean()
         }

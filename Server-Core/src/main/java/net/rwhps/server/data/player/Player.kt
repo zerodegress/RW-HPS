@@ -13,7 +13,6 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.Value
-import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.func.Prov
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.net.core.IRwHps
@@ -42,6 +41,8 @@ class Player(
     @JvmField val i18NBundle: I18NBundle,
 ) {
     internal var playerPrivateData: AbstractPlayerData = HessModuleManage.hps.gameData.getDefPlayerData()
+
+    var headlessDevice = checkHess(uuid)
 
     /** is Admin  */
 	@JvmField
@@ -77,6 +78,15 @@ class Player(
     val buildingsLost get() = playerPrivateData.buildingsLost
     /** 单实验单位被击杀数 */
     val experimentalsLost get() = playerPrivateData.experimentalsLost
+
+    val statusData get() = ObjectMap<String,Int>().apply {
+            put("unitsKilled", unitsKilled)
+            put("buildingsKilled", buildingsKilled)
+            put("experimentalsKilled", experimentalsKilled)
+            put("unitsLost", unitsLost)
+            put("buildingsLost", buildingsLost)
+            put("experimentalsLost", experimentalsLost)
+        }
 
     /** */
     var startUnit = Data.game.initUnit
@@ -118,8 +128,6 @@ class Player(
         }
 
     var lastVoteTime: Int = 0
-
-    val reConnectData = TimeAndNumber(300,3)
 
     private val customData = ObjectMap<String, Value<*>>()
 
@@ -242,5 +250,12 @@ class Player(
 
     override fun hashCode(): Int {
         return Objects.hash(uuid)
+    }
+
+    companion object {
+        @JvmStatic
+        fun checkHess(uuid: String): Boolean {
+            return uuid == Data.core.serverHessUuid
+        }
     }
 }

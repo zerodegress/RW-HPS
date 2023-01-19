@@ -188,8 +188,12 @@ internal class ClientCommands(handler: CommandHandler) {
                 val playerSite = args[0].toInt() - 1
                 val newAdmin = Data.game.playerManage.getPlayerArray(playerSite)
                 if (notIsBlank(newAdmin)) {
+                    if (newAdmin!!.headlessDevice) {
+                        player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
+                        return@register
+                    }
                     player.isAdmin = false
-                    newAdmin!!.isAdmin = true
+                    newAdmin.isAdmin = true
                     upDataGameData()
                     sendSystemMessage("give.ok", player.name)
                 } else {
@@ -245,13 +249,14 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
-                if (args[0].toInt()  == Data.config.MaxPlayer+1) {
-                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
-                    return@register
-                }
+
                 val site = args[0].toInt() - 1
                 val kickPlayer = Data.game.playerManage.getPlayerArray(site)
                 if (kickPlayer != null) {
+                    if (kickPlayer.headlessDevice) {
+                        player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
+                        return@register
+                    }
                     try {
                         kickPlayer.kickPlayer(localeUtil.getinput("kick.you"),60)
                     } catch (e: IOException) {
@@ -296,7 +301,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                     return@register
                 }
-                Data.game.gamePaused = false
+                Data.game.gamePaused = true
                 Call.sendSystemMessage(player.i18NBundle.getinput("unpause.ok"))
             }
         }
@@ -443,8 +448,8 @@ internal class ClientCommands(handler: CommandHandler) {
                     Data.game.playerManage.playerGroup.eachAll { it.sharedControl = true }
                 }
                 Data.game.playerManage.updateControlIdentifier()
-                testPreparationPlayer()
                 Events.fire(GameStartEvent())
+                testPreparationPlayer()
             }
         }
         handler.register("t", "<text...>", "clientCommands.t") { args: Array<String>, player: Player ->

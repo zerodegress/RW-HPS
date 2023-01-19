@@ -414,7 +414,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     @Suppress("UNCHECKED_CAST")
     override fun receiveCheckPacket(packet: Packet) {
         // 忽略 可信端 的不同步
-        if (HessModuleManage.hps.gameData.checkHess(player.name)) {
+        if (player.headlessDevice) {
             return
         }
 
@@ -479,9 +479,13 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     return false
                 }
 
+                if (Data.game.playerManage.playerGroup.size == 0 && !Player.checkHess(uuid)) {
+                    sendKick("[Headless] Not loaded yet")
+                    return false
+                }
+
                 // Check Passwd
-                // TODO: 有可能被相同名字利用
-                if ("" != Data.game.passwd && !HessModuleManage.hps.gameData.checkHess(name)) {
+                if ("" != Data.game.passwd && !Player.checkHess(uuid)) {
                     if (passwd != Data.game.passwd) {
                         try {
                             sendErrorPasswd()
@@ -633,7 +637,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 sendKick("不支持重连 # Does not support reconnection")
                 return
             }
-            player.reConnectData.count++
             super.isDis = false
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getStartGamePacket())
             sync()
@@ -647,10 +650,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             player.sendSystemMessage("目前已有同步任务 请等待")
             return
         }
-        if (player.reConnectData.checkStatus()) {
-            player.kickPlayer("不要一直尝试重连",300)
-            return
-        }
+
         try {
             Data.game.gameReConnectPaused = true
             Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")

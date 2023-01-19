@@ -9,6 +9,7 @@
 
 package net.rwhps.server.plugin.event
 
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.Player
 
 interface AbstractEvent {
@@ -45,11 +46,9 @@ interface AbstractEvent {
 
     /** 开始游戏 [同步-ASync]  */
     fun registerGameStartEvent() { /* Optional use of plugins */ }
-    /** 无头开始游戏 [同步-Synchronization] */
-    fun registerHessStartEvent() { /* Optional use of plugins */ }
 
     /** 结束游戏 [同步-ASync]  */
-    fun registerGameOverEvent() { /* Optional use of plugins */ }
+    fun registerGameOverEvent(gameOverData: GameOverData?) { /* Optional use of plugins */ }
 
     /** 玩家被ban [异步-ASync]  */
     fun registerPlayerBanEvent(player: Player) { /* Optional use of plugins */ }

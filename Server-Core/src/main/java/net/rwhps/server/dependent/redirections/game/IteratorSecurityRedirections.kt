@@ -14,6 +14,7 @@ import net.rwhps.server.util.inline.accessibleConstructor
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 
+@Deprecated("影响效率")
 class IteratorSecurityRedirections : MainRedirections {
     override fun register() {
         val listName = "com.corrodinggames.rts.gameFramework.utility.s"

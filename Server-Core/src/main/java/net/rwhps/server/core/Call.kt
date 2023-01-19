@@ -14,11 +14,13 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newCountdown
 import net.rwhps.server.core.thread.TimeTaskData
 import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.io.packet.GameCommandPacket
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.Events
@@ -245,21 +247,36 @@ object Call {
         init {
             Threads.newTimedTask(CallTimeTask.AutoCheckTask,0,1,TimeUnit.SECONDS) {
                 var lastWinTeam: Int = -1
-                var lastWinCount = 90
+                var lastWinCount = 0
                 Data.game.playerManage.runPlayerArrayDataRunnable(true) {
-                    if (it == null) {
-                        return@runPlayerArrayDataRunnable
-                    }
-                    if (it.survive && it.team != lastWinTeam) {
-                        lastWinTeam = it.team
-                        lastWinCount++
+                    if (it != null) {
+                        if (it.survive && it.team != lastWinTeam) {
+                            lastWinTeam = it.team
+                            lastWinCount++
+                        }
                     }
                 }
                 if (lastWinCount == 1) {
-                    val last = Data.game.playerManage.getPlayersNameOnTheSameTeam(lastWinTeam).toArray(String::class.java).contentToString()
+                    Threads.closeTimeTask(CallTimeTask.AutoCheckTask)
+
+                    val winPlayer = Data.game.playerManage.getPlayersNameOnTheSameTeam(lastWinTeam)
+                    val allPlayer = Seq<String>()
+
+                    val statusData = ObjectMap<String, ObjectMap<String,Int>>().apply {
+                        Data.game.playerManage.playerAll.eachAllFind({ !it.headlessDevice }) {
+                            put(it.name,it.statusData)
+                            allPlayer.add(it.name)
+                        }
+                    }
+
+                    Data.game.gameOverData = GameOverData(
+                        allPlayer, winPlayer, Data.game.maps.mapName,
+                        statusData, Data.game.replayName
+                    )
+
+                    val last = winPlayer.toArray(String::class.java).contentToString()
                     Log.clog("Last Win Player: {0}",last)
                     sendSystemMessageLocal("survive.player",last)
-                    Threads.closeTimeTask(CallTimeTask.AutoCheckTask)
                 }
                 Data.game.playerManage.updateControlIdentifier()
             }
@@ -338,7 +355,7 @@ object Call {
             cancel()
             TimeTaskData.stopCallTickTask()
 
-            Events.fire(GameOverEvent())
+            Events.fire(GameOverEvent(Data.game.gameOverData))
         }
     }
 }

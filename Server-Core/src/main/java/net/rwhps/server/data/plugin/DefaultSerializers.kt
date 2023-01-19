@@ -88,6 +88,17 @@ internal object DefaultSerializers {
                 return stream.readBoolean()
             }
         })
+        AbstractPluginData.setSerializer(ByteArray::class.java, object : TypeSerializer<ByteArray> {
+            @Throws(IOException::class)
+            override fun write(stream: GameOutputStream, objectData: ByteArray) {
+                stream.writeBytesAndLength(objectData)
+            }
+
+            @Throws(IOException::class)
+            override fun read(stream: GameInputStream): ByteArray {
+                return stream.readStreamBytes()
+            }
+        })
     }
 
     private fun registerMap() {

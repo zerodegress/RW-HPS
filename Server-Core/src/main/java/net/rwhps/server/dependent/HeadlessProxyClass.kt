@@ -12,8 +12,8 @@ package net.rwhps.server.dependent
 import net.rwhps.asm.agent.AsmAgent
 import net.rwhps.asm.agent.AsmCore
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.dependent.redirections.game.CustomRedirections
 import net.rwhps.server.dependent.redirections.game.FileLoaderRedirections
-import net.rwhps.server.dependent.redirections.game.IteratorSecurityRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
 import net.rwhps.server.game.event.EventGlobalType
@@ -42,7 +42,7 @@ class HeadlessProxyClass : AgentAttachData() {
         /* 注册无头FileSystem */
         FileLoaderRedirections().register()
         /**/
-        IteratorSecurityRedirections().register()
+        CustomRedirections().register()
 
         // 直接空实现
         AsmCore.allMethod.add("org/newdawn/slick/util/DefaultLogSystem")
@@ -103,10 +103,12 @@ class HeadlessProxyClass : AgentAttachData() {
                             // Here, several intermediate signal transmission modules are directly injected into this loader
                             // Because this loader only has Game-lib.jar
                             val pkg = "net.rwhps.server.game.simulation.gameFramework"
-                            FileUtil(File(FileUtil.getJarPath())).zipDecoder.getZipAllBytes().each { k, v ->
-                                if (k.startsWith(pkg.replace(".","/"))) {
-                                    val name = k.replace(".class","")
-                                    load.loadClassBytes(name.replace("/","."),v)
+                            FileUtil(File(FileUtil.getJarPath())).zipDecoder.use {
+                                it.getZipAllBytes().each { k, v ->
+                                    if (k.startsWith(pkg.replace(".", "/"))) {
+                                        val name = k.replace(".class", "")
+                                        load.loadClassBytes(name.replace("/", "."), v)
+                                    }
                                 }
                             }
                             // 注入 接口
@@ -116,7 +118,9 @@ class HeadlessProxyClass : AgentAttachData() {
                         Events.fire(EventGlobalType.GameLibLoadEvent(loadID))
                     }
                     if (it.toString().startsWith("Replay: Recording replay to:")) {
-                        Log.clog("Save Replay to: {0}",it.toString().replace("Replay: Recording replay to:",""))
+                        Log.clog("Save Replay to: {0}",it.toString().replace("Replay: Recording replay to:","").also {
+                            Data.game.replayName = it
+                        })
                     }
                 }
             }

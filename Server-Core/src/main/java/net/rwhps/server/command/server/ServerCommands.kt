@@ -54,7 +54,7 @@ internal class ServerCommands(handler: CommandHandler) {
             sendSystemMessage(response.toString().replace("<>", ""))
         }
         handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
-            Events.fire(GameOverEvent())
+            Events.fire(GameOverEvent(null))
         }
         handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {

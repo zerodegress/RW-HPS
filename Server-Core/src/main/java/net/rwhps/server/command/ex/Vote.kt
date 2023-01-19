@@ -236,7 +236,7 @@ class Vote {
             commandStartData["gameover"] = { it.normalDistribution() }
             commandStartData["surrender"] = { it.isTeam = true ; it.teamOnly() }
 
-            commandEndData["gameover"] = { Events.fire(EventType.GameOverEvent()) }
+            commandEndData["gameover"] = { Events.fire(EventType.GameOverEvent(null)) }
             commandEndData["surrender"] = { Log.clog("Surrender") ; Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == it.player.team }) { p: Player -> p.con!!.sendSurrender() } }
         }
 

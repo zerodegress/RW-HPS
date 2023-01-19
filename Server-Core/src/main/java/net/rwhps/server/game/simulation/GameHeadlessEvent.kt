@@ -13,6 +13,7 @@ import net.rwhps.server.core.Call
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.log.Log
@@ -20,10 +21,14 @@ import java.util.concurrent.TimeUnit
 
 class GameHeadlessEvent : AbstractEvent {
     override fun registerGameStartEvent() {
+        Data.game.playerManage.playerAll.eachAll { player ->
+            player.playerPrivateData = HessModuleManage.hps.gameData.getPlayerData(player.site)
+        }
+
         Threads.newTimedTask(CallTimeTask.CallCheckTask,0,2, TimeUnit.SECONDS,Call::sendCheckData)
     }
 
-    override fun registerGameOverEvent() {
+    override fun registerGameOverEvent(gameOverData: GameOverData?) {
         Threads.closeTimeTask(CallTimeTask.CallCheckTask)
         Log.debug("Stop CallCheckTask")
 
@@ -33,11 +38,5 @@ class GameHeadlessEvent : AbstractEvent {
         Log.clog("Stop GameHeadless")
         HessModuleManage.hps.gameNet.newConnect()
         Log.clog("ReRun GameHeadless")
-    }
-
-    override fun registerHessStartEvent() {
-        Data.game.playerManage.playerAll.eachAll { player ->
-            player.playerPrivateData = HessModuleManage.hps.gameData.getPlayerData(player.site)
-        }
     }
 }

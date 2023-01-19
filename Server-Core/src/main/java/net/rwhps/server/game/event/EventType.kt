@@ -9,6 +9,7 @@
 
 package net.rwhps.server.game.event
 
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.Player
 
 /**
@@ -32,11 +33,9 @@ class EventType {
 
     /** 开始游戏  */
     class GameStartEvent
-    /** 无头开始游戏  */
-    class HessStartEvent()
 
     /** 结束游戏  */
-    class GameOverEvent
+    class GameOverEvent(val gameOverData: GameOverData?)
 
     /** 玩家被ban  */
     class PlayerBanEvent(val player: Player)

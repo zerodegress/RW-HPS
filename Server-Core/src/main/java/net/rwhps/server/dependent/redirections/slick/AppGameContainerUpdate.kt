@@ -53,9 +53,9 @@ class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = 
             return try {
                 // 经过测试 最佳的 sleep 是比 游戏Tick 稍快
                 // 但是存在问题 例如玩家刚进入 就开始游戏 那么数据将来不及更新导致错误
-                System.getProperty(LwjglClassProperties.AppGameContainer_UPDATE, "5").toLong()
+                System.getProperty(LwjglClassProperties.AppGameContainer_UPDATE, "10").toLong()
             } catch (nfe: NumberFormatException) {
-                5L
+                10L
             }
         }
     }

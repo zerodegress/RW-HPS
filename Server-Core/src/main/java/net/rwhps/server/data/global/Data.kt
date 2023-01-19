@@ -33,12 +33,13 @@ object Data {
     const val Plugin_Save_Path = "/data/save"
     const val Plugin_Cache_Path = "/data/cache"
     const val Plugin_Lib_Path = "/data/libs"
-    const val Plugin_GameCore_Data_Path = "/data/gameData"
-    const val Plugin_GameCore_Lib_Path = "$Plugin_GameCore_Data_Path/coreLibs"
     const val Plugin_Log_Path = "/data/log"
     const val Plugin_Maps_Path = "/data/maps"
     const val Plugin_Plugins_Path = "/data/plugins"
+
+    const val Plugin_GameCore_Data_Path = "/data/gameData"
     const val Plugin_Mods_Path = "/data/mods"
+    const val Plugin_RePlays_Path = "/data/replays"
     val UTF_8: Charset = StandardCharsets.UTF_8
     /*
 	 * 插件默认变量
@@ -47,7 +48,7 @@ object Data {
     const val SERVER_ID = "net.rwhps.server"
     const val SERVER_ID_RELAY = "net.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "1.1.0-DEV2"
+    const val SERVER_CORE_VERSION = "1.1.0-DEV3"
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     /** 单位数据缓存  */

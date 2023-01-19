@@ -12,6 +12,7 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
 import net.rwhps.server.data.base.BaseConfig
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerManage
@@ -113,6 +114,12 @@ class Rules(private var config: BaseConfig) {
     val tickGame = AtomicInteger(10)
     var isGameover = false
 
+    var replayName: String = ""
+        set(value) {
+            field = value.trim()
+        }
+    var gameOverData: GameOverData? = null
+
     init {
         try {
             checkMaps()
@@ -166,6 +173,8 @@ class Rules(private var config: BaseConfig) {
 
         gameReConnectPaused = false
         gamePaused = false
+
+        gameOverData = null
     }
 
     fun checkMaps() {

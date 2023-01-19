@@ -27,6 +27,7 @@ class LwjglRedirections : MainRedirections {
         redirect(AppGameContainerUpdate.DESC, AppGameContainerUpdate())
 
         redirect("Lorg/lwjgl/opengl/Display;isCreated()Z", Redirection.of(true))
+        redirect("Lorg/lwjgl/opengl/Display;isVisible()Z", Redirection.of(true))
         redirect("Lorg/lwjgl/glfw/GLFW;glfwWaitEventsTimeout(D)V") { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
             Thread.sleep((args[0] as Double * 1000L).toLong())
             null

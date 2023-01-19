@@ -17,10 +17,12 @@ import net.rwhps.server.data.plugin.PluginManage.runOnDisable
 import net.rwhps.server.net.Administration
 import net.rwhps.server.util.IsUtil.isBlank
 import net.rwhps.server.util.RandomUtil.getRandomString
+import net.rwhps.server.util.encryption.digest.DigestUtil
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.lang.management.ManagementFactory
+import java.math.BigInteger
 import java.util.*
 
 
@@ -33,6 +35,9 @@ class Application {
 
     /** 服务器唯一UUID  */
     lateinit var serverConnectUuid: String
+    /** Hess HEX */
+    lateinit var serverHessUuid: String
+
     @JvmField
     var serverToken: String = getRandomString(40)
     lateinit var admin: Administration
@@ -49,8 +54,11 @@ class Application {
         Initialization.startInit(settings)
 
         serverConnectUuid = settings.getData("serverConnectUuid") { UUID.randomUUID().toString() }
+        serverHessUuid = settings.getData("serverHessUuid") { BigInteger(1, DigestUtil.sha256(serverConnectUuid+UUID.randomUUID().toString())).toString(16).uppercase() }
+
         addSavePool {
             settings.setData("serverConnectUuid", serverConnectUuid)
+            settings.setData("serverHessUuid", serverHessUuid)
         }
     }
 

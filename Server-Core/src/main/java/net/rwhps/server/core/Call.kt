@@ -286,8 +286,8 @@ object Call {
             // 检测人数是否符合Gameover
 
             when (Data.game.playerManage.playerGroup.size) {
-                1 -> gr()
-                2 -> if (oneSay) {
+                0 -> gr()
+                1,2 -> if (oneSay) {
                     oneSay = false
                     sendSystemMessageLocal("gameOver.oneMin")
                     newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) {gr()}

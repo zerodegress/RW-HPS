@@ -21,9 +21,6 @@ object GameStartInit {
 
     fun init(load: GameModularLoadClass): Boolean {
         try {
-            // 清除无用缓存
-            FileUtil.getFolder(Data.Plugin_Cache_Path).delete()
-
             // 加载游戏依赖
             CompressionDecoderUtils.zipStream(GameStartInit::class.java.getResourceAsStream("/libs.zip")!!).use {
                 it.getSpecifiedSuffixInThePackage("jar",true).each { _, v ->

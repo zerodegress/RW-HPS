@@ -45,9 +45,13 @@ class FileLoaderRedirections : MainRedirections {
     init {
         // Mkdie Mods Folder
         FileUtil.getFolder(Data.Plugin_Mods_Path).mkdir()
-    }
+        // 清理Hess的数据, 避免启用安全模式
+        FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("preferences.ini").delete()
+        // 清除无用缓存
+        FileUtil.getFolder(Data.Plugin_Cache_Path).delete()}
 
     override fun register() {
+        /* 修改 每个加载器下 [ResourceLoader] 的初始化实现, 来为 [ResourceLoader] 实现自定义内容 */
         redirect("org/newdawn/slick/util/ResourceLoader" , arrayOf("<clinit>","()V")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
             val classIn = obj as Class<*>
             val classLoader = classIn.classLoader

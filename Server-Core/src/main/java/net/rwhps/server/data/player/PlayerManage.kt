@@ -37,7 +37,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
     var amTeam = false
 
     /** 共享控制  */
-    var sharedControlPlayer = 0
+    var sharedControlPlayer: Short = 0
 
     /** Online players   */
     @JvmField
@@ -119,6 +119,9 @@ class PlayerManage(private val maxPlayerSize: Int) {
         return result
     }
 
+    /**
+     * 计算 共享 控制校验和
+     */
     fun updateControlIdentifier() {
         moveLock.withLock {
             var int3 = 0
@@ -126,11 +129,11 @@ class PlayerManage(private val maxPlayerSize: Int) {
                 val player1 = playerData[i]
                 if (player1 != null && player1.controlThePlayer) {
                     if (player1.controlThePlayer) {
-                        int3 = int3 or 1 shl i
+                        int3 = int3 or (1 shl i)
                     }
                 }
             }
-            sharedControlPlayer = int3
+            sharedControlPlayer = int3.toShort()
         }
     }
 

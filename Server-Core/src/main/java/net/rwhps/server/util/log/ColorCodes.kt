@@ -9,6 +9,7 @@
 
 package net.rwhps.server.util.log
 
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.ObjectMap
 
 /**
@@ -39,6 +40,7 @@ internal object ColorCodes {
     private const val BACK_GREEN = "\u001B[42m"
     private const val BACK_YELLOW = "\u001B[43m"
     private const val BACK_BLUE = "\u001B[44m"
+
     internal val CODES: Array<String>
     internal val VALUES: Array<String>
 
@@ -103,5 +105,30 @@ internal object ColorCodes {
 
         CODES = map.keys().toSeq().toArray(String::class.java)
         VALUES = map.values().toSeq().toArray(String::class.java)
+    }
+
+    fun formatColors(text: String, empty: Boolean = false): String {
+        var textCache = text
+        if (!empty) {
+            for (i in CODES.indices) {
+                textCache = textCache.replace("&${CODES[i]}", VALUES[i])
+                textCache = textCache.replace("[${CODES[i]}]", VALUES[i])
+            }
+        } else {
+            for (i in CODES.indices) {
+                textCache = textCache.replace("&${CODES[i]}", "")
+                textCache = textCache.replace("[${CODES[i]}]", "")
+            }
+        }
+        return textCache
+    }
+
+    fun testColor(): String {
+        var textCache = ""
+        for (i in CODES.indices) {
+            textCache += VALUES[i]+" ${CODES[i]} : Test " + RESET
+            textCache += Data.LINE_SEPARATOR
+        }
+        return textCache
     }
 }

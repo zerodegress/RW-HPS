@@ -14,6 +14,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
 import io.netty.util.ReferenceCountUtil
 import net.rwhps.server.io.packet.Packet
+import net.rwhps.server.net.StartNet
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.log.Log.warn
@@ -34,8 +35,6 @@ internal class PacketDecoder : ByteToMessageDecoder() {
     companion object {
         /** Packet header data length */
         private const val HEADER_SIZE = 8
-        /** Maximum accepted single package size */
-        private const val MAX_CONTENT_LENGTH = 52428800
     }
 
     @Throws(Exception::class)
@@ -55,7 +54,7 @@ internal class PacketDecoder : ByteToMessageDecoder() {
          *
          * Maximum accepted single package size = 50 MB
          */
-        if (readableBytes > MAX_CONTENT_LENGTH) {
+        if (readableBytes > StartNet.maxPacketSizt) {
             warn("Package size exceeds maximum")
             ReferenceCountUtil.release(bufferIn)
             AcceptorIdleStateTrigger.clear(ctx)
@@ -90,6 +89,8 @@ internal class PacketDecoder : ByteToMessageDecoder() {
 
         val b = ByteArray(contentLength)
         bufferIn.readBytes(b)
+        // 读完就甩
+        bufferIn.discardReadBytes()
         out.add(Packet(packetType, b))
     }
 }

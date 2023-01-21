@@ -30,6 +30,7 @@ import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.plugin.PluginsLoad
 import net.rwhps.server.plugin.center.PluginCenter
+import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.alone.annotations.NeedHelp
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.game.CommandHandler
@@ -68,7 +69,7 @@ class CoreCommands(handler: CommandHandler) {
         }
 
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
-            log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
+            log[localeUtil.getinput("status.versionS", SystemUtil.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
                 log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size, NetStaticData.RwHps.typeConnect.version, NetStaticData.RwHps.typeConnect.abstractNetConnect.version, HessModuleManage.hps.useClassLoader)]
             } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {

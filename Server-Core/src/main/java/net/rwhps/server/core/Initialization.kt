@@ -27,6 +27,7 @@ import net.rwhps.server.net.netconnectprotocol.*
 import net.rwhps.server.net.netconnectprotocol.realize.*
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.encryption.Aes
 import net.rwhps.server.util.encryption.Rsa
@@ -44,6 +45,11 @@ import java.util.concurrent.atomic.AtomicInteger
  * @author RW-HPS/Dr
  */
 class Initialization {
+    private fun checkEnvironment() {
+        if (SystemUtil.osArch.contains("arm",ignoreCase = true)) {
+            Log.clog("&r RW-HPS It may not be compatible with your architecture, there will be unexpected situations, Thank you !")
+        }
+    }
     private fun initMaps() {
         with (Data.MapsMap) {
             put("Beachlanding(2p)[byhxyy]", "Beach landing (2p) [by hxyy]@[p2]")
@@ -261,8 +267,8 @@ class Initialization {
             val SendTime: Int                             = Time.concurrentSecond(),
             val ServerRunPort: Int                        = Data.config.Port,
             val ServerNetType: String                     = NetStaticData.ServerNetType.name,
-            val System: String                            = Data.core.osName,
-            val JavaVersion: String                       = Data.core.javaVersion,
+            val System: String                            = SystemUtil.osName,
+            val JavaVersion: String                       = SystemUtil.javaVersion,
             val IsServerRun: Boolean                      = true,
             val IsServer: Boolean,
             val ServerData: ServerData? = null,
@@ -280,7 +286,7 @@ class Initialization {
                     val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
                     val RoomAllSize: Int                    = Relay.roomAllSize,
                     val RoomNoStartSize: Int                = Relay.roomNoStartSize,
-                    val RoomPublicListSize: Int             = 0,
+                    val RoomPublicListSize: Int             = Relay.roomPublicSize,
                     val PlayerVersion: Map<Int,Int>         = Relay.getAllRelayVersion(),
                     val IpPlayerCountry: Map<String,Int>    = Relay.getAllRelayIpCountry()
                 )
@@ -289,6 +295,8 @@ class Initialization {
     }
 
     init {
+        checkEnvironment()
+        //
         loadLang()
         initMaps()
         // 初始化 投降

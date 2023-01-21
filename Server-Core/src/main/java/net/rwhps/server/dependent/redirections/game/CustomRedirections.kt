@@ -12,6 +12,7 @@ package net.rwhps.server.dependent.redirections.game
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.alone.annotations.AsmMark
+import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
@@ -20,11 +21,13 @@ import net.rwhps.server.util.log.Log
 class CustomRedirections : MainRedirections {
     override fun register() {
         /* UUID 覆盖 */
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("serverUUID==null")
         redirect("com/corrodinggames/rts/gameFramework/j/ad", arrayOf("Z","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             return@redirect Data.core.serverHessUuid
         }
 
         /* MOD启用器覆盖(强制启用除自带以外) */
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("Loading mod selection")
         redirect("com/corrodinggames/rts/gameFramework/i/a", arrayOf("f","()V")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
             Log.debug("[Hess] Try Loading mod selection")
             val modDataClass = "com.corrodinggames.rts.gameFramework.i.b".toClassAutoLoader(obj)!!
@@ -39,5 +42,7 @@ class CustomRedirections : MainRedirections {
                 }
             }
         }
+
+
     }
 }

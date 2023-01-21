@@ -62,7 +62,7 @@ class Event : AbstractEvent {
         }
 
         Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
-
+        Log.clog("&c"+Data.i18NBundle.getinput("player.ent", player.name))
 
         if (Data.config.AutoStartMinPlayerSize != -1 &&
             Data.game.playerManage.playerGroup.size >= Data.config.AutoStartMinPlayerSize &&
@@ -136,10 +136,10 @@ class Event : AbstractEvent {
             player.sharedControl = true
             Call.sendSystemMessage("player.dis", player.name)
             Call.sendTeamData()
-
         } else {
             Call.sendSystemMessage("player.disNoStart", player.name)
         }
+        Log.clog("&c"+Data.i18NBundle.getinput("player.dis", player.name))
 
         if (Data.config.AutoStartMinPlayerSize != -1 &&
             Data.game.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&

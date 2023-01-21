@@ -671,7 +671,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     error("[Relay disconnect] Send Exited", e)
                 }
 
-                playerRelay!!.disconnect = true
+                playerRelay?.disconnect = true
+
                 if (!relay!!.isStartGame) {
                     relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
                 }

@@ -39,6 +39,7 @@ import net.rwhps.server.util.encryption.Game
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.CommandHandler.CommandResponse
 import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.log.ColorCodes
 import net.rwhps.server.util.log.Log
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -221,7 +222,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
             out.writeBoolean(false)
             // multi person control check code
-            out.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
+            out.writeShort(Data.game.playerManage.sharedControlPlayer)
 
             // System action
             out.writeBoolean(true)
@@ -274,7 +275,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             val message: String = stream.readString()
             var response: CommandResponse? = null
 
-            Log.clog("[{0}]: {1}", player.name, message)
+            Log.clog("[&by {0} &fr]: &y{1}", player.name, ColorCodes.formatColors(message,true))
 
             // Afk Stop
             if (player.isAdmin && Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
@@ -377,11 +378,9 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     outStream.transferToFixedLength(inStream,8)
 
                     outStream.writeString(inStream.readString())
-                    outStream.writeBoolean(inStream.readBoolean())
-
-                    //outStream.writeByte(inStream.readByte())
+                    outStream.writeByte(inStream.readByte())
                     inStream.readShort()
-                    outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
+                    outStream.writeShort(Data.game.playerManage.sharedControlPlayer)
                     // TODO !
                     if (!player.turnStoneIntoGold || status != GameUnitType.GameActions.BUILD.ordinal) {
                         outStream.transferTo(inStream)
@@ -646,15 +645,10 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     override fun sync() {
-        if (Data.game.gameReConnectPaused) {
-            player.sendSystemMessage("目前已有同步任务 请等待")
-            return
-        }
-
         try {
             Data.game.gameReConnectPaused = true
-            Call.sendSystemMessage("玩家同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
-            NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameData.getGameData())
+            sendSystemMessage("同步中 请耐心等待 不要退出 期间会短暂卡住！！")
+            sendPacket(HessModuleManage.hps.gameData.getGameData())
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
         } finally {

@@ -13,6 +13,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.Time.getMilliFormat
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.log.ColorCodes.formatColors
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.MessageFormat
@@ -71,8 +72,16 @@ object Log {
      * tag 标题 默认警告级
      */
     @JvmStatic
+    fun skipping(e: Exception) {
+        log(9, "SKIPPING", e)
+    }
+    @JvmStatic
+    fun skipping(tag: Any, e: Exception) {
+        log(9, tag, e)
+    }
+    @JvmStatic
     fun skipping(e: Any) {
-        skipping("SKIPPING",e)
+        logs(9, "SKIPPING",e)
     }
     @JvmStatic
     fun skipping(tag: Any, e: Any) {
@@ -268,15 +277,6 @@ object Log {
         sb.deleteCharAt(sb.length -1)
 
         this.logPrint(error,sb.toString())
-    }
-
-    private fun formatColors(text: String): String {
-        var textCache = text
-        for (i in ColorCodes.CODES.indices) {
-            textCache = textCache.replace("&${ColorCodes.CODES[i]}" , ColorCodes.VALUES[i])
-            textCache = textCache.replace("[${ColorCodes.CODES[i]}]", ColorCodes.VALUES[i])
-        }
-        return textCache
     }
 
     private enum class Logg(private val logg: Int) {

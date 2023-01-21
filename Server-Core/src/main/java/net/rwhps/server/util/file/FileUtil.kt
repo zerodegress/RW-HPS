@@ -14,6 +14,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.compression.core.CompressionDecoder
 import net.rwhps.server.util.encryption.digest.DigestUtil
@@ -357,7 +358,7 @@ open class FileUtil {
                 // Windows 不允许文件夹存在 :
                 // 同时 获取的位置前面会有 /
                 // 例如 /A:/a/a.jar
-                if (Data.core.isWindows && cache.contains(":")) {
+                if (SystemUtil.isWindows && cache.contains(":")) {
                     cache = cache.substring(1)
                 }
                 val customFilePath = cache.replace("\\","/")

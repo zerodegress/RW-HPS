@@ -14,30 +14,30 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.event.AbstractEvent
+import net.rwhps.server.util.ExtractUtil
 import net.rwhps.server.util.file.FileUtil
 
 class WinTestMain : Plugin() {
-    override fun registerEvents(): AbstractEvent? {
-        object: AbstractEvent {
+    override fun registerEvents(): AbstractEvent {
+        return object: AbstractEvent {
             override fun registerGameOverEvent(gameOverData: GameOverData?) {
                 if (gameOverData == null) {
                     return
                 }
 
-
-                gameOverData.run {
-                    val data = PluginData()
-                    data.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("T.bin"))
-                    data.setData("All Player", allPlayerList)
-                    data.setData("Win Player", winPlayerList)
-                    data.setData("Map Name", mapName)
-                    data.setData("Player Data", playerData)
-                    data.setData("RePlay Size", FileUtil.getFolder(Data.Plugin_RePlays_Path).toFile(replayName).readFileByte())
-                    data.save()
+                ExtractUtil.tryRunTest {
+                    gameOverData.run {
+                        val data = PluginData()
+                        data.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("T.bin"))
+                        data.setData("All Player", allPlayerList)
+                        data.setData("Win Player", winPlayerList)
+                        data.setData("Map Name", mapName)
+                        data.setData("Player Data", playerData)
+                        data.setData("RePlay Size", FileUtil.getFolder(Data.Plugin_RePlays_Path).toFile(replayName).readFileByte())
+                        data.save()
+                    }
                 }
-
             }
         }
-        return null
     }
 }

@@ -111,7 +111,7 @@ class Rules(private var config: BaseConfig) {
     var lockTeam = false
     val mapsData = OrderedMap<String, MapData>(8)
 
-    val tickGame = AtomicInteger(10)
+    val tickGame = AtomicInteger(Data.config.Tick)
     var isGameover = false
 
     var replayName: String = ""

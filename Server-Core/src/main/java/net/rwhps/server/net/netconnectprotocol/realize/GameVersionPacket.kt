@@ -199,7 +199,7 @@ open class GameVersionPacket : AbstractNetPacket {
         outStream.writeLong(-1)
         outStream.writeString("-1")
         outStream.writeBoolean(false)
-        outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
+        outStream.writeShort(Data.game.playerManage.sharedControlPlayer)
         // System action
         outStream.writeBoolean(true)
         outStream.writeByte(0)

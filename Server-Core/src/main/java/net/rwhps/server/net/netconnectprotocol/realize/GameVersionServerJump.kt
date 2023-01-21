@@ -99,7 +99,7 @@ class GameVersionServerJump(connectionAgreement: ConnectionAgreement) : GameVers
                 //outStream.writeBoolean(inStream.readBoolean())
                 outStream.writeByte(inStream.readByte())
                 inStream.readShort()
-                outStream.writeShort(Data.game.playerManage.sharedControlPlayer.toShort())
+                outStream.writeShort(Data.game.playerManage.sharedControlPlayer)
                 outStream.transferTo(inStream)
                 Data.game.gameCommandCache.add(GameCommandPacket(player.site, outStream.getPacketBytes()))
             }

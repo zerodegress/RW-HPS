@@ -1,11 +1,13 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.game.simulation.HessClassPathProperties
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
+import java.io.File
 import java.lang.reflect.Method
 
 /**
@@ -71,6 +73,18 @@ object GameStartInit {
     }
 
     fun start(load: GameModularLoadClass) {
+        // Here, several intermediate signal transmission modules are directly injected into this loader
+        // Because this loader only has Game-lib.jar
+        // 注入 接口
+        FileUtil(File(FileUtil.getJarPath())).zipDecoder.use {
+            it.getZipAllBytes().each { k, v ->
+                if (k.startsWith(HessClassPathProperties.CorePath.replace(".", "/"))) {
+                    val name = k.replace(".class", "")
+                    load.addClassBytes(name.replace("/", "."), v)
+                }
+            }
+        }
+
         val testAClass: Class<*> = load.findClass("com.corrodinggames.rts.java.Main")!!
         val mainMethod: Method = testAClass.getDeclaredMethod("main", Array<String>::class.java)
         mainMethod.invoke(null, arrayOf("-disable_vbos","-disable_atlas","-nomusic","-nosound","-nodisplay"))

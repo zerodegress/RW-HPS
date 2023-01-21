@@ -10,13 +10,13 @@
 package net.rwhps.server.dependent.redirections.slick
 
 internal object SilckClassPathProperties {
-    val AppGameContainer = "org.newdawn.slick.AppGameContainer"
-    val Image = "org.newdawn.slick.Image"
-    val SlickLog = "org.newdawn.slick.util.Log"
-    val ResourceLoader = "org.newdawn.slick.util.ResourceLoader"
-    val ClasspathLocation = "org.newdawn.slick.util.ClasspathLocation"
-    val FileSystemLocation = "org.newdawn.slick.util.FileSystemLocation"
-    val DrFileSystemLocation = "net.rwhps.server.dependent.redirections.slick.ZipFileSystemLocation"
-    val Graphics = "org.newdawn.slick.Graphics"
-    val DrGraphics = "net.rwhps.server.dependent.redirections.slick.DrGraphics"
+    const val AppGameContainer = "org.newdawn.slick.AppGameContainer"
+    const val Image = "org.newdawn.slick.Image"
+    const val SlickLog = "org.newdawn.slick.util.Log"
+    const val ResourceLoader = "org.newdawn.slick.util.ResourceLoader"
+    const val ClasspathLocation = "org.newdawn.slick.util.ClasspathLocation"
+    const val FileSystemLocation = "org.newdawn.slick.util.FileSystemLocation"
+    const val DrFileSystemLocation = "net.rwhps.server.dependent.redirections.slick.ZipFileSystemLocation"
+    const val Graphics = "org.newdawn.slick.Graphics"
+    const val DrGraphics = "net.rwhps.server.dependent.redirections.slick.DrGraphics"
 }

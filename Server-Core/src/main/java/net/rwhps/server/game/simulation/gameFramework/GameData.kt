@@ -40,9 +40,9 @@ internal class GameData : AbstractGameData {
         val gameEngine: l = GameEngine.gameEngine
         val arVar = GameNetOutStream()
         arVar.c(0)
-        arVar.a(gameEngine.bx)
+        arVar.a(Data.game.tickGame.getAndAdd(1))
         arVar.a(gameEngine.by)
-        arVar.a(Data.game.income)
+        arVar.a(1.0f)
         arVar.a(1.0f)
         arVar.a(false)
         arVar.a(false)
@@ -176,54 +176,54 @@ internal class GameData : AbstractGameData {
     }
 
     private fun wirteGameRsyncData(asVar: GameNetOutStream) {
-        val B = GameEngine.gameEngine
+        val gameEngine = GameEngine.gameEngine
         try {
             asVar.c("rustedWarfareSave")
-            asVar.a(B.c(true))
+            asVar.a(gameEngine.c(true))
             asVar.a(96)
-            asVar.a(B.ar)
+            asVar.a(gameEngine.ar)
             asVar.a("saveCompression", true)
             asVar.e("customUnitsBlock")
             com.corrodinggames.rts.game.units.custom.l.a(asVar)
             asVar.a("customUnitsBlock")
             asVar.e("gameSetup")
-            val z = B.bX.B || B.bX.F
-            asVar.a(B.bX.B)
-            asVar.a(B.bX.F)
+            val z = gameEngine.bX.B || gameEngine.bX.F
+            asVar.a(gameEngine.bX.B)
+            asVar.a(gameEngine.bX.F)
             asVar.a(z)
             if (z) {
-                B.bX.a(asVar)
+                gameEngine.bX.a(asVar)
             }
             asVar.a("gameSetup")
-            asVar.c(B.dl)
-            val z2 = B.dm != null
+            asVar.c(gameEngine.dl)
+            val z2 = gameEngine.dm != null
             asVar.a(z2)
             if (z2) {
                 // Writing remote map steam into save
-                asVar.a(B.dm)
+                asVar.a(gameEngine.dm)
             }
-            asVar.a(B.by)
-            asVar.a(B.cy + B.cI)
-            asVar.a(B.cz + B.cJ)
-            asVar.a(B.cV)
+            asVar.a(gameEngine.by)
+            asVar.a(gameEngine.cy + gameEngine.cI)
+            asVar.a(gameEngine.cz + gameEngine.cJ)
+            asVar.a(gameEngine.cV)
             asVar.a("com.corrodinggames.rts.gameFramework.aa".toClassAutoLoader(this)!!
-                .findField("a",Int::class.java)!!.get(B.bV) as Int
+                .findField("a",Int::class.java)!!.get(gameEngine.bV) as Int
             )
             asVar.a(0)
             asVar.e()
-            B.bL.a(asVar)
-            asVar.a(B.bv)
-            asVar.a(B.bL.E)
-            asVar.a(B.bL.F)
-            asVar.a(B.bL.G)
-            asVar.a(B.ce != null)
-            if (B.ce != null) {
-                B.ce.a(asVar)
+            gameEngine.bL.a(asVar)
+            asVar.a(gameEngine.bv)
+            asVar.a(gameEngine.bL.E)
+            asVar.a(gameEngine.bL.F)
+            asVar.a(gameEngine.bL.G)
+            asVar.a(gameEngine.ce != null)
+            if (gameEngine.ce != null) {
+                gameEngine.ce.a(asVar)
             }
             asVar.e()
             var i = -1
-            if (B.bs != null) {
-                i = B.bs.k
+            if (gameEngine.bs != null) {
+                i = gameEngine.bs.k
             }
             asVar.a(i)
             asVar.a(n.c)
@@ -268,10 +268,10 @@ internal class GameData : AbstractGameData {
                 asVar.a(wVar.eh)
             }
             asVar.d("Section: CurrentUnitId")
-            asVar.a(B.bX.z())
-            B.bV.a(asVar)
-            B.bS.a(asVar)
-            B.bY.a(asVar)
+            asVar.a(gameEngine.bX.z())
+            gameEngine.bV.a(asVar)
+            gameEngine.bS.a(asVar)
+            gameEngine.bY.a(asVar)
             // 写入用户数据
             for (i3 in 0 until n.c) {
                 val k2 = n.k(i3)

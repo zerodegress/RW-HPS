@@ -75,6 +75,18 @@ class GameModularLoadClass(
 
     /**
      * Add byte hot to this loader
+     *
+     * @param name String
+     * @param bytes ByteArray
+     */
+    fun addClassBytes(name: String, bytes: ByteArray, cove: Boolean = false) {
+        if (!classPathMap.containsKey(name.replace(".","/")) || cove) {
+            classPathMap.put(name.replace(".", "/"), bytes)
+        }
+    }
+
+    /**
+     * Add byte hot to this loader
      * If it has been hot loaded, then use [Class.forName] directly
      *
      * @param name String

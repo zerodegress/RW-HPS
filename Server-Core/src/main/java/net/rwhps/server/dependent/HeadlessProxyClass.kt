@@ -17,16 +17,14 @@ import net.rwhps.server.dependent.redirections.game.FileLoaderRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
 import net.rwhps.server.game.event.EventGlobalType
+import net.rwhps.server.game.simulation.HessClassPathProperties
 import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.alone.annotations.AsmMark
-import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
-import java.io.File
 
 @AsmMark.ClassLoaderCompatible
 class HeadlessProxyClass : AgentAttachData() {
@@ -82,8 +80,10 @@ class HeadlessProxyClass : AgentAttachData() {
                 args[2]?.let {
                     val classIn = obj as Class<*>
 
+                    val msg = it.toString()
+
                     if (Data.config.Log == "ALL") {
-                        System.out.println("[${classIn.classLoader}]  :  "+it.toString())
+                        System.out.println("[${classIn.classLoader}]  :  "+msg)
                     }
 
                     val load = classIn.classLoader
@@ -93,32 +93,21 @@ class HeadlessProxyClass : AgentAttachData() {
                         GameInitStatus.NoLoad
                     }
 
-                    if (it.toString().contains("----- Game init finished in")) {
+                    if (msg.contains("----- Game init finished in")) {
                         GameInitStatus.loadStatus.put(loadID,GameInitStatus.LoadEndMods)
                     }
-                    if (it.toString().contains("Saving settings") && loadFlagGame == GameInitStatus.LoadEndMods) {
+                    if (msg.contains("Saving settings") && loadFlagGame == GameInitStatus.LoadEndMods) {
                         GameInitStatus.loadStatus.put(loadID,GameInitStatus.LoadEndGames)
 
-                        (load as GameModularLoadClass).also {
-                            // Here, several intermediate signal transmission modules are directly injected into this loader
-                            // Because this loader only has Game-lib.jar
-                            val pkg = "net.rwhps.server.game.simulation.gameFramework"
-                            FileUtil(File(FileUtil.getJarPath())).zipDecoder.use {
-                                it.getZipAllBytes().each { k, v ->
-                                    if (k.startsWith(pkg.replace(".", "/"))) {
-                                        val name = k.replace(".class", "")
-                                        load.loadClassBytes(name.replace("/", "."), v)
-                                    }
-                                }
-                            }
-                            // 注入 接口
-                            load.loadClassBytes("$pkg.GameEngine", byteArrayOf())!!.findMethod("init")!!.invoke(null)
-                        }
+                        // 启用接口
+                        "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
+
 
                         Events.fire(EventGlobalType.GameLibLoadEvent(loadID))
                     }
-                    if (it.toString().startsWith("Replay: Recording replay to:")) {
-                        Log.clog("Save Replay to: {0}",it.toString().replace("Replay: Recording replay to:","").also {
+
+                    if (msg.startsWith("Replay: Recording replay to:")) {
+                        Log.clog("Save Replay to: {0}",msg.replace("Replay: Recording replay to:","").also {
                             Data.game.replayName = it
                         })
                     }

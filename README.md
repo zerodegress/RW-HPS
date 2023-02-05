@@ -79,7 +79,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
     - [简幻欢](https://sfe.simpfun.cn)  
 - RELAY-Unofficial
     - **RelayCN-Unofficial IP** - [SimpFun Cloud](https://cloud.simpfun.cn) : relay.der.kim
-    - **RelayRU-Unofficial IP** - `kaif.cloud`(Not URL)
+    - **RelayRU-Unofficial IP** - `vulkan.host`(Not URL)
 
 ## Recommended Configuration
 

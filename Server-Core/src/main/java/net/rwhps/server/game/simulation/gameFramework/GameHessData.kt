@@ -41,6 +41,12 @@ internal class GameHessData : AbstractGameHessData {
 
     override val tickHess: Int get() = GameEngine.gameEngine.bx
 
+    override var useMod: Boolean
+        get() = GameEngine.netEngine.o
+        set(value) {
+            GameEngine.netEngine.o = value
+        }
+
     override fun getGameData(fastSync: Boolean): Packet {
         val gameEngine: l = GameEngine.gameEngine
         val arVar = GameNetOutStream()

@@ -48,7 +48,8 @@ class FileLoaderRedirections : MainRedirections {
         // 清理Hess的数据, 避免启用安全模式
         FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("preferences.ini").delete()
         // 清除无用缓存
-        FileUtil.getFolder(Data.Plugin_Cache_Path).delete()}
+        FileUtil.getFolder(Data.Plugin_Cache_Path).delete()
+    }
 
     override fun register() {
         /* 修改 每个加载器下 [ResourceLoader] 的初始化实现, 来为 [ResourceLoader] 实现自定义内容 */
@@ -112,15 +113,30 @@ class FileLoaderRedirections : MainRedirections {
             /* 覆写 MOD 加载器路径 */
             val overrideModLoad = fun(path: String): String {
                 val modFolder = "mods/units"
-                if (path.startsWith(modFolder)) {
-                    return if (path == modFolder) {
-                        FileUtil.getPath(Data.Plugin_Mods_Path)
-                    } else {
-                        // 一个小问题, 来自 splicePath , 他会默认在屁股后面加一个 /
-                        FileUtil.splicePath(FileUtil.getPath(Data.Plugin_Mods_Path),path.substring(modFolder.length))
-                    }
+                val mapFolder = "mods/maps"
 
+                val find: (String, String,String)->String? = { pathIn,  path, toPath ->
+                    if (pathIn.startsWith(path)) {
+                        if (pathIn == path) {
+                            FileUtil.getPath(toPath)
+                        } else {
+                            // 一个小问题, 来自 splicePath , 他会默认在屁股后面加一个 /
+                            FileUtil.splicePath(FileUtil.getPath(toPath),pathIn.substring(path.length))
+                        }
+                    } else {
+                        null
+                    }
                 }
+
+                find(path,modFolder,Data.Plugin_Mods_Path)?.run {
+                    return this
+                }
+                find(path,mapFolder,Data.Plugin_Maps_Path)?.run {
+                    // Luke奇怪的方案, 只能手动加个 / 来触发读取, 不然就成了资源路径 (Assets)
+                    return "/$this"
+                }
+
+
                 return resAndAssetsPath + path
             }
 

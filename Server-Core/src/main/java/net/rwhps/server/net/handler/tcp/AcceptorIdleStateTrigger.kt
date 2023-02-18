@@ -14,13 +14,14 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.handler.timeout.IdleState
 import io.netty.handler.timeout.IdleStateEvent
+import io.netty.util.AttributeKey
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.handler.rudp.TimeoutDetection
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
 @Sharable
-internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
+open class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
     val connectNum: AtomicInteger = AtomicInteger()
 
     @Throws(Exception::class)
@@ -74,24 +75,26 @@ internal class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
         }
     }
 
-    companion object {
-        /**
-         * Clean up connections and release resources
-         * @param ctx ChannelHandlerContext
-         */
-        internal fun clear(ctx: ChannelHandlerContext) {
-            val channel = ctx.channel()
-            try {
-                val con = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
-                if (con != null) {
-                    con.abstractNetConnect.disconnect()
-                } else {
-                    channel.close()
-                    ctx.close()
-                }
-            } finally {
-                //OVER_MAP.remove(channel.id().asLongText())
+    protected open fun getAttributeKey(): AttributeKey<TypeConnect> {
+        return NewServerHandler.NETTY_CHANNEL_KEY
+    }
+
+    /**
+     * Clean up connections and release resources
+     * @param ctx ChannelHandlerContext
+     */
+    internal fun clear(ctx: ChannelHandlerContext) {
+        val channel = ctx.channel()
+        try {
+            val con = channel.attr(getAttributeKey()).get()
+            if (con != null) {
+                con.abstractNetConnect.disconnect()
+            } else {
+                channel.close()
+                ctx.close()
             }
+        } finally {
+            //OVER_MAP.remove(channel.id().asLongText())
         }
     }
 }

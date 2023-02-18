@@ -11,7 +11,10 @@ package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 
+@GameSimulationLayer.GameSimulationLayer_KeyWords("Note to modifiers: Changing credits will not allow you to cheat in multiplayer games, but it will only break sync")
 interface AbstractPlayerData {
+    fun updateDate()
+
     @GameSimulationLayer.GameSimulationLayer_KeyWords("is victorious!")
     val survive: Boolean
 
@@ -30,4 +33,10 @@ interface AbstractPlayerData {
     val experimentalsLost : Int
 
     var credits: Int
+
+    val name: String
+    val connectHexID: String
+    var site: Int
+    var team: Int
+
 }

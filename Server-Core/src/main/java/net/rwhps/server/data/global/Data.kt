@@ -48,9 +48,15 @@ object Data {
     const val SERVER_ID = "net.rwhps.server"
     const val SERVER_ID_RELAY = "net.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "1.1.0"
+    const val SERVER_CORE_VERSION = "2.0.0-DEV30"
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
+    const val SERVER_EULA_VERSION = "1.1.0"
+
+    const val supportedversionBeta = false
+    const val supportedversionGame = "1.15"
+    const val supportedVersionInt  = 176
+
     /** 单位数据缓存  */
 	@JvmField val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
 
@@ -80,12 +86,9 @@ object Data {
     lateinit var game: Rules
 
     @JvmField var vote: Vote? = null
-    var bindForcibly = false
 
-    @Volatile var loadGame = false
     @Volatile var exitFlag = false
 
+    // 服务器默认显示名称, 不推荐修改? (让我打广告提高知名度)
     val headlessName: String = "RW-HPS Core Headless"
-
-    var AD = "铁锈杯 2023/1/3 开幕 欢迎您的到来[退T]"
 }

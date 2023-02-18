@@ -33,6 +33,10 @@ interface TypeConnect {
      */
     fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect
 
+    fun setData(data: Any) {
+        // 非必要实现
+    }
+
     /**
      * Protocol processing
      * @param packet Accepted packages

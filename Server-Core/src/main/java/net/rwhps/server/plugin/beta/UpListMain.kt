@@ -11,13 +11,13 @@ package net.rwhps.server.plugin.beta
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.IRwHps
-import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.IpUtil
 import net.rwhps.server.util.IsUtil
@@ -86,10 +86,9 @@ internal class UpListMain : Plugin() {
 
     private fun initUpListData(urlIn: String = ""): Boolean {
         if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-            val con = NetStaticData.RwHps.typeConnect.abstractNetConnect as GameVersionServer
-            versionBeta = con.supportedversionBeta
-            versionGame = con.supportedversionGame
-            versionGameInt = con.supportedVersionInt
+            versionBeta = Data.supportedversionBeta
+            versionGame = Data.supportedversionGame
+            versionGameInt = Data.supportedVersionInt
         } else {
             versionBeta = false
             versionGame = "1.14-Other"
@@ -152,12 +151,12 @@ internal class UpListMain : Plugin() {
         var addData0= addData.replace("{RW-HPS.RW.VERSION}",versionGame)
         addData0    = addData0.replace("{RW-HPS.RW.VERSION.INT}",versionGameInt.toString())
         addData0    = addData0.replace("{RW-HPS.RW.IS.VERSION}",versionBeta.toString())
-        addData0    = addData0.replace("{RW-HPS.RW.IS.PASSWD}",Data.game.passwd.isNotBlank().toString())
+        addData0    = addData0.replace("{RW-HPS.RW.IS.PASSWD}",Data.config.Passwd.isNotBlank().toString())
         addData0    = addData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
         addData0    = addData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         addData0    = addData0.replace("{RW-HPS.S.PORT}",port)
-        addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20))
-        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size.toString())
+        addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
+        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
         addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
 
@@ -189,15 +188,15 @@ internal class UpListMain : Plugin() {
     }
 
     private fun update() {
-        var updateData0 = updateData.replace("{RW-HPS.RW.IS.PASSWD}",Data.game.passwd.isNotBlank().toString())
+        var updateData0 = updateData.replace("{RW-HPS.RW.IS.PASSWD}",Data.config.Passwd.isNotBlank().toString())
         updateData0     = updateData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
         updateData0     = updateData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         updateData0     = updateData0.replace("{RW-HPS.S.PORT}",port)
         updateData0     = updateData0.replace("{RW-HPS.RW.MAP.NAME}",
-            if (IsUtil.isBlank(Data.config.Subtitle)) Data.game.maps.mapName else cutting(Data.config.Subtitle,20))
+            if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
         updateData0     = updateData0.replace("{RW-HPS.S.STATUS}",
-            if (Data.game.isStartGame) "ingame" else "battleroom")
-        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",Data.game.playerManage.playerGroup.size.toString())
+            if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
+        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
         updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
 

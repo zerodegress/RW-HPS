@@ -46,7 +46,6 @@ class AsmAgent : ClassFileTransformer, AsmCore() {
             || allMethod.contains(className)) {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
-            // TODO: make writer.getClassLoader() return the given loader?
             return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
         }
         // 匹配指定 Class 的指定方法

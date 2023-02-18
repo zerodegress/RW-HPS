@@ -245,36 +245,39 @@ object Log {
         if (this.LOG_GRADE > i && !error) {
             return
         }
+
         val sb = StringBuilder()
         val lines = e.toString().split(Data.LINE_SEPARATOR).toTypedArray()
-        val stack = Throwable().stackTrace
-        var i1 = 0
-        while (i1 < stack.size) {
-            val ste = stack[i1]
-            val className = ste.className + "." + ste.methodName
-            if (!className.contains("net.rwhps.server.util.log.Log")) {
-                sb.append("[").append(ste.fileName).append("] : ")
-                    .append(ste.methodName).append(" : ").append(ste.lineNumber).append(Data.LINE_SEPARATOR)
-                break
+        if (error) {
+            val stack = Throwable().stackTrace
+            var i1 = 0
+            while (i1 < stack.size) {
+                val ste = stack[i1]
+                val className = ste.className + "." + ste.methodName
+                if (!className.contains("net.rwhps.server.util.log.Log")) {
+                    sb.append("[").append(ste.fileName).append("] : ")
+                        .append(ste.methodName).append(" : ").append(ste.lineNumber).append(Data.LINE_SEPARATOR)
+                    break
+                }
+                i1++
             }
-            i1++
         }
+
         // [Time] Tag:
         // Info
         sb.append("[").append(getMilliFormat(1)).append("] ").append(tag).append(": ")
 
         // 避免换行
-        if (lines.isNotEmpty()) {
+        if (lines.size > 1) {
             sb.append(Data.LINE_SEPARATOR)
+            for (line in lines) {
+                sb.append(line).append(Data.LINE_SEPARATOR)
+            }
+            // 去掉最后的换行
+            sb.deleteCharAt(sb.length - 1)
+        } else {
+            sb.append(e.toString())
         }
-
-        for (line in lines) {
-            sb.append(line)
-                .append(Data.LINE_SEPARATOR)
-        }
-
-        // 去掉最后的换行
-        sb.deleteCharAt(sb.length -1)
 
         this.logPrint(error,sb.toString())
     }

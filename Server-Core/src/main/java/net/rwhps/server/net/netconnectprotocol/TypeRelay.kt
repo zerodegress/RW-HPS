@@ -105,7 +105,7 @@ open class TypeRelay : TypeConnect {
             SYNCCHECKSUM_STATUS,
             HEART_BEAT_RESPONSE,
             GAMECOMMAND_RECEIVE -> {
-                con.sendResultPing(packet)
+                con.sendPackageToHOST(packet)
             }
             HEART_BEAT -> {
                 con.addGroup(packet)
@@ -115,11 +115,11 @@ open class TypeRelay : TypeConnect {
             }
             ACCEPT_START_GAME -> {
                 con.relay!!.isStartGame = true
-                con.sendResultPing(packet)
+                con.sendPackageToHOST(packet)
             }
             DISCONNECT -> con.disconnect()
             SERVER_DEBUG_RECEIVE -> con.debug(packet)
-            else -> con.sendResultPing(packet)
+            else -> con.sendPackageToHOST(packet)
 
         }
     }

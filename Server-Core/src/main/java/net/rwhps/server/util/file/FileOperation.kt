@@ -93,6 +93,8 @@ object FileOperation {
                 }
             }
         }
-        file.delete()
+        if (!file.delete()) {
+            throw IOException()
+        }
     }
 }

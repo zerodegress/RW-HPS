@@ -23,6 +23,10 @@ import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 
+/**
+ *
+ * @author RW-HPS/Dr
+ */
 @Sharable
 internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
 

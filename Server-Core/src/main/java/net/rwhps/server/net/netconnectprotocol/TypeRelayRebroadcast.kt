@@ -104,7 +104,7 @@ class TypeRelayRebroadcast : TypeRelay {
             PacketType.SYNCCHECKSUM_STATUS,
             PacketType.HEART_BEAT_RESPONSE,
             PacketType.GAMECOMMAND_RECEIVE -> {
-                con.sendResultPing(packet)
+                con.sendPackageToHOST(packet)
             }
 
             PacketType.DISCONNECT -> con.disconnect()
@@ -115,14 +115,14 @@ class TypeRelayRebroadcast : TypeRelay {
                     PacketType.REGISTER_PLAYER -> con.relayRegisterConnection(packet)
                     PacketType.ACCEPT_START_GAME -> {
                         con.relay!!.isStartGame = true
-                        con.sendResultPing(packet)
+                        con.sendPackageToHOST(packet)
                     }
 
                     PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                     PacketType.GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
                     else -> {
                         if (permissionStatus != RelayStatus.HostPermission) {
-                            con.sendResultPing(packet)
+                            con.sendPackageToHOST(packet)
                         }
                     }
                 }

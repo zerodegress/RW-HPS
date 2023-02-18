@@ -6,9 +6,11 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
-package net.rwhps.server.util
+package net.rwhps.server.util.encryption
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.util.ExtractUtil
+import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.encryption.codec.Base16Codec
 import java.math.BigInteger
 import java.nio.charset.Charset
@@ -152,7 +154,7 @@ object HexUtil {
      */
     @JvmStatic
     fun decodeHex(hexStr: String): ByteArray {
-        return decodeHex(hexStr)
+        return decodeHex(hexStr as CharSequence)
     }
 
     /**

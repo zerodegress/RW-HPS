@@ -11,4 +11,5 @@ package net.rwhps.server.game.simulation
 
 internal object HessClassPathProperties {
     const val CorePath = "net.rwhps.server.game.simulation.gameFramework"
+    const val GameHessPath = "com.corrodinggames.rts"
 }

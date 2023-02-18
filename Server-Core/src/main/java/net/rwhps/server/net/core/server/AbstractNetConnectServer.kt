@@ -9,7 +9,7 @@
 
 package net.rwhps.server.net.core.server
 
-import net.rwhps.server.data.player.Player
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.DataPermissionStatus
@@ -31,7 +31,7 @@ interface AbstractNetConnectServer {
      * Acquire players
      * @return Player
      */
-    val player: Player
+    val player: AbstractPlayer
 
     /**
      * Send the message package named by the system
@@ -118,7 +118,7 @@ interface AbstractNetConnectServer {
 
     /**
      * Check player data correctness
-     * @param p Packet
+     * @param packet Packet
      * @return Pass
      * @throws IOException Error
      */
@@ -163,17 +163,23 @@ interface AbstractNetConnectServer {
         }
     }
 
-    fun sync()
+    fun sync(fastSync: Boolean = false) {
+        // 选择性实现
+    }
 
     /**
      * Server type
      * @param msg Message
      * @param run Callback
      */
-    fun sendRelayServerType(msg: String, run: ((String) -> Unit)? = null)
+    fun sendRelayServerType(msg: String, run: ((String) -> Unit)? = null) {
+        // 选择性实现
+    }
 
     /**
      * Type Reply
      */
-    fun sendRelayServerTypeReply(packet: Packet)
+    fun sendRelayServerTypeReply(packet: Packet) {
+        // 选择性实现
+    }
 }

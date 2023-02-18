@@ -13,11 +13,17 @@ import com.corrodinggames.rts.game.n
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 
 internal class PrivateClass_Player(private val playerData: n) : AbstractPlayerData {
+    private var gameStatistics = GameEngine.gameStatistics.a(playerData)
+
+    override fun updateDate() {
+        gameStatistics = GameEngine.gameStatistics.a(playerData)
+    }
+
     override val survive get() = (!playerData.b() && !playerData.G && !playerData.F && !playerData.E)
 
-    private val gameStatistics = GameEngine.gameStatistics.a(playerData)
+
     /** 单位击杀数 */
-    override val unitsKilled get() = gameStatistics.c
+    override val unitsKilled: Int get() = gameStatistics.c
     /** 建筑毁灭数 */
     override val buildingsKilled get() = gameStatistics.d
     /** 单实验单位击杀数 */
@@ -33,4 +39,14 @@ internal class PrivateClass_Player(private val playerData: n) : AbstractPlayerDa
     override var credits
         get() = playerData.o.toInt()
         set(value) { playerData.o = value.toDouble() }
+
+    override val name = playerData.v
+    override val connectHexID = playerData.O
+
+    override var site
+        get() =  playerData.k
+        set(value) { playerData.k = value }
+    override var team
+        get() =  playerData.r
+        set(value) { playerData.r = value }
 }

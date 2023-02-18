@@ -11,7 +11,7 @@ package net.rwhps.server.data.global
 
 import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.net.GroupNet
-import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.BlackList
@@ -42,7 +42,7 @@ object NetStaticData {
     lateinit var RwHps: IRwHps
 
     @JvmField
-    var startNet = Seq<StartNet>(4)
+    var netService = Seq<NetService>(4)
 
     @JvmStatic
     fun checkServerStartNet(run : (()->Unit)?) : Boolean {

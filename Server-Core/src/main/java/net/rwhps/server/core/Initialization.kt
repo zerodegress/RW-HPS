@@ -21,22 +21,25 @@ import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.HttpRequestOkHttp
-import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.netconnectprotocol.*
 import net.rwhps.server.net.netconnectprotocol.realize.*
-import net.rwhps.server.util.I18NBundle
-import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.SystemUtil
-import net.rwhps.server.util.Time
+import net.rwhps.server.util.*
 import net.rwhps.server.util.encryption.Aes
 import net.rwhps.server.util.encryption.Rsa
+import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.inline.readBytes
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
+import java.io.FilterInputStream
+import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -50,6 +53,7 @@ class Initialization {
             Log.clog("&r RW-HPS It may not be compatible with your architecture, there will be unexpected situations, Thank you !")
         }
     }
+
     private fun initMaps() {
         with (Data.MapsMap) {
             put("Beachlanding(2p)[byhxyy]", "Beach landing (2p) [by hxyy]@[p2]")
@@ -157,7 +161,7 @@ class Initialization {
                             ServerData = BaseDataSend.Companion.ServerData(
                                 IpPlayerCountry = mutableMapOf<String, Int>().also {
                                     Data.game.playerManage.playerGroup.eachAll {  player ->
-                                        val ipCountry = player.con!!.ipCountry
+                                        val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
                                         if (it.containsKey(ipCountry)) {
                                             it[ipCountry] = it[ipCountry]!! + 1
                                         } else {
@@ -240,17 +244,49 @@ class Initialization {
                 }
 
             Data.i18NBundle = Data.i18NBundleMap[serverCountry]
-
             Log.clog(Data.i18NBundle.getinput("server.language"))
+
+            // Eula
+            if (pluginData.getData("eulaVersion","") != Data.SERVER_EULA_VERSION) {
+                val eulaBytes = if (serverCountry == "CN") {
+                    FileUtil.getInternalFileStream("/eula/China.md").readBytes()
+                } else {
+                    FileUtil.getInternalFileStream("/eula/English.md").readBytes()
+                }
+                Log.clog(ExtractUtil.str(eulaBytes,Data.UTF_8))
+
+                Log.clog("Agree to enter : Yes , Otherwise please enter : No")
+                System.out.print("Please Enter > ")
+
+                Scanner(object : FilterInputStream(System.`in`) {
+                    @Throws(IOException::class)
+                    override fun close() {
+                        //do nothing
+                    }
+                }).use {
+                    while (true) {
+                        val text = it.nextLine()
+                        if (text.equals("Yes",ignoreCase = true)) {
+                            pluginData.setData("eulaVersion",Data.SERVER_EULA_VERSION)
+                            Log.clog("Thanks !")
+                            return
+                        } else if (text.equals("No",ignoreCase = true)) {
+                            Log.clog("Thanks !")
+                            Core.exit()
+                        } else {
+                            Log.clog("Re Enter")
+                            System.out.print("Please Enter > ")
+                        }
+                    }
+                }
+            }
         }
 
         internal fun loadService() {
-            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.ServerProtocol.name,          TypeRwHps::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.ServerTestProtocol.name,      TypeRwHpsJump::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name,           TypeRelay::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name,  TypeRelayRebroadcast::class.java)
 
-            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerProtocol.name,          GameVersionServer::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerProtocolOld.name,       GameVersionServerOld::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerTestProtocol.name,      GameVersionServerJump::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayProtocol.name,           GameVersionRelay::class.java)
@@ -269,6 +305,7 @@ class Initialization {
             val ServerNetType: String                     = NetStaticData.ServerNetType.name,
             val System: String                            = SystemUtil.osName,
             val JavaVersion: String                       = SystemUtil.javaVersion,
+            val VersionCount: String                      = Data.SERVER_CORE_VERSION,
             val IsServerRun: Boolean                      = true,
             val IsServer: Boolean,
             val ServerData: ServerData? = null,
@@ -276,19 +313,19 @@ class Initialization {
         ) {
             companion object {
                 data class ServerData(
-                    val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
+                    val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
                     val MaxPlayer: Int                      = Data.config.MaxPlayer,
-                    val PlayerVersion: Int                  = (NetStaticData.RwHps.typeConnect.abstractNetConnect as GameVersionServer).supportedVersionInt,
+                    val PlayerVersion: Int                  = Data.supportedVersionInt,
                     val IpPlayerCountry: Map<String,Int>,
                 )
 
                 data class RelayData(
-                    val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
-                    val RoomAllSize: Int                    = Relay.roomAllSize,
-                    val RoomNoStartSize: Int                = Relay.roomNoStartSize,
-                    val RoomPublicListSize: Int             = 0,
-                    val PlayerVersion: Map<Int,Int>         = Relay.getAllRelayVersion(),
-                    val IpPlayerCountry: Map<String,Int>    = Relay.getAllRelayIpCountry()
+                    val PlayerSize: Int                    = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
+                    val RoomAllSize: Int                   = Relay.roomAllSize,
+                    val RoomNoStartSize: Int               = Relay.roomNoStartSize,
+                    val RoomPublicListSize: Int            = 0,
+                    val PlayerVersion: Map<Int, Int>       = Relay.getAllRelayVersion(),
+                    val IpPlayerCountry: Map<String, Int>  = Relay.getAllRelayIpCountry(),
                 )
             }
         }
@@ -298,6 +335,9 @@ class Initialization {
         checkEnvironment()
         //
         loadLang()
+
+
+
         initMaps()
         // 初始化 投降
         initRelay()

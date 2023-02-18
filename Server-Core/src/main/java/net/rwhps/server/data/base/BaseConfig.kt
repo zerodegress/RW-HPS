@@ -63,6 +63,8 @@ data class BaseConfig(
     val DefIncome: Float = 1f,
     /** only Admin */
     val OneAdmin: Boolean = true,
+
+    val SaveRePlayFile: Boolean = true,
     /** ip多语言支持 */
     val IpCheckMultiLanguageSupport: Boolean = false,
 

@@ -9,6 +9,7 @@
 
 package net.rwhps.server.util
 
+
 object GameOtherUtil {
     @JvmStatic
     fun getBetaVersion(version: Int): Boolean {
@@ -16,5 +17,25 @@ object GameOtherUtil {
             return true
         }
         return false
+    }
+
+    @JvmStatic
+    fun getPoint(floats: Map<Float, Float>): FloatArray {
+        val pointNum = floats.size //坐标点个数
+        var xOut = 0F
+        var yOut = 0F
+        floats.forEach { (x, y) ->
+            if (xOut == 0F && yOut == 0F) {
+                xOut = x
+                yOut = y
+            } else {
+                xOut += x
+                yOut += y
+
+                xOut /= 2
+                yOut /= 2
+            }
+        }
+        return floatArrayOf(xOut,yOut)
     }
 }

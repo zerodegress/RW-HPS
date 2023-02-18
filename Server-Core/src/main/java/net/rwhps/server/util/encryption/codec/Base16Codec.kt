@@ -38,7 +38,7 @@ class Base16Codec(lowerCase: Boolean) : Encoder<ByteArray, CharArray>, Decoder<C
     }
 
     override fun decode(encodedIn: CharSequence): ByteArray {
-        var encoded = encodedIn
+        var encoded = encodedIn.replace("\\s".toRegex(),"")
         var len = encoded.length
         if (len and 0x01 != 0) {
             // 如果提供的数据是奇数长度，则前面补0凑偶数

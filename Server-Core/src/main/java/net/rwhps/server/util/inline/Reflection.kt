@@ -100,3 +100,7 @@ fun String.toClass(loader: ClassLoader?): Class<*>? {
 fun <T> Class<T>.accessibleConstructor(vararg parameterTypes: Class<*>): Constructor<T> {
     return ReflectionUtils.accessibleConstructor(this, *parameterTypes)
 }
+
+fun Class<*>.forName(): String {
+    return this.toString().replace("class ","")
+}

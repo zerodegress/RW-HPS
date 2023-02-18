@@ -4,7 +4,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 
 data class InfoResp(
-    val isRunning: Boolean = NetStaticData.startNet.size > 0,
+    val isRunning: Boolean = NetStaticData.netService.size > 0,
     val serverPort: Int = Data.config.Port,
     val online: Int = Data.game.playerManage.playerGroup.size,
     val maxOnline: Int = Data.config.MaxPlayer,

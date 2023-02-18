@@ -20,6 +20,7 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.io.packet.GameCommandPacket
+import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Time
@@ -123,18 +124,26 @@ object Call {
      */
     @JvmStatic
     fun sendCheckData() {
-        NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameData.getGameCheck())
+        if (Data.game.gameReConnectPaused) {
+            return
+        }
+
+        NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameHessData.getGameCheck())
     }
 
     @JvmStatic
     @JvmOverloads
     fun sendSync(displayInformation: Boolean = true) {
+        if (Data.game.gameReConnectPaused) {
+            return
+        }
+
         try {
             Data.game.gameReConnectPaused = true
             if (displayInformation) {
                 sendSystemMessage("同步中 请耐心等待 不要退出 期间会短暂卡住！！ 需要30s-60s")
             }
-            NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameData.getGameData())
+            NetStaticData.groupNet.broadcast(HessModuleManage.hps.gameHessData.getGameData())
         } catch (e: Exception) {
             error("[Player] Send GameSave ReConnect Error", e)
         } finally {
@@ -168,7 +177,7 @@ object Call {
 
     @JvmStatic
     fun disAllPlayer() {
-        Data.game.playerManage.playerGroup.eachAll { e: Player -> e.con!!.disconnect() }
+        Data.game.playerManage.playerGroup.eachAll { e: Player -> (e.con!! as AbstractNetConnect).disconnect() }
     }
 
     @JvmStatic

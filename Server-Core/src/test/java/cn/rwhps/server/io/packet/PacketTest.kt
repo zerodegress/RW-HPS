@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.io.packet
+package net.rwhps.server.io.packet
 
 import net.rwhps.server.io.packet.Packet
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -23,12 +23,16 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketException
 import java.util.*
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * @author RW-HPS/Dr
  * @date 2021年2月2日星期二 06:31:11
  */
 class ConnectionAgreement {
+    private val sendSync = ReentrantLock(true)
+
     private val protocolType: ((packet: Packet) -> Unit)
     private val objectOutStream: Any
     private val udpDataOutputStream: DataOutputStream?
@@ -47,15 +51,19 @@ class ConnectionAgreement {
      * @param channelHandlerContext Netty-ChannelHandlerContext
      */
     internal constructor(channelHandlerContext: ChannelHandlerContext) {
+        val channel = channelHandlerContext.channel()
+
         protocolType = { packet: Packet ->
-            channelHandlerContext.writeAndFlush(packet)
+            // 扔进Netty的线程处理, 不让netty包装成 Task, 避免有的是Task有的直接写入而导致的包顺序错误
+            channel.eventLoop().execute {
+                channelHandlerContext.writeAndFlush(packet)
+            }
         }
         objectOutStream = channelHandlerContext
         udpDataOutputStream = null
         useAgreement = "TCP"
         isClosed = { false }
 
-        val channel = channelHandlerContext.channel()
         ip = convertIp(channel.remoteAddress().toString())
         ipLong24 = IpUtil.ipToLong24(ip,false)
         ipCountry = IPCountry.getIpCountry(ip)
@@ -118,7 +126,10 @@ class ConnectionAgreement {
      */
     @Throws(IOException::class)
     fun send(packet: Packet) {
-        protocolType(packet)
+        // 保持包顺序
+        sendSync.withLock {
+            protocolType(packet)
+        }
     }
 
     @Throws(IOException::class)

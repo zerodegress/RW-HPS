@@ -1,5 +1,5 @@
 //Netty Version
-val nettyVersion = "4.1.86.Final"
+val nettyVersion = "4.1.87.Final"
 
 /**
  * Fuck implementation
@@ -9,6 +9,9 @@ dependencies {
 
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
+
+	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
+	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
 
 	api("io.netty:netty-buffer:$nettyVersion")
 	api("io.netty:netty-codec:$nettyVersion")
@@ -30,6 +33,7 @@ dependencies {
 
 	api("org.apache.commons:commons-compress:1.21")
 	implementation("org.tukaani:xz:1.9")
+
 
 	api("com.squareup.okhttp3:okhttp:4.10.0") {
 		exclude(group = "org.jetbrains.kotlin")
@@ -62,7 +66,6 @@ publishing {
 			groupId = "com.github.RW-HPS"
 			artifactId = "Server-Core"
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
-			version = "1.0.0"
 
 			from(components.getByName("java"))
 

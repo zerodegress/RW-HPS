@@ -9,9 +9,26 @@
 
 package net.rwhps.server.game.simulation.core
 
+import net.rwhps.server.data.global.ServerRoom
+
+/**
+ * 通过这里的稳定接口来调用游戏内部实现
+ *
+ * @property useClassLoader 获取加载接口实现类的 [ClassLoader]]
+ * @property gameHessData AbstractGameHessData
+ * @property gameNet AbstractGameNet
+ * @property gameUnitData AbstractGameUnitData
+ * @property gameFast AbstractGameFast
+ * @property room ServerRoom
+ */
 interface AbstractGameModule {
     val useClassLoader: ClassLoader
-    val gameData: AbstractGameData
+
+    val gameHessData: AbstractGameHessData
     val gameNet: AbstractGameNet
     val gameUnitData: AbstractGameUnitData
+    val gameFast: AbstractGameFast
+
+    val gameData: AbstractGameData
+    val room: ServerRoom
 }

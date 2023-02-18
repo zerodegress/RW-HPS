@@ -10,6 +10,7 @@
 package net.rwhps.server.game.event
 
 import net.rwhps.server.data.event.GameOverData
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.player.Player
 
 /**
@@ -26,7 +27,7 @@ class EventType {
     class PlayerConnectEvent(val player: Player)
 
     /** 玩家离开时  */
-    class PlayerLeaveEvent(val player: Player)
+    class PlayerLeaveEvent(val player: AbstractPlayer)
 
     /** 玩家发言时  */
     class PlayerChatEvent(val player: Player, val message: String)

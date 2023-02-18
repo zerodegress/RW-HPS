@@ -22,6 +22,8 @@ import java.util.Map;
 public class DescriptionUtil {
     private static final Map<Class<?>, String> PRIMITIVES = new HashMap<>();
 
+    public static final String ObjectClassName = "java/lang/Object";
+
     static {
         PRIMITIVES.put(boolean.class, "Z");
         PRIMITIVES.put(byte.class, "B");

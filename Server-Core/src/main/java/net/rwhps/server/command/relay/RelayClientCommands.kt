@@ -56,7 +56,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
         handler.register("jump","<ip/id>", "#jump Server") { args: Array<String>, con: GameVersionRelay ->
             if (!isAdmin(con,false)) {
-                con.sendCustomPacket(fromRelayJumpsToAnotherServer(args[0]))
+                con.sendPacket(fromRelayJumpsToAnotherServer(args[0]))
             } else {
                 sendMsg(con,"You Is ADMIN !")
             }
@@ -80,7 +80,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
                 })
                 writeBoolean(true)
             }
-            con.sendResultPing(p.createPacket(PacketType.SYNCCHECKSUM_STATUS))
+            con.sendPackageToHOST(p.createPacket(PacketType.SYNCCHECKSUM_STATUS))
         }
 
         handler.register("kickx","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
@@ -145,7 +145,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
     }
 
     private fun sendMsg(con: GameVersionRelay, msg: String) {
-        con.sendCustomPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(msg,"RELAY-CN",5))
+        con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(msg,"RELAY-CN",5))
     }
 
     private fun findPlayer(con: GameVersionRelay, findIn: String): GameVersionRelay? {
@@ -180,7 +180,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
         findSiteIn?.let {findSite ->
             con.relay!!.abstractNetConnectIntMap.values.forEach {
-                if (it.playerRelay!!.site == findSite) {
+                if (it.playerRelay?.site == findSite) {
                     conTg = it
                 }
             }

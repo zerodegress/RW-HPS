@@ -15,7 +15,7 @@ import org.objectweb.asm.tree.*
 /**
  * Utility for dealing with Instructions.
  */
-object InstructionUtil {
+internal object InstructionUtil {
     @JvmStatic
     fun loadType(type: Type): AbstractInsnNode {
         return when (type.sort) {

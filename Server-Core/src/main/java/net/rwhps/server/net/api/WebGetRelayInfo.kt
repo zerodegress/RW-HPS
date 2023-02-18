@@ -14,7 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
-import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.NetService
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebGet
@@ -36,7 +36,7 @@ class WebGetRelayInfo : WebGet() {
         init {
             Threads.newTimedTask(CallTimeTask.ServerStatusUpdate, 0, 30, TimeUnit.SECONDS) {
                 val size = AtomicInteger()
-                NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
+                NetStaticData.netService.eachAll { e: NetService -> size.addAndGet(e.getConnectSize()) }
 
                 relayInfo = """
                             <!--

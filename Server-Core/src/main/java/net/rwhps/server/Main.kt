@@ -55,7 +55,8 @@ import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import net.rwhps.server.game.simulation.GameHeadlessEvent
 import net.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import net.rwhps.server.io.ConsoleStream
-import net.rwhps.server.net.StartNet
+import net.rwhps.server.math.Rand
+import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.net.http.WebData
@@ -68,6 +69,7 @@ import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.set
 import net.rwhps.server.util.log.Log.setCopyPrint
+import net.rwhps.server.util.log.exp.EggsException
 import org.fusesource.jansi.AnsiConsole
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
@@ -145,14 +147,16 @@ object Main {
         runRegisterGlobalEvents()
         PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
 
-        //ModManage.test()
-
         /* 加载完毕 */
         Events.fire(ServerLoadEvent())
 
         /* 初始化Plugin Init */
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
+
+        set(Data.config.Log)
+
+
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
@@ -167,7 +171,7 @@ object Main {
         newThreadCore {
             WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
 
-            StartNet(StartHttp::class.java).openPort(5000)
+            NetService(StartHttp::class.java).openPort(5000)
         }
     }
 
@@ -203,7 +207,9 @@ object Main {
                     last = 1
                     continue
                 }
-                //Log.skipping(EggsException.MoneyNotEnoughException("KFC Crazy Thursday need ¥50."))
+                if (Rand().nextBoolean()) {
+                    Log.skipping(EggsException.MoneyNotEnoughException("KFC Crazy Thursday need ¥50."))
+                }
                 reader.printAbove("force exit")
                 exitProcess(255)
             } catch (e: EndOfFileException) {

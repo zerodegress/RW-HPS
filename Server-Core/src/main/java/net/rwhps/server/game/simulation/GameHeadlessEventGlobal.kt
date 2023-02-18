@@ -26,9 +26,10 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
 
     override fun registerGameLibLoadEvent(loadID: String) {
         if (HessModuleManage.hpsLoader != loadID) {
-            Log.clog("Run GameHeadless ID: $loadID , But No Init newConnect")
+            Log.clog("Run GameHeadless ID: $loadID , This is not the first time to load, please customize the initialization")
             return
         }
+
         if (newGameFlag) {
             return
         }
@@ -39,7 +40,8 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
         ModManage.loadUnits()
         Log.clog("Load Game Core END !")
 
-        HessModuleManage.hps.gameNet.newConnect()
+        //HessModuleManage.hps.gameNet.newConnect()
+        HessModuleManage.hps.gameNet.startHessPort(Data.config.Port)
         Log.clog(Data.i18NBundle.getinput("server.load.end"))
         Log.clog("Run GameHeadless ID: $loadID")
     }

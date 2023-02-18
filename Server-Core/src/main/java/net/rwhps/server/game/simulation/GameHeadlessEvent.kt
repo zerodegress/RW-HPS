@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 class GameHeadlessEvent : AbstractEvent {
     override fun registerGameStartEvent() {
         Data.game.playerManage.playerAll.eachAll { player ->
-            player.playerPrivateData = HessModuleManage.hps.gameData.getPlayerData(player.site)
+            player.playerPrivateData = HessModuleManage.hps.gameHessData.getPlayerData(player.site)
         }
 
         Threads.newTimedTask(CallTimeTask.CallCheckTask,0,2, TimeUnit.SECONDS,Call::sendCheckData)
@@ -34,7 +34,7 @@ class GameHeadlessEvent : AbstractEvent {
 
         Call.killAllPlayer()
 
-        HessModuleManage.hps.gameData.clean()
+        HessModuleManage.hps.gameHessData.clean()
         Log.clog("Stop GameHeadless")
         HessModuleManage.hps.gameNet.newConnect()
         Log.clog("ReRun GameHeadless")

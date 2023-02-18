@@ -9,32 +9,11 @@
 
 package net.rwhps.server.game.simulation.core
 
-import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
-import net.rwhps.server.util.log.exp.ImplementedException
+import net.rwhps.server.util.game.CommandHandler
 
-interface AbstractGameData {
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("gameSave")
-    fun getGameData(): Packet
+abstract class AbstractGameData {
+    val serverCommand = CommandHandler("")
+    val clientCommand = CommandHandler("/")
 
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("30")
-    fun getGameCheck(): Packet
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("checkSumSize!")
-    fun verifyGameSync(packet: Packet): Boolean
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("is victorious!")
-    fun getWin(team: Int): Boolean
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("aiDifficulty is locked")
-    fun getPlayerBirthPointXY()
-
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("exited!")
-    fun clean()
-
-    fun getDefPlayerData(): AbstractPlayerData
-
-    @Throws(ImplementedException.PlayerImplementedException::class)
-    fun getPlayerData(site: Int): AbstractPlayerData
+    abstract fun init()
 }

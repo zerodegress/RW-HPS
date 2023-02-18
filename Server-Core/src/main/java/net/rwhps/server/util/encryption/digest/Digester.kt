@@ -11,7 +11,7 @@ package net.rwhps.server.util.encryption.digest
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.ExtractUtil
-import net.rwhps.server.util.HexUtil
+import net.rwhps.server.util.encryption.HexUtil
 import net.rwhps.server.util.encryption.SecureUtil
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.io.IoRead

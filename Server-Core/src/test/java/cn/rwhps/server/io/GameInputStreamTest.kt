@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package cn.rwhps.server.io
+package net.rwhps.server.io
 
 import net.rwhps.server.io.GameInputStream
 import org.junit.jupiter.api.Assertions.assertEquals

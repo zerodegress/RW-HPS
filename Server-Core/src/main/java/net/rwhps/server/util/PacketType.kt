@@ -9,6 +9,7 @@
 
 package net.rwhps.server.util
 
+import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.struct.IntMap
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.exp.VariableException
@@ -93,6 +94,10 @@ enum class PacketType(val typeInt: Int) {
 
     companion object {
         private val typeMap: IntMap<PacketType> = IntMap(values().size)
+
+        val nullPacket by lazy {
+            Packet(0, ByteArray(0))
+        }
 
         init {
             values().forEach {

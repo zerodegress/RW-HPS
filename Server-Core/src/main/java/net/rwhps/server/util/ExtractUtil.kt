@@ -32,18 +32,6 @@ object ExtractUtil {
     }
 
     /**
-     * 编码字符串<br></br>
-     * 使用系统默认编码
-     *
-     * @param str 字符串
-     * @return 编码后的字节码
-     */
-    @JvmStatic
-    fun bytes(str: CharSequence): ByteArray {
-        return bytes(str, Charset.defaultCharset())
-    }
-
-    /**
      * 编码字符串
      *
      * @param str     字符串
@@ -67,7 +55,8 @@ object ExtractUtil {
      * @return 编码后的字节码
      */
     @JvmStatic
-    fun bytes(str: CharSequence, charset: Charset?): ByteArray {
+    @JvmOverloads
+    fun bytes(str: CharSequence, charset: Charset? = Charset.defaultCharset()): ByteArray {
         return if (null == charset) {
             str.toString().toByteArray()
         } else {
@@ -85,58 +74,6 @@ object ExtractUtil {
     @JvmStatic
     fun str(data: ByteArray, charset: Charset?): String {
         return if (null == charset) { String(data) } else String(data, charset)
-    }
-
-    private fun byteToUnsignedInt(data: Byte): Int {
-        return data.toInt() and 0xff
-    }
-
-    /**
-     * 合并byte数组
-     */
-    @JvmStatic
-    fun unitByteArray(byte1: ByteArray, byte2: ByteArray): ByteArray {
-        val unitByte = ByteArray(byte1.size + byte2.size)
-        System.arraycopy(byte1, 0, unitByte, 0, byte1.size)
-        System.arraycopy(byte2, 0, unitByte, byte1.size, byte2.size)
-        return unitByte
-    }
-
-    @JvmStatic
-	fun hexToByteArray(inHex: String): ByteArray {
-        var inHexRemoveAir = inHex.replace(" ", "")
-        var hexLength = inHexRemoveAir.length
-        val result: ByteArray
-        if (hexLength % 2 != 1) {
-            //偶数
-            result = ByteArray(hexLength / 2)
-        } else {
-            //奇数
-            hexLength++
-            result = ByteArray(hexLength / 2)
-            inHexRemoveAir = "0$inHexRemoveAir"
-        }
-        var j = 0
-        var i = 0
-        while (i < hexLength) {
-            result[j] = inHexRemoveAir.substring(i, i + 2).toInt(16).toByte()
-            j++
-            i += 2
-        }
-        return result
-    }
-
-    @JvmStatic
-	fun bytesToHex(bytes: ByteArray): String {
-        val sb = StringBuffer()
-        for (aByte in bytes) {
-            val hex = Integer.toHexString(aByte.toInt() and 0xFF)
-            if (hex.length < 2) {
-                sb.append(0)
-            }
-            sb.append(hex).append(" ")
-        }
-        return sb.toString()
     }
 
     fun tryRunTest(run: ()->Unit) {

@@ -97,7 +97,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         get() = "1.15 RW-HPS"
 
     override fun sendSystemMessage(msg: String) {
-        if (!this::player.isInitialized || !player.noSay) {
+        if (this::player.isInitialized || !player.noSay) {
             try {
                 sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
             } catch (e: IOException) {
@@ -417,10 +417,11 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             return
         }
 
-        val syncFlag = HessModuleManage.hps.gameData.verifyGameSync(packet)
+        val syncFlag = HessModuleManage.hps.gameHessData.verifyGameSync(player,packet)
 
         if (syncFlag) {
-            sync()
+            player.lastSyncTick = HessModuleManage.hps.gameHessData.tickHess
+            sync(true)
         }
     }
 
@@ -456,6 +457,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 val passwd = stream.readIsString()
                 Log.debug("passwd", passwd)
                 stream.readString()
+                // UUID-SHA256-Hex 不可跟踪
                 val uuid = stream.readString()
                 Log.debug("uuid", uuid)
                 Log.debug("?", stream.readInt())
@@ -545,6 +547,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 if (IsUtil.notIsBlank(Data.config.EnterAd)) {
                     sendSystemMessage(Data.config.EnterAd)
                 }
+
                 if (re.get()) {
                     reConnect()
                 }
@@ -565,7 +568,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         // 生成随机Key;
         val keyLen = 6
         val key = RandomUtil.getRandomIntString(keyLen).toInt()
-        connectKey = Game.connectKeyP10(key)
+        connectKey = Game.connectKeyLast(key)
         GameInputStream(p).use { stream ->
             // Game Pkg Name
             stream.readString()
@@ -644,11 +647,23 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         }
     }
 
-    override fun sync() {
+    override fun sync(fastSync: Boolean) {
         try {
             Data.game.gameReConnectPaused = true
-            sendSystemMessage("同步中 请耐心等待 不要退出 期间会短暂卡住！！")
-            sendPacket(HessModuleManage.hps.gameData.getGameData())
+
+            Data.game.gameCommandCache.clear()
+            if (fastSync) {
+                HessModuleManage.hps.gameHessData.getGameData(true)
+            } else {
+                Call.sendSystemMessage("同步中 请耐心等待 不要退出 期间会短暂卡住！！")
+                HessModuleManage.hps.gameHessData.getGameData().run {
+                    Data.game.playerManage.playerGroup.eachAll {
+                        it.con?.let {
+                            (it as AbstractNetConnect).sendPacket(this)
+                        }
+                    }
+                }
+            }
         } catch (e: Exception) {
             Log.error("[Player] Send GameSave ReConnect Error", e)
         } finally {

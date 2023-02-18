@@ -10,6 +10,7 @@
 package net.rwhps.server.plugin.event
 
 import net.rwhps.server.data.event.GameOverData
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.player.Player
 
 interface AbstractEvent {
@@ -35,7 +36,7 @@ interface AbstractEvent {
      * 玩家离开时 [异步-ASync]
      * @param player Player
      */
-    fun registerPlayerLeaveEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerLeaveEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /**
      * 玩家发言时 [异步-ASync]

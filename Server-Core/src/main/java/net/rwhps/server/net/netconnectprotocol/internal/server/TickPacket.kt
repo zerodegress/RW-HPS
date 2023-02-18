@@ -56,9 +56,14 @@ internal fun gameTickCommandPacketInternal(tick: Int, cmd: GameCommandPacket): P
     o.writeInt(tick)
     // Readable key pack length
     o.writeInt(1)
-    val enc = CompressOutputStream.getGzipOutputStream("c", false)
-    enc.writeBytes(cmd.bytes)
-    o.flushEncodeData(enc)
+
+    if (cmd.gzip) {
+        val enc = CompressOutputStream.getGzipOutputStream("c", false)
+        enc.writeBytes(cmd.bytes)
+        o.flushEncodeData(enc)
+    } else {
+        o.writeBytes(cmd.bytes)
+    }
     return o.createPacket(PacketType.TICK)
 }
 
@@ -77,9 +82,13 @@ internal fun gameTickCommandsPacketInternal(tick: Int, cmd: Seq<GameCommandPacke
     // Readable key pack length
     o.writeInt(cmd.size)
     for (c in cmd) {
-        val enc = CompressOutputStream.getGzipOutputStream("c", false)
-        enc.writeBytes(c.bytes)
-        o.flushEncodeData(enc)
+        if (c.gzip) {
+            val enc = CompressOutputStream.getGzipOutputStream("c", false)
+            enc.writeBytes(c.bytes)
+            o.flushEncodeData(enc)
+        } else {
+            o.writeBytes(c.bytes)
+        }
     }
     return o.createPacket(PacketType.TICK)
 }

@@ -12,6 +12,7 @@ package net.rwhps.server.net.core
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelPipeline
+import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
 import io.netty.util.concurrent.DefaultEventExecutorGroup
@@ -20,7 +21,6 @@ import net.rwhps.server.net.code.tcp.PacketDecoder
 import net.rwhps.server.net.code.tcp.PacketEncoder
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 import net.rwhps.server.net.handler.tcp.NewServerHandler
-import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.threads.ThreadFactoryName
 import java.util.concurrent.TimeUnit
 
@@ -28,9 +28,10 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 @Sharable
-open class AbstractNet : ChannelInitializer<SocketChannel>() {
-    private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger()
-    private var newServerHandler: NewServerHandler = NewServerHandler()
+abstract class AbstractNet(
+    private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger(),
+    private val newServerHandler: SimpleChannelInboundHandler<Any?> = NewServerHandler()
+) : ChannelInitializer<SocketChannel>() {
     private val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(64, ThreadFactoryName.nameThreadFactory("IO-Group"))
 
 
@@ -55,8 +56,7 @@ open class AbstractNet : ChannelInitializer<SocketChannel>() {
         return idleStateTrigger.connectNum.get()
     }
 
-    override fun initChannel(socketChannel: SocketChannel) {
-        throw ImplementedException("Need to implement")
+    open fun close() {
+        ioGroup.shutdownGracefully()
     }
-
 }

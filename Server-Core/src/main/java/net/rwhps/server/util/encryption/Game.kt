@@ -18,7 +18,7 @@ package net.rwhps.server.util.encryption
 object Game {
     // 1.14
     @JvmStatic
-	fun connectKey(paramInt: Int): String {
+	fun connectKey_114(paramInt: Int): String {
         return buildString {
             append("c:${paramInt}")
             append("m:${paramInt * 87 + 24}")
@@ -36,7 +36,7 @@ object Game {
 
     // 1.15
     @JvmStatic
-    fun connectKeyNew(paramInt: Int): String {
+    fun connectKeyNew_115_Test(paramInt: Int): String {
         return buildString {
             append("c:${paramInt}")
             append("m:${paramInt * 87 + 24}")
@@ -54,7 +54,7 @@ object Game {
 
     // 1.15.P10
     @JvmStatic
-    fun connectKeyP10(paramInt: Int): String {
+    fun connectKeyLast(paramInt: Int): String {
         return buildString {
             append("c:${paramInt}")
             append("m:${paramInt * 87 + 24}")

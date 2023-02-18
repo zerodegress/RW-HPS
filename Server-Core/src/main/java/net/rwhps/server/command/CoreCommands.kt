@@ -25,7 +25,7 @@ import net.rwhps.server.dependent.HotLoadClass
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Rules
 import net.rwhps.server.game.event.EventGlobalType
-import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.plugin.PluginsLoad
@@ -61,7 +61,7 @@ class CoreCommands(handler: CommandHandler) {
 
         @NeedHelp
         handler.register("stop", "HIDE") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size == 0) {
+            if (NetStaticData.netService.size == 0) {
                 log["Server does not start"]
                 return@register
             }
@@ -71,10 +71,17 @@ class CoreCommands(handler: CommandHandler) {
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", SystemUtil.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-                log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size, NetStaticData.RwHps.typeConnect.version, NetStaticData.RwHps.typeConnect.abstractNetConnect.version, HessModuleManage.hps.useClassLoader)]
+                HessModuleManage.hessLoaderMap.values().forEach {
+                    log[localeUtil.getinput("status.versionS.server",
+                        it.room.mapName,
+                        it.room.playerManage.playerAll.size,
+                        NetStaticData.ServerNetType.name,
+                        it.useClassLoader,
+                        it.room.roomID)]
+                }
             } else if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
                 val size = AtomicInteger()
-                NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
+                NetStaticData.netService.eachAll { e: NetService -> size.addAndGet(e.getConnectSize()) }
                 log[localeUtil.getinput("status.versionS.relay", size.get())]
             }
         }
@@ -115,12 +122,15 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     private fun registerStartServer(handler: CommandHandler) {
-        handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerProtocol,log)}
+        handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons ->
+            NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
+            Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
+        }
         handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
 
 
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size > 0) {
+            if (NetStaticData.netService.size > 0) {
                 log["The server is not closed, please close"]
                 return@register
             }
@@ -137,10 +147,10 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice") //5200 6500
+            handler.handleMessage("startnetservice 5201 5500") //5200 6500
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            if (NetStaticData.startNet.size > 0) {
+            if (NetStaticData.netService.size > 0) {
                 log["The server is not closed, please close"]
                 return@register
             }
@@ -162,21 +172,19 @@ class CoreCommands(handler: CommandHandler) {
 
 
         handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
-            val startNetTcp = StartNet()
-            NetStaticData.startNet.add(startNetTcp)
+            val netServiceTcp = NetService()
             Threads.newThreadCoreNet {
                 if (arg != null && arg.size > 1) {
-                    startNetTcp.openPort(Data.config.Port, arg[0].toInt(), arg[1].toInt())
+                    netServiceTcp.openPort(Data.config.Port, arg[0].toInt(), arg[1].toInt())
                 } else {
-                    startNetTcp.openPort(Data.config.Port)
+                    netServiceTcp.openPort(Data.config.Port)
                 }
             }
 
             Threads.newThreadCoreNet {
                 if (Data.config.WebService) {
-                    val startNetTcp1 = StartNet(StartHttp::class.java)
-                    NetStaticData.startNet.add(startNetTcp1)
-                    startNetTcp1.openPort(Data.config.SeparateWebPort)
+                    val netServiceTcp1 = NetService(StartHttp::class.java)
+                    netServiceTcp1.openPort(Data.config.SeparateWebPort)
                 }
             }
             Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
@@ -192,7 +200,7 @@ class CoreCommands(handler: CommandHandler) {
      * @param log StrCons            Log打印
      */
     private fun startServer(handler: CommandHandler ,netType: IRwHps.NetType, log: StrCons) {
-        if (NetStaticData.startNet.size > 0) {
+        if (NetStaticData.netService.size > 0) {
             log["The server is not closed, please close"]
             return
         }
@@ -229,11 +237,6 @@ class CoreCommands(handler: CommandHandler) {
         }
         handler.register("logg", "serverCommands.exit") { _: Array<String>, _: StrCons ->
 
-        }
-        handler.register("kc", "<1>", "serverCommands.exit") { arg: Array<String>, _: StrCons ->
-            val site = arg[0].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
-            player!!.con!!.disconnect()
         }
     }
 }

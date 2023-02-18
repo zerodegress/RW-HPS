@@ -78,7 +78,12 @@ object GameStartInit {
         // 注入 接口
         FileUtil(File(FileUtil.getJarPath())).zipDecoder.use {
             it.getZipAllBytes().each { k, v ->
-                if (k.startsWith(HessClassPathProperties.CorePath.replace(".", "/"))) {
+                if (
+                    // 注入接口
+                    k.startsWith(HessClassPathProperties.CorePath.replace(".", "/")) ||
+                    // 覆写游戏
+                    k.startsWith(HessClassPathProperties.GameHessPath.replace(".","/"))
+                ) {
                     val name = k.replace(".class", "")
                     load.addClassBytes(name.replace("/", "."), v)
                 }

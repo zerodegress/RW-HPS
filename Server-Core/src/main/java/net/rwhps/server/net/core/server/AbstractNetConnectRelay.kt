@@ -126,8 +126,8 @@ interface AbstractNetConnectRelay {
      * @param packet Packet
      */
     fun addRelaySend(packet: Packet)
-    fun sendResultPing(packet: Packet)
-    fun sendCustomPacket(packet: Packet)
+
+    fun sendPackageToHOST(packet: Packet)
 
     /**
      * Send RELAY to HOST Player disconnected

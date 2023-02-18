@@ -10,6 +10,7 @@
 package net.rwhps.server.plugin.beta
 
 import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.GameStartInit
 import net.rwhps.server.plugin.Plugin
@@ -41,8 +42,8 @@ class MoreMain : Plugin() {
         return object: AbstractGlobalEvent {
             override fun registerGameLibLoadEvent(loadID: String) {
                 if (HessModuleManage.hpsLoader != loadID) {
-                    Log.clog("Run GameHeadless ID: $loadID , Join newConnect")
-                    HessModuleManage.hessLoaderMap[loadID]!!.gameNet.newConnect(name = loadID)
+                    Log.clog("GameHeadless ID: $loadID  is initialized and a new server is started")
+                    HessModuleManage.hessLoaderMap[loadID].gameNet.startHessPort(Data.config.Port+1)
                     return
                 }
             }

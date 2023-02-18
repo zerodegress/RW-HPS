@@ -106,7 +106,7 @@ object ModManage {
      */
     @JvmStatic
     fun reLoadMods(): Int {
-        HessModuleManage.hps.gameData.clean()
+        HessModuleManage.hps.gameHessData.clean()
         HessModuleManage.hps.gameUnitData.reloadUnitData()
         HessModuleManage.hps.gameNet.newConnect()
 

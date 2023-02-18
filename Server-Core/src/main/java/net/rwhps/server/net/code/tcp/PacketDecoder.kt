@@ -14,8 +14,7 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.ByteToMessageDecoder
 import io.netty.util.ReferenceCountUtil
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.net.StartNet
-import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
+import net.rwhps.server.net.NetService
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.log.Log.warn
 
@@ -54,10 +53,10 @@ internal class PacketDecoder : ByteToMessageDecoder() {
          *
          * Maximum accepted single package size = 50 MB
          */
-        if (readableBytes > StartNet.maxPacketSizt) {
+        if (readableBytes > NetService.maxPacketSizt) {
             warn("Package size exceeds maximum")
             ReferenceCountUtil.release(bufferIn)
-            AcceptorIdleStateTrigger.clear(ctx)
+            ctx.close()
             return
         }
         val readerIndex = bufferIn.readerIndex()
@@ -68,7 +67,7 @@ internal class PacketDecoder : ByteToMessageDecoder() {
          * This packet is an error packet and should not be present so disconnect
          */
         if (contentLength < 0 || type < 0) {
-            AcceptorIdleStateTrigger.clear(ctx)
+            ctx.close()
             return
         }
 
@@ -76,21 +75,21 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         /*
          * Insufficient data length, reset the identification bit and read again
          */
-        if (bufferIn.readableBytes() < contentLength) {
+        if (readableBytes < contentLength) {
             bufferIn.readerIndex(readerIndex)
             return
         }
 
         val packetType = PacketType.from(type)
         if (packetType == PacketType.NOT_RESOLVED) {
-            AcceptorIdleStateTrigger.clear(ctx)
+            ctx.close()
             return
         }
 
         val b = ByteArray(contentLength)
         bufferIn.readBytes(b)
         // 读完就甩
-        bufferIn.discardReadBytes()
+        //bufferIn.discardReadBytes()
         out.add(Packet(packetType, b))
     }
 }

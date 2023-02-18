@@ -11,6 +11,7 @@ package net.rwhps.asm.agent
 
 import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.redirections.AsmRedirections
+import net.rwhps.asm.redirections.DefaultRedirections
 import java.security.ProtectionDomain
 
 open class AsmCore {
@@ -43,16 +44,15 @@ open class AsmCore {
          */
         @JvmStatic
         @JvmOverloads
-        fun addPartialMethod(desc: String, p: Array<String>, redirection: Redirection? = null) {
+        fun addPartialMethod(desc: String, p: Array<String>, redirection: Redirection = DefaultRedirections.NULL) {
             if (partialMethod0.containsKey(desc)) {
                 partialMethod0[desc]!!.add(p)
             } else {
                 partialMethod0[desc] = ArrayList<Array<String>>().also { it.add(p) }
             }
-            redirection?.let {
-                // 这里构造 Desc 并且 加入对应的 取代
-                AsmRedirections.redirect("L"+desc+";"+p[0]+p[1], it)
-            }
+
+            // 这里构造 Desc 并且 加入对应的 取代
+            AsmRedirections.redirect("L"+desc+";"+p[0]+p[1], redirection)
         }
     }
 }

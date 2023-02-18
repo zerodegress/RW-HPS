@@ -12,15 +12,23 @@
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.util.HexUtil
+import net.rwhps.server.util.encryption.HexUtil
 
 
-fun Byte.toStringHex() : String {
-    return HexUtil.encodeHexStr(byteArrayOf(this))
+@JvmOverloads
+fun Byte.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) : String {
+    return byteArrayOf(this).toStringHex(toLowerCase, format)
 }
 
-fun ByteArray.toStringHex() : String {
-    return HexUtil.encodeHexStr(this)
+@JvmOverloads
+fun ByteArray.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) : String {
+    HexUtil.encodeHexStr(this, toLowerCase).let {
+        if (format) {
+            return HexUtil.format(it)
+        } else {
+            return it
+        }
+    }
 }
 
 fun String.hexToByte() : Byte {

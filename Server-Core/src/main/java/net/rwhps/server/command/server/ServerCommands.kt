@@ -23,6 +23,7 @@ import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.game.event.EventType.PlayerBanEvent
+import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Font16
 import net.rwhps.server.util.IsUtil
@@ -181,9 +182,9 @@ internal class ServerCommands(handler: CommandHandler) {
                         .append(" / ")
                         .append("Site: ").append(player.site)
                         .append(" / ")
-                        .append("IP: ").append(player.con!!.ip)
+                        .append("IP: ").append((player.con!! as AbstractNetConnect).ip)
                         .append(" / ")
-                        .append("Protocol: ").append(player.con!!.useConnectionAgreement)
+                        .append("Protocol: ").append((player.con!! as AbstractNetConnect).useConnectionAgreement)
                         .append(" / ")
                         .append("Admin: ").append(player.isAdmin)
                 }

@@ -286,7 +286,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                             CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                             CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                             else -> {
-                                sendResultPing(p)
+                                sendPackageToHOST(p)
                                 return
                             }
                         }
@@ -312,7 +312,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     playerRelay!!.lastSentMessage = message
                 }
 
-                sendResultPing(p)
+                sendPackageToHOST(p)
             } else {
                 disconnect()
             }
@@ -531,7 +531,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     }
                 }
             }
-            sendResultPing(packet)
+            sendPackageToHOST(packet)
         }
     }
 
@@ -612,7 +612,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         }
     }
 
-    override fun sendResultPing(packet: Packet) {
+    override fun sendPackageToHOST(packet: Packet) {
         try {
             val o = GameOutputStream()
             o.writeInt(site)
@@ -621,14 +621,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o.writeInt(packet.type.typeInt)
             o.writeBytes(packet.bytes)
             relay!!.admin!!.sendPacket(o.createPacket(PacketType.PACKET_FORWARD_CLIENT_FROM))
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
-    override fun sendCustomPacket(packet: Packet) {
-        try {
-            sendPacket(packet)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -666,7 +658,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             if (this !== relay!!.admin) {
                 relay!!.removeAbstractNetConnect(site)
                 try {
-                    sendResultPing(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
+                    sendPackageToHOST(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
                 } catch (e: IOException) {
                     error("[Relay disconnect] Send Exited", e)
                 }

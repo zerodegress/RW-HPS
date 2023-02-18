@@ -20,6 +20,8 @@ object SystemUtil {
         get() = Runtime.getRuntime().totalMemory()
     val javaFreeMemory: Long
         get() = Runtime.getRuntime().freeMemory()
+    val availableProcessors: Int
+        get() = Runtime.getRuntime().availableProcessors()
     val javaVendor: String
         get() = get("java.vendor")
     val javaVersion: String

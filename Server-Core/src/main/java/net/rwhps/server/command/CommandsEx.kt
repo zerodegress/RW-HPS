@@ -13,7 +13,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameOutputStream
-import net.rwhps.server.net.StartNet
+import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps.NetType.*
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.PacketType
@@ -70,7 +70,7 @@ class CommandsEx(handler: CommandHandler) {
                 RelayProtocol,RelayMulticastProtocol -> {
                     out.writeString("PlayerSize")
                     val size = AtomicInteger()
-                    NetStaticData.startNet.eachAll { e: StartNet -> size.addAndGet(e.getConnectSize()) }
+                    NetStaticData.netService.eachAll { e: NetService -> size.addAndGet(e.getConnectSize()) }
                     out.writeInt(size.get())
 
                     out.writeString("RoomAllSize")

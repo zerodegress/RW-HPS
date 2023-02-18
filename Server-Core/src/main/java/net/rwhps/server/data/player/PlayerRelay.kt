@@ -33,7 +33,10 @@ class PlayerRelay(
     var nowName = ""
 
     var team = 0
-        set(value) { watch = (value == -3) ; field = value }
+        set(value) {
+            watch = (value == -3) ;
+            field = site
+        }
     /** List position  */
     var site = 0
     var watch = false

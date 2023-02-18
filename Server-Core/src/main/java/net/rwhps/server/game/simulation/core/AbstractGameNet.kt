@@ -18,4 +18,12 @@ interface AbstractGameNet {
         ip: String = "127.0.0.1:${Data.config.Port}",
         name: String = Data.headlessName
     )
+
+    /**
+     * 使用 Hess 启动一个新的服务器 （通过NIO)
+     * @param port Int
+     * @param name String
+     */
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("networking already started")
+    fun startHessPort(port: Int = 5123, name: String = Data.headlessName)
 }

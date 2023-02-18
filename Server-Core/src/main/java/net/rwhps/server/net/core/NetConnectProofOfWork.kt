@@ -15,8 +15,8 @@ import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.encryption.Game
 import net.rwhps.server.util.encryption.digest.DigestUtil
-import net.rwhps.server.util.log.exp.ImplementedException
 import java.io.IOException
 import java.math.BigInteger
 import java.util.concurrent.ThreadLocalRandom
@@ -135,7 +135,8 @@ internal class NetConnectProofOfWork {
         when (authenticateType) {
             0 -> return initInt_1.toString() == offIn
             1 -> return initInt_2.toString() == offIn
-            2 -> throw ImplementedException("too much trouble")
+            // 1.15 (不支持1.14) 选择性启用
+            2 -> Game.connectKeyLast(initInt_1) == offIn
             3,4 -> return outcome == offIn
             5,6 -> return this.off == offIn.toInt()
             else -> {}

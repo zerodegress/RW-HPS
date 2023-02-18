@@ -11,9 +11,12 @@ package net.rwhps.server.net.netconnectprotocol
 
 import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.core.ServiceLoader.ServiceType
+import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.AbstractNetPacket
+import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.TypeConnect
+import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
 
@@ -27,12 +30,25 @@ import net.rwhps.server.util.log.exp.ImplementedException
 class RwHps(private val netType: IRwHps.NetType) : IRwHps {
     override val typeConnect: TypeConnect =
         try {
-            val protocolClass = ServiceLoader.getServiceClass(ServiceType.Protocol,netType.name)
-            ServiceLoader.getService(ServiceType.ProtocolType,netType.name,Class::class.java).newInstance(protocolClass) as TypeConnect
+            val protocolClass = ServiceLoader.getServiceClass(ServiceType.Protocol, netType.name)
+            ServiceLoader.getService(ServiceType.ProtocolType, netType.name, Class::class.java).newInstance(protocolClass) as TypeConnect
+        } catch (e: ImplementedException) {
+            object: TypeConnect {
+                override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
+                    TODO("Not yet implemented")
+                }
+
+                override fun typeConnect(packet: Packet) {
+                    TODO("Not yet implemented")
+                }
+                override val abstractNetConnect: AbstractNetConnect get() = TODO("Not yet implemented")
+                override val version: String get() = TODO("Not yet implemented")
+            }
         } catch (e: Exception) {
             Log.fatal(e)
             throw ImplementedException("Not yet implemented")
         }
+
 
     override val abstractNetPacket: AbstractNetPacket =
         try {

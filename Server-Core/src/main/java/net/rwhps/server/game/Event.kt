@@ -16,6 +16,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.event.EventType
 import net.rwhps.server.net.Administration.PlayerInfo
@@ -115,36 +116,39 @@ class Event : AbstractEvent {
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
-    override fun registerPlayerLeaveEvent(player: Player) {
-        if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 1) {
-            try {
-                var p = Data.game.playerManage.playerGroup[0]
-                if (p.name == Data.headlessName) {
-                    p = Data.game.playerManage.playerGroup[1]
+    override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
+        if (player is Player) {
+            if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 1) {
+                try {
+                    var p = Data.game.playerManage.playerGroup[0]
+                    if (p.name == Data.headlessName) {
+                        p = Data.game.playerManage.playerGroup[1]
+                    }
+                    p.isAdmin = true
+                    Call.upDataGameData()
+                    player.isAdmin = false
+                    Call.sendSystemMessage("give.ok", p.name)
+                } catch (ignored: IndexOutOfBoundsException) {
                 }
-                p.isAdmin = true
-                Call.upDataGameData()
-                player.isAdmin = false
-                Call.sendSystemMessage("give.ok", p.name)
-            } catch (ignored: IndexOutOfBoundsException) {
             }
-        }
 
-        Data.core.admin.playerDataCache.put(player.uuid, PlayerInfo(player.uuid, player.kickTime, player.muteTime))
+            Data.core.admin.playerDataCache.put(player.uuid, PlayerInfo(player.uuid, player.kickTime, player.muteTime))
 
-        if (Data.game.isStartGame) {
-            player.sharedControl = true
-            Call.sendSystemMessage("player.dis", player.name)
-            Call.sendTeamData()
-        } else {
-            Call.sendSystemMessage("player.disNoStart", player.name)
-        }
-        Log.clog("&c"+Data.i18NBundle.getinput("player.dis", player.name))
+            if (Data.game.isStartGame) {
+                player.sharedControl = true
+                Call.sendSystemMessage("player.dis", player.name)
+                Call.sendTeamData()
+            } else {
+                Call.sendSystemMessage("player.disNoStart", player.name)
+            }
+            Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
 
-        if (Data.config.AutoStartMinPlayerSize != -1 &&
-            Data.game.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&
-            !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
-            Threads.closeTimeTask(CallTimeTask.AutoStartTask)
+            if (Data.config.AutoStartMinPlayerSize != -1 &&
+                Data.game.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&
+                !Threads.containsTimeTask(CallTimeTask.AutoStartTask)
+            ) {
+                Threads.closeTimeTask(CallTimeTask.AutoStartTask)
+            }
         }
     }
 
@@ -163,7 +167,7 @@ class Event : AbstractEvent {
 
     override fun registerPlayerBanEvent(player: Player) {
         Data.core.admin.bannedUUIDs.add(player.uuid)
-        Data.core.admin.bannedIPs.add(player.con!!.ip)
+        Data.core.admin.bannedIPs.add(player.conServer!!.ip)
         try {
             player.kickPlayer(player.i18NBundle.getinput("kick.ban"))
         } catch (ioException: IOException) {
@@ -173,7 +177,7 @@ class Event : AbstractEvent {
     }
 
     override fun registerPlayerIpBanEvent(player: Player) {
-        Data.core.admin.bannedIPs.add(player.con!!.ip)
+        Data.core.admin.bannedIPs.add(player.conServer!!.ip)
         try {
             player.kickPlayer("kick.ban")
         } catch (ioException: IOException) {

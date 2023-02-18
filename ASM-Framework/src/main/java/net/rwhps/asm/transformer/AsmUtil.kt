@@ -13,7 +13,7 @@ import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
 
-object AsmUtil {
+internal object AsmUtil {
     fun read(clazz: ByteArray?, vararg flags: Int): ClassNode {
         val result = ClassNode()
         val reader = ClassReader(clazz)

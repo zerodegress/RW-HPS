@@ -35,16 +35,18 @@ public class NetServer {
 
             Call.killAllPlayer("Server Close");
 
-            NetStaticData.startNet.eachAll(e ->{
+            NetStaticData.netService.eachAll(e ->{
                     e.stop();
                     return Unit.INSTANCE;
             });
-            NetStaticData.startNet.clear();
+            NetStaticData.netService.clear();
             NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);
             Threads.closeNet();
             //Threads.newThreadCoreNet();
 
-            HessModuleManage.INSTANCE.getHps().getGameData().clean();
+            if (NetStaticData.INSTANCE.getServerNetType() == IRwHps.NetType.ServerProtocol) {
+                HessModuleManage.INSTANCE.getHps().getGameHessData().clean();
+            }
 
             Threads.closeTimeTask(CallTimeTask.AutoCheckTask);
             Threads.closeTimeTask(CallTimeTask.CallPingTask);

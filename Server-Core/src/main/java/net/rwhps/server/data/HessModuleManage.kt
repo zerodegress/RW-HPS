@@ -31,9 +31,8 @@ object HessModuleManage {
     fun addGameModule(loadID: String, loader: AbstractGameModule) {
         if (loadID == hpsLoader) {
             hps = loader
-        } else {
-            // 只加入非主要的 Hess
-            hessLoaderMap.put(loadID, loader)
         }
+
+        hessLoaderMap.put(loadID, loader)
     }
 }

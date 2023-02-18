@@ -12,13 +12,11 @@ package net.rwhps.server.net
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.*
 import io.netty.channel.epoll.Epoll
-import io.netty.channel.epoll.EpollChannelOption
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.net.core.AbstractNet
-import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.rudp.StartGameNetUdp
 import net.rwhps.server.net.handler.tcp.StartGameNetTcp
 import net.rwhps.server.net.handler.tcp.StartGamePortDivider
@@ -38,15 +36,15 @@ import java.net.ServerSocket
  *
  * @author RW-HPS/Dr
  */
-class StartNet {
+class NetService {
     private val connectChannel = Seq<Channel>(4)
     private var serverSocket: ServerSocket? = null
     private var startGameNetUdp: StartGameNetUdp? = null
     private val start: AbstractNet
     private var errorIgnore = false
 
-    constructor() {
-        start = if (Data.config.WebGameBypassPort) StartGamePortDivider() else StartGameNetTcp()
+    constructor(abstractNet: AbstractNet = if (Data.config.WebGameBypassPort) StartGamePortDivider() else StartGameNetTcp()) {
+        this.start = abstractNet
     }
 
     constructor(abstractNetClass: Class<out AbstractNet>) {
@@ -58,6 +56,10 @@ class StartNet {
                 null
             }
         this.start = startNet ?:StartGameNetTcp()
+    }
+
+    init {
+        NetStaticData.netService.add(this)
     }
 
     /**
@@ -92,7 +94,7 @@ class StartNet {
         }
         try {
             val serverBootstrapTcp = ServerBootstrap()
-            val child = serverBootstrapTcp.group(bossGroup, workerGroup)
+            serverBootstrapTcp.group(bossGroup, workerGroup)
                 .channel(runClass)
                 //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
@@ -104,23 +106,11 @@ class StartNet {
                 .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark(minLowWaterMark,maxPacketSizt))
                 .childHandler(start)
 
-            val epollStartThread = Epoll.isAvailable() && NetStaticData.ServerNetType.ordinal in IRwHps.NetType.RelayProtocol.ordinal..IRwHps.NetType.RelayMulticastProtocol.ordinal
-            if (epollStartThread) {
-                child.option(EpollChannelOption.SO_REUSEPORT, true)
-            }
-
             clog(Data.i18NBundle.getinput("server.start.openPort"))
 
             val channelFutureTcp = serverBootstrapTcp.bind(port)
             for (i in startPort..endPort) {
                 serverBootstrapTcp.bind(i)
-            }
-
-            if (epollStartThread) {
-                val cpuNum = Runtime.getRuntime().availableProcessors()
-                for (i in 0 until cpuNum) {
-                    serverBootstrapTcp.bind(port)
-                }
             }
 
             val start = channelFutureTcp.channel()
@@ -139,6 +129,7 @@ class StartNet {
         } catch (e: Exception) {
             if (!errorIgnore) error("[NET Error]", e)
         } finally {
+            start.close()
             bossGroup.shutdownGracefully()
             workerGroup.shutdownGracefully()
         }
@@ -159,8 +150,8 @@ class StartNet {
     }
 
     companion object {
-        val minLowWaterMark = 512 * 1024
+        const val minLowWaterMark = 512 * 1024
         /** Maximum accepted single package size */
-        val maxPacketSizt = 50 * 1024 * 1024
+        const val maxPacketSizt = 50 * 1024 * 1024
     }
 }

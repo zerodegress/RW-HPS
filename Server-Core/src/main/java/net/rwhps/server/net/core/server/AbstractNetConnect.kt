@@ -121,6 +121,16 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
     }
 
     /**
+     * Recive package
+     * 选择向下传递
+     *
+     * @param packet Data
+     */
+    open fun recivePacket(packet: Packet) {
+        //
+    }
+
+    /**
      * Debug Special development not open temporarily
      * @param packet Packet
      */

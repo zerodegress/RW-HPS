@@ -45,3 +45,18 @@ internal fun chatMessagePacketInternal(msg: String, sendBy: String, team: Int): 
     o.writeInt(team)
     return o.createPacket(PacketType.CHAT)
 }
+
+/**
+ * Sim player message
+ * @param msg String    : Message
+ * @return Packet       : Generate a sendable package
+ * @throws IOException  : Unknown
+ */
+@Throws(IOException::class)
+internal fun chatUserMessagePacketInternal(msg: String): Packet {
+    val o = GameOutputStream()
+    // The message contained in the package
+    o.writeString(msg)
+    o.writeByte(0)
+    return o.createPacket(PacketType.CHAT_RECEIVE)
+}

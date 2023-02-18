@@ -11,9 +11,9 @@ package net.rwhps.server.util.encryption
 
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
-import net.rwhps.server.util.ExtractUtil
-import net.rwhps.server.util.ExtractUtil.hexToByteArray
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.inline.hexToByte
+import net.rwhps.server.util.inline.toStringHex
 import net.rwhps.server.util.log.Log
 
 class ZipGame {
@@ -55,8 +55,8 @@ class ZipGame {
                         o.writeBytes(bytesName)
                         o.writeByte(bytesEnd)
                     } else {
-                        if (ExtractUtil.bytesToHex(bytesName).replace(" ","").contains("2E 6E 6F 6D 65 64 69".replace(" ",""), true) ||
-                            ExtractUtil.bytesToHex(bytesName).replace(" ","").contains("6D 6F 64 2D 69 6E 66 6F 2E 74 78".replace(" ",""), true)) {
+                        if (bytesName.toStringHex().replace(" ","").contains("2E 6E 6F 6D 65 64 69".replace(" ",""), true) ||
+                            bytesName.toStringHex().replace(" ","").contains("6D 6F 64 2D 69 6E 66 6F 2E 74 78".replace(" ",""), true)) {
                             flag = Zip.NULL
                             o.writeBackwardsShort(fileNameLength)
                             o.writeBytes(bytesB)
@@ -136,8 +136,8 @@ class ZipGame {
                         out.writeBytes(bytesName)
                         out.writeByte(bytesEnd)
                     } else {
-                        if (ExtractUtil.bytesToHex(bytesName).replace(" ","").contains("2E 6E 6F 6D 65 64 69".replace(" ",""), true) ||
-                            ExtractUtil.bytesToHex(bytesName).replace(" ","").contains("6D 6F 64 2D 69 6E 66 6F 2E 74 78".replace(" ",""), true)) {
+                        if (bytesName.toStringHex().replace(" ","").contains("2E 6E 6F 6D 65 64 69".replace(" ",""), true) ||
+                            bytesName.toStringHex().replace(" ","").contains("6D 6F 64 2D 69 6E 66 6F 2E 74 78".replace(" ",""), true)) {
                             flag = Zip.NULL
                             out.writeBackwardsShort(fileNameLength)
                             out.writeBytes(bytesB)
@@ -268,14 +268,14 @@ class ZipGame {
 
     //中心目录区 头部
     enum class Zip(val byte: Byte)  {
-        A(hexToByteArray("50")[0]),
-        B(hexToByteArray("4B")[0]),
-        C(hexToByteArray("01")[0]),
-        D(hexToByteArray("02")[0]),
-        HA(hexToByteArray("03")[0]),
-        HB(hexToByteArray("04")[0]),
-        CKA(hexToByteArray("05")[0]),
-        CKB(hexToByteArray("06")[0]),
+        A("50".hexToByte()),
+        B("4B".hexToByte()),
+        C("01".hexToByte()),
+        D("02".hexToByte()),
+        HA("03".hexToByte()),
+        HB("04".hexToByte()),
+        CKA("05".hexToByte()),
+        CKB("06".hexToByte()),
         NULL(0);
     }
 }

@@ -9,6 +9,7 @@
 
 package net.rwhps.asm.transformer
 
+import net.rwhps.asm.util.DescriptionUtil.ObjectClassName
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
@@ -21,7 +22,7 @@ import java.io.IOException
  *
  * @author Eric Bruneton
  */
-class SafeClassWriter(
+internal class SafeClassWriter(
     cr: ClassReader?,
     loader: ClassLoader?,
     flags: Int
@@ -33,23 +34,23 @@ class SafeClassWriter(
         try {
             val info1: ClassReader = typeInfo(type1)
             val info2: ClassReader = typeInfo(type2)
-            if (info1.getAccess() and Opcodes.ACC_INTERFACE !== 0) {
+            if (info1.access and Opcodes.ACC_INTERFACE != 0) {
                 return if (typeImplements(type2, info2, type1)) {
                     type1
                 } else {
-                    "java/lang/Object"
+                    ObjectClassName
                 }
             }
-            if (info2.getAccess() and Opcodes.ACC_INTERFACE !== 0) {
+            if (info2.access and Opcodes.ACC_INTERFACE != 0) {
                 return if (typeImplements(type1, info1, type2)) {
                     type2
                 } else {
-                    "java/lang/Object"
+                    ObjectClassName
                 }
             }
             val b1 = typeAncestors(type1, info1)
             val b2 = typeAncestors(type2, info2)
-            var result = "java/lang/Object"
+            var result = ObjectClassName
             var end1 = b1.length
             var end2 = b2.length
             while (true) {
@@ -77,9 +78,9 @@ class SafeClassWriter(
     /**
      * Returns the internal names of the ancestor classes of the given type.
      *
-     * @param type
+     * @param typeIn
      * the internal name of a class or interface.
-     * @param info
+     * @param infoIn
      * the ClassReader corresponding to 'type'.
      * @return a StringBuilder containing the ancestor classes of 'type',
      * separated by ';'. The returned string has the following format:
@@ -91,11 +92,11 @@ class SafeClassWriter(
      * cannot be loaded.
      */
     @Throws(IOException::class)
-    private fun typeAncestors(type: String, info: ClassReader): StringBuilder {
-        var type = type
-        var info: ClassReader = info
+    private fun typeAncestors(typeIn: String, infoIn: ClassReader): StringBuilder {
+        var type = typeIn
+        var info: ClassReader = infoIn
         val b = StringBuilder()
-        while ("java/lang/Object" != type) {
+        while (ObjectClassName != type) {
             b.append(';').append(type)
             type = info.superName
             info = typeInfo(type)
@@ -106,9 +107,9 @@ class SafeClassWriter(
     /**
      * Returns true if the given type implements the given interface.
      *
-     * @param type
+     * @param typeIn
      * the internal name of a class or interface.
-     * @param info
+     * @param infoIn
      * the ClassReader corresponding to 'type'.
      * @param itf
      * the internal name of a interface.
@@ -118,11 +119,11 @@ class SafeClassWriter(
      * cannot be loaded.
      */
     @Throws(IOException::class)
-    private fun typeImplements(type: String, info: ClassReader, itf: String): Boolean {
-        var type = type
-        var info: ClassReader = info
-        while ("java/lang/Object" != type) {
-            val itfs: Array<String> = info.getInterfaces()
+    private fun typeImplements(typeIn: String, infoIn: ClassReader, itf: String): Boolean {
+        var type = typeIn
+        var info: ClassReader = infoIn
+        while (ObjectClassName != type) {
+            val itfs: Array<String> = info.interfaces
             for (i in itfs.indices) {
                 if (itfs[i] == itf) {
                     return true
@@ -133,7 +134,7 @@ class SafeClassWriter(
                     return true
                 }
             }
-            type = info.getSuperName()
+            type = info.superName
             info = typeInfo(type)
         }
         return false
@@ -151,11 +152,9 @@ class SafeClassWriter(
     @Throws(IOException::class)
     private fun typeInfo(type: String): ClassReader {
         val resource = "$type.class"
-        val `is` = this.loader.getResourceAsStream(resource) ?: throw IOException("Cannot create ClassReader for type $type")
-        return try {
-            ClassReader(`is`)
-        } finally {
-            `is`.close()
+        val inputStream = this.loader.getResourceAsStream(resource) ?: throw IOException("Cannot create ClassReader for type $type")
+        return inputStream.use {
+            ClassReader(it)
         }
     }
 }

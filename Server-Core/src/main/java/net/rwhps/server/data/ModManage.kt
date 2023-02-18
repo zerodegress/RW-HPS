@@ -49,7 +49,9 @@ object ModManage {
         //enabledModsName.add(coreName)
         modList = enabledMods.keys().toSeq()
 
-        return enabledMods.size -1
+        return (enabledMods.size -1).also {
+            HessModuleManage.hps.gameHessData.useMod = (it > 0)
+        }
     }
 
     /**

@@ -13,7 +13,7 @@
 
 # B.Windows运行方案:
 ## 运行方法
-在你喜欢的目录下使用 ~~Cmd~~(不推荐) 或者 PowerShell (Windows 系统按住Shift+鼠标右键，点击"在此处打开 PowerShell") 运行jar  
+在你喜欢的目录下使用 ~~**Cmd**~~(不推荐) 或者 **PowerShell** (Windows 系统按住Shift+鼠标右键，点击"在此处打开 PowerShell") 或 **Terminal(推荐)** 运行jar  
 使用的指令：
 ```bash
 java -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -jar Server.jar
@@ -24,13 +24,13 @@ java -jar Server.jar
 ## RW-HPS运行的常见问题:
 ### Q.1.:**corroding: nativePollOnce:100,0**
 <img src="../img/Question.png"></img>
-#### 此问题分析：如果长时间卡在这个位置, 那么就是缺少一些依赖包，你是否只下载了Jar文件？如果你的文件结构如下图所示，很可能是你下载了最新的Pre-Release(预发布)版本，通常我们的开发人员会在预发布这里只放入最新的**Jar**执行文件,因此你会遇到该错误。
+#### 此问题分析：如果长时间卡在这个位置, 那么就是缺少一些依赖包，或者版本跨度太大导致不兼容 ,因此你会遇到该错误。
 <img src="../img/Question2.png"></img>
-#### 解决策略：[1.0.0.42-DEV](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0.42-DEV)-有依赖包，可以通过该版本获取。详细说明请点击链接查看。
+#### 解决策略：关闭服务器, 然后删掉图中的 `data` 文件夹, 再重新启动服务器
 ---
-### Q.2.:**SLF4J Class Not Found**
+### Q.2.:**Error: A JNI error has occurred, please check your installation and try again**
 <img src="../img/Question3.png"></img>
-#### 此问题分析：JDK版本低于11，导致SLF4J有一些类找不到(正常现象) 本问题主要是Java不调用 `LibraryManager` 导致无法加载核心依赖。
+#### 此问题分析：JDK版本低于11，本问题主要是 RW-HPS 使用 Java11 编译, 导致无法使用 Java8 运行。
 <img src="../img/Question4.png"></img>
 #### 解决策略：升级到JDK11,具体参考上面的JDK配置。正确的JDK11在你输入:  
 ```bash
@@ -51,15 +51,14 @@ java -D"file.encoding=UTF-8" -jar Server.jar
 
 #### 解决策略：使用上方提供的指令
 
-### Q.3.:**Not D!!!**
-<img src="../img/Question6.png"></img>  
+### Q.4.:**java.io.IOException: Prolem reading font data**
+<img src="../img/Question7.png"></img>  
 
-#### 问题分析：D的参数不被支持，因此需要使用指令:
+#### 问题分析：如果您使用的 Linux, 那么是缺少 Font 依赖:
 
-#### 解决策略：手动设置 
-**GBK** `java -D"file.encoding=GBK" -jar Server.jar`   
-或者   
-**UTF-8**`java -D"file.encoding=UTF-8" -jar Server.jar`  
+#### 解决策略：手动安装 `fontconfig`  
+**Centos** : ```yum install fontconfig```  
+**Ubuntu** : ```apt-get install fontconfig```  
 ---
 <br>
 

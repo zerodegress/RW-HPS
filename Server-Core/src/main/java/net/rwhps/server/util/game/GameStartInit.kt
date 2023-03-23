@@ -1,8 +1,17 @@
-package net.rwhps.server.game
+/*
+ * Copyright 2020-2023 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+package net.rwhps.server.util.game
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.game.simulation.HessClassPathProperties
 import net.rwhps.server.net.HttpRequestOkHttp
+import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
 import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
@@ -80,7 +89,7 @@ object GameStartInit {
             it.getZipAllBytes().each { k, v ->
                 if (
                     // 注入接口
-                    k.startsWith(HessClassPathProperties.CorePath.replace(".", "/")) ||
+                    k.startsWith(HessClassPathProperties.path.replace(".", "/")) ||
                     // 覆写游戏
                     k.startsWith(HessClassPathProperties.GameHessPath.replace(".","/"))
                 ) {

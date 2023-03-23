@@ -28,10 +28,6 @@ internal class StartGamePortDivider : AbstractNet() {
     }
 
     fun resetGameProtocol() {
-        socketChannel!!.pipeline().also { pipeline ->
-            addTimeOut(pipeline)
-            addPacketDecoderAndEncoder(pipeline)
-            addNewServerHandlerExecutorGroup(pipeline)
-        }
+        rwinit(socketChannel!!.pipeline())
     }
 }

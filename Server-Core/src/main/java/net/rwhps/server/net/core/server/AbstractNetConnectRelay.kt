@@ -86,7 +86,7 @@ interface AbstractNetConnectRelay {
      * @throws IOException Error
      */
     @Throws(IOException::class)
-    fun receiveChat(p: Packet)
+    fun receiveChat(packet: Packet)
 
     /**
      * Send a message

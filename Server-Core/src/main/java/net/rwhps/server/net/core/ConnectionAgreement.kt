@@ -54,9 +54,11 @@ class ConnectionAgreement {
         val channel = channelHandlerContext.channel()
 
         protocolType = { packet: Packet ->
-            // 扔进Netty的线程处理, 不让netty包装成 Task, 避免有的是Task有的直接写入而导致的包顺序错误
-            channel.eventLoop().execute {
-                channelHandlerContext.writeAndFlush(packet)
+            if (channel.isActive) {
+                // 扔进Netty的线程处理, 不让netty包装成 Task, 避免有的是Task有的直接写入而导致的包顺序错误
+                channel.eventLoop().execute {
+                    channelHandlerContext.writeAndFlush(packet)
+                }
             }
         }
         objectOutStream = channelHandlerContext
@@ -132,9 +134,16 @@ class ConnectionAgreement {
         }
     }
 
+    /**
+     * 关闭连接
+     *
+     * @param groupNet     Multicast pools
+     * @throws IOException Potential errors
+     */
     @Throws(IOException::class)
     fun close(groupNet: GroupNet?) {
         Events.fire(EventGlobalType.NewCloseEvent(this))
+
         if (groupNet != null) {
             if (objectOutStream is ChannelHandlerContext) {
                 groupNet.remove(objectOutStream.channel())

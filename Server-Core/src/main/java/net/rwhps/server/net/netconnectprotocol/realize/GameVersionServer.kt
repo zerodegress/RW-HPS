@@ -66,9 +66,9 @@ import kotlin.math.min
  */
 @MainProtocolImplementation
 open class GameVersionServer(connectionAgreement: ConnectionAgreement) : AbstractNetConnect(connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
-    open val supportedversionBeta = false
-    open val supportedversionGame = "1.15"
-    open val supportedVersionInt  = 176
+    override val supportedversionBeta = false
+    override val supportedversionGame = "1.15"
+    override val supportedVersionInt  = 176
 
     override val name: String get() = player.name
     override val registerPlayerId: String? get() = player.uuid
@@ -270,8 +270,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     @Throws(IOException::class)
-    override fun receiveChat(p: Packet) {
-        GameInputStream(p).use { stream ->
+    override fun receiveChat(packet: Packet) {
+        GameInputStream(packet).use { stream ->
             val message: String = stream.readString()
             var response: CommandResponse? = null
 
@@ -323,12 +323,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     @Throws(IOException::class)
-    override fun receiveCommand(p: Packet) {
+    override fun receiveCommand(packet: Packet) {
         //PlayerOperationUnitEvent
         sync.withLock {
             var status = 0
             try {
-                GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
+                GameInputStream(GameInputStream(packet).getDecodeBytes()).use { inStream ->
                     val outStream = GameOutputStream()
                     outStream.writeByte(inStream.readByte())
                     val boolean1 = inStream.readBoolean()
@@ -444,9 +444,9 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     //@Throws(IOException::class)
-    override fun getPlayerInfo(p: Packet): Boolean {
+    override fun getPlayerInfo(packet: Packet): Boolean {
         try {
-            GameInputStream(p).use { stream ->
+            GameInputStream(packet).use { stream ->
                 stream.readString()
                 Log.debug("本包协议版本",stream.readInt())
                 val version = stream.readInt()
@@ -564,12 +564,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     }
 
     @Throws(IOException::class)
-    override fun registerConnection(p: Packet) {
+    override fun registerConnection(packet: Packet) {
         // 生成随机Key;
         val keyLen = 6
         val key = RandomUtil.getRandomIntString(keyLen).toInt()
         connectKey = Game.connectKeyLast(key)
-        GameInputStream(p).use { stream ->
+        GameInputStream(packet).use { stream ->
             // Game Pkg Name
             stream.readString()
             // 返回都是1 有啥用

@@ -20,19 +20,15 @@ import net.rwhps.server.util.log.Log.error
  */
 class GameMaps {
     /** 地图类型  */
-    @JvmField
     var mapType = MapType.defaultMap
 
     /** 地图数据  */
-    @JvmField
     var mapData: MapData? = null
 
     /** 地图名  */
-    @JvmField
     var mapName = "Crossing Large (10p)"
 
     /** 地图人数  */
-    @JvmField
     var mapPlayer = "[z;p10]"
 
     /** 地图的类型  */

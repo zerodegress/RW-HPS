@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework
+package net.rwhps.server.plugin.internal.hess.inject.core
 
 import com.corrodinggames.rts.game.a.a
 import com.corrodinggames.rts.game.c
@@ -35,7 +35,6 @@ import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
 import java.io.IOException
 import com.corrodinggames.rts.gameFramework.j.`as` as GameNetOutStream
-
 
 internal class GameHessData : AbstractGameHessData {
 

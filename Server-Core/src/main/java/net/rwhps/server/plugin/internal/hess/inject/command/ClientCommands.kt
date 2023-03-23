@@ -7,24 +7,30 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.command
+package net.rwhps.server.plugin.internal.hess.inject.command
 
 import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.gameFramework.j.ai
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.game.simulation.gameFramework.GameEngine
+import net.rwhps.server.game.GameMaps
+import net.rwhps.server.game.event.EventType
+import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.util.IsUtil.notIsNumeric
+import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author RW-HPS/Dr
@@ -90,16 +96,62 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 val inputMapName = response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
                 val mapPlayer = Data.MapsMap[inputMapName]
+                if (inputMapName.equals("DEF",ignoreCase = true)) {
+                    GameEngine.netEngine.az = "maps/skirmish/[z;p10]Crossing Large (10p).tmx"
+                    GameEngine.netEngine.ay.b = "[z;p10]Crossing Large (10p).tmx"
+                    room.mapName = "Crossing Large (10p)"
+                    GameEngine.netEngine.ay.a = ai.a
+                    MapManage.maps.mapType = GameMaps.MapType.defaultMap
+                    return@register
+                }
                 if (mapPlayer != null) {
                     val data = mapPlayer.split("@").toTypedArray()
                     GameEngine.netEngine.az = "maps/skirmish/${data[1]}${data[0]}.tmx"
-                    GameEngine.netEngine.ay.b = "${data[1]}${data[0]}.tmx".also {
-                        room.mapName = it
-                    }
+                    GameEngine.netEngine.ay.b = "${data[1]}${data[0]}.tmx"
+                    room.mapName = data[0]
                     GameEngine.netEngine.ay.a = ai.a
+                    MapManage.maps.mapType = GameMaps.MapType.defaultMap
+                } else {
+                    if (MapManage.mapsData.size == 0) {
+                        return@register
+                    }
+                    if (notIsNumeric(inputMapName)) {
+                        player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
+                        return@register
+                    }
+                    val name = MapManage.mapsData.keys().toSeq()[inputMapName.toInt()]
+                    val data = MapManage.mapsData[name]
+                    MapManage.maps.mapData = data
+                    MapManage.maps.mapType = data.mapType
+                    MapManage.maps.mapName = name
+                    MapManage.maps.mapPlayer = ""
+
+                    name.let {
+                        GameEngine.netEngine.az = "$it.tmx"
+                        GameEngine.netEngine.ay.b = it
+                        room.mapName = it
+                        GameEngine.netEngine.ay.a = ai.b
+                    }
+                    player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
                 room.call.sendSystemMessage(localeUtil.getinput("map.to",player.name,Data.game.maps.mapName))
                 GameEngine.netEngine.L()
+            }
+        }
+        handler.register("maps", "[page]", "clientCommands.maps") { _: Array<String>?, player: AbstractPlayer ->
+            if (room.isStartGame) {
+                player.sendSystemMessage(localeUtil.getinput("err.startGame"))
+                return@register
+            }
+            if (MapManage.mapsData.size == 0) {
+                return@register
+            }
+            val i = AtomicInteger(0)
+
+            player.sendSystemMessage(localeUtil.getinput("maps.top"))
+            MapManage.mapsData.keys().forEach { k: String ->
+                player.sendSystemMessage(localeUtil.getinput("maps.info", i.get(), k))
+                i.getAndIncrement()
             }
         }
         handler.register("afk", "clientCommands.afk") { _: Array<String>?, player: AbstractPlayer ->
@@ -173,6 +225,15 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
                 GameEngine.netEngine.ay.f = args[0].toInt()
+
+                for (site in 0 until Data.config.MaxPlayer) {
+                    if (room.playerManage.getPlayerArray(site) == null) {
+                        if (n.k(site) != null) {
+                            n.k(site).x = args[0].toInt()
+                            n.k(site).z = args[0].toInt()
+                        }
+                    }
+                }
             }
         }
         handler.register("status", "clientCommands.status") { _: Array<String>?, player: AbstractPlayer ->
@@ -203,6 +264,9 @@ internal class ClientCommands(handler: CommandHandler) {
                     } catch (e: IOException) {
                         error("[Player] Send Kick Player Error", e)
                     }
+                } else {
+                    // Kick AI
+                    n.k(site).I()
                 }
             }
         }
@@ -261,7 +325,20 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
 
+                if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
+                    val file = FileUtil.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName+".tmx")
+                    if (file.notExists()) {
+                        MapManage.maps.mapData!!.readMap()
+                        file.writeFileByte(MapManage.maps.mapData!!.bytesMap!!)
+                    }
+                    GameEngine.netEngine.az = "/SD/rusted_warfare_maps/${MapManage.maps.mapName}.tmx"
+                    GameEngine.netEngine.ay.b = "${MapManage.maps.mapName}.tmx"
+                    GameEngine.netEngine.ay.a = ai.b
+                }
+
                 GameEngine.root.multiplayer.multiplayerStart()
+
+                Events.fire(EventType.GameStartEvent())
             }
         }
         handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
@@ -276,16 +353,14 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
 
                 val tg = args[0].toInt() - 1
-                if (tg == 10) {
-                    player.sendSystemMessage("禁止操作此玩家")
-                    return@register
-                }
                 val player = n.k(tg)
                 val site = args[1].toInt() - 1
                 val newTeam = args[2].toInt()
                 GameEngine.netEngine.a(player, site)
                 if (newTeam == -1) {
                     player.r = site % 2;
+                } else if (newTeam == -4){
+                    player.r = -3
                 } else {
                     player.r = newTeam
                 }
@@ -303,10 +378,6 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 val playerSite = args[0].toInt() - 1
                 val newSite = args[1].toInt() - 1
-                if (playerSite == 10) {
-                    player.sendSystemMessage("禁止操作此玩家")
-                    return@register
-                }
                 n.k(playerSite).r = newSite
             }
         }

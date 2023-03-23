@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework
+package net.rwhps.server.plugin.internal.hess.inject.core
 
 import net.rwhps.server.game.simulation.core.AbstractGameData
 

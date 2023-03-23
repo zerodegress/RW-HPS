@@ -36,8 +36,8 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
 
     private var versionCil = 170
 
-    override fun getPlayerInfo(p: Packet): Boolean {
-        GameInputStream(p).use { stream ->
+    override fun getPlayerInfo(packet: Packet): Boolean {
+        GameInputStream(packet).use { stream ->
             stream.readString()
             stream.readInt()
             versionCil = stream.readInt()
@@ -163,8 +163,8 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
     }
 
     @Throws(IOException::class)
-    override fun receiveChat(p: Packet) {
-        GameInputStream(p).use { stream ->
+    override fun receiveChat(packet: Packet) {
+        GameInputStream(packet).use { stream ->
             val message: String = stream.readString()
             var response: CommandHandler.CommandResponse? = null
 

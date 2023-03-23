@@ -17,9 +17,6 @@ import net.rwhps.server.net.core.AbstractNet
 internal class StartGameNetTcp : AbstractNet() {
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
-        val pipeline = socketChannel.pipeline()
-        addTimeOut(pipeline)
-        addPacketDecoderAndEncoder(pipeline)
-        addNewServerHandlerExecutorGroup(pipeline)
+        rwinit(socketChannel.pipeline())
     }
 }

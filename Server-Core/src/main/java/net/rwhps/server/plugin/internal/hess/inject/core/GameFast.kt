@@ -7,10 +7,10 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework
+package net.rwhps.server.plugin.internal.hess.inject.core
 
 import net.rwhps.server.game.simulation.core.AbstractGameFast
-import net.rwhps.server.game.simulation.gameFramework.lib.PlayerConnectX
+import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import com.corrodinggames.rts.gameFramework.j.au as Packet
 
 class GameFast : AbstractGameFast {

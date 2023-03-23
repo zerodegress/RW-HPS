@@ -15,12 +15,14 @@ import io.netty.channel.ChannelPipeline
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
+import io.netty.handler.traffic.GlobalTrafficShapingHandler
 import io.netty.util.concurrent.DefaultEventExecutorGroup
 import io.netty.util.concurrent.EventExecutorGroup
 import net.rwhps.server.net.code.tcp.PacketDecoder
 import net.rwhps.server.net.code.tcp.PacketEncoder
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 import net.rwhps.server.net.handler.tcp.NewServerHandler
+import net.rwhps.server.util.threads.GetNewThreadPool
 import net.rwhps.server.util.threads.ThreadFactoryName
 import java.util.concurrent.TimeUnit
 
@@ -33,7 +35,12 @@ abstract class AbstractNet(
     private val newServerHandler: SimpleChannelInboundHandler<Any?> = NewServerHandler()
 ) : ChannelInitializer<SocketChannel>() {
     private val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(64, ThreadFactoryName.nameThreadFactory("IO-Group"))
+    // Speed Limt 8Mbps
+    private val trafficHandler = GlobalTrafficShapingHandler(GetNewThreadPool.getNewScheduledThreadPool(1,"SpeedLimt"), 1048576, 0);
 
+    protected fun speedlimt(channelPipeline: ChannelPipeline) {
+        channelPipeline.addLast("SpeedLimt",trafficHandler)
+    }
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {
         channelPipeline.addLast(IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
@@ -50,6 +57,15 @@ abstract class AbstractNet(
     }
     protected fun addNewServerHandlerExecutorGroup(channelPipeline: ChannelPipeline) {
         channelPipeline.addLast(ioGroup,newServerHandler)
+    }
+
+
+
+    protected fun rwinit(channelPipeline: ChannelPipeline) {
+        //speedlimt(channelPipeline)
+        addTimeOut(channelPipeline)
+        addPacketDecoderAndEncoder(channelPipeline)
+        addNewServerHandlerExecutorGroup(channelPipeline)
     }
 
     internal fun getConnectSize(): Int {

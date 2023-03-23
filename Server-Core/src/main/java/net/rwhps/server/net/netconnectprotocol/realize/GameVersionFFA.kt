@@ -25,7 +25,7 @@ class GameVersionFFA(connectionAgreement: ConnectionAgreement?) : GameVersionSer
         get() = "1.14 RW-HPS-FFA"
 
     @Throws(IOException::class)
-    override fun receiveChat(p: Packet) {
+    override fun receiveChat(packet: Packet) {
     }
 
 

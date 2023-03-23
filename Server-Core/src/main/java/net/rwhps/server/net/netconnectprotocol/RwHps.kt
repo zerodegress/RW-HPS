@@ -27,7 +27,7 @@ import net.rwhps.server.util.log.exp.ImplementedException
  * @property abstractNetPacket AbstractNetPacket    : NetPacket
  * @author RW-HPS/Dr
  */
-class RwHps(private val netType: IRwHps.NetType) : IRwHps {
+open class RwHps(private val netType: IRwHps.NetType) : IRwHps {
     override val typeConnect: TypeConnect =
         try {
             val protocolClass = ServiceLoader.getServiceClass(ServiceType.Protocol, netType.name)

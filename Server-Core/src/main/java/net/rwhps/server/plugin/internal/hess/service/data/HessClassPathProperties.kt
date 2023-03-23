@@ -7,11 +7,10 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.test
+package net.rwhps.server.plugin.internal.hess.service.data
 
-
-class MapLoad {
-    fun test() {
-
-    }
+internal object HessClassPathProperties {
+    const val path = "net.rwhps.server.plugin.internal.hess.inject"
+    const val CorePath = "$path.core"
+    const val GameHessPath = "com.corrodinggames.rts"
 }

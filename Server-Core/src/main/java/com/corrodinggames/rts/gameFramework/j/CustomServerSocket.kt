@@ -9,9 +9,9 @@
 
 package com.corrodinggames.rts.gameFramework.j
 
-import net.rwhps.server.game.simulation.gameFramework.GameEngine
-import net.rwhps.server.game.simulation.gameFramework.net.socket.StartGameHessNetTcp
 import net.rwhps.server.net.NetService
+import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
+import net.rwhps.server.plugin.internal.hess.inject.net.socket.StartGameHessNetTcp
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.log.Log
 import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable

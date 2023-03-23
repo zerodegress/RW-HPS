@@ -10,9 +10,6 @@ dependencies {
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
 
-	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
-	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
-
 	api("io.netty:netty-buffer:$nettyVersion")
 	api("io.netty:netty-codec:$nettyVersion")
 	api("io.netty:netty-codec-http:$nettyVersion")
@@ -28,7 +25,7 @@ dependencies {
 
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
-	api("com.google.code.gson:gson:2.10")
+	api("com.google.code.gson:gson:2.10.1")
 	api("org.json:json:20220924")
 
 	api("org.apache.commons:commons-compress:1.21")
@@ -48,9 +45,8 @@ dependencies {
 	implementation("org.apache.maven:maven-model:3.8.6")
 	implementation("org.lionsoul:ip2region:1.7.2")
 
-	implementation("org.jline:jline-reader:3.21.0")
+	implementation("org.jline:jline-reader:3.22.0")
 	implementation("org.fusesource.jansi:jansi:2.4.0")
-
 	api("it.unimi.dsi:fastutil-core:8.5.11")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.0")

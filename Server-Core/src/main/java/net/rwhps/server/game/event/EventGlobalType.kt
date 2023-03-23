@@ -12,6 +12,11 @@ package net.rwhps.server.game.event
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.IRwHps
 
+/**
+ * 服务器全局事件
+ *
+ * @author RW-HPS/Dr
+ */
 class EventGlobalType {
     /** 服务器初始化  */
     class GameLibLoadEvent(val loadID: String)

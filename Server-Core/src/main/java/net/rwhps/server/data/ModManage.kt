@@ -10,13 +10,10 @@
 package net.rwhps.server.data
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.annotations.DidNotFinish
-import net.rwhps.server.util.alone.annotations.NeedToRefactor
-import net.rwhps.server.util.log.Log
 
 /**
  * Mods 加载管理器
@@ -46,60 +43,11 @@ object ModManage {
         enabledMods = HessModuleManage.hps.gameUnitData.getUnitData(coreName)
         enabledModsName.clear()
 
-        //enabledModsName.add(coreName)
         modList = enabledMods.keys().toSeq()
 
         return (enabledMods.size -1).also {
             HessModuleManage.hps.gameHessData.useMod = (it > 0)
         }
-    }
-
-    /**
-     * 加载 Mod 数据到 游戏单位数据
-     * @return 加载单位数
-     */
-    @JvmStatic
-    fun loadUnits(): Int {
-        var loadCount = 0
-        enabledMods.forEach {
-            //if (enabledModsName.contains(it.key)) {
-                loadUnitsCount += it.value.size
-            //}
-        }
-
-        val stream: GameOutputStream = Data.utilData
-        stream.reset()
-        stream.writeInt(1)
-        stream.writeInt(loadUnitsCount)
-
-        enabledMods.forEach {
-            val modGroup = it.key
-            //if (enabledModsName.contains(modGroup)) {
-                val modData = it.value
-                try {
-                    val core = modGroup == coreName
-                    modData.forEach { iniData ->
-                        stream.writeString(iniData.key)
-                        stream.writeInt(iniData.value)
-                        stream.writeBoolean(true)
-                        if (core) {
-                            stream.writeBoolean(false)
-                        } else {
-                            stream.writeBoolean(true)
-                            stream.writeString(modGroup)
-                        }
-                        stream.writeLong(0)
-                        stream.writeLong(0)
-                    }
-                    loadCount++
-                    Log.debug("Load OK", if (core) "Core Units" else modGroup!!)
-                } catch (e: Exception) {
-                    Log.error(e)
-                }
-            //}
-        }
-
-        return loadCount
     }
 
     /**
@@ -110,19 +58,11 @@ object ModManage {
     fun reLoadMods(): Int {
         HessModuleManage.hps.gameHessData.clean()
         HessModuleManage.hps.gameUnitData.reloadUnitData()
-        HessModuleManage.hps.gameNet.newConnect()
+        HessModuleManage.hps.gameNet.startHessPort()
 
-        return load().run { loadUnits() }
+        return load()
     }
 
-    /**
-     * 清理
-     */
-    @NeedToRefactor
-    @JvmStatic
-    fun clear() {
-        loadUnitsCount = 0
-    }
 
     /**
      * 获取 Mod 列表

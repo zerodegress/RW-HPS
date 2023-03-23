@@ -59,7 +59,9 @@ internal class PacketDecoder : ByteToMessageDecoder() {
             ctx.close()
             return
         }
-        val readerIndex = bufferIn.readerIndex()
+
+        bufferIn.markReaderIndex()
+
         val contentLength = bufferIn.readInt()
         val type = bufferIn.readInt()
 
@@ -74,9 +76,10 @@ internal class PacketDecoder : ByteToMessageDecoder() {
 
         /*
          * Insufficient data length, reset the identification bit and read again
+         * 重新使用 [io.netty.buffer.ByteBuf.readableBytes()] 读取, 避免出现 头部被算进数据内
          */
-        if (readableBytes < contentLength) {
-            bufferIn.readerIndex(readerIndex)
+        if (bufferIn.readableBytes() < contentLength) {
+            bufferIn.resetReaderIndex()
             return
         }
 
@@ -89,7 +92,7 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         val b = ByteArray(contentLength)
         bufferIn.readBytes(b)
         // 读完就甩
-        //bufferIn.discardReadBytes()
+        bufferIn.discardReadBytes()
         out.add(Packet(packetType, b))
     }
 }

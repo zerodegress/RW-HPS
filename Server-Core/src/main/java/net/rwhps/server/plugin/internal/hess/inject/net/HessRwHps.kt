@@ -7,8 +7,12 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.core
+package net.rwhps.server.plugin.internal.hess.inject.net
 
-abstract class AbstractGameData {
-    abstract fun init()
+import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.net.core.TypeConnect
+import net.rwhps.server.net.netconnectprotocol.RwHps
+
+class HessRwHps(netType: IRwHps.NetType) : RwHps(netType) {
+    override val typeConnect: TypeConnect = TypeHessRwHps(GameVersionServer::class.java)
 }

@@ -15,6 +15,7 @@ import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.BlackList
+import net.rwhps.server.util.log.exp.ImplementedException
 
 /**
  * @author RW-HPS/Dr
@@ -36,7 +37,13 @@ object NetStaticData {
             field = value
             if (value != IRwHps.NetType.NullProtocol) {
                 /* 设置协议后会自动初始化IRwHps */
-                RwHps = ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(value) as IRwHps
+                RwHps = try {
+                    // 默认用对应协议
+                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, ServerNetType.name, IRwHps.NetType::class.java).newInstance(value) as IRwHps
+                } catch (e: ImplementedException) {
+                    // 找不到就使用全局默认
+                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(value) as IRwHps
+                }
             }
         }
     lateinit var RwHps: IRwHps

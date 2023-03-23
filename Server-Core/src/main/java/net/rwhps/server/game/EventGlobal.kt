@@ -10,11 +10,13 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.core.Initialization
+import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.net.Administration
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.log.Log
 
 
 class EventGlobal : AbstractGlobalEvent {
@@ -27,6 +29,13 @@ class EventGlobal : AbstractGlobalEvent {
                 return message
             }
         })
+
+        try {
+            MapManage.checkMaps()
+            Log.clog(Data.i18NBundle.getinput("server.load.maps"))
+        } catch (exp: Exception) {
+            Log.debug("Read Error", exp)
+        }
 
         Initialization.loadService()
     }

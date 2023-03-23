@@ -10,6 +10,7 @@
 package net.rwhps.server.net
 
 import io.netty.bootstrap.ServerBootstrap
+import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel.*
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollServerSocketChannel
@@ -96,12 +97,12 @@ class NetService {
             val serverBootstrapTcp = ServerBootstrap()
             serverBootstrapTcp.group(bossGroup, workerGroup)
                 .channel(runClass)
-                //.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 // Tuned sending, compatible with 100Mbps
                 .childOption(ChannelOption.SO_RCVBUF,1024 * 1024)
-                .childOption(ChannelOption.SO_SNDBUF,1024 * 1024)
+                .childOption(ChannelOption.SO_SNDBUF,2048 * 1024)
                 // Corresponds to the largest packet in the decoder, because there will be cases where the received [PacketType.PACKET_FORWARD_CLIENT_TO] size is 50M
                 .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark(minLowWaterMark,maxPacketSizt))
                 .childHandler(start)

@@ -11,26 +11,25 @@ package net.rwhps.server.game.event
 
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.AbstractPlayer
-import net.rwhps.server.data.player.Player
 
 /**
  * @author RW-HPS/Dr
  */
 class EventType {
     /** 玩家加入  */
-    class PlayerJoinEvent(val player: Player)
+    class PlayerJoinEvent(val player: AbstractPlayer)
 
     /** 玩家重连  */
-    class PlayerReJoinEvent(val player: Player)
+    class PlayerReJoinEvent(val player: AbstractPlayer)
 
     /** 玩家连接时. */
-    class PlayerConnectEvent(val player: Player)
+    class PlayerConnectEvent(val player: AbstractPlayer)
 
     /** 玩家离开时  */
     class PlayerLeaveEvent(val player: AbstractPlayer)
 
     /** 玩家发言时  */
-    class PlayerChatEvent(val player: Player, val message: String)
+    class PlayerChatEvent(val player: AbstractPlayer, val message: String)
 
     /** 开始游戏  */
     class GameStartEvent
@@ -39,13 +38,13 @@ class EventType {
     class GameOverEvent(val gameOverData: GameOverData?)
 
     /** 玩家被ban  */
-    class PlayerBanEvent(val player: Player)
+    class PlayerBanEvent(val player: AbstractPlayer)
 
     /** 玩家被解除ban  */
-    class PlayerUnbanEvent(val player: Player)
+    class PlayerUnbanEvent(val player: AbstractPlayer)
 
     /** 玩家被banIp  */
-    class PlayerIpBanEvent(val player: Player)
+    class PlayerIpBanEvent(val player: AbstractPlayer)
 
     /** 玩家被解banIp  */
     class PlayerIpUnbanEvent(val ip: String)
@@ -57,5 +56,5 @@ class EventType {
     }
 
     /** 玩家操作单位事件 */
-    class PlayerOperationUnitEvent(val player: Player, val playerUnit: EventLambdaType.PlayerUnit)
+    class PlayerOperationUnitEvent(val player: AbstractPlayer, val playerUnit: EventLambdaType.PlayerUnit)
 }

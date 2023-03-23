@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.net.socket
+package net.rwhps.server.plugin.internal.hess.inject.net.socket
 
 import com.corrodinggames.rts.gameFramework.j.ad
 import io.netty.channel.ChannelHandler
@@ -28,9 +28,6 @@ class StartGameHessNetTcp(netEngine: ad) : AbstractNet(
 ) {
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
-        val pipeline = socketChannel.pipeline()
-        addTimeOut(pipeline)
-        addPacketDecoderAndEncoder(pipeline)
-        addNewServerHandlerExecutorGroup(pipeline)
+        rwinit(socketChannel.pipeline())
     }
 }

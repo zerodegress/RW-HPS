@@ -25,5 +25,5 @@ interface AbstractGameNet {
      * @param name String
      */
     @GameSimulationLayer.GameSimulationLayer_KeyWords("networking already started")
-    fun startHessPort(port: Int = 5123, name: String = Data.headlessName)
+    fun startHessPort(port: Int = 5123, passwd: String? = null, name: String = Data.headlessName)
 }

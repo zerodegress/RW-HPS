@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.lib
+package net.rwhps.server.plugin.internal.hess.inject.lib
 
 import com.corrodinggames.rts.gameFramework.j.NetEnginePackaging
 import com.corrodinggames.rts.gameFramework.j.ad
@@ -19,15 +19,16 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.data.player.AbstractPlayer
-import net.rwhps.server.game.simulation.gameFramework.GameEngine
-import net.rwhps.server.game.simulation.gameFramework.PrivateClass_Player
-import net.rwhps.server.game.simulation.gameFramework.net.GameVersionServer
-import net.rwhps.server.game.simulation.gameFramework.net.socket.HessSocket
+import net.rwhps.server.game.event.EventType
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.core.ConnectionAgreement
+import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
+import net.rwhps.server.plugin.internal.hess.inject.core.PrivateClass_Player
+import net.rwhps.server.plugin.internal.hess.inject.net.GameVersionServer
+import net.rwhps.server.plugin.internal.hess.inject.net.socket.HessSocket
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.game.Events
 import java.util.concurrent.TimeUnit
 import com.corrodinggames.rts.gameFramework.j.c as PlayerConnect
 
@@ -62,17 +63,10 @@ class PlayerConnectX(
     override fun a(packetHess: au) {
         if (player == null) {
             if (this.e() != "<null>") {
-                player = room.playerManage.addAbstractPlayer(serverConnect,PrivateClass_Player(z))
+                player = room.playerManage.addAbstractPlayer(serverConnect, PrivateClass_Player(z))
                 serverConnect.player = player!!
-                Log.debug("[${room.roomID}] Join Player: ${player!!.name}")
 
-//                com.corrodinggames.rts.game.n.k(player!!.site).r = player!!.site
-//                GameEngine.netEngine.az = "/SD/rusted_warfare_maps/环湖 10P.tmx"
-//                GameEngine.netEngine.ay.b = "环湖 10P.tmx"
-//                room.mapName = "环湖 10P.tmx"
-//                GameEngine.netEngine.ay.a = ai.b
-//                GameEngine.netEngine.L()
-//                player!!.sendSystemMessage("服务器地图锁定 [环湖 10P], 不允许更换")
+                Events.fire(EventType.PlayerJoinEvent(player!!))
 
                 if (!Threads.containsTimeTask(CallTimeTask.CallTeamTask)) {
                     Threads.newTimedTask(CallTimeTask.CallTeamTask, 0, 1, TimeUnit.SECONDS) {
@@ -80,9 +74,6 @@ class PlayerConnectX(
                         GameEngine.netEngine.L()
                     }
                 }
-
-                player!!.sendSystemMessage("RW-HPS 2.0 Forward-looking Server")
-                player!!.sendSystemMessage("RW-HPS 2.0 前瞻服务器")
             }
         }
 

@@ -13,6 +13,10 @@ import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.data.player.AbstractPlayer
 
 class CallHess(private val serverRoom: ServerRoom) {
+    fun sendSystemMessage(text: String) {
+        serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(text) }
+    }
+
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
         serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }

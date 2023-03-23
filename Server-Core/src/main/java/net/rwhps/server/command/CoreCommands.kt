@@ -122,10 +122,6 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     private fun registerStartServer(handler: CommandHandler) {
-        handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons ->
-            NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
-            Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
-        }
         handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
 
 
@@ -147,7 +143,7 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice 5201 5500") //5200 6500
+            handler.handleMessage("startnetservice true 5201 5500") //5200 6500
         }
         handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.netService.size > 0) {
@@ -167,27 +163,33 @@ class CoreCommands(handler: CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayMulticastProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice 5200 5500")
+            handler.handleMessage("startnetservice true 5200 5500")
         }
 
 
-        handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
-            val netServiceTcp = NetService()
-            Threads.newThreadCoreNet {
-                if (arg != null && arg.size > 1) {
-                    netServiceTcp.openPort(Data.config.Port, arg[0].toInt(), arg[1].toInt())
-                } else {
-                    netServiceTcp.openPort(Data.config.Port)
+        handler.register("startnetservice", "<isPort> [sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
+            if (arg != null) {
+                if (arg[0].toBoolean()) {
+                    val netServiceTcp = NetService()
+                    Threads.newThreadCoreNet {
+                        if (arg.size > 2) {
+                            netServiceTcp.openPort(Data.config.Port, arg[1].toInt(), arg[2].toInt())
+                        } else {
+                            netServiceTcp.openPort(Data.config.Port)
+                        }
+                    }
                 }
-            }
 
-            Threads.newThreadCoreNet {
-                if (Data.config.WebService) {
-                    val netServiceTcp1 = NetService(StartHttp::class.java)
-                    netServiceTcp1.openPort(Data.config.SeparateWebPort)
+                Threads.newThreadCoreNet {
+                    if (Data.config.WebService) {
+                        val netServiceTcp1 = NetService(StartHttp::class.java)
+                        netServiceTcp1.openPort(Data.config.SeparateWebPort)
+                    }
                 }
+                Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
+            } else {
+                Log.clog("[Start Service] No parameter")
             }
-            Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
         }
     }
 
@@ -217,7 +219,7 @@ class CoreCommands(handler: CommandHandler) {
         Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
         Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
 
-        handler.handleMessage("startnetservice")
+        handler.handleMessage("startnetservice true")
     }
 
     companion object {

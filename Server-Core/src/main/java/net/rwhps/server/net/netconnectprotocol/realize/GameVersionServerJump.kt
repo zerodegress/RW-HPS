@@ -45,10 +45,10 @@ class GameVersionServerJump(connectionAgreement: ConnectionAgreement) : GameVers
     }
 
     @Throws(IOException::class)
-    override fun receiveCommand(p: Packet) {
+    override fun receiveCommand(packet: Packet) {
         //PlayerOperationUnitEvent
         try {
-            GameInputStream(GameInputStream(p).getDecodeBytes()).use { inStream ->
+            GameInputStream(GameInputStream(packet).getDecodeBytes()).use { inStream ->
                 val outStream = GameOutputStream()
                 outStream.writeByte(inStream.readByte())
                 val boolean1 = inStream.readBoolean()

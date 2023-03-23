@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework
+package net.rwhps.server.plugin.internal.hess.inject.core
 
 import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.gameFramework.j.CustomServerSocket
@@ -43,7 +43,7 @@ internal class GameNet : AbstractGameNet {
         }
     }
 
-    override fun startHessPort(port: Int, name: String) {
+    override fun startHessPort(port: Int, passwd: String?, name: String) {
         val netEngine = GameEngine.netEngine
         GameEngine.settingsEngine.networkPort = port
         GameEngine.settingsEngine.udpInMultiplayer = false
@@ -54,7 +54,7 @@ internal class GameNet : AbstractGameNet {
         GameEngine.data.room.run {
             roomID = "Port: $port"
             startServer = {
-                GameEngine.root.hostStartWithPasswordAndMods(false, null, true)
+                GameEngine.root.hostStartWithPasswordAndMods(false, passwd, true)
 
                 val tcp = GameEngine.netEngine::class.java.findField("aE", ServerAcceptRunnable::class.java)!!
                 // 关闭NetServerSocket (TCP)重启
@@ -83,9 +83,13 @@ internal class GameNet : AbstractGameNet {
                 GameEngine.netEngine::class.java.findField("aD", Thread::class.java)!!
                     .set(GameEngine.netEngine, Thread(tcpRunnable).apply { start() })
 
-                n.b(11, true)
+                n.b(Data.config.MaxPlayer, true)
 
-                netEngine.a(n.k(0), -3)
+                n.k(0).run {
+                    netEngine.a(this, -3)
+                    I()
+                }
+                GameEngine.netEngine.z.k = -3
             }.also { it() }
         }
     }

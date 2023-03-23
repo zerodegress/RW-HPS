@@ -20,6 +20,7 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 
@@ -59,28 +60,24 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     }
                 }
 
-                //ctx.executor().execute {
-                    try {
-                        type.typeConnect(msg)
-                    } catch (e: Exception) {
-                        debug(e = e)
-                    }
-                //}
+                try {
+                    type.typeConnect(msg)
+                } catch (e: Exception) {
+                    debug(e = e)
+                }
             }
         } catch (ss: Exception) {
             error(ss)
         }
     }
 
+
     @Deprecated("Deprecated in Netty")
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
-        error(RuntimeException())
-        error(cause == null)
-        error(cause!!)
-        error(cause.message!!)
-        error(cause.localizedMessage!!)
-        error(cause.cause!!)
+        cause?.let {
+            error(Log.resolveTrace(it))
+        }
     }
 
     companion object {

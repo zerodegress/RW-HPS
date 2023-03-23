@@ -23,6 +23,7 @@ object IpUtil {
      * 获取本机内网ip
      * @return
      * @throws UnknownHostException
+     * @author RW-HPS/fgsqme
      */
     @JvmStatic
     @Throws(UnknownHostException::class)

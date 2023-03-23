@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework
+package net.rwhps.server.plugin.internal.hess.inject.core
 
 import com.corrodinggames.rts.game.units.custom.ag
 import com.corrodinggames.rts.game.units.custom.l

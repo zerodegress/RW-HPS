@@ -48,14 +48,11 @@ object Data {
     const val SERVER_ID = "net.rwhps.server"
     const val SERVER_ID_RELAY = "net.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "2.0.0-DEV31"
+    const val SERVER_CORE_VERSION = "2.0.0-M1"
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     const val SERVER_EULA_VERSION = "1.1.0"
 
-    const val supportedversionBeta = false
-    const val supportedversionGame = "1.15"
-    const val supportedVersionInt  = 176
 
     /** 单位数据缓存  */
 	@JvmField val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
@@ -69,7 +66,7 @@ object Data {
     @JvmField val RELAY_COMMAND = CommandHandler(".")
 
     /** Map */
-	@JvmField val MapsMap = ObjectMap<String, String>()
+    @JvmField val MapsMap = ObjectMap<String, String>()
 
     @JvmField val core = Application()
     @JvmField val i18NBundleMap = ObjectMap<String, I18NBundle>(8)
@@ -87,6 +84,7 @@ object Data {
 
     @JvmField var vote: Vote? = null
 
+    @Volatile var startServer = false
     @Volatile var exitFlag = false
 
     // 服务器默认显示名称, 不推荐修改? (让我打广告提高知名度)

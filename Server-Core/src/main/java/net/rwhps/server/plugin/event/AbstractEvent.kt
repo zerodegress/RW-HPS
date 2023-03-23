@@ -11,26 +11,25 @@ package net.rwhps.server.plugin.event
 
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.AbstractPlayer
-import net.rwhps.server.data.player.Player
 
 interface AbstractEvent {
     /**
      * 玩家加入 [同步-Synchronization]
      * @param player Player
      */
-    fun registerPlayerJoinEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerJoinEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /**
      * 玩家重连 [同步-Synchronization]
      * @param player Player
      */
-    fun registerPlayerReJoinEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerReJoinEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /**
      * 玩家连接时 [异步-ASync]
      * @param player Player
      */
-    fun registerPlayerConnectEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerConnectEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /**
      * 玩家离开时 [异步-ASync]
@@ -43,7 +42,7 @@ interface AbstractEvent {
      * @param player
      * @param message
      */
-    fun registerPlayerChatEvent(player: Player, message: String) { /* Optional use of plugins */ }
+    fun registerPlayerChatEvent(player: AbstractPlayer, message: String) { /* Optional use of plugins */ }
 
     /** 开始游戏 [同步-ASync]  */
     fun registerGameStartEvent() { /* Optional use of plugins */ }
@@ -52,13 +51,13 @@ interface AbstractEvent {
     fun registerGameOverEvent(gameOverData: GameOverData?) { /* Optional use of plugins */ }
 
     /** 玩家被ban [异步-ASync]  */
-    fun registerPlayerBanEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerBanEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /** 玩家被解除ban [异步-ASync]  */
-    fun registerPlayerUnbanEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerUnbanEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /** 玩家被banIp [异步-ASync]  */
-    fun registerPlayerIpBanEvent(player: Player) { /* Optional use of plugins */ }
+    fun registerPlayerIpBanEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /** 玩家被解banIp [异步-ASync]  */
     fun registerPlayerIpUnbanEvent(ip: String) { /* Optional use of plugins */ }

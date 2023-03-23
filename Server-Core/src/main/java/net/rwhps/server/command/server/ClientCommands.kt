@@ -67,6 +67,10 @@ internal class ClientCommands(handler: CommandHandler) {
     }
 
     init {
+        PluginManage.runRegisterServerClientCommands(handler)
+    }
+
+    fun a(handler: CommandHandler) {
         handler.register("help", "clientCommands.help") { _: Array<String>?, player: Player ->
             val str = StringBuilder(16)
             for (command in handler.commandList) {
@@ -581,7 +585,5 @@ internal class ClientCommands(handler: CommandHandler) {
                 sendTeamData()
             }
         }
-
-        PluginManage.runRegisterServerClientCommands(handler)
     }
 }

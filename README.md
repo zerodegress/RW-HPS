@@ -110,7 +110,7 @@ The game corresponds to the final server version collection
 |:------------:|:------------------:|:---------------------------------------------------------------------:|
 |   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                 Delete                                |
 | ~~1.15.P8~~  |     ~~6.0.1~~      |                                 Delete                                |
-|     1.15     |      1.0.0      | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0) |
+|     1.15     |      1.0.0      | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/2.0.0-M1) |
 
 ## Sponsorship
 RW-HPS is a open source project released under AGPL V3. However, the amount of work required to maintain and develop new features for the project is not sustainable without your generous dedications.

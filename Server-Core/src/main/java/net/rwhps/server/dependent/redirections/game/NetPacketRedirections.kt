@@ -14,31 +14,27 @@ import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 
+/**
+ * Network blocking and proxy
+ *
+ * @author RW-HPS/Dr
+ */
 @AsmMark.ClassLoaderCompatible
 class NetPacketRedirections : MainRedirections {
     override fun register() {
-        // 拦截包处理
+        // Intercept packet processing (Ineffective, there are alternatives)
         @GameSimulationLayer.GameSimulationLayer_KeyWords("filtered packet")
         redirect("com/corrodinggames/rts/gameFramework/j/ad00", arrayOf("b","(Lcom/corrodinggames/rts/gameFramework/j/au;)Z")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
             return@redirect HessModuleManage.hps.gameFast.filteredPacket(args[0])
         }
 
-        // 无效化游戏自带的列表服务
+        // Invalidate the listing service that comes with the game
         @GameSimulationLayer.GameSimulationLayer_KeyWords("StartCreateOnMasterServer")
         redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("b","()V"))
         redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("c","()V"))
         redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("d","()V"))
 
-        //ListOperate_Join_GetRoomList
-        redirect("com/corrodinggames/rts/gameFramework/j/q")
-        //ListOperate_AddRoom
-        redirect("com/corrodinggames/rts/gameFramework/j/y")
-        //ListOperate_UpdateRoom
-        redirect("com/corrodinggames/rts/gameFramework/j/aa")
-        //SendErrorLogToGameDev
-        redirect("com/corrodinggames/rts/gameFramework/j/v")
-
-        // 无效化游戏自带的RUDP服务
+        // Invalidate the RUDP service that comes with the game
         @GameSimulationLayer.GameSimulationLayer_KeyWords("ReliableServerSocket")
         redirectClass("a/a/d")
     }

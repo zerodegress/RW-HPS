@@ -24,6 +24,7 @@ import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.*
 import net.rwhps.server.net.netconnectprotocol.realize.*
 import net.rwhps.server.util.*
@@ -256,7 +257,7 @@ class Initialization {
                 Log.clog(ExtractUtil.str(eulaBytes,Data.UTF_8))
 
                 Log.clog("Agree to enter : Yes , Otherwise please enter : No")
-                System.out.print("Please Enter > ")
+                print("Please Enter (Yes/No) > ")
 
                 Scanner(object : FilterInputStream(System.`in`) {
                     @Throws(IOException::class)
@@ -275,7 +276,7 @@ class Initialization {
                             Core.exit()
                         } else {
                             Log.clog("Re Enter")
-                            System.out.print("Please Enter > ")
+                            print("Please Enter (Yes/No) > ")
                         }
                     }
                 }
@@ -315,17 +316,23 @@ class Initialization {
                 data class ServerData(
                     val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
                     val MaxPlayer: Int                      = Data.config.MaxPlayer,
-                    val PlayerVersion: Int                  = Data.supportedVersionInt,
+                    val PlayerVersion: Int                  = (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).supportedVersionInt,
                     val IpPlayerCountry: Map<String,Int>,
                 )
 
                 data class RelayData(
-                    val PlayerSize: Int                    = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
-                    val RoomAllSize: Int                   = Relay.roomAllSize,
-                    val RoomNoStartSize: Int               = Relay.roomNoStartSize,
-                    val RoomPublicListSize: Int            = 0,
-                    val PlayerVersion: Map<Int, Int>       = Relay.getAllRelayVersion(),
-                    val IpPlayerCountry: Map<String, Int>  = Relay.getAllRelayIpCountry(),
+                    val PlayerSize: Int = AtomicInteger().also {
+                        NetStaticData.netService.eachAll { e: NetService ->
+                            it.addAndGet(
+                                e.getConnectSize()
+                            )
+                        }
+                    }.get(),
+                    val RoomAllSize: Int = Relay.roomAllSize,
+                    val RoomNoStartSize: Int = Relay.roomNoStartSize,
+                    val RoomPublicListSize: Int = 0,
+                    val PlayerVersion: Map<Int, Int> = Relay.getAllRelayVersion(),
+                    val IpPlayerCountry: Map<String, Int> = Relay.getAllRelayIpCountry(),
                 )
             }
         }

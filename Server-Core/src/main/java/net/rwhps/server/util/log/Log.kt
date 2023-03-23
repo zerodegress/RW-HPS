@@ -227,6 +227,14 @@ object Log {
         fileUtil.writeFile(logCache, fileUtil.file.length() <= 512 * 1024)
     }
 
+    fun resolveTrace(trace: Throwable): String {
+        val stringWriter = StringWriter()
+        return PrintWriter(stringWriter).use {
+            trace.printStackTrace(it)
+            return@use stringWriter.buffer.toString()
+        }
+    }
+
     /**
      * WLog：
      * @param i Warning level -INT
@@ -235,10 +243,7 @@ object Log {
      * i>=Set the level to write to the file
      */
     private fun log(i: Int, tag: Any, e: Exception) {
-        val stringWriter = StringWriter()
-        val printWriter = PrintWriter(stringWriter)
-        e.printStackTrace(printWriter)
-        logs(i, tag, stringWriter.buffer, true)
+        logs(i, tag, resolveTrace(e), true)
     }
 
     private fun logs(i: Int, tag: Any, e: Any, error: Boolean = false) {

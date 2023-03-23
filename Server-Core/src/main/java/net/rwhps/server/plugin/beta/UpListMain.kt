@@ -18,6 +18,7 @@ import net.rwhps.server.data.json.Json
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.IpUtil
 import net.rwhps.server.util.IsUtil
@@ -86,9 +87,12 @@ internal class UpListMain : Plugin() {
 
     private fun initUpListData(urlIn: String = ""): Boolean {
         if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-            versionBeta = Data.supportedversionBeta
-            versionGame = Data.supportedversionGame
-            versionGameInt = Data.supportedVersionInt
+            (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).run {
+                versionBeta = supportedversionBeta
+                versionGame = supportedversionGame
+                versionGameInt = supportedVersionInt
+            }
+
         } else {
             versionBeta = false
             versionGame = "1.14-Other"

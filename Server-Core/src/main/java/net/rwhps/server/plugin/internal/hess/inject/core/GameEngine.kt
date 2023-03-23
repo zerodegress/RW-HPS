@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework
+package net.rwhps.server.plugin.internal.hess.inject.core
 
 import com.corrodinggames.librocket.b
 import com.corrodinggames.librocket.scripts.Multiplayer
@@ -15,10 +15,14 @@ import com.corrodinggames.librocket.scripts.Root
 import com.corrodinggames.librocket.scripts.ScriptContext
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
+import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.game.simulation.core.*
-import net.rwhps.server.game.simulation.gameFramework.command.ClientCommands
+import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.plugin.internal.hess.HessMain
+import net.rwhps.server.plugin.internal.hess.inject.command.ClientCommands
+import net.rwhps.server.plugin.internal.hess.inject.net.HessRwHps
 import net.rwhps.server.util.inline.accessibleConstructor
 import net.rwhps.server.util.inline.findField
 
@@ -69,6 +73,8 @@ internal object GameEngine {
             data = it
         })
 
-        ClientCommands(data.gameData.clientCommand)
+        ServiceLoader.addService(ServiceLoader.ServiceType.IRwHps, IRwHps.NetType.ServerProtocol.name, HessRwHps::class.java)
+
+        ClientCommands(HessMain.serverClientCommands)
     }
 }

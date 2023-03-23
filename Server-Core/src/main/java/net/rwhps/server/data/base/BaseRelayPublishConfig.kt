@@ -30,8 +30,7 @@ data class BaseRelayPublishConfig(
     val MainServer: Boolean = true,
     val UpList: Boolean = false,
     val MainServerIP: String = "",
-    val MainServerPort: Int = 4993,
-    val BindCustom: MutableMap<String,Array<String>> = mutableMapOf(),
+    val MainServerPort: Int = 4993
 ) {
 
     fun save() {

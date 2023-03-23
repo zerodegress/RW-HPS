@@ -52,8 +52,6 @@ import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Event
 import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
-import net.rwhps.server.game.simulation.GameHeadlessEvent
-import net.rwhps.server.game.simulation.GameHeadlessEventGlobal
 import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.math.Rand
 import net.rwhps.server.net.NetService
@@ -100,8 +98,13 @@ object Main {
         /* 设置Log 并开启拷贝 */
         set("ERROR")
         setCopyPrint(true)
+
+        /* OFF WARN */
+        System.setProperty("org.jline.terminal.dumb", "true");
         Logger.getLogger("io.netty").level = Level.OFF
 
+        /* Fix Idea */
+        System.setProperty("jansi.passthrough", "true");
         /* 覆盖输入输出流 */
         inputMonitorInit()
 
@@ -126,6 +129,8 @@ object Main {
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
 
+
+
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
         LogCommands(Data.LOG_COMMAND)
@@ -135,8 +140,6 @@ object Main {
         add(Event())
         add(EventGlobal())
 
-        add(GameHeadlessEvent())
-        add(GameHeadlessEventGlobal())
         clog(Data.i18NBundle.getinput("server.load.events"))
 
         /* 初始化Plugin */
@@ -165,14 +168,14 @@ object Main {
             }
         }
 
-        /* 按键监听 */
-        newThreadCore { inputMonitor() }
-
         newThreadCore {
             WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
 
             NetService(StartHttp::class.java).openPort(5000)
         }
+
+        /* 按键监听 */
+        newThreadCore { inputMonitor() }
     }
 
     /**

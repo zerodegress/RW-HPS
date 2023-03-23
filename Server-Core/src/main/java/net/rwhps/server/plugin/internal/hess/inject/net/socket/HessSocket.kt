@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.net.socket
+package net.rwhps.server.plugin.internal.hess.inject.net.socket
 
 import net.rwhps.server.net.core.ConnectionAgreement
 import java.io.InputStream

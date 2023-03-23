@@ -32,6 +32,7 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAn
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInfo
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
+import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.GameOtherUtil.getBetaVersion
 import net.rwhps.server.util.IsUtil
@@ -68,7 +69,6 @@ import java.util.stream.IntStream
  * @property relaySelect            Function1<String, Unit>?
  * @property name                   player's name
  * @property registerPlayerId       UUID-Hash code after player registration
- * @property noUp                   Boolean
  * @property betaGameVersion        Is it a beta version
  * @property clientVersion          clientVersion
  * @property playerRelay            PlayerRelay?
@@ -188,7 +188,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         netConnectAuthenticate = Relay.randPow
         val netConnectAuthenticate: NetConnectProofOfWork = netConnectAuthenticate!!
         val authenticateType = netConnectAuthenticate.authenticateType.toInt()
-        debug(authenticateType)
         try {
             val o = GameOutputStream()
             // 返回相同
@@ -249,33 +248,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     @Throws(IOException::class)
-    override fun receiveChat(p: Packet) {
-        GameInputStream(p).use { inStream ->
+    override fun receiveChat(packet: Packet) {
+        GameInputStream(packet).use { inStream ->
             if (playerRelay != null) {
                 val message: String = inStream.readString()
 
                 if (relay == null || relay!!.allmute) {
                     return
                 }
-/*
-// RCN 选择性功能
-                if (relay!!.relayData.uplistStatus != Relay.RelayData.UpListStatus.UpIng && (!relay!!.isStartGame || relay!!.startGameTime > Time.concurrentSecond())) {
-                    if (Data.banWord.badWord(message).size > 0) {
-                        if (playerRelay!!.messageCount.checkStatus()) {
-                            // KICK 玩家
-                            relay!!.admin!!.relayKickData.put("KICK$registerPlayerId",Time.concurrentSecond()+120)
-                            relay!!.admin!!.relayKickData.put("KICK${connectionAgreement.ipLong24}", Time.concurrentSecond() + 120)
-                            kick("含有屏蔽词的话不应该连续发送")
-                            return
-                        } else {
-                            // 提醒玩家 并累计数
-                            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("您已经连续多次发言包含屏蔽词 您不应该这样做", "RELAY_CN-Check", 5))
-                            playerRelay!!.messageCount.count++
-                            return
-                        }
-                    }
-                }
-*/
+
                 if (message.startsWith(".") || message.startsWith("-")) {
                     val response = Data.RELAY_COMMAND.handleMessage(message, this)
                     if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
@@ -286,7 +267,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                             CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                             CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                             else -> {
-                                sendPackageToHOST(p)
+                                sendPackageToHOST(packet)
                                 return
                             }
                         }
@@ -312,7 +293,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     playerRelay!!.lastSentMessage = message
                 }
 
-                sendPackageToHOST(p)
+                sendPackageToHOST(packet)
             } else {
                 disconnect()
             }
@@ -400,12 +381,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     override fun getRelayT4(msg: String) {
         try {
-            val o = GameOutputStream()
-            // 理论上是随机数？
-            //o.writeString("RW-HPS Relay TEST?");
-            o.writeString(msg)
-            o.writeByte(0)
-            sendPacket(o.createPacket(PacketType.CHAT_RECEIVE))
+            sendPacket(chatUserMessagePacketInternal(msg))
         } catch (e: Exception) {
             error(e)
         }
@@ -459,7 +435,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeIsString(registerPlayerId!!)
                 o.writeIsString(ip)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
-                //Log.clog("172")
             } else {
                 o.writeByte(0)
                 o.writeInt(site)
@@ -578,8 +553,9 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
                     return
                 }
-                inStream.skip(4)
-                val bytes = inStream.readAllBytes()
+
+                val bytes = inStream.readStreamBytes()
+
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
                 if (PacketType.KICK.typeInt == type) {
                     val gameOutputStream = GameOutputStream()
@@ -655,33 +631,42 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         super.isDis = true
         if (relay != null) {
             relay!!.setRemoveSize()
-            if (this !== relay!!.admin) {
-                relay!!.removeAbstractNetConnect(site)
-                try {
-                    sendPackageToHOST(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
-                } catch (e: IOException) {
-                    error("[Relay disconnect] Send Exited", e)
-                }
 
-                playerRelay?.disconnect = true
+            var errorClose = false
 
-                if (!relay!!.isStartGame) {
-                    relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
-                }
-            } else {
-                Relay.serverRelayIpData.remove(ip)
-                // 房间开始游戏 或者 在列表
-                if (relay!!.isStartGame) {
-                    if (relay!!.getSize() > 0) {
-                        // Move Room Admin
-                        adminMoveNew()
+            try {
+                if (this !== relay!!.admin) {
+                    relay!!.removeAbstractNetConnect(site)
+                    playerRelay?.disconnect = true
+
+                    try {
+                        if (relay!!.admin != null) {
+                            sendPackageToHOST(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
+                            if (!relay!!.isStartGame) {
+                                relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        error("[Relay disconnect] Send Exited", e)
                     }
                 } else {
-                    // Close Room
-                    relay!!.groupNet.disconnect()
+                    Relay.serverRelayIpData.remove(ip)
+                    // 房间开始游戏 或者 在列表
+                    if (relay!!.isStartGame) {
+                        if (relay!!.getSize() > 0) {
+                            // Move Room Admin
+                            adminMoveNew()
+                        }
+                    } else {
+                        // Close Room
+                        relay!!.groupNet.disconnect()
+                    }
                 }
+            } catch (e: Exception) {
+                debug("[Relay Close Error]",e)
+                errorClose =true
             }
-            if (relay!!.getSize() <= 0 && !relay!!.closeRoom) {
+            if ((relay!!.getSize() <= 0 && !relay!!.closeRoom) || errorClose) {
                 debug("[Relay] Gameover")
                 relay!!.re()
             }

@@ -9,11 +9,11 @@
 
 package net.rwhps.server.custom
 
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.plugin.beta.MoreMain
 import net.rwhps.server.plugin.beta.UpListMain
 import net.rwhps.server.plugin.beta.httpapi.ApiMain
-import net.rwhps.server.plugin.beta.noattack.ConnectionLimit
+import net.rwhps.server.plugin.internal.hess.HessMain
 
 /**
  * 内部的一些插件 加载
@@ -28,10 +28,9 @@ internal class LoadCoreCustomPlugin {
     private val amusement = "[Amusement Plugin]"
     private val example = "[Example Plugin]"
     init {
+        PluginManage.addPluginClass("HessServer", "Dr", "$core HessServer", Data.SERVER_CORE_VERSION, HessMain(), mkdir = true, skip = true)
+
         PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpListMain(), mkdir = false, skip = true)
-        PluginManage.addPluginClass("ConnectionLimit","Dr","$coreEx ConnectionLimit","1.0", ConnectionLimit(), mkdir = false, skip = true)
-        PluginManage.addPluginClass("TwoHessTest","Dr","$example TwoHessTest","1.0", MoreMain(), mkdir = false, skip = true)
-        //PluginManage.addPluginClass("WinTest","Dr","$example WinTest","1.0", WinTestMain(), mkdir = false, skip = true)
         PluginManage.addPluginClass("HttpApi", "zhou2008", "$coreEx HttpApi", "1.0", ApiMain(), mkdir = true, skip = true)
     }
 }

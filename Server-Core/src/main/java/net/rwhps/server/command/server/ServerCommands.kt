@@ -345,9 +345,9 @@ internal class ServerCommands(handler: CommandHandler) {
     }
 
     init {
-        registerPlayerCommand(handler)
-        registerPlayerStatusCommand(handler)
-        registerPlayerCustomEx(handler)
+        //registerPlayerCommand(handler)
+        //registerPlayerStatusCommand(handler)
+        //registerPlayerCustomEx(handler)
 
         PluginManage.runRegisterServerCommands(handler)
 

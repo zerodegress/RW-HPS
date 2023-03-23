@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.net
+package net.rwhps.server.plugin.internal.hess.inject.net
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.io.packet.Packet
@@ -15,7 +15,7 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.log.exp.ImplementedException
+import net.rwhps.server.util.ReflectionUtils
 
 /**
  * Parse the [net.rwhps.server.net.core.IRwHps.NetType.ServerProtocol] protocol
@@ -25,13 +25,26 @@ import net.rwhps.server.util.log.exp.ImplementedException
  * @property version            Parser version
  * @author RW-HPS/Dr
  */
-open class TypeRwHps(private val con: GameVersionServer) : TypeConnect {
+open class TypeHessRwHps : TypeConnect {
+    val con: GameVersionServer
+    var conClass: Class<out GameVersionServer>? = null
 
     override val abstractNetConnect: AbstractNetConnect
         get() = con
 
+    constructor(con: GameVersionServer) {
+        this.con = con
+    }
+    constructor(con: Class<out GameVersionServer>) {
+        // will not be used ; just override the initial value to avoid refusing to compile
+        this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
+
+        // use for instantiation
+        conClass = con
+    }
+
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        throw ImplementedException.PlayerImplementedException("[TypeRwHps] Should not be enforced")
+        return TypeHessRwHps(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)

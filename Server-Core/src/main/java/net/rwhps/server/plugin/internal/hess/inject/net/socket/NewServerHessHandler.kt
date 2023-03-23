@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.net.socket
+package net.rwhps.server.plugin.internal.hess.inject.net.socket
 
 import com.corrodinggames.rts.gameFramework.j.ad
 import io.netty.channel.ChannelHandler
@@ -16,12 +16,12 @@ import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.util.AttributeKey
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.EventGlobalType
-import net.rwhps.server.game.simulation.gameFramework.lib.PlayerConnectX
-import net.rwhps.server.game.simulation.gameFramework.net.GameVersionServer
-import net.rwhps.server.game.simulation.gameFramework.net.TypeRwHps
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
+import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
+import net.rwhps.server.plugin.internal.hess.inject.net.GameVersionServer
+import net.rwhps.server.plugin.internal.hess.inject.net.TypeHessRwHps
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 
@@ -48,7 +48,7 @@ class NewServerHessHandler(private val netEngine: ad) : SimpleChannelInboundHand
 
                     netEngine.aM.add(playerConnect)
 
-                    type = TypeRwHps(GameVersionServer(playerConnect))
+                    type = TypeHessRwHps(GameVersionServer(playerConnect))
                     attr.setIfAbsent(type)
                     type.setData(playerConnect)
 

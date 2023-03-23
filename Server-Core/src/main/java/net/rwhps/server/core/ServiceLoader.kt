@@ -11,7 +11,6 @@ package net.rwhps.server.core
 
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.net.core.AbstractNetPacket
-import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.ReflectionUtils
@@ -24,8 +23,18 @@ import java.lang.reflect.Constructor
  * SIP without Java
  * @author RW-HPS/Dr
  */
+/**
+ * TODO
+ *
+ * 1 使其通过扫描注解来判断继承的主类
+ * 2 Get数据为 Runnable, 可以自定义一个池出来 (Hess 使用方案)
+ *
+ * 无限可能
+ */
 object ServiceLoader {
     private val ServiceLoaderData:MutableMap<String,Class<*>> = HashMap()
+    private val ServiceCustomLoaderData:MutableMap<String,String> = HashMap()
+
     private val ServiceObjectData:MutableMap<String,Value<*>> = HashMap()
 
     /**
@@ -61,35 +70,30 @@ object ServiceLoader {
 
     /**
      * Add a new service based on service type
-     * @param serviceType ServiceType
-     * @param serviceName Service Name
-     * @param service     Class of service
-     * @param cover       Whether to overwrite existing
+     * @param serviceType  ServiceType
+     * @param serviceName  Service Name
+     * @param serviceClass Class of service
+     * @param cover        Whether to overwrite existing
      * @throws VariableException
      */
     @JvmOverloads
     @Throws(VariableException.TypeMismatchException::class)
-    fun addService(serviceType: ServiceType, serviceName: String, service: Class<*>, cover: Boolean = false) {
-        if (ReflectionUtils.findSuperClass(service,serviceType.classType)) {
-            throw VariableException.TypeMismatchException("[AddService] ${serviceType.classType} : ${service.name}")
+    fun addService(serviceType: ServiceType, serviceName: String, serviceClass: Class<*>, cover: Boolean = false) {
+        if (ReflectionUtils.findSuperClass(serviceClass,serviceType.classType)) {
+            throw VariableException.TypeMismatchException("[AddService] ${serviceType.classType} : ${serviceClass.name}")
         }
         // 跳过已经存在的
         if (ServiceLoaderData.containsKey(serviceType.name+serviceName) && !cover) {
             return
         }
-        ServiceLoaderData[serviceType.name+serviceName] = service
+        ServiceLoaderData[serviceType.name+serviceName] = serviceClass
     }
 
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T> getIRwHpsObject(serviceType: ServiceType, serviceName: String, netType: IRwHps.NetType): T {
-        val serviceClass = ServiceLoaderData[serviceType.name+serviceName]
-        var serviceObject = ServiceObjectData[serviceType.name+serviceName]
-        if (serviceClass != null) {
-            serviceObject = Value(ReflectionUtils.accessibleConstructor(serviceClass, IRwHps.NetType::class.java).newInstance(netType))
-        }
-        return serviceObject?.data as T
-    }
+    @JvmOverloads
+    @Throws(VariableException.TypeMismatchException::class)
+    fun addService(serviceType: ServiceType, serviceName: String, serviceClassName: String, cover: Boolean = false) {
 
+    }
 
     /**
      * 这是 RW-HPS 使用的服务类

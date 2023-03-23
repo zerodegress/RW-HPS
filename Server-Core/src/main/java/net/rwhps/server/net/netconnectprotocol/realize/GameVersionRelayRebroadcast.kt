@@ -133,8 +133,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                     return
                 }
 
-                inStream.skip(4) // Lenght
-                val bytes = inStream.readAllBytes()
+                val bytes = inStream.readStreamBytes()
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
 
                 if (abstractNetConnect != null) {
@@ -163,8 +162,8 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                     else -> {}
                 }
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (_: IOException) {
+            /* 忽略 */
         } catch (_: NullPointerException) {
             /* 忽略 */
         }

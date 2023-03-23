@@ -9,21 +9,16 @@
 
 package net.rwhps.server.game
 
-import net.rwhps.server.core.Call
-import net.rwhps.server.core.NetServer
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.AbstractPlayer
-import net.rwhps.server.data.player.Player
-import net.rwhps.server.game.event.EventType
 import net.rwhps.server.net.Administration.PlayerInfo
 import net.rwhps.server.plugin.event.AbstractEvent
-import net.rwhps.server.util.Time
 import net.rwhps.server.util.Time.millis
-import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.inline.coverConnect
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
@@ -33,13 +28,13 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 class Event : AbstractEvent {
-    override fun registerPlayerJoinEvent(player: Player) {
+    override fun registerPlayerJoinEvent(player: AbstractPlayer) {
         if (player.name.isBlank() || player.name.length > 30) {
             player.kickPlayer(player.getinput("kick.name.failed"))
             return
         }
 
-        if (Data.core.admin.bannedUUIDs.contains(player.uuid)) {
+        if (Data.core.admin.bannedUUIDs.contains(player.connectHexID)) {
             try {
                 player.kickPlayer(player.i18NBundle.getinput("kick.ban"))
             } catch (ioException: IOException) {
@@ -48,8 +43,8 @@ class Event : AbstractEvent {
             return
         }
 
-        if (Data.core.admin.playerDataCache.containsKey(player.uuid)) {
-            val info = Data.core.admin.playerDataCache[player.uuid]
+        if (Data.core.admin.playerDataCache.containsKey(player.connectHexID)) {
+            val info = Data.core.admin.playerDataCache[player.connectHexID]
             if (info.timesKicked > millis()) {
                 try {
                     player.kickPlayer(player.i18NBundle.getinput("kick.you.time"))
@@ -62,15 +57,15 @@ class Event : AbstractEvent {
             }
         }
 
-        Call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
+        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
         Log.clog("&c"+Data.i18NBundle.getinput("player.ent", player.name))
 
         if (Data.config.AutoStartMinPlayerSize != -1 &&
-            Data.game.playerManage.playerGroup.size >= Data.config.AutoStartMinPlayerSize &&
+            HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.config.AutoStartMinPlayerSize &&
             !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             var flagCount = 0
             Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
-                if (Data.game.isStartGame) {
+                if (HessModuleManage.hps.room.isStartGame) {
                     Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                     return@newTimedTask
                 }
@@ -79,7 +74,7 @@ class Event : AbstractEvent {
 
                 if (flagCount < 60) {
                     if ((flagCount - 55) > 0) {
-                        Call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",(60 - flagCount)))
+                        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",(60 - flagCount)))
                     }
                     return@newTimedTask
                 }
@@ -87,68 +82,40 @@ class Event : AbstractEvent {
                 Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
 
-                if (Data.game.maps.mapData != null) {
-                    Data.game.maps.mapData!!.readMap()
-                }
-
-                val enc = NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()
-
-                Data.game.playerManage.playerGroup.eachAll { e: Player ->
-                    try {
-                        e.con!!.sendTeamData(enc)
-                        e.con!!.sendStartGame()
-                        e.lastMoveTime = Time.concurrentSecond()
-                    } catch (err: IOException) {
-                        error("Start Error", err)
-                    }
-                }
-
-                Data.game.isStartGame = true
-                if (Data.game.sharedControl) {
-                    Data.game.playerManage.playerGroup.eachAll { it.sharedControl = true }
-                }
-
-                Data.game.playerManage.updateControlIdentifier()
-                Call.testPreparationPlayer()
-                Events.fire(EventType.GameStartEvent())
+                Data.CLIENT_COMMAND.register("start",null) { HessModuleManage.hps.room.playerManage.playerGroup.find { it.isAdmin } }
             }
         }
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
     override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
-        if (player is Player) {
-            if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 1) {
-                try {
-                    var p = Data.game.playerManage.playerGroup[0]
-                    if (p.name == Data.headlessName) {
-                        p = Data.game.playerManage.playerGroup[1]
-                    }
-                    p.isAdmin = true
-                    Call.upDataGameData()
-                    player.isAdmin = false
-                    Call.sendSystemMessage("give.ok", p.name)
-                } catch (ignored: IndexOutOfBoundsException) {
+        if (Data.config.OneAdmin && player.isAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 1) {
+            try {
+                var p = HessModuleManage.hps.room.playerManage.playerGroup[0]
+                if (p.name == Data.headlessName) {
+                    p = HessModuleManage.hps.room.playerManage.playerGroup[1]
                 }
+                p.isAdmin = true
+                player.isAdmin = false
+                HessModuleManage.hps.room.call.sendSystemMessage("give.ok", p.name)
+            } catch (ignored: IndexOutOfBoundsException) {
             }
+        }
 
-            Data.core.admin.playerDataCache.put(player.uuid, PlayerInfo(player.uuid, player.kickTime, player.muteTime))
+        Data.core.admin.playerDataCache.put(player.connectHexID, PlayerInfo(player.connectHexID, player.kickTime, player.muteTime))
 
-            if (Data.game.isStartGame) {
-                player.sharedControl = true
-                Call.sendSystemMessage("player.dis", player.name)
-                Call.sendTeamData()
-            } else {
-                Call.sendSystemMessage("player.disNoStart", player.name)
-            }
-            Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
+        if (HessModuleManage.hps.room.isStartGame) {
+            HessModuleManage.hps.room.call.sendSystemMessage("player.dis", player.name)
+        } else {
+            HessModuleManage.hps.room.call.sendSystemMessage("player.disNoStart", player.name)
+        }
+        Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
 
-            if (Data.config.AutoStartMinPlayerSize != -1 &&
-                Data.game.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&
-                !Threads.containsTimeTask(CallTimeTask.AutoStartTask)
-            ) {
-                Threads.closeTimeTask(CallTimeTask.AutoStartTask)
-            }
+        if (Data.config.AutoStartMinPlayerSize != -1 &&
+            HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&
+            !Threads.containsTimeTask(CallTimeTask.AutoStartTask)
+        ) {
+            Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }
     }
 
@@ -158,31 +125,27 @@ class Event : AbstractEvent {
     }
 
     override fun registerGameOverEvent(gameOverData: GameOverData?) {
-        if (Data.game.maps.mapData != null) {
-            Data.game.maps.mapData!!.clean()
-        }
-        NetServer.reLoadServer()
         System.gc()
     }
 
-    override fun registerPlayerBanEvent(player: Player) {
-        Data.core.admin.bannedUUIDs.add(player.uuid)
-        Data.core.admin.bannedIPs.add(player.conServer!!.ip)
+    override fun registerPlayerBanEvent(player: AbstractPlayer) {
+        Data.core.admin.bannedUUIDs.add(player.connectHexID)
+        Data.core.admin.bannedIPs.add(player.con!!.coverConnect().ip)
         try {
             player.kickPlayer(player.i18NBundle.getinput("kick.ban"))
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
-        Call.sendSystemMessage("ban.yes", player.name)
+        HessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
     }
 
-    override fun registerPlayerIpBanEvent(player: Player) {
-        Data.core.admin.bannedIPs.add(player.conServer!!.ip)
+    override fun registerPlayerIpBanEvent(player: AbstractPlayer) {
+        Data.core.admin.bannedIPs.add(player.con!!.coverConnect().ip)
         try {
             player.kickPlayer("kick.ban")
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
-        Call.sendSystemMessage("ban.yes", player.name)
+        HessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
     }
 }

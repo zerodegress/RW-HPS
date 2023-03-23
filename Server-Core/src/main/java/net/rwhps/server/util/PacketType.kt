@@ -19,7 +19,7 @@ import net.rwhps.server.util.log.exp.VariableException
  *
  * From Game-Ilb.jar and Rukkit
  *
- * @author [RukkitDev](https://github.com/RukkitDev)
+ * @author RukkitDev/Miku
  * @author RW-HPS/Dr
  */
 enum class PacketType(val typeInt: Int) {

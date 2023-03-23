@@ -19,7 +19,7 @@ import net.rwhps.server.dependent.redirections.game.NetPacketRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
 import net.rwhps.server.game.event.EventGlobalType
-import net.rwhps.server.game.simulation.HessClassPathProperties
+import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.alone.annotations.AsmMark
@@ -35,15 +35,15 @@ class HeadlessProxyClass : AgentAttachData() {
     }
 
     private fun initProxyClass() {
-        /* 注册无头Lwjgl */
+        /* Register headless Lwjgl */
         LwjglRedirections().register()
-        /* 注册无头Slick */
+        /* Register headless Slick */
         SlickRedirections().register()
-        /* 注册无头FileSystem */
+        /* Register headless FileSystem */
         FileLoaderRedirections().register()
-        /**/
+        /* Register some dependent features */
         CustomRedirections().register()
-        /**/
+        /* Register for network blocking */
         NetPacketRedirections().register()
 
         // 直接空实现
@@ -103,7 +103,7 @@ class HeadlessProxyClass : AgentAttachData() {
                     if (msg.contains("Saving settings") && loadFlagGame == GameInitStatus.LoadEndMods) {
                         GameInitStatus.loadStatus.put(loadID,GameInitStatus.LoadEndGames)
 
-                        // 启用接口
+                        // Enable the interface
                         "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
 
                         Events.fire(EventGlobalType.GameLibLoadEvent(loadID))

@@ -15,7 +15,6 @@ import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus
 import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus.*
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
@@ -63,11 +62,14 @@ open class TypeRelay : TypeConnect {
         val permissionStatus = con.permissionStatus
 
         // CPU branch prediction
-        if (permissionStatus == RelayStatus.HostPermission) {
+        if (permissionStatus == HostPermission) {
             when (packet.type) {
                 PACKET_FORWARD_CLIENT_TO  -> {
                     con.addRelaySend(packet)
                     return
+                }
+                HEART_BEAT -> {
+                    con.addGroup(packet)
                 }
                 CHAT -> {
                     GameInputStream(packet).use {
@@ -92,35 +94,15 @@ open class TypeRelay : TypeConnect {
                 }
                 else -> {}
             }
-        }
-
-        when (packet.type) {
-            // Thanks Discord vlad75724#3575
-            // Fix Server Not use 50M Maps
-            START_GAME,
-            SERVER_INFO,
-            CHAT,
-            TEAM_LIST -> {
+        } else {
+            when (packet.type) {
+                ACCEPT_START_GAME -> {
+                    con.relay!!.isStartGame = true
+                    con.sendPackageToHOST(packet)
+                }
+                DISCONNECT -> con.disconnect()
+                else -> con.sendPackageToHOST(packet)
             }
-            SYNCCHECKSUM_STATUS,
-            HEART_BEAT_RESPONSE,
-            GAMECOMMAND_RECEIVE -> {
-                con.sendPackageToHOST(packet)
-            }
-            HEART_BEAT -> {
-                con.addGroup(packet)
-                con.getPingData(packet)
-            }
-            PACKET_FORWARD_CLIENT_TO_REPEATED -> {
-            }
-            ACCEPT_START_GAME -> {
-                con.relay!!.isStartGame = true
-                con.sendPackageToHOST(packet)
-            }
-            DISCONNECT -> con.disconnect()
-            SERVER_DEBUG_RECEIVE -> con.debug(packet)
-            else -> con.sendPackageToHOST(packet)
-
         }
     }
 
@@ -129,7 +111,7 @@ open class TypeRelay : TypeConnect {
 
         val permissionStatus = con.permissionStatus
 
-        if (permissionStatus.ordinal < RelayStatus.PlayerPermission.ordinal) {
+        if (permissionStatus.ordinal < PlayerPermission.ordinal) {
             when (permissionStatus) {
                 // Initial Connection
                 InitialConnection -> {
@@ -145,8 +127,12 @@ open class TypeRelay : TypeConnect {
                         registerServer.writeString(Data.SERVER_RELAY_UUID)
                         registerServer.writeInt("Dr @ 2022".hashCode())
                         con.sendPacket(registerServer.createPacket(PREREGISTER_INFO))
-                    } else if (packet.type == SERVER_DEBUG_RECEIVE) {
-                        con.debug(packet)
+                    } else {
+                        when (packet.type) {
+                            SERVER_DEBUG_RECEIVE -> con.debug(packet)
+                            GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
+                            else -> {}
+                        }
                     }
                     return true
                 }

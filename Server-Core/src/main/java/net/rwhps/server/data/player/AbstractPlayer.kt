@@ -44,7 +44,16 @@ open class AbstractPlayer(
     /** Team number  */
     open var team by playerPrivateData::team
 
-    open var test by playerPrivateData::site
+    /** Last move time  */
+    @Volatile var lastMoveTime: Int = 0
+    /** Mute expiration time */
+    var muteTime: Long = 0
+    /** Kick expiration time */
+    var kickTime: Long = 0
+    var timeTemp: Long = 0
+    var lastMessageTime: Long = 0
+    var lastSentMessage: String? = ""
+    var noSay = false
 
 
     /** */

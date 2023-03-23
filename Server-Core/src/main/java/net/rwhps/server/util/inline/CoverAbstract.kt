@@ -7,9 +7,14 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation
+@file:JvmName("InlineUtils")
+@file:JvmMultifileClass
 
-internal object HessClassPathProperties {
-    const val CorePath = "net.rwhps.server.game.simulation.gameFramework"
-    const val GameHessPath = "com.corrodinggames.rts"
+package net.rwhps.server.util.inline
+
+import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.net.core.server.AbstractNetConnectServer
+
+fun AbstractNetConnectServer.coverConnect() : AbstractNetConnect {
+    return this as AbstractNetConnect
 }

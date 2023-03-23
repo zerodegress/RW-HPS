@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation
+package net.rwhps.server.plugin.internal.hess.service.event
 
 import net.rwhps.server.core.Call
 import net.rwhps.server.core.thread.CallTimeTask

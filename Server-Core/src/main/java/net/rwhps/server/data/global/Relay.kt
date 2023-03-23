@@ -36,12 +36,14 @@ class Relay {
     val abstractNetConnectIntMap = IntMap<GameVersionRelay>(10,true)
 
 
+    @Volatile
     var admin: GameVersionRelay? = null
         set(value) {
             field = value
             value?.permissionStatus = DataPermissionStatus.RelayStatus.HostPermission
         }
 
+    @Volatile
     var closeRoom = false
 
     val roomCreateTime = Time.concurrentSecond()
@@ -120,6 +122,7 @@ class Relay {
 
     fun removeRoom(run: ()->Unit = {}) {
         try {
+            groupNet.disconnect()
             admin?.disconnect()
             abstractNetConnectIntMap.values.forEach { it.disconnect() }
             closeRoom = true
@@ -309,7 +312,7 @@ class Relay {
         }
 
         internal fun coverRelayID(id: String): Int {
-            return if (isNumeric(id)) {
+            return if (isNumeric(id) && id.length < 10) {
                 id.toInt()
             } else {
                 id.hashCode().let {

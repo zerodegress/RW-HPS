@@ -27,6 +27,10 @@ import java.io.IOException
 interface AbstractNetConnectServer {
     val permissionStatus: DataPermissionStatus.ServerStatus
 
+    val supportedversionBeta: Boolean
+    val supportedversionGame: String
+    val supportedVersionInt: Int
+
     /**
      * Acquire players
      * @return Player
@@ -106,7 +110,7 @@ interface AbstractNetConnectServer {
      * @throws IOException Error
      */
     @Throws(IOException::class)
-    fun receiveChat(p: Packet)
+    fun receiveChat(packet: Packet)
 
     /**
      * Accept displacement package
@@ -114,7 +118,7 @@ interface AbstractNetConnectServer {
      * @throws IOException Error
      */
     @Throws(IOException::class)
-    fun receiveCommand(p: Packet)
+    fun receiveCommand(packet: Packet)
 
     /**
      * Check player data correctness
@@ -142,7 +146,7 @@ interface AbstractNetConnectServer {
      */
     @JdkConstants.BoxLayoutAxis
     @Throws(IOException::class)
-    fun getPlayerInfo(p: Packet): Boolean
+    fun getPlayerInfo(packet: Packet): Boolean
 
     /**
      * Register connection
@@ -150,7 +154,7 @@ interface AbstractNetConnectServer {
      * @throws IOException err
      */
     @Throws(IOException::class)
-    fun registerConnection(p: Packet)
+    fun registerConnection(packet: Packet)
 
     fun gameSummon(unit: String, x: Float, y: Float)
 

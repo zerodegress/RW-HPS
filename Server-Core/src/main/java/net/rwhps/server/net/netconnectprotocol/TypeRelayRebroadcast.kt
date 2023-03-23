@@ -57,6 +57,10 @@ class TypeRelayRebroadcast : TypeRelay {
                     con.multicastAnalysis(packet)
                     return
                 }
+                PacketType.HEART_BEAT -> {
+                    con.setlastSentPacket(packet)
+                    con.getPingData(packet)
+                }
                 else -> {
                     con.setlastSentPacket(packet)
                     // Command?
@@ -83,52 +87,18 @@ class TypeRelayRebroadcast : TypeRelay {
                     }
                 }
             }
-        }
-
-
-        when (packet.type) {
-            // 快速抛弃
-            PacketType.START_GAME,
-            PacketType.CHAT,
-            PacketType.SERVER_INFO,
-            PacketType.TEAM_LIST -> {
-                //Log.clog("抛弃 {0}",packet.type.typeInt)
-            }
-
-            PacketType.HEART_BEAT -> {
-                con.getPingData(packet)
-                // 直接组播 Ping 包, 避免被 [PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED] 转发 丢失性能?
-                //con.addGroup(packet)
-            }
-
-            PacketType.SYNCCHECKSUM_STATUS,
-            PacketType.HEART_BEAT_RESPONSE,
-            PacketType.GAMECOMMAND_RECEIVE -> {
-                con.sendPackageToHOST(packet)
-            }
-
-            PacketType.DISCONNECT -> con.disconnect()
-
-            else -> {
-                when (packet.type) {
-                    PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
-                    PacketType.REGISTER_PLAYER -> con.relayRegisterConnection(packet)
-                    PacketType.ACCEPT_START_GAME -> {
-                        con.relay!!.isStartGame = true
-                        con.sendPackageToHOST(packet)
-                    }
-
-                    PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
-                    PacketType.GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
-                    else -> {
-                        if (permissionStatus != RelayStatus.HostPermission) {
-                            con.sendPackageToHOST(packet)
-                        }
-                    }
+        } else {
+            when (packet.type) {
+                PacketType.DISCONNECT -> con.disconnect()
+                PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
+                PacketType.REGISTER_PLAYER -> con.relayRegisterConnection(packet)
+                PacketType.ACCEPT_START_GAME -> {
+                    con.relay!!.isStartGame = true
+                    con.sendPackageToHOST(packet)
                 }
+                else -> con.sendPackageToHOST(packet)
             }
         }
-
     }
 
     override val version: String

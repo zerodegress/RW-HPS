@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.gameFramework.net
+package net.rwhps.server.plugin.internal.hess.inject.net
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
@@ -16,8 +16,6 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.game.event.EventType.*
-import net.rwhps.server.game.simulation.gameFramework.GameEngine
-import net.rwhps.server.game.simulation.gameFramework.lib.PlayerConnectX
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -26,9 +24,11 @@ import net.rwhps.server.net.core.DataPermissionStatus.ServerStatus
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
+import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.ColorCodes
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -55,11 +55,15 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
         playerConnectX.serverConnect = this
     }
 
+    override val supportedversionBeta = false
+    override val supportedversionGame = "1.15"
+    override val supportedVersionInt  = 176
+
     override val name: String get() = player.name
     override val registerPlayerId: String? get() = player.connectHexID
 
-    override val betaGameVersion: Boolean get() = Data.supportedversionBeta
-    override val clientVersion: Int get() = Data.supportedVersionInt
+    override val betaGameVersion: Boolean get() = supportedversionBeta
+    override val clientVersion: Int get() = supportedVersionInt
 
     /** 玩家  */
     override lateinit var player: AbstractPlayer
@@ -118,7 +122,8 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             val message: String = stream.readString()
             var response: CommandHandler.CommandResponse? = null
 
-            Log.clog("[${playerConnectX.room.roomID}] [&by {0} &fr]: &y{1}", name, ColorCodes.formatColors(message,true))
+            //Log.clog("[${playerConnectX.room.roomID}] [&by {0} &fr]: &y{1}", name, ColorCodes.formatColors(message,true))
+            Log.clog("[&by {0} &fr]: &y{1}", player.name, ColorCodes.formatColors(message,true))
 
             // Afk Stop
             if (player.isAdmin && Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
@@ -130,14 +135,18 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
                 val strEnd = min(message.length, 3)
                 // 提取出消息前三位 判定是否为QC命令
                 response = if ("qc" == message.substring(1, strEnd)) {
-                    GameEngine.data.gameData.clientCommand.handleMessage("/" + message.substring(5), player)
+                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(5), player)
                 } else {
-                    GameEngine.data.gameData.clientCommand.handleMessage("/" + message.substring(1), player)
+                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(1), player)
                 }
             }
 
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                //
+                if (message.length > Data.config.MaxMessageLen) {
+                    sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
+                    throw Exception()
+                }
+                Events.fire(PlayerChatEvent(player, message))
             } else if (response.type != CommandHandler.ResponseType.valid) {
                 when (response.type) {
                     CommandHandler.ResponseType.manyArguments -> {
@@ -156,7 +165,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     }
 
     @Throws(IOException::class)
-    override fun receiveCommand(p: Packet) {
+    override fun receiveCommand(packet: Packet) {
     }
 
     @Throws(IOException::class)
@@ -170,12 +179,12 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     }
 
     //@Throws(IOException::class)
-    override fun getPlayerInfo(p: Packet): Boolean {
+    override fun getPlayerInfo(packet: Packet): Boolean {
         return true
     }
 
     @Throws(IOException::class)
-    override fun registerConnection(p: Packet) {
+    override fun registerConnection(packet: Packet) {
     }
 
     override fun gameSummon(unit: String, x: Float, y: Float) {
@@ -190,21 +199,13 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
         }
         super.isDis = true
         if (this::player.isInitialized) {
-            Log.debug("[${playerConnectX.room.roomID}] Close Player: ${player.name}")
             playerConnectX.room.playerManage.playerGroup.remove(player)
             if (!playerConnectX.room.isStartGame) {
                 playerConnectX.room.playerManage.playerAll.remove(player)
             }
             player.clear()
 
-            if (player.isAdmin && playerConnectX.room.playerManage.playerGroup.size > 1) {
-                try {
-                    val p = playerConnectX.room.playerManage.playerGroup[0]
-                    p.isAdmin = true
-                    playerConnectX.room.call.sendSystemMessage("give.ok", p.name)
-                } catch (ignored: IndexOutOfBoundsException) {
-                }
-            }
+            Events.fire(PlayerLeaveEvent(player))
         }
         super.close(null)
     }

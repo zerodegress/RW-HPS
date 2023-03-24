@@ -209,7 +209,7 @@ internal class UpListMain : Plugin() {
             updateData0     = updateData0.replace("{RW-HPS.S.STATUS}", if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
             updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
         } else {
-            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
+            updateData0    = updateData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
             updateData0     = updateData0.replace("{RW-HPS.S.STATUS}", "battleroom")
             updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}","0")
         }

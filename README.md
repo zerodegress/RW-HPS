@@ -2,10 +2,8 @@
 **Welcome to provide better translation**
 
 # New version under development
-- [x] Use Headless Lwjgl
-  
 Welcome everyone to come to PR. 
-We are currently in need of refactoring (EventNetDocs), welcome to provide better ideas
+We are currently in need of refactoring (Docs), welcome to provide better ideas
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
@@ -13,7 +11,7 @@ We are currently in need of refactoring (EventNetDocs), welcome to provide bette
 ![](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)
 
 # RW-HPS Project
-RW-HPS is a Rusted Warfare game server, used to quickly set up high-performance game servers on servers running Java8
+RW-HPS is a Rusted Warfare game server, used to quickly set up high-performance game servers on servers running Java11
 
 ## Features
 ### High performance
@@ -39,12 +37,14 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 - Load Save Game
 - Mods Support
 - Replay generate
+- Generate save
 
 **Ex**
 - Loading plugins
 - Player jump server
 - Map generation unit
 - RELAY Server
+- Hot modify game data
 
 **Other**
 - BanUUID
@@ -55,7 +55,6 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 
 #### Currently to be completed
 - [ ] Vote (Bug :( )
-- [ ] Hot modify game progress
 - [ ] GamePanel
 
 ### Actions that won't be supported
@@ -110,7 +109,7 @@ The game corresponds to the final server version collection
 |:------------:|:------------------:|:---------------------------------------------------------------------:|
 |   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                 Delete                                |
 | ~~1.15.P8~~  |     ~~6.0.1~~      |                                 Delete                                |
-|     1.15     |      1.0.0      | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/2.0.0-M1) |
+|     1.15     |       2.0.0        | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/2.0.0-M1) |
 
 ## Sponsorship
 RW-HPS is a open source project released under AGPL V3. However, the amount of work required to maintain and develop new features for the project is not sustainable without your generous dedications.

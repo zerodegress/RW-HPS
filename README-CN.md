@@ -1,10 +1,8 @@
 [Engilsh version / 英文介绍](README.md)
 
 # 新版本开发中
-- [x] 使用 无头 Lwjgl  
-  
 欢迎各位前来PR  
-目前我们正需要重构 (Event/Net/Docs), 欢迎提供更好的思路
+目前我们正需要重构 (Docs), 欢迎提供更好的思路
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
@@ -78,7 +76,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ## 介绍
-RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器上快速建立高性能游戏服务器  
+RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行 Java11 的服务器上快速建立高性能游戏服务器  
 旨在作为一个高性能 高可用的服务器 为玩家提供更好的游戏体验
 
 ## 特点
@@ -106,12 +104,14 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 - 保存的游戏
 - 正宗的Mods支持
 - Replay生成
+- 生成save
 
 **扩展功能**
 - 加载插件
 - 玩家跳转服务器
 - 地图生成单位
 - RELAY协议
+- 热修改游戏数据
 
 **其他**
 - BanPlayer
@@ -122,7 +122,6 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 
 #### 目前待完成
 - [ ] Vote (Bug :( )
-- [ ] 热修改游戏进度
 - [ ] WEB面板
 
 ### 不会支持的游戏协议
@@ -180,7 +179,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 |:----:|:------------------:|:------------------------------------------------------------------:|
 |   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                               Delete                               |
 | ~~1.15.P8~~  |     ~~6.0.1~~      |                               Delete                               |
-|     1.15     |       1.0.0        |    [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/2.0.0-M1)     |
+|     1.15     |       2.0.0        |    [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/2.0.0-M1)     |
 
 ## 赞助
 RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如果没有适当的资金支持，为项目维护和开发新功能所需的工作量是不可持续的。  

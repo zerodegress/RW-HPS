@@ -76,6 +76,8 @@ class Seq<T>: MutableList<T> {
     override fun clear() = list.clear()
     fun <K> toArray(classJava: Class<K>): Array<K> = list.toArray(classJava)
 
+    override fun toString(): String = list.toString()
+
     companion object {
         private abstract class BaseSeq<T>(private val list: ObjectList<T>){
             val size: Int get() = list.size
@@ -147,6 +149,8 @@ class Seq<T>: MutableList<T> {
 
             abstract fun toArray(): Array<Any>
             abstract fun <K> toArray(classJava: Class<K>): Array<K>
+
+            override fun toString(): String = list.toString()
         }
 
         private class ThreadUnsafe<T>(private val list: ObjectArrayList<T>) : BaseSeq<T>(list) {
@@ -165,6 +169,8 @@ class Seq<T>: MutableList<T> {
             override fun toArray(): Array<Any>  = list.toArray()
             @Suppress("UNCHECKED_CAST")
             override fun <K> toArray(classJava: Class<K>): Array<K> = list.toArray(java.lang.reflect.Array.newInstance(classJava, size) as Array<out K>)
+
+            override fun toString(): String = list.toString()
         }
         private class ThreadSafety<T>(private val list: ObjectLists.SynchronizedList<T>, private val lock: ObjectList<T>) : BaseSeq<T>(list) {
             override fun find(findA: (T)->Boolean): T? {
@@ -189,6 +195,7 @@ class Seq<T>: MutableList<T> {
             @Suppress("UNCHECKED_CAST")
             override fun <K> toArray(classJava: Class<K>): Array<K> = list.toArray(java.lang.reflect.Array.newInstance(classJava, size) as Array<out K>)
 
+            override fun toString(): String = list.toString()
         }
 
         /*

@@ -9,7 +9,6 @@
 
 package net.rwhps.server.data.plugin
 
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.EventGlobalType.*
 import net.rwhps.server.game.event.EventType.*
 import net.rwhps.server.plugin.event.AbstractEvent
@@ -84,11 +83,10 @@ internal class PluginEventManage {
             }
             /* Sync */
             Events.on(GameOverEvent::class.java) { e: GameOverEvent ->
-                if (Data.game.isGameover) {
-                    pluginEventData.eachAll { p: AbstractEvent ->
-                        p.registerGameOverEvent(e.gameOverData)
-                    }
+                pluginEventData.eachAll { p: AbstractEvent ->
+                    p.registerGameOverEvent(e.gameOverData)
                 }
+
             }
             /* ASync */
             Events.on(PlayerBanEvent::class.java) { e: PlayerBanEvent ->

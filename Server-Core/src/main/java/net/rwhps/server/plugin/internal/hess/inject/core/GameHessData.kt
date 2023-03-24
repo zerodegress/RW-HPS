@@ -18,6 +18,8 @@ import com.corrodinggames.rts.game.units.ar
 import com.corrodinggames.rts.gameFramework.j.al
 import com.corrodinggames.rts.gameFramework.l
 import com.corrodinggames.rts.gameFramework.w
+import net.rwhps.server.data.MapManage
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
@@ -27,6 +29,8 @@ import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.WaitResultUtil
 import net.rwhps.server.util.inline.findField
@@ -131,14 +135,68 @@ internal class GameHessData : AbstractGameHessData {
         return syncFlag
     }
 
-    override fun getWin(team: Int): Boolean {
-        val teamData: n = n.k(team) ?: return false
+    override fun getWin(position: Int): Boolean {
+        val teamData: n = n.k(position) ?: return false
 
         return !teamData.b() && !teamData.G && !teamData.F && !teamData.E
     }
 
+    private fun getWin(player: n?): Boolean {
+        val teamData: n = player ?: return false
+        return !teamData.b() && !teamData.G && !teamData.F && !teamData.E
+    }
+
+    override fun getGameOverData(): GameOverData? {
+        var lastWinTeam: Int = -1
+        var lastWinCount = 0
+
+        for (position in 0 until Data.config.MaxPlayer) {
+            val player: n = n.k(position) ?:continue
+            if (getWin(player) && player.r != lastWinTeam) {
+                lastWinTeam = player.r
+                lastWinCount++
+            }
+        }
+
+        if (lastWinCount == 1) {
+            val winPlayer = Seq<String>().apply {
+                for (position in 0 until Data.config.MaxPlayer) {
+                    val player: n = n.k(position) ?:continue
+                    if (player.r == lastWinTeam) {
+                        add(player.v)
+                    }
+                }
+            }
+            val allPlayer = Seq<String>()
+
+            val statusData = ObjectMap<String, ObjectMap<String,Int>>().apply {
+                for (position in 0 until Data.config.MaxPlayer) {
+                    val player: n = n.k(position) ?:continue
+                    put(player.v,PrivateClass_Player(player).let {
+                        ObjectMap<String,Int>().apply {
+                            put("unitsKilled", it.unitsKilled)
+                            put("buildingsKilled", it.buildingsKilled)
+                            put("experimentalsKilled", it.experimentalsKilled)
+                            put("unitsLost", it.unitsLost)
+                            put("buildingsLost", it.buildingsLost)
+                            put("experimentalsLost", it.experimentalsLost)
+                        }
+                    })
+                    allPlayer.add(player.v)
+                }
+            }
+
+            return GameOverData(
+                allPlayer, winPlayer, MapManage.maps.mapName,
+                statusData, GameEngine.data.room.replayFileName
+            )
+        } else {
+            return null
+        }
+    }
+
     override fun getPlayerBirthPointXY() {
-        for (player in Data.game.playerManage.playerGroup) {
+        for (player in GameEngine.data.room.playerManage.playerGroup) {
             n.k(player.site).let {
                 var flagA = false
                 var flagB = false
@@ -166,7 +224,7 @@ internal class GameHessData : AbstractGameHessData {
                     x = x2
                     y = y2
                 }
-                Log.clog("Site ${player.site} , $x $y")
+                Log.clog("Position ${player.site} , $x $y")
             }
         }
     }
@@ -182,30 +240,8 @@ internal class GameHessData : AbstractGameHessData {
         Thread.sleep(100)
     }
 
-    override fun getDefPlayerData(): AbstractPlayerData {
-        return initValue
-    }
-
     override fun getPlayerData(site: Int): AbstractPlayerData {
         return PrivateClass_Player(WaitResultUtil.waitResult { n.k(site) } ?: throw ImplementedException.PlayerImplementedException("[PlayerData-New] Player is invalid"))
-    }
-
-    private val initValue = object: AbstractPlayerData {
-        private val error: ()->Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
-
-        override fun updateDate() {}
-        override val survive get() = error()
-        override val unitsKilled get() = error()
-        override val buildingsKilled get() = error()
-        override val experimentalsKilled get() = error()
-        override val unitsLost get() = error()
-        override val buildingsLost get() = error()
-        override val experimentalsLost get() = error()
-        override var credits: Int = 0
-        override val name get() = error()
-        override val connectHexID get() = error()
-        override var site = 0
-        override var team = 0
     }
 
     private fun wirteGameRsyncData(asVar: GameNetOutStream) {

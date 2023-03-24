@@ -11,6 +11,8 @@ package net.rwhps.server.core
 
 import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.util.log.Log
+import java.io.IOException
 
 class CallHess(private val serverRoom: ServerRoom) {
     fun sendSystemMessage(text: String) {
@@ -23,5 +25,16 @@ class CallHess(private val serverRoom: ServerRoom) {
 
     fun sendSystemMessage(text: String, vararg obj: Any) {
         serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+    }
+
+    @JvmOverloads
+    fun killAllPlayer(msg: String = "Game Over") {
+        serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer ->
+            try {
+                e.kickPlayer(msg)
+            } catch (err: IOException) {
+                Log.error("[ALL] Kick All Player Error", e)
+            }
+        }
     }
 }

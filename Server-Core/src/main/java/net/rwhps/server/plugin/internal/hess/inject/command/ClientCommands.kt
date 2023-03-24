@@ -46,7 +46,7 @@ internal class ClientCommands(handler: CommandHandler) {
         return false
     }
 
-    private fun checkSiteNumb(int: String, player: AbstractPlayer): Boolean {
+    private fun checkPositionNumb(int: String, player: AbstractPlayer): Boolean {
         if (notIsNumeric(int)) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
             return false
@@ -63,8 +63,6 @@ internal class ClientCommands(handler: CommandHandler) {
     }
 
     init {
-        val room = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()].room
-        
         handler.register("help", "clientCommands.help") { _: Array<String>?, player: AbstractPlayer ->
             val str = StringBuilder(16)
             for (command in handler.commandList) {
@@ -196,7 +194,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 GameEngine.netEngine.ay.h = args[0].toFloat()
             }
         }
-        handler.register("addmoney", "<PlayerSerialNumber> <money>", "clientCommands.addmoney") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("addmoney", "<PlayerPositionNumber> <money>", "clientCommands.addmoney") { args: Array<String>, player: AbstractPlayer ->
             if (!room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                 return@register
@@ -245,7 +243,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 "RW-HPS-Hess"
             ))
         }
-        handler.register("kick", "<PlayerSerialNumber>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("kick", "<PlayerPositionNumber>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -341,7 +339,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 Events.fire(EventType.GameStartEvent())
             }
         }
-        handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("move", "<PlayerPositionNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -366,7 +364,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("team", "<PlayerSiteNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("team", "<PlayerPositionNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -376,12 +374,16 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
-                val playerSite = args[0].toInt() - 1
-                val newSite = args[1].toInt() - 1
-                n.k(playerSite).r = newSite
+                val playerPosition = args[0].toInt() - 1
+                val newPosition = args[1].toInt() - 1
+                n.k(playerPosition).r = newPosition
             }
         }
 
         PluginManage.runRegisterServerClientCommands(handler)
+    }
+    
+    companion object {
+        private val room = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()].room
     }
 }

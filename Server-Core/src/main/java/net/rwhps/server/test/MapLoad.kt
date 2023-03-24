@@ -7,8 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.core
+package net.rwhps.server.test
 
-interface AbstractGameData {
-    fun saveGame()
+
+class MapLoad {
+    fun test() {
+
+    }
 }

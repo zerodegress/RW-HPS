@@ -7,8 +7,14 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.core
+@file:JvmName("InlineUtils")
+@file:JvmMultifileClass
 
-interface AbstractGameData {
-    fun saveGame()
+package net.rwhps.server.util.inline
+
+import net.rwhps.server.util.log.Log
+
+
+fun Any.toPrintLog() {
+    Log.clog(this.toString())
 }

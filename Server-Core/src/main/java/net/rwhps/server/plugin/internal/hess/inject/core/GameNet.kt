@@ -54,42 +54,55 @@ internal class GameNet : AbstractGameNet {
         GameEngine.data.room.run {
             roomID = "Port: $port"
             startServer = {
-                GameEngine.root.hostStartWithPasswordAndMods(false, passwd, true)
+                var tryCount = 0
 
-                val tcp = GameEngine.netEngine::class.java.findField("aE", ServerAcceptRunnable::class.java)!!
-                // 关闭NetServerSocket (TCP)重启
-                ServerAcceptRunnable::class.java.findField("c", Boolean::class.javaPrimitiveType)!!
-                    .setBoolean(tcp.get(GameEngine.netEngine), false)
-                // 关闭NetServerSocket (TCP) 监听
-                (ServerAcceptRunnable::class.java.findField("d", ServerSocket::class.java)!!
-                    .get(tcp.get(GameEngine.netEngine)) as ServerSocket).close()
+                startTryWhile@ while (tryCount < 5) {
+                    try {
+                        GameEngine.root.hostStartWithPasswordAndMods(false, passwd, true)
 
-                val udp = GameEngine.netEngine::class.java.findField("aG", ServerAcceptRunnable::class.java)!!
-                // 关闭NetServerSocket (UDP)重启
-                ServerAcceptRunnable::class.java.findField("c", Boolean::class.javaPrimitiveType)!!
-                    .setBoolean(udp.get(GameEngine.netEngine), false)
-                // 关闭NetServerSocket (UDP) 监听
-                (ServerAcceptRunnable::class.java.findField("d", ServerSocket::class.java)!!
-                    .get(udp.get(GameEngine.netEngine)) as ServerSocket).close()
-                //
-                val udpThread = GameEngine.netEngine::class.java.findField("aF", Thread::class.java)!!
-                udp.set(GameEngine.netEngine,null)
-                udpThread.set(GameEngine.netEngine,null)
+                        val tcp = GameEngine.netEngine::class.java.findField("aE", ServerAcceptRunnable::class.java)!!
+                        // 关闭NetServerSocket (TCP)重启
+                        ServerAcceptRunnable::class.java.findField("c", Boolean::class.javaPrimitiveType)!!
+                            .setBoolean(tcp.get(GameEngine.netEngine), false)
+                        // 关闭NetServerSocket (TCP) 监听
+                        (ServerAcceptRunnable::class.java.findField("d", ServerSocket::class.java)!!
+                            .get(tcp.get(GameEngine.netEngine)) as ServerSocket).close()
 
-                // 设置新的监听
-                val tcpRunnable = CustomServerSocket(GameEngine.netEngine)
-                tcpRunnable.a(false)
-                tcp.set(GameEngine.netEngine, tcpRunnable)
-                GameEngine.netEngine::class.java.findField("aD", Thread::class.java)!!
-                    .set(GameEngine.netEngine, Thread(tcpRunnable).apply { start() })
+                        val udp = GameEngine.netEngine::class.java.findField("aG", ServerAcceptRunnable::class.java)!!
+                        // 关闭NetServerSocket (UDP)重启
+                        ServerAcceptRunnable::class.java.findField("c", Boolean::class.javaPrimitiveType)!!
+                            .setBoolean(udp.get(GameEngine.netEngine), false)
+                        // 关闭NetServerSocket (UDP) 监听
+                        (ServerAcceptRunnable::class.java.findField("d", ServerSocket::class.java)!!
+                            .get(udp.get(GameEngine.netEngine)) as ServerSocket).close()
+                        //
+                        val udpThread = GameEngine.netEngine::class.java.findField("aF", Thread::class.java)!!
+                        udp.set(GameEngine.netEngine, null)
+                        udpThread.set(GameEngine.netEngine, null)
 
-                n.b(Data.config.MaxPlayer, true)
+                        // 设置新的监听
+                        val tcpRunnable = CustomServerSocket(GameEngine.netEngine)
+                        tcpRunnable.a(false)
+                        tcp.set(GameEngine.netEngine, tcpRunnable)
+                        GameEngine.netEngine::class.java.findField("aD", Thread::class.java)!!
+                            .set(GameEngine.netEngine, Thread(tcpRunnable).apply { start() })
 
-                n.k(0).run {
-                    netEngine.a(this, -3)
-                    I()
+                        n.b(Data.config.MaxPlayer, true)
+
+                        // 隐藏 Hess(HOST)
+                        n.k(0).run {
+                            netEngine.a(this, -3)
+                            I()
+                        }
+                        // 避免同步爆炸
+                        GameEngine.netEngine.z.k = -3
+
+                        break@startTryWhile
+                    } catch (e: Exception) {
+                        Log.error(e)
+                        tryCount++
+                    }
                 }
-                GameEngine.netEngine.z.k = -3
             }.also { it() }
         }
     }

@@ -18,4 +18,14 @@ data class GameOverData(
     val mapName: String,
     val playerData: ObjectMap<String,ObjectMap<String,Int>>,
     val replayName: String
-)
+) {
+    override fun toString(): String {
+        return """
+            allPlayerList=$allPlayerList
+            winPlayerList=$winPlayerList
+            mapName=$mapName
+            playerData=$playerData
+            replayName=$replayName
+            """.trimMargin()
+    }
+}

@@ -203,9 +203,9 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             if (!playerConnectX.room.isStartGame) {
                 playerConnectX.room.playerManage.playerAll.remove(player)
             }
-            player.clear()
-
             Events.fire(PlayerLeaveEvent(player))
+
+            player.clear()
         }
         super.close(null)
     }

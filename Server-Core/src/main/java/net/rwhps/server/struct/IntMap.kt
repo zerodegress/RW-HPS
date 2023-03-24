@@ -36,6 +36,7 @@ class IntMap<V>: MutableMap<Int,V> {
     override fun clear() = map.clear()
     fun toArrayKey(): Seq<Int> =  map.toArrayKey()
     fun toArrayValues(): Seq<V> =  map.toArrayValues()
+    override fun toString(): String = map.toString()
 
     companion object {
         private abstract class BaseIntMap<V>(private val map: Int2ObjectMap<V>) {
@@ -58,6 +59,7 @@ class IntMap<V>: MutableMap<Int,V> {
             fun clear() = map.clear()
             fun toArrayKey(): Seq<Int> =  Seq<Int>(size).also { keys.forEach { value-> it.add(value) } }
             fun toArrayValues(): Seq<V> =  Seq<V>(size).also { values.forEach { value-> it.add(value) } }
+            override fun toString(): String = map.toString()
         }
 
         private class ThreadUnsafe<V>(private val map: Int2ObjectOpenHashMap<V>): BaseIntMap<V>(map) {

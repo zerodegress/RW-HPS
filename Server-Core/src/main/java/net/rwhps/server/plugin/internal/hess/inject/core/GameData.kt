@@ -10,9 +10,12 @@
 package net.rwhps.server.plugin.internal.hess.inject.core
 
 import net.rwhps.server.game.simulation.core.AbstractGameData
+import net.rwhps.server.util.file.FileName.getFileNameNoSuffix
+import net.rwhps.server.util.log.Log
 
-internal class GameData : AbstractGameData() {
-    override fun init() {
-        TODO("Not yet implemented")
+internal class GameData : AbstractGameData {
+    override fun saveGame() {
+        GameEngine.gameEngine.ca.b(getFileNameNoSuffix(GameEngine.data.room.replayFileName),false)
+        Log.clog("Save: ${getFileNameNoSuffix(GameEngine.data.room.replayFileName)}.rwsave")
     }
 }

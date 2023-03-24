@@ -9,13 +9,14 @@
 
 package com.corrodinggames.rts.gameFramework.j
 
-import net.rwhps.server.net.NetService
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.net.socket.StartGameHessNetTcp
+import net.rwhps.server.net.NetService
 import net.rwhps.server.util.inline.findField
+import net.rwhps.server.util.inline.ifResult
 import net.rwhps.server.util.log.Log
-import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable
 import com.corrodinggames.rts.gameFramework.l as GameEe
+import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable
 
 /**
  * 覆写 Game-Lib 的端口监听, 来实现 BIO->NIO
@@ -39,6 +40,12 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1) {
         Thread.currentThread().name = "NewConnectionWorker-" + (if (f) "udp" else "tcp") + " - " + this.e
 
         GameEngine.data.room.closeServer = {
+            GameEngine.data.room.call.killAllPlayer()
+
+            val site = GameEngine.data.room.playerManage.playerAll.ifResult({ it.size > 0}, { it[0].site }, { 0 })
+            // 恢复
+            GameEngine.netEngine.z.k = site
+
             GameEngine.root.multiplayer.disconnect("closeServer")
         }
 

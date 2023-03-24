@@ -7,8 +7,8 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.game.simulation.core
+package net.rwhps.server.plugin.beta.apix
 
-interface AbstractGameData {
-    fun saveGame()
-}
+data class ApiXData(
+    val GameOverURL: String = ""
+)

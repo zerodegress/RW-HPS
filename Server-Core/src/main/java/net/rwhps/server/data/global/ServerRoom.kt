@@ -14,12 +14,13 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.closeTimeTask
 import net.rwhps.server.core.thread.Threads.newTimedTask
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.PlayerHessManage
 import net.rwhps.server.game.event.EventType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.Events
-import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import java.util.concurrent.TimeUnit
 
@@ -52,23 +53,13 @@ class ServerRoom {
                         }
                     }
 
-                    var lastWinTeam: Int = -1
-                    var lastWinCount = 0
-                    playerManage.runPlayerArrayDataRunnable {
-                        if (it.survive && it.team != lastWinTeam) {
-                            lastWinTeam = it.team
-                            lastWinCount++
-                        }
+                    if (sendGameStatusFlag) {
+                        gameOverData = HessModuleManage.hps.gameHessData.getGameOverData() ?: return@newTimedTask
 
-                    }
-                    if (lastWinCount == 1 && sendGameStatusFlag) {
                         sendGameStatusFlag = false
-
                         closeTimeTask(CallTimeTask.AutoCheckTask)
 
-                        val winPlayer = playerManage.getPlayersNameOnTheSameTeam(lastWinTeam)
-
-                        val last = winPlayer.toArray(String::class.java).contentToString()
+                        val last = gameOverData!!.winPlayerList.toArray(String::class.java).contentToString()
                         lastWin = last
                         clog("[$roomID] Last Win Player: {0}", last)
                         call.sendSystemMessageLocal("survive.player", last)
@@ -77,14 +68,6 @@ class ServerRoom {
             }
             field = value
         }
-
-    data class GameOverData(
-        val allPlayerList: List<String>,
-        val winPlayerList: List<String>,
-        val mapName: String,
-        val playerData: Map<String,Map<String,Int>>,
-        val replayName: String
-    )
 
     //
     var startTime = 0
@@ -113,12 +96,13 @@ class ServerRoom {
                 it.updateDate()
             }
         }
+    private var gameOverData: GameOverData? = null
 
     @Volatile
     var closeServer: ()->Unit = {}
     var startServer: ()->Unit = {}
 
-    fun gr() {
+    private fun gr() {
         if (forcedReturn) {
             return
         }
@@ -126,7 +110,7 @@ class ServerRoom {
         closeTimeTask(CallTimeTask.GameOverTask)
         closeTimeTask(CallTimeTask.AutoCheckTask)
 
-        Log.clog("[$roomID] Gameover")
+        clog("[$roomID] Gameover")
 
         closeServer()
         //
@@ -145,8 +129,11 @@ class ServerRoom {
         startTime = 0
 
         forcedReturn = false
-        startServer()
 
-        Events.fire(EventType.GameOverEvent(null))
+        Events.fire(EventType.GameOverEvent(gameOverData))
+
+        gameOverData = null
+
+        startServer()
     }
 }

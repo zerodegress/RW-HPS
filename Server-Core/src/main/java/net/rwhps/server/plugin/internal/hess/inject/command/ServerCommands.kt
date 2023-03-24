@@ -7,29 +7,23 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.command.server
+package net.rwhps.server.plugin.internal.hess.inject.command
 
-import net.rwhps.server.core.Call
-import net.rwhps.server.core.Call.sendSystemMessage
-import net.rwhps.server.core.Call.sendTeamData
-import net.rwhps.server.core.Call.upDataGameData
+import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.player.Player
-import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.game.event.EventType.PlayerBanEvent
 import net.rwhps.server.net.core.server.AbstractNetConnect
-import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.Font16
-import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 
@@ -52,13 +46,17 @@ internal class ServerCommands(handler: CommandHandler) {
                 } catch (ignored: IOException) {
                 }
             }
-            sendSystemMessage(response.toString().replace("<>", ""))
+            room.call.sendSystemMessage(response.toString().replace("<>", ""))
         }
-        handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
-            Events.fire(GameOverEvent(null))
+        handler.register("save", "serverCommands.save") { _: Array<String>?, _: StrCons ->
+            if (room.isStartGame) {
+                gameModule.gameData.saveGame()
+            } else {
+                Log.clog("No Start Game")
+            }
         }
         handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
-            if (Data.game.isStartGame) {
+            if (room.isStartGame) {
                 log[localeUtil.getinput("err.startGame")]
                 return@register
             }
@@ -68,13 +66,13 @@ internal class ServerCommands(handler: CommandHandler) {
             }
             val add = "add" == arg[0]
             val site = arg[1].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
+            val player = room.playerManage.getPlayerArray(site)
             val supAdmin = arg.size > 2
             if (player != null) {
                 if (add) {
-                    Data.core.admin.addAdmin(player.uuid,supAdmin)
+                    Data.core.admin.addAdmin(player.connectHexID,supAdmin)
                 } else {
-                    Data.core.admin.removeAdmin(player.uuid)
+                    Data.core.admin.removeAdmin(player.connectHexID)
                 }
 
                 player.isAdmin = add
@@ -85,7 +83,6 @@ internal class ServerCommands(handler: CommandHandler) {
                 } catch (e: IOException) {
                     error("[Player] Send Server Info Error", e)
                 }
-                sendTeamData()
                 log["Changed admin status of player: {0}", player.name]
             }
         }
@@ -95,22 +92,21 @@ internal class ServerCommands(handler: CommandHandler) {
         }
         handler.register("ban", "<PlayerPositionNumber>", "serverCommands.ban") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
+            val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
                 Events.fire(PlayerBanEvent(player))
             }
         }
         handler.register("mute", "<PlayerPositionNumber> [Time(s)]", "serverCommands.mute") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
+            val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
-                //Data.game.playerData[site].muteTime = getLocalTimeFromU(Long.parseLong(arg[1])*1000L);
                 player.muteTime = getTimeFutureMillis(43200 * 1000L)
             }
         }
         handler.register("kick", "<PlayerPositionNumber> [time]", "serverCommands.kick") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
+            val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
                 player.kickTime = if (arg.size > 1) getTimeFutureMillis(
                     arg[1].toInt() * 1000L
@@ -122,21 +118,10 @@ internal class ServerCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("isafk", "<off/on>", "serverCommands.isAfk") { arg: Array<String>, _: StrCons ->
-            if (Data.config.OneAdmin) {
-                Data.game.isAfk = "on" == arg[0]
-            }
-        }
-        handler.register("maplock", "<off/on>", "serverCommands.maplock") { arg: Array<String>, _: StrCons ->
-            Data.game.mapLock = "on" == arg[0]
-        }
-        handler.register("dogfightlock", "<off/on>", "serverCommands.dogfightLock") { arg: Array<String>, _: StrCons ->
-            Data.game.dogfightLock = "on" == arg[0]
-        }
         handler.register("kill", "<PlayerPositionNumber>", "serverCommands.kill") { arg: Array<String>, log: StrCons ->
-            if (Data.game.isStartGame) {
+            if (room.isStartGame) {
                 val site = arg[0].toInt() - 1
-                val player = Data.game.playerManage.getPlayerArray(site)
+                val player = room.playerManage.getPlayerArray(site)
                 if (player != null) {
                     player.con!!.sendSurrender()
                 }
@@ -145,38 +130,29 @@ internal class ServerCommands(handler: CommandHandler) {
             }
         }
         handler.register("giveadmin", "<PlayerPositionNumber...>", "serverCommands.giveadmin") { arg: Array<String>, _: StrCons ->
-            Data.game.playerManage.playerGroup.eachAllFind(
-                { p: Player -> p.isAdmin }) { i: Player ->
-                val player = Data.game.playerManage.getPlayerArray(arg[0].toInt())
+            room.playerManage.playerGroup.eachAllFind(
+                { p: AbstractPlayer -> p.isAdmin }) { i: AbstractPlayer ->
+                val player = room.playerManage.getPlayerArray(arg[0].toInt())
                 if (player != null) {
                     i.isAdmin = false
                     player.isAdmin = true
-                    upDataGameData()
-                    Call.sendSystemMessageLocal("give.ok", player.name)
+                    room.call.sendSystemMessageLocal("give.ok", player.name)
                 }
             }
         }
         handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
-            Data.game.playerManage.playerGroup.eachAll { e: Player -> e.muteTime = 0 }
-        }
-
-        handler.register("turnstoneintogold", "<PlayerPositionNumber>", "# turnstoneintogold") { arg: Array<String>, _: StrCons ->
-            val site = arg[0].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
-            if (player != null) {
-                player.turnStoneIntoGold = true
-            }
+            room.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.muteTime = 0 }
         }
     }
 
     private fun registerPlayerStatusCommand(handler: CommandHandler) {
         handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
-            if (Data.game.playerManage.playerGroup.size == 0) {
+            if (room.playerManage.playerGroup.size == 0) {
                 log["No players are currently in the server."]
             } else {
-                log["Players: {0}", Data.game.playerManage.playerGroup.size]
+                log["Players: {0}", room.playerManage.playerGroup.size]
                 val data = StringBuilder()
-                for (player in Data.game.playerManage.playerGroup) {
+                for (player in room.playerManage.playerGroup) {
                     data.append(LINE_SEPARATOR)
                         .append(player.name)
                         .append(" / ")
@@ -213,144 +189,45 @@ internal class ServerCommands(handler: CommandHandler) {
         }
 
         handler.register("reloadmods", "serverCommands.reloadmods") { _: Array<String>?, log: StrCons ->
-            if (Data.game.isStartGame) {
+            if (room.isStartGame) {
                 log[Data.i18NBundle.getinput("err.startGame")]
             } else {
                 log[Data.i18NBundle.getinput("server.loadMod", ModManage.reLoadMods())]
-                upDataGameData(true)
             }
 
         }
         handler.register("reloadmaps", "serverCommands.reloadmaps") { _: Array<String>?, log: StrCons ->
-            val size = Data.game.mapsData.size
-            Data.game.mapsData.clear()
-            Data.game.checkMaps()
+            val size = MapManage.mapsData.size
+            MapManage.mapsData.clear()
+            MapManage.checkMaps()
             // Reload 旧列表的Custom数量 : 新列表的Custom数量
-            log["Reload Old Size:New Size is {0}:{1}", size, Data.game.mapsData.size]
+            log["Reload Old Size:New Size is {0}:{1}", size, MapManage.mapsData.size]
         }
     }
 
     private fun registerPlayerCustomEx(handler: CommandHandler) {
-        handler.register("summon", "<unitName> <x> <y> [index(NeutralByDefault)]", "serverCommands.summon") { arg: Array<String>, log: StrCons ->
-            if (!Data.game.isStartGame) {
-                log[localeUtil.getinput("err.noStartGame")]
-                return@register
-            }
-            val index = if (arg.size > 3) {
-                when {
-                    IsUtil.isNumericNegative(arg[3]) -> arg[3].toInt()
-                    else -> -1
-                }
-            } else {
-                -1
-            }
-            if (IsUtil.notIsNumeric(arg[1]) || IsUtil.notIsNumeric(arg[2])) {
-                log["Not Numeric, Invalid coordinates"]
-                return@register
-            }
-            Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
-        }
-
-        handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: StrCons ->
-            if (Data.game.isStartGame) {
-                log["游戏开始"]
-                return@register
-            }
-            val response = StringBuilder(arg[0])
-            var i = 1
-            val lens = arg.size
-            while (i < lens) {
-                response.append(" ").append(arg[i])
-                i++
-            }
-            val inputMapName = response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
-            val mapPlayer = Data.MapsMap[inputMapName]
-            if (mapPlayer != null) {
-                val data = mapPlayer.split("@").toTypedArray()
-                Data.game.maps.mapName = data[0]
-                Data.game.maps.mapPlayer = data[1]
-                Data.game.maps.mapType = GameMaps.MapType.defaultMap
-            } else {
-                if (Data.game.mapsData.size == 0) {
-                    return@register
-                }
-                if (IsUtil.notIsNumeric(inputMapName)) {
-                    log[localeUtil.getinput("err.noNumber")]
-                    return@register
-                }
-                val name = Data.game.mapsData.keys().toSeq()[inputMapName.toInt()]
-                val data = Data.game.mapsData[name]
-                Data.game.maps.mapData = data
-                Data.game.maps.mapType = data.mapType
-                Data.game.maps.mapName = name
-                Data.game.maps.mapPlayer = ""
-            }
-            upDataGameData(false)
-        }
-
-        handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
-            val cache = Seq<Array<ByteArray>>()
-
-            arg[1].forEach {
-                cache.add(Font16.resolveString(it.toString()))
-            }
-
-            val index = if (arg.size > 2) {
-                when {
-                    IsUtil.isNumericNegative(arg[2]) -> arg[2].toInt()
-                    else -> -1
-                }
-            } else {
-                -1
-            }
-
-            // 偏移量
-            var off = 0
-
-            cache.eachAll {
-                var i = 0
-                var lg = true
-                for ((height, lineArray) in it.withIndex()) {
-                    for ((width, b) in lineArray.withIndex()) {
-                        if (lg) {
-                            i++
-                        }
-                        if (b.toInt() == 1) {
-                            Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index, arg[0], ((off+width)*20).toFloat(), (height*20).toFloat()))
-                        }
-                    }
-                    lg = false
-                }
-                i++
-                off += i
-            }
-        }
-
         handler.register("addmoney", "<PlayerPositionNumber> <money>", "serverCommands.addmoney") { arg: Array<String>, log: StrCons ->
             if (!Data.game.isStartGame) {
                 log[localeUtil.getinput("err.noStartGame")]
                 return@register
             }
             val site = arg[0].toInt() - 1
-            val player = Data.game.playerManage.getPlayerArray(site)
+            val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
                 player.credits += arg[1].toInt()
-                player.sync()
             }
         }
     }
 
     companion object {
         private val localeUtil = Data.i18NBundle
+        private val gameModule = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()]
+        private val room = gameModule.room
     }
 
     init {
-        //registerPlayerCommand(handler)
-        //registerPlayerStatusCommand(handler)
-        //registerPlayerCustomEx(handler)
-
-        PluginManage.runRegisterServerCommands(handler)
-
-        ClientCommands(Data.CLIENT_COMMAND)
+        registerPlayerCommand(handler)
+        registerPlayerStatusCommand(handler)
+        registerPlayerCustomEx(handler)
     }
 }

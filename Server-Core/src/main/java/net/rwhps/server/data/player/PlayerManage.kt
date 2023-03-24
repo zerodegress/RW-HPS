@@ -202,7 +202,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
         }
     }
 
-    fun movePlayerSite(oldLocationIn: Int, newLocationIn: Int, newTeam: Int, admin: Boolean = false) {
+    fun movePlayerPosition(oldLocationIn: Int, newLocationIn: Int, newTeam: Int, admin: Boolean = false) {
         moveLock.withLock {
             val oldIndex = oldLocationIn - 1
             val newIndex = newLocationIn - 1

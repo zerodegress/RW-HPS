@@ -59,12 +59,19 @@ class HessMain : Plugin() {
         }
     }
 
+    override fun registerServerCommands(handler: CommandHandler) {
+        serverServerCommands = handler
+
+    }
+
     override fun registerServerClientCommands(handler: CommandHandler) {
         serverClientCommands = handler
     }
 
+
+
     companion object {
-        @Volatile
+        internal lateinit var serverServerCommands: CommandHandler
         internal lateinit var serverClientCommands: CommandHandler
     }
 }

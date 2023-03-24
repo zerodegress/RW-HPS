@@ -31,6 +31,7 @@ class LongMap<V> @JvmOverloads constructor(capacity: Int, threadSafety: Boolean 
     override fun clear() = map.clear()
     fun toArrayKey(): Seq<Long> =  map.toArrayKey()
     fun toArrayValues(): Seq<V> =  map.toArrayValues()
+    override fun toString(): String = map.toString()
 
     companion object {
         private abstract class BaseLongMap<V>(private val map: Long2ObjectMap<V>) {
@@ -53,6 +54,7 @@ class LongMap<V> @JvmOverloads constructor(capacity: Int, threadSafety: Boolean 
             fun clear() = map.clear()
             fun toArrayKey(): Seq<Long> =  Seq<Long>(size).also { keys.forEach { value-> it.add(value) } }
             fun toArrayValues(): Seq<V> =  Seq<V>(size).also { values.forEach { value-> it.add(value) } }
+            override fun toString(): String = map.toString()
         }
 
         private class ThreadUnsafe<V>(map: Long2ObjectOpenHashMap<V>): BaseLongMap<V>(map)

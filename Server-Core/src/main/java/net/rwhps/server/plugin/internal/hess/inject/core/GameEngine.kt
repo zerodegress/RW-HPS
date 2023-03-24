@@ -22,6 +22,7 @@ import net.rwhps.server.game.simulation.core.*
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.internal.hess.HessMain
 import net.rwhps.server.plugin.internal.hess.inject.command.ClientCommands
+import net.rwhps.server.plugin.internal.hess.inject.command.ServerCommands
 import net.rwhps.server.plugin.internal.hess.inject.net.HessRwHps
 import net.rwhps.server.util.inline.accessibleConstructor
 import net.rwhps.server.util.inline.findField
@@ -75,6 +76,7 @@ internal object GameEngine {
 
         ServiceLoader.addService(ServiceLoader.ServiceType.IRwHps, IRwHps.NetType.ServerProtocol.name, HessRwHps::class.java)
 
+        ServerCommands(HessMain.serverServerCommands)
         ClientCommands(HessMain.serverClientCommands)
     }
 }

@@ -56,6 +56,7 @@ object ModManage {
      */
     @JvmStatic
     fun reLoadMods(): Int {
+        HessModuleManage.hps.room.closeServer()
         HessModuleManage.hps.gameHessData.clean()
         HessModuleManage.hps.gameUnitData.reloadUnitData()
         HessModuleManage.hps.gameNet.startHessPort()

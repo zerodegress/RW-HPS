@@ -50,7 +50,7 @@ internal class ClientCommands(handler: CommandHandler) {
         return false
     }
 
-    private fun checkSiteNumb(int: String, player: Player): Boolean {
+    private fun checkPositionNumb(int: String, player: Player): Boolean {
         if (notIsNumeric(int)) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
             return false
@@ -179,7 +179,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 sendSystemMessageLocal("afk.start", player.name)
             }
         }
-        handler.register("give", "<PlayerSerialNumber>", "clientCommands.give") { args: Array<String>, player: Player ->
+        handler.register("give", "<PlayerPositionNumber>", "clientCommands.give") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
                 if (Data.game.isStartGame) {
                     player.sendSystemMessage(localeUtil.getinput("err.startGame"))
@@ -189,8 +189,8 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
                     return@register
                 }
-                val playerSite = args[0].toInt() - 1
-                val newAdmin = Data.game.playerManage.getPlayerArray(playerSite)
+                val playerPosition = args[0].toInt() - 1
+                val newAdmin = Data.game.playerManage.getPlayerArray(playerPosition)
                 if (notIsBlank(newAdmin)) {
                     if (newAdmin!!.headlessDevice) {
                         player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
@@ -243,7 +243,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 )
             )
         }
-        handler.register("kick", "<PlayerSerialNumber>", "clientCommands.kick") { args: Array<String>, player: Player ->
+        handler.register("kick", "<PlayerPositionNumber>", "clientCommands.kick") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -315,7 +315,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 return@register
             }
 
-            if (checkSiteNumb(args[0],player)) {
+            if (checkPositionNumb(args[0],player)) {
                 player.color = args[0].toInt() -1
                 sendTeamData()
             }
@@ -329,7 +329,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
 
-                if (checkSiteNumb(args[0], player)) {
+                if (checkPositionNumb(args[0], player)) {
                     val site = args[0].toInt() - 1
                     val inPlayer: Player? = Data.game.playerManage.getPlayerArray(site)
 
@@ -511,7 +511,7 @@ internal class ClientCommands(handler: CommandHandler) {
         }
 
          */
-        handler.register("move", "<PlayerSerialNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: Player ->
+        handler.register("move", "<PlayerPositionNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -527,7 +527,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
 
-                Data.game.playerManage.movePlayerSite(args[0].toInt(),args[1].toInt(),args[2].toInt(),true)
+                Data.game.playerManage.movePlayerPosition(args[0].toInt(),args[1].toInt(),args[2].toInt(),true)
             }
         }
         handler.register("self_move", "<ToSerialNumber> <?>", "HIDE") { args: Array<String>, player: Player ->
@@ -542,9 +542,9 @@ internal class ClientCommands(handler: CommandHandler) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                 return@register
             }
-            Data.game.playerManage.movePlayerSite(player.site+1,args[0].toInt(),args[1].toInt())
+            Data.game.playerManage.movePlayerPosition(player.site+1,args[0].toInt(),args[1].toInt())
         }
-        handler.register("team", "<PlayerSiteNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: Player ->
+        handler.register("team", "<PlayerPositionNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: Player ->
             if (Data.game.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -554,13 +554,13 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                     return@register
                 }
-                val playerSite = args[0].toInt() - 1
-                val newSite = args[1].toInt() - 1
-                if (playerSite < Data.game.maxPlayer && newSite < Data.game.maxPlayer) {
-                    if (newSite > -1) {
-                        val newTeamPlayer = Data.game.playerManage.getPlayerArray(playerSite)
+                val playerPosition = args[0].toInt() - 1
+                val newPosition = args[1].toInt() - 1
+                if (playerPosition < Data.game.maxPlayer && newPosition < Data.game.maxPlayer) {
+                    if (newPosition > -1) {
+                        val newTeamPlayer = Data.game.playerManage.getPlayerArray(playerPosition)
                         if (newTeamPlayer != null) {
-                            newTeamPlayer.team = newSite
+                            newTeamPlayer.team = newPosition
                         }
                     }
                     sendTeamData()
@@ -579,9 +579,9 @@ internal class ClientCommands(handler: CommandHandler) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
                 return@register
             }
-            val newSite = args[0].toInt() - 1
-            if (newSite < Data.game.maxPlayer) {
-                player.team = newSite
+            val newPosition = args[0].toInt() - 1
+            if (newPosition < Data.game.maxPlayer) {
+                player.team = newPosition
                 sendTeamData()
             }
         }

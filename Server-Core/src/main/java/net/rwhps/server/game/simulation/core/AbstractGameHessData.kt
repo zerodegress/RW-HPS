@@ -9,6 +9,7 @@
 
 package net.rwhps.server.game.simulation.core
 
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
@@ -30,8 +31,23 @@ interface AbstractGameHessData {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("checkSumSize!")
     fun verifyGameSync(player: Player, packet: Packet): Boolean
 
+    /**
+     * 获取位子上玩家是否存活
+     * 
+     * @param position Position
+     * @return Boolean
+     */
     @GameSimulationLayer.GameSimulationLayer_KeyWords("is victorious!")
-    fun getWin(team: Int): Boolean
+    fun getWin(position: Int): Boolean
+
+    /**
+     * 获取服务器Gameover信息
+     *
+     * @param team Team
+     * @return Boolean
+     */
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("is victorious!")
+    fun getGameOverData(): GameOverData?
 
     @GameSimulationLayer.GameSimulationLayer_KeyWords("aiDifficulty is locked")
     fun getPlayerBirthPointXY()
@@ -40,7 +56,25 @@ interface AbstractGameHessData {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("exited!")
     fun clean()
 
-    fun getDefPlayerData(): AbstractPlayerData
+    fun getDefPlayerData(): AbstractPlayerData {
+        return object: AbstractPlayerData {
+            private val error: ()->Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+
+            override fun updateDate() {}
+            override val survive get() = error()
+            override val unitsKilled get() = error()
+            override val buildingsKilled get() = error()
+            override val experimentalsKilled get() = error()
+            override val unitsLost get() = error()
+            override val buildingsLost get() = error()
+            override val experimentalsLost get() = error()
+            override var credits: Int = 0
+            override val name get() = error()
+            override val connectHexID get() = error()
+            override var site = 0
+            override var team = 0
+        }
+    }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun getPlayerData(site: Int): AbstractPlayerData

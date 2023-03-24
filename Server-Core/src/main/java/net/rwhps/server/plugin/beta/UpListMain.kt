@@ -159,8 +159,15 @@ internal class UpListMain : Plugin() {
         addData0    = addData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
         addData0    = addData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         addData0    = addData0.replace("{RW-HPS.S.PORT}",port)
-        addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
-        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+
+        if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
+            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
+            addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+        } else {
+            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
+            addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}","0")
+        }
+
         addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
 
@@ -196,11 +203,17 @@ internal class UpListMain : Plugin() {
         updateData0     = updateData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
         updateData0     = updateData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         updateData0     = updateData0.replace("{RW-HPS.S.PORT}",port)
-        updateData0     = updateData0.replace("{RW-HPS.RW.MAP.NAME}",
-            if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
-        updateData0     = updateData0.replace("{RW-HPS.S.STATUS}",
-            if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
-        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+
+        if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
+            updateData0     = updateData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
+            updateData0     = updateData0.replace("{RW-HPS.S.STATUS}", if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
+            updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+        } else {
+            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
+            updateData0     = updateData0.replace("{RW-HPS.S.STATUS}", "battleroom")
+            updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}","0")
+        }
+
         updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
 
 

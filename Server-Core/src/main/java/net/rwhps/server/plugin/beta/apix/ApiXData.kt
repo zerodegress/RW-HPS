@@ -10,5 +10,6 @@
 package net.rwhps.server.plugin.beta.apix
 
 data class ApiXData(
-    val GameOverURL: String = ""
+    val GameOverPositive: Boolean = false,
+    val GameOverReverseURL: String = ""
 )

@@ -52,10 +52,6 @@ class HessMain : Plugin() {
             GameStartInit.start(load)
 
             Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-
-            NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
-
-            handler.handleMessage("startnetservice false")
         }
     }
 

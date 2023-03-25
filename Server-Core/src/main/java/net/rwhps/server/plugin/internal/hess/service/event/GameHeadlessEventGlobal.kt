@@ -12,7 +12,10 @@ package net.rwhps.server.plugin.internal.hess.service.event
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
+import net.rwhps.server.plugin.internal.hess.HessMain
 import net.rwhps.server.util.log.Log
 
 class GameHeadlessEventGlobal : AbstractGlobalEvent {
@@ -22,6 +25,9 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
             Log.clog("Run GameHeadless ID: $loadID , This is not the first time to load, please customize the initialization")
             return
         }
+
+        NetStaticData.ServerNetType = IRwHps.NetType.ServerProtocol
+        HessMain.serverServerCommands.handleMessage("startnetservice false")
 
         /* Load Mod */
         Log.clog(Data.i18NBundle.getinput("server.loadMod", ModManage.load()))

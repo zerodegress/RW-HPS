@@ -28,7 +28,7 @@ class ServerRoom {
     lateinit var roomID: String
 
     val playerManage = PlayerHessManage()
-    val call = CallHess(this)
+    val  call = CallHess(this)
 
     var isStartGame = false
         set(value) {

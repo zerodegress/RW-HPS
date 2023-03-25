@@ -61,12 +61,10 @@ internal class PluginEventManage {
                     }
                 }
             }
-            /* ASync */
+            /* Sync */
             Events.on(PlayerLeaveEvent::class.java) { e: PlayerLeaveEvent ->
-                executorService.execute {
-                    pluginEventData.eachAll { p: AbstractEvent ->
-                        p.registerPlayerLeaveEvent(e.player)
-                    }
+                pluginEventData.eachAll { p: AbstractEvent ->
+                    p.registerPlayerLeaveEvent(e.player)
                 }
             }
             /* ASync */

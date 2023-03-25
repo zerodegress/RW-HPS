@@ -89,12 +89,9 @@ class Event : AbstractEvent {
     }
 
     override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
-        if (Data.config.OneAdmin && player.isAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 1) {
+        if (Data.config.OneAdmin && player.isAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
             try {
                 var p = HessModuleManage.hps.room.playerManage.playerGroup[0]
-                if (p.name == Data.headlessName) {
-                    p = HessModuleManage.hps.room.playerManage.playerGroup[1]
-                }
                 p.isAdmin = true
                 player.isAdmin = false
                 HessModuleManage.hps.room.call.sendSystemMessage("give.ok", p.name)

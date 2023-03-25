@@ -9,10 +9,13 @@
 
 package net.rwhps.server.plugin.internal.hess.inject.net
 
+import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.netconnectprotocol.RwHps
+import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
+import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 
 class HessRwHps(netType: IRwHps.NetType) : RwHps(netType) {
-    override val typeConnect: TypeConnect = TypeHessRwHps(GameVersionServer::class.java)
+    override val typeConnect: TypeConnect = TypeHessRwHps(GameVersionServer(PlayerConnectX(GameEngine.netEngine, ConnectionAgreement())))
 }

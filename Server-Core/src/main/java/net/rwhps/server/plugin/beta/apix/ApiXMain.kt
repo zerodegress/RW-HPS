@@ -9,18 +9,36 @@
 
 package net.rwhps.server.plugin.beta.apix
 
+import io.netty.handler.codec.http.HttpHeaderNames
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.net.HttpRequestOkHttp
+import net.rwhps.server.net.http.AcceptWeb
+import net.rwhps.server.net.http.SendWeb
+import net.rwhps.server.net.http.WebData
+import net.rwhps.server.net.http.WebGet
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.event.AbstractEvent
+import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toJson
+import net.rwhps.server.util.inline.toPrettyPrintingJson
 
 class ApiXMain : Plugin() {
     lateinit var data: ApiXData
+    var dataJson = Seq<String>()
 
     override fun init() {
         data = ApiXData::class.java.toGson(pluginDataFileUtil.toFile("Data.json").readFileStringData())
+
+        if (data.GameOverPositive) {
+            WebData.addWebGetInstance("/api/get/event/GameOver", object : WebGet() {
+                override fun get(accept: AcceptWeb, send: SendWeb) {
+                    send.setData(dataJson.toList().toJson())
+                    dataJson.clear()
+                    send.send()
+                }
+            })
+        }
     }
 
     override fun registerEvents(): AbstractEvent {
@@ -30,7 +48,7 @@ class ApiXMain : Plugin() {
                     return
                 }
 
-                if (data.GameOverURL.isNotBlank()) {
+                if (data.GameOverReverseURL.isNotBlank() || data.GameOverPositive) {
                     GameOverDataCover(
                         gameOverData.allPlayerList.toList(),
                         gameOverData.winPlayerList.toList(),
@@ -46,7 +64,12 @@ class ApiXMain : Plugin() {
                         },
                         gameOverData.replayName
                     ).toJson().also {
-                        HttpRequestOkHttp.doPostJson(data.GameOverURL,it)
+                        if (data.GameOverReverseURL.isNotBlank()) {
+                            HttpRequestOkHttp.doPostJson(data.GameOverReverseURL, it)
+                        }
+                        if (data.GameOverPositive) {
+                            dataJson.add(it)
+                        }
                     }
                 }
             }
@@ -54,7 +77,7 @@ class ApiXMain : Plugin() {
     }
 
     override fun onDisable() {
-        pluginDataFileUtil.toFile("Data.json").writeFile(data.toJson())
+        pluginDataFileUtil.toFile("Data.json").writeFile(data.toPrettyPrintingJson())
     }
 
     private data class GameOverDataCover(

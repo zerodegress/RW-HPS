@@ -11,8 +11,9 @@ package net.rwhps.server.data.global
 
 import net.rwhps.server.command.ex.Vote
 import net.rwhps.server.core.Application
-import net.rwhps.server.data.base.BaseConfig
+import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.base.BaseRelayPublishConfig
+import net.rwhps.server.data.base.BaseServerExConfig
 import net.rwhps.server.game.Rules
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.struct.ObjectMap
@@ -48,7 +49,7 @@ object Data {
     const val SERVER_ID = "net.rwhps.server"
     const val SERVER_ID_RELAY = "net.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "2.0.0-M3"
+    const val SERVER_CORE_VERSION = "2.0.0-M4"
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     const val SERVER_EULA_VERSION = "1.1.0"
@@ -73,7 +74,8 @@ object Data {
     @JvmField val urlData: LoadIni = LoadIni(Data::class.java.getResourceAsStream("/URL.ini")!!)
     @JvmField val banWord: BadWord = BadWord()
 
-    lateinit var config: BaseConfig
+    lateinit var config: BaseCoreConfig
+    lateinit var configServerEx: BaseServerExConfig
     lateinit var configRelayPublish: BaseRelayPublishConfig
 
     /**
@@ -83,10 +85,11 @@ object Data {
     lateinit var game: Rules
 
     @JvmField var vote: Vote? = null
+    // TODO
+    var bindForcibly = true
 
     @Volatile var startServer = false
     @Volatile var exitFlag = false
 
-    // 服务器默认显示名称, 不推荐修改? (让我打广告提高知名度)
     val headlessName: String = "RW-HPS Core Headless"
 }

@@ -14,7 +14,9 @@ import com.corrodinggames.rts.gameFramework.j.CustomServerSocket
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.c
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.game.event.EventType
 import net.rwhps.server.game.simulation.core.AbstractGameNet
+import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -97,6 +99,8 @@ internal class GameNet : AbstractGameNet {
                         // 避免同步爆炸
                         GameEngine.netEngine.z.k = -3
 
+                        Events.fire(EventType.ServerHessStartPort())
+                        
                         break@startTryWhile
                     } catch (e: Exception) {
                         Log.error(e)

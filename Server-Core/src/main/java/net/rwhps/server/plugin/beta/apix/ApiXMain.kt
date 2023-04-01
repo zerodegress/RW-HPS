@@ -9,9 +9,7 @@
 
 package net.rwhps.server.plugin.beta.apix
 
-import io.netty.handler.codec.http.HttpHeaderNames
 import net.rwhps.server.data.event.GameOverData
-import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebData
@@ -48,7 +46,7 @@ class ApiXMain : Plugin() {
                     return
                 }
 
-                if (data.GameOverReverseURL.isNotBlank() || data.GameOverPositive) {
+                if (data.GameOverPositive) {
                     GameOverDataCover(
                         gameOverData.allPlayerList.toList(),
                         gameOverData.winPlayerList.toList(),
@@ -64,9 +62,6 @@ class ApiXMain : Plugin() {
                         },
                         gameOverData.replayName
                     ).toJson().also {
-                        if (data.GameOverReverseURL.isNotBlank()) {
-                            HttpRequestOkHttp.doPostJson(data.GameOverReverseURL, it)
-                        }
                         if (data.GameOverPositive) {
                             dataJson.add(it)
                         }

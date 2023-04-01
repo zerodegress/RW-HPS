@@ -36,8 +36,9 @@ import net.rwhps.server.command.LogCommands
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
-import net.rwhps.server.data.base.BaseConfig
+import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.base.BaseRelayPublishConfig
+import net.rwhps.server.data.base.BaseServerExConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.data.plugin.PluginManage
@@ -100,11 +101,11 @@ object Main {
         setCopyPrint(true)
 
         /* OFF WARN */
-        System.setProperty("org.jline.terminal.dumb", "true");
+        System.setProperty("org.jline.terminal.dumb", "true")
         Logger.getLogger("io.netty").level = Level.OFF
 
         /* Fix Idea */
-        System.setProperty("jansi.passthrough", "true");
+        System.setProperty("jansi.passthrough", "true")
         /* 覆盖输入输出流 */
         inputMonitorInit()
 
@@ -120,10 +121,10 @@ object Main {
 
         setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
-        Data.config = BaseConfig.stringToClass()
+        Data.config = BaseCoreConfig.stringToClass()
+        Data.configServerEx = BaseServerExConfig.stringToClass()
 
         Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
-
         Data.core.load()
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
@@ -170,7 +171,6 @@ object Main {
 
         newThreadCore {
             WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
-
             NetService(StartHttp::class.java).openPort(5000)
         }
 

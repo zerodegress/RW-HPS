@@ -17,7 +17,7 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.ModManage
-import net.rwhps.server.data.base.BaseConfig
+import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
@@ -89,7 +89,7 @@ class CoreCommands(handler: CommandHandler) {
             Initialization.initServerLanguage(Data.core.settings,arg[0])
         }
 
-        handler.register("reloadconfig", "serverCommands.reloadconfig") { Data.config = BaseConfig.stringToClass() }
+        handler.register("reloadconfig", "serverCommands.reloadconfig") { Data.config = BaseCoreConfig.stringToClass() }
         handler.register("exit", "serverCommands.exit") { Core.exit() }
     }
 
@@ -236,9 +236,6 @@ class CoreCommands(handler: CommandHandler) {
         // Test (孵化器）
         handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: StrCons ->
             HotLoadClass().load(FileUtil.getFile("a.class").readFileByte())
-        }
-        handler.register("logg", "serverCommands.exit") { _: Array<String>, _: StrCons ->
-
         }
     }
 }

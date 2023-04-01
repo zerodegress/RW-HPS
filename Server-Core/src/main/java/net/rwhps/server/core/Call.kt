@@ -212,7 +212,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 100, Data.config.TickTime.toLong())
+                timerNew.schedule(TimeTaskData.CallTickTask, 100, 100)
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()
@@ -223,7 +223,7 @@ object Call {
                 val timerNew = Timer()
 
                 TimeTaskData.CallTickTask = SendGameTickCommand()
-                timerNew.schedule(TimeTaskData.CallTickTask, 0, Data.config.TickTime.toLong())
+                timerNew.schedule(TimeTaskData.CallTickTask, 0, 100)
                 TimeTaskData.CallTickPool = timerNew
 
                 stop()
@@ -247,7 +247,7 @@ object Call {
         private var oneSay = true
         private var forcedClose = false
 
-        private val tick = Data.config.Tick
+        private val tick = 6
 
         @Volatile
         private var forcedReturn = false

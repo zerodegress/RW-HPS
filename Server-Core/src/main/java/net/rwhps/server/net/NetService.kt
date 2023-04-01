@@ -154,5 +154,7 @@ class NetService {
         const val minLowWaterMark = 512 * 1024
         /** Maximum accepted single package size */
         const val maxPacketSizt = 50 * 1024 * 1024
+        /** Packet header data length */
+        const val headerSize = 8
     }
 }

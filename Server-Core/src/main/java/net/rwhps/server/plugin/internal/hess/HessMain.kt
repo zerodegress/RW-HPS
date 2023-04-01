@@ -12,9 +12,7 @@ package net.rwhps.server.plugin.internal.hess
 import net.rwhps.server.command.server.ServerCommands
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.plugin.internal.hess.service.event.GameHeadlessEventGlobal

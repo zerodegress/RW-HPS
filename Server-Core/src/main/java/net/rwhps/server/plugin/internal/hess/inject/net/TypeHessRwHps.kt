@@ -37,7 +37,7 @@ open class TypeHessRwHps : TypeConnect {
     }
     constructor(con: Class<out GameVersionServer>) {
         // will not be used ; just override the initial value to avoid refusing to compile
-        this.con = ReflectionUtils.accessibleConstructor(con).newInstance()
+        this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
 
         // use for instantiation
         conClass = con

@@ -15,6 +15,7 @@ import io.netty.handler.codec.ByteToMessageDecoder
 import io.netty.util.ReferenceCountUtil
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.NetService
+import net.rwhps.server.net.NetService.Companion.headerSize
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.log.Log.warn
 
@@ -31,11 +32,6 @@ import net.rwhps.server.util.log.Log.warn
  *   +---------------+---------------+
  */
 internal class PacketDecoder : ByteToMessageDecoder() {
-    companion object {
-        /** Packet header data length */
-        private const val HEADER_SIZE = 8
-    }
-
     @Throws(Exception::class)
     override fun decode(ctx: ChannelHandlerContext, bufferIn: ByteBuf?, out: MutableList<Any>) {
         if (bufferIn == null) {
@@ -43,7 +39,7 @@ internal class PacketDecoder : ByteToMessageDecoder() {
         }
 
         val readableBytes = bufferIn.readableBytes()
-        if (readableBytes < HEADER_SIZE) {
+        if (readableBytes < headerSize) {
             return
         }
 

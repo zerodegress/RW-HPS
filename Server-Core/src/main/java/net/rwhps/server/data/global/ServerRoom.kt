@@ -11,76 +11,51 @@ package net.rwhps.server.data.global
 
 import net.rwhps.server.core.CallHess
 import net.rwhps.server.core.thread.CallTimeTask
-import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.closeTimeTask
-import net.rwhps.server.core.thread.Threads.newTimedTask
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.PlayerHessManage
+import net.rwhps.server.data.temp.ServerCacheFlag
 import net.rwhps.server.game.event.EventType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.clog
-import java.util.concurrent.TimeUnit
 
 class ServerRoom {
     lateinit var roomID: String
 
     val playerManage = PlayerHessManage()
-    val  call = CallHess(this)
+    val call = CallHess(this)
 
     var isStartGame = false
         set(value) {
             if (checkGameStatusFlag && value) {
                 checkGameStatusFlag = false
+
                 startTime = Time.concurrentSecond()
+                endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
+
                 closeTimeTask(CallTimeTask.CallTeamTask)
 
-                newTimedTask(CallTimeTask.AutoCheckTask,0,1, TimeUnit.SECONDS) {
-                    when (playerManage.playerGroup.size) {
-                        0 -> gr()
-                        1 -> if (oneSay) {
-                            oneSay = false
-                            call.sendSystemMessageLocal("gameOver.oneMin")
-                            Threads.newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) { gr() }
-                        }
-                        else -> {
-                            if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
-                                oneSay = true
-                                closeTimeTask(CallTimeTask.GameOverTask)
-                            }
-                        }
-                    }
-
-                    if (sendGameStatusFlag) {
-                        gameOverData = HessModuleManage.hps.gameHessData.getGameOverData() ?: return@newTimedTask
-
-                        sendGameStatusFlag = false
-                        closeTimeTask(CallTimeTask.AutoCheckTask)
-
-                        val last = gameOverData!!.winPlayerList.toArray(String::class.java).contentToString()
-                        lastWin = last
-                        clog("[$roomID] Last Win Player: {0}", last)
-                        call.sendSystemMessageLocal("survive.player", last)
-                    }
-                }
+                call.startCheckThread()
             }
             field = value
         }
 
-    //
+    // Start Time
     var startTime = 0
+    /** End Time */
+    var endTime = 0
+        private set
+
     var isAfk = true
 
     // FLAG
-    private var forcedReturn = false
-    private var checkGameStatusFlag = true
-    private var sendGameStatusFlag = true
-    private var oneSay = true
+    var flagData = ServerCacheFlag()
+    var forcedReturn = false
+    var checkGameStatusFlag = true
 
 
-    private var lastWin = ""
     var mapName: String
         get() {
             return MapManage.maps.mapName
@@ -96,17 +71,19 @@ class ServerRoom {
                 it.updateDate()
             }
         }
-    private var gameOverData: GameOverData? = null
 
-    @Volatile
+    internal var gameOverData: GameOverData? = null
+
+
     var closeServer: ()->Unit = {}
     var startServer: ()->Unit = {}
 
-    private fun gr() {
+    internal fun gr() {
         if (forcedReturn) {
             return
         }
         forcedReturn = true
+
         closeTimeTask(CallTimeTask.GameOverTask)
         closeTimeTask(CallTimeTask.AutoCheckTask)
 
@@ -115,11 +92,9 @@ class ServerRoom {
         closeServer()
         //
         isStartGame = false
-        //
+
+        flagData = ServerCacheFlag()
         checkGameStatusFlag = true
-        oneSay = true
-        //
-        sendGameStatusFlag = true
 
         playerManage.cleanPlayerAllData()
 

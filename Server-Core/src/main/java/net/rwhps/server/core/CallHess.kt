@@ -9,10 +9,16 @@
 
 package net.rwhps.server.core
 
+import net.rwhps.server.core.thread.CallTimeTask
+import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.Log
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class CallHess(private val serverRoom: ServerRoom) {
     fun sendSystemMessage(text: String) {
@@ -34,6 +40,48 @@ class CallHess(private val serverRoom: ServerRoom) {
                 e.kickPlayer(msg)
             } catch (err: IOException) {
                 Log.error("[ALL] Kick All Player Error", e)
+            }
+        }
+    }
+
+    fun startCheckThread() {
+        Threads.newTimedTask(CallTimeTask.AutoCheckTask, 0, 1, TimeUnit.SECONDS) {
+            if (Data.config.MaxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime) {
+                if (serverRoom.flagData.forcedCloseSendMsg) {
+                    Call.sendSystemMessageLocal("gameOver.forced")
+                }
+                serverRoom.flagData.forcedCloseSendMsg = false
+                if (Time.concurrentSecond() > Data.game.endTime + 60) {
+                    serverRoom.gr()
+                    return@newTimedTask
+                }
+            }
+
+            when (serverRoom.playerManage.playerGroup.size) {
+                0 -> serverRoom.gr()
+                1 -> if (serverRoom.flagData.oneSay) {
+                    serverRoom.flagData.oneSay = false
+                    serverRoom.call.sendSystemMessageLocal("gameOver.oneMin")
+                    Threads.newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) { serverRoom.gr() }
+                }
+
+                else -> {
+                    if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
+                        serverRoom.flagData.oneSay = true
+                        Threads.closeTimeTask(CallTimeTask.GameOverTask)
+                    }
+                }
+            }
+
+            if (serverRoom.flagData.sendGameStatusFlag) {
+                serverRoom.gameOverData = HessModuleManage.hps.gameHessData.getGameOverData() ?: return@newTimedTask
+
+                serverRoom.flagData.sendGameStatusFlag = false
+
+                val last = serverRoom.gameOverData!!.winPlayerList.toArray(String::class.java).contentToString()
+
+                Log.clog("[${serverRoom.roomID}] Last Win Player: {0}", last)
+                serverRoom.call.sendSystemMessageLocal("survive.player", last)
             }
         }
     }

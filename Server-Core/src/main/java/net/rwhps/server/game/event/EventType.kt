@@ -16,14 +16,9 @@ import net.rwhps.server.data.player.AbstractPlayer
  * @author RW-HPS/Dr
  */
 class EventType {
+    class ServerHessStartPort()
     /** 玩家加入  */
     class PlayerJoinEvent(val player: AbstractPlayer)
-
-    /** 玩家重连  */
-    class PlayerReJoinEvent(val player: AbstractPlayer)
-
-    /** 玩家连接时. */
-    class PlayerConnectEvent(val player: AbstractPlayer)
 
     /** 玩家离开时  */
     class PlayerLeaveEvent(val player: AbstractPlayer)

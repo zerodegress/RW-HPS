@@ -193,7 +193,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         try {
             val out = GameOutputStream()
 
-            // Player Site
+            // Player Position
             out.writeByte(player.site)
 
             // Is Unit Action
@@ -264,8 +264,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun sendStartGame() {
         sendServerInfo(true)
         sendPacket(NetStaticData.RwHps.abstractNetPacket.getStartGamePacket())
-        if (IsUtil.notIsBlank(Data.config.StartAd)) {
-            sendSystemMessage(Data.config.StartAd)
+        if (IsUtil.notIsBlank(Data.configServerEx.StartAd)) {
+            sendSystemMessage(Data.configServerEx.StartAd)
         }
     }
 
@@ -513,19 +513,19 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         Data.game.playerManage.playerGroup.add(e)
                     }
                     if (!re.get()) {
-                        if (IsUtil.isBlank(Data.config.StartPlayerAd)) {
+                        if (IsUtil.isBlank(Data.configServerEx.StartPlayerAd)) {
                             sendKick("游戏已经开局 请等待 # The game has started, please wait")
                         } else {
-                            sendKick(Data.config.StartPlayerAd)
+                            sendKick(Data.configServerEx.StartPlayerAd)
                         }
                         return false
                     }
                 } else {
                     if (Data.game.playerManage.playerGroup.size >= Data.game.maxPlayer) {
-                        if (IsUtil.isBlank(Data.config.MaxPlayerAd)) {
+                        if (IsUtil.isBlank(Data.configServerEx.MaxPlayerAd)) {
                             sendKick("服务器没有位置 # The server has no free location")
                         } else {
-                            sendKick(Data.config.MaxPlayerAd)
+                            sendKick(Data.configServerEx.MaxPlayerAd)
                         }
                         return false
                     }
@@ -544,8 +544,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Call.sendTeamData()
                 sendServerInfo(true)
 
-                if (IsUtil.notIsBlank(Data.config.EnterAd)) {
-                    sendSystemMessage(Data.config.EnterAd)
+                if (IsUtil.notIsBlank(Data.configServerEx.EnterAd)) {
+                    sendSystemMessage(Data.configServerEx.EnterAd)
                 }
 
                 if (re.get()) {
@@ -635,7 +635,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
     override fun reConnect() {
         try {
-            if (!Data.config.ReConnect) {
+            //Data.config.ReConnect
+            if (true) {
                 sendKick("不支持重连 # Does not support reconnection")
                 return
             }

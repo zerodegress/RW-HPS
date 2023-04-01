@@ -14,22 +14,15 @@ import net.rwhps.server.data.player.AbstractPlayer
 
 interface AbstractEvent {
     /**
+     * Hess服务器完成开放 [同步-Synchronization]
+     */
+    fun registerServerHessStartPort() { /* Optional use of plugins */ }
+
+    /**
      * 玩家加入 [同步-Synchronization]
      * @param player Player
      */
     fun registerPlayerJoinEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
-
-    /**
-     * 玩家重连 [同步-Synchronization]
-     * @param player Player
-     */
-    fun registerPlayerReJoinEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
-
-    /**
-     * 玩家连接时 [异步-ASync]
-     * @param player Player
-     */
-    fun registerPlayerConnectEvent(player: AbstractPlayer) { /* Optional use of plugins */ }
 
     /**
      * 玩家离开时 [异步-ASync]

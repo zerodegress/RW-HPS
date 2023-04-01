@@ -11,7 +11,7 @@ package net.rwhps.server.game
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
-import net.rwhps.server.data.base.BaseConfig
+import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * @author RW-HPS/Dr
  */
-class Rules(private var config: BaseConfig) {
+class Rules(private var config: BaseCoreConfig) {
     /** End Time */
     var endTime = 0
         private set
@@ -111,7 +111,7 @@ class Rules(private var config: BaseConfig) {
     var lockTeam = false
     val mapsData = OrderedMap<String, MapData>(8)
 
-    val tickGame = AtomicInteger(Data.config.Tick)
+    val tickGame = AtomicInteger(6)
     var isGameover = false
 
     var replayName: String = ""
@@ -209,7 +209,7 @@ class Rules(private var config: BaseConfig) {
         }
     }
 
-    private fun autoLoadOrUpdate(config: BaseConfig) {
+    private fun autoLoadOrUpdate(config: BaseCoreConfig) {
         if (config.AutoReLoadMap) {
             newTimedTask(CallTimeTask.AutoUpdateMapsTask, 0, 1, TimeUnit.MINUTES){
                 if (notIsBlank(Data.game) && !Data.game.isStartGame) {

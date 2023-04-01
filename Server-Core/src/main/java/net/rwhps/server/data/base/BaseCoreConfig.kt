@@ -25,7 +25,7 @@ import java.lang.reflect.Field
  * Save data for serialization and deserialization
  * @author RW-HPS/Dr
  */
-data class BaseConfig(
+data class BaseCoreConfig(
     val DefStartCommand: String = "start",
 
     val Log: String = "WARN",
@@ -36,14 +36,6 @@ data class BaseConfig(
     /** 端口 */
     val Port: Int = 5123,
     val Passwd: String = "",
-    //val UDPSupport: Boolean = false,
-
-    val EnterAd: String = "",
-    val StartAd: String = "",
-    val MaxPlayerAd: String = "",
-    val StartPlayerAd: String = "",
-
-    //val serverUpID: String
 
     /** 服务器最大人数 */
     val MaxPlayer: Int = 10,
@@ -57,8 +49,6 @@ data class BaseConfig(
     val MaxMessageLen: Int = 40,
     /** 最大单位数 */
     val MaxUnit: Int = 200,
-    val Tick: Int = 6,
-    val TickTime: Int = 100,
 
     val DefIncome: Float = 1f,
     /** only Admin */
@@ -68,22 +58,10 @@ data class BaseConfig(
     /** ip多语言支持 */
     val IpCheckMultiLanguageSupport: Boolean = false,
 
-    /** 是否启用重连 */
-    val ReConnect: Boolean = true,
-    /** 是否启用胜负判定 */
-    val WinOrLose: Boolean = false,
-    /** 胜负判定时间 */
-    val WinOrLoseTime: Int = 30000,
-
-    val DeleteLib: Boolean = false,
-
     /** Single user relay disable pop-up selection */
     val SingleUserRelay: Boolean = false,
     /** Default mods configuration for single user relay */
     val SingleUserRelayMod: Boolean = false,
-
-    /** Whether to start reading mod for the first time */
-    val GameOverUpList: Boolean = false,
 
     /** GamePort HttpPort 共用 */
     val WebGameBypassPort: Boolean = false,
@@ -98,8 +76,6 @@ data class BaseConfig(
     val AutoReLoadMap: Boolean = false,
 
     val Turnstoneintogold: Boolean = false,
-
-    val WebSupport: Boolean = false,
 
     var RunPid: Long = 0
 ) {
@@ -147,9 +123,9 @@ data class BaseConfig(
         val fileUtil = FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Config.json")
 
         @JvmStatic
-        fun stringToClass(): BaseConfig {
+        fun stringToClass(): BaseCoreConfig {
 
-            val config: BaseConfig = BaseConfig::class.java.toGson(fileUtil.readFileStringData())
+            val config: BaseCoreConfig = BaseCoreConfig::class.java.toGson(fileUtil.readFileStringData())
 
             // PATH
             config.allName().eachAll {

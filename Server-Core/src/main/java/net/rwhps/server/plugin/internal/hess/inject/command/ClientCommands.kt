@@ -191,7 +191,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 if (room.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame.warn"))
                 }
-                GameEngine.netEngine.ay.h = args[0].toFloat()
+                GameEngine.data.gameDataLink.income = args[0].toFloat()
             }
         }
         handler.register("addmoney", "<PlayerPositionNumber> <money>", "clientCommands.addmoney") { args: Array<String>, player: AbstractPlayer ->
@@ -222,7 +222,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                     return@register
                 }
-                GameEngine.netEngine.ay.f = args[0].toInt()
+                GameEngine.data.gameDataLink.aiDifficuld = args[0].toInt()
 
                 for (site in 0 until Data.config.MaxPlayer) {
                     if (room.playerManage.getPlayerArray(site) == null) {
@@ -276,24 +276,23 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
                     return@register
                 }
-                when (args[0].toInt()) {
-                    0 -> GameEngine.netEngine.ay.c = 1
-                    1000 -> GameEngine.netEngine.ay.c = 2
-                    2000 -> GameEngine.netEngine.ay.c = 3
-                    5000 -> GameEngine.netEngine.ay.c = 4
-                    10000 -> GameEngine.netEngine.ay.c = 5
-                    50000 -> GameEngine.netEngine.ay.c = 6
-                    100000 -> GameEngine.netEngine.ay.c = 7
-                    200000 -> GameEngine.netEngine.ay.c = 8
-                    4000 -> GameEngine.netEngine.ay.c = 0
-                    else -> {
-                    }
+                GameEngine.data.gameDataLink.credits = when (args[0].toInt()) {
+                    0 -> 1
+                    1000 -> 2
+                    2000 -> 3
+                    5000 -> 4
+                    10000 -> 5
+                    50000 -> 6
+                    100000 -> 7
+                    200000 -> 8
+                    4000 -> 0
+                    else -> 0
                 }
             }
         }
         handler.register("nukes", "<boolean>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (isAdmin(player)) {
-                GameEngine.netEngine.ay.i = !args[0].toBoolean()
+                GameEngine.data.gameDataLink.nukes = !args[0].toBoolean()
             }
         }
         handler.register("addai", "HIDE") { _: Array<String>?, player: AbstractPlayer ->
@@ -303,31 +302,41 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("fog", "<type>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (isAdmin(player)) {
-                GameEngine.netEngine.ay.d = if ("off" == args[0]) 0 else if ("basic" == args[0]) 1 else 2
+                GameEngine.data.gameDataLink.fog = if ("off" == args[0]) 0 else if ("basic" == args[0]) 1 else 2
             }
         }
         handler.register("sharedcontrol", "<boolean>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (isAdmin(player)) {
-                GameEngine.netEngine.ay.l = args[0].toBoolean()
+                GameEngine.data.gameDataLink.sharedcontrol = args[0].toBoolean()
             }
         }
         handler.register("startingunits", "<type>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (isAdmin(player)) {
-                GameEngine.netEngine.ay.g = args[0].toInt()
+                GameEngine.data.gameDataLink.startingunits = args[0].toInt()
             }
         }
-        handler.register("start", "clientCommands.start") { _: Array<String>?, player: AbstractPlayer ->
-            if (isAdmin(player)) {
+        handler.register("start", "clientCommands.start") { _: Array<String>?, player: AbstractPlayer? ->
+            var flag = (player == null)
+
+            if (player != null && isAdmin(player)) {
                 if (room.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                     return@register
                 }
 
+                if (Data.config.StartMinPlayerSize != -1 &&
+                    Data.config.StartMinPlayerSize > room.playerManage.playerGroup.size) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
+                    return@register
+                }
+                flag = true
+            }
+
+            if (flag) {
                 if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
-                    val file = FileUtil.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName+".tmx")
+                    val file = FileUtil.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
                     if (file.notExists()) {
                         MapManage.maps.mapData!!.readMap()
-                        file.writeFileByte(MapManage.maps.mapData!!.bytesMap!!)
                     }
                     GameEngine.netEngine.az = "/SD/rusted_warfare_maps/${MapManage.maps.mapName}.tmx"
                     GameEngine.netEngine.ay.b = "${MapManage.maps.mapName}.tmx"

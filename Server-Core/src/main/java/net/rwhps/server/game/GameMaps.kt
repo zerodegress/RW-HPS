@@ -9,8 +9,10 @@
 
 package net.rwhps.server.game
 
+import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.compression.CompressionDecoderUtils
+import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.log.Log.error
 
@@ -51,18 +53,16 @@ class GameMaps {
     }
 
     class MapData {
-        @JvmField
         val mapType: MapType
-        @JvmField
         val mapFileType: MapFileType
-        @JvmField
         val mapFileName: String
-        @JvmField
         val zipFileName: String?
-        @JvmField
         var mapSize = 0
-        @JvmField
         var bytesMap: ByteArray? = null
+
+        var mapClean = false
+        private var mapFile: FileUtil? = null
+
 
         constructor(mapType: MapType, mapFileType: MapFileType, mapFileName: String) {
             this.mapType = mapType
@@ -89,7 +89,7 @@ class GameMaps {
          * 懒加载
          * 读取地图到内部bytes
          */
-        fun readMap() {
+        fun readMap(): FileUtil {
             val fileUtil = getFolder(Data.Plugin_Maps_Path)
             when (mapFileType) {
                 MapFileType.file -> try {
@@ -107,6 +107,11 @@ class GameMaps {
                 MapFileType.web -> {
                 }
             }
+
+            mapClean = true
+            mapFile = getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
+            mapFile!!.writeFileByte(bytesMap!!)
+            return mapFile!!
         }
 
         /**
@@ -115,6 +120,11 @@ class GameMaps {
         fun clean() {
             mapSize = 0
             bytesMap = null
+
+            if (mapClean) {
+                mapFile!!.delete()
+                mapFile = null
+            }
         }
     }
 }

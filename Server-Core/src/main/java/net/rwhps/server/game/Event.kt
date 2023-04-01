@@ -12,6 +12,7 @@ package net.rwhps.server.game
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.AbstractPlayer
@@ -28,6 +29,11 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 class Event : AbstractEvent {
+    override fun registerServerHessStartPort() {
+        HessModuleManage.hps.gameDataLink.maxUnit = Data.config.MaxUnit
+        HessModuleManage.hps.gameDataLink.income = Data.config.DefIncome
+    }
+
     override fun registerPlayerJoinEvent(player: AbstractPlayer) {
         if (player.name.isBlank() || player.name.length > 30) {
             player.kickPlayer(player.getinput("kick.name.failed"))
@@ -63,18 +69,18 @@ class Event : AbstractEvent {
         if (Data.config.AutoStartMinPlayerSize != -1 &&
             HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.config.AutoStartMinPlayerSize &&
             !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
-            var flagCount = 0
+            var flagCount = 60
             Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
                 if (HessModuleManage.hps.room.isStartGame) {
                     Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                     return@newTimedTask
                 }
 
-                flagCount++
+                flagCount--
 
-                if (flagCount < 60) {
-                    if ((flagCount - 55) > 0) {
-                        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",(60 - flagCount)))
+                if (flagCount > 0) {
+                    if ((flagCount - 5) > 0) {
+                        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",flagCount))
                     }
                     return@newTimedTask
                 }
@@ -85,13 +91,17 @@ class Event : AbstractEvent {
                 Data.CLIENT_COMMAND.register("start",null) { HessModuleManage.hps.room.playerManage.playerGroup.find { it.isAdmin } }
             }
         }
+
+        if (Data.configServerEx.EnterAd.isNotBlank()) {
+            player.sendSystemMessage(Data.configServerEx.EnterAd)
+        }
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
     override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
         if (Data.config.OneAdmin && player.isAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
             try {
-                var p = HessModuleManage.hps.room.playerManage.playerGroup[0]
+                val p: AbstractPlayer = HessModuleManage.hps.room.playerManage.playerGroup[0]
                 p.isAdmin = true
                 player.isAdmin = false
                 HessModuleManage.hps.room.call.sendSystemMessage("give.ok", p.name)
@@ -118,10 +128,17 @@ class Event : AbstractEvent {
 
     override fun registerGameStartEvent() {
         Data.core.admin.playerDataCache.clear()
+
+        if (Data.configServerEx.StartAd.isNotBlank()) {
+            HessModuleManage.hps.room.call.sendSystemMessage(Data.configServerEx.StartAd)
+        }
+
         Log.clog("[Start New Game]")
     }
 
     override fun registerGameOverEvent(gameOverData: GameOverData?) {
+        MapManage.maps.mapData?.clean()
+
         System.gc()
     }
 

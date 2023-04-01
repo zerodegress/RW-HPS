@@ -69,6 +69,7 @@ internal object GameEngine {
             override val gameUnitData: AbstractGameUnitData = GameUnitData()
             override val gameFast: AbstractGameFast = GameFast()
             override val gameData: AbstractGameData = GameData()
+            override val gameDataLink: AbstractGameLinkData = GameLinkData()
             override val room: ServerRoom = ServerRoom()
         }.also {
             data = it

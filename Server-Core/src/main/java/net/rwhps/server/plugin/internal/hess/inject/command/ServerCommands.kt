@@ -23,7 +23,6 @@ import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
-import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 
@@ -48,11 +47,16 @@ internal class ServerCommands(handler: CommandHandler) {
             }
             room.call.sendSystemMessage(response.toString().replace("<>", ""))
         }
-        handler.register("save", "serverCommands.save") { _: Array<String>?, _: StrCons ->
+        handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
+            if (room.isStartGame) {
+                Events.fire(GameOverEvent(null))
+            }
+        }
+        handler.register("save", "serverCommands.save") { _: Array<String>?, log: StrCons ->
             if (room.isStartGame) {
                 gameModule.gameData.saveGame()
             } else {
-                Log.clog("No Start Game")
+                log["No Start Game"]
             }
         }
         handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->

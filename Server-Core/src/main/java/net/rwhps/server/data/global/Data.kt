@@ -18,9 +18,11 @@ import net.rwhps.server.game.Rules
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
+import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.alone.BadWord
 import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.game.CommandHandler
+import org.jline.reader.LineReader
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -42,6 +44,7 @@ object Data {
     const val Plugin_Mods_Path = "/data/mods"
     const val Plugin_RePlays_Path = "/data/replays"
     val UTF_8: Charset = StandardCharsets.UTF_8
+    val DefaultEncoding:  Charset = SystemUtil.defaultEncoding
     /*
 	 * 插件默认变量
 	 */
@@ -49,7 +52,7 @@ object Data {
     const val SERVER_ID = "net.rwhps.server"
     const val SERVER_ID_RELAY = "net.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "2.0.0-M4"
+    const val SERVER_CORE_VERSION = "2.0.0-RC"
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     const val SERVER_EULA_VERSION = "1.1.0"
@@ -92,4 +95,9 @@ object Data {
     @Volatile var exitFlag = false
 
     val headlessName: String = "RW-HPS Core Headless"
+
+
+    internal val privateOut = System.out
+    lateinit internal var privateReader: LineReader
+    var serverCountry = "EN"
 }

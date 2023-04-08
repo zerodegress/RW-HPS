@@ -13,15 +13,11 @@ package net.rwhps.server.util
 object GameOtherUtil {
     @JvmStatic
     fun getBetaVersion(version: Int): Boolean {
-        if (version in 152 .. 175) {
-            return true
-        }
-        return false
+        return version in 152 .. 175
     }
 
     @JvmStatic
     fun getPoint(floats: Map<Float, Float>): FloatArray {
-        val pointNum = floats.size //坐标点个数
         var xOut = 0F
         var yOut = 0F
         floats.forEach { (x, y) ->

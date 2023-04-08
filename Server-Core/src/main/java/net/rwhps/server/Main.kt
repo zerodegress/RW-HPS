@@ -27,7 +27,7 @@
  * The RW-HPS is maintained by the entire open source community and is not the work of any individual.
  * If you modify the RW-HPS source code for redistribution, or refer to the RW-HPS internal implementation
  * Derivative projects must explicitly state that they are from this repository (https://github.com/RW-HPS/RW-HPS) at the beginning of the article or at the first appearance of the 'RW-HPS' related content, without distorting or hiding the fact that they are free and open source
-*/
+ */
 
 package net.rwhps.server
 
@@ -40,6 +40,7 @@ import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.base.BaseRelayPublishConfig
 import net.rwhps.server.data.base.BaseServerExConfig
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.global.Data.privateReader
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.data.plugin.PluginManage.init
@@ -49,19 +50,19 @@ import net.rwhps.server.data.plugin.PluginManage.runOnEnable
 import net.rwhps.server.data.plugin.PluginManage.runRegisterEvents
 import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
+import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Event
 import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import net.rwhps.server.io.ConsoleStream
+import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.math.Rand
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.net.http.WebData
-import net.rwhps.server.util.encryption.Base64.decodeString
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
-import net.rwhps.server.util.file.FileUtil.Companion.setFilePath
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
@@ -69,15 +70,12 @@ import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.set
 import net.rwhps.server.util.log.Log.setCopyPrint
 import net.rwhps.server.util.log.exp.EggsException
-import org.fusesource.jansi.AnsiConsole
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
-import java.io.ByteArrayOutputStream
 import java.io.InterruptedIOException
-import java.io.PrintStream
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.system.exitProcess
@@ -92,8 +90,6 @@ import kotlin.system.exitProcess
  * @author RW-HPS/Dr
  */
 object Main {
-    private lateinit var reader: LineReader
-
     @JvmStatic
     fun main(args: Array<String>) {
         /* 设置Log 并开启拷贝 */
@@ -116,10 +112,8 @@ object Main {
 
         Initialization()
 
-        println(Data.i18NBundle.getinput("server.login"))
+        clog(Data.i18NBundle.getinput("server.login"))
         clog("Load ing...")
-
-        setFilePath(if (args.isNotEmpty()) decodeString(args[0]) else null)
 
         Data.config = BaseCoreConfig.stringToClass()
         Data.configServerEx = BaseServerExConfig.stringToClass()
@@ -130,7 +124,8 @@ object Main {
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
 
-
+        /* 加载 ASM */
+        HeadlessProxyClass()
 
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
@@ -183,45 +178,49 @@ object Main {
      * Win的CMD就是个垃圾
      */
     private fun inputMonitorInit() {
-        // 构建彩色输出
-        AnsiConsole.systemInstall()
+        val terminal = TerminalBuilder.builder()
+            .encoding(Data.DefaultEncoding)
+            .build()
 
-        val terminal = TerminalBuilder.builder().encoding("UTF-8").build()
-        reader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
+        privateReader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
-        System.setErr(MyPrintStream {
+        System.setErr(DynamicPrintStream {
             Log.debug(it)
+        })
+
+        System.setOut(DynamicPrintStream {
+            privateReader.printAbove(it)
         })
     }
 
     private fun inputMonitor() {
-        //# 209
+        //# 209 防止连续多次错误
         val idlingCount = TimeAndNumber(5, 10)
         var last = 0
 
         while (true) {
             val line = try {
-                reader.readLine("> ")
+                privateReader.readLine("> ")
             } catch (e: InterruptedIOException) {
                 return
             } catch (e: UserInterruptException) {
                 if (last != 1) {
-                    reader.printAbove("Interrupt again to force exit application")
+                    privateReader.printAbove("Interrupt again to force exit application")
                     last = 1
                     continue
                 }
                 if (Rand().nextBoolean()) {
                     Log.skipping(EggsException.MoneyNotEnoughException("KFC Crazy Thursday need ¥50."))
                 }
-                reader.printAbove("force exit")
+                privateReader.printAbove("force exit")
                 exitProcess(255)
             } catch (e: EndOfFileException) {
                 if (last != 2) {
-                    reader.printAbove("Catch EndOfFile, again to exit application")
+                    privateReader.printAbove("Catch EndOfFile, again to exit application")
                     last = 2
                     continue
                 }
-                reader.printAbove("exit")
+                privateReader.printAbove("exit")
                 exitProcess(1)
             }
 
@@ -260,44 +259,11 @@ object Main {
             }
         }
     }
-
-    private class MyPrintStream(private val block: (String) -> Unit) : PrintStream(ByteArrayOutputStream()) {
-        private val bufOut = out as ByteArrayOutputStream
-
-        var last = -1
-        override fun write(b: Int) {
-            if (last == 13 && b == 10) {// \r\n
-                last = -1
-                return
-            }
-            last = b
-            if (b == 13 || b == 10) flush()
-            else super.write(b)
-        }
-
-        override fun write(buf: ByteArray, off: Int, len: Int) {
-            if (len < 0) throw ArrayIndexOutOfBoundsException(len)
-            for (i in 0 until len)
-                write(buf[off + i].toInt())
-        }
-
-        @Synchronized
-        override fun flush() {
-            val str = try {
-                bufOut.toString()
-            } finally {
-                bufOut.reset()
-            }
-            block(str)
-        }
-    }
-
 }
 
 // 你的身体是为你服务的 而不是RW-HPS(?)  !
-
 /**
-                       ::
+                        ::
                       :;J7, :,                        ::;7:
                       ,ivYi, ,                       ;LLLFS:
                       :iv7Yi                       :7ri;j5PL
@@ -330,6 +296,5 @@ object Main {
            ,,,     ,,:,::::::i:iiiii:i::::,, ::::iiiir@xingjief.r;7:i,
         , , ,,,:,,::::::::iiiiiiiiii:,:,:::::::::iiir;ri7vL77rrirri::
          :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
- */
-
+*/
 // 音无结弦之时，悦动天使之心；立于浮华之世，奏响天籁之音

@@ -9,15 +9,10 @@
 
 package net.rwhps.server.data.json
 
-import com.google.gson.Gson
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.alone.annotations.NeedToRefactor
-import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.inline.getDataResult
 import net.rwhps.server.util.inline.getDataResultObject
-import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,11 +20,9 @@ import org.json.JSONObject
 //写的越久，BUG越多，伤痕越疼，脾气越差/-活得越久 故事越多 伤痕越疼，脾气越差
 /**
  * Json 模块
- * 我不能保证可用 , 需要与 Json/Gson 一起被重构
  *
  * @author RW-HPS/Dr
  */
-@NeedToRefactor
 class Json {
     private val jsonObject: JSONObject
 
@@ -71,11 +64,25 @@ class Json {
     }
 
 
-    fun getInnerMap(): Map<String, Any> {
-        return jsonObject.toMap()
+    fun getInnerMap(): ObjectMap<String, Any> {
+        return ObjectMap<String, Any>().apply {
+            jsonObject.toMap().forEach {
+                when (it.value) {
+                    is JSONArray -> {
+                        put(it.key,JsonArray(it.value as JSONArray))
+                    }
+                    is ArrayList<*> -> {
+                        put(it.key,JsonArray(JSONArray((it.value as Iterable<*>))))
+                    }
+                    else -> {
+                        put(it.key,it.value)
+                    }
+                }
+            }
+        }
     }
 
-    fun getArrayData(str: String, key: String): JsonArray {
+    fun getArrayData(str: String): JsonArray {
         val rArray = JsonArray(jsonObject.getDataResultObject({ JSONArray() }) {
             it.getJSONArray(str)
         })
@@ -83,27 +90,7 @@ class Json {
     }
 
     fun getArraySeqData(str: String): Seq<Json> {
-        val result = Seq<Json>()
-        val rArray = (jsonObject as LinkedHashMap<*, *>)[str].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
-        for (o in rArray) {
-            val r = o as LinkedHashMap<*, *>
-            if (IsUtil.notIsBlank(r)) {
-                result.add(Json(r))
-            }
-        }
-        return result
-    }
-
-    fun getArraySeqData(): Seq<Json> {
-        val result = Seq<Json>()
-        val rArray = (jsonObject as LinkedHashMap<*, *>)["result"].ifNullResult({ it as ArrayList<*> }) { arrayListOf<Any>() }
-        for (o in rArray) {
-            val r = o as LinkedHashMap<*, *>
-            if (IsUtil.notIsBlank(r)) {
-                result.add(Json(r))
-            }
-        }
-        return result
+        return getArrayData(str).toJsonList()
     }
 
     companion object {
@@ -126,13 +113,5 @@ class Json {
         fun toJson(map: ObjectMap<String, Any>): String {
             return HashMap<String,Any>().also { map.each { key, value -> it[key] = value } }.toPrettyPrintingJson()
         }
-
-        @JvmStatic
-        fun <T> stringToClass(fileUtil: FileUtil,clazz: Class<T>): Any {
-            val gson = Gson()
-            val json = fileUtil.readFileStringData()
-            return gson.fromJson(if (IsUtil.notIsBlank(json)) json else "{}", clazz.javaClass)
-        }
-
     }
 }

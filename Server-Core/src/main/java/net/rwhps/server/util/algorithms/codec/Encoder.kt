@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.codec
+package net.rwhps.server.util.algorithms.codec
 /**
  * 编码接口
  * 编码器必须实现本接口 来完成统一调用默认值

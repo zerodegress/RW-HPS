@@ -34,8 +34,8 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeRep
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.RandomUtil
+import net.rwhps.server.util.algorithms.Game
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
-import net.rwhps.server.util.encryption.Game
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.CommandHandler.CommandResponse
 import net.rwhps.server.util.game.Events

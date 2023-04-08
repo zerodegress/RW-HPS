@@ -23,7 +23,7 @@ import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.IpUtil
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.StringFilteringUtil.cutting
-import net.rwhps.server.util.encryption.Base64
+import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
@@ -77,7 +77,7 @@ internal class UpListMain : Plugin() {
                     "update" -> NetStaticData.checkServerStartNet { update() }
                     "remove" -> NetStaticData.checkServerStartNet { remove(log) }
                     "help" -> log[Data.i18NBundle.getinput("uplist.help")]
-                    else -> log["Check UpList Command !"]
+                    else -> log["Check UpList Command ! use 'uplist help'"]
                 }
             } else {
                 log["Check UpList Command ! use 'uplist help'"]

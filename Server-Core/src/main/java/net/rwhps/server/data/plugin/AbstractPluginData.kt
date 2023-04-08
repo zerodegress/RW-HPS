@@ -219,25 +219,25 @@ internal open class AbstractPluginData {
             error(IllegalArgumentException("Type $type does not have a serializer registered!"))
         }
         byteStream.reset()
-        val serializer: SerializerTypeAll.TypeSerializer<Any> = SERIALIZERS[type] as SerializerTypeAll.TypeSerializer<in Any>
+        val serializer: SerializerTypeAll.TypeSerializer<Any?> = SERIALIZERS[type] as SerializerTypeAll.TypeSerializer<in Any?>
         serializer.write(dataOutput, value)
         return byteStream.toByteArray()
     }
 
     companion object {
-        private val SERIALIZERS = ObjectMap<Class<*>, SerializerTypeAll.TypeSerializer<Any>>()
+        private val SERIALIZERS = ObjectMap<Class<*>, SerializerTypeAll.TypeSerializer<Any?>>()
 
         init {
             register()
         }
 
-        internal fun getSerializer(type: Class<*>): SerializerTypeAll.TypeSerializer<Any>? {
+        internal fun getSerializer(type: Class<*>): SerializerTypeAll.TypeSerializer<Any?>? {
             return SERIALIZERS[type]
         }
 
         internal fun <T> setSerializer(type: Class<*>, ser: SerializerTypeAll.TypeSerializer<T>) {
             @Suppress("UNCHECKED_CAST")
-            SERIALIZERS.put(type, ser as SerializerTypeAll.TypeSerializer<Any>)
+            SERIALIZERS.put(type, ser as SerializerTypeAll.TypeSerializer<Any?>)
         }
     }
 }

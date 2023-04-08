@@ -84,6 +84,9 @@ class ServerRoom {
         }
         forcedReturn = true
 
+        if (Data.vote != null) {
+            Data.vote!!.stopVote()
+        }
         closeTimeTask(CallTimeTask.GameOverTask)
         closeTimeTask(CallTimeTask.AutoCheckTask)
 

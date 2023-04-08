@@ -12,8 +12,8 @@ package net.rwhps.server.data
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.compression.CompressionDecoderUtils
-import net.rwhps.server.util.encryption.Base64
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import java.io.File

@@ -62,18 +62,19 @@ object IoRead {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyInputStream(inputStream: InputStream, outputStream: OutputStream): Int {
-        return copyLarge(inputStream, outputStream, ByteArray(DEFAULT_BUFFER_SIZE))
+    fun copyInputStream(inputStream: InputStream, outputStream: OutputStream, back: (Int)->Unit = {}): Int {
+        return copyLarge(inputStream, outputStream, ByteArray(DEFAULT_BUFFER_SIZE), back)
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyLarge(inputStream: InputStream, outputStream: OutputStream, buffer: ByteArray): Int {
+    fun copyLarge(inputStream: InputStream, outputStream: OutputStream, buffer: ByteArray, back: (Int)->Unit = {}): Int {
         var len: Int = 0
         var n: Int
         while (IOUtils.EOF != inputStream.read(buffer).also { n = it }) {
             outputStream.write(buffer, 0, n)
             len += n
+            back(len)
         }
         return len
     }

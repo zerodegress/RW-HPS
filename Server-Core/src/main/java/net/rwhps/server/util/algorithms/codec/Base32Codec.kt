@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.codec
+package net.rwhps.server.util.algorithms.codec
 
 import java.util.*
 

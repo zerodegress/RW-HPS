@@ -16,7 +16,7 @@ import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.data.plugin.PluginManage.runOnDisable
 import net.rwhps.server.net.Administration
 import net.rwhps.server.util.RandomUtil.getRandomString
-import net.rwhps.server.util.encryption.digest.DigestUtil
+import net.rwhps.server.util.algorithms.digest.DigestUtil
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import java.math.BigInteger

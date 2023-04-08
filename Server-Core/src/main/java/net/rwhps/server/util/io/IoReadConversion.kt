@@ -20,6 +20,11 @@ import java.nio.charset.StandardCharsets
 object IoReadConversion {
     @JvmStatic
     @JvmOverloads
+    fun streamBuffer(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): InputStreamReader =
+        InputStreamReader(inputStream, charset)
+
+    @JvmStatic
+    @JvmOverloads
     fun streamBufferRead(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): BufferedReader =
         BufferedReader(InputStreamReader(inputStream, charset))
 

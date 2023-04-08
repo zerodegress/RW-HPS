@@ -57,7 +57,7 @@ object GameStartInit {
                     if (!file.exists()) {
                         temp.toFolder(resName).file.delete()
 
-                        HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Res")+file.name,file.file).also {
+                        HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Res")+file.name, file.file, true).also {
                             Log.clog("$resName : {0}",it)
                         }
                     }

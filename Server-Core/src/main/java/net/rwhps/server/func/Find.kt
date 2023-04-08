@@ -7,21 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.codec
+package net.rwhps.server.func
 
-/**
- * 解码接口
- * 解码器必须实现本接口 来完成统一调用默认值
- *
- * @param <T> 被解码的数据类型
- * @param <R> 解码后的数据类型
- */
-interface Decoder<T, R> {
+fun interface Find<T,R> {
     /**
-     * 执行解码
-     *
-     * @param encoded 被解码的数据
-     * @return 解码后的数据
+     * @param t 内容
      */
-    fun decode(encoded: T): R
+    operator fun invoke(t: T) : R
 }

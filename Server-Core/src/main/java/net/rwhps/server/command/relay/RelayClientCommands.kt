@@ -12,12 +12,9 @@ package net.rwhps.server.command.relay
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.io.GameOutputStream
-import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.CommandHandler
 
@@ -62,28 +59,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-        handler.register("sync", "#SYNC-Test") { _: Array<String>, con: GameVersionRelay ->
-            val p = GameOutputStream().apply {
-                writeByte(0)
-                writeInt(0)
-                writeInt(0)
-                writeBoolean(true)
-                writeLong(0)
-                writeLong(0)
-                flushEncodeData(CompressOutputStream.getGzipOutputStream("checkList",false).apply {
-                    writeInt(0)
-                    writeInt(15) // checkSumSize!=syncCheckList.size()
-                    for (i in 0 until 15) {
-                        writeLong(0)
-                        writeLong(0)
-                    }
-                })
-                writeBoolean(true)
-            }
-            con.sendPackageToHOST(p.createPacket(PacketType.SYNCCHECKSUM_STATUS))
-        }
-
-        handler.register("kickx","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
+        handler.register("kickx","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
                 conTg?.let {
@@ -94,7 +70,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-        handler.register("ban","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
+        handler.register("ban","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
                 if (con.relay!!.isStartGame && con.relay!!.startGameTime < Time.concurrentSecond()) {
                     sendMsg(con,"It's been five minutes, no more kicks")
@@ -110,7 +86,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-        handler.register("mute","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
+        handler.register("mute","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
 
@@ -121,7 +97,7 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-        handler.register("unmute","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
+        handler.register("unmute","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
 
@@ -152,10 +128,10 @@ internal class RelayClientCommands(handler: CommandHandler) {
         var conTg: GameVersionRelay? = null
 
         var findNameIn: String? = null
-        var findSiteIn: Int? = null
+        var findPositionIn: Int? = null
 
         if (IsUtil.isNumeric(findIn)) {
-            findSiteIn = findIn.toInt()-1
+            findPositionIn = findIn.toInt()-1
         } else {
             findNameIn = findIn
         }
@@ -178,9 +154,9 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-        findSiteIn?.let {findSite ->
+        findPositionIn?.let {findPosition ->
             con.relay!!.abstractNetConnectIntMap.values.forEach {
-                if (it.playerRelay?.site == findSite) {
+                if (it.playerRelay?.site == findPosition) {
                     conTg = it
                 }
             }

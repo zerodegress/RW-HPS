@@ -25,7 +25,6 @@ import java.io.IOException
  * @author RW-HPS/Dr
  */
 internal object DefaultSerializers {
-    @JvmStatic
     fun register() {
         registrationBasis()
         registerMap()
@@ -33,70 +32,70 @@ internal object DefaultSerializers {
     }
 
     private fun registrationBasis() {
-        AbstractPluginData.setSerializer(String::class.java, object : TypeSerializer<String> {
+        AbstractPluginData.setSerializer(String::class.java, object : TypeSerializer<String?> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: String?) {
-                stream.writeString(objectData ?: "")
+            override fun write(paramDataOutput: GameOutputStream, objectParam: String?) {
+                paramDataOutput.writeString(objectParam ?: "")
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): String {
-                return stream.readString()
+            override fun read(paramDataInput: GameInputStream): String {
+                return paramDataInput.readString()
             }
         })
         AbstractPluginData.setSerializer(Integer::class.java, object : TypeSerializer<Int> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Int) {
-                stream.writeInt(objectData)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: Int) {
+                paramDataOutput.writeInt(objectParam)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Int {
-                return stream.readInt()
+            override fun read(paramDataInput: GameInputStream): Int {
+                return paramDataInput.readInt()
             }
         })
         AbstractPluginData.setSerializer(java.lang.Float::class.java, object : TypeSerializer<Float> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Float) {
-                stream.writeFloat(objectData)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: Float) {
+                paramDataOutput.writeFloat(objectParam)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Float {
-                return stream.readFloat()
+            override fun read(paramDataInput: GameInputStream): Float {
+                return paramDataInput.readFloat()
             }
         })
         AbstractPluginData.setSerializer(java.lang.Long::class.java, object : TypeSerializer<Long> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Long) {
-                stream.writeLong(objectData)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: Long) {
+                paramDataOutput.writeLong(objectParam)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Long {
-                return stream.readLong()
+            override fun read(paramDataInput: GameInputStream): Long {
+                return paramDataInput.readLong()
             }
         })
         AbstractPluginData.setSerializer(java.lang.Boolean::class.java, object : TypeSerializer<Boolean> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Boolean) {
-                stream.writeBoolean(objectData)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: Boolean) {
+                paramDataOutput.writeBoolean(objectParam)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Boolean {
-                return stream.readBoolean()
+            override fun read(paramDataInput: GameInputStream): Boolean {
+                return paramDataInput.readBoolean()
             }
         })
         AbstractPluginData.setSerializer(ByteArray::class.java, object : TypeSerializer<ByteArray> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: ByteArray) {
-                stream.writeBytesAndLength(objectData)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: ByteArray) {
+                paramDataOutput.writeBytesAndLength(objectParam)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): ByteArray {
-                return stream.readStreamBytes()
+            override fun read(paramDataInput: GameInputStream): ByteArray {
+                return paramDataInput.readStreamBytes()
             }
         })
     }
@@ -106,88 +105,88 @@ internal object DefaultSerializers {
 
         AbstractPluginData.setSerializer(ObjectMap::class.java, object : TypeSerializer<ObjectMap<*, *>> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, map: ObjectMap<*, *>) {
-                stream.writeInt(map.size)
-                if (map.size == 0) {
+            override fun write(paramDataOutput: GameOutputStream, objectParam: ObjectMap<*, *>) {
+                paramDataOutput.writeInt(objectParam.size)
+                if (objectParam.size == 0) {
                     return
                 }
-                val entry = map.entries().next()
+                val entry = objectParam.entries().next()
                 val keySer = AbstractPluginData.getSerializer(entry.key.javaClass) ?: throw getError(entry.key.javaClass.toString())
                 val valSer = AbstractPluginData.getSerializer(entry.value.javaClass) ?: throw getError(entry.value.javaClass.toString())
-                stream.writeString(entry.key.javaClass.name)
-                stream.writeString(entry.value.javaClass.name)
-                for (e in map.entries()) {
+                paramDataOutput.writeString(entry.key.javaClass.name)
+                paramDataOutput.writeString(entry.value.javaClass.name)
+                for (e in objectParam.entries()) {
                     val en = e as ObjectMap.Entry<*, *>
-                    keySer.write(stream, en.key)
-                    valSer.write(stream, en.value)
+                    keySer.write(paramDataOutput, en.key)
+                    valSer.write(paramDataOutput, en.value)
                 }
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): ObjectMap<*, *>? {
-                return try {
-                    val size = stream.readInt()
-                    val map = ObjectMap<Any?, Any?>()
+            override fun read(paramDataInput: GameInputStream): ObjectMap<*, *> {
+                val map = ObjectMap<Any?, Any?>()
+                try {
+                    val size = paramDataInput.readInt()
                     if (size == 0) {
                         return map
                     }
-                    val keySerName = stream.readString()
-                    val valSerName = stream.readString()
+                    val keySerName = paramDataInput.readString()
+                    val valSerName = paramDataInput.readString()
                     val keySer = AbstractPluginData.getSerializer(lookup(keySerName)) ?: throw getError(keySerName)
                     val valSer = AbstractPluginData.getSerializer(lookup(valSerName)) ?: throw getError(valSerName)
                     for (i in 0 until size) {
-                        val key = keySer.read(stream)
-                        val `val` = valSer.read(stream)
+                        val key = keySer.read(paramDataInput)
+                        val `val` = valSer.read(paramDataInput)
                         map.put(key, `val`)
                     }
-                    map
+                    return map
                 } catch (e: ClassNotFoundException) {
                     e.printStackTrace()
-                    null
                 }
+                return map
             }
         })
         AbstractPluginData.setSerializer(OrderedMap::class.java, object : TypeSerializer<OrderedMap<*, *>> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, map: OrderedMap<*, *>) {
-                stream.writeInt(map.size)
-                if (map.size == 0) {
+            override fun write(paramDataOutput: GameOutputStream, objectParam: OrderedMap<*, *>) {
+                paramDataOutput.writeInt(objectParam.size)
+                if (objectParam.size == 0) {
                     return
                 }
-                val entry = map.entries().next()
+                val entry = objectParam.entries().next()
                 val keySer = AbstractPluginData.getSerializer(entry.key.javaClass) ?: throw getError(entry.key.javaClass.toString())
                 val valSer = AbstractPluginData.getSerializer(entry.value.javaClass) ?: throw getError(entry.value.javaClass.toString())
-                stream.writeString(entry.key.javaClass.name)
-                stream.writeString(entry.value.javaClass.name)
-                for (e in map.entries()) {
+                paramDataOutput.writeString(entry.key.javaClass.name)
+                paramDataOutput.writeString(entry.value.javaClass.name)
+                for (e in objectParam.entries()) {
                     val en = e as ObjectMap.Entry<*, *>
-                    keySer.write(stream, en.key)
-                    valSer.write(stream, en.value)
+                    keySer.write(paramDataOutput, en.key)
+                    valSer.write(paramDataOutput, en.value)
                 }
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): OrderedMap<*, *>? {
-                return try {
-                    val size = stream.readInt()
-                    val map = OrderedMap<Any?, Any?>()
+            override fun read(paramDataInput: GameInputStream): OrderedMap<*, *> {
+                val map = OrderedMap<Any?, Any?>()
+                try {
+                    val size = paramDataInput.readInt()
                     if (size == 0) {
                         return map
                     }
-                    val keySerName = stream.readString()
-                    val valSerName = stream.readString()
+                    val keySerName = paramDataInput.readString()
+                    val valSerName = paramDataInput.readString()
                     val keySer = AbstractPluginData.getSerializer(lookup(keySerName)) ?: throw getError(keySerName)
                     val valSer = AbstractPluginData.getSerializer(lookup(valSerName)) ?: throw getError(valSerName)
                     for (i in 0 until size) {
-                        val key = keySer.read(stream)
-                        val `val` = valSer.read(stream)
+                        val key = keySer.read(paramDataInput)
+                        val `val` = valSer.read(paramDataInput)
                         map.put(key, `val`)
                     }
-                    map
+                    return map
                 } catch (e: ClassNotFoundException) {
                     e.printStackTrace()
-                    null
                 }
+                return map
             }
         })
     }
@@ -195,36 +194,36 @@ internal object DefaultSerializers {
     private fun registerCustomClass() {
         AbstractPluginData.setSerializer(PlayerInfo::class.java, object : TypeSerializer<PlayerInfo> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: PlayerInfo) {
-                AbstractPluginData.getSerializer(String::class.java)!!.write(stream, objectData.uuid)
-                stream.writeLong(objectData.timesKicked)
-                stream.writeLong(objectData.timesJoined)
-                stream.writeLong(objectData.timeMute)
-                stream.writeBoolean(objectData.admin)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: PlayerInfo) {
+                AbstractPluginData.getSerializer(String::class.java)!!.write(paramDataOutput, objectParam.uuid)
+                paramDataOutput.writeLong(objectParam.timesKicked)
+                paramDataOutput.writeLong(objectParam.timesJoined)
+                paramDataOutput.writeLong(objectParam.timeMute)
+                paramDataOutput.writeBoolean(objectParam.admin)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): PlayerInfo {
-                val objectData = PlayerInfo(AbstractPluginData.getSerializer(String::class.java)!!.read(stream) as String)
-                objectData.timesKicked = stream.readLong()
-                objectData.timesJoined = stream.readLong()
-                objectData.timeMute = stream.readLong()
-                objectData.admin = stream.readBoolean()
-                return objectData
+            override fun read(paramDataInput: GameInputStream): PlayerInfo {
+                val objectParam = PlayerInfo(AbstractPluginData.getSerializer(String::class.java)!!.read(paramDataInput) as String)
+                objectParam.timesKicked = paramDataInput.readLong()
+                objectParam.timesJoined = paramDataInput.readLong()
+                objectParam.timeMute = paramDataInput.readLong()
+                objectParam.admin = paramDataInput.readBoolean()
+                return objectParam
             }
         })
 
         AbstractPluginData.setSerializer(PlayerAdminInfo::class.java, object : TypeSerializer<PlayerAdminInfo> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: PlayerAdminInfo) {
-                stream.writeString(objectData.uuid)
-                stream.writeBoolean(objectData.admin)
-                stream.writeBoolean(objectData.superAdmin)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: PlayerAdminInfo) {
+                paramDataOutput.writeString(objectParam.uuid)
+                paramDataOutput.writeBoolean(objectParam.admin)
+                paramDataOutput.writeBoolean(objectParam.superAdmin)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): PlayerAdminInfo {
-                return PlayerAdminInfo(stream.readString(), stream.readBoolean(), stream.readBoolean())
+            override fun read(paramDataInput: GameInputStream): PlayerAdminInfo {
+                return PlayerAdminInfo(paramDataInput.readString(), paramDataInput.readBoolean(), paramDataInput.readBoolean())
             }
         })
 

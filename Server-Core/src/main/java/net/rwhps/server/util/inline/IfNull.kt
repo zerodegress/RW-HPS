@@ -32,8 +32,8 @@ inline fun <R,T> T?.ifNullResult(blockNotNull: (T) -> R, block: () -> R): R {
 
 inline fun <R,T> T.ifResult(find: (T) -> Boolean, blockNotNull: (T) -> R, block: () -> R): R {
     return if (find(this)) {
-        block()
-    } else {
         blockNotNull(this)
+    } else {
+        block()
     }
 }

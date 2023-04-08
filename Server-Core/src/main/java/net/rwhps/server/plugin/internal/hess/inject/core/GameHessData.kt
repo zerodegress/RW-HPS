@@ -43,6 +43,7 @@ import com.corrodinggames.rts.gameFramework.j.`as` as GameNetOutStream
 internal class GameHessData : AbstractGameHessData {
 
     override val tickHess: Int get() = GameEngine.gameEngine.bx
+    override val tickNetHess: Int get() = GameEngine.netEngine.X
 
     override var useMod: Boolean
         get() = GameEngine.netEngine.o

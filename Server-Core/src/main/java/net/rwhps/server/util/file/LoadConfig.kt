@@ -41,7 +41,9 @@ class LoadConfig {
         }
         val json = Json(fileUtil.readFileStringData())
         //json对象转Map
-        json.getInnerMap().forEach { (key: String, value: Any) -> data.put(key, value) }
+        json.getInnerMap().forEach {
+            data.put(it.key,it.value)
+        }
     }
 
     private fun load(input: String, def: Any): String {

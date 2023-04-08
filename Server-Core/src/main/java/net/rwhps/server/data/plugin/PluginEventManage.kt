@@ -37,7 +37,7 @@ internal class PluginEventManage {
 
         private fun registerEventAll() {
             /* Sync */
-            Events.add(ServerHessStartPort::class.java) { e: ServerHessStartPort ->
+            Events.add(ServerHessStartPort::class.java) {
                 pluginEventData.eachAll(AbstractEvent::registerServerHessStartPort)
             }
 
@@ -68,7 +68,7 @@ internal class PluginEventManage {
                 }
             }
             /* Sync */
-            Events.add(GameStartEvent::class.java) { _: GameStartEvent? ->
+            Events.add(GameStartEvent::class.java) {
                 pluginEventData.eachAll(AbstractEvent::registerGameStartEvent)
             }
             /* Sync */
@@ -110,6 +110,12 @@ internal class PluginEventManage {
                     }
                 }
             }
+            /* Sync */
+            Events.add(PlayerOperationUnitEvent::class.java) { e: PlayerOperationUnitEvent ->
+                pluginEventData.eachAll { p: AbstractEvent ->
+                    e.resultStatus = p.registerPlayerOperationUnitEvent(e.player, e.gameActions, e.gameUnits, e.x, e.y)
+                }
+            }
         }
 
         private fun registerGlobalEventAll() {
@@ -122,7 +128,7 @@ internal class PluginEventManage {
 
             /* Sync */
             // 不应该 ASync 避免部分配置未加载
-            Events.add(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
+            Events.add(ServerLoadEvent::class.java) {
                 pluginGlobalEventData.eachAll(AbstractGlobalEvent::registerServerLoadEvent)
             }
 

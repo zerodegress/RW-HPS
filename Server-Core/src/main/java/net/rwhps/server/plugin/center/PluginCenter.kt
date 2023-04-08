@@ -90,7 +90,7 @@ class PluginCenter {
         }
 
         init {
-            pluginCenterData = Json(HttpRequestOkHttp.doGet(url)).getArraySeqData()
+            pluginCenterData = Json(HttpRequestOkHttp.doGet(url)).getArraySeqData("result")
         }
     }
 

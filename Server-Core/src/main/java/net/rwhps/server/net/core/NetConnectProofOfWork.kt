@@ -15,8 +15,8 @@ import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.encryption.Game
-import net.rwhps.server.util.encryption.digest.DigestUtil
+import net.rwhps.server.util.algorithms.Game
+import net.rwhps.server.util.algorithms.digest.DigestUtil
 import java.io.IOException
 import java.math.BigInteger
 import java.util.concurrent.ThreadLocalRandom

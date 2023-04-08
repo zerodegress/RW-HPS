@@ -9,54 +9,21 @@
 
 package net.rwhps.server.struct
 
-import it.unimi.dsi.fastutil.longs.Long2IntMap
 import it.unimi.dsi.fastutil.longs.Long2IntMaps
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
-import it.unimi.dsi.fastutil.objects.ObjectSet
 
-class LongIntMap @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false) : MutableMap<Long,Int> {
-    private val map: BaseLongMap = Long2IntOpenHashMap(capacity).let { if (threadSafety) ThreadSafety((Long2IntMaps.synchronize(it, it) as Long2IntMaps.SynchronizedMap), it) else ThreadUnsafe(it) }
+class LongIntMap : BaseMap<Long, Int> {
 
-    override val size: Int get() = map.size
-    override fun get(key: Long): Int = map.get(key)
-    override fun put(key: Long, value: Int): Int = map.put(key, value)
-    override fun putAll(from: Map<out Long, Int>) = map.putAll(from)
-    override val entries: MutableSet<MutableMap.MutableEntry<Long, Int>> get() = map.entries
-    override val keys: MutableSet<Long> get() = map.keys
-    override val values: MutableCollection<Int> get() = map.values
-    override fun remove(key: Long): Int = map.remove(key)
-    override fun containsValue(value: Int): Boolean = map.containsValue(value)
-    override fun containsKey(key: Long): Boolean = map.containsKey(key)
-    override fun isEmpty(): Boolean = map.isEmpty()
-    override fun clear() = map.clear()
-    fun toArrayKey(): Seq<Long> =  map.toArrayKey()
-    fun toArrayValues(): Seq<Int> =  map.toArrayValues()
-    override fun toString(): String = map.toString()
+    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
-    companion object {
-        private abstract class BaseLongMap(private val map: Long2IntMap) {
-            val size: Int get() = map.size
-
-            fun get(key: Long): Int = map.get(key)
-            fun put(key: Long, value: Int): Int = map.put(key, value)
-            fun putAll(from: Map<out Long, Int>) = map.putAll(from)
-
-            @Suppress("UNCHECKED_CAST")
-            val entries: MutableSet<MutableMap.MutableEntry<Long, Int>> get() = map.long2IntEntrySet() as ObjectSet<MutableMap.MutableEntry<Long, Int>>
-            val keys: MutableSet<Long> get() = map.keys
-            val values: MutableCollection<Int> get() = map.values
-            fun remove(key: Long): Int = map.remove(key)
-            fun containsValue(value: Int): Boolean = map.containsValue(value)
-            fun containsKey(key: Long): Boolean = map.containsKey(key)
-            fun isEmpty(): Boolean = map.isEmpty()
-
-            fun clear() = map.clear()
-            fun toArrayKey(): Seq<Long> =  Seq<Long>(size).also { keys.forEach { value-> it.add(value) } }
-            fun toArrayValues(): Seq<Int> =  Seq<Int>(size).also { values.forEach { value-> it.add(value) } }
-            override fun toString(): String = map.toString()
-        }
-
-        private class ThreadUnsafe(map: Long2IntOpenHashMap): BaseLongMap(map)
-        private class ThreadSafety(map: Long2IntMaps.SynchronizedMap, private val lock: Long2IntMap): BaseLongMap(map)
-    }
+    @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
+        Long2IntOpenHashMap(capacity).let {
+            if (threadSafety) {
+                Long2IntMaps.synchronize(it, it)
+            } else {
+                it
+            }
+        } as java.util.Map<Long, Int>
+    )
 }

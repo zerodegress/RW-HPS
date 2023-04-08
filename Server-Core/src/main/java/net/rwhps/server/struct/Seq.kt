@@ -14,6 +14,8 @@ import it.unimi.dsi.fastutil.objects.ObjectList
 import it.unimi.dsi.fastutil.objects.ObjectLists
 import net.rwhps.server.data.plugin.AbstractPluginData
 import net.rwhps.server.data.plugin.DefaultSerializers
+import net.rwhps.server.func.Cons
+import net.rwhps.server.func.Find
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import java.io.IOException
@@ -29,7 +31,7 @@ import java.io.IOException
  * @property list ObjectList<T>
  * @property size Int
  */
-class Seq<T>: MutableList<T> {
+class Seq<T>: MutableList<T>, List<T> {
     private val list: BaseSeq<T>
 
     @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
@@ -67,12 +69,12 @@ class Seq<T>: MutableList<T> {
     override fun retainAll(elements: Collection<T>): Boolean = list.retainAll(elements.toSet())
     override fun contains(element: T): Boolean = list.contains(element)
     override fun containsAll(elements: Collection<T>): Boolean = list.containsAll(elements)
-    fun find(findA: (T)->Boolean): T? = list.find(findA)
-    fun find(findA: (T)->Boolean,findB: (T)->Boolean): T? = list.find(findA, findB)
-    fun eachAll(block: (T)->Unit) = list.eachAll(block)
-    fun eachAllFind(find: (T)->Boolean, block: (T)->Unit) = list.eachAll { if (find(it)) { block(it) } }
-    fun eachFind(find: (T)->Boolean, block: (T)->Unit) = list.find(find)?.let { block(it) }
-    fun eachAllFinds(findA: (T)->Boolean,findB: (T)->Boolean, block: (T)->Unit) = list.find(findA,findB)?.let { block(it) }
+    fun find(findA: Find<T, Boolean>): T? = list.find(findA)
+    fun find(findA: Find<T, Boolean>, findB: Find<T, Boolean>): T? = list.find(findA, findB)
+    fun eachAll(block: Cons<T>) = list.eachAll(block)
+    fun eachAllFind(find: Find<T, Boolean>, block: Cons<T>) = list.eachAll { if (find(it)) { block(it) } }
+    fun eachFind(find: Find<T, Boolean>, block: Cons<T>) = list.find(find)?.let { block(it) }
+    fun eachAllFinds(findA: Find<T, Boolean>, findB: Find<T, Boolean>, block: Cons<T>) = list.find(findA,findB)?.let { block(it) }
     override fun clear() = list.clear()
     fun <K> toArray(classJava: Class<K>): Array<K> = list.toArray(classJava)
 
@@ -141,9 +143,9 @@ class Seq<T>: MutableList<T> {
 
             fun isEmpty(): Boolean = size == 0
 
-            abstract fun find(findA: (T)->Boolean): T?
-            abstract fun find(findA: (T)->Boolean,findB: (T)->Boolean): T?
-            abstract fun eachAll(block: (T)->Unit)
+            abstract fun find(findA: Find<T, Boolean>): T?
+            abstract fun find(findA: Find<T, Boolean>,findB: Find<T, Boolean>): T?
+            abstract fun eachAll(block: Cons<T>)
 
             fun clear() = list.clear()
 
@@ -154,15 +156,15 @@ class Seq<T>: MutableList<T> {
         }
 
         private class ThreadUnsafe<T>(private val list: ObjectArrayList<T>) : BaseSeq<T>(list) {
-            override fun find(findA: (T)->Boolean): T? {
+            override fun find(findA: Find<T, Boolean>): T? {
                 list.forEach { if (findA(it)) return it }
                 return null
             }
-            override fun find(findA: (T)->Boolean,findB: (T)->Boolean): T? {
+            override fun find(findA: Find<T, Boolean>,findB: Find<T, Boolean>): T? {
                 list.forEach { if (findA(it) && findB(it)) return it }
                 return null
             }
-            override fun eachAll(block: (T) -> Unit) {
+            override fun eachAll(block: Cons<T>) {
                 list.forEach { block(it) }
             }
 
@@ -173,19 +175,19 @@ class Seq<T>: MutableList<T> {
             override fun toString(): String = list.toString()
         }
         private class ThreadSafety<T>(private val list: ObjectLists.SynchronizedList<T>, private val lock: ObjectList<T>) : BaseSeq<T>(list) {
-            override fun find(findA: (T)->Boolean): T? {
+            override fun find(findA: Find<T, Boolean>): T? {
                 synchronized(lock) {
                     list.forEach { if (findA(it)) return it }
                     return null
                 }
             }
-            override fun find(findA: (T)->Boolean,findB: (T)->Boolean): T? {
+            override fun find(findA: Find<T, Boolean>, findB: Find<T, Boolean>): T? {
                 synchronized(lock) {
                     list.forEach { if (findA(it) && findB(it)) return it }
                     return null
                 }
             }
-            override fun eachAll(block: (T) -> Unit) {
+            override fun eachAll(block: Cons<T>) {
                 synchronized(lock) {
                     list.forEach { block(it) }
                 }
@@ -203,37 +205,37 @@ class Seq<T>: MutableList<T> {
          */
         val serializer = object : SerializerTypeAll.TypeSerializer<Seq<*>> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Seq<*>) {
-                stream.writeInt(objectData.size)
-                if (objectData.size != 0) {
-                    val first = objectData.first()!!
+            override fun write(paramDataOutput: GameOutputStream, objectParam: Seq<*>) {
+                paramDataOutput.writeInt(objectParam.size)
+                if (objectParam.size != 0) {
+                    val first = objectParam.first()!!
                     val ser = AbstractPluginData.getSerializer(first.javaClass) ?: throw DefaultSerializers.getError(first.javaClass.toString())
-                    stream.writeString(first.javaClass.name)
-                    for (element in objectData) {
-                        ser.write(stream, element)
+                    paramDataOutput.writeString(first.javaClass.name)
+                    for (element in objectParam) {
+                        ser.write(paramDataOutput, element)
                     }
                 }
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Seq<*>? {
-                return try {
-                    val size = stream.readInt()
-                    val arr = Seq<Any>(size)
+            override fun read(paramDataInput: GameInputStream): Seq<*> {
+                val arr = Seq<Any?>()
+                try {
+                    val size = paramDataInput.readInt()
                     if (size == 0) {
                         return arr
                     }
-                    val type = stream.readString()
+                    val type = paramDataInput.readString()
                     val ser = AbstractPluginData.getSerializer(DefaultSerializers.lookup(type)) ?: throw DefaultSerializers.getError(type)
 
                     for (i in 0 until size) {
-                        arr.add(ser.read(stream))
+                        arr.add(ser.read(paramDataInput))
                     }
-                    arr
+                    return arr
                 } catch (e: ClassNotFoundException) {
                     e.printStackTrace()
-                    null
                 }
+                return arr
             }
         }
     }

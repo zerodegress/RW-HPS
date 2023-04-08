@@ -7,12 +7,12 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.digest
+package net.rwhps.server.util.algorithms.digest
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.ExtractUtil
-import net.rwhps.server.util.encryption.HexUtil
-import net.rwhps.server.util.encryption.SecureUtil
+import net.rwhps.server.util.algorithms.HexUtil
+import net.rwhps.server.util.algorithms.SecureUtil
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.io.IoRead
 import net.rwhps.server.util.log.exp.CryptoException

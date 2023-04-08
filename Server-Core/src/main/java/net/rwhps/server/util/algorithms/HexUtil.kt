@@ -6,12 +6,12 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
-package net.rwhps.server.util.encryption
+package net.rwhps.server.util.algorithms
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.ExtractUtil
 import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.encryption.codec.Base16Codec
+import net.rwhps.server.util.algorithms.codec.Base16Codec
 import java.math.BigInteger
 import java.nio.charset.Charset
 

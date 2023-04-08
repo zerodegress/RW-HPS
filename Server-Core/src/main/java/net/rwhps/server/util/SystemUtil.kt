@@ -11,9 +11,13 @@ package net.rwhps.server.util
 
 import net.rwhps.server.util.log.Log
 import java.lang.management.ManagementFactory
+import java.nio.charset.Charset
 import java.util.*
 
 object SystemUtil {
+    val defaultEncoding: Charset
+        get() = Charset.forName(get("sun.stdout.encoding") ?:Charset.defaultCharset().name())
+
     val javaHeap: Long
         get() = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
     val javaTotalMemory: Long
@@ -23,29 +27,27 @@ object SystemUtil {
     val availableProcessors: Int
         get() = Runtime.getRuntime().availableProcessors()
     val javaVendor: String
-        get() = get("java.vendor")
+        get() = get("java.vendor")!!
     val javaVersion: String
-        get() = get("java.version")
+        get() = get("java.version")!!
     val osName: String
-        get() = get("os.name")
+        get() = get("os.name")!!
     val osArch: String
-        get() = get("os.arch")
+        get() = get("os.arch")!!
 
     fun isJavaVersionAtLeast(requiredVersion: Float): Boolean {
-        val version = get("java.version").split(".")[0]
+        val version = get("java.version")!!.split(".")[0]
         return (if (IsUtil.isBlank(version)) 0f else version.toFloat()) >= requiredVersion
     }
 
     val isWindows: Boolean
         get() {
-            val os = get("os.name")
+            val os = get("os.name")!!
             return IsUtil.isBlank(os) || os.lowercase(Locale.getDefault()).contains("windows")
         }
     val pid: Long
         // 唯一的到Java11理由
-        // get() = ProcessHandle.current().pid()
-        // 现在理由它没了
-        get() = jvmPid()
+        get() = ProcessHandle.current().pid()
 
 
     private fun jvmPid(): Long {
@@ -69,7 +71,7 @@ object SystemUtil {
      * @see System String
      * @see System String
      */
-    private operator fun get(name: String): String {
+    private operator fun get(name: String): String? {
         var value: String? = null
         try {
             value = System.getProperty(name)
@@ -83,6 +85,6 @@ object SystemUtil {
                 Log.error("Security level limit", e)
             }
         }
-        return value!!
+        return value
     }
 }

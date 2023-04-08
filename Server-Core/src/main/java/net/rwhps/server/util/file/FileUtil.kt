@@ -15,9 +15,9 @@ import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.SystemUtil
+import net.rwhps.server.util.algorithms.digest.DigestUtil
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.compression.core.CompressionDecoder
-import net.rwhps.server.util.encryption.digest.DigestUtil
 import net.rwhps.server.util.io.IoOutConversion.fileToOutStream
 import net.rwhps.server.util.io.IoOutConversion.fileToStream
 import net.rwhps.server.util.io.IoRead.readFileToByteArray

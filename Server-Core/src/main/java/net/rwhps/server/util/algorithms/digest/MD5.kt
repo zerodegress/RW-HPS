@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.digest
+package net.rwhps.server.util.algorithms.digest
 
 import java.io.File
 import java.io.InputStream

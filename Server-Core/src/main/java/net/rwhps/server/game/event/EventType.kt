@@ -11,12 +11,14 @@ package net.rwhps.server.game.event
 
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.game.GameUnitType
 
 /**
  * @author RW-HPS/Dr
  */
 class EventType {
-    class ServerHessStartPort()
+    class ServerHessStartPort
+
     /** 玩家加入  */
     class PlayerJoinEvent(val player: AbstractPlayer)
 
@@ -51,5 +53,11 @@ class EventType {
     }
 
     /** 玩家操作单位事件 */
-    class PlayerOperationUnitEvent(val player: AbstractPlayer, val playerUnit: EventLambdaType.PlayerUnit)
+    class PlayerOperationUnitEvent(
+        val player: AbstractPlayer, val gameActions: GameUnitType.GameActions,
+        val gameUnits: GameUnitType.GameUnits, val x: Float, val y: Float){
+        // 操作是否有效
+        @JvmField
+        var resultStatus = true
+    }
 }

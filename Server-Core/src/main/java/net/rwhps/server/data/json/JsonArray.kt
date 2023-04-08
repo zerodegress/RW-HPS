@@ -9,9 +9,16 @@
 
 package net.rwhps.server.data.json
 
+import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.inline.getDataResult
+import net.rwhps.server.util.inline.toJson
 import org.json.JSONArray
 
+/**
+ * 解析数组
+ *
+ * @property jsonObject JSONArray
+ */
 class JsonArray {
     private val jsonObject: JSONArray
 
@@ -25,6 +32,12 @@ class JsonArray {
 
     constructor(json: JSONArray) {
         jsonObject = json
+    }
+
+    fun getJson(index: Int): Json {
+        return jsonObject.getDataResult(Json("{}")) {
+            Json(it.getJSONObject(index))
+        }!!
     }
 
     @JvmOverloads
@@ -49,6 +62,14 @@ class JsonArray {
     fun getBoolean(index: Int, defaultValue: Boolean? = null): Boolean? {
         return jsonObject.getDataResult(defaultValue) {
             it.getBoolean(index)
+        }
+    }
+
+    fun toJsonList(): Seq<Json> {
+        return Seq<Json>().apply {
+            jsonObject.toList().forEach {
+                add(Json(it.toJson()))
+            }
         }
     }
 }

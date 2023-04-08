@@ -11,6 +11,7 @@ package net.rwhps.server.plugin.event
 
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.game.GameUnitType
 
 interface AbstractEvent {
     /**
@@ -54,4 +55,10 @@ interface AbstractEvent {
 
     /** 玩家被解banIp [异步-ASync]  */
     fun registerPlayerIpUnbanEvent(ip: String) { /* Optional use of plugins */ }
+
+    /** 玩家建造/操作单位，返回false忽略该操作 [同步-Sync]  */
+    fun registerPlayerOperationUnitEvent(player: AbstractPlayer, gameActions: GameUnitType.GameActions, gameUnits: GameUnitType.GameUnits, x: Float, y: Float): Boolean {
+        /* Optional use of plugins */
+        return true
+    }
 }

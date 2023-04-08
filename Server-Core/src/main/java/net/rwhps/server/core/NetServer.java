@@ -9,7 +9,6 @@
 
 package net.rwhps.server.core;
 
-import kotlin.Unit;
 import net.rwhps.server.core.thread.CallTimeTask;
 import net.rwhps.server.core.thread.Threads;
 import net.rwhps.server.core.thread.TimeTaskData;
@@ -37,7 +36,6 @@ public class NetServer {
 
             NetStaticData.netService.eachAll(e ->{
                     e.stop();
-                    return Unit.INSTANCE;
             });
             NetStaticData.netService.clear();
             NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);

@@ -26,7 +26,7 @@ public interface StrCons {
      * @param t String
      * @param obj Object...
      */
-    default void get(String t,Object... obj) {
+    default void get(String t, Object... obj) {
         get(new MessageFormat(t).format(obj));
     }
 }

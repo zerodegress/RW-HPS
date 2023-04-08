@@ -100,7 +100,7 @@ internal class GameNet : AbstractGameNet {
                         GameEngine.netEngine.z.k = -3
 
                         Events.fire(EventType.ServerHessStartPort())
-                        
+
                         break@startTryWhile
                     } catch (e: Exception) {
                         Log.error(e)

@@ -11,6 +11,7 @@ package net.rwhps.server.plugin.internal.hess.inject.command
 
 import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.gameFramework.j.ai
+import net.rwhps.server.command.ex.Vote
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
@@ -242,6 +243,24 @@ internal class ClientCommands(handler: CommandHandler) {
                 Data.SERVER_CORE_VERSION,
                 "RW-HPS-Hess"
             ))
+        }
+        handler.register("vote", "<gameover>","clientCommands.vote") { _: Array<String>?, player: AbstractPlayer ->
+            if (room.isStartGame) {
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+                return@register
+            }
+            Data.vote = Vote("gameover",player)
+        }
+        handler.register("summon", "<unitName>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
+            if (!room.isStartGame) {
+                player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
+                return@register
+            }
+            if (player.isAdmin) {
+                val unit = args[0]
+                player.sendSystemMessage("请Ping地图需要生成位置")
+                player.addData("Summon", unit)
+            }
         }
         handler.register("kick", "<PlayerPositionNumber>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
             if (room.isStartGame) {

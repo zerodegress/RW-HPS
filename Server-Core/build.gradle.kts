@@ -1,22 +1,22 @@
 //Netty Version
-val nettyVersion = "4.1.87.Final"
+val nettyVersion = "4.1.90.Final"
 
 /**
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.0")
+	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.20-RC")
 
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
 
-	api("io.netty:netty-buffer:$nettyVersion")
-	api("io.netty:netty-codec:$nettyVersion")
-	api("io.netty:netty-codec-http:$nettyVersion")
-	api("io.netty:netty-handler:$nettyVersion")
-	api("io.netty:netty-transport:$nettyVersion")
-	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
-	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
+	implementation("io.netty:netty-buffer:$nettyVersion")
+	implementation("io.netty:netty-codec:$nettyVersion")
+	implementation("io.netty:netty-codec-http:$nettyVersion")
+	implementation("io.netty:netty-handler:$nettyVersion")
+	implementation("io.netty:netty-transport:$nettyVersion")
+	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
+	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
 
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
@@ -26,30 +26,39 @@ dependencies {
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
 	api("com.google.code.gson:gson:2.10.1")
-	api("org.json:json:20220924")
+	api("org.json:json:20230227")
 
 	api("org.apache.commons:commons-compress:1.21")
-	implementation("org.tukaani:xz:1.9")
+	api("org.tukaani:xz:1.9")
 
 
 	api("com.squareup.okhttp3:okhttp:4.10.0") {
-		exclude(group = "org.jetbrains.kotlin")
+		exclude("org.jetbrains.kotlin")
 	}
 	api("com.vdurmont:emoji-java:5.1.1") {
-		exclude(group = "org.json")
+		exclude( "org.json")
 	}
 
-
-	//implementation("org.apache.maven:maven-core:3.8.6")
-	implementation("org.apache.maven:maven-project:2.2.1")
-	implementation("org.apache.maven:maven-model:3.8.6")
 	implementation("org.lionsoul:ip2region:1.7.2")
 
-	implementation("org.jline:jline-reader:3.22.0")
-	implementation("org.fusesource.jansi:jansi:2.4.0")
-	api("it.unimi.dsi:fastutil-core:8.5.11")
+	implementation("net.java.dev.jna:jna:5.13.0")
+	implementation("org.jline:jline-reader:3.23.0")
+	implementation("org.jline:jline-terminal:3.23.0") {
+		exclude("org.jline","jline-native")
+	}
+	implementation("org.jline:jline-terminal-jna:3.23.0")
 
-	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+	api("it.unimi.dsi:fastutil-core:8.5.12")
+
+	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+}
+
+tasks.jar {
+	manifest {
+		attributes(mapOf(
+			"Implementation-Title" to "RW-HPS"
+		))
+	}
 }
 
 tasks.test {
@@ -62,6 +71,7 @@ publishing {
 			groupId = "com.github.RW-HPS"
 			artifactId = "Server-Core"
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
+			version = "1.0.0"
 
 			from(components.getByName("java"))
 

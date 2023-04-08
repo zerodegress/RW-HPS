@@ -16,8 +16,7 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.LibraryManagerError
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader
-import org.apache.maven.project.MavenProject
+import org.w3c.dom.Node
 import java.io.File
 import java.lang.reflect.Method
 import java.net.URL
@@ -25,11 +24,16 @@ import java.net.URLClassLoader
 import java.util.jar.JarFile
 
 
-class LibraryManager : AgentAttachData() {
+class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachData() {
     private val source = Seq<UrlData>()
 
     init {
-        source.add(UrlData.Maven)
+        if (china) {
+            source.add(UrlData.MavenAli)
+            source.add(UrlData.Maven)
+        } else {
+            source.add(UrlData.Maven)
+        }
     }
 
     fun addSource(source: UrlData) {
@@ -124,7 +128,7 @@ class LibraryManager : AgentAttachData() {
         dependenciesDown.eachAll {
             val file = FileUtil.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
             if (!file.exists()) {
-                HttpRequestOkHttp.downUrl(it.getDownUrl(),file).also { success ->
+                HttpRequestOkHttp.downUrl(it.getDownUrl(),file,true).also { success ->
                     if (success) {
                         load.add(file)
                     } else {
@@ -172,10 +176,14 @@ class LibraryManager : AgentAttachData() {
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     private fun importLib0(text: String, down: Boolean = true) {
         val array = text.split(":")
-        importLib0(array[0],array[1],array[2],down)
+        if (array.size == 4) {
+            importLib0(array[0], array[1], array[2], array[3], down)
+        } else {
+            importLib0(array[0], array[1], array[2], down = down)
+        }
     }
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
-    private fun importLib0(group: String, module: String, version: String, down: Boolean = true) {
+    private fun importLib0(group: String, module: String, version: String, classifier: String = "", down: Boolean = true) {
         val groupArray = group.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val constructSource = StringBuilder("/")
         for (s in groupArray) {
@@ -185,7 +193,7 @@ class LibraryManager : AgentAttachData() {
             .append(version).append("/")
             .append(module).append("-")
             .append(version)
-        val savePath = "$module-$version.jar"
+        val savePath =  if (classifier.isBlank()) "$module-$version.jar" else "$module-$version-$classifier.jar"
         val groupLibData = ImportGroupData(group,module,version)
         if (tempGroup.contains(groupLibData)) {
             Log.debug("[Maven module]",module)
@@ -195,22 +203,84 @@ class LibraryManager : AgentAttachData() {
         getDepend(ImportData(constructSource.toString(), savePath),down)
     }
 
+    /**
+     * 解析 POM 依赖
+     *
+     * @param importData ImportData
+     * @param down Boolean
+     * @throws LibraryManagerError
+     *
+     * @author RW-HPS/Dr
+     * @author way-zer
+     */
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     private fun getDepend(importData: ImportData, down: Boolean) {
-        source.eachAll {
-            val result = HttpRequestOkHttp.doGet(importData.getDownPom(it))
-            if (result.isNotBlank() && !result.trim().equals("404 Not Found",true)) {
-                importData.mainSource = it
+        source.eachAll { pomUrl ->
+            val result = HttpRequestOkHttp.doGet(importData.getDownPom(pomUrl))
+            if (result.isNotBlank() && result.contains("project",true)) {
+                // Set a valid source
+                importData.mainSource = pomUrl
                 try {
-                    val mavenreader = MavenXpp3Reader()
-                    val model = mavenreader.read(DisableSyncByteArrayInputStream(result.toByteArray()))
-                    val project = MavenProject(model).model
-                    for (lib in project.dependencies) {
-                        when (lib.scope) {
-                            "test","provided" -> {}
-                            "compile","runtime" -> importLib0(lib.groupId,lib.artifactId,lib.version, down)
-                            else -> {}
+                    val doc = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply {
+                        isIgnoringComments = true
+                        isIgnoringElementContentWhitespace = true
+                    }.newDocumentBuilder().parse(DisableSyncByteArrayInputStream(result.toByteArray()))
+
+                    val root = doc.firstChild.also {
+                        if (it.nodeName != "project") {
+                            Log.error("[resolve Pom] Error Pom: $pomUrl")
+                            return@eachAll
                         }
+                    }.toMap()
+
+                    val versions = mutableMapOf<String, String>()
+
+                    //Fix variable in version like javaLin
+                    root["properties"]?.toSeq()?.forEach {
+                        if (it.nodeName.endsWith(".version")) {
+                            versions[it.nodeName] = it.textContent
+                        }
+                    }
+
+                    //Fix use {project.version} like jetty
+                    root["parent"]?.toMap()?.get("version")?.let {
+                        versions["project.version"] = it.textContent
+                    }
+
+                    root["dependencies"]?.toSeq()?.forEach { dNode ->
+                        if (dNode.nodeName != "dependency") {
+                            return@forEach
+                        }
+
+                        val d = dNode.toMap()
+                        val scope = d["scope"]?.textContent ?: "compile"
+
+                        if (scope != "compile" && scope != "runtime") {
+                            return@forEach
+                        }
+                        if (d["optional"]?.textContent == "true") {
+                            return@forEach
+                        }
+                        val group = d["groupId"]?.textContent ?: let {
+                            Log.error("[resolve Pom] Can't get 'groupId' from ${dNode.textContent}")
+                            return@forEach
+                        }
+                        val name = d["artifactId"]?.textContent ?: let {
+                            Log.error("[resolve Pom] Can't get 'name' from ${dNode.textContent}")
+                            return@forEach
+                        }
+                        // Netty 的阴间 POM, 包含两个 dependencies
+                        // 一个有版本, 一个无版本
+                        var version = d["version"]?.textContent ?: let {
+                            return@forEach
+                        }
+                        if (version.startsWith("\${"))
+                            version = versions[version.substring(2, version.length - 1)] ?: let {
+                                Log.error("[resolve Pom] Can't resolve version because $version can't find")
+                                return@forEach
+                            }
+
+                        importLib0(group, name, version, down = down)
                     }
                 } catch (_: Exception) {
                 }
@@ -238,6 +308,7 @@ class LibraryManager : AgentAttachData() {
     }
 
     private class ImportData(private val constructSource: String, val fileName: String) {
+        // The main Maven is used by default
         var mainSource: UrlData = UrlData.Maven
 
         fun getDownUrl(): String {
@@ -256,6 +327,10 @@ class LibraryManager : AgentAttachData() {
             }
         }
     }
+
+    private fun Node.toSeq() = generateSequence(firstChild) { it.nextSibling }
+
+    private fun Node.toMap() = toSeq().associateBy { it.nodeName }
 
     enum class UrlData(val url: String) {
         Maven("https://repo1.maven.org/maven2"),

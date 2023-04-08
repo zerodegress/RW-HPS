@@ -138,8 +138,6 @@ open class GameVersionPacket : AbstractNetPacket {
     }
 
     override fun gameSummonPacket(index: Int, unit: String, x: Float, y: Float, size: Int): GameCommandPacket {
-        Data.game.playerManage.updateControlIdentifier()
-
         val outStream = GameOutputStream()
         outStream.writeByte(index)
         outStream.writeBoolean(true)
@@ -199,7 +197,7 @@ open class GameVersionPacket : AbstractNetPacket {
         outStream.writeLong(-1)
         outStream.writeString("-1")
         outStream.writeBoolean(false)
-        outStream.writeShort(Data.game.playerManage.sharedControlPlayer)
+        outStream.writeShort(0)
         // System action
         outStream.writeBoolean(true)
         outStream.writeByte(0)

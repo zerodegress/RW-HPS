@@ -7,13 +7,15 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.digest
+package net.rwhps.server.func
 
-enum class DigestAlgorithm(val type: String) {
-    MD2("MD2"),
-    MD5("MD5"),
-    SHA1("SHA-1"),
-    SHA256("SHA-256"),
-    SHA384("SHA-384"),
-    SHA512("SHA-512");
+/**
+ * Cons 轮循 Seq专用
+ * @author RW-HPS/Dr
+ */
+fun interface Cons<T> {
+    /**
+     * @param t 内容
+     */
+    operator fun invoke(t: T)
 }

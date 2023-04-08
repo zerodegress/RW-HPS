@@ -10,7 +10,6 @@
 package net.rwhps.server.data.player
 
 import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.func.Prov
@@ -21,6 +20,7 @@ import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
@@ -87,6 +87,8 @@ open class AbstractPlayer(
         put("experimentalsLost", experimentalsLost)
     }
 
+    private val noBindError: ()->Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+
     fun updateDate() {
         playerPrivateData.updateDate()
     }
@@ -98,34 +100,34 @@ open class AbstractPlayer(
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendSystemMessage(@Nls text: String) {
-        con?.sendSystemMessage(text) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+        con?.sendSystemMessage(text) ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendMessage(player: Player, @Nls text: String) {
-        con?.sendChatMessage(text, player.name, player.team) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+        con?.sendChatMessage(text, player.name, player.team) ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendTeamData() {
-        con?.sendTeamData(NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+        con?.sendTeamData(NetStaticData.RwHps.abstractNetPacket.getTeamDataPacket()) ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendPopUps(@Nls msg: String, run: ((String) -> Unit)) {
-        con?.sendRelayServerType(msg,run) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+        con?.sendRelayServerType(msg,run) ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun sync() {
-        con?.sync() ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+        con?.sync() ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     @JvmOverloads
     fun kickPlayer(@Nls text: String, time: Int = 0) {
-        //kickTime = Time.getTimeFutureMillis(time * 1000L)
-        con?.sendKick(text) ?: throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+        kickTime = Time.getTimeFutureMillis(time * 1000L)
+        con?.sendKick(text) ?: noBindError()
     }
 
 
@@ -155,16 +157,9 @@ open class AbstractPlayer(
     }
 
     /**
-     * [Deprecated]
-     * Local player connects to new server
-     * For [IRwHps.NetType.ServerProtocol] :
-     *  At this time, the local server only forwards the player data and has nothing to do with the local player.
-     *  The player will not exist in [Data.game.playerManage.playerGroup] and [Data.game.playerManage.playerAll]
-     *  Player ⇄ LocalServer ⇄ NewServer
-     *
      * For [IRwHps.NetType.ServerTestProtocol] :
      *  At this time, the local server does not participate in the forwarding, and the client directly disconnects the server and joins the new server.
-     *  The player will not exist in [Data.game.playerManage.playerGroup] and [Data.game.playerManage.playerAll]
+     *  The player will not exist in `playerManage.playerGroup` and `playerManage.playerAll`
      *  Player ⇄ NewServer
      *
      * @param ip

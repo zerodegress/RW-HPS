@@ -74,9 +74,9 @@ enum class ErrorCode(val code: Int, private val errMsg: String) {
      * DOES_NOT_SUPPORT_AES_256 : JDK不支持AES128+
      */
     NO_ENCRYPTION(50001, "No Encryption"),
-    INVALID_ENCRYPTION(50002, "Invalid encryption"),
+    INVALID_ENCRYPTION(50002, "Invalid algorithms"),
     ILLEGAL_OPERATION(50003, "Illegal operation"),
-    UNSUPPORTED_ENCRYPTION(50004, "Unsupported encryption"),
+    UNSUPPORTED_ENCRYPTION(50004, "Unsupported algorithms"),
     DOES_NOT_SUPPORT_AES_256(50005, "Does not support ASE256"),
 
 

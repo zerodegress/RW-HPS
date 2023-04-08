@@ -6,7 +6,7 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
-package net.rwhps.server.util.encryption
+package net.rwhps.server.util.algorithms
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.Time.concurrentMillis
@@ -140,8 +140,8 @@ object Topt {
         return generateTotp(key, time, "HmacSHA512")
     }
 
-    private fun generateTotp(key: String, time: String, crypto: String = "HmacSHA1"): String {
-        var time: String? = time
+    private fun generateTotp(key: String, timeIn: String, crypto: String = "HmacSHA1"): String {
+        var time: String? = timeIn
         val timeBuilder = StringBuilder(time)
         val len = 16
         while (timeBuilder.length < len) {

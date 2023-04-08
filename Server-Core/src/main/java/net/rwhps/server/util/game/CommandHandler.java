@@ -122,11 +122,11 @@ public class CommandHandler{
     }
 
     public Command register(String text, String description, Cons<String[]> runner){
-        return register(text, description, (args, p) -> runner.get(args));
+        return register(text, description, (args, p) -> runner.invoke(args));
     }
 
     public Command register(String text, String params, String description, Cons<String[]> runner){
-        return register(text, params, description, (args, p) -> runner.get(args));
+        return register(text, params, description, (args, p) -> runner.invoke(args));
     }
 
     public Seq<Command> getCommandList(){

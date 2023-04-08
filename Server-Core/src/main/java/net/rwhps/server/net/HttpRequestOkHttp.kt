@@ -9,13 +9,17 @@
 
 package net.rwhps.server.net
 
+import net.rwhps.server.util.io.IoRead
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
+import net.rwhps.server.util.log.ProgressBar
+import net.rwhps.server.util.log.exp.NetException
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request.Builder
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.*
+import java.net.HttpURLConnection
 
 
 /**
@@ -171,39 +175,71 @@ object HttpRequestOkHttp {
         return ""
     }
 
+    @JvmOverloads
     @JvmStatic
-    fun downUrl(url: String?, file: File?): Boolean {
-        Log.clog(url!!)
-        if (url.isBlank() || file == null) {
+    fun downUrl(url: String?, file: File?, progressFlag: Boolean = false): Boolean {
+        if (url.isNullOrBlank() || file == null) {
             error("[DownUrl URL] NULL")
             return false
         }
 
-        var output: FileOutputStream? = null
+        var flagStatus = true
+        val output = FileOutputStream(file)
+
         val request: Request = Builder()
             .url(url)
             .addHeader("User-Agent", USER_AGENT)
             .build()
+
         try {
-            CLIENT.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw FileNotFoundException()
+            CLIENT.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    throw e
                 }
 
-                if (response.body == null) {
-                    error("[Down File] Response.body NPE")
-                    return false
+                @Throws(IOException::class)
+                override fun onResponse(call: Call, response: Response) {
+                    //判断连接是否成功
+                    if (response.code == HttpURLConnection.HTTP_OK) {
+                        val headers = response.headers
+
+                        if (!response.isSuccessful) {
+                            throw FileNotFoundException()
+                        }
+
+                        if (response.body == null) {
+                            throw NetException.DownException("[Down File] Response.body NPE")
+                        }
+
+                        var progress: ProgressBar? = null
+                        //获取文件大小
+                        if (headers["Content-Length"] != null && progressFlag) {
+                            progress = ProgressBar(0,headers["Content-Length"]!!.toInt())
+                            Log.clog("Start Down File : ${file.name}")
+                        }
+
+                        IoRead.copyInputStream(response.body!!.byteStream(), output) { len ->
+                            progress?.run {
+                                progress(len)
+                            }
+                        }
+
+                        progress?.close()
+                        flagStatus = false
+                    }
                 }
-                output = FileOutputStream(file)
-                output!!.write(response.body!!.bytes())
-                output!!.flush()
-                return true
+            })
+
+            while (flagStatus) {
+                Thread.sleep(100)
             }
+
+            return true
         } catch (e: Exception) {
             error(e)
         } finally {
             try {
-                output?.close()
+                output.close()
             } catch (e: IOException) {
                 e.printStackTrace()
             }

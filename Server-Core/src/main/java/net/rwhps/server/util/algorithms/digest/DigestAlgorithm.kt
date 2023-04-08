@@ -7,16 +7,13 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.func;
+package net.rwhps.server.util.algorithms.digest
 
-/**
- * Cons 轮循 Seq专用
- * @author RW-HPS/Dr
- */
-public interface Cons<T>{
-    /**
-     * echo -> .get(i)
-     * @param t 内容
-     */
-    void get(T t);
+enum class DigestAlgorithm(val type: String) {
+    MD2("MD2"),
+    MD5("MD5"),
+    SHA1("SHA-1"),
+    SHA256("SHA-256"),
+    SHA384("SHA-384"),
+    SHA512("SHA-512");
 }

@@ -23,6 +23,7 @@ import net.rwhps.server.game.event.EventType
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
+import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.core.PrivateClass_Player
@@ -76,88 +77,100 @@ class PlayerConnectX(
                     }
                 }
             }
-        }
+        } else {
+            // 在这里过滤走官方的包, 加入 RW-HPS 的一些修改
+            run change@ {
+                when (packetHess.b) {
+                    PacketType.START_GAME.typeInt -> room.isStartGame = true
+                    // 修改, 使 客户端 显示 AdminUI
+                    PacketType.SERVER_INFO.typeInt -> {
+                        GameInputStream(packetHess.c).use {
+                            val o = GameOutputStream()
+                            it.skip(it.readShort().toLong())
+                            o.writeString(Data.SERVER_ID)
 
-        // 在这里过滤走官方的包, 加入 RW-HPS 的一些修改
-        run change@ {
-            when (packetHess.b) {
-                PacketType.START_GAME.typeInt -> room.isStartGame = true
-                // 修改, 使 客户端 显示 AdminUI
-                PacketType.SERVER_INFO.typeInt -> {
-                    GameInputStream(packetHess.c).use {
-                        val o = GameOutputStream()
-                        it.skip(it.readShort().toLong())
-                        o.writeString(Data.SERVER_ID)
+                            o.transferToFixedLength(it, 8)
 
-                        o.transferToFixedLength(it, 8)
+                            val length = it.readShort()
+                            o.writeShort(length)
+                            o.transferToFixedLength(it, length.toInt())
 
-                        val length = it.readShort()
-                        o.writeShort(length)
-                        o.transferToFixedLength(it, length.toInt())
+                            o.transferToFixedLength(it, 15)
 
-                        o.transferToFixedLength(it, 15)
-
-                        /* Admin Ui */
-                        it.skip(1)
-                        o.writeBoolean(player!!.isAdmin)
-                        o.transferTo(it)
-                        packetHess.c = o.getPacketBytes()
+                            /* Admin Ui */
+                            it.skip(1)
+                            o.writeBoolean(player!!.isAdmin)
+                            o.transferTo(it)
+                            packetHess.c = o.getPacketBytes()
+                        }
                     }
-                }
-                // 修改, 使 客户端 显示 HOST
-                PacketType.TEAM_LIST.typeInt -> {
-                    GameInputStream(packetHess.c).use {
-                        val o = GameOutputStream()
-                        val site = it.readInt()
-                        o.writeInt(site)
-                        val isGameStatus = it.readBoolean()
-                        o.writeBoolean(isGameStatus)
-                        if (!isGameStatus) {
-                            val playerConut = it.readInt()
-                            o.writeInt(playerConut)
+                    // 修改, 使 客户端 显示 HOST
+                    PacketType.TEAM_LIST.typeInt -> {
+                        GameInputStream(packetHess.c).use {
+                            val o = GameOutputStream()
+                            val site = it.readInt()
+                            o.writeInt(site)
+                            val isGameStatus = it.readBoolean()
+                            o.writeBoolean(isGameStatus)
+                            if (!isGameStatus) {
+                                val playerConut = it.readInt()
+                                o.writeInt(playerConut)
 
-                            CompressOutputStream.getGzipOutputStream("teams", true).also { teamIn ->
-                                it.getDecodeStream(true).use { team ->
-                                    for (position in 0 until playerConut) {
-                                        val hasPlayer = team.readBoolean()
-                                        teamIn.writeBoolean(hasPlayer)
-                                        if (hasPlayer) {
-                                            teamIn.transferToFixedLength(team, 13)
-                                            val name = team.readIsString()
-                                            teamIn.writeIsString(name)
-                                            teamIn.transferToFixedLength(team, 32)
+                                room.flagData.ai = false
+                                CompressOutputStream.getGzipOutputStream("teams", true).also { teamIn ->
+                                    it.getDecodeStream(true).use { team ->
+                                        for (position in 0 until playerConut) {
+                                            val hasPlayer = team.readBoolean()
+                                            teamIn.writeBoolean(hasPlayer)
+                                            if (hasPlayer) {
+                                                teamIn.transferToFixedLength(team, 13)
+                                                val name = team.readIsString()
+                                                teamIn.writeIsString(name)
+                                                teamIn.transferToFixedLength(team, 32)
 
-                                            // 可能存在 Hess 还没刷新的, 所以多来一次判断
-                                            val player = room.playerManage.getPlayerArray(position)
-                                            if (site == position && player == null) {
-                                                 return@change
+                                                // 可能存在 Hess 还没刷新的, 所以多来一次判断
+                                                val player = room.playerManage.getPlayerArray(position)
+                                                if (player == null) {
+                                                    teamIn.transferToFixedLength(team, 4)
+                                                    // 过滤掉 AI
+                                                    if (name.contains("AI",ignoreCase = true)) {
+                                                        room.flagData.ai = true
+                                                    }
+                                                } else {
+                                                    team.skip(4)
+                                                    teamIn.writeInt(if (player.isAdmin) 1 else 0)
+                                                }
+
+
+                                                teamIn.writeIsInt(team)
+                                                teamIn.writeIsInt(team)
+                                                teamIn.writeIsInt(team)
+                                                teamIn.writeIsInt(team)
+                                                teamIn.writeInt(team.readInt())
                                             }
-
-                                            // 过滤掉 AI
-                                            if (name.contains("AI",ignoreCase = true)) {
-                                                teamIn.transferToFixedLength(team, 4)
-                                            } else {
-                                                team.skip(4)
-                                                teamIn.writeInt(if (player!!.isAdmin) 1 else 0)
-                                            }
-                                            teamIn.writeIsInt(team)
-                                            teamIn.writeIsInt(team)
-                                            teamIn.writeIsInt(team)
-                                            teamIn.writeIsInt(team)
-                                            teamIn.writeInt(team.readInt())
                                         }
                                     }
+                                    o.flushEncodeData(teamIn)
                                 }
-                                o.flushEncodeData(teamIn)
+                            }
+                            o.transferTo(it)
+                            packetHess.c = o.getPacketBytes()
+                        }
+                    }
+                    //
+                    PacketType.TICK.typeInt -> {
+                        GameInputStream(packetHess.c).use {
+                            it.skip(4)
+                            val size = it.readInt()
+                            for (i in 0 until  size) {
+                                serverConnect.receiveCommand(Packet(PacketType.GAMECOMMAND_RECEIVE,it.getDecodeStream(false).readAllBytes()))
                             }
                         }
-                        o.transferTo(it)
-                        packetHess.c = o.getPacketBytes()
                     }
                 }
-
             }
         }
+
         connectionAgreement.send(netEnginePackaging.transformPacket(packetHess))
     }
 

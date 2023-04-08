@@ -32,8 +32,8 @@ object PluginManage {
     val loadSize: Int
         get() = pluginData!!.size
 
-    fun run(cons: Cons<PluginLoadData?>) {
-        pluginData!!.eachAll { t: PluginLoadData? -> cons[t] }
+    fun run(cons: Cons<PluginLoadData>) {
+        pluginData!!.eachAll { t: PluginLoadData -> cons(t) }
     }
 
     fun init(fileUtil: FileUtil) {

@@ -11,7 +11,7 @@ package net.rwhps.server.data.temp
 
 import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.encryption.digest.DigestUtil
+import net.rwhps.server.util.algorithms.digest.DigestUtil
 import okhttp3.FormBody
 import java.math.BigInteger
 

@@ -7,18 +7,18 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption.codec
+package net.rwhps.server.util.algorithms.codec
 
 import net.rwhps.server.util.log.exp.VariableException
 
+/**
+ * 构造
+ *
+ * @param lowerCase 是否小写
+ */
 class Base16Codec(lowerCase: Boolean) : Encoder<ByteArray, CharArray>, Decoder<CharSequence, ByteArray> {
     private val alphabets: CharArray
 
-    /**
-     * 构造
-     *
-     * @param lowerCase 是否小写
-     */
     init {
         alphabets = (if (lowerCase) "0123456789abcdef" else "0123456789ABCDEF").toCharArray()
     }

@@ -12,7 +12,7 @@
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.util.encryption.HexUtil
+import net.rwhps.server.util.algorithms.HexUtil
 
 
 @JvmOverloads

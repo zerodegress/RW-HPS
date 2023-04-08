@@ -15,6 +15,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.totalizer.TimeAndNumber
+import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.game.event.EventType.*
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
@@ -24,6 +25,7 @@ import net.rwhps.server.net.core.DataPermissionStatus.ServerStatus
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
+import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
@@ -33,6 +35,7 @@ import net.rwhps.server.util.log.ColorCodes
 import net.rwhps.server.util.log.Log
 import java.io.IOException
 import kotlin.math.min
+import com.corrodinggames.rts.gameFramework.j.k as GameNetInputStream
 
 /**
  * Common server implementation
@@ -130,6 +133,10 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
             }
 
+            if (Data.vote != null) {
+                Data.vote!!.toVote(player,message)
+            }
+
             // Msg Command
             if (message.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {
                 val strEnd = min(message.length, 3)
@@ -166,6 +173,64 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
 
     @Throws(IOException::class)
     override fun receiveCommand(packet: Packet) {
+        try {
+            GameInputStream(packet).use { inStream ->
+                inStream.skip(1)
+                val boolean1 = inStream.readBoolean()
+                if (boolean1) {
+                    // 操作类型
+                    var status = inStream.readInt()
+                    // 单位类型
+                    val unitType = inStream.readInt()
+                    if (unitType == -2) {
+                        val nameUnit = inStream.readString()
+                    }
+                    val x = inStream.readFloat()
+                    val y = inStream.readFloat()
+
+                    // 玩家操作
+                    val gameActions = GameUnitType.GameActions.from(status)
+                    // 操作单位
+                    val gameUnits: GameUnitType.GameUnits = GameUnitType.GameUnits.from(unitType)
+                    // 玩家操作单位事件
+                    val playerOperationUnitEvent = PlayerOperationUnitEvent(player, gameActions, gameUnits, x, y)
+                    Events.fire(playerOperationUnitEvent)
+                    if(!playerOperationUnitEvent.resultStatus){
+                        return
+                    }
+                    inStream.skip(20)
+                    inStream.readIsString()
+                }
+                inStream.skip(10)
+                val boolean3 = inStream.readBoolean()
+                if (boolean3) {
+                    // float float
+                    inStream.skip(8)
+                }
+                inStream.skip(1)
+
+                val int2 = inStream.readInt()
+                for (i in 0 until int2) {
+                    inStream.skip(8)
+                }
+                val boolean4 = inStream.readBoolean()
+                if (boolean4) {
+                    inStream.skip(1)
+                }
+                // Map Ping
+                val mapPing = inStream.readBoolean()
+                if (mapPing) {
+                    if (player.getData<String>("Summon") != null) {
+                        // 单位生成
+                        gameSummon(player.getData<String>("Summon")!!, inStream.readFloat(), inStream.readFloat())
+                        player.removeData("Summon")
+                        return
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.error(e)
+        }
     }
 
     @Throws(IOException::class)
@@ -188,6 +253,25 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     }
 
     override fun gameSummon(unit: String, x: Float, y: Float) {
+        try {
+            val commandPacket = GameEngine.gameEngine.cf.b()
+
+            val out = GameOutputStream()
+            out.flushEncodeData(
+                CompressOutputStream.getGzipOutputStream("c",false).apply {
+                    writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(player.site,unit,x, y).bytes)
+                }
+            )
+
+            commandPacket.a(GameNetInputStream(playerConnectX.netEnginePackaging.transformHessPacket(out.createPacket(PacketType.TICK))))
+
+            commandPacket.c = GameEngine.data.gameHessData.tickNetHess
+            // 会触发同步 , 有时间了看看
+            GameEngine.gameEngine.cf.b.add(commandPacket)
+            //GameEngine.netEngine.a(commandPacket)
+        } catch (e: Exception) {
+            Log.error(e)
+        }
     }
 
     override fun sendErrorPasswd() {

@@ -10,7 +10,6 @@
 package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.Time.getMilliFormat
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.ColorCodes.formatColors
@@ -19,7 +18,13 @@ import java.io.StringWriter
 import java.text.MessageFormat
 
 /**
+ * 在这里实现 RW-HPS 的主要输出
+ * 如果您需要使用 [System.out.print] 等接口, 那么请使用 [Data.privateOut.print] , [System.out] 被 `RW-HPS` 替换
+ * 替换后只检测 `/n` `/r/n` 来输出
+ */
+/**
  * Log Util
+ *
  * @author RW-HPS/Dr
  * @version 1.1
  * @date 2020年3月8日星期日 3:54
@@ -214,11 +219,6 @@ object Log {
     @JvmStatic
     fun testPrint(`object`: Any) {
         info(`object`)
-    }
-
-    @JvmStatic
-    fun testPlugin(plugin: Plugin) {
-        plugin.init()
     }
 
     @JvmStatic

@@ -89,12 +89,6 @@ object ServiceLoader {
         ServiceLoaderData[serviceType.name+serviceName] = serviceClass
     }
 
-    @JvmOverloads
-    @Throws(VariableException.TypeMismatchException::class)
-    fun addService(serviceType: ServiceType, serviceName: String, serviceClassName: String, cover: Boolean = false) {
-
-    }
-
     /**
      * 这是 RW-HPS 使用的服务类
      * @property classType 父类

@@ -35,7 +35,7 @@ class NetEnginePackaging(
         }
     }
 
-    private fun transformHessPacket(packet: Packet): PacketHess {
+    fun transformHessPacket(packet: Packet): PacketHess {
         return PacketHess(packet.type.typeInt).apply {
             c = packet.bytes
             a = playerConnectX

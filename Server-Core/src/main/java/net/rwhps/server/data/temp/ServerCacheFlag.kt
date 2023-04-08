@@ -13,4 +13,7 @@ class ServerCacheFlag {
     var sendGameStatusFlag = true
     var forcedCloseSendMsg = true
     var oneSay = true
+
+    var ai = false
+    var aiWarn = true
 }

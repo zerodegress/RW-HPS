@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption
+package net.rwhps.server.util.algorithms
 
 import java.security.SecureRandom
 import javax.crypto.Cipher

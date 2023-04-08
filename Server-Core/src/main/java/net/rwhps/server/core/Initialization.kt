@@ -15,10 +15,10 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.global.Data.serverCountry
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginData
-import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.NetService
@@ -28,8 +28,8 @@ import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.*
 import net.rwhps.server.net.netconnectprotocol.realize.*
 import net.rwhps.server.util.*
-import net.rwhps.server.util.encryption.Aes
-import net.rwhps.server.util.encryption.Rsa
+import net.rwhps.server.util.algorithms.Aes
+import net.rwhps.server.util.algorithms.Rsa
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.inline.readBytes
 import net.rwhps.server.util.inline.toPrettyPrintingJson
@@ -53,6 +53,16 @@ class Initialization {
         if (SystemUtil.osArch.contains("arm",ignoreCase = true)) {
             Log.clog("&r RW-HPS It may not be compatible with your architecture, there will be unexpected situations, Thank you !")
         }
+    }
+
+    private fun loadLang() {
+        Data.i18NBundleMap.put("CN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
+        Data.i18NBundleMap.put("HK", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
+        Data.i18NBundleMap.put("RU", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
+        Data.i18NBundleMap.put("EN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
+
+        // Default use EN
+        Data.i18NBundle = Data.i18NBundleMap["EN"]
     }
 
     private fun initMaps() {
@@ -119,16 +129,6 @@ class Initialization {
 		} catch (IOException e) {
 			Log.error("IP-LOAD ERR",e);
 		}*/
-    }
-
-    private fun loadLang() {
-        Data.i18NBundleMap.put("CN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
-        Data.i18NBundleMap.put("HK", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
-        Data.i18NBundleMap.put("RU", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
-        Data.i18NBundleMap.put("EN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
-
-        // Default use EN
-        Data.i18NBundle = Data.i18NBundleMap["EN"]
     }
 
     private fun initRelay() {
@@ -216,6 +216,7 @@ class Initialization {
 
         internal fun startInit(pluginData: PluginData) {
             initServerLanguage(pluginData)
+            eula(pluginData)
         }
 
         /**
@@ -223,7 +224,7 @@ class Initialization {
          * Choose the language environment according to the country
          */
         internal fun initServerLanguage(pluginData: PluginData, country: String = "") {
-            val serverCountry =
+            serverCountry =
                 if (country.isBlank()) {
                     pluginData.getData("serverCountry") {
                         val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.ServerLanguage.Bak"))
@@ -246,7 +247,9 @@ class Initialization {
 
             Data.i18NBundle = Data.i18NBundleMap[serverCountry]
             Log.clog(Data.i18NBundle.getinput("server.language"))
+        }
 
+        private fun eula(pluginData: PluginData) {
             // Eula
             if (pluginData.getData("eulaVersion","") != Data.SERVER_EULA_VERSION) {
                 val eulaBytes = if (serverCountry == "CN") {
@@ -257,7 +260,7 @@ class Initialization {
                 Log.clog(ExtractUtil.str(eulaBytes,Data.UTF_8))
 
                 Log.clog("Agree to enter : Yes , Otherwise please enter : No")
-                print("Please Enter (Yes/No) > ")
+                Data.privateOut.print("Please Enter (Yes/No) > ")
 
                 Scanner(object : FilterInputStream(System.`in`) {
                     @Throws(IOException::class)
@@ -276,7 +279,7 @@ class Initialization {
                             Core.exit()
                         } else {
                             Log.clog("Re Enter")
-                            print("Please Enter (Yes/No) > ")
+                            Data.privateOut.print("Please Enter (Yes/No) > ")
                         }
                     }
                 }
@@ -343,16 +346,11 @@ class Initialization {
         //
         loadLang()
 
-
-
         initMaps()
         // 初始化 投降
         initRelay()
         //initRsa()
         initGetServerData()
-
-
-        HeadlessProxyClass()
 
         Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
             override fun run() {
@@ -363,6 +361,8 @@ class Initialization {
 
                 Data.core.save()
                 println("Exit Save Ok")
+
+                System.setOut(Data.privateOut)
             }
         })
     }

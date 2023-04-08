@@ -9,22 +9,19 @@
 
 package net.rwhps.server.command.ex
 
-import net.rwhps.server.core.Call
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.Player
-import net.rwhps.server.game.event.EventType
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.Time.concurrentSecond
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
-import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.ceil
+
 //X86SMbj6UtmfhKpr6itHpUz
 
 /**
@@ -34,8 +31,8 @@ import kotlin.math.ceil
  */
 class Vote {
     private val command: String
-    val player: Player
-    val targetPlayer: Player?
+    val player: AbstractPlayer
+    val targetPlayer: AbstractPlayer?
     private var isTeam: Boolean = false
 
     private var require: Int = 0
@@ -48,28 +45,25 @@ class Vote {
 
     private var reciprocal: Int = 60
 
-
-    private var countDownTask: ScheduledFuture<*>? = null
-
     private val playerList = Seq<String>()
 
     // Gameover Suss~
-    constructor(command: String, hostPlayer: Player) {
+    constructor(command: String, hostPlayer: AbstractPlayer) {
         this.command = command
         this.player = hostPlayer
         this.targetPlayer = null
         preprocessing()
     }
     // Kick Other
-    constructor(command: String, hostPlayer: Player, targetPlayer: Player) {
+    constructor(command: String, hostPlayer: AbstractPlayer, targetPlayer: AbstractPlayer) {
         this.command = command
         this.player = hostPlayer
         this.targetPlayer = targetPlayer
         preprocessing()
     }
 
-    fun toVote(votePlayer: Player, playerPick: String) {
-        if (playerList.contains(votePlayer.uuid)) {
+    fun toVote(votePlayer: AbstractPlayer, playerPick: String) {
+        if (playerList.contains(votePlayer.connectHexID)) {
             votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.rey"))
             return
         }
@@ -81,7 +75,7 @@ class Vote {
             if (isTeam) {
                 if (votePlayer.team == player.team) {
                     this.pass++
-                    playerList.add(votePlayer.uuid)
+                    playerList.add(votePlayer.connectHexID)
                     votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.y"))
                     votePlayerIng()
                 } else {
@@ -89,20 +83,20 @@ class Vote {
                 }
             } else {
                 this.pass++
-                playerList.add(votePlayer.uuid)
+                playerList.add(votePlayer.connectHexID)
                 votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.y"))
                 votePlayerIng()
             }
         } else if (noAccapt == playerPick) {
             if (isTeam) {
                 if (votePlayer.team == player.team) {
-                    playerList.add(votePlayer.uuid)
+                    playerList.add(votePlayer.connectHexID)
                     votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.n"))
                 } else {
                     votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.team"))
                 }
             } else {
-                playerList.add(votePlayer.uuid)
+                playerList.add(votePlayer.connectHexID)
                 votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.n"))
             }
         }
@@ -124,12 +118,12 @@ class Vote {
      * 正常投票
      */
     private fun normalDistribution() {
-        require = Data.game.playerManage.playerGroup.size
-        endNoMsg = { Call.sendSystemMessageLocal("vote.done.no", command + " " + (targetPlayer?.name ?:""), pass, this.require) }
-        endYesMsg = { Call.sendSystemMessageLocal("vote.ok") }
-        votePlayerIng = { Call.sendSystemMessage("vote.y.ing", command,pass,this.require) }
-        voteIng = { Call.sendSystemMessage("vote.ing", reciprocal) }
-        start { Call.sendSystemMessage("vote.start", player.name, command + " " + (targetPlayer?.name ?:"")) }
+        require = HessModuleManage.hps.room.playerManage.playerGroup.size
+        endNoMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.done.no", command + " " + (targetPlayer?.name ?:""), pass, this.require) }
+        endYesMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.ok") }
+        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.y.ing", command,pass,this.require) }
+        voteIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.ing", reciprocal) }
+        start { HessModuleManage.hps.room.call.sendSystemMessage("vote.start", player.name, command + " " + (targetPlayer?.name ?:"")) }
     }
 
     /**
@@ -137,13 +131,13 @@ class Vote {
      */
     private fun teamOnly() {
         val require = AtomicInteger(0)
-        Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == player.team }) { _: Player -> require.getAndIncrement() }
+        HessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: AbstractPlayer -> e.team == player.team }) { _: AbstractPlayer -> require.getAndIncrement() }
         this.require = require.get()
-        endNoMsg = { Call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?:""),pass,this.require) }
-        endYesMsg = { Call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
-        votePlayerIng = { Call.sendSystemTeamMessageLocal(player.team,"vote.y.ing", command,pass,this.require) }
-        voteIng = { Call.sendSystemTeamMessageLocal(player.team, "vote.ing", reciprocal) }
-        start { Call.sendSystemTeamMessageLocal(player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?:"")) }
+        endNoMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?:""),pass,this.require) }
+        endYesMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
+        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team,"vote.y.ing", command,pass,this.require) }
+        voteIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ing", reciprocal) }
+        start { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?:"")) }
     }
 
     private fun start(run: ()->Unit) {
@@ -157,7 +151,7 @@ class Vote {
             ceil(temp.toDouble() / 2).toInt()
         }
 
-        playerList.add(player.uuid)
+        playerList.add(player.connectHexID)
 
         pass++
 
@@ -183,9 +177,6 @@ class Vote {
     }
 
     private fun end() {
-        stopTask(countDownTask)
-        countDownTask = null
-
         var error: ImplementedException.VoteImplementedException? = null
         if (this.pass >= this.require) {
             endYesMsg()
@@ -209,22 +200,23 @@ class Vote {
      * 清理引用
      */
     private fun clearUp() {
+        Threads.closeTimeTask(CallTimeTask.VoteTask)
+        
         playerList.clear()
+
         val nullVal: ()->Unit = {}
         endNoMsg = nullVal
         endYesMsg = nullVal
         votePlayerIng = nullVal
         voteIng = nullVal
+
+        pass = 0
+        reciprocal = 60
+
         Data.vote = null
     }
 
-    private fun stopTask(task: ScheduledFuture<*>?) {
-        task?.cancel(true)
-    }
-
     fun stopVote() {
-        stopTask(countDownTask)
-        countDownTask = null
         clearUp()
     }
 
@@ -234,21 +226,8 @@ class Vote {
 
         init {
             commandStartData["gameover"] = { it.normalDistribution() }
-            commandStartData["surrender"] = { it.isTeam = true ; it.teamOnly() }
 
-            commandEndData["gameover"] = { Events.fire(EventType.GameOverEvent(null)) }
-            commandEndData["surrender"] = { Log.clog("Surrender") ; Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == it.player.team }) { p: Player -> p.con!!.sendSurrender() } }
-        }
-
-        fun testVoet(player: Player): Boolean {
-            val checkTime = player.lastVoteTime + 60
-            return if (checkTime > concurrentSecond()) {
-                true
-            } else {
-                player.lastVoteTime = concurrentSecond()
-                false
-            }
-
+            commandEndData["gameover"] = { HessModuleManage.hps.room.gr() }
         }
 
         @JvmStatic

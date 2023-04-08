@@ -19,6 +19,7 @@ interface AbstractGameHessData {
 
     @GameSimulationLayer.GameSimulationLayer_KeyWords("got remoteSyncFrame for")
     val tickHess: Int
+    val tickNetHess: Int
 
     var useMod: Boolean
 

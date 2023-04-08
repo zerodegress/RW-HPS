@@ -9,7 +9,6 @@
 
 package net.rwhps.server.io
 
-import net.rwhps.server.io.GameInputStream
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

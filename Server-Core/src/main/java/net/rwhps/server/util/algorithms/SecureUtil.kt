@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.encryption
+package net.rwhps.server.util.algorithms
 
 import net.rwhps.server.util.log.exp.CryptoException
 import java.security.MessageDigest

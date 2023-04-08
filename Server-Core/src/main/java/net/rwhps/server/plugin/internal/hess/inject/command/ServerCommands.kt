@@ -14,12 +14,11 @@ import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.game.event.EventType.PlayerBanEvent
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
@@ -39,18 +38,10 @@ internal class ServerCommands(handler: CommandHandler) {
                 response.append(" ").append(arg[i])
                 i++
             }
-            if (Data.config.SingleUserRelay) {
-                try {
-                    NetStaticData.relay.groupNet.broadcast(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(response.toString().replace("<>", "")))
-                } catch (ignored: IOException) {
-                }
-            }
             room.call.sendSystemMessage(response.toString().replace("<>", ""))
         }
         handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
-            if (room.isStartGame) {
-                Events.fire(GameOverEvent(null))
-            }
+            GameEngine.data.room.gr()
         }
         handler.register("save", "serverCommands.save") { _: Array<String>?, log: StrCons ->
             if (room.isStartGame) {

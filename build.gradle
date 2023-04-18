@@ -1,6 +1,8 @@
 buildscript {
 	repositories{
+		maven { url 'https://maven.aliyun.com/repository/google' }
 		mavenCentral()
+		maven{ url 'https://maven.aliyun.com/repository/jcenter'}
 	}
 
     dependencies {
@@ -19,7 +21,9 @@ allprojects {
 
 
 	repositories{
+		maven { url 'https://maven.aliyun.com/repository/google' }
 		mavenCentral()
+		maven{ url 'https://maven.aliyun.com/repository/jcenter'}
 		maven { url "https://jitpack.io" }
 		maven { url "https://plugins.gradle.org/m2/" }
 		maven { url "https://maven.aliyun.com/repository/public"}

@@ -1,68 +1,109 @@
+//Netty Version
+val nettyVersion = "4.1.90.Final"
+
+/**
+ * Fuck implementation
+ */
 dependencies {
-	implementation(project(":Server-Core"))
+	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.20-RC")
+
+	implementation(project(":TimeTaskQuartz"))
+	implementation(project(":ASM-Framework"))
+
+	implementation("io.netty:netty-buffer:$nettyVersion")
+	implementation("io.netty:netty-codec:$nettyVersion")
+	implementation("io.netty:netty-codec-http:$nettyVersion")
+	implementation("io.netty:netty-handler:$nettyVersion")
+	implementation("io.netty:netty-transport:$nettyVersion")
+	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
+	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
+
+	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
+	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
+
+	api("com.github.deng-rui:RUDP:2.0.0")
+
+	// Json 解析
+	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
+	api("com.google.code.gson:gson:2.10.1")
+	api("org.json:json:20230227")
+
+	api("org.apache.commons:commons-compress:1.21")
+	api("org.tukaani:xz:1.9")
+
+
+	api("com.squareup.okhttp3:okhttp:4.10.0") {
+		exclude("org.jetbrains.kotlin")
+	}
+	api("com.vdurmont:emoji-java:5.1.1") {
+		exclude( "org.json")
+	}
+
+	implementation("org.lionsoul:ip2region:1.7.2")
+
+	implementation("net.java.dev.jna:jna:5.13.0")
+	implementation("org.jline:jline-reader:3.23.0")
+	implementation("org.jline:jline-terminal:3.23.0") {
+		exclude("org.jline","jline-native")
+	}
+	implementation("org.jline:jline-terminal-jna:3.23.0")
+
+	api("it.unimi.dsi:fastutil-core:8.5.12")
+
+	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 tasks.jar {
-	dependsOn("intoCorePacket")
-
-	// Fuck Java 9
-	exclude("META-INF/version/**")
-	exclude("**/module-info.class")
-	// Clean Import
-	exclude("META-INF/maven/**")
-	exclude("META-INF/AL2.0")
-	exclude("META-INF/LGPL2.1")
-	exclude("META-INF/native-image/**")
-	// Clean Proguard
-	exclude("META-INF/proguard/**")
-	// Clean Kotlin
-	exclude("META-INF/**.kotlin_module")
-
-	exclude("META-INF/**/LICENSE.txt")
-	exclude("META-INF/LICENSE")
-	exclude("META-INF/NOTICE.txt")
-	exclude("META-INF/NOTICE")
-
-	// Fuck Netty !!!!!!
-	exclude("META-INF/INDEX.LIST")
-	exclude("META-INF/**.properties")
-	exclude("META-INF/**.xml")
-
-	exclude("META-INF/DEPENDENCIES")
-	exclude("META-INF/sisu/javax.inject.Named")
-	exclude("about.html")
-
-	exclude("META-INF/LWJGL.*")
-
-	exclude("META-INF/BC2048KE.SF")
-	exclude("META-INF/BC2048KE.DSA")
-	exclude("META-INF/BC1024KE.SF")
-	exclude("META-INF/BC1024KE.DSA")
-
-
-
 	manifest {
-		attributes(mapOf("Main-Class" to "net.rwhps.server.Main"))
-		attributes(mapOf("Launcher-Agent-Class" to  "net.rwhps.server.dependent.AgentAttachData"))
-		attributes(mapOf("Can-Redefine-Classes" to  "true"))
-		attributes(mapOf("Implementation-Title" to "RW-HPS"))
+		attributes(mapOf(
+			"Implementation-Title" to "RW-HPS"
+		))
 	}
-
-	from(configurations.runtimeClasspath.get().map {
-		if (it.isDirectory) it else zipTree(it)
-	})
 }
 
-tasks.register<Zip>("intoCorePacket") {
-	archiveFileName.set("Server-Core.jar")
-	destinationDirectory.set(file("$buildDir/resources/main"))
+tasks.test {
+	useJUnitPlatform()
+}
 
-	from(zipTree("../Server-Core/build/libs/Server-Core.jar")) {
-		include("net/**")
-		include("com/**")
-		eachFile {
-			relativePath = RelativePath(true, *relativePath.segments.drop(0).toTypedArray())  // (2)
+publishing {
+	publications {
+		create<MavenPublication>("maven") {
+			groupId = "com.github.RW-HPS"
+			artifactId = "Server-Core"
+			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
+			version = "1.0.0"
+
+			from(components.getByName("java"))
+
+			pom {
+				scm {
+					url.set("https://github.com/RW-HPS/RW-HPS")
+					connection.set("scm:https://github.com/RW-HPS/RW-HPS.git")
+					developerConnection.set("scm:git@github.com:RW-HPS/RW-HPS.git")
+				}
+
+				licenses {
+					license {
+						name.set("GNU AGPLv3")
+						url.set("https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE")
+					}
+				}
+
+				developers {
+					developer {
+						id.set("RW-HPS")
+						name.set("RW-HPS Technologies")
+					}
+				}
+
+			}
+
+			pom.withXml {
+				val root = asNode()
+				root.appendNode("description", project.description)
+				root.appendNode("name", project.name)
+				root.appendNode("url", "https://github.com/RW-HPS/RW-HPS")
+			}
 		}
-		includeEmptyDirs = false  // (3)
 	}
 }

@@ -3,36 +3,66 @@ dependencies {
 }
 
 tasks.jar {
-	// Fuck Java 9
-	exclude("**/module-info.class")
+	dependsOn("intoCorePacket")
 
-	exclude("META-INF/LICENSE.txt")
+	// Fuck Java 9
+	exclude("META-INF/version/**")
+	exclude("**/module-info.class")
+	// Clean Import
+	exclude("META-INF/maven/**")
+	exclude("META-INF/AL2.0")
+	exclude("META-INF/LGPL2.1")
+	exclude("META-INF/native-image/**")
+	// Clean Proguard
+	exclude("META-INF/proguard/**")
+	// Clean Kotlin
+	exclude("META-INF/**.kotlin_module")
+
+	exclude("META-INF/**/LICENSE.txt")
 	exclude("META-INF/LICENSE")
 	exclude("META-INF/NOTICE.txt")
 	exclude("META-INF/NOTICE")
 
 	// Fuck Netty !!!!!!
 	exclude("META-INF/INDEX.LIST")
-	exclude("META-INF/*.properties")
-	exclude("META-INF/*/*.properties")
-	exclude("META-INF/*/*/*.properties")
-	exclude("META-INF/*/*/*/*.properties")
-	exclude("META-INF/*.xml")
-	exclude("META-INF/*/*.xml")
-	exclude("META-INF/*/*/*.xml")
-	exclude("META-INF/*/*/*/*.xml")
+	exclude("META-INF/**.properties")
+	exclude("META-INF/**.xml")
 
 	exclude("META-INF/DEPENDENCIES")
 	exclude("META-INF/sisu/javax.inject.Named")
 	exclude("about.html")
 
+	exclude("META-INF/LWJGL.*")
+
+	exclude("META-INF/BC2048KE.SF")
+	exclude("META-INF/BC2048KE.DSA")
+	exclude("META-INF/BC1024KE.SF")
+	exclude("META-INF/BC1024KE.DSA")
+
+
+
 	manifest {
 		attributes(mapOf("Main-Class" to "net.rwhps.server.Main"))
 		attributes(mapOf("Launcher-Agent-Class" to  "net.rwhps.server.dependent.AgentAttachData"))
 		attributes(mapOf("Can-Redefine-Classes" to  "true"))
+		attributes(mapOf("Implementation-Title" to "RW-HPS"))
 	}
 
 	from(configurations.runtimeClasspath.get().map {
 		if (it.isDirectory) it else zipTree(it)
 	})
+}
+
+tasks.register<Zip>("intoCorePacket") {
+	archiveFileName.set("Server-Core.jar")
+	destinationDirectory.set(file("$buildDir/resources/main"))
+
+	from(zipTree("../Server-Core/build/libs/Server-Core.jar")) {
+		include("net/**")
+		include("com/**")
+		eachFile {
+			relativePath = RelativePath(true, *relativePath.segments.drop(0).toTypedArray())  // (2)
+		}
+		includeEmptyDirs = false  // (3)
+	}
 }

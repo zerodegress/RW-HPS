@@ -3,8 +3,6 @@ dependencies {
 }
 
 tasks.jar {
-	dependsOn("intoCorePacket")
-
 	// Fuck Java 9
 	exclude("META-INF/version/**")
 	exclude("**/module-info.class")
@@ -51,18 +49,4 @@ tasks.jar {
 	from(configurations.runtimeClasspath.get().map {
 		if (it.isDirectory) it else zipTree(it)
 	})
-}
-
-tasks.register<Zip>("intoCorePacket") {
-	archiveFileName.set("Server-Core.jar")
-	destinationDirectory.set(file("$buildDir/resources/main"))
-
-	from(zipTree("../Server-Core/build/libs/Server-Core.jar")) {
-		include("net/**")
-		include("com/**")
-		eachFile {
-			relativePath = RelativePath(true, *relativePath.segments.drop(0).toTypedArray())  // (2)
-		}
-		includeEmptyDirs = false  // (3)
-	}
 }

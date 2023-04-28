@@ -1,7 +1,12 @@
 dependencies {
 	// Users should not operate Quartz
 	// Hence the RunTime
-	implementation("org.quartz-scheduler:quartz:2.3.2")
+	implementation("org.quartz-scheduler:quartz:2.3.2") {
+		// Stand-alone operation, does not require any persistence
+		exclude("com.mchange","c3p0")
+		exclude("com.mchange","mchange-commons-java")
+		exclude("com.zaxxer","HikariCP-java7")
+	}
 }
 
 publishing {

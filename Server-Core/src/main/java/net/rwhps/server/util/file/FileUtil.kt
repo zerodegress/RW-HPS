@@ -15,9 +15,9 @@ import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.SystemUtil
-import net.rwhps.server.util.algorithms.digest.DigestUtil
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.compression.core.CompressionDecoder
+import net.rwhps.server.util.algorithms.digest.DigestUtil
 import net.rwhps.server.util.io.IoOutConversion.fileToOutStream
 import net.rwhps.server.util.io.IoOutConversion.fileToStream
 import net.rwhps.server.util.io.IoRead.readFileToByteArray
@@ -428,8 +428,13 @@ open class FileUtil {
         }
 
         @JvmStatic
-        fun getJarPath(): String {
+        fun getMyFilePath(): String {
             return decode(this::class.java.protectionDomain.codeSource.location.path, Data.UTF_8)
+        }
+
+        @JvmStatic
+        fun getMyCoreJarStream(): InputStream {
+            return getInternalFileStream("/Server-Core.jar")
         }
 
         private fun cehckFolderPath(defPath:String, path: String): String {

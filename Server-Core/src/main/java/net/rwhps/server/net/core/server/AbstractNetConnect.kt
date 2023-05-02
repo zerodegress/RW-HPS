@@ -140,6 +140,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
                 Data.LOG_COMMAND.handleMessage(URLDecoder.decode(stream.readString(), StandardCharsets.UTF_8.toString()), this)
             }
         } catch (_: IOException) {
+            sendDebug("Error")
         }
     }
 
@@ -153,6 +154,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
             o.writeString(str)
             sendPacket(o.createPacket(PacketType.SERVER_DEBUG))
         } catch (_: Exception) {
+            // Ignore
         }
     }
 
@@ -164,7 +166,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
     }
 
     /**
-     * @param str String
+     * @param packet Packet
      */
     fun sendExCommand(packet: Packet) {
         sendPacket(packet)

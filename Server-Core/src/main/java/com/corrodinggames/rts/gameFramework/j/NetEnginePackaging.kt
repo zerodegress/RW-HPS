@@ -29,9 +29,9 @@ class NetEnginePackaging(
         val packetHess = transformHessPacket(packet)
 
         if (packetHess.b > 100) {
-            netEngine.c(packetHess);
+            netEngine.c(packetHess)
         } else {
-            netEngine.aN.add(packetHess);
+            netEngine.aN.add(packetHess)
         }
     }
 

@@ -10,6 +10,9 @@
 package net.rwhps.server.util
 
 
+/**
+ * @author RW-HPS/Dr
+ */
 object GameOtherUtil {
     @JvmStatic
     fun getBetaVersion(version: Int): Boolean {

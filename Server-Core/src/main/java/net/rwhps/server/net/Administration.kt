@@ -10,6 +10,7 @@ package net.rwhps.server.net
 
 import net.rwhps.server.core.thread.Threads.addSavePool
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.struct.ObjectMap
@@ -98,9 +99,9 @@ class Administration(pluginData: PluginData) {
         playerAdminData.remove(uuid)
     }
 
-    fun isAdmin(player: Player): Boolean {
-        if (playerAdminData.containsKey(player.uuid)) {
-            playerAdminData[player.uuid].name = player.name
+    fun isAdmin(player: AbstractPlayer): Boolean {
+        if (playerAdminData.containsKey(player.connectHexID)) {
+            playerAdminData[player.connectHexID].name = player.name
             return true
         }
         return false

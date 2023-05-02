@@ -12,6 +12,7 @@ package net.rwhps.server.data.base
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
+import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
@@ -93,6 +94,9 @@ data class BaseCoreConfig(
     }
 
     fun save() {
+        RunPid = SystemUtil.pid
+
+
         fileUtil.writeFile(this.toPrettyPrintingJson())
     }
 

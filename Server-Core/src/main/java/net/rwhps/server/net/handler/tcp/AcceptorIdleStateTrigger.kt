@@ -17,6 +17,7 @@ import io.netty.handler.timeout.IdleStateEvent
 import io.netty.util.AttributeKey
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.handler.rudp.TimeoutDetection
+import net.rwhps.server.util.log.Log
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -49,7 +50,7 @@ open class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        //warn("break a link", ctx.channel().id().asLongText())
+        //debug("break a link", ctx.channel().id().asLongText())
         clear(ctx)
     }
 
@@ -72,6 +73,10 @@ open class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
         // The remote host forcibly closed an existing connection
         if (cause is SocketException) {
             clear(ctx)
+        } else {
+//            cause?.let {
+//                Log.error(Log.resolveTrace(it))
+//            }
         }
     }
 

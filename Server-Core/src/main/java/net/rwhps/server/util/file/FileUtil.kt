@@ -428,8 +428,17 @@ open class FileUtil {
         }
 
         @JvmStatic
-        fun getJarPath(): String {
+        fun getMyFilePath(): String {
             return decode(this::class.java.protectionDomain.codeSource.location.path, Data.UTF_8)
+        }
+
+        /**
+         * 无解
+         * @return InputStream
+         */
+        @JvmStatic
+        fun getMyCoreJarStream(): InputStream {
+            return FileUtil(getMyFilePath()).getInputsStream()
         }
 
         private fun cehckFolderPath(defPath:String, path: String): String {

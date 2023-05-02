@@ -27,9 +27,6 @@ import net.rwhps.server.util.algorithms.Base64.isBase64
 import net.rwhps.server.util.algorithms.digest.DigestUtil.sha256
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
-import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.log.Log.clog
-import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 import java.io.File
 import java.math.BigInteger
@@ -121,12 +118,12 @@ class Rules(private var config: BaseCoreConfig) {
     var gameOverData: GameOverData? = null
 
     init {
-        try {
-            checkMaps()
-            clog(Data.i18NBundle.getinput("server.load.maps"))
-        } catch (exp: Exception) {
-            debug("Read Error", exp)
-        }
+//        try {
+//            checkMaps()
+//            clog(Data.i18NBundle.getinput("server.load.maps"))
+//        } catch (exp: Exception) {
+//            debug("Read Error", exp)
+//        }
         NetStaticData.relay.isMod = config.SingleUserRelayMod
         autoLoadOrUpdate(config)
         val maxPlayer = config.MaxPlayer+1
@@ -134,9 +131,9 @@ class Rules(private var config: BaseCoreConfig) {
         playerManage = PlayerManage(maxPlayer)
         income = Data.config.DefIncome
 
-        if (maxPlayer > 100) {
-            Log.skipping("[WARN !]","The number of players is too large and the game cannot be played normally")
-        }
+//        if (maxPlayer > 100) {
+//            Log.skipping("[WARN !]","The number of players is too large and the game cannot be played normally")
+//        }
     }
 
     fun init() {

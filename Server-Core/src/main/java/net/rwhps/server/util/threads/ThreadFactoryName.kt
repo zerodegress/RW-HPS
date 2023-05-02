@@ -9,6 +9,7 @@
 
 package net.rwhps.server.util.threads
 
+import net.rwhps.server.util.log.Log
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -26,6 +27,7 @@ object ThreadFactoryName {
         return ThreadFactory { r: Runnable ->
             val thread = Thread(r)
             thread.name = name + tag.getAndIncrement()
+            thread.uncaughtExceptionHandler = Log.errorDispose
             thread
         }
     }

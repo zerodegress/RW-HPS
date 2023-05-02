@@ -12,9 +12,9 @@ package net.rwhps.server.data.plugin
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.func.Cons
 import net.rwhps.server.plugin.Plugin
+import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
-import net.rwhps.server.plugin.PluginsLoad.PluginLoadData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.annotations.DidNotFinish
 import net.rwhps.server.util.file.FileUtil

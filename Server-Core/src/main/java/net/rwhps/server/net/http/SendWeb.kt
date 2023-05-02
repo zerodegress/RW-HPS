@@ -29,7 +29,7 @@ class SendWeb(
     private val replaceHeaders: MutableMap<String, String> = mutableMapOf(
         /* 默认头 使用 RW-HPS 自定义 */
         HttpHeaderNames.SERVER.toString() to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)",
-        HttpHeaderNames.CONTENT_TYPE.toString() to "application/json; charset=utf-8",
+        HttpHeaderNames.CONTENT_TYPE.toString() to "charset=utf-8",
         HttpHeaderNames.ACCEPT_CHARSET.toString() to "UTF-8"
     )
     /** 附加的header,用于需要重复的header */

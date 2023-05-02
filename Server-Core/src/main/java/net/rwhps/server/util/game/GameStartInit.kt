@@ -16,7 +16,6 @@ import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
-import java.io.File
 import java.lang.reflect.Method
 
 /**
@@ -85,7 +84,7 @@ object GameStartInit {
         // Here, several intermediate signal transmission modules are directly injected into this loader
         // Because this loader only has Game-lib.jar
         // 注入 接口
-        FileUtil(File(FileUtil.getJarPath())).zipDecoder.use {
+        CompressionDecoderUtils.zipStream(FileUtil.getMyCoreJarStream()).use {
             it.getZipAllBytes().each { k, v ->
                 if (
                     // 注入接口

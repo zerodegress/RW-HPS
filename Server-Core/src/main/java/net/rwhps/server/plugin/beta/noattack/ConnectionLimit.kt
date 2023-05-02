@@ -39,7 +39,7 @@ internal class ConnectionLimit: Plugin() {
              * TimeAndNumber(10,5) is Triggered when five new connections are reached within ten seconds
              *
              */
-            val limit = netLimit.computeIfAbsent(connectionAgreement.ipLong24){ LimitData(0, TimeAndNumber(5,5)) }
+            val limit = netLimit.computeIfAbsent(connectionAgreement.ipLong24){ LimitData(0, TimeAndNumber(5,8)) }
             limit.LastUpdateTime = Time.concurrentSecond() + 60 * 60
 
 
@@ -47,14 +47,14 @@ internal class ConnectionLimit: Plugin() {
             var flag = false
 
             if (limit.limit.checkStatus()) {
-                netLimitList.add(connectionAgreement.ipLong24)
-                flag = true
-            } else {
                 if (netLimitList.contains(connectionAgreement.ipLong24)) {
                     flag = true
                 } else {
                     limit.limit.count++
                 }
+            } else {
+                netLimitList.add(connectionAgreement.ipLong24)
+                flag = true
             }
 
             /* Clear Cache */

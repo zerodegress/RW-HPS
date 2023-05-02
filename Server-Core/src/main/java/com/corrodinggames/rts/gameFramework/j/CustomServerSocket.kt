@@ -15,6 +15,7 @@ import net.rwhps.server.plugin.internal.hess.inject.net.socket.StartGameHessNetT
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.ifResult
 import net.rwhps.server.util.log.Log
+import java.io.Closeable
 import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable
 import com.corrodinggames.rts.gameFramework.l as GameEe
 
@@ -26,7 +27,7 @@ import com.corrodinggames.rts.gameFramework.l as GameEe
  * @property port Int
  * @constructor
  */
-class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1) {
+class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
     private val netEngine: ad = this::class.java.findField("r",ad::class.java)!!.get(this)!! as ad
     private var netService: NetService? = null
     private var port = 0
@@ -67,7 +68,7 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1) {
         netService = NetService(StartGameHessNetTcp(netEngine))
     }
 
-    private fun close() {
+    override fun close() {
         Log.debug("[Close]")
         netService!!.stop()
     }

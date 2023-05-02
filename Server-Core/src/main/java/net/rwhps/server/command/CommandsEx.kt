@@ -75,6 +75,8 @@ class CommandsEx(handler: CommandHandler) {
 
                     out.writeString("RoomAllSize")
                     out.writeInt(Relay.roomAllSize)
+                    out.writeString("RoomPublicListSize")
+                    out.writeInt(0)
                     out.writeString("RoomNoStartSize")
                     out.writeInt(Relay.roomNoStartSize)
                 }

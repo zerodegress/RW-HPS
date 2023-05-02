@@ -7,16 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.api;
+package net.rwhps.asm.func
 
-import org.objectweb.asm.tree.ClassNode;
-
-import java.util.ArrayList;
-
-@FunctionalInterface
-public interface Transformer {
-    default void transform(ClassNode classNode) {
-        transform(classNode, null);
-    }
-    void transform(ClassNode classNode, ArrayList<String[]> parameters);
+fun interface Find<T,R> {
+    /**
+     * @param t 内容
+     */
+    operator fun invoke(t: T) : R
 }

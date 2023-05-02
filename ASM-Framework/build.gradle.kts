@@ -7,7 +7,7 @@ publishing {
 	publications {
 		create<MavenPublication>("maven") {
 			groupId = "com.github.RW-HPS"
-			artifactId = "Server-ASMFramework"
+			artifactId = "ASM-Framework"
 			description = "Dedicated to Rusted Warfare(RustedWarfare) High Performance Server"
 
 			from(components.getByName("java"))

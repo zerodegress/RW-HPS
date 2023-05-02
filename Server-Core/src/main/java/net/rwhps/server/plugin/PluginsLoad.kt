@@ -22,35 +22,29 @@ import net.rwhps.server.util.log.Log.warn
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
-import java.util.*
 
 /**
  * 在这里完成 插件的加载
  * @author RW-HPS/Dr
  */
 class PluginsLoad {
-    private fun loadJar(jarFileList: Seq<File>): Seq<PluginLoadData> {
+    private fun loadPlugin(fileList: Seq<File>): Seq<PluginLoadData> {
         val data = Seq<PluginLoadData>()
         val dataName = Seq<String>()
         val dataImport = Seq<PluginImportData>()
-        for (file in jarFileList) {
+        for (file in fileList) {
             val zip = CompressionDecoderUtils.zip(file)
             try {
                 val imp = zip.getZipNameInputStream("plugin.json")
                 if (imp == null) {
-                    error("Invalid jar file", file.name)
+                    error("Invalid Plugin file", file.name)
                     continue
                 }
                 // 读取 插件需要的 依赖
                 // 进行注入进服务端
                 val imports = zip.getZipNameInputStream("imports.json")
                 if (imports != null) {
-                    val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
-                    val lib = LibraryManager()
-                    importsJson.eachAll {
-                        lib.implementation(it.getString("group"), it.getString("module"), it.getString("version"))
-                    }
-                    lib.loadToClassLoader()
+                    loadImports(Json(FileUtil.readFileString(imports)).getArraySeqData("imports"))
                 }
 
                 val json = Json(FileUtil.readFileString(imp))
@@ -59,7 +53,17 @@ class PluginsLoad {
                     continue
                 }
                 if (IsUtil.isBlank(json.getString("import"))) {
-                    val mainPlugin = loadClass(file, json.getString("main"))
+                    val mainPlugin = if (json.getString("main").endsWith("js",true)) {
+                        val mainJs = zip.getZipNameInputStream(json.getString("main"))
+                        if (mainJs == null) {
+                            error("Invalid JavaScriptPlugin Main", json.getString("main"))
+                            continue
+                        }
+                        JavaScriptPlugin.loadJavaScriptPlugin(FileUtil.readFileString(mainJs))
+                    } else {
+                        loadClass(file, json.getString("main"))
+                    }
+
                     data.add(PluginLoadData(
                         json.getString("name"),
                         json.getString("author"),
@@ -105,6 +109,15 @@ class PluginsLoad {
         return data
     }
 
+
+    private fun loadImports(importsJson: Seq<Json>) {
+        val lib = LibraryManager()
+        importsJson.eachAll {
+            lib.implementation(it.getString("group"), it.getString("module"), it.getString("version"))
+        }
+        lib.loadToClassLoader()
+    }
+
     /**
      * 根据包名加载实例
      * @param file Jar文件
@@ -131,35 +144,6 @@ class PluginsLoad {
      */
     private class PluginImportData(@JvmField val pluginData: Json, @JvmField val file: File)
 
-    class PluginLoadData(
-        @JvmField val name: String,
-        @JvmField val author: String,
-        @JvmField val description: String,
-        @JvmField val version: String,
-        @JvmField val main: Plugin,
-        private val mkdir: Boolean = true,
-        private val skip: Boolean = false
-        ) {
-        init {
-            if (mkdir) {
-                main.pluginDataFileUtil = FileUtil.getFolder(Data.Plugin_Plugins_Path,true).toFolder(this.name)
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-            return if (other == null || javaClass != other.javaClass) {
-                false
-            } else name == (other as PluginLoadData).name
-        }
-
-        override fun hashCode(): Int {
-            return Objects.hash(name)
-        }
-    }
-
     companion object {
         /**
          * 返回文件夹内指定后辍的文件并包装为PluginLoadData
@@ -171,11 +155,11 @@ class PluginsLoad {
             val jarFileList = Seq<File>()
             val list = f.fileList
             for (file in list) {
-                if (file.name.endsWith("jar")) {
+                if (file.name.endsWith("jar") || file.name.endsWith("zip")) {
                     jarFileList.add(file)
                 }
             }
-            return PluginsLoad().loadJar(jarFileList)
+            return PluginsLoad().loadPlugin(jarFileList)
         }
 
         @JvmStatic

@@ -26,13 +26,14 @@ import net.rwhps.server.util.threads.GetNewThreadPool
 import net.rwhps.server.util.threads.ThreadFactoryName
 import java.util.concurrent.TimeUnit
 
+
 /**
  * @author RW-HPS/Dr
  */
 @Sharable
 abstract class AbstractNet(
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger(),
-    private val newServerHandler: SimpleChannelInboundHandler<Any?> = NewServerHandler()
+    private val newServerHandler: SimpleChannelInboundHandler<Any?> = NewServerHandler(),
 ) : ChannelInitializer<SocketChannel>() {
     private val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(64, ThreadFactoryName.nameThreadFactory("IO-Group"))
     // Speed Limt 8Mbps

@@ -46,6 +46,12 @@ internal class GameNet : AbstractGameNet {
     }
 
     override fun startHessPort(port: Int, passwd: String?, name: String) {
+//        for (a in (GameEngine.gameEngine.bZ::class.java.findField("e")!![GameEngine.gameEngine.bZ] as ArrayList<b>)) {
+//            a.U.iterator().forEach {
+//                Log.clog(it.toString())
+//            }
+//        }
+
         val netEngine = GameEngine.netEngine
         GameEngine.settingsEngine.networkPort = port
         GameEngine.settingsEngine.udpInMultiplayer = false
@@ -100,7 +106,7 @@ internal class GameNet : AbstractGameNet {
                         GameEngine.netEngine.z.k = -3
 
                         Events.fire(EventType.ServerHessStartPort())
-
+                        
                         break@startTryWhile
                     } catch (e: Exception) {
                         Log.error(e)

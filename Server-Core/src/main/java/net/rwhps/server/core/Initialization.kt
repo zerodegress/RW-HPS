@@ -13,6 +13,7 @@ import net.rwhps.server.Main
 import net.rwhps.server.core.ServiceLoader.ServiceType
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.serverCountry
@@ -155,40 +156,41 @@ class Initialization {
     private fun initGetServerData() {
         Threads.newTimedTask(CallTimeTask.ServerUpStatistics,0, 5, TimeUnit.SECONDS) {
             if (NetStaticData.ServerNetType != IRwHps.NetType.NullProtocol) {
-                val data = when (NetStaticData.ServerNetType) {
-                    IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
-                        BaseDataSend(
-                            IsServer = true,
-                            ServerData = BaseDataSend.Companion.ServerData(
-                                IpPlayerCountry = mutableMapOf<String, Int>().also {
-                                    Data.game.playerManage.playerGroup.eachAll {  player ->
-                                        val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
-                                        if (it.containsKey(ipCountry)) {
-                                            it[ipCountry] = it[ipCountry]!! + 1
-                                        } else {
-                                            it[ipCountry] = 1
+                try {
+                    val data = when (NetStaticData.ServerNetType) {
+                        IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
+                            BaseDataSend(
+                                IsServer = true,
+                                ServerData = BaseDataSend.Companion.ServerData(
+                                    IpPlayerCountry = mutableMapOf<String, Int>().also {
+                                        HessModuleManage.hps.room.playerManage.playerGroup.eachAll {  player ->
+                                            val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
+                                            if (it.containsKey(ipCountry)) {
+                                                it[ipCountry] = it[ipCountry]!! + 1
+                                            } else {
+                                                it[ipCountry] = 1
+                                            }
                                         }
                                     }
-                                }
+                                )
                             )
-                        )
+                        }
+
+                        IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
+                            BaseDataSend(
+                                IsServer = false,
+                                RelayData = BaseDataSend.Companion.RelayData()
+                            )
+                        }
+                        else -> {
+                            BaseDataSend(
+                                IsServerRun = false,
+                                IsServer = true
+                            )
+                        }
                     }
 
-                    IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
-                        BaseDataSend(
-                            IsServer = false,
-                            RelayData = BaseDataSend.Companion.RelayData()
-                        )
-                    }
-                    else -> {
-                        BaseDataSend(
-                            IsServerRun = false,
-                            IsServer = true
-                        )
-                    }
-                }
 
-                try {
                     val out = GameOutputStream()
                     out.writeString("RW-HPS Statistics Data")
                     out.writeString(Data.core.serverConnectUuid)

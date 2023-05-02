@@ -21,6 +21,9 @@ import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.clog
 
+/**
+ * @author RW-HPS/Dr
+ */
 class ServerRoom {
     lateinit var roomID: String
 

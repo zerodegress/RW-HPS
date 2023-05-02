@@ -11,14 +11,14 @@ package net.rwhps.server.net.netconnectprotocol
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelayRebroadcast
-import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.PacketType.*
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.game.CommandHandler
 
@@ -40,63 +40,58 @@ class TypeRelayRebroadcast : TypeRelay {
     }
 
     @Throws(Exception::class)
-    override fun typeConnect(packet: Packet) {
-        if (relayCheck(packet)) {
-            return
-        }
-
-        val permissionStatus = con.permissionStatus
-
-        if (permissionStatus == RelayStatus.HostPermission) {
-            when (packet.type) {
-                PacketType.PACKET_FORWARD_CLIENT_TO  -> {
-                    con.addRelaySend(packet)
-                    return
-                }
-                PacketType.PACKET_FORWARD_CLIENT_TO_REPEATED  -> {
-                    con.multicastAnalysis(packet)
-                    return
-                }
-                PacketType.HEART_BEAT -> {
-                    con.setlastSentPacket(packet)
-                    con.getPingData(packet)
-                }
-                else -> {
-                    con.setlastSentPacket(packet)
-                    // Command?
-                    if (packet.type == PacketType.CHAT) {
-                        GameInputStream(packet).use {
-                            val message = it.readString()
-                            it.skip(1)
-                            if (it.readIsString() == con.name) {
-                                if (message.startsWith(".")) {
-                                    val response = Data.RELAY_COMMAND.handleMessage(message, con)
-                                    if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                                    } else if (response.type != CommandHandler.ResponseType.valid) {
-                                        val text: String = when (response.type) {
-                                            CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            else -> return@use
-                                        }
-                                        con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
-                                    }
-                                    return
+    override fun hostProcessing(packet: Packet) {
+        when (packet.type) {
+            // 每个玩家不一样, 不需要处理/缓存
+            TEAM_LIST,
+            // Nobody dealt with it
+            PACKET_DOWNLOAD_PENDING,
+            // Refusal to Process
+            EMPTYP_ACKAGE, NOT_RESOLVED
+            -> {
+                // Ignore
+            }
+            PACKET_FORWARD_CLIENT_TO  -> {
+                con.addRelaySend(packet)
+                return
+            }
+            PACKET_FORWARD_CLIENT_TO_REPEATED  -> {
+                con.multicastAnalysis(packet)
+                return
+            }
+            HEART_BEAT -> {
+                con.setlastSentPacket(packet)
+                con.getPingData(packet)
+            }
+            RELAY_BECOME_SERVER -> {
+                con.setlastSentPacket(packet)
+                con.relay!!.isStartGame = false
+            }
+            CHAT -> {
+                con.setlastSentPacket(packet)
+                GameInputStream(packet).use {
+                    val message = it.readString()
+                    it.skip(1)
+                    if (it.readIsString() == con.name) {
+                        if (message.startsWith(".")) {
+                            val response = Data.RELAY_COMMAND.handleMessage(message, con)
+                            if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                            } else if (response.type != CommandHandler.ResponseType.valid) {
+                                val text: String = when (response.type) {
+                                    CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                    CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                    else -> return@use
                                 }
+                                con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
                             }
+                            return
                         }
                     }
                 }
             }
-        } else {
-            when (packet.type) {
-                PacketType.DISCONNECT -> con.disconnect()
-                PacketType.CHAT_RECEIVE -> con.receiveChat(packet)
-                PacketType.REGISTER_PLAYER -> con.relayRegisterConnection(packet)
-                PacketType.ACCEPT_START_GAME -> {
-                    con.relay!!.isStartGame = true
-                    con.sendPackageToHOST(packet)
-                }
-                else -> con.sendPackageToHOST(packet)
+            DISCONNECT -> con.disconnect()
+            else -> {
+                con.setlastSentPacket(packet)
             }
         }
     }

@@ -58,6 +58,7 @@ enum class PacketType(val typeInt: Int) {
     CHAT(141),
 
     /* Net Status */
+    PACKET_DOWNLOAD_PENDING(4),
     KICK(150),
     DISCONNECT(111),
 
@@ -80,7 +81,7 @@ enum class PacketType(val typeInt: Int) {
     RELAY_POW_RECEIVE(152),
 
     RELAY_VERSION_INFO(163),
-    FORWARD_HOST_SET(170),
+    RELAY_BECOME_SERVER(170),
     FORWARD_CLIENT_ADD(172),
     FORWARD_CLIENT_REMOVE(173),
     PACKET_FORWARD_CLIENT_FROM(174),

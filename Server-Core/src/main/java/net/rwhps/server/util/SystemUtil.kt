@@ -50,6 +50,11 @@ object SystemUtil {
         get() = ProcessHandle.current().pid()
 
 
+    /**
+     * 用于替代 Java11 中的 GetPid
+     * @return Long
+     */
+    @Deprecated("NotUsed", ReplaceWith("ProcessHandle.current().pid()"))
     private fun jvmPid(): Long {
         return try {
             var pid = ManagementFactory.getRuntimeMXBean().name

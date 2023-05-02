@@ -46,8 +46,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
             if (headS.startsWith("GET $WS_URI")) {
                 val head = headS.split("\\R")[0].split(" ")[1]
                 ctx.pipeline().addLast(
-                    IdleStateHandler(10, 0, 0),
-                    object : ChannelDuplexHandler() {
+                    IdleStateHandler(10, 0, 0), object : ChannelDuplexHandler() {
                         @Throws(Exception::class)
                         override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
                             val evt1: IdleStateEvent = evt as IdleStateEvent

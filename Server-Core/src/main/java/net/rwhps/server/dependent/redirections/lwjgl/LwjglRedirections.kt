@@ -1,5 +1,6 @@
 package net.rwhps.server.dependent.redirections.lwjgl
 
+import net.rwhps.asm.agent.AsmCore
 import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.redirections.DefaultRedirections
 import net.rwhps.server.dependent.redirections.MainRedirections
@@ -24,6 +25,11 @@ class LwjglRedirections : MainRedirections {
 
 
     override fun register() {
+        // 覆写 lwjgl 并跳过 RW-HPS 包
+        AsmCore.allIgnore { className ->
+            return@allIgnore className.contains("lwjgl") && !className.contains("rwhps")
+        }
+
         redirect(AppGameContainerUpdate.DESC, AppGameContainerUpdate())
 
         redirect("Lorg/lwjgl/opengl/Display;isCreated()Z", Redirection.of(true))
@@ -32,7 +38,7 @@ class LwjglRedirections : MainRedirections {
             Thread.sleep((args[0] as Double * 1000L).toLong())
             null
         }
-        
+
         redirect("Lorg/lwjgl/glfw/GLFW;glfwGetTime()D") { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             (System.nanoTime() - startTime) / 1000000000.0
         }
@@ -45,7 +51,7 @@ class LwjglRedirections : MainRedirections {
             height[0] = screenHeight
             null
         }
-        
+
         redirect("Lorg/lwjgl/opengl/Display;getWidth()I", Redirection.of(screenWidth))
         redirect("Lorg/lwjgl/opengl/Display;getHeight()I", Redirection.of(screenHeight))
         redirect("Lorg/lwjgl/opengl/Display;isFullscreen()Z", Redirection.of(fullScreen))

@@ -24,6 +24,7 @@ import net.rwhps.server.io.packet.Packet
  *   |0 |0 |0 |0 |0|0|0|0| Data|
  *   +-+-+-+-+-+-+-+-+---------------+
  *   |Data length|  Type | Data
+ *   |    Packet Head    | Data
  *   +---------------+---------------+
  */
 internal class PacketEncoder : MessageToByteEncoder<Packet>() {

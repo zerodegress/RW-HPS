@@ -10,16 +10,20 @@
 package net.rwhps.asm.agent
 
 import net.rwhps.asm.api.Redirection
+import net.rwhps.asm.func.Find
 import net.rwhps.asm.redirections.AsmRedirections
 import net.rwhps.asm.redirections.DefaultRedirections
 import java.security.ProtectionDomain
 
 open class AsmCore {
+    protected val allIgnore = allIgnore0
+
     protected val partialMethod = partialMethod0
 
     protected val setAgent = { agent: AsmAgent -> AsmCore.agent = agent }
 
     companion object {
+        private val allIgnore0 = ArrayList<Find<String, Boolean>>()
         private val partialMethod0 = HashMap<String, ArrayList<Array<String>>>()
         val allMethod = ArrayList<String>()
         private var agent: AsmAgent? = null
@@ -32,6 +36,11 @@ open class AsmCore {
         @JvmStatic
         fun transform(loader: ClassLoader?, className: String, classBeingRedefined: Class<*>?, protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray): ByteArray {
             return agent?.transform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer) ?: classfileBuffer
+        }
+
+        @JvmStatic
+        fun allIgnore(classFind: Find<String, Boolean>) {
+            allIgnore0.add(classFind)
         }
 
         /**

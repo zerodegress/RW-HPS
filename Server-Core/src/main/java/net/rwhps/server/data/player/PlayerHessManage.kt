@@ -15,6 +15,9 @@ import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.I18NBundle
 
+/**
+ * @author RW-HPS/Dr
+ */
 class PlayerHessManage {
     /** Online players   */
     @JvmField
@@ -25,28 +28,38 @@ class PlayerHessManage {
     val playerAll = Seq<AbstractPlayer>(16,true)
 
     fun addAbstractPlayer(con: AbstractNetConnectServer, playerData: AbstractPlayerData, i18NBundle: I18NBundle = Data.i18NBundle): AbstractPlayer {
-        var result: AbstractPlayer? = null
+        var player: AbstractPlayer? = null
         var resultFlag = true
 
         playerAll.eachAllFind({ i: AbstractPlayer -> i.connectHexID == playerData.connectHexID }) { e: AbstractPlayer ->
             e.con = con
             resultFlag = false
-            result = e
+            player = e
         }
 
         if (resultFlag) {
-            result = AbstractPlayer(con, i18NBundle, playerData)
+            player = AbstractPlayer(con, i18NBundle, playerData)
             if (Data.config.OneAdmin) {
-                if (playerGroup.size == 0) {
-                    result!!.isAdmin = true
+                var hasAutoAdmin = false
+                playerGroup.eachFind({ it.isAdmin && it.autoAdmin }) { hasAutoAdmin = true }
+
+                if (!hasAutoAdmin) {
+                    player!!.isAdmin = true
+                    player!!.autoAdmin = true
                 }
             }
 
-            playerAll.add(result!!)
+            if (Data.core.admin.isAdmin(player!!)) {
+                val data = Data.core.admin.playerAdminData.get(player!!.connectHexID)
+                player!!.isAdmin = data.admin
+                player!!.superAdmin = data.superAdmin
+            }
+
+            playerAll.add(player!!)
         }
 
-        playerGroup.add(result!!)
-        return result!!
+        playerGroup.add(player!!)
+        return player!!
     }
 
     fun runPlayerArrayDataRunnable(run: (AbstractPlayer) -> Unit) {

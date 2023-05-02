@@ -99,14 +99,17 @@ class Event : AbstractEvent {
     }
 
     override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
-        if (Data.config.OneAdmin && player.isAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
-            try {
-                val p: AbstractPlayer = HessModuleManage.hps.room.playerManage.playerGroup[0]
-                p.isAdmin = true
-                player.isAdmin = false
-                HessModuleManage.hps.room.call.sendSystemMessage("give.ok", p.name)
-            } catch (ignored: IndexOutOfBoundsException) {
-            }
+        if (Data.config.OneAdmin &&
+            player.isAdmin &&
+            player.autoAdmin &&
+            HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
+                HessModuleManage.hps.room.playerManage.playerGroup.eachFind({ !it.isAdmin }) {
+                    it.isAdmin = true
+                    it.autoAdmin = true
+                    player.isAdmin = false
+                    player.autoAdmin = false
+                    HessModuleManage.hps.room.call.sendSystemMessage("give.ok", it.name)
+                }
         }
 
         Data.core.admin.playerDataCache.put(player.connectHexID, PlayerInfo(player.connectHexID, player.kickTime, player.muteTime))

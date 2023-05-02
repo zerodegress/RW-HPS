@@ -245,10 +245,6 @@ internal class ClientCommands(handler: CommandHandler) {
             ))
         }
         handler.register("vote", "<gameover>","clientCommands.vote") { _: Array<String>?, player: AbstractPlayer ->
-            if (room.isStartGame) {
-                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
-                return@register
-            }
             Data.vote = Vote("gameover",player)
         }
         handler.register("summon", "<unitName>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->

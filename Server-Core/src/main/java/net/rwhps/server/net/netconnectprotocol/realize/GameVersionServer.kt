@@ -386,9 +386,6 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         outStream.transferTo(inStream)
                     } else {
                         if (turnStoneIntoGold.checkStatus()) {
-                            sendSystemMessage("建的太频繁了 休息一下吧 !")
-                            return@use
-                        } else {
                             turnStoneIntoGold.count++
                             outStream.writeBoolean(true)
                             outStream.writeByte(0)
@@ -398,6 +395,9 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                             outStream.writeInt(5)
                             outStream.writeInt(0)
                             outStream.writeBoolean(false)
+                        } else {
+                            sendSystemMessage("建的太频繁了 休息一下吧 !")
+                            return@use
                         }
                     }
                     Data.game.gameCommandCache.add(GameCommandPacket(player.site, outStream.getPacketBytes()))

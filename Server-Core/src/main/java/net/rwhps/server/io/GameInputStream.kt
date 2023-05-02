@@ -269,4 +269,19 @@ open class GameInputStream : Closeable {
         buffer.close()
         stream.close()
     }
+
+    companion object {
+        @JvmStatic
+        @Throws(IOException::class)
+        fun readHeadInt(packet: Packet): Int {
+            val ch1: Int = packet.bytes[0].toInt()
+            val ch2: Int = packet.bytes[1].toInt()
+            val ch3: Int = packet.bytes[2].toInt()
+            val ch4: Int = packet.bytes[3].toInt()
+            if (ch1 or ch2 or ch3 or ch4 < 0) {
+                throw EOFException()
+            }
+            return (ch1 shl 24) + (ch2 shl 16) + (ch3 shl 8) + (ch4 shl 0)
+        }
+    }
 }

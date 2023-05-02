@@ -12,6 +12,9 @@ package net.rwhps.server.data.event
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 
+/**
+ * @author RW-HPS/Dr
+ */
 data class GameOverData(
     val allPlayerList: Seq<String>,
     val winPlayerList: Seq<String>,

@@ -18,6 +18,9 @@ import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log
 import java.lang.reflect.Field
 
+/**
+ * @author RW-HPS/Dr
+ */
 data class BaseServerExConfig(
     val EnterAd: String = "",
     val StartAd: String = "",

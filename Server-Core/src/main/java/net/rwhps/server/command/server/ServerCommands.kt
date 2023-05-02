@@ -77,6 +77,7 @@ internal class ServerCommands(handler: CommandHandler) {
                     Data.core.admin.removeAdmin(player.uuid)
                 }
 
+                player.autoAdmin = false
                 player.isAdmin = add
                 player.superAdmin = supAdmin
 
@@ -345,9 +346,9 @@ internal class ServerCommands(handler: CommandHandler) {
     }
 
     init {
-        //registerPlayerCommand(handler)
-        //registerPlayerStatusCommand(handler)
-        //registerPlayerCustomEx(handler)
+        registerPlayerCommand(handler)
+        registerPlayerStatusCommand(handler)
+        registerPlayerCustomEx(handler)
 
         PluginManage.runRegisterServerCommands(handler)
 

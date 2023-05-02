@@ -14,12 +14,25 @@ import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.inline.findField
+import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
 
 @AsmMark.ClassLoaderCompatible
 class CustomRedirections : MainRedirections {
     override fun register() {
+        /* 屏蔽游戏错误捕获 */
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("setDefaultUncaughtExceptionHandler")
+        redirect("com/corrodinggames/rts/gameFramework/l", arrayOf("aq","()V"))
+
+        /* 屏蔽游戏设置保存 */
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("preferences.ini")
+        redirect("com/corrodinggames/rts/gameFramework/SettingsEngine", arrayOf("saveToFileSystem","()Z")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
+            "com.corrodinggames.rts.gameFramework.l".toClassAutoLoader(obj)!!.findMethod("b", String::class.java)!!.invoke(null, "Saving settings: RW-HPS(ASM)")
+            return@redirect true
+        }
+        redirect("com/corrodinggames/rts/gameFramework/SettingsEngine", arrayOf("loadFromFileSystem","()V"))
+
         /* UUID 覆盖 */
         @GameSimulationLayer.GameSimulationLayer_KeyWords("serverUUID==null")
         redirect("com/corrodinggames/rts/gameFramework/j/ad", arrayOf("Z","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->

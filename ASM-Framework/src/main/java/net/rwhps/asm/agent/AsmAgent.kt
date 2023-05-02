@@ -10,6 +10,7 @@
 package net.rwhps.asm.agent
 
 import net.rwhps.asm.api.Transformer
+import net.rwhps.asm.func.Find
 import net.rwhps.asm.transformer.AllMethodsTransformer
 import net.rwhps.asm.transformer.AsmUtil
 import net.rwhps.asm.transformer.PartialMethodTransformer
@@ -40,8 +41,7 @@ class AsmAgent : ClassFileTransformer, AsmCore() {
             transformer.transform(node)
             return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).also { a -> FileOutputStream("a.class").also { it.write(a); it.flush() }}
         }
-        // 覆写 lwjgl 并跳过 RW-HPS 包
-        if (className.contains("lwjgl") && !className.contains("rwhps")
+        if (allIgnore.forFind(className)
             // 匹配 Class 并且替换全部方法
             || allMethod.contains(className)) {
             val node = AsmUtil.read(classfileBuffer)
@@ -56,6 +56,17 @@ class AsmAgent : ClassFileTransformer, AsmCore() {
                 //.also { a -> FileOutputStream("${className.replace("/","")}.class").also { it.write(a); it.flush() }}
         }
         return classfileBuffer
+    }
+
+    private fun ArrayList<Find<String, Boolean>>.forFind(value: String): Boolean {
+        var result = false
+        this.forEach {
+            result = it(value)
+            if (result) {
+                return result
+            }
+        }
+        return result
     }
 
     companion object {

@@ -12,7 +12,6 @@ package net.rwhps.server.command
 import net.rwhps.server.command.relay.RelayCommands
 import net.rwhps.server.command.server.ServerCommands
 import net.rwhps.server.core.*
-import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
@@ -23,12 +22,11 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.HotLoadClass
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.Rules
 import net.rwhps.server.game.event.EventGlobalType
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.tcp.StartHttp
-import net.rwhps.server.plugin.PluginsLoad
+import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.center.PluginCenter
 import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.alone.annotations.NeedHelp
@@ -95,7 +93,7 @@ class CoreCommands(handler: CommandHandler) {
 
     private fun registerInfo(handler: CommandHandler) {
         handler.register("plugins", "serverCommands.plugins") { _: Array<String>?, log: StrCons ->
-            PluginManage.run { e: PluginsLoad.PluginLoadData? ->
+            PluginManage.run { e: PluginLoadData? ->
                 log[localeUtil.getinput("plugin.info", e!!.name, e.description, e.author, e.version)]
             }
         }
@@ -135,13 +133,10 @@ class CoreCommands(handler: CommandHandler) {
             RelayCommands(handler)
 
             Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-            Data.game = Rules(Data.config)
+            //Data.game = Rules(Data.config)
             Data.game.init()
 
             NetStaticData.ServerNetType = IRwHps.NetType.RelayProtocol
-            NetStaticData.RwHps =
-                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
-                    .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
             handler.handleMessage("startnetservice true 5201 5500") //5200 6500
         }
@@ -155,13 +150,10 @@ class CoreCommands(handler: CommandHandler) {
             RelayCommands(handler)
 
             Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-            Data.game = Rules(Data.config)
+            //Data.game = Rules(Data.config)
             Data.game.init()
 
             NetStaticData.ServerNetType = IRwHps.NetType.RelayMulticastProtocol
-            NetStaticData.RwHps =
-                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
-                    .newInstance(IRwHps.NetType.RelayMulticastProtocol) as IRwHps
 
             handler.handleMessage("startnetservice true 5200 5500")
         }
@@ -211,7 +203,7 @@ class CoreCommands(handler: CommandHandler) {
         ServerCommands(handler)
 
         Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-        Data.game = Rules(Data.config)
+        //Data.game = Rules(Data.config)
         Data.game.init()
 
         NetStaticData.ServerNetType = netType

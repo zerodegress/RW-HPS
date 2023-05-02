@@ -16,27 +16,39 @@ import net.rwhps.server.data.HessModuleManage;
 import net.rwhps.server.data.global.Data;
 import net.rwhps.server.data.global.NetStaticData;
 import net.rwhps.server.func.StrCons;
+import net.rwhps.server.net.NetService;
 import net.rwhps.server.net.core.IRwHps;
+import net.rwhps.server.util.RandomUtil;
+import net.rwhps.server.util.StringFilteringUtil;
+import net.rwhps.server.util.Time;
+import net.rwhps.server.util.algorithms.digest.DigestUtil;
 import net.rwhps.server.util.log.Log;
+import org.jetbrains.annotations.NotNull;
+
+import java.math.BigInteger;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.rwhps.server.net.HttpRequestOkHttp.doPostRw;
 
 /**
  * @author RW-HPS/Dr
  */
+@SuppressWarnings("deprecation")
 public class NetServer {
 
     static String userId;
 
     public static void closeServer() {
-        if (Data.game != null) {
+        if (Data.INSTANCE.getGame() != null) {
             Data.INSTANCE.setExitFlag(true);
 
             TimeTaskData.INSTANCE.stopCallTickTask();
 
             Call.killAllPlayer("Server Close");
 
-            NetStaticData.netService.eachAll(e ->{
-                    e.stop();
-            });
+            NetStaticData.netService.eachAll(NetService::stop);
             NetStaticData.netService.clear();
             NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);
             Threads.closeNet();
@@ -54,11 +66,15 @@ public class NetServer {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask);
             Threads.closeTimeTask(CallTimeTask.AutoUpdateMapsTask);
 
-            Data.SERVER_COMMAND.handleMessage("uplist remove", (StrCons) Log::clog);
+            Data.SERVER_COMMAND.handleMessage("uplist remove", new StrCons() {
+                @Override
+                public void get(@NotNull String t) {
+                    Log.clog(t);
+                }
+            });
 
-            Data.game.getPlayerManage().playerGroup.clear();
-            Data.game.getPlayerManage().playerAll.clear();
-            Data.game = null;
+            Data.INSTANCE.getGame().getPlayerManage().playerGroup.clear();
+            Data.INSTANCE.getGame().getPlayerManage().playerAll.clear();
 
             System.gc();
             Log.clog("Server closed");
@@ -75,14 +91,12 @@ public class NetServer {
 
 
         Call.killAllPlayer();
-        Data.game.re();
-        Data.game.setStartGame(false);
+        Data.INSTANCE.getGame().re();
+        Data.INSTANCE.getGame().setStartGame(false);
 
         synchronized (net.udp.Data.waitData) {
             net.udp.Data.waitData.notify();
         }
-
-        Log.saveLog();
 
         Log.clog("[Server Gameover completed]");
     }

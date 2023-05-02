@@ -26,6 +26,9 @@ import net.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
 import java.util.*
 
+/**
+ * @author RW-HPS/Dr
+ */
 open class AbstractPlayer(
     open var con: AbstractNetConnectServer?,
     /**   */
@@ -36,6 +39,8 @@ open class AbstractPlayer(
     /** is Admin  */
     @Volatile
     var isAdmin: Boolean = false
+    // 自动分配的 ADMIN 标记
+    var autoAdmin: Boolean = false
     var superAdmin: Boolean = false
 
     /** List position  */

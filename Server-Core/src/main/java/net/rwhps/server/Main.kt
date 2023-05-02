@@ -57,7 +57,6 @@ import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
 import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.io.output.DynamicPrintStream
-import net.rwhps.server.math.Rand
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
@@ -69,7 +68,6 @@ import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.set
 import net.rwhps.server.util.log.Log.setCopyPrint
-import net.rwhps.server.util.log.exp.EggsException
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
@@ -169,8 +167,7 @@ object Main {
             NetService(StartHttp::class.java).openPort(5000)
         }
 
-        /* 按键监听 */
-        newThreadCore { inputMonitor() }
+        newThreadCore(this::inputMonitor)
     }
 
     /**
@@ -209,9 +206,6 @@ object Main {
                     last = 1
                     continue
                 }
-                if (Rand().nextBoolean()) {
-                    Log.skipping(EggsException.MoneyNotEnoughException("KFC Crazy Thursday need ¥50."))
-                }
                 privateReader.printAbove("force exit")
                 exitProcess(255)
             } catch (e: EndOfFileException) {
@@ -249,12 +243,12 @@ object Main {
                 }
             } catch (e: Exception) {
                 if (idlingCount.checkStatus()) {
-                    clog("InputMonitor Idling")
-                    return
-                } else {
                     idlingCount.count++
                     clog("InputMonitor Error")
                     Log.error(e)
+                } else {
+                    clog("InputMonitor Idling")
+                    return
                 }
             }
         }

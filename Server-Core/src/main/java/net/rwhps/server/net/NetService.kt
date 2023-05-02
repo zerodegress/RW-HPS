@@ -23,7 +23,6 @@ import net.rwhps.server.net.handler.tcp.StartGameNetTcp
 import net.rwhps.server.net.handler.tcp.StartGamePortDivider
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.error
@@ -68,9 +67,6 @@ class NetService {
      * @param port Port
      */
     fun openPort(port: Int) {
-        Data.config.RunPid = SystemUtil.pid
-        Data.config.save()
-
         openPort(port,1,0)
     }
 
@@ -82,6 +78,8 @@ class NetService {
      * @param endPort End Port
      */
     fun openPort(port: Int,startPort:Int,endPort:Int) {
+        Data.config.save()
+
         clog(Data.i18NBundle.getinput("server.start.open"))
         val bossGroup: EventLoopGroup = getEventLoopGroup()
         val workerGroup: EventLoopGroup = getEventLoopGroup()
@@ -100,9 +98,9 @@ class NetService {
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                // Tuned sending, compatible with 100Mbps
-                .childOption(ChannelOption.SO_RCVBUF,1024 * 1024)
-                .childOption(ChannelOption.SO_SNDBUF,2048 * 1024)
+                // Tuned sending, compatible with 200Mbps
+                .childOption(ChannelOption.SO_RCVBUF,2048 * 1024)
+                .childOption(ChannelOption.SO_SNDBUF,4096 * 1024)
                 // Corresponds to the largest packet in the decoder, because there will be cases where the received [PacketType.PACKET_FORWARD_CLIENT_TO] size is 50M
                 .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark(minLowWaterMark,maxPacketSizt))
                 .childHandler(start)

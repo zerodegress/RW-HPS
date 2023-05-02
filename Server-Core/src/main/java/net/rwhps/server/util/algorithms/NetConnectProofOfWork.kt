@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.net.core
+package net.rwhps.server.util.algorithms
 
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
@@ -15,7 +15,6 @@ import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.algorithms.Game
 import net.rwhps.server.util.algorithms.digest.DigestUtil
 import java.io.IOException
 import java.math.BigInteger

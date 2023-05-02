@@ -152,6 +152,8 @@ class GameModularLoadClass(
 
             throw ClassNotFoundException()
         }
+
+
         classBytes = AsmCore.transform(this,name,classBytes)
         return defineClass(null,classBytes, 0, classBytes.size)
     }

@@ -13,13 +13,12 @@ import net.rwhps.server.data.global.Data.LINE_SEPARATOR
 import net.rwhps.server.math.Rand
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.core.DataPermissionStatus
-import net.rwhps.server.net.core.NetConnectProofOfWork
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.struct.IntMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil.isNumeric
-import net.rwhps.server.util.Time
 import net.rwhps.server.util.Time.concurrentSecond
+import net.rwhps.server.util.algorithms.NetConnectProofOfWork
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import java.io.IOException
@@ -29,6 +28,9 @@ import java.util.concurrent.locks.ReentrantLock
 import java.util.function.Consumer
 import kotlin.concurrent.withLock
 
+/**
+ * @author RW-HPS/Dr
+ */
 class Relay {
     /**  */
     @JvmField
@@ -46,14 +48,14 @@ class Relay {
     @Volatile
     var closeRoom = false
 
-    val roomCreateTime = Time.concurrentSecond()
+    val roomCreateTime = concurrentSecond()
 
    // val serverUuid = UUID.randomUUID().toString()
     val serverUuid = Data.SERVER_RELAY_UUID
     val internalID : Int
     val id: String
     var isMod = false
-    var minSize = 1
+    var minSize = 0
         private set
     var isStartGame: Boolean = false
         set(value) {
@@ -61,7 +63,7 @@ class Relay {
                 return
             }
             field = value
-            startGameTime = Time.concurrentSecond()+300
+            startGameTime = concurrentSecond()+300
         }
     var startGameTime = 0
         private set
@@ -142,7 +144,7 @@ class Relay {
     }
 
     fun setAbstractNetConnect(abstractNetConnect: GameVersionRelay): GameVersionRelay? {
-        return abstractNetConnectIntMap.put(site.get(), abstractNetConnect)
+        return abstractNetConnectIntMap.put(abstractNetConnect.site, abstractNetConnect)
     }
 
     fun sendMsg(msg: String) {
@@ -171,16 +173,12 @@ class Relay {
         return abstractNetConnectIntMap.size
     }
 
-    fun getSite(): Int {
+    fun getPosition(): Int {
         return site.get()
     }
 
-    fun setAddSite() {
-        site.incrementAndGet()
-    }
-
-    fun setRemoveSite() {
-        site.decrementAndGet()
+    fun setAddPosition(): Int {
+        return site.incrementAndGet()
     }
 
     fun getSize(): Int {
@@ -197,6 +195,9 @@ class Relay {
 
     fun updateMinSize() {
         try {
+            if (abstractNetConnectIntMap.size < 1) {
+                return
+            }
             minSize = abstractNetConnectIntMap.toArrayKey().toIntArray().min()
         } catch (e: Exception) {
             Log.error("[RELAY updateMinSize]",e)

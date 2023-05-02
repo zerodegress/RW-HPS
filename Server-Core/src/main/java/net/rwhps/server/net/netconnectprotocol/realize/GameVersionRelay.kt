@@ -14,8 +14,6 @@ import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
-import net.rwhps.server.data.player.PlayerRelay
-import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
@@ -23,28 +21,24 @@ import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus
-import net.rwhps.server.net.core.NetConnectProofOfWork
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectRelay
-import net.rwhps.server.net.netconnectprotocol.UniversalAnalysisOfGamePackages
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInfo
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
 import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
-import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.GameOtherUtil.getBetaVersion
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.Time
+import net.rwhps.server.util.algorithms.NetConnectProofOfWork
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
-import java.util.stream.IntStream
 
 /**
  * Many thanks to them for providing cloud computing for the project
@@ -71,7 +65,6 @@ import java.util.stream.IntStream
  * @property registerPlayerId       UUID-Hash code after player registration
  * @property betaGameVersion        Is it a beta version
  * @property clientVersion          clientVersion
- * @property playerRelay            PlayerRelay?
  * @property version                Protocol version
  * @constructor
  *
@@ -88,7 +81,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     override var relay: Relay? = null
         protected set
 
-    protected var site = 0
+    var site = -1
+        protected set
 
     protected var cachePacket: Packet? = null
         private set
@@ -104,22 +98,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     override var clientVersion = 151
         protected set
 
-    var playerRelay: PlayerRelay? = null
-        internal set
-
     // 172
     protected val version2 = 999
-
-    // Lazy loading reduces memory usage
-    /** The server kicks the player's time data */
-    lateinit var relayKickData: ObjectMap<String,Int>
-        protected set
-    /** Server exits player data */
-    lateinit var relayPlayersData: ObjectMap<String,PlayerRelay>
-        protected set
-
-    protected val bindSimpFun = TimeAndNumber(60,5)
-    protected var qqName: String = ""
 
     override fun setCachePacket(packet: Packet) {
         cachePacket = packet
@@ -168,18 +148,13 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             }
             if (relay == null) {
                 if (IsUtil.isBlank(queryString) || "RELAYCN".equals(queryString, ignoreCase = true)) {
-                    if (qqName.isNotEmpty()) {
-                        sendRelayServerType(Data.i18NBundle.getinput("relay.hi.bind", qqName))
-                    } else {
-                        sendRelayServerType(Data.i18NBundle.getinput("relay.hi", Data.SERVER_CORE_VERSION))
-                    }
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.hi", Data.SERVER_CORE_VERSION))
                 } else {
                     idCustom(queryString)
                 }
             } else {
                 this.relay = relay
                 addRelayConnect()
-                this.relay!!.setAddSize()
             }
         }
     }
@@ -250,53 +225,32 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     @Throws(IOException::class)
     override fun receiveChat(packet: Packet) {
         GameInputStream(packet).use { inStream ->
-            if (playerRelay != null) {
-                val message: String = inStream.readString()
 
-                if (relay == null || relay!!.allmute) {
-                    return
-                }
+            val message: String = inStream.readString()
 
-                if (message.startsWith(".") || message.startsWith("-")) {
-                    val response = Data.RELAY_COMMAND.handleMessage(message, this)
-                    if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                    } else if (response.type == CommandHandler.ResponseType.valid) {
-                        return
-                    } else if (response.type != CommandHandler.ResponseType.valid) {
-                        val text: String = when (response.type) {
-                            CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                            CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                            else -> {
-                                sendPackageToHOST(packet)
-                                return
-                            }
-                        }
-                        sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
-                    }
-                } else {
-                    // 判定这句和最后一次发言的相同程度
-                    if (playerRelay!!.lastSentMessage == message) {
-                        // 检测是否达到上限 60s 五次
-                        if (playerRelay!!.messageSimilarityCount.checkStatus()) {
-                            // KICK 玩家
-                            relay!!.admin!!.relayKickData.put("KICK$registerPlayerId",Time.concurrentSecond()+120)
-                            relay!!.admin!!.relayKickData.put("KICK${connectionAgreement.ipLong24}", Time.concurrentSecond() + 120)
-                            kick("相同的话不应该连续发送")
-                            return
-                        } else {
-                            // 提醒玩家 并累计数
-                            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("您已经连续多次发言重复 您不应该这样做", "RELAY_CN-Check", 5))
-                            playerRelay!!.messageSimilarityCount.count++
-                            return
-                        }
-                    }
-                    playerRelay!!.lastSentMessage = message
-                }
-
-                sendPackageToHOST(packet)
-            } else {
-                disconnect()
+            if (relay == null || relay!!.allmute) {
+                return
             }
+
+            if (message.startsWith(".") || message.startsWith("-")) {
+                val response = Data.RELAY_COMMAND.handleMessage(message, this)
+                if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                } else if (response.type == CommandHandler.ResponseType.valid) {
+                    return
+                } else if (response.type != CommandHandler.ResponseType.valid) {
+                    val text: String = when (response.type) {
+                        CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                        CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                        else -> {
+                            sendPackageToHOST(packet)
+                            return
+                        }
+                    }
+                    sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
+                }
+            }
+
+            sendPackageToHOST(packet)
         }
     }
 
@@ -322,19 +276,14 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 //Log.debug("sendRelayServerId","Relay == null");
                 relay = NetStaticData.relay
             }
-            if (relay!!.admin != null) {
-                // Log.debug("sendRelayServerId","Admin != null");
+
+            if (site != -1) {
                 relay!!.removeAbstractNetConnect(site)
-                relayKickData = relay!!.admin!!.relayKickData
-                relayPlayersData = relay!!.admin!!.relayPlayersData
-            } else {
-                relayKickData = ObjectMap()
-                relayPlayersData = ObjectMap()
+                site = -1
             }
 
-            //Log.debug("sendRelayServerId","Set Admin");
             relay!!.admin = this
-            //Log.debug(this == relay.getAdmin());
+
             val o = GameOutputStream()
             if (clientVersion >= version2) {
                 o.writeByte(2)
@@ -349,21 +298,25 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeBoolean(false)
                 o.writeIsString(registerPlayerId)
             } else {
+                // packetVersion
                 o.writeByte(1)
+                // allowThisConnectionForwarding
                 o.writeBoolean(true)
+                // removeThisConnection
                 o.writeBoolean(true)
-                o.writeBoolean(true)
-                o.writeString(relay!!.serverUuid)
+                // useServerId
+                o.writeIsString(relay!!.serverUuid)
+                // useMods
                 o.writeBoolean(relay!!.isMod) //MOD
-                // List OPEN
+                // showPublicly
                 o.writeBoolean(false)
-                o.writeBoolean(true)
-                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
-                // 多播
+                // relayMessageOnServer
+                o.writeIsString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                // useMulticast
                 o.writeBoolean(false)
             }
 
-            sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
+            sendPacket(o.createPacket(PacketType.RELAY_BECOME_SERVER)) //+108+140
             //getRelayT4(Data.localeUtil.getinput("relay.server.admin.connect",relay.getId()));
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
@@ -414,16 +367,17 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     override fun addRelayConnect() {
-        permissionStatus = RelayStatus.PlayerPermission
-
         try {
+            permissionStatus = RelayStatus.PlayerPermission
+
             inputPassword = false
             if (relay == null) {
                 relay = NetStaticData.relay
             }
-            relay!!.setAddSite()
+
+            site = relay!!.setAddPosition()
             relay!!.setAbstractNetConnect(this)
-            site = relay!!.getSite()
+
             val o = GameOutputStream()
             if (clientVersion >= version2) {
                 o.writeByte(1)
@@ -432,28 +386,25 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeString(registerPlayerId!!)
                 //o.writeBoolean(false)
                 // User UUID
-                o.writeIsString(registerPlayerId!!)
+                o.writeIsString(null)
                 o.writeIsString(ip)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
             } else {
                 o.writeByte(0)
                 o.writeInt(site)
                 o.writeString(registerPlayerId!!)
-                o.writeIsString(registerPlayerId!!)
+                o.writeIsString(null)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
             }
 
-            val o1 = GameOutputStream()
-            o1.writeInt(site)
-            o1.writeInt(cachePacket!!.bytes.size + 8)
-            o1.writeInt(cachePacket!!.bytes.size)
-            o1.writeInt(PacketType.PREREGISTER_INFO_RECEIVE.typeInt)
-            o1.writeBytes(cachePacket!!.bytes)
-            relay!!.admin!!.sendPacket(o1.createPacket(PacketType.PACKET_FORWARD_CLIENT_FROM))
+            sendPackageToHOST(cachePacket!!)
             connectionAgreement.add(relay!!.groupNet)
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
-        } catch (e: IOException) {
-            e.printStackTrace()
+
+            this.relay!!.setAddSize()
+        } catch (e: Exception) {
+            permissionStatus = RelayStatus.CertifiedEnd
+            error("[Relay] addRelayConnect", e)
         } finally {
             //cachePacket = null;
         }
@@ -472,42 +423,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                         registerPlayerId = stream.readString()
                     }
                 }
+                return
             } catch (e: Exception) {
             }
         }
-        if (permissionStatus.ordinal >= RelayStatus.PlayerPermission.ordinal) {
-            // Relay-EX
-            if (playerRelay == null) {
-                playerRelay = relay!!.admin!!.relayPlayersData[registerPlayerId] ?: PlayerRelay(this, registerPlayerId!!, name).also {
-                    relay!!.admin!!.relayPlayersData.put(registerPlayerId,it)
-                }
 
-                playerRelay!!.nowName = name
-                playerRelay!!.disconnect = false
-
-
-                if (relay!!.admin!!.relayKickData.containsKey("BAN$ip")) {
-                    kick("您被这个房间BAN了 请稍等一段时间 或者换一个房间")
-                    return
-                }
-
-                var time: Int? = relay!!.admin!!.relayKickData["KICK$registerPlayerId"]
-                if (time == null) {
-                    time = relay!!.admin!!.relayKickData["KICK${connectionAgreement.ipLong24}"]
-                }
-
-                if (time != null) {
-                    if (time > Time.concurrentSecond()) {
-                        kick("您被这个房间踢出了 请稍等一段时间 或者换一个房间")
-                        return
-                    } else {
-                        relay!!.admin!!.relayKickData.remove("KICK$registerPlayerId")
-                        relay!!.admin!!.relayKickData.remove("KICK${connectionAgreement.ipLong24}")
-                    }
-                }
-            }
-            sendPackageToHOST(packet)
-        }
+        sendPackageToHOST(packet)
     }
 
     override fun addReRelayConnect() {
@@ -550,13 +471,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             GameInputStream(packet).use { inStream ->
                 val target = inStream.readInt()
                 val type = inStream.readInt()
-                if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
+
+                if (type == PacketType.DISCONNECT.typeInt) {
                     return
                 }
 
                 val bytes = inStream.readStreamBytes()
 
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
+
                 if (PacketType.KICK.typeInt == type) {
                     val gameOutputStream = GameOutputStream()
                     gameOutputStream.writeString(GameInputStream(bytes).readString().replace("\\d".toRegex(), ""))
@@ -564,22 +487,13 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     relayPlayerDisconnect()
                     return
                 }
+
                 abstractNetConnect?.sendPacket(Packet(type, bytes))
 
                 when (type) {
-                    PacketType.KICK.typeInt -> {
-                        abstractNetConnect?.relayPlayerDisconnect()
-                    }
-                    PacketType.TEAM_LIST.typeInt -> {
-                        if (!relay!!.isStartGame) {
-                            abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
-                        }
-                        return
-                    }
                     PacketType.RETURN_TO_BATTLEROOM.typeInt -> {
                         relay!!.isStartGame = false
                     }
-                    else -> {}
                 }
             }
         } catch (e: IOException) {
@@ -596,7 +510,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             o.writeInt(packet.bytes.size)
             o.writeInt(packet.type.typeInt)
             o.writeBytes(packet.bytes)
-            relay!!.admin!!.sendPacket(o.createPacket(PacketType.PACKET_FORWARD_CLIENT_FROM))
+            relay!!.admin?.sendPacket(o.createPacket(PacketType.PACKET_FORWARD_CLIENT_FROM))
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -607,7 +521,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             val out = GameOutputStream()
             out.writeByte(0)
             out.writeInt(site)
-            relay!!.admin!!.sendPacket(out.createPacket(PacketType.FORWARD_CLIENT_REMOVE))
+            sendPackageToHOST(out.createPacket(PacketType.FORWARD_CLIENT_REMOVE))
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -629,7 +543,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             return
         }
         super.isDis = true
-        if (relay != null) {
+        if (relay != null && (permissionStatus == RelayStatus.PlayerPermission || permissionStatus == RelayStatus.HostPermission)) {
             relay!!.setRemoveSize()
 
             var errorClose = false
@@ -637,14 +551,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             try {
                 if (this !== relay!!.admin) {
                     relay!!.removeAbstractNetConnect(site)
-                    playerRelay?.disconnect = true
 
                     try {
                         if (relay!!.admin != null) {
                             sendPackageToHOST(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
-                            if (!relay!!.isStartGame) {
-                                relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
-                            }
                         }
                     } catch (e: Exception) {
                         error("[Relay disconnect] Send Exited", e)
@@ -689,10 +599,22 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             return
         }
 
+//        if (Relay.roomAllSize > 300) {
+//            sendRelayServerType("RELAY-CN 房间数量达到上限, 请稍后重试")
+//            return
+//        }
+
 
         if (id.startsWith("RA")) {
-            id = id.substring(1)
-            sendPacket(fromRelayJumpsToAnotherServer("${id[0]}.relay.der.kim/${id.substring(0)}"))
+            if (Data.configRelayPublish.MainServer) {
+                sendPacket(fromRelayJumpsToAnotherServer("${id[1]}.relay.der.kim/$id"))
+                return
+            } else {
+                id = id.substring(2)
+            }
+        } else if(id.startsWith("RB",true) && Data.configRelayPublish.UpList) {
+            id = id.substring(2)
+            sendRelayServerType(Data.i18NBundle.getinput("relay.server.error.id", "[RCN-前瞻] 本服务器不支持绑定"))
             return
         } else if ("R".equals(id[0].toString(), ignoreCase = true)) {
             id = id.substring(1)
@@ -730,15 +652,36 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             return
         }
 
+        var uplist = false
         var mods = false
         var newRoom = true
 
-        if (id.startsWith("new", ignoreCase = true)) {
+        if (id.startsWith("newup", ignoreCase = true)) {
+            uplist = true
+            id = id.substring(5)
+        } else if (id.startsWith("newsup", ignoreCase = true)) {
+            uplist = true
+            id = id.substring(6)
+        } else if (id.startsWith("modup", ignoreCase = true)) {
+            uplist = true
+            mods = true
+            id = id.substring(5)
+        } else if (id.startsWith("modsup", ignoreCase = true)) {
+            uplist = true
+            mods = true
+            id = id.substring(6)
+        } else if (id.startsWith("new", ignoreCase = true)) {
+            uplist = false
             id = id.substring(3)
+        } else if (id.startsWith("news", ignoreCase = true)) {
+            uplist = false
+            id = id.substring(4)
         } else if (id.startsWith("mod", ignoreCase = true)) {
+            uplist = false
             mods = true
             id = id.substring(3)
         } else if (id.startsWith("mods", ignoreCase = true)) {
+            uplist = false
             mods = true
             id = id.substring(4)
         } else {
@@ -790,6 +733,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
         if (newRoom) {
             newRelayId(mods,custom)
+
             if (custom.MaxPlayerSize != -1 || custom.MaxUnitSizt != 200) {
                 sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("自定义人数: ${custom.MaxPlayerSize} 自定义单位: ${custom.MaxUnitSizt}", "RELAY_CN-Custom", 5))
             }
@@ -802,7 +746,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 relay = Relay.getRelay(id)
                 if (relay != null) {
                     addRelayConnect()
-                    relay!!.setAddSize()
                 } else {
                     sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
                 }
@@ -828,8 +771,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     private fun adminMoveNew() {
         // 更新最小玩家
         relay!!.updateMinSize()
-        relay!!.getAbstractNetConnect(relay!!.minSize)!!.sendRelayServerId()
-        relay!!.abstractNetConnectIntMap.values.forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
+        relay!!.getAbstractNetConnect(relay!!.minSize)?.let {
+            it.sendRelayServerId()
+            relay!!.abstractNetConnectIntMap.values.forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
+        }
     }
 
     private fun newRelayId(mod: Boolean, customRelayData: CustomRelayData) {
@@ -897,7 +842,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         o.writeInt(Data.game.initUnit)
         // RELAY Custom income
         o.writeFloat(customRelayData.Income)
-        o.writeBoolean(Data.game.noNukes)
+        o.writeBoolean(!Data.game.noNukes)
         o.writeBoolean(false)
         o.writeBoolean(false)
         o.writeBoolean(Data.game.sharedControl)
@@ -912,3 +857,104 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     )
 
 }
+/**
+2023-05-01 17:38:25.569: network:PACKET_SEND_PREREGISTER_INFO: Register connection has already been sent (resending)
+2023-05-01 17:38:25.569: sendRegisterConnection...
+getNewTextureHolder: append:101
+getNewTextureHolder: append:102
+getNewTextureHolder: append:103
+getNewTextureHolder: append:104
+getNewTextureHolder: append:105
+getNewTextureHolder: append:106
+getNewTextureHolder: append:107
+getNewTextureHolder: append:108
+getNewTextureHolder: append:109
+getNewTextureHolder: append:110
+getNewTextureHolder: append:111
+getNewTextureHolder: append:112
+getNewTextureHolder: append:113
+getNewTextureHolder: append:114
+2023-05-01 17:38:26.101: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:26.102: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+Method:ReleaseTexture
+getNewTextureHolder: set:95
+2023-05-01 17:38:26.118: convertTexturePath for: drawable:error_missingmap.png
+2023-05-01 17:38:26.243: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:26.244: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:26.654: Next music track, timer:3600.2056
+2023-05-01 17:38:26.656: Queued:music/starting/battletanks1B.ogg
+2023-05-01 17:38:28.224: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:28.225: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:28.258: Now playing:music/starting/battletanks1B.ogg
+2023-05-01 17:38:29.108: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:29.108: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.113: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.113: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.232: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.233: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.270: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.270: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.427: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.427: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.699: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.699: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.814: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.814: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.958: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:30.958: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:31.116: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:31.117: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:31.256: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:31.256: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.240: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.240: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.289: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.290: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.298: FileLoader: Path changed to maps2 path:/SD/rustedWarfare/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.299: FileLoader: convertAbstractPath2: Changing to:/SD/mods/maps\南京保卫战30p2_map.png
+2023-05-01 17:38:32.632: Receiving network data: 10872/186491
+2023-05-01 17:38:32.649: Receiving network data: 21752/186491
+2023-05-01 17:38:32.655: Receiving network data: 27192/186491
+2023-05-01 17:38:32.659: Receiving network data: 35352/186491
+2023-05-01 17:38:32.664: Receiving network data: 43512/186491
+2023-05-01 17:38:32.667: Receiving network data: 48952/186491
+2023-05-01 17:38:32.672: Receiving network data: 59832/186491
+2023-05-01 17:38:32.676: Receiving network data: 59832/186491
+2023-05-01 17:38:32.679: Receiving network data: 59832/186491
+2023-05-01 17:38:32.682: Receiving network data: 59832/186491
+2023-05-01 17:38:32.686: Receiving network data: 59832/186491
+2023-05-01 17:38:32.689: Receiving network data: 59832/186491
+2023-05-01 17:38:32.692: Receiving network data: 59832/186491
+2023-05-01 17:38:32.695: Receiving network data: 59832/186491
+2023-05-01 17:38:32.701: Receiving network data: 59832/186491
+2023-05-01 17:38:32.704: Receiving network data: 59832/186491
+2023-05-01 17:38:32.707: Receiving network data: 59832/186491
+2023-05-01 17:38:32.710: Receiving network data: 59832/186491
+2023-05-01 17:38:32.713: Receiving network data: 59832/186491
+java.net.SocketException: Connection reset
+at java.base/sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:324)
+at java.base/sun.nio.ch.NioSocketImpl.read(NioSocketImpl.java:351)
+2023-05-01 17:38:32.719: Receiving network data: 59832/186491
+at java.base/sun.nio.ch.NioSocketImpl$1.read(NioSocketImpl.java:802)
+at java.base/java.net.Socket$SocketInputStream.read(Socket.java:919)
+at java.base/java.io.DataInputStream.read(DataInputStream.java:149)
+at com.corrodinggames.rts.gameFramework.j.d.a(SourceFile:783)
+at com.corrodinggames.rts.gameFramework.j.d.run(SourceFile:683)
+at java.base/java.lang.Thread.run(Thread.java:830)
+java.net.SocketException: Connection reset by peer
+2023-05-01 17:38:32.722: id:1: network:ReceiveWorker: Connection reset
+at java.base/sun.nio.ch.NioSocketImpl.implWrite(NioSocketImpl.java:421)
+2023-05-01 17:38:32.723: Receiving network data: 59832/186491
+at java.base/sun.nio.ch.NioSocketImpl.write(NioSocketImpl.java:441)
+2023-05-01 17:38:32.723: id:1: handleRemoteDisconnect
+at java.base/sun.nio.ch.NioSocketImpl$2.write(NioSocketImpl.java:825)
+2023-05-01 17:38:32.725: reportProblem:The server disconnected  (Time out)
+at java.base/java.net.Socket$SocketOutputStream.write(Socket.java:989)
+at java.base/java.io.BufferedOutputStream.flushBuffer(BufferedOutputStream.java:81)
+at java.base/java.io.BufferedOutputStream.flush(BufferedOutputStream.java:142)
+at java.base/java.io.DataOutputStream.flush(DataOutputStream.java:123)
+at com.corrodinggames.rts.gameFramework.j.e.run(SourceFile:994)
+at java.base/java.lang.Thread.run(Thread.java:830)
+2023-05-01 17:38:32.730: network:SendWorker:Connection reset by peer
+2023-05-01 17:38:32.739: id:1: handleRemoteDisconnect: connection is already disconnecting
+ */

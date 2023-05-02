@@ -11,11 +11,10 @@ package net.rwhps.server.command.relay
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
-import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.CommandHandler
 
 internal class RelayClientCommands(handler: CommandHandler) {
@@ -59,56 +58,6 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-        handler.register("kickx","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
-            if (isAdmin(con)) {
-                val conTg: GameVersionRelay? = findPlayer(con,args[0])
-                conTg?.let {
-                    con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Time.concurrentSecond()+60)
-                    it.kick("you got kicked out of the server")
-                    sendMsg(con,"Kick : ${args[0]} OK")
-                }
-            }
-        }
-
-        handler.register("ban","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
-            if (isAdmin(con)) {
-                if (con.relay!!.isStartGame && con.relay!!.startGameTime < Time.concurrentSecond()) {
-                    sendMsg(con,"It's been five minutes, no more kicks")
-                    return@register
-                }
-                val conTg: GameVersionRelay? = findPlayer(con,args[0])
-                conTg?.let {
-                    con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Int.MAX_VALUE)
-                    con.relayKickData.put("BAN"+it.ip, Int.MAX_VALUE)
-                    it.kick("you are banned by the server")
-                    sendMsg(con,"BAN : ${args[0]} OK")
-                }
-            }
-        }
-
-        handler.register("mute","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
-            if (isAdmin(con)) {
-                val conTg: GameVersionRelay? = findPlayer(con,args[0])
-
-                conTg?.let {
-                    it.playerRelay!!.mute = true
-                    sendMsg(con,"Mute : ${args[0]} OK")
-                }
-            }
-        }
-
-        handler.register("unmute","<Name/Position>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
-            if (isAdmin(con)) {
-                val conTg: GameVersionRelay? = findPlayer(con,args[0])
-
-                conTg?.let {
-                    con.relayKickData.remove("MUTE"+it.playerRelay!!.uuid)
-                    it.playerRelay!!.mute = false
-                    sendMsg(con,"UnMute : ${args[0]} OK")
-                }
-
-            }
-        }
 
         handler.register("allmute","#Remove List") { _: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
@@ -122,50 +71,5 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
     private fun sendMsg(con: GameVersionRelay, msg: String) {
         con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(msg,"RELAY-CN",5))
-    }
-
-    private fun findPlayer(con: GameVersionRelay, findIn: String): GameVersionRelay? {
-        var conTg: GameVersionRelay? = null
-
-        var findNameIn: String? = null
-        var findPositionIn: Int? = null
-
-        if (IsUtil.isNumeric(findIn)) {
-            findPositionIn = findIn.toInt()-1
-        } else {
-            findNameIn = findIn
-        }
-
-        findNameIn?.let { findName ->
-            var count = 0
-            con.relay!!.abstractNetConnectIntMap.values.forEach {
-                if (it.playerRelay!!.name.contains(findName,ignoreCase = true)) {
-                    conTg = it
-                    count++
-                }
-            }
-            if (count > 1) {
-                sendMsg(con,"目标不止一个, 请不要输入太短的玩家名")
-                return@let
-            }
-            if (conTg == null) {
-                sendMsg(con,"找不到玩家")
-                return@let
-            }
-        }
-
-        findPositionIn?.let {findPosition ->
-            con.relay!!.abstractNetConnectIntMap.values.forEach {
-                if (it.playerRelay?.site == findPosition) {
-                    conTg = it
-                }
-            }
-            if (conTg == null) {
-                sendMsg(con,"找不到玩家")
-                return@let
-            }
-        }
-
-        return conTg
     }
 }

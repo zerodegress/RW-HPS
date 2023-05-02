@@ -66,7 +66,7 @@ object Base32 {
     fun encodeHex(source: String, charset: Charset = Data.UTF_8): String {
         return encodeHex(ExtractUtil.bytes(source, charset))
     }
-
+    
     /**
      * 解码
      *

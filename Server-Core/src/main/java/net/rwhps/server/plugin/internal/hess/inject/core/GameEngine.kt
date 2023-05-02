@@ -17,6 +17,7 @@ import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
 import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.game.simulation.core.*
 import net.rwhps.server.net.core.IRwHps
@@ -74,6 +75,8 @@ internal object GameEngine {
         }.also {
             data = it
         })
+
+        settingsEngine.networkServerId = Data.core.serverConnectUuid
 
         ServiceLoader.addService(ServiceLoader.ServiceType.IRwHps, IRwHps.NetType.ServerProtocol.name, HessRwHps::class.java)
 

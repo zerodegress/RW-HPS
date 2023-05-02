@@ -11,6 +11,7 @@ package net.rwhps.server.net.netconnectprotocol
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -18,6 +19,7 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus.*
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.PacketType.*
 import net.rwhps.server.util.ReflectionUtils
@@ -59,54 +61,85 @@ open class TypeRelay : TypeConnect {
             return
         }
 
-        val permissionStatus = con.permissionStatus
+        if (con.permissionStatus == HostPermission) {
+            hostProcessing(packet)
+        } else {
+            normalProcessing(packet)
+        }
+    }
 
-        // CPU branch prediction
-        if (permissionStatus == HostPermission) {
-            when (packet.type) {
-                PACKET_FORWARD_CLIENT_TO  -> {
-                    con.addRelaySend(packet)
-                    return
-                }
-                HEART_BEAT -> {
-                    con.addGroup(packet)
-                }
-                CHAT -> {
-                    GameInputStream(packet).use {
-                        val message = it.readString()
-                        it.skip(1)
-                        if (it.readIsString() == con.name) {
-                            if (message.startsWith(".")) {
-                                val response = Data.RELAY_COMMAND.handleMessage(message, con)
-                                if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                                } else if (response.type != CommandHandler.ResponseType.valid) {
-                                    val text: String = when (response.type) {
-                                        CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                        CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                        else -> return@use
-                                    }
-                                    con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
-                                }
+    @Throws(Exception::class)
+    protected open fun hostProcessing(packet: Packet) {
+        when (packet.type) {
+            PACKET_FORWARD_CLIENT_TO  -> {
+                con.addRelaySend(packet)
+                return
+            }
+            HEART_BEAT -> {
+                con.getPingData(packet)
+            }
+            RELAY_BECOME_SERVER -> {
+                con.setlastSentPacket(packet)
+                con.relay!!.isStartGame = false
+            }
+            CHAT -> {
+                GameInputStream(packet).use {
+                    val message = it.readString()
+                    it.skip(1)
+                    if (it.readIsString() == con.name && message.startsWith(".")) {
+                        val response = Data.RELAY_COMMAND.handleMessage(message, con)
+                        if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                            // Ignore
+                        } else if (response.type != CommandHandler.ResponseType.valid) {
+                            val text: String = when (response.type) {
+                                CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                else -> return@use
                             }
+                            con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
                         }
                     }
-                    return
                 }
-                else -> {}
+                return
             }
-        } else {
-            when (packet.type) {
-                ACCEPT_START_GAME -> {
-                    con.relay!!.isStartGame = true
-                    con.sendPackageToHOST(packet)
-                }
-                DISCONNECT -> con.disconnect()
-                else -> con.sendPackageToHOST(packet)
+            DISCONNECT -> con.disconnect()
+            else -> {
+                // Relay HOST should no longer send any more packets for the server to process
+                // Ignore
             }
         }
     }
 
-    protected fun relayCheck(packet: Packet): Boolean {
+    @Throws(Exception::class)
+    private fun normalProcessing(packet: Packet) {
+        when (packet.type) {
+            // USERS (NON-HOST) SHOULD NOT SEND RELAY PACKETS
+            RELAY_117, RELAY_118_117_RETURN, RELAY_POW, RELAY_POW_RECEIVE, RELAY_VERSION_INFO, RELAY_BECOME_SERVER, FORWARD_CLIENT_ADD, FORWARD_CLIENT_REMOVE, PACKET_FORWARD_CLIENT_FROM, PACKET_FORWARD_CLIENT_TO, PACKET_FORWARD_CLIENT_TO_REPEATED,
+            // 防止假冒
+            TICK, SYNC, SERVER_INFO, HEART_BEAT, START_GAME, RETURN_TO_BATTLEROOM, CHAT, KICK, PACKET_RECONNECT_TO,
+            // 每个玩家不一样, 不需要处理/缓存
+            PASSWD_ERROR, TEAM_LIST, PREREGISTER_INFO,
+            // Nobody dealt with it
+            PACKET_DOWNLOAD_PENDING,
+            // Refusal to Process
+            EMPTYP_ACKAGE, NOT_RESOLVED
+            -> {
+                // Ignore
+            }
+
+            REGISTER_PLAYER -> con.relayRegisterConnection(packet)
+            CHAT_RECEIVE -> con.receiveChat(packet)
+            ACCEPT_START_GAME -> {
+                con.relay!!.isStartGame = true
+                con.sendPackageToHOST(packet)
+            }
+            DISCONNECT -> con.disconnect()
+            else -> con.sendPackageToHOST(packet)
+        }
+    }
+
+    @Throws(Exception::class)
+    private fun relayCheck(packet: Packet): Boolean {
         con.lastReceivedTime()
 
         val permissionStatus = con.permissionStatus
@@ -131,7 +164,9 @@ open class TypeRelay : TypeConnect {
                         when (packet.type) {
                             SERVER_DEBUG_RECEIVE -> con.debug(packet)
                             GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
-                            else -> {}
+                            else -> {
+                                // Ignore
+                            }
                         }
                     }
                     return true

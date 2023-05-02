@@ -23,16 +23,12 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketException
 import java.util.*
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * @author RW-HPS/Dr
  * @date 2021年2月2日星期二 06:31:11
  */
 class ConnectionAgreement {
-    private val sendSync = ReentrantLock(true)
-
     private val protocolType: ((packet: Packet) -> Unit)
     private val objectOutStream: Any
     private val udpDataOutputStream: DataOutputStream?
@@ -127,11 +123,10 @@ class ConnectionAgreement {
      * @throws IOException Error
      */
     @Throws(IOException::class)
+    @Synchronized
     fun send(packet: Packet) {
         // 保持包顺序
-        sendSync.withLock {
-            protocolType(packet)
-        }
+        protocolType(packet)
     }
 
     /**

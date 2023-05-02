@@ -13,6 +13,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.Time.getMilliFormat
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.ColorCodes.formatColors
+import java.io.FileOutputStream
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.text.MessageFormat
@@ -34,7 +35,27 @@ object Log {
     /** 默认 WARN  */
     private var LOG_GRADE = 5
     private lateinit var logPrint: (Boolean,String) -> Unit
-    private val LOG_CACHE = StringBuilder()
+    private val outLog: FileOutputStream
+
+    val errorDispose = Thread.UncaughtExceptionHandler { thread, error ->
+        if (thread != null) {
+            error("[Error] ${thread.name}", error)
+        } else {
+            error("[Error] ?Thread", error)
+        }
+    }
+
+    init {
+        val logLogFile = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
+        outLog = logLogFile.writeByteOutputStream(logLogFile.file.length() <= 512 * 1024)
+
+        // 设置默认的线程异常捕获处理器
+        Thread.setDefaultUncaughtExceptionHandler(errorDispose)
+
+        // 设置主线程名字和捕获器
+        Thread.currentThread().name = "Main"
+        Thread.currentThread().uncaughtExceptionHandler = errorDispose
+    }
 
     @JvmStatic
 	fun set(log: String) {
@@ -54,7 +75,8 @@ object Log {
                         for (i in ColorCodes.VALUES.indices) {
                             textCache = textCache.replace(ColorCodes.VALUES[i], "")
                         }
-                        LOG_CACHE.append(textCache).append(Data.LINE_SEPARATOR)
+
+                        outLog.write("$textCache${Data.LINE_SEPARATOR}".toByteArray())
                     }
                 }
             } else {
@@ -64,24 +86,16 @@ object Log {
             }
     }
 
-    @JvmStatic
-	val logCache: String
-        get() {
-            val result = LOG_CACHE.toString()
-            LOG_CACHE.delete(0, LOG_CACHE.length)
-            return result
-        }
-
     /**
      * Log：
      * tag 标题 默认警告级
      */
     @JvmStatic
-    fun skipping(e: Exception) {
+    fun skipping(e: Throwable) {
         log(9, "SKIPPING", e)
     }
     @JvmStatic
-    fun skipping(tag: Any, e: Exception) {
+    fun skipping(tag: Any, e: Throwable) {
         log(9, tag, e)
     }
     @JvmStatic
@@ -94,11 +108,11 @@ object Log {
     }
 
     @JvmStatic
-    fun fatal(e: Exception) {
+    fun fatal(e: Throwable) {
         log(7, "FATAL", e)
     }
     @JvmStatic
-    fun fatal(tag: Any, e: Exception) {
+    fun fatal(tag: Any, e: Throwable) {
         log(7, tag, e)
     }
     @JvmStatic
@@ -111,11 +125,11 @@ object Log {
     }
 
     @JvmStatic
-    fun error(e: Exception) {
+    fun error(e: Throwable) {
         log(6, "ERROR", e)
     }
     @JvmStatic
-    fun error(tag: Any, e: Exception) {
+    fun error(tag: Any, e: Throwable) {
         log(6, tag, e)
     }
     @JvmStatic
@@ -129,11 +143,11 @@ object Log {
     }
 
     @JvmStatic
-    fun warn(e: Exception) {
+    fun warn(e: Throwable) {
         log(5, "WARN", e)
     }
     @JvmStatic
-    fun warn(tag: Any, e: Exception) {
+    fun warn(tag: Any, e: Throwable) {
         log(5, tag, e)
     }
     @JvmStatic
@@ -146,11 +160,11 @@ object Log {
     }
 
     @JvmStatic
-    fun info(e: Exception) {
+    fun info(e: Throwable) {
         log(4, "INFO", e)
     }
     @JvmStatic
-    fun info(tag: Any, e: Exception) {
+    fun info(tag: Any, e: Throwable) {
         log(4, tag, e)
     }
     @JvmStatic
@@ -163,11 +177,11 @@ object Log {
     }
 
     @JvmStatic
-    fun debug(e: Exception) {
+    fun debug(e: Throwable) {
         log(3, "DEBUG", e)
     }
     @JvmStatic
-    fun debug(tag: Any, e: Exception) {
+    fun debug(tag: Any, e: Throwable) {
         log(3, tag, e)
     }
     @JvmStatic
@@ -180,20 +194,20 @@ object Log {
     }
 
     @JvmStatic
-    fun track(e: Exception) {
+    fun track(e: Throwable) {
         log(2, "TRACK", e)
     }
     @JvmStatic
-    fun track(tag: Any, e: Exception) {
+    fun track(tag: Any, e: Throwable) {
         log(2, tag, e)
     }
 
     @JvmStatic
-    fun all(e: Exception) {
+    fun all(e: Throwable) {
         log(1, "ALL", e)
     }
     @JvmStatic
-    fun all(tag: Any, e: Exception) {
+    fun all(tag: Any, e: Throwable) {
         log(1, tag, e)
     }
     @JvmStatic
@@ -223,8 +237,7 @@ object Log {
 
     @JvmStatic
     fun saveLog() {
-        val fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
-        fileUtil.writeFile(logCache, fileUtil.file.length() <= 512 * 1024)
+        outLog.flush()
     }
 
     fun resolveTrace(trace: Throwable): String {
@@ -242,7 +255,7 @@ object Log {
      * @param e Exception
      * i>=Set the level to write to the file
      */
-    private fun log(i: Int, tag: Any, e: Exception) {
+    private fun log(i: Int, tag: Any, e: Throwable) {
         logs(i, tag, resolveTrace(e), true)
     }
 

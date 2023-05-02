@@ -5,18 +5,18 @@ val nettyVersion = "4.1.90.Final"
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.20-RC")
+	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.20")
 
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
 
-	implementation("io.netty:netty-buffer:$nettyVersion")
-	implementation("io.netty:netty-codec:$nettyVersion")
-	implementation("io.netty:netty-codec-http:$nettyVersion")
-	implementation("io.netty:netty-handler:$nettyVersion")
-	implementation("io.netty:netty-transport:$nettyVersion")
-	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
-	implementation("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
+	api("io.netty:netty-buffer:$nettyVersion")
+	api("io.netty:netty-codec:$nettyVersion")
+	api("io.netty:netty-codec-http:$nettyVersion")
+	api("io.netty:netty-handler:$nettyVersion")
+	api("io.netty:netty-transport:$nettyVersion")
+	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
+	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
 
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
@@ -36,7 +36,7 @@ dependencies {
 		exclude("org.jetbrains.kotlin")
 	}
 	api("com.vdurmont:emoji-java:5.1.1") {
-		exclude( "org.json")
+		exclude("org.json")
 	}
 
 	implementation("org.lionsoul:ip2region:1.7.2")
@@ -49,6 +49,8 @@ dependencies {
 	implementation("org.jline:jline-terminal-jna:3.23.0")
 
 	api("it.unimi.dsi:fastutil-core:8.5.12")
+
+	implementation("org.openjdk.nashorn:nashorn-core:15.4")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

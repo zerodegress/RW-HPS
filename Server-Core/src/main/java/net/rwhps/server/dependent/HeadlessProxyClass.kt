@@ -28,6 +28,14 @@ import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
 
+/**
+ * What could it be
+ */
+/**
+ * 注册 Hess 的 ASM
+ *
+ * @author RW-HPS
+ */
 @AsmMark.ClassLoaderCompatible
 class HeadlessProxyClass : AgentAttachData() {
     init {
@@ -46,11 +54,12 @@ class HeadlessProxyClass : AgentAttachData() {
         /* Register for network blocking */
         NetPacketRedirections().register()
 
-        // 直接空实现
+        // 直接空实现 因为意义不大
         AsmCore.allMethod.add("org/newdawn/slick/util/DefaultLogSystem")
         AsmCore.allMethod.add("com/LibRocket")
         AsmCore.allMethod.add("com/corrodinggames/librocket/scripts/ScriptEngine")
         // 这两个 因为 [LibRocket] 是空 所以被调用时 会 NPE
+        //需要空实现
         AsmCore.addPartialMethod("com/corrodinggames/librocket/b" , arrayOf("closeDocument","(Lcom/ElementDocument;)V"))
         AsmCore.addPartialMethod("com/corrodinggames/librocket/b" , arrayOf("closeActiveDocument","()V"))
 
@@ -87,7 +96,7 @@ class HeadlessProxyClass : AgentAttachData() {
                     val msg = it.toString()
 
                     if (Data.config.Log == "ALL") {
-                        System.out.println("[${classIn.classLoader}]  :  "+msg)
+                        println("[${classIn.classLoader}]  :  "+msg)
                     }
 
                     val load = classIn.classLoader

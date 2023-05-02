@@ -186,7 +186,7 @@ object DigestUtil {
     fun md5HexTo16(md5Hex: String): String {
         return md5Hex.substring(8, 24)
     }
-
+   
     /**
      * 计算SHA-1摘要值
      *
@@ -279,7 +279,7 @@ object DigestUtil {
     fun sha1Hex(file: File): String {
         return Digester(DigestAlgorithm.SHA1).digestHex(file)
     }
-
+   
     /**
      * 计算SHA-256摘要值
      *

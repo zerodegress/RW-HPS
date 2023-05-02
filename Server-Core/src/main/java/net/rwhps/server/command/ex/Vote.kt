@@ -67,10 +67,10 @@ class Vote {
             votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.rey"))
             return
         }
-
+        
         val accapt = "y"
         val noAccapt = "n"
-
+        
         if (accapt == playerPick) {
             if (isTeam) {
                 if (votePlayer.team == player.team) {
@@ -201,7 +201,7 @@ class Vote {
      */
     private fun clearUp() {
         Threads.closeTimeTask(CallTimeTask.VoteTask)
-
+        
         playerList.clear()
 
         val nullVal: ()->Unit = {}

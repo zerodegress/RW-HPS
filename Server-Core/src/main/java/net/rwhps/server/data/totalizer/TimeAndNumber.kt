@@ -26,13 +26,13 @@ class TimeAndNumber(
 
     fun checkStatus(): Boolean {
         if (count < conutMax) {
-            return false
+            return true
         } else {
             if ((Time.concurrentSecond() - startTime) > timeOut) {
                 reset()
-                return false
+                return true
             }
-            return true
+            return false
         }
     }
 

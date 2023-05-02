@@ -11,18 +11,17 @@ package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.net.netconnectprotocol.UniversalAnalysisOfGamePackages
-import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.StringFilteringUtil
+import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
-import java.util.stream.IntStream
 
 /**
  * Many thanks to them for providing cloud computing for the project
@@ -47,7 +46,6 @@ import java.util.stream.IntStream
  */
 class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : GameVersionRelay(connectionAgreement) {
     // last Unwrapped Or Normal Packet From Server
-    @Volatile
     //@get:Synchronized
     private lateinit var lastSentPacket: Packet
 
@@ -64,16 +62,15 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             if (relay == null) {
                 relay = NetStaticData.relay
             }
-            if (relay!!.admin != null) {
+
+            if (site != -1) {
+                Log.debug("Remove Move Player $site, HOST Yes")
                 relay!!.removeAbstractNetConnect(site)
-                relayKickData = relay!!.admin!!.relayKickData
-                relayPlayersData = relay!!.admin!!.relayPlayersData
-            } else {
-                relayKickData = ObjectMap()
-                relayPlayersData = ObjectMap()
+                site = -1
             }
 
             relay!!.admin = this
+
             val o = GameOutputStream()
             if (clientVersion >= version2) {
                 o.writeByte(2)
@@ -101,7 +98,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 // 多播
                 o.writeBoolean(true)
             }
-            sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
+            sendPacket(o.createPacket(PacketType.RELAY_BECOME_SERVER)) //+108+140
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
 
@@ -129,36 +126,24 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 val target = inStream.readInt()
                 val type = inStream.readInt()
 
-                if (IntStream.of(PacketType.DISCONNECT.typeInt).anyMatch { i: Int -> i == type }) {
+                if (type == PacketType.DISCONNECT.typeInt) {
                     return
                 }
 
                 val bytes = inStream.readStreamBytes()
                 val abstractNetConnect = relay!!.getAbstractNetConnect(target)
 
-                if (abstractNetConnect != null) {
-                    val sendPacketData = Packet(type, bytes)
-                    abstractNetConnect.sendPacket(sendPacketData)
+
+                Packet(type, bytes).let { sendPacketData ->
+                    abstractNetConnect?.sendPacket(sendPacketData)
                     lastSentPacket = sendPacketData
                 }
+
 
                 when (type) {
                     PacketType.KICK.typeInt -> {
                         abstractNetConnect?.relayPlayerDisconnect()
                     }
-                    PacketType.TEAM_LIST.typeInt -> {
-                        if (!relay!!.isStartGame) {
-                            abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
-                        }
-                        return
-                    }
-                    PacketType.RETURN_TO_BATTLEROOM.typeInt -> {
-                        if (relay!!.isStartGame) {
-                            relay!!.isStartGame = false
-                        }
-                        return
-                    }
-
                     else -> {}
                 }
             }
@@ -174,8 +159,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
         try {
             GameInputStream(packet).use { stream ->
                 val target = stream.readInt()
-                val abstractNetConnect = relay!!.getAbstractNetConnect(target)
-                abstractNetConnect?.sendPacket(lastSentPacket)
+                relay!!.getAbstractNetConnect(target)?.sendPacket(lastSentPacket)
             }
         } catch (_: IOException) {
             /* 忽略 */

@@ -37,5 +37,11 @@ class NetPacketRedirections : MainRedirections {
         // Invalidate the RUDP service that comes with the game
         @GameSimulationLayer.GameSimulationLayer_KeyWords("ReliableServerSocket")
         redirectClass("a/a/d")
+
+        // Remove the official Socket Launcher
+        redirectClass("com/corrodinggames/rts/gameFramework/j/ao")
+        redirectClass("com/corrodinggames/rts/gameFramework/j/d")
+        redirectClass("com/corrodinggames/rts/gameFramework/j/e")
+
     }
 }

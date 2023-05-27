@@ -11,6 +11,9 @@ package net.rwhps.server.util.io
 
 import java.io.Closeable
 
+/**
+ * @author RW-HPS/Dr
+ */
 object Streams {
     /** Close and ignore all errors.  */
     fun close(c: Closeable?) {

@@ -9,6 +9,9 @@
 
 package net.rwhps.server.dependent.hot
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class DynamicByteClassLoader(private val bytes: ByteArray) : ClassLoader() {
     @Throws(ClassNotFoundException::class)
     fun findClass(): Class<*>? {

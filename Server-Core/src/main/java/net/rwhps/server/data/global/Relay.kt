@@ -15,6 +15,7 @@ import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.struct.IntMap
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil.isNumeric
 import net.rwhps.server.util.Time.concurrentSecond
@@ -32,13 +33,20 @@ import kotlin.concurrent.withLock
  * @author RW-HPS/Dr
  */
 class Relay {
-    /**  */
+    /**
+     * 玩家群发池, 通过这个来快速群发数据包
+     */
     @JvmField
     val groupNet: GroupNet
+
+    /**
+     * 房间ID对应的玩家
+     */
     val abstractNetConnectIntMap = IntMap<GameVersionRelay>(10,true)
 
-
-    @Volatile
+    /**
+     * 房间的管理员(HOST)
+     */
     var admin: GameVersionRelay? = null
         set(value) {
             field = value
@@ -65,14 +73,30 @@ class Relay {
             field = value
             startGameTime = concurrentSecond()+300
         }
+
+    /**
+     * 开始游戏的时间
+     */
     var startGameTime = 0
         private set
 
     var allmute = false
+    var dogfightLock: Boolean = false
 
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()
 
+    /**
+     * 实例化一个房间
+     * @param internalID 房间内部ID
+     * @param id 房间ID
+     * @param playerName 房主名字
+     * @param isMod 是否启用mod
+     * @param betaGameVersion 是否是测试版本
+     * @param version 版本号
+     * @param maxPlayer 最大玩家
+     * @constructor
+     */
     private constructor(internalID : Int, id: String, playerName: String, isMod: Boolean, betaGameVersion: Boolean, version: Int, maxPlayer: Int) {
         serverRelayData.put(internalID, this)
         this.internalID = internalID
@@ -220,6 +244,7 @@ class Relay {
     }
 
     companion object {
+        val serverRelayOld = ObjectMap<String,String>()
         val serverRelayIpData = Seq<String>(true)
 
         private val serverRelayData = IntMap<Relay>(128,true)

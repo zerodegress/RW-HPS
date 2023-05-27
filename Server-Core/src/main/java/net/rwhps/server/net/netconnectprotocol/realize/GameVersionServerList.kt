@@ -105,8 +105,8 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
             /* AI Difficulty ?*/
             o.writeInt(1)
             o.writeByte(5)
-            o.writeInt(Data.config.MaxUnit)
-            o.writeInt(Data.config.MaxUnit)
+            o.writeInt(Data.configServer.MaxUnit)
+            o.writeInt(Data.configServer.MaxUnit)
             /* 初始单位 */
             o.writeInt(Data.game.initUnit)
             /* 倍速 */
@@ -140,8 +140,8 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
         o.writeBoolean(false)
         /* Admin Ui */
         o.writeBoolean(true)
-        o.writeInt(Data.config.MaxUnit)
-        o.writeInt(Data.config.MaxUnit)
+        o.writeInt(Data.configServer.MaxUnit)
+        o.writeInt(Data.configServer.MaxUnit)
         o.writeInt(Data.game.initUnit)
         o.writeFloat(Data.game.income)
         /* NO Nukes */

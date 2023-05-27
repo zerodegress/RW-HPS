@@ -2,8 +2,6 @@ package net.rwhps.server.data.json
 
 import org.junit.jupiter.api.Test
 
-import org.junit.jupiter.api.Assertions.*
-
 /**
  * Ignore
  * Tested on JSON

@@ -13,6 +13,9 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.algorithms.Algorithms
 import java.io.Closeable
 
+/**
+ * @author RW-HPS/Dr
+ */
 class ProgressBar(
     private val start: Int,
     private val end: Int

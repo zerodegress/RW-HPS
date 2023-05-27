@@ -16,15 +16,16 @@ import net.rwhps.server.func.StrCons
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.plugin.internal.hess.service.event.GameHeadlessEventGlobal
-import net.rwhps.server.util.GameModularLoadClass
+import net.rwhps.server.util.classload.GameModularReusableLoadClass
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.GameStartInit
 import net.rwhps.server.util.log.Log
 import java.util.*
 
+/**
+ * @author RW-HPS/Dr
+ */
 class HessMain : Plugin() {
-    //override fun registerEvents(): AbstractEvent = GameHeadlessEvent()
-
     override fun registerGlobalEvents(): AbstractGlobalEvent = GameHeadlessEventGlobal()
 
     override fun registerCoreCommands(handler: CommandHandler) {
@@ -39,7 +40,7 @@ class HessMain : Plugin() {
             ServerCommands(handler)
 
             // Start Hess Core
-            val load = GameModularLoadClass(
+            val load = GameModularReusableLoadClass(
                 Thread.currentThread().contextClassLoader,
                 Thread.currentThread().contextClassLoader.parent
             )

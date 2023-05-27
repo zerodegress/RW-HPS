@@ -32,6 +32,7 @@ import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.Time
 import net.rwhps.server.util.WaitResultUtil
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.toClassAutoLoader
@@ -40,6 +41,9 @@ import net.rwhps.server.util.log.exp.ImplementedException
 import java.io.IOException
 import com.corrodinggames.rts.gameFramework.j.`as` as GameNetOutStream
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class GameHessData : AbstractGameHessData {
 
     override val tickHess: Int get() = GameEngine.gameEngine.bx
@@ -151,7 +155,7 @@ internal class GameHessData : AbstractGameHessData {
         var lastWinTeam: Int = -1
         var lastWinCount = 0
 
-        for (position in 0 until Data.config.MaxPlayer) {
+        for (position in 0 until Data.configServer.MaxPlayer) {
             val player: n = n.k(position) ?:continue
             if (getWin(player) && player.r != lastWinTeam) {
                 lastWinTeam = player.r
@@ -161,7 +165,7 @@ internal class GameHessData : AbstractGameHessData {
 
         if (lastWinCount == 1) {
             val winPlayer = Seq<String>().apply {
-                for (position in 0 until Data.config.MaxPlayer) {
+                for (position in 0 until Data.configServer.MaxPlayer) {
                     val player: n = n.k(position) ?:continue
                     if (player.r == lastWinTeam) {
                         add(player.v)
@@ -171,7 +175,7 @@ internal class GameHessData : AbstractGameHessData {
             val allPlayer = Seq<String>()
 
             val statusData = ObjectMap<String, ObjectMap<String,Int>>().apply {
-                for (position in 0 until Data.config.MaxPlayer) {
+                for (position in 0 until Data.configServer.MaxPlayer) {
                     val player: n = n.k(position) ?:continue
                     put(player.v,PrivateClass_Player(player).let {
                         ObjectMap<String,Int>().apply {
@@ -188,7 +192,7 @@ internal class GameHessData : AbstractGameHessData {
             }
 
             return GameOverData(
-                allPlayer, winPlayer, MapManage.maps.mapName,
+                Time.concurrentSecond()-GameEngine.data.room.startTime,allPlayer, winPlayer, MapManage.maps.mapName,
                 statusData, GameEngine.data.room.replayFileName
             )
         } else {

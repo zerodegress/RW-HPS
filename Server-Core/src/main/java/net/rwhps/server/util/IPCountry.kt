@@ -15,6 +15,9 @@ import net.rwhps.server.util.log.Log
 import org.lionsoul.ip2region.DbConfig
 import org.lionsoul.ip2region.DbSearcher
 
+/**
+ * @author RW-HPS/Dr
+ */
 object IPCountry {
     private val searcher: DbSearcher = DbSearcher(DbConfig(),
         CompressionDecoderUtils.lz77Stream(FileUtil.getInternalFileStream("/ip2region.7z"))

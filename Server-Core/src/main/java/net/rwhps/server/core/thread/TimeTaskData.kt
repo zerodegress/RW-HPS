@@ -11,6 +11,9 @@ package net.rwhps.server.core.thread
 
 import java.util.*
 
+/**
+ * @author RW-HPS/Dr
+ */
 object TimeTaskData {
     var CallTickPool: Timer? = null
     var CallTickTask: TimerTask? = null

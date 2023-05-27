@@ -12,6 +12,9 @@ package net.rwhps.server.net.debug
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.DataPermissionStatus
 
+/**
+ * @author RW-HPS/Dr
+ */
 class SafetyConnect {
     /** */
     private var exCommandStatus: DataPermissionStatus.DevConnectStatus = DataPermissionStatus.DevConnectStatus.InitialConnection

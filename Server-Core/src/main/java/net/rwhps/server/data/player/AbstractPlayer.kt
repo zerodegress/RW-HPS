@@ -63,6 +63,7 @@ open class AbstractPlayer(
 
     /** */
     var credits by playerPrivateData::credits
+    open var startUnit by playerPrivateData::startUnit
 
     /** Is the player alive  */
     val survive get() = playerPrivateData.survive

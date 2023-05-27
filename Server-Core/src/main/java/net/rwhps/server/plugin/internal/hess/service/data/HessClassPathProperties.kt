@@ -9,6 +9,9 @@
 
 package net.rwhps.server.plugin.internal.hess.service.data
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal object HessClassPathProperties {
     const val path = "net.rwhps.server.plugin.internal.hess.inject"
     const val CorePath = "$path.core"

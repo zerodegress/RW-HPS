@@ -21,7 +21,7 @@ import java.math.BigInteger
 import java.util.concurrent.ThreadLocalRandom
 
 /**
- * Proof-of-Work Verify if it is a client
+ * Proof-of-Work Verify if it is a client (Only the most versatile part)
  *
  * I don't want this part to be abused
  * Cherish what you have at the moment

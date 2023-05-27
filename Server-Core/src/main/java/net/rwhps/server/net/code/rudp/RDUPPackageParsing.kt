@@ -19,6 +19,10 @@ import java.net.SocketException
 import java.util.*
 
 // 我是真不想写 RUDP
+
+/**
+ * @author RW-HPS/Dr
+ */
 @DidNotFinish
 class RDUPPackageParsing {
     private var closed = false

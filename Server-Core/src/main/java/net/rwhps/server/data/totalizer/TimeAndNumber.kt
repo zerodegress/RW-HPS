@@ -11,6 +11,9 @@ package net.rwhps.server.data.totalizer
 
 import net.rwhps.server.util.Time
 
+/**
+ * @author RW-HPS/Dr
+ */
 class TimeAndNumber(
     private val timeOut: Int,
     private val conutMax: Int

@@ -17,6 +17,9 @@ import net.rwhps.server.util.log.Log
 import java.io.EOFException
 import java.io.IOException
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class PacketDecoder(private val socket: PackagingSocket) {
     companion object {
         /** Packet header data length */

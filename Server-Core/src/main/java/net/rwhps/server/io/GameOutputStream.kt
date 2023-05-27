@@ -17,6 +17,7 @@ import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.PacketType
+import java.io.Closeable
 import java.io.DataOutputStream
 import java.io.IOException
 
@@ -24,7 +25,7 @@ import java.io.IOException
 /**
  * @author RW-HPS/Dr
  */
-open class GameOutputStream @JvmOverloads constructor(private var buffer: AbstractByteArrayOutputStream = DisableSyncByteArrayOutputStream()) {
+open class GameOutputStream @JvmOverloads constructor(private var buffer: AbstractByteArrayOutputStream = DisableSyncByteArrayOutputStream()) : Closeable {
 
     private var stream: DataOutputStream = DataOutputStream(buffer)
 
@@ -267,5 +268,14 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
 
     fun reset() {
         this.buffer.reset()
+    }
+
+    override fun close() {
+        stream.use {
+            it.flush()
+        }
+        buffer.use {
+            it.flush()
+        }
     }
 }

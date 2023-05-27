@@ -13,6 +13,9 @@ import io.netty.channel.Channel
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
 import net.rwhps.server.net.handler.tcp.GamePortWebSocket
 
+/**
+ * @author RW-HPS/Dr
+ */
 abstract class WebSocket {
     abstract fun ws(ws: GamePortWebSocket,channel: Channel,msg: String)
 

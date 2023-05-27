@@ -14,10 +14,10 @@ import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.GameModularLoadClass
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileName
 import net.rwhps.server.util.file.FileUtil

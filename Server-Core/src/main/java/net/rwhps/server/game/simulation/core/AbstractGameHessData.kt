@@ -74,6 +74,8 @@ interface AbstractGameHessData {
             override val connectHexID get() = error()
             override var site = 0
             override var team = 0
+            override var startUnit = 0
+            override var color = 0
         }
     }
 

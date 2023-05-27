@@ -16,7 +16,7 @@ import java.io.IOException
 
 /**
  * Only provide interface but not implement
- * As the interface of game CoreNet, it provides various version support for GameServer
+ * As the interface of game CoreNet, it provides various version support for GameRelay
  *
  * @date 2021/7/31/ 14:14
  * @author RW-HPS/Dr

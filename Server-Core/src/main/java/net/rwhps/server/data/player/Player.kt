@@ -39,7 +39,7 @@ class Player(
         set(value) { color = value; field = value }
 
     /** */
-    var startUnit = Data.game.initUnit
+    override var startUnit = Data.game.initUnit
     /** */
     var color = 0
         set(value) {

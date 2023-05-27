@@ -9,6 +9,9 @@
 
 package net.rwhps.server.core.thread
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal object CallGroupData {
     const val coreServer = "[Core]Server"
     const val coreExpandServer = "[CoreX]Server"

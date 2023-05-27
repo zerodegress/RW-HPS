@@ -11,7 +11,6 @@ package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -81,7 +80,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 o.writeBoolean(relay!!.isMod) //MOD
                 o.writeBoolean(false)
                 o.writeBoolean(true)
-                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 o.writeBoolean(true)
                 o.writeIsString(registerPlayerId)
             } else {
@@ -94,13 +93,13 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 // List OPEN
                 o.writeBoolean(false)
                 o.writeBoolean(true)
-                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 // 多播
                 o.writeBoolean(true)
             }
             sendPacket(o.createPacket(PacketType.RELAY_BECOME_SERVER)) //+108+140
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelay.MainID+relay!!.id, Data.configRelay.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelay.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
 
             val nnn = StringFilteringUtil.filterChines(name)
 

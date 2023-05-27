@@ -27,7 +27,8 @@ import kotlin.math.max
 
 /**
  * 摘要算法
- */
+ * @author RW-HPS/Dr
+*/
 open class Digester {
     /**
      * 获得 [MessageDigest]

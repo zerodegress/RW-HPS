@@ -11,7 +11,6 @@ package net.rwhps.server.net.netconnectprotocol
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement

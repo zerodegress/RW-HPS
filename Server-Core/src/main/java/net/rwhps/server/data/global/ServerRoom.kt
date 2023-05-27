@@ -36,7 +36,7 @@ class ServerRoom {
                 checkGameStatusFlag = false
 
                 startTime = Time.concurrentSecond()
-                endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
+                endTime = Time.concurrentSecond()+Data.configServer.MaxGameIngTime
 
                 closeTimeTask(CallTimeTask.CallTeamTask)
 

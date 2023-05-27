@@ -18,6 +18,9 @@ import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.plugin.internal.hess.HessMain
 import net.rwhps.server.util.log.Log
 
+/**
+ * @author RW-HPS/Dr
+ */
 class GameHeadlessEventGlobal : AbstractGlobalEvent {
 
     override fun registerGameLibLoadEvent(loadID: String) {
@@ -34,8 +37,8 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
         Log.clog("Load Game Core END !")
 
         var passwd: String? = null
-        if (Data.config.Passwd.isNotBlank()) {
-            passwd = Data.config.Passwd
+        if (Data.configServer.Passwd.isNotBlank()) {
+            passwd = Data.configServer.Passwd
         }
         HessModuleManage.hps.gameNet.startHessPort(Data.config.Port, passwd)
         Log.clog(Data.i18NBundle.getinput("server.load.end"))

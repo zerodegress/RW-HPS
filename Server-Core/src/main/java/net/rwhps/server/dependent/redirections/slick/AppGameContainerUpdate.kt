@@ -22,7 +22,9 @@ import java.lang.reflect.Method
  * Since Rusted Warfare [org.newdawn.slick.AppGameContainer.start] is just a while(True) loop which calls [org.newdawn.slick.AppGameContainer.gameLoop] and [Thread.yield]. Once we
  * heavy load on the CPU. This [Redirection] fixes that by sleeping for a
  * set amount of time, configurable by the SystemProperty [LwjglClassProperties.DISPLAY_UPDATE].
- */
+ *
+ * @author RW-HPS/Dr
+*/
 @AsmMark.ClassLoaderCompatible
 internal class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = getTime()) : Redirection {
 

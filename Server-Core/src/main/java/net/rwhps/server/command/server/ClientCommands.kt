@@ -59,7 +59,7 @@ internal class ClientCommands(handler: CommandHandler) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.noInt"))
             return false
         }
-        if (int.toInt() > (Data.config.MaxPlayer)) {
+        if (int.toInt() > (Data.configServer.MaxPlayer)) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.maxPlayer"))
             return false
         }
@@ -161,7 +161,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 val admin = AtomicBoolean(true)
                 Data.game.playerManage.playerGroup.eachAllFind({ p: Player -> p.isAdmin },{ _: Player -> admin.set(false) })
-                if (admin.get() && Data.config.OneAdmin) {
+                if (admin.get() && Data.configServer.OneAdmin) {
                     player.isAdmin = true
                     upDataGameData()
                     sendSystemMessageLocal("afk.end.noAdmin", player.name)
@@ -425,9 +425,9 @@ internal class ClientCommands(handler: CommandHandler) {
                     Call.sendSystemMessageLocal("afk.clear", player.name)
                 }
 
-                if (Data.config.StartMinPlayerSize != -1 &&
-                    Data.config.StartMinPlayerSize > Data.game.playerManage.playerGroup.size) {
-                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
+                if (Data.configServer.StartMinPlayerSize != -1 &&
+                    Data.configServer.StartMinPlayerSize > Data.game.playerManage.playerGroup.size) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.configServer.StartMinPlayerSize))
                     return@register
                 }
 
@@ -522,7 +522,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
 
-                if (args[0].toInt()  == Data.config.MaxPlayer+1 || args[1].toInt()  == Data.config.MaxPlayer+1) {
+                if (args[0].toInt()  == Data.configServer.MaxPlayer+1 || args[1].toInt()  == Data.configServer.MaxPlayer+1) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.player.operating.no"))
                     return@register
                 }

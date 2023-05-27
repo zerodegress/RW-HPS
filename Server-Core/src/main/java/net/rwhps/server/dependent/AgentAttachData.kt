@@ -25,7 +25,7 @@ open class AgentAttachData {
             get() {
                 /* 避免Java没有初始化 Agent */
                 if (field == null) {
-                    throw VariableException("[Angent Init Error] Please check the JDK version, Use Java11 or Java11+")
+                    throw VariableException("[Angent Init Error] Use Jar mode to run")
                 }
                 return field
             }

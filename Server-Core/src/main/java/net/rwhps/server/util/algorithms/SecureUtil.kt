@@ -13,6 +13,9 @@ import net.rwhps.server.util.log.exp.CryptoException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
+/**
+ * @author RW-HPS/Dr
+ */
 object SecureUtil {
     /**
      * 创建[MessageDigest]

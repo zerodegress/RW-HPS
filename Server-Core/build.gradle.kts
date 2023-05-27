@@ -1,11 +1,17 @@
+import java.text.SimpleDateFormat
+import java.util.*
+
 //Netty Version
 val nettyVersion = "4.1.90.Final"
+//Kotlin Version
+val kotlinVersion = properties["kotlin.version"]
 
 /**
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:1.8.20")
+	api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+	api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
 
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
@@ -22,7 +28,6 @@ dependencies {
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
 
 	api("com.github.deng-rui:RUDP:2.0.0")
-
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
 	api("com.google.code.gson:gson:2.10.1")
@@ -57,9 +62,9 @@ dependencies {
 
 tasks.jar {
 	manifest {
-		attributes(mapOf(
-			"Implementation-Title" to "RW-HPS"
-		))
+		attributes(mapOf("Implementation-Title" to "RW-HPS"))
+		attributes(mapOf("Implementation-Vendor" to "RW-HPS Team"))
+		attributes(mapOf("Build-Jar-Time" to SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date().time)))
 	}
 }
 

@@ -16,6 +16,9 @@ import org.jline.reader.Completer
 import org.jline.reader.LineReader
 import org.jline.reader.ParsedLine
 
+/**
+ * @author RW-HPS/Dr
+ */
 class ConsoleStream {
     // Tab兼容
     object TabCompleter : Completer {

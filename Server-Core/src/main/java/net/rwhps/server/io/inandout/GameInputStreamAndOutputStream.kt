@@ -26,6 +26,8 @@ import java.util.zip.GZIPOutputStream
  * 避免了边读边写 (指 内部包装)
  *
  * @property out GameOutputStream
+ *
+ * @author RW-HPS/Dr
  */
 class GameInputStreamAndOutputStream : GameInputStream {
     @JvmOverloads

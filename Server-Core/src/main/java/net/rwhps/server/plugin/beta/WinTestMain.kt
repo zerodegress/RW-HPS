@@ -17,6 +17,9 @@ import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.ExtractUtil
 import net.rwhps.server.util.file.FileUtil
 
+/**
+ * @author RW-HPS/Dr
+ */
 class WinTestMain : Plugin() {
     override fun registerEvents(): AbstractEvent {
         return object: AbstractEvent {

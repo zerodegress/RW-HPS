@@ -9,6 +9,9 @@
 
 package net.rwhps.server.net.code.rudp
 
+/**
+ * @author RW-HPS/Dr
+ */
 class Counters {
     private val MAX_SEQUENCE_NUMBER = 255
 

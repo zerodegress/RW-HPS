@@ -25,6 +25,9 @@ import net.rwhps.server.plugin.internal.hess.inject.net.TypeHessRwHps
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 
+/**
+ * @author RW-HPS/Dr
+ */
 @ChannelHandler.Sharable
 class NewServerHessHandler(private val netEngine: ad) : SimpleChannelInboundHandler<Any?>() {
     @Throws(Exception::class)

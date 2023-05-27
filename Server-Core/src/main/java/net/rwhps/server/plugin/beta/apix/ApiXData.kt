@@ -9,6 +9,9 @@
 
 package net.rwhps.server.plugin.beta.apix
 
+/**
+ * @author RW-HPS/Dr
+ */
 data class ApiXData(
     val GameOverPositive: Boolean = false
 )

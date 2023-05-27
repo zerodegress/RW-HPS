@@ -9,6 +9,9 @@
 
 package net.rwhps.server.plugin.internal.hess
 
+/**
+ * @author RW-HPS/Dr
+ */
 class README {
     val readme = """
         /*

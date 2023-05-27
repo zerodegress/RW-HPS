@@ -14,7 +14,6 @@ import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.plugin.beta.UpListMain
 import net.rwhps.server.plugin.beta.apix.ApiXMain
 import net.rwhps.server.plugin.beta.httpapi.ApiMain
-import net.rwhps.server.plugin.beta.noattack.ConnectionLimit
 import net.rwhps.server.plugin.internal.hess.HessMain
 
 /**
@@ -23,7 +22,9 @@ import net.rwhps.server.plugin.internal.hess.HessMain
  * @property core String
  * @property coreEx String
  * @property amusement String
- */
+ *
+ * @author RW-HPS/Dr
+*/
 internal class LoadCoreCustomPlugin {
     private val core = "[Core Plugin]"
     private val coreEx = "[Core Plugin Extend]"
@@ -34,7 +35,6 @@ internal class LoadCoreCustomPlugin {
         PluginManage.addPluginClass("ApiX", "Dr", "$coreEx ApiX", Data.SERVER_CORE_VERSION, ApiXMain(), mkdir = true, skip = true)
 
         PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpListMain(), mkdir = false, skip = true)
-        PluginManage.addPluginClass("ConnectionLimit","Dr","$coreEx ConnectionLimit","1.0", ConnectionLimit(), mkdir = false, skip = true)
-PluginManage.addPluginClass("HttpApi", "zhou2008", "$coreEx HttpApi", "1.0", ApiMain(), mkdir = true, skip = true)
+        PluginManage.addPluginClass("HttpApi", "zhou2008", "$coreEx HttpApi", "1.0", ApiMain(), mkdir = true, skip = true)
     }
 }

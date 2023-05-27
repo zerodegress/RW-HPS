@@ -13,6 +13,9 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.file.FileUtil
 import java.util.*
 
+/**
+ * @author RW-HPS/Dr
+ */
 class PluginLoadData(
     @JvmField val name: String,
     @JvmField val author: String,

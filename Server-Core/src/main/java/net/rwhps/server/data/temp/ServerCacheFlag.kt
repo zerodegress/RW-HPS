@@ -9,6 +9,9 @@
 
 package net.rwhps.server.data.temp
 
+/**
+ * @author RW-HPS/Dr
+ */
 class ServerCacheFlag {
     var sendGameStatusFlag = true
     var forcedCloseSendMsg = true

@@ -11,12 +11,14 @@ package net.rwhps.server.command.relay
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.game.CommandHandler
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class RelayClientCommands(handler: CommandHandler) {
     private val localeUtil = Data.i18NBundle
 

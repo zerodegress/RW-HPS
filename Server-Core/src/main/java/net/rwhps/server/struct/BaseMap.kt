@@ -20,6 +20,8 @@ package net.rwhps.server.struct
  * @property keys MutableSet<K>
  * @property values MutableCollection<V>
  * @constructor
+ *
+ * @author RW-HPS/Dr
  */
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 abstract class BaseMap<K,V>(protected val map: java.util.Map<K,V>) :
@@ -47,3 +49,7 @@ abstract class BaseMap<K,V>(protected val map: java.util.Map<K,V>) :
 
     override fun toString(): String = map.toString()
 }
+/**
+ * Pain will come with the blade
+ * Pain will wake up the despondent crowd in this dormant world somehow
+ */

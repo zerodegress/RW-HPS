@@ -11,7 +11,8 @@ package net.rwhps.server.util
 
 /**
  * 等待并且获取 直到得到有效值
- */
+ * @author RW-HPS/Dr
+*/
 object WaitResultUtil {
     @Throws(NullPointerException::class)
     fun <T> waitResult(sleep: Long = 10, block: ()->T?): T? {

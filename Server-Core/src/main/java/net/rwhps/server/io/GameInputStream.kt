@@ -20,12 +20,12 @@ import java.io.*
  * @author RW-HPS/Dr
  */
 open class GameInputStream : Closeable {
-    protected val buffer: DisableSyncByteArrayInputStream
+    protected val buffer: InputStream
     protected val stream: DataInputStream
     val parseVersion: Int
 
     @JvmOverloads
-    internal constructor(buffer: DisableSyncByteArrayInputStream, parseVersion: Int = 0) {
+    internal constructor(buffer: InputStream, parseVersion: Int = 0) {
         this.buffer = buffer
         this.stream = DataInputStream(buffer)
         this.parseVersion = parseVersion
@@ -228,7 +228,11 @@ open class GameInputStream : Closeable {
      */
     @Throws(IOException::class)
     fun transferToFixedLength(out: OutputStream, length: Int) {
-        this.buffer.transferToFixedLength(out,length)
+        if (this.buffer is DisableSyncByteArrayInputStream) {
+            this.buffer.transferToFixedLength(out,length)
+        } else {
+            out.write(this.buffer.readNBytes(length))
+        }
     }
 
     @Throws(IOException::class)

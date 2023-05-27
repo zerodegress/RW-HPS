@@ -15,6 +15,9 @@ import net.rwhps.server.util.algorithms.digest.DigestUtil
 import okhttp3.FormBody
 import java.math.BigInteger
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal data class UpListPost(
     val time: Long = Time.concurrentMillis(),
     var user_id: String,

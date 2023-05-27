@@ -21,6 +21,9 @@ import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toJson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 
+/**
+ * @author RW-HPS/Dr
+ */
 class ApiXMain : Plugin() {
     lateinit var data: ApiXData
     var dataJson = Seq<String>()
@@ -47,20 +50,23 @@ class ApiXMain : Plugin() {
                 }
 
                 if (data.GameOverPositive) {
-                    GameOverDataCover(
-                        gameOverData.allPlayerList.toList(),
-                        gameOverData.winPlayerList.toList(),
-                        gameOverData.mapName,
-                        hashMapOf<String, Map<String, Int>>().apply {
-                            gameOverData.playerData.forEach {
-                                put(it.key, hashMapOf<String, Int>().apply {
-                                    it.value.forEach {
-                                        put(it.key, it.value)
-                                    }
-                                })
-                            }
-                        },
-                        gameOverData.replayName
+                    ApixDataJson(
+                        gameOverData.gameTime,
+                        GameOverDataCover(
+                            gameOverData.allPlayerList.toList(),
+                            gameOverData.winPlayerList.toList(),
+                            gameOverData.mapName,
+                            hashMapOf<String, Map<String, Int>>().apply {
+                                gameOverData.playerData.forEach {
+                                    put(it.key, hashMapOf<String, Int>().apply {
+                                        it.value.forEach {
+                                            put(it.key, it.value)
+                                        }
+                                    })
+                                }
+                            },
+                            gameOverData.replayName
+                        )
                     ).toJson().also {
                         if (data.GameOverPositive) {
                             dataJson.add(it)
@@ -74,6 +80,11 @@ class ApiXMain : Plugin() {
     override fun onDisable() {
         pluginDataFileUtil.toFile("Data.json").writeFile(data.toPrettyPrintingJson())
     }
+
+    private data class ApixDataJson(
+        val gameTime: Int,
+        val gameOverData: GameOverDataCover
+    )
 
     private data class GameOverDataCover(
         val allPlayerList: List<String>,

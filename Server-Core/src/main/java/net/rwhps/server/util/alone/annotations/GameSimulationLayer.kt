@@ -9,6 +9,9 @@
 
 package net.rwhps.server.util.alone.annotations
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class GameSimulationLayer {
     @Retention(AnnotationRetention.SOURCE)
     @MustBeDocumented

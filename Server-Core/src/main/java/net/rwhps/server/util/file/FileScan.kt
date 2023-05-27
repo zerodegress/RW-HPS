@@ -12,6 +12,9 @@ package net.rwhps.server.util.file
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 
+/**
+ * @author RW-HPS/Dr
+ */
 object FileScan {
     @JvmStatic
     fun scanPacketPathClass(packetPath: String): Seq<String> {

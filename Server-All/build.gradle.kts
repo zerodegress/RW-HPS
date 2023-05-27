@@ -1,3 +1,7 @@
+import org.gradle.kotlin.dsl.project
+import java.text.SimpleDateFormat
+import java.util.Date
+
 dependencies {
 	implementation(project(":Server-Core"))
 }
@@ -43,10 +47,15 @@ tasks.jar {
 		attributes(mapOf("Main-Class" to "net.rwhps.server.Main"))
 		attributes(mapOf("Launcher-Agent-Class" to  "net.rwhps.server.dependent.AgentAttachData"))
 		attributes(mapOf("Can-Redefine-Classes" to  "true"))
+
 		attributes(mapOf("Implementation-Title" to "RW-HPS"))
+		attributes(mapOf("Implementation-Vendor" to "RW-HPS Team"))
+
+		attributes(mapOf("Build-Jar-Time" to SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date().time)))
 	}
 
 	from(configurations.runtimeClasspath.get().map {
 		if (it.isDirectory) it else zipTree(it)
 	})
+
 }

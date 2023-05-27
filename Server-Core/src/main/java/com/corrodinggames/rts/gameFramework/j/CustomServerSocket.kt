@@ -26,7 +26,9 @@ import com.corrodinggames.rts.gameFramework.l as GameEe
  * @property netService NetService
  * @property port Int
  * @constructor
- */
+ *
+ * @author RW-HPS/Dr
+*/
 class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
     private val netEngine: ad = this::class.java.findField("r",ad::class.java)!!.get(this)!! as ad
     private var netService: NetService? = null

@@ -19,6 +19,9 @@ import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.log.Log
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class GameUnitData : AbstractGameUnitData {
     override fun reloadUnitData() {
         ag.h()

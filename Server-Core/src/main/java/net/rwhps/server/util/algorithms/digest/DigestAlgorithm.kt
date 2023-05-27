@@ -9,6 +9,9 @@
 
 package net.rwhps.server.util.algorithms.digest
 
+/**
+ * @author RW-HPS/Dr
+ */
 enum class DigestAlgorithm(val type: String) {
     MD2("MD2"),
     MD5("MD5"),

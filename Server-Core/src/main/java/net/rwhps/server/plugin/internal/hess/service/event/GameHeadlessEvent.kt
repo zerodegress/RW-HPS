@@ -19,6 +19,9 @@ import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
 
+/**
+ * @author RW-HPS/Dr
+ */
 class GameHeadlessEvent : AbstractEvent {
     override fun registerGameStartEvent() {
         Data.game.playerManage.playerAll.eachAll { player ->

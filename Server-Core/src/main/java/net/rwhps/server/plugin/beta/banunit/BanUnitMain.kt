@@ -12,6 +12,9 @@ package net.rwhps.server.plugin.beta.banunit
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.game.CommandHandler
 
+/**
+ * @author RW-HPS/Dr
+ */
 class BanUnitMain : Plugin() {
     override fun registerServerCommands(handler: CommandHandler) {
 

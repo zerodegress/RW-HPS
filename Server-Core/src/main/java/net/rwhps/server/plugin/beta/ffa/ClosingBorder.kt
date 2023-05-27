@@ -11,6 +11,9 @@ package net.rwhps.server.plugin.beta.ffa
 
 import net.rwhps.server.plugin.Plugin
 
+/**
+ * @author RW-HPS/Dr
+ */
 class ClosingBorder : Plugin() {
 
 }

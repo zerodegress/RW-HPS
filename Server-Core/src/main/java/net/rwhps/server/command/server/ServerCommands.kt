@@ -124,7 +124,7 @@ internal class ServerCommands(handler: CommandHandler) {
             }
         }
         handler.register("isafk", "<off/on>", "serverCommands.isAfk") { arg: Array<String>, _: StrCons ->
-            if (Data.config.OneAdmin) {
+            if (Data.configServer.OneAdmin) {
                 Data.game.isAfk = "on" == arg[0]
             }
         }

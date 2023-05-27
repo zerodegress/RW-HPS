@@ -39,7 +39,7 @@ class PlayerHessManage {
 
         if (resultFlag) {
             player = AbstractPlayer(con, i18NBundle, playerData)
-            if (Data.config.OneAdmin) {
+            if (Data.configServer.OneAdmin) {
                 var hasAutoAdmin = false
                 playerGroup.eachFind({ it.isAdmin && it.autoAdmin }) { hasAutoAdmin = true }
 

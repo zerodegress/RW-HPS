@@ -12,6 +12,9 @@ package net.rwhps.server.io.output
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class DynamicPrintStream(private val block: (String) -> Unit) : PrintStream(ByteArrayOutputStream()) {
     private val bufOut = out as ByteArrayOutputStream
 

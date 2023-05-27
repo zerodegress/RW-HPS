@@ -13,6 +13,9 @@ import net.rwhps.server.game.simulation.core.AbstractGameFast
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import com.corrodinggames.rts.gameFramework.j.au as Packet
 
+/**
+ * @author RW-HPS/Dr
+ */
 class GameFast : AbstractGameFast {
     override fun filteredPacket(packet: Any): Boolean {
         if (packet is Packet) {

@@ -34,6 +34,9 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLEngine
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class StartHttp : AbstractNet() {
     var socketChannel: SocketChannel? = null
     private var sslContext: SSLContext? = null

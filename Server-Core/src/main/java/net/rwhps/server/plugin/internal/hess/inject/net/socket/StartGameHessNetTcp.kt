@@ -17,6 +17,9 @@ import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 
+/**
+ * @author RW-HPS/Dr
+ */
 @ChannelHandler.Sharable
 class StartGameHessNetTcp(netEngine: ad) : AbstractNet(
     object: AcceptorIdleStateTrigger() {

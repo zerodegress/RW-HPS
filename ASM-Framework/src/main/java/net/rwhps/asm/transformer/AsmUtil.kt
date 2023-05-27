@@ -10,7 +10,6 @@
 package net.rwhps.asm.transformer
 
 import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.tree.ClassNode
 
 internal object AsmUtil {

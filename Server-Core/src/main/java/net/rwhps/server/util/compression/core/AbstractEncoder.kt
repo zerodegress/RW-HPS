@@ -9,18 +9,33 @@
 
 package net.rwhps.server.util.compression.core
 
+import net.rwhps.server.util.log.exp.CompressionException
 import java.io.InputStream
 
 /**
  * 压缩 通用接口
  * @author RW-HPS/Dr
  */
-interface AbstractEncoder {
-    fun addCompressBytes(name:String, compressionDecoder: CompressionDecoder)
+abstract class AbstractEncoder {
+    @Throws(CompressionException.UnsupportedRatingsException::class)
 
-    fun addCompressBytes(name:String, inStream: InputStream)
+    abstract fun setCompressibility(level: Int)
 
-    fun addCompressBytes(name:String, bytes: ByteArray)
+    fun addCompressBytes(name: String, compressionDecoder: CompressionDecoder) {
+        compressionDecoder.use {
+            it.getZipAllBytes().forEach { addCompressBytes(it.key,it.value) }
+        }
+    }
 
-    fun flash(): ByteArray
+    fun addCompressBytes(name: String, inStream: InputStream) {
+        addCompressBytes(name, inStream, null)
+    }
+
+    fun addCompressBytes(name: String, bytes: ByteArray) {
+        addCompressBytes(name, null, bytes)
+    }
+
+    protected abstract fun addCompressBytes(name: String, inStream: InputStream?, bytes: ByteArray?)
+
+    abstract fun flash(): ByteArray
 }

@@ -13,6 +13,9 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.random.nextInt
 
+/**
+ * @author RW-HPS/Dr
+ */
 object RandomUtil {
     private val defaultRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z', '0'..'9')
     private val letterRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z')

@@ -18,6 +18,9 @@ import java.net.SocketAddress
 import java.nio.channels.SocketChannel
 
 
+/**
+ * @author RW-HPS/Dr
+ */
 class HessSocket(private val connect: ConnectionAgreement) : Socket() {
     @Volatile
     private var close = false

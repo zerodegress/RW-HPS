@@ -17,6 +17,9 @@ import net.rwhps.server.util.IpUtil
 import net.rwhps.server.util.IsUtil.isBlank
 import net.rwhps.server.util.game.CommandHandler
 
+/**
+ * @author RW-HPS/Dr
+ */
 class RelayCommands(handler: CommandHandler) {
     private fun registerRelayCommand(handler: CommandHandler) {
         handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->

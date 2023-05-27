@@ -38,5 +38,7 @@ interface AbstractPlayerData {
     val connectHexID: String
     var site: Int
     var team: Int
+    var startUnit: Int
+    var color: Int
 
 }

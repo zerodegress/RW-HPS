@@ -16,6 +16,9 @@ import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 
+/**
+ * @author RW-HPS/Dr
+ */
 class FFAAnalysis {
     fun test() {
         val bytes = GameOutputStream()

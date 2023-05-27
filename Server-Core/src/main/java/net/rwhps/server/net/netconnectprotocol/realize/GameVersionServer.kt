@@ -130,8 +130,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         o.writeBoolean(false)
         /* Admin Ui */
         o.writeBoolean(player.isAdmin)
-        o.writeInt(Data.config.MaxUnit)
-        o.writeInt(Data.config.MaxUnit)
+        o.writeInt(Data.configServer.MaxUnit)
+        o.writeInt(Data.configServer.MaxUnit)
         o.writeInt(Data.game.initUnit)
         o.writeFloat(Data.game.income)
         /* NO Nukes */
@@ -168,8 +168,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             /* AI Difficulty ?*/
             o.writeInt(1)
             o.writeByte(5)
-            o.writeInt(Data.config.MaxUnit)
-            o.writeInt(Data.config.MaxUnit)
+            o.writeInt(Data.configServer.MaxUnit)
+            o.writeInt(Data.configServer.MaxUnit)
             /* 初始单位 */
             o.writeInt(Data.game.initUnit)
             /* 倍速 */
@@ -264,8 +264,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun sendStartGame() {
         sendServerInfo(true)
         sendPacket(NetStaticData.RwHps.abstractNetPacket.getStartGamePacket())
-        if (IsUtil.notIsBlank(Data.configServerEx.StartAd)) {
-            sendSystemMessage(Data.configServerEx.StartAd)
+        if (IsUtil.notIsBlank(Data.configServer.StartAd)) {
+            sendSystemMessage(Data.configServer.StartAd)
         }
     }
 
@@ -295,7 +295,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             }
 
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                if (message.length > Data.config.MaxMessageLen) {
+                if (message.length > Data.configServer.MaxMessageLen) {
                     sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
                     return
                 }
@@ -513,19 +513,19 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         Data.game.playerManage.playerGroup.add(e)
                     }
                     if (!re.get()) {
-                        if (IsUtil.isBlank(Data.configServerEx.StartPlayerAd)) {
+                        if (IsUtil.isBlank(Data.configServer.StartPlayerAd)) {
                             sendKick("游戏已经开局 请等待 # The game has started, please wait")
                         } else {
-                            sendKick(Data.configServerEx.StartPlayerAd)
+                            sendKick(Data.configServer.StartPlayerAd)
                         }
                         return false
                     }
                 } else {
                     if (Data.game.playerManage.playerGroup.size >= Data.game.maxPlayer) {
-                        if (IsUtil.isBlank(Data.configServerEx.MaxPlayerAd)) {
+                        if (IsUtil.isBlank(Data.configServer.MaxPlayerAd)) {
                             sendKick("服务器没有位置 # The server has no free location")
                         } else {
-                            sendKick(Data.configServerEx.MaxPlayerAd)
+                            sendKick(Data.configServer.MaxPlayerAd)
                         }
                         return false
                     }
@@ -544,8 +544,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 Call.sendTeamData()
                 sendServerInfo(true)
 
-                if (IsUtil.notIsBlank(Data.configServerEx.EnterAd)) {
-                    sendSystemMessage(Data.configServerEx.EnterAd)
+                if (IsUtil.notIsBlank(Data.configServer.EnterAd)) {
+                    sendSystemMessage(Data.configServer.EnterAd)
                 }
 
                 if (re.get()) {

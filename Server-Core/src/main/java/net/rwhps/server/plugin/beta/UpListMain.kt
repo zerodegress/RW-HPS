@@ -49,9 +49,9 @@ internal class UpListMain : Plugin() {
         }
     private var port = Data.config.Port.toString()
 
-    private var versionBeta = true
-    private var versionGame = "1.15.P8"
-    private var versionGameInt = 170
+    private var versionBeta = false
+    private var versionGame = "1.15"
+    private var versionGameInt = 176
 
     private var upServerList = false
 
@@ -95,8 +95,8 @@ internal class UpListMain : Plugin() {
 
         } else {
             versionBeta = false
-            versionGame = "1.14-Other"
-            versionGameInt = 151
+            versionGame = "1.15-Other"
+            versionGameInt = 176
         }
 
 
@@ -109,7 +109,7 @@ internal class UpListMain : Plugin() {
         }
 
         if (resultUpList.isBlank()) {
-            Log.error("[Get UPLIST Data Error] 意外错误 无法初始化")
+            Log.error("[Get UPLIST Data Error] Unexpected error Failed to initialize")
             return false
         }
 
@@ -155,7 +155,7 @@ internal class UpListMain : Plugin() {
         var addData0= addData.replace("{RW-HPS.RW.VERSION}",versionGame)
         addData0    = addData0.replace("{RW-HPS.RW.VERSION.INT}",versionGameInt.toString())
         addData0    = addData0.replace("{RW-HPS.RW.IS.VERSION}",versionBeta.toString())
-        addData0    = addData0.replace("{RW-HPS.RW.IS.PASSWD}",Data.config.Passwd.isNotBlank().toString())
+        addData0    = addData0.replace("{RW-HPS.RW.IS.PASSWD}",Data.configServer.Passwd.isNotBlank().toString())
         addData0    = addData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
         addData0    = addData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         addData0    = addData0.replace("{RW-HPS.S.PORT}",port)
@@ -168,7 +168,7 @@ internal class UpListMain : Plugin() {
             addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}","0")
         }
 
-        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
+        addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.configServer.MaxPlayer.toString())
 
 
         Log.debug(addData0)
@@ -199,7 +199,7 @@ internal class UpListMain : Plugin() {
     }
 
     private fun update() {
-        var updateData0 = updateData.replace("{RW-HPS.RW.IS.PASSWD}",Data.config.Passwd.isNotBlank().toString())
+        var updateData0 = updateData.replace("{RW-HPS.RW.IS.PASSWD}",Data.configServer.Passwd.isNotBlank().toString())
         updateData0     = updateData0.replace("{RW-HPS.S.NAME}",cutting(Data.config.ServerName,10))
         updateData0     = updateData0.replace("{RW-HPS.S.PRIVATE.IP}",privateIp)
         updateData0     = updateData0.replace("{RW-HPS.S.PORT}",port)
@@ -214,7 +214,7 @@ internal class UpListMain : Plugin() {
             updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}","0")
         }
 
-        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.config.MaxPlayer.toString())
+        updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}",Data.configServer.MaxPlayer.toString())
 
 
         HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", updateData0)
@@ -228,12 +228,12 @@ internal class UpListMain : Plugin() {
                     HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", removeData)
                 }) {
                 upServerList = false
-                log["已删除"]
+                log["Deleted UPLIST"]
                 return
             }
-            log["删除失败, 无法停止线程"]
+            log["Delete failed, unable to stop thread"]
         } else {
-            log["未上传 不需要删除"]
+            log["Not uploaded No deletion is required"]
         }
     }
 

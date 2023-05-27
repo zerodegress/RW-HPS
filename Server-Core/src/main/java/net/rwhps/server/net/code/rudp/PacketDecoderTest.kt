@@ -14,6 +14,9 @@ import io.netty.channel.socket.DatagramPacket
 import io.netty.handler.codec.MessageToMessageDecoder
 import net.rwhps.server.io.input.ClearableAndReusableDisableSyncByteArrayInputStream
 
+/**
+ * @author RW-HPS/Dr
+ */
 class PacketDecoderTest : MessageToMessageDecoder<DatagramPacket>() {
 
     private val inputStream = ClearableAndReusableDisableSyncByteArrayInputStream()

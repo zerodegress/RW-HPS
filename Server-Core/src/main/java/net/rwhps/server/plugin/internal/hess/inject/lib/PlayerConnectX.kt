@@ -34,6 +34,9 @@ import net.rwhps.server.util.game.Events
 import java.util.concurrent.TimeUnit
 import com.corrodinggames.rts.gameFramework.j.c as PlayerConnect
 
+/**
+ * @author RW-HPS/Dr
+ */
 class PlayerConnectX(
     val netEngine: ad,
     val connectionAgreement: ConnectionAgreement

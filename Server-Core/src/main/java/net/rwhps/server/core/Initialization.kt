@@ -154,7 +154,7 @@ class Initialization {
     }
 
     private fun initGetServerData() {
-        Threads.newTimedTask(CallTimeTask.ServerUpStatistics,0, 5, TimeUnit.SECONDS) {
+        Threads.newTimedTask(CallTimeTask.ServerUpStatistics,0, 1, TimeUnit.MINUTES) {
             if (NetStaticData.ServerNetType != IRwHps.NetType.NullProtocol) {
                 try {
                     val data = when (NetStaticData.ServerNetType) {
@@ -185,7 +185,7 @@ class Initialization {
                         else -> {
                             BaseDataSend(
                                 IsServerRun = false,
-                                IsServer = true
+                                IsServer = false
                             )
                         }
                     }
@@ -206,7 +206,8 @@ class Initialization {
                         }
                         it.close()
                     }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+                    Log.error(e)
                 }
             }
         }
@@ -320,7 +321,7 @@ class Initialization {
             companion object {
                 data class ServerData(
                     val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
-                    val MaxPlayer: Int                      = Data.config.MaxPlayer,
+                    val MaxPlayer: Int                      = Data.configServer.MaxPlayer,
                     val PlayerVersion: Int                  = (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).supportedVersionInt,
                     val IpPlayerCountry: Map<String,Int>,
                 )

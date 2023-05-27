@@ -13,16 +13,18 @@ import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.input.ReusableDisableSyncByteArrayInputStream
 import net.rwhps.server.io.output.ByteArrayOutputStream
+import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.IsUtil.isBlank
 import net.rwhps.server.util.alone.annotations.NeedToRefactor
+import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.compression.gzip.GzipDecoder.getGzipInputStream
-import net.rwhps.server.util.compression.gzip.GzipEncoder.getGzipOutputStream
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
+import net.rwhps.server.util.log.exp.CompressionException
 import net.rwhps.server.util.log.exp.VariableException
 import java.io.*
 
@@ -39,14 +41,16 @@ internal open class AbstractPluginData {
     private val byteStream = ByteArrayOutputStream()
     private val dataOutput = GameOutputStream(byteStream)
     private var fileUtil: FileUtil? = null
+    private var code: String = "gzip"
 
     /**
      * 这个 [PluginData] 保存时使用的文件.
      * @param fileUtil FileUtil
      */
-    fun setFileUtil(fileUtil: FileUtil) {
+    fun setFileUtil(fileUtil: FileUtil, code: String = "gzip") {
         this.fileUtil = fileUtil
         fileUtil.createNewFile()
+        this.code = code
         this.read()
     }
 
@@ -62,6 +66,10 @@ internal open class AbstractPluginData {
         } else {
             throw VariableException.ObjectMapRuntimeException("${T::class.java} : UNSUPPORTED_SERIALIZATION")
         }
+    }
+
+    fun getMap(): OrderedMap<String, Value<*>> {
+        return pluginData
     }
 
     /**
@@ -103,27 +111,33 @@ internal open class AbstractPluginData {
         }
     }
 
-    fun read(inStream: InputStream?) {
+    @Throws(CompressionException.CryptographicException::class)
+    fun read(inStream: InputStream) {
+        val gameInputStream: GameInputStream =
+            when(code) {
+                "7z" -> GameInputStream(CompressionDecoderUtils.lz77Stream(inStream).getZipAllBytes()["file"])
+                "gzip" -> GameInputStream(getGzipInputStream(inStream))
+                else -> throw CompressionException.CryptographicException(code)
+            }
+
         try {
-            DataInputStream(getGzipInputStream(inStream!!)).use { stream ->
+            gameInputStream.use { stream ->
                 val amount = stream.readInt()
                 for (i in 0 until amount) {
                     var length: Int
                     var bytes: ByteArray
-                    val key = stream.readUTF()
-                    val type = stream.readByte()
-                    when (type.toInt()) {
+                    val key = stream.readString()
+                    when (val type = stream.readByte()) {
                         0 -> pluginData.put(key, Value(stream.readBoolean()))
                         1 -> pluginData.put(key, Value(stream.readInt()))
                         2 -> pluginData.put(key, Value(stream.readLong()))
                         3 -> pluginData.put(key, Value(stream.readFloat()))
-                        4 -> pluginData.put(key, Value(stream.readUTF()))
+                        4 -> pluginData.put(key, Value(stream.readString()))
                         5 -> {
                             /* 把String转为Class,来进行反序列化 */
-                            val classCache: Class<*> = Class.forName(stream.readUTF().replace("net.rwhps.server", "net.rwhps.server"))
+                            val classCache: Class<*> = Class.forName(stream.readString().replace("net.rwhps.server", "net.rwhps.server"))
                             length = stream.readInt()
-                            bytes = ByteArray(length)
-                            stream.read(bytes)
+                            bytes = stream.readNBytes(length)
                             pluginData.put(key, Value(getObject(classCache, bytes)))
                         }
 
@@ -139,16 +153,30 @@ internal open class AbstractPluginData {
         }
     }
 
-    @JvmOverloads
-    fun save(outputStream: OutputStream = fileUtil!!.writeByteOutputStream(false)) {
+    fun save() {
         if (isBlank(fileUtil) || fileUtil!!.notExists()) {
             return
         }
         try {
-            DataOutputStream(getGzipOutputStream(outputStream)).use { stream ->
+            fileUtil!!.writeByteOutputStream(false).use { stream -> save(stream) }
+        } catch (e: Exception) {
+            error("[Write BIN Error]",e)
+        }
+    }
+
+    fun save(outputStream: OutputStream) {
+        val gameOutputStream: GameOutputStream =
+            when(code) {
+                "7z" -> CompressOutputStream.get7zOutputStream("",true)
+                "gzip" -> CompressOutputStream.getGzipOutputStream("",true)
+                else -> throw CompressionException.CryptographicException(code)
+            }
+
+        try {
+            gameOutputStream.use { stream ->
                 stream.writeInt(pluginData.size)
                 for (entry in pluginData) {
-                    stream.writeUTF(entry.key)
+                    stream.writeString(entry.key)
                     when (val value = entry.value.data!!) {
                         is Boolean -> {
                             stream.writeByte(0)
@@ -168,24 +196,25 @@ internal open class AbstractPluginData {
                         }
                         is String -> {
                             stream.writeByte(4)
-                            stream.writeUTF(value)
+                            stream.writeString(value)
                         }
                         else -> {
                             try {
                                 val bytes = putBytes(value)
                                 stream.writeByte(5)
                                 /* 去除ToString后的前缀(class com.xxx~) */
-                                stream.writeUTF(value.javaClass.toString().replace("class ", ""))
+                                stream.writeString(value.javaClass.toString().replace("class ", ""))
                                 stream.writeInt(bytes.size)
-                                stream.write(bytes)
+                                stream.writeBytes(bytes)
                             } catch (e: IOException) {
                                 error("Save Error", e)
                             }
                         }
                     }
                 }
-                stream.flush()
             }
+            outputStream.write(gameOutputStream.getByteArray())
+            outputStream.flush()
         } catch (e: Exception) {
             fileUtil!!.file.delete()
             error("Write Data", e)

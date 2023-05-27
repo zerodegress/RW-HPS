@@ -10,8 +10,15 @@
 package net.rwhps.server.dependent
 
 import net.rwhps.server.dependent.hot.DynamicByteClassLoader
+import net.rwhps.server.util.alone.annotations.DidNotFinish
 import java.lang.instrument.ClassDefinition
 
+/**
+ * 提供热加载
+ *
+ * @author RW-HPS/Dr
+ */
+@DidNotFinish
 internal class HotLoadClass: AgentAttachData() {
     fun load(bytes: ByteArray) {
         val targetClazz = DynamicByteClassLoader(bytes).findClass()

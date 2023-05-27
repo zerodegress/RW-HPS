@@ -14,11 +14,15 @@ import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.net.Administration
+import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.Log
 
 
+/**
+ * @author RW-HPS/Dr
+ */
 class EventGlobal : AbstractGlobalEvent {
     override fun registerServerLoadEvent() {
         Data.core.admin.addChatFilter(object : Administration.ChatFilter {
@@ -38,5 +42,13 @@ class EventGlobal : AbstractGlobalEvent {
         }
 
         Initialization.loadService()
+    }
+
+    override fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) {
+        if (serverNetType == IRwHps.NetType.RelayProtocol || serverNetType == IRwHps.NetType.RelayMulticastProtocol) {
+            if (Data.config.AutoUpList) {
+                Data.SERVER_COMMAND.handleMessage("uplist add")
+            }
+        }
     }
 }

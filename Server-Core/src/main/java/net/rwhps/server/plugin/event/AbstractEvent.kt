@@ -13,6 +13,11 @@ import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.game.GameUnitType
 
+/**
+ * Hess服务器的事件接口
+ *
+ * @author RW-HPS/Dr
+ */
 interface AbstractEvent {
     /**
      * Hess服务器完成开放 [同步-Synchronization]

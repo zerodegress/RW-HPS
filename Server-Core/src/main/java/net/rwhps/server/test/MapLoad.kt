@@ -10,6 +10,9 @@
 package net.rwhps.server.test
 
 
+/**
+ * @author RW-HPS/Dr
+ */
 class MapLoad {
     fun test() {
 

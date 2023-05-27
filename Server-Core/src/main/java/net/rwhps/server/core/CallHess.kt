@@ -20,6 +20,9 @@ import net.rwhps.server.util.log.Log
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+/**
+ * @author RW-HPS/Dr
+ */
 class CallHess(private val serverRoom: ServerRoom) {
     fun sendSystemMessage(text: String) {
         serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(text) }
@@ -49,8 +52,12 @@ class CallHess(private val serverRoom: ServerRoom) {
     }
 
     fun startCheckThread() {
+        val aiEndTime = serverRoom.startTime+Data.configServer.MaxOnlyAIGameIngTime
         Threads.newTimedTask(CallTimeTask.AutoCheckTask, 0, 1, TimeUnit.SECONDS) {
-            if (Data.config.MaxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime) {
+            if (
+                (Data.configServer.MaxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime) ||
+                (serverRoom.flagData.ai && Data.configServer.MaxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime)
+                ) {
                 if (serverRoom.flagData.forcedCloseSendMsg) {
                     sendSystemMessageLocal("gameOver.forced")
                 }

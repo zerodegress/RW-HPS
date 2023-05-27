@@ -9,6 +9,9 @@
 
 package net.rwhps.server.dependent.redirections.slick
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal object SilckClassPathProperties {
     const val AppGameContainer = "org.newdawn.slick.AppGameContainer"
     const val Image = "org.newdawn.slick.Image"

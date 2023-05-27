@@ -16,6 +16,7 @@ import net.rwhps.server.struct.Seq
  * @author RW-HPS/Dr
  */
 data class GameOverData(
+    val gameTime: Int,
     val allPlayerList: Seq<String>,
     val winPlayerList: Seq<String>,
     val mapName: String,

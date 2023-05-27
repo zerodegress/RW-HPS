@@ -279,7 +279,7 @@ object Call {
                     }
 
                     Data.game.gameOverData = GameOverData(
-                        allPlayer, winPlayer, Data.game.maps.mapName,
+                        Time.concurrentSecond()-Data.game.startTime, allPlayer, winPlayer, Data.game.maps.mapName,
                         statusData, Data.game.replayName
                     )
 
@@ -309,7 +309,7 @@ object Call {
                 }
             }
 
-            if (Data.config.MaxGameIngTime != -1 && Time.concurrentSecond() > Data.game.endTime) {
+            if (Data.configServer.MaxGameIngTime != -1 && Time.concurrentSecond() > Data.game.endTime) {
                 if (!forcedClose) {
                     sendSystemMessageLocal("gameOver.forced")
                 }

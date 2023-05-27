@@ -18,44 +18,29 @@ import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
-import net.rwhps.server.util.log.Log.warn
 import java.lang.reflect.Field
 
 
 /**
+ * The server is primarily controlled
+ *
  * Save data for serialization and deserialization
  * @author RW-HPS/Dr
  */
 data class BaseCoreConfig(
+    /** Default startup command */
     val DefStartCommand: String = "start",
 
     val Log: String = "WARN",
 
+    /** Port */
+    val Port: Int = 5123,
+
     val ServerName: String = "RW-HPS",
     val Subtitle: String = "",
+    /** Automatically after starting UPLIST */
+    val AutoUpList: Boolean = false,
 
-    /** 端口 */
-    val Port: Int = 5123,
-    val Passwd: String = "",
-
-    /** 服务器最大人数 */
-    val MaxPlayer: Int = 10,
-    /** 服务器最大游戏时间 (s) 2*60*60 (-1 为禁用) */
-    val MaxGameIngTime: Int = 7200,
-    /** 服务器最小Start人数 (-1 为禁用) */
-    val StartMinPlayerSize: Int = -1,
-    /** 服务器最小AutoStart人数 (-1 为禁用) */
-    val AutoStartMinPlayerSize: Int = 4,
-    /** 最大发言长度 */
-    val MaxMessageLen: Int = 40,
-    /** 最大单位数 */
-    val MaxUnit: Int = 200,
-
-    val DefIncome: Float = 1f,
-    /** only Admin */
-    val OneAdmin: Boolean = true,
-
-    val SaveRePlayFile: Boolean = true,
     /** ip多语言支持 */
     val IpCheckMultiLanguageSupport: Boolean = false,
 
@@ -80,23 +65,8 @@ data class BaseCoreConfig(
 
     var RunPid: Long = 0
 ) {
-
-    private fun checkValue() {
-        // 拒绝最大玩家数超过最小开始玩家数
-        if (MaxPlayer < StartMinPlayerSize) {
-            warn("MaxPlayer < StartMinPlayerSize , Reset !")
-            coverField("StartMinPlayerSize",0)
-        }
-        if (MaxPlayer > 100) {
-            warn("MaxPlayer > GameMaxPlayerSize , Reset !")
-            //coverField("MaxPlayer",100)
-        }
-    }
-
     fun save() {
         RunPid = SystemUtil.pid
-
-
         fileUtil.writeFile(this.toPrettyPrintingJson())
     }
 
@@ -142,8 +112,6 @@ data class BaseCoreConfig(
                     }
                 }
             }
-
-            config.checkValue()
 
             return config
         }

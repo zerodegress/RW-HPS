@@ -12,6 +12,11 @@ package net.rwhps.server.plugin.event
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.IRwHps
 
+/**
+ * 游戏全局事件接口
+ *
+ * @author RW-HPS/Dr
+ */
 interface AbstractGlobalEvent {
     /** 游戏核心初始化完毕 [同步-Sync]  */
     fun registerGameLibLoadEvent(loadID: String) { /* Optional use of plugins */ }

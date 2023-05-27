@@ -56,7 +56,7 @@ internal class ClientCommands(handler: CommandHandler) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.noInt"))
             return false
         }
-        if (int.toInt() > (Data.config.MaxPlayer)) {
+        if (int.toInt() > (Data.configServer.MaxPlayer)) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.maxPlayer"))
             return false
         }
@@ -225,7 +225,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 GameEngine.data.gameDataLink.aiDifficuld = args[0].toInt()
 
-                for (site in 0 until Data.config.MaxPlayer) {
+                for (site in 0 until Data.configServer.MaxPlayer) {
                     if (room.playerManage.getPlayerArray(site) == null) {
                         if (n.k(site) != null) {
                             n.k(site).x = args[0].toInt()
@@ -246,6 +246,26 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("vote", "<gameover>","clientCommands.vote") { _: Array<String>?, player: AbstractPlayer ->
             Data.vote = Vote("gameover",player)
+        }
+        handler.register("iunit", "<PlayerPositionNumber> <unitID>","clientCommands.iunit") { args: Array<String>, player: AbstractPlayer ->
+            if (room.isStartGame) {
+                player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+                return@register
+            }
+            if (isAdmin(player)) {
+                if (notIsNumeric(args[1])) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
+                    return@register
+                }
+
+                val site = args[0].toInt() - 1
+                val playerUnit = room.playerManage.getPlayerArray(site)
+                if (playerUnit != null) {
+                    playerUnit.startUnit = args[1].toInt()
+                } else {
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.no.site",args[0]))
+                }
+            }
         }
         handler.register("summon", "<unitName>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
             if (!room.isStartGame) {
@@ -331,37 +351,34 @@ internal class ClientCommands(handler: CommandHandler) {
             }
         }
         handler.register("start", "clientCommands.start") { _: Array<String>?, player: AbstractPlayer? ->
-            var flag = (player == null)
-
             if (player != null && isAdmin(player)) {
                 if (room.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                     return@register
                 }
 
-                if (Data.config.StartMinPlayerSize != -1 &&
-                    Data.config.StartMinPlayerSize > room.playerManage.playerGroup.size) {
-                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.config.StartMinPlayerSize))
+                if (Data.configServer.StartMinPlayerSize != -1 &&
+                    Data.configServer.StartMinPlayerSize > room.playerManage.playerGroup.size) {
+                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.configServer.StartMinPlayerSize))
                     return@register
                 }
-                flag = true
+
             }
 
-            if (flag) {
-                if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
-                    val file = FileUtil.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
-                    if (file.notExists()) {
-                        MapManage.maps.mapData!!.readMap()
-                    }
-                    GameEngine.netEngine.az = "/SD/rusted_warfare_maps/${MapManage.maps.mapName}.tmx"
-                    GameEngine.netEngine.ay.b = "${MapManage.maps.mapName}.tmx"
-                    GameEngine.netEngine.ay.a = ai.b
+            if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
+                val file = FileUtil.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
+                if (file.notExists()) {
+                    MapManage.maps.mapData!!.readMap()
                 }
-
-                GameEngine.root.multiplayer.multiplayerStart()
-
-                Events.fire(EventType.GameStartEvent())
+                GameEngine.netEngine.az = "/SD/rusted_warfare_maps/${MapManage.maps.mapName}.tmx"
+                GameEngine.netEngine.ay.b = "${MapManage.maps.mapName}.tmx"
+                GameEngine.netEngine.ay.a = ai.b
             }
+
+            GameEngine.root.multiplayer.multiplayerStart()
+
+            Events.fire(EventType.GameStartEvent())
+
         }
         handler.register("move", "<PlayerPositionNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
             if (room.isStartGame) {

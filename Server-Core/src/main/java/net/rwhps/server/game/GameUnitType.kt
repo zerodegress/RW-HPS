@@ -14,6 +14,10 @@ import net.rwhps.server.struct.IntMap
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.exp.VariableException
 
+/**
+ * @author Corroding Games
+ * @author RW-HPS/Dr
+ */
 class GameUnitType {
     enum class GameActions {
         MOVE,

@@ -12,6 +12,8 @@ package net.rwhps.server.func;
 import java.text.MessageFormat;
 
 /**
+ * Log使用
+ *
  * @author RW-HPS/Dr
  */
 public interface StrCons {

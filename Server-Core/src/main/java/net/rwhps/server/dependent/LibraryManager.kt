@@ -23,7 +23,11 @@ import java.net.URL
 import java.net.URLClassLoader
 import java.util.jar.JarFile
 
-
+/**
+ * 热加载依赖
+ *
+ * @author RW-HPS/Dr
+ */
 class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachData() {
     private val source = Seq<UrlData>()
 

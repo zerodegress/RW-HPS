@@ -12,6 +12,7 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
 import net.rwhps.server.data.base.BaseCoreConfig
+import net.rwhps.server.data.base.BaseServerConfig
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
@@ -36,9 +37,11 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * @author RW-HPS/Dr
  */
-class Rules(private var config: BaseCoreConfig) {
+class Rules(private var config: BaseCoreConfig, private var configServer: BaseServerConfig) {
     /** End Time */
     var endTime = 0
+        private set
+    var startTime = 0
         private set
     /** 是否已启动游戏  */
     @Volatile
@@ -46,7 +49,8 @@ class Rules(private var config: BaseCoreConfig) {
         set(value) {
             field = value
             isGameover = value
-            endTime = Time.concurrentSecond()+Data.config.MaxGameIngTime
+            startTime = Time.concurrentSecond()
+            endTime = Time.concurrentSecond()+Data.configServer.MaxGameIngTime
         }
 
     /** 倍数  */
@@ -76,7 +80,7 @@ class Rules(private var config: BaseCoreConfig) {
 
     /** 密码  */
     @JvmField
-    val passwd: String = if (notIsBlank(Data.config.Passwd)) BigInteger(1, sha256(Data.config.Passwd)).toString(16).uppercase() else ""
+    val passwd: String = if (notIsBlank(Data.configServer.Passwd)) BigInteger(1, sha256(Data.configServer.Passwd)).toString(16).uppercase() else ""
 
     /** 按键包缓存  */
     val gameCommandCache = Seq<GameCommandPacket>(16,true)
@@ -126,10 +130,10 @@ class Rules(private var config: BaseCoreConfig) {
 //        }
         NetStaticData.relay.isMod = config.SingleUserRelayMod
         autoLoadOrUpdate(config)
-        val maxPlayer = config.MaxPlayer+1
+        val maxPlayer = configServer.MaxPlayer+1
         this.maxPlayer = maxPlayer
         playerManage = PlayerManage(maxPlayer)
-        income = Data.config.DefIncome
+        income = configServer.DefIncome
 
 //        if (maxPlayer > 100) {
 //            Log.skipping("[WARN !]","The number of players is too large and the game cannot be played normally")
@@ -157,8 +161,8 @@ class Rules(private var config: BaseCoreConfig) {
         // 重置Tick
         tickGame.set(10)
 
-        income = config.DefIncome
-        val maxPlayer = config.MaxPlayer+1
+        income = configServer.DefIncome
+        val maxPlayer = configServer.MaxPlayer+1
         this.maxPlayer = maxPlayer
         playerManage = PlayerManage(maxPlayer)
 

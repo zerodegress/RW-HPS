@@ -13,6 +13,9 @@ import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.socket.SocketChannel
 import net.rwhps.server.net.core.AbstractNet
 
+/**
+ * @author RW-HPS/Dr
+ */
 @Sharable
 internal class StartGameNetTcp : AbstractNet() {
     @Throws(Exception::class)

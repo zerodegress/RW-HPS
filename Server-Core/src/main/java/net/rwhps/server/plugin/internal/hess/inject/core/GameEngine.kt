@@ -32,7 +32,8 @@ import net.rwhps.server.util.inline.findField
  * RW-HPS 的 Hess 实现内部接口
  * 内部实现通过 [GameEngine] 来减少一些混淆 也可以参见 (RW-AC项目)
  *
- */
+ * @author RW-HPS/Dr
+*/
 internal object GameEngine {
     lateinit var data: AbstractGameModule
         private set
@@ -76,6 +77,7 @@ internal object GameEngine {
             data = it
         })
 
+        // 设置客户端UUID, 避免Admin/ban等不能持久化
         settingsEngine.networkServerId = Data.core.serverConnectUuid
 
         ServiceLoader.addService(ServiceLoader.ServiceType.IRwHps, IRwHps.NetType.ServerProtocol.name, HessRwHps::class.java)

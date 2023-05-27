@@ -9,6 +9,9 @@
 
 package net.rwhps.server.util.io
 
+/**
+ * @author RW-HPS/Dr
+ */
 object IOUtils {
     /**
      * 空字节数组.

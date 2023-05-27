@@ -12,6 +12,9 @@ package net.rwhps.server.util.io
 import java.io.*
 import java.nio.charset.StandardCharsets
 
+/**
+ * @author RW-HPS/Dr
+ */
 object IoOutConversion {
     @JvmStatic
     @Throws(IOException::class)

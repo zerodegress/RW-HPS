@@ -14,6 +14,9 @@ import org.newdawn.slick.Image
 import org.newdawn.slick.SlickException
 import org.newdawn.slick.util.Log
 
+/**
+ * @author RW-HPS/Dr
+ */
 class DrGraphics(image: Image) : Graphics(image.texture.textureWidth, image.texture.textureHeight) {
     init {
         Log.debug("Creating Dr " + image.width + "x" + image.height)

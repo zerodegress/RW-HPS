@@ -12,6 +12,9 @@ package net.rwhps.server.util.algorithms
 import net.rwhps.server.data.global.Data
 import java.util.Base64
 
+/**
+ * @author RW-HPS/Dr
+ */
 object Base64 {
     /**
      *

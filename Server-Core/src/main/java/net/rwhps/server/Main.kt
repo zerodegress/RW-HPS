@@ -37,8 +37,8 @@ import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
 import net.rwhps.server.data.base.BaseCoreConfig
-import net.rwhps.server.data.base.BaseRelayPublishConfig
-import net.rwhps.server.data.base.BaseServerExConfig
+import net.rwhps.server.data.base.BaseRelayConfig
+import net.rwhps.server.data.base.BaseServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
@@ -61,6 +61,7 @@ import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.net.http.WebData
+import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
@@ -103,10 +104,8 @@ object Main {
         /* 覆盖输入输出流 */
         inputMonitorInit()
 
-        // F U C K IPV6
-        System.setProperty("java.net.preferIPv4Stack","true")
-        // F U C K Termux
-        System.setProperty("java.awt.headless","true")
+        SystemSetProperty.setOnlyIpv4()
+        SystemSetProperty.setAwtHeadless()
 
         Initialization()
 
@@ -114,9 +113,9 @@ object Main {
         clog("Load ing...")
 
         Data.config = BaseCoreConfig.stringToClass()
-        Data.configServerEx = BaseServerExConfig.stringToClass()
+        Data.configServer = BaseServerConfig.stringToClass()
 
-        Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
+        Data.configRelay = BaseRelayConfig.stringToClass()
         Data.core.load()
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
@@ -152,7 +151,6 @@ object Main {
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
 
         set(Data.config.Log)
-
 
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })

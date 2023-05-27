@@ -14,6 +14,9 @@ import java.lang.management.ManagementFactory
 import java.nio.charset.Charset
 import java.util.*
 
+/**
+ * @author RW-HPS/Dr
+ */
 object SystemUtil {
     val defaultEncoding: Charset
         get() = Charset.forName(get("sun.stdout.encoding") ?:Charset.defaultCharset().name())

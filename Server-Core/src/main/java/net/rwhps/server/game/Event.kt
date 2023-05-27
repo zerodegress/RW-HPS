@@ -30,8 +30,12 @@ import java.util.concurrent.TimeUnit
  */
 class Event : AbstractEvent {
     override fun registerServerHessStartPort() {
-        HessModuleManage.hps.gameDataLink.maxUnit = Data.config.MaxUnit
-        HessModuleManage.hps.gameDataLink.income = Data.config.DefIncome
+        HessModuleManage.hps.gameDataLink.maxUnit = Data.configServer.MaxUnit
+        HessModuleManage.hps.gameDataLink.income = Data.configServer.DefIncome
+
+        if (Data.config.AutoUpList) {
+            Data.SERVER_COMMAND.handleMessage("uplist add")
+        }
     }
 
     override fun registerPlayerJoinEvent(player: AbstractPlayer) {
@@ -66,8 +70,8 @@ class Event : AbstractEvent {
         HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
         Log.clog("&c"+Data.i18NBundle.getinput("player.ent", player.name))
 
-        if (Data.config.AutoStartMinPlayerSize != -1 &&
-            HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.config.AutoStartMinPlayerSize &&
+        if (Data.configServer.AutoStartMinPlayerSize != -1 &&
+            HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.AutoStartMinPlayerSize &&
             !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             var flagCount = 60
             Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
@@ -92,14 +96,14 @@ class Event : AbstractEvent {
             }
         }
 
-        if (Data.configServerEx.EnterAd.isNotBlank()) {
-            player.sendSystemMessage(Data.configServerEx.EnterAd)
+        if (Data.configServer.EnterAd.isNotBlank()) {
+            player.sendSystemMessage(Data.configServer.EnterAd)
         }
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
     override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
-        if (Data.config.OneAdmin &&
+        if (Data.configServer.OneAdmin &&
             player.isAdmin &&
             player.autoAdmin &&
             HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
@@ -121,9 +125,9 @@ class Event : AbstractEvent {
         }
         Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
 
-        if (Data.config.AutoStartMinPlayerSize != -1 &&
-            HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.config.AutoStartMinPlayerSize &&
-            !Threads.containsTimeTask(CallTimeTask.AutoStartTask)
+        if (Data.configServer.AutoStartMinPlayerSize != -1 &&
+            HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.AutoStartMinPlayerSize &&
+            Threads.containsTimeTask(CallTimeTask.AutoStartTask)
         ) {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }
@@ -132,8 +136,8 @@ class Event : AbstractEvent {
     override fun registerGameStartEvent() {
         Data.core.admin.playerDataCache.clear()
 
-        if (Data.configServerEx.StartAd.isNotBlank()) {
-            HessModuleManage.hps.room.call.sendSystemMessage(Data.configServerEx.StartAd)
+        if (Data.configServer.StartAd.isNotBlank()) {
+            HessModuleManage.hps.room.call.sendSystemMessage(Data.configServer.StartAd)
         }
 
         Log.clog("[Start New Game]")

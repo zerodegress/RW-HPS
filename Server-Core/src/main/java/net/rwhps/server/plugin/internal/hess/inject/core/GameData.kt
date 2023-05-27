@@ -13,6 +13,9 @@ import net.rwhps.server.game.simulation.core.AbstractGameData
 import net.rwhps.server.util.file.FileName.getFileNameNoSuffix
 import net.rwhps.server.util.log.Log
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class GameData : AbstractGameData {
     override fun saveGame() {
         GameEngine.gameEngine.ca.b(getFileNameNoSuffix(GameEngine.data.room.replayFileName),false)

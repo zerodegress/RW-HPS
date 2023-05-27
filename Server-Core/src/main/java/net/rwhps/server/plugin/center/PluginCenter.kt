@@ -18,6 +18,11 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
 
+/**
+ * 插件中心, 好像没什么用
+ *
+ * @author RW-HPS/Dr
+ */
 class PluginCenter {
     private val pluginCommand = CommandHandler("")
     private var pluginCenterData: PluginCenterData

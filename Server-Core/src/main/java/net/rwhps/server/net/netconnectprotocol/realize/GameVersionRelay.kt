@@ -294,7 +294,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeBoolean(relay!!.isMod) //MOD
                 o.writeBoolean(false)
                 o.writeBoolean(true)
-                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 o.writeBoolean(false)
                 o.writeIsString(registerPlayerId)
             } else {
@@ -311,15 +311,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 // showPublicly
                 o.writeBoolean(false)
                 // relayMessageOnServer
-                o.writeIsString("{{RW-HPS Relay}}.Room ID : ${Data.configRelayPublish.MainID}" + relay!!.id)
+                o.writeIsString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 // useMulticast
                 o.writeBoolean(false)
             }
 
             sendPacket(o.createPacket(PacketType.RELAY_BECOME_SERVER)) //+108+140
             //getRelayT4(Data.localeUtil.getinput("relay.server.admin.connect",relay.getId()));
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelay.MainID+relay!!.id, Data.configRelay.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelay.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
             //ping();
 
             //debug(name)
@@ -399,7 +399,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
             sendPackageToHOST(cachePacket!!)
             connectionAgreement.add(relay!!.groupNet)
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
+            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelay.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
 
             this.relay!!.setAddSize()
         } catch (e: Exception) {
@@ -606,13 +606,13 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
 
         if (id.startsWith("RA")) {
-            if (Data.configRelayPublish.MainServer) {
+            if (Data.configRelay.MainServer) {
                 sendPacket(fromRelayJumpsToAnotherServer("${id[1]}.relay.der.kim/$id"))
                 return
             } else {
                 id = id.substring(2)
             }
-        } else if(id.startsWith("RB",true) && Data.configRelayPublish.UpList) {
+        } else if(id.startsWith("RB",true) && Data.configRelay.UpList) {
             id = id.substring(2)
             sendRelayServerType(Data.i18NBundle.getinput("relay.server.error.id", "[RCN-前瞻] 本服务器不支持绑定"))
             return

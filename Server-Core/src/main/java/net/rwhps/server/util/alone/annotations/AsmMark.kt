@@ -9,6 +9,9 @@
 
 package net.rwhps.server.util.alone.annotations
 
+/**
+ * @author RW-HPS/Dr
+ */
 class AsmMark {
     /**
      * 指定类是兼容ClassLoader的。一般来说，这并不会改变IDEA的行为——它只是一个标记，表明指定方法是未完成的。

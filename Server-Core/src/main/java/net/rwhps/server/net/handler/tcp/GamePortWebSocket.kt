@@ -17,6 +17,9 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
 import net.rwhps.server.net.http.WebSocket
 import java.util.function.Consumer
 
+/**
+ * @author RW-HPS/Dr
+ */
 @ChannelHandler.Sharable
 class GamePortWebSocket(private val webSocket: WebSocket) : SimpleChannelInboundHandler<TextWebSocketFrame>() {
     /** 已经连接这个Ws的通道 */

@@ -13,6 +13,11 @@ import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.inandout.GameInputStreamAndOutputStream
 import net.rwhps.server.util.compression.gzip.GzipDecoder
 
+/**
+ * 提供压缩流支持
+ *
+ * @author RW-HPS/Dr
+ */
 object CompressInputStream {
     @JvmStatic
     internal fun getGzipInputStream(isGzip: Boolean, bytes: ByteArray): GameInputStream {

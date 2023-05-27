@@ -149,7 +149,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             }
 
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                if (message.length > Data.config.MaxMessageLen) {
+                if (message.length > Data.configServer.MaxMessageLen) {
                     sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
                     throw Exception()
                 }

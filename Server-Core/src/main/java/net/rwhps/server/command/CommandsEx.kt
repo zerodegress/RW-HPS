@@ -40,7 +40,7 @@ class CommandsEx(handler: CommandHandler) {
                     out.writeString("PlayerSize")
                     out.writeInt(Data.game.playerManage.playerGroup.size)
                     out.writeString("MaxPlayer")
-                    out.writeInt(Data.config.MaxPlayer)
+                    out.writeInt(Data.configServer.MaxPlayer)
 
                     out.writeString("MapName")
                     out.writeString(Data.game.maps.mapName)

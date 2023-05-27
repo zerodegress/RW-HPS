@@ -12,6 +12,9 @@ package net.rwhps.server.struct
 import it.unimi.dsi.fastutil.longs.Long2IntMaps
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap
 
+/**
+ * @author RW-HPS/Dr
+ */
 class LongIntMap : BaseMap<Long, Int> {
 
     @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)

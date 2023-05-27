@@ -12,6 +12,9 @@ package net.rwhps.server.plugin.internal.hess.inject.core
 import com.corrodinggames.rts.game.n
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 
+/**
+ * @author RW-HPS/Dr
+ */
 internal class PrivateClass_Player(private val playerData: n) : AbstractPlayerData {
     private var gameStatistics = GameEngine.gameStatistics.a(playerData)
 
@@ -49,4 +52,12 @@ internal class PrivateClass_Player(private val playerData: n) : AbstractPlayerDa
     override var team
         get() =  playerData.r
         set(value) { playerData.r = value }
+
+    override var startUnit
+        get() =  playerData.A
+        set(value) { playerData.A = value }
+
+    override var color
+        get() =  playerData.C
+        set(value) { playerData.C = value }
 }

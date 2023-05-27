@@ -20,7 +20,9 @@ import com.corrodinggames.rts.gameFramework.j.au as PacketHess
  * @property netEngine NetEngine
  * @property playerConnectX PlayerConnectX
  * @constructor
- */
+ *
+ * @author RW-HPS/Dr
+*/
 class NetEnginePackaging(
     private val netEngine: ad,
     private val playerConnectX: PlayerConnectX

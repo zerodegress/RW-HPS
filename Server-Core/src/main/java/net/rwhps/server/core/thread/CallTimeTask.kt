@@ -12,6 +12,9 @@ package net.rwhps.server.core.thread
 import net.rwhps.server.core.thread.CallGroupData.coreExpandServer
 import net.rwhps.server.core.thread.CallGroupData.coreServer
 
+/**
+ * @author RW-HPS/Dr
+ */
 enum class CallTimeTask(
     val group: String,
     val description: String

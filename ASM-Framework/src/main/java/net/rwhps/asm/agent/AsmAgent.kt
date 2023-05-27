@@ -36,7 +36,7 @@ class AsmAgent : ClassFileTransformer, AsmCore() {
     @Throws(IllegalClassFormatException::class)
     override fun transform(loader: ClassLoader?, className: String, classBeingRedefined: Class<*>?, protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray): ByteArray {
         // 这个是单纯的 Debug 用的
-        if (className.contains("or00g/new00dawn/slick/GameContainer")) {
+        if (className.contains("com/corrodinggames/rts/gameFramework/j/d000")) {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
             return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).also { a -> FileOutputStream("a.class").also { it.write(a); it.flush() }}

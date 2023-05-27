@@ -54,7 +54,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
 
     fun addPlayer(con: GameVersionServer, uuid: String, name: String, i18NBundle: I18NBundle = Data.i18NBundle): Player {
         val player = Player(con, uuid, name, i18NBundle)
-        if (Data.config.OneAdmin) {
+        if (Data.configServer.OneAdmin) {
             if (!player.headlessDevice && playerGroup.size == 1) {
                 player.isAdmin = true
             }
@@ -154,8 +154,8 @@ class PlayerManage(private val maxPlayerSize: Int) {
     private fun autoPlayerTeam(player: Player) {
         moveLock.withLock {
             if (player.headlessDevice) {
-                playerData[Data.config.MaxPlayer] = player
-                player.site = Data.config.MaxPlayer
+                playerData[Data.configServer.MaxPlayer] = player
+                player.site = Data.configServer.MaxPlayer
                 player.team = -3
                 player.start = true
                 return

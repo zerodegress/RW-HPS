@@ -13,9 +13,10 @@ import net.rwhps.server.io.output.ByteArrayOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.compression.core.AbstractEncoder
-import net.rwhps.server.util.compression.core.CompressionDecoder
 import net.rwhps.server.util.io.IoRead.copyInputStream
+import net.rwhps.server.util.log.exp.CompressionException
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.IOException
 import java.io.InputStream
@@ -29,9 +30,18 @@ import java.util.zip.ZipOutputStream
  *
  * @author RW-HPS/Dr
  */
-class ZipEncoder : AbstractEncoder {
+class ZipEncoder : AbstractEncoder() {
     private val outputStream = DisableSyncByteArrayOutputStream()
-    private val zipOutCache = ZipOutputStream(outputStream)
+    private val zipOutCache = ZipArchiveOutputStream(outputStream)
+
+    @Throws(CompressionException.UnsupportedRatingsException::class)
+    override fun setCompressibility(level: Int) {
+        try {
+            zipOutCache.setLevel(level)
+        } catch (e: IllegalArgumentException) {
+            throw CompressionException.UnsupportedRatingsException("Invalid compression level: $level")
+        }
+    }
 
     /**
      * 合并压缩文件
@@ -72,36 +82,19 @@ class ZipEncoder : AbstractEncoder {
         return outputStream.toByteArray()
     }
 
-    override fun addCompressBytes(name: String, compressionDecoder: CompressionDecoder) {
-        compressionDecoder.use {
-            it.getZipAllBytes().forEach { addCompressBytes(it.key,it.value) }
-        }
-    }
-
-    override fun addCompressBytes(name: String, inStream: InputStream) {
-        addCompressBytes(name, inStream, null)
-    }
-
-    override fun addCompressBytes(name: String, bytes: ByteArray) {
-        addCompressBytes(name, null, bytes)
-    }
-
-    override fun flash(): ByteArray {
-        zipOutCache.use {
-            it.flush()
-            return outputStream.toByteArray()
-        }
-    }
-
-
-    private fun addCompressBytes(name: String, inStream: InputStream?, bytes: ByteArray?) {
+    override fun addCompressBytes(name: String, inStream: InputStream?, bytes: ByteArray?) {
         val oze = ZipArchiveEntry(name)
-        zipOutCache.putNextEntry(oze)
+        zipOutCache.putArchiveEntry(oze)
         if (inStream == null) {
             zipOutCache.write(bytes!!)
         } else {
             copyInputStream(inStream, zipOutCache)
         }
-        zipOutCache.closeEntry()
+        zipOutCache.closeArchiveEntry()
+    }
+
+    override fun flash(): ByteArray {
+        zipOutCache.close()
+        return outputStream.toByteArray()
     }
 }

@@ -10,7 +10,6 @@
 package net.rwhps.server.data.player
 
 import net.rwhps.server.data.totalizer.TimeAndNumber
-import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.Time
 
@@ -27,7 +26,7 @@ import net.rwhps.server.util.Time
  * @constructor
  *
  * @author RW-HPS/Dr
- */
+*/
 class PlayerRelay(
     val con: GameVersionRelay,
     val uuid: String,

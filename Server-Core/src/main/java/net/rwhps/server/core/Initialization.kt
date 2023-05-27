@@ -207,7 +207,6 @@ class Initialization {
                         it.close()
                     }
                 } catch (e: Exception) {
-                    Log.error(e)
                 }
             }
         }

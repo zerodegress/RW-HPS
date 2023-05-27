@@ -19,8 +19,8 @@ jobs:
         run: |
           #echo ::set-output name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
           # 去掉前面的 refs/tags/
-          echo ::set-output name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
-          echo ::set-output name=IMAGE_NAME::rw-hps
+          echo "RELEASE_VERSION=$(echo ${GITHUB_REF:10})" >> $GITHUB_OUTPUT
+          echo "IMAGE_NAME=rw-hps" >> $GITHUB_OUTPUT
 
       - name: Login to Registry - ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin

@@ -52,12 +52,9 @@ class CallHess(private val serverRoom: ServerRoom) {
     }
 
     fun startCheckThread() {
-        val aiEndTime = serverRoom.startTime+Data.configServer.MaxOnlyAIGameIngTime
+        var aiEndTime = 0
         Threads.newTimedTask(CallTimeTask.AutoCheckTask, 0, 1, TimeUnit.SECONDS) {
-            if (
-                (Data.configServer.MaxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime) ||
-                (serverRoom.flagData.ai && Data.configServer.MaxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime)
-                ) {
+            if ((Data.configServer.MaxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime)) {
                 if (serverRoom.flagData.forcedCloseSendMsg) {
                     sendSystemMessageLocal("gameOver.forced")
                 }
@@ -72,6 +69,16 @@ class CallHess(private val serverRoom: ServerRoom) {
                 if (serverRoom.flagData.aiWarn) {
                     serverRoom.flagData.aiWarn = false
                     sendSystemMessageLocal("gameOver.ai")
+                }
+                if (serverRoom.playerManage.playerGroup.size == 0) {
+                    if (aiEndTime != 0) {
+                        aiEndTime = Time.concurrentSecond()+Data.configServer.MaxOnlyAIGameIngTime
+                    } else if (Data.configServer.MaxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime) {
+                        serverRoom.gr()
+                        return@newTimedTask
+                    }
+                } else {
+                    aiEndTime = 0
                 }
             } else {
                 when (serverRoom.playerManage.playerGroup.size) {

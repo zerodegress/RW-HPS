@@ -202,7 +202,7 @@ internal class ServerCommands(handler: CommandHandler) {
 
     private fun registerPlayerCustomEx(handler: CommandHandler) {
         handler.register("addmoney", "<PlayerPositionNumber> <money>", "serverCommands.addmoney") { arg: Array<String>, log: StrCons ->
-            if (!Data.game.isStartGame) {
+            if (!room.isStartGame) {
                 log[localeUtil.getinput("err.noStartGame")]
                 return@register
             }

@@ -285,7 +285,7 @@ internal class ClientCommands(handler: CommandHandler) {
             }
             if (player.superAdmin) {
                 val unit = args[0]
-                player.sendSystemMessage("请Ping地图需要生成位置")
+                player.sendSystemMessage("Ping map to spawn")
                 player.addData("Summon", unit)
             }
         }

@@ -22,7 +22,7 @@ import com.corrodinggames.rts.gameFramework.j.au as PacketHess
  * @constructor
  *
  * @author RW-HPS/Dr
-*/
+ */
 class NetEnginePackaging(
     private val netEngine: ad,
     private val playerConnectX: PlayerConnectX
@@ -46,5 +46,13 @@ class NetEnginePackaging(
 
     fun transformPacket(packetHess: PacketHess): Packet {
         return Packet(packetHess.b,packetHess.c)
+    }
+
+    companion object {
+        fun transformHessPacketNullSource(packet: Packet): PacketHess {
+            return PacketHess(packet.type.typeInt).apply {
+                c = packet.bytes
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ import net.rwhps.server.util.inline.findField
  * 内部实现通过 [GameEngine] 来减少一些混淆 也可以参见 (RW-AC项目)
  *
  * @author RW-HPS/Dr
-*/
+ */
 internal object GameEngine {
     lateinit var data: AbstractGameModule
         private set
@@ -51,12 +51,13 @@ internal object GameEngine {
         })
     }
 
-    val gameEngine: l = l.B()
-    val netEngine: ad = gameEngine.bX
+    val gameEngine: l get() = l.B()
+    val mapEngine: com.corrodinggames.rts.game.b.b get() = gameEngine.bL
+    val netEngine: ad get() = gameEngine.bX
 
-    val settingsEngine = gameEngine.bQ!!
+    val settingsEngine get() = gameEngine.bQ!!
 
-    val gameStatistics = gameEngine.bY!!
+    val gameStatistics get() = gameEngine.bY!!
 
     /**
      * 通过这里完成 [AbstractGameModule] 通用接口实现

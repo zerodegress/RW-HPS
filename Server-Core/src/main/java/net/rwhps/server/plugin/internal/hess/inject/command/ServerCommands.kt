@@ -9,19 +9,29 @@
 
 package net.rwhps.server.plugin.internal.hess.inject.command
 
+import com.corrodinggames.rts.gameFramework.j.NetEnginePackaging
+import com.corrodinggames.rts.gameFramework.j.k
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
+import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.event.EventType.PlayerBanEvent
+import net.rwhps.server.io.GameOutputStream
+import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
+import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.Font16
+import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 
@@ -210,6 +220,61 @@ internal class ServerCommands(handler: CommandHandler) {
             val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
                 player.credits += arg[1].toInt()
+            }
+        }
+
+        handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
+            val cache = Seq<Array<ByteArray>>()
+
+            arg[1].forEach {
+                cache.add(Font16.resolveString(it.toString()))
+            }
+
+            val index = if (arg.size > 2) {
+                when {
+                    IsUtil.isNumericNegative(arg[2]) -> arg[2].toInt()
+                    else -> -1
+                }
+            } else {
+                -1
+            }
+
+            // 偏移量
+            var off = 0
+
+            cache.eachAll {
+                var i = 0
+                var lg = true
+                for ((height, lineArray) in it.withIndex()) {
+                    for ((width, b) in lineArray.withIndex()) {
+                        if (lg) {
+                            i++
+                        }
+                        if (b.toInt() == 1) {
+                            //Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index, arg[0], ((off+width)*20).toFloat(), (height*20).toFloat()))
+                            try {
+                                val commandPacket = GameEngine.gameEngine.cf.b()
+
+                                val out = GameOutputStream()
+                                out.flushEncodeData(
+                                    CompressOutputStream.getGzipOutputStream("c",false).apply {
+                                        writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index, arg[0], ((off+width)*20).toFloat(), (height*20).toFloat()).bytes)
+                                    }
+                                )
+
+                                commandPacket.a(k(NetEnginePackaging.transformHessPacketNullSource(out.createPacket(PacketType.TICK))))
+
+                                commandPacket.c = GameEngine.data.gameHessData.tickNetHess+10
+                                GameEngine.gameEngine.cf.b.add(commandPacket)
+                            } catch (e: Exception) {
+                                error(e)
+                            }
+                        }
+                    }
+                    lg = false
+                }
+                i++
+                off += i
             }
         }
     }

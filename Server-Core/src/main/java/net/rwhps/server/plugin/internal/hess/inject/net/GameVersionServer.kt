@@ -165,8 +165,11 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
                         throw Exception()
                     }
                     else -> {
+                        // Ignore
                     }
                 }
+            } else {
+                throw Exception()
             }
         }
     }
@@ -265,8 +268,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
 
             commandPacket.a(GameNetInputStream(playerConnectX.netEnginePackaging.transformHessPacket(out.createPacket(PacketType.TICK))))
 
-            commandPacket.c = GameEngine.data.gameHessData.tickNetHess
-            // 会触发同步 , 有时间了看看
+            commandPacket.c = GameEngine.data.gameHessData.tickNetHess+10
             GameEngine.gameEngine.cf.b.add(commandPacket)
             //GameEngine.netEngine.a(commandPacket)
         } catch (e: Exception) {

@@ -82,7 +82,7 @@ class FFA_X {
         if (!setup) {
             setup = true
             Log.debug("ClosingBorder setup")
-            
+
 
             //circleX=getWidthInPixels/2;
             //circleY=getHeightInPixels/2;

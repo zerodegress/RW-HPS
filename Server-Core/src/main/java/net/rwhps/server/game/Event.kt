@@ -34,7 +34,7 @@ class Event : AbstractEvent {
         HessModuleManage.hps.gameDataLink.income = Data.configServer.DefIncome
 
         if (Data.config.AutoUpList) {
-            Data.SERVER_COMMAND.handleMessage("uplist add")
+            Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
         }
     }
 

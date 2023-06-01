@@ -131,8 +131,8 @@ internal class ServerCommands(handler: CommandHandler) {
         handler.register("maplock", "<off/on>", "serverCommands.maplock") { arg: Array<String>, _: StrCons ->
             Data.game.mapLock = "on" == arg[0]
         }
-        handler.register("dogfightlock", "<off/on>", "serverCommands.dogfightLock") { arg: Array<String>, _: StrCons ->
-            Data.game.dogfightLock = "on" == arg[0]
+        handler.register("battleroyal", "<off/on>", "serverCommands.battleRoyalLock") { arg: Array<String>, _: StrCons ->
+            Data.game.battleRoyalLock = "on" == arg[0]
         }
         handler.register("kill", "<PlayerPositionNumber>", "serverCommands.kill") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {

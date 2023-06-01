@@ -47,7 +47,7 @@ class EventGlobal : AbstractGlobalEvent {
     override fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) {
         if (serverNetType == IRwHps.NetType.RelayProtocol || serverNetType == IRwHps.NetType.RelayMulticastProtocol) {
             if (Data.config.AutoUpList) {
-                Data.SERVER_COMMAND.handleMessage("uplist add")
+                Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
             }
         }
     }

@@ -50,6 +50,7 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
             GameEngine.netEngine.z.k = site
 
             GameEngine.root.multiplayer.disconnect("closeServer")
+            GameEngine.root.multiplayer.disconnect("closeServer")
         }
 
         netService!!.openPort(port)

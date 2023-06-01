@@ -23,6 +23,7 @@ import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
+import net.rwhps.server.util.log.exp.ExceptionX
 
 /**
  *
@@ -76,7 +77,7 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
         cause?.let {
-            error(Log.resolveTrace(it))
+            error(ExceptionX.resolveTrace(it))
         }
     }
 

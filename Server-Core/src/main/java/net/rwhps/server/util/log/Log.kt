@@ -13,6 +13,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.Time.getMilliFormat
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.ColorCodes.formatColors
+import net.rwhps.server.util.log.exp.ExceptionX
 import java.io.FileOutputStream
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -240,14 +241,6 @@ object Log {
         outLog.flush()
     }
 
-    fun resolveTrace(trace: Throwable): String {
-        val stringWriter = StringWriter()
-        return PrintWriter(stringWriter).use {
-            trace.printStackTrace(it)
-            return@use stringWriter.buffer.toString()
-        }
-    }
-
     /**
      * WLog：
      * @param i Warning level -INT
@@ -256,7 +249,7 @@ object Log {
      * i>=Set the level to write to the file
      */
     private fun log(i: Int, tag: Any, e: Throwable) {
-        logs(i, tag, resolveTrace(e), true)
+        logs(i, tag, ExceptionX.resolveTrace(e), true)
     }
 
     private fun logs(i: Int, tag: Any, e: Any, error: Boolean = false) {

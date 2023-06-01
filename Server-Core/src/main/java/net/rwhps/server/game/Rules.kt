@@ -102,9 +102,9 @@ class Rules(private var config: BaseCoreConfig, private var configServer: BaseSe
     var isAfk: Boolean = true
     /** Mpa Lock  */
     var mapLock: Boolean = false
-    var dogfightLock: Boolean = false
+    var battleRoyalLock: Boolean = false
         set(value) {
-            playerManage.amTeam = dogfightLock
+            playerManage.amTeam = battleRoyalLock
             field = value
         }
 
@@ -143,13 +143,13 @@ class Rules(private var config: BaseCoreConfig, private var configServer: BaseSe
     fun init() {
         isAfk = Data.core.settings.getData("Rules.IsAfk") { isAfk }
         mapLock = Data.core.settings.getData("Rules.MapLock") { mapLock }
-        dogfightLock = Data.core.settings.getData("Rules.DogfightLock") { dogfightLock }
+        battleRoyalLock = Data.core.settings.getData("Rules.DogfightLock") { battleRoyalLock }
 
 
         Threads.addSavePool {
             Data.core.settings.setData("Rules.IsAfk",isAfk)
             Data.core.settings.setData("Rules.MapLock",mapLock)
-            Data.core.settings.setData("Rules.DogfightLock",dogfightLock)
+            Data.core.settings.setData("Rules.DogfightLock",battleRoyalLock)
         }
     }
 
@@ -170,7 +170,7 @@ class Rules(private var config: BaseCoreConfig, private var configServer: BaseSe
         mist = 2
         sharedControl = false
         lockTeam = false
-        playerManage.amTeam = dogfightLock
+        playerManage.amTeam = battleRoyalLock
 
         gameReConnectPaused = false
         gamePaused = false

@@ -81,7 +81,7 @@ class Relay {
         private set
 
     var allmute = false
-    var dogfightLock: Boolean = false
+    var battleRoyalLock: Boolean = false
 
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()

@@ -153,7 +153,7 @@ object Main {
         set(Data.config.Log)
 
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, Data.defPrint)
         if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
             if (response.type != CommandHandler.ResponseType.valid) {
                 clog("Please check the command , Unable to use StartCommand inside Config to start the server")
@@ -222,7 +222,7 @@ object Main {
             }
 
             try {
-                val response = Data.SERVER_COMMAND.handleMessage(line, StrCons { obj: String -> clog(obj) })
+                val response = Data.SERVER_COMMAND.handleMessage(line, Data.defPrint)
                 if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
                     if (response.type != CommandHandler.ResponseType.valid) {
                         val text = when (response.type) {

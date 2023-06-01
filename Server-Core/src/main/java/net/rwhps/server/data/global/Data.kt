@@ -14,6 +14,7 @@ import net.rwhps.server.core.Application
 import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.base.BaseRelayConfig
 import net.rwhps.server.data.base.BaseServerConfig
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Rules
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.struct.ObjectMap
@@ -22,6 +23,7 @@ import net.rwhps.server.util.SystemUtil
 import net.rwhps.server.util.alone.BadWord
 import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.log.Log
 import org.jline.reader.LineReader
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -43,8 +45,8 @@ object Data {
     const val Plugin_GameCore_Data_Path = "/data/gameData"
     const val Plugin_Mods_Path = "/data/mods"
     const val Plugin_RePlays_Path = "/data/replays"
-    val UTF_8: Charset = StandardCharsets.UTF_8
-    val DefaultEncoding:  Charset = SystemUtil.defaultEncoding
+    @JvmField val UTF_8: Charset = StandardCharsets.UTF_8
+    @JvmField val DefaultEncoding:  Charset = SystemUtil.defaultEncoding
     /*
 	 * 插件默认变量
 	 */
@@ -59,7 +61,7 @@ object Data {
 
 
     /** 单位数据缓存  */
-	@JvmField val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
+    @JvmField val utilData = CompressOutputStream.getGzipOutputStream("customUnits", false)
 
     @JvmField val LINE_SEPARATOR: String = System.getProperty("line.separator")
 
@@ -102,6 +104,9 @@ object Data {
 
 
     internal val privateOut = System.out
-    lateinit internal var privateReader: LineReader
+    internal lateinit var privateReader: LineReader
+
+    @JvmField val defPrint = StrCons { obj: String -> Log.clog(obj) }
+
     var serverCountry = "EN"
 }

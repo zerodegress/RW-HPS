@@ -41,10 +41,7 @@ tasks.jar {
 	exclude("META-INF/BC1024KE.SF")
 	exclude("META-INF/BC1024KE.DSA")
 
-	// Fuck Graalvm!
-	exclude("META-INF/services/com.oracle.truffle.api.TruffleLanguage\$Provider")
-
-
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
 	manifest {
 		attributes(mapOf("Main-Class" to "net.rwhps.server.Main"))

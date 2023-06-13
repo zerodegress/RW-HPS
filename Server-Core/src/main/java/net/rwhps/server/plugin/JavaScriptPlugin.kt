@@ -31,10 +31,8 @@ object JavaScriptPlugin {
                 .build())
             .allowHostClassLookup { _ -> true }
             .build()
-        val plugin = context.use {
-            context.eval("js", "$lib${Data.LINE_SEPARATOR}$script")
-            context.getBindings("js").getMember("main").execute().`as`(Plugin::class.java)
-        }
-        return plugin
+        context.enter()
+        context.eval("js", "$lib${Data.LINE_SEPARATOR}$script")
+        return context.getBindings("js").getMember("main").execute().`as`(Plugin::class.java)
     }
 }

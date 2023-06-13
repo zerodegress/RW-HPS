@@ -5,8 +5,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "isolatedModules": true,
-    "declarationDir": "types"
+    "declarationDir": "types",
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules/**/*"],
+  "exclude": ["node_modules/**/*"]
 }

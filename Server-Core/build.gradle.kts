@@ -56,6 +56,7 @@ dependencies {
 	api("it.unimi.dsi:fastutil-core:8.5.12")
 
 	implementation("org.openjdk.nashorn:nashorn-core:15.4")
+	implementation("org.mozilla:rhino:1.7.14")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

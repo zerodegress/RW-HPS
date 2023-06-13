@@ -6,11 +6,11 @@ class JavaScriptPluginTest {
 
     @Test
     fun loadJavaScriptPlugin() {
-        val oneClass = JavaScriptPlugin.loadJavaScriptPlugin("""
+        JavaScriptPlugin.loadJavaScriptPlugin("""
             function main() {
-            importClass("net.rwhps.server.plugin.Plugin")
+            const Plugin = Java.type("net.rwhps.server.plugin.Plugin")
         
-            var plugin = new JavaAdapter(Plugin ,{
+            const plugin = Java.extend(Plugin ,{
                 onEnable: function() {
                     print("Hi")
                 },

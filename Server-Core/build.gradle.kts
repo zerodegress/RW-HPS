@@ -55,7 +55,8 @@ dependencies {
 
 	api("it.unimi.dsi:fastutil-core:8.5.12")
 
-	implementation("org.openjdk.nashorn:nashorn-core:15.4")
+	implementation("org.graalvm.js:js:${properties["graalvm.version"]}")
+	implementation("org.graalvm.sdk:graal-sdk:${properties["graalvm.version"]}")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

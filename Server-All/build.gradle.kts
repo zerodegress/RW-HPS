@@ -41,7 +41,7 @@ tasks.jar {
 	exclude("META-INF/BC1024KE.SF")
 	exclude("META-INF/BC1024KE.DSA")
 
-
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
 	manifest {
 		attributes(mapOf("Main-Class" to "net.rwhps.server.Main"))

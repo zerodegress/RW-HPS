@@ -12,6 +12,8 @@ package net.rwhps.server.plugin
 import net.rwhps.server.data.global.Data
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
+import org.graalvm.polyglot.Source
+import org.graalvm.polyglot.io.FileSystem
 
 /**
  * 加载 JavaScript 脚本并注入依赖
@@ -34,5 +36,28 @@ object JavaScriptPlugin {
         context.enter()
         context.eval("js", "$lib${Data.LINE_SEPARATOR}$script")
         return context.getBindings("js").getMember("main").execute().`as`(Plugin::class.java)
+    }
+
+    fun loadESMPlugin(name: String, src: String, fileSystem: FileSystem): Plugin {
+        val cx = Context.newBuilder()
+            .allowExperimentalOptions(true)
+            .option("engine.WarnInterpreterOnly", "false")
+            .option("js.esm-eval-returns-exports", "true")
+            .allowHostAccess(HostAccess.newBuilder()
+                .allowAllClassImplementations(true)
+                .allowAllImplementations(true)
+                .build())
+            .allowHostClassLookup { _ -> true }
+            .fileSystem(fileSystem)
+            .allowIO(true)
+            .build()
+        cx.enter()
+        return cx.eval(
+            Source.newBuilder("js", src, name)
+                .mimeType("application/javascript+module")
+                .build())
+            .getMember("main")
+            .execute()
+            .`as`(Plugin::class.java)
     }
 }

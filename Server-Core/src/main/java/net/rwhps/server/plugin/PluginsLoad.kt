@@ -43,9 +43,10 @@ object PluginGlobalContext {
         val main = jsFileSystem.getPath("\$java/$packageName/index.mjs")
 
         if(!packagePath.exists()) {
-            Files.createDirectory(packagePath)
+            Files.createDirectories(packagePath)
             jsFileSystem.registerJavaPackage(packageName, main)
         }
+
         Files.write(
             main,
             "export const ${T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}')\n"
@@ -98,6 +99,8 @@ class PluginsLoad {
         val dataImport = Seq<PluginImportData>()
 
         val jsModules = Seq<Json>()
+        PluginGlobalContext.injectJavaClass<Plugin>()
+        PluginGlobalContext.injectJavaClass<Log>()
 
         for (file in fileList) {
             val zip = CompressionDecoderUtils.zip(file)

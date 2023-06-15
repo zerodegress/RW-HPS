@@ -99,6 +99,7 @@ class JavaScriptPluginFileSystem: FileSystem {
      * @param main 模块入口文件
      */
     fun registerJavaPackage(name: String, main: Path) {
+        println("registered $name")
         javaMap[name] = main
     }
 
@@ -109,7 +110,9 @@ class JavaScriptPluginFileSystem: FileSystem {
         return memoryFileSystem.getPath(first, *more)
     }
 
-    override fun parsePath(uri: URI?): Path = memoryFileSystem.getPath(uri?.path ?: "/")
+    override fun parsePath(uri: URI?): Path {
+        return parsePath(uri?.toString())
+    }
 
     override fun parsePath(path: String?): Path {
         val parsedPath = if(path != null) {

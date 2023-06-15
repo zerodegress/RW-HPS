@@ -47,6 +47,7 @@ object JavaScriptPlugin {
             .allowHostAccess(HostAccess.newBuilder()
                 .allowAllClassImplementations(true)
                 .allowAllImplementations(true)
+                .allowPublicAccess(true)
                 .build())
             .allowHostClassLookup { _ -> true }
             .fileSystem(fileSystem)

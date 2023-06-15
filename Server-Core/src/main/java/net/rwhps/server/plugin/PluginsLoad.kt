@@ -14,6 +14,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.dependent.LibraryManager
+import net.rwhps.server.func.Cons
 import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.IRwHps
@@ -36,7 +37,6 @@ import java.io.File
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.*
-import java.util.Properties
 import kotlin.io.path.exists
 
 /**
@@ -116,6 +116,7 @@ object PluginGlobalContext {
         injectJavaClass<ResponseType>("ResponseType")
         injectJavaClass<Command>("Command")
         injectJavaClass<CommandRunner<Any>>("CommandRunner")
+        injectJavaClass<Cons<Any>>()
     }
 }
 

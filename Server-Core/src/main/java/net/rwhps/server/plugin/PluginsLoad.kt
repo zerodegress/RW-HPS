@@ -9,14 +9,26 @@
 
 package net.rwhps.server.plugin
 
+import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
+import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.dependent.LibraryManager
+import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.net.core.ConnectionAgreement
+import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.plugin.event.AbstractEvent
+import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.compression.core.CompressionDecoder
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.CommandHandler.Command
+import net.rwhps.server.util.game.CommandHandler.CommandResponse
+import net.rwhps.server.util.game.CommandHandler.CommandRunner
+import net.rwhps.server.util.game.CommandHandler.ResponseType
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
@@ -24,6 +36,7 @@ import java.io.File
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.*
+import java.util.Properties
 import kotlin.io.path.exists
 
 /**
@@ -32,12 +45,12 @@ import kotlin.io.path.exists
  * @author RW-HPS/ZeroDegress
  */
 object PluginGlobalContext {
-    val jsFileSystem = JavaScriptPluginFileSystem()
+    private val jsFileSystem = JavaScriptPluginFileSystem()
 
     /**
      * 将指定Java类型注入
      */
-    inline fun <reified T> injectJavaClass() {
+    private inline fun <reified T> injectJavaClass(rename: String? = null) {
         val packageName = T::class.java.`package`.name
         val packagePath = jsFileSystem.getPath("\$java/$packageName")
         val main = jsFileSystem.getPath("\$java/$packageName/index.mjs")
@@ -49,7 +62,7 @@ object PluginGlobalContext {
 
         Files.write(
             main,
-            "export const ${T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}')\n"
+            "export const ${rename ?: T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}');"
                 .trimIndent()
                 .toByteArray(),
             StandardOpenOption.APPEND,
@@ -86,6 +99,25 @@ object PluginGlobalContext {
     fun loadESMPlugins(modules: Iterable<Json>): Iterable<PluginLoadData> {
         return JavaScriptPlugin.loadESMPlugins(modules, jsFileSystem)
     }
+
+    fun initJavaClasses() {
+        injectJavaClass<Plugin>()
+        injectJavaClass<Log>()
+        injectJavaClass<Properties>()
+        injectJavaClass<AbstractEvent>()
+        injectJavaClass<AbstractPlayer>()
+        injectJavaClass<GameOverData>()
+        injectJavaClass<GameUnitType.GameActions>("GameActions")
+        injectJavaClass<GameUnitType.GameUnits>("GameUnits")
+        injectJavaClass<AbstractGlobalEvent>()
+        injectJavaClass<IRwHps.NetType>("NetType")
+        injectJavaClass<ConnectionAgreement>()
+        injectJavaClass<CommandHandler>()
+        injectJavaClass<CommandResponse>("CommandResponse")
+        injectJavaClass<ResponseType>("ResponseType")
+        injectJavaClass<Command>("Command")
+        injectJavaClass<CommandRunner<Any>>("CommandRunner")
+    }
 }
 
 /**
@@ -99,8 +131,7 @@ class PluginsLoad {
         val dataImport = Seq<PluginImportData>()
 
         val jsModules = Seq<Json>()
-        PluginGlobalContext.injectJavaClass<Plugin>()
-        PluginGlobalContext.injectJavaClass<Log>()
+        PluginGlobalContext.initJavaClasses()
 
         for (file in fileList) {
             val zip = CompressionDecoderUtils.zip(file)

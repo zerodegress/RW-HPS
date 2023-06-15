@@ -18,7 +18,11 @@ import java.nio.file.attribute.FileAttribute
  */
 class JavaScriptPluginFileSystem: FileSystem {
 
-    private val memoryFileSystem = Jimfs.newFileSystem(Configuration.unix())
+    private val memoryFileSystem = Jimfs.newFileSystem(
+        Configuration.unix()
+            .toBuilder()
+            .setWorkingDirectory("/")
+            .build())
     private val moduleMap: MutableMap<String, Path> = HashMap()
     private val javaMap: MutableMap<String, Path> = HashMap()
 
@@ -99,7 +103,8 @@ class JavaScriptPluginFileSystem: FileSystem {
      * @param main 模块入口文件
      */
     fun registerJavaPackage(name: String, main: Path) {
-        println("registered $name")
+        //debug的时候用
+        //Log.clog("Registered Java package to esm:$name")
         javaMap[name] = main
     }
 

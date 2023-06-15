@@ -40,36 +40,46 @@ object JavaScriptPlugin {
     }
 
     fun loadESMPlugins(modules: Iterable<Json>, fileSystem: FileSystem): Iterable<PluginLoadData> {
-        val cx = Context.newBuilder()
-            .allowExperimentalOptions(true)
-            .option("engine.WarnInterpreterOnly", "false")
-            .option("js.esm-eval-returns-exports", "true")
-            .allowHostAccess(HostAccess.newBuilder()
-                .allowAllClassImplementations(true)
-                .allowAllImplementations(true)
-                .allowPublicAccess(true)
-                .build())
-            .allowHostClassLookup { _ -> true }
-            .fileSystem(fileSystem)
-            .allowIO(true)
-            .build()
-        cx.enter()
-        val defaults = cx.eval(
-            Source.newBuilder("js", """
+        try {
+            val cx = Context.newBuilder()
+                .allowExperimentalOptions(true)
+                .option("engine.WarnInterpreterOnly", "false")
+                .option("js.esm-eval-returns-exports", "true")
+                .allowHostAccess(HostAccess.newBuilder()
+                    .allowAllClassImplementations(true)
+                    .allowAllImplementations(true)
+                    .allowPublicAccess(true)
+                    .build())
+                .allowHostClassLookup { _ -> true }
+                .fileSystem(fileSystem)
+                .allowIO(true)
+                .build()
+            cx.enter()
+            val defaults = cx.eval(
+                Source.newBuilder("js", """
                 ${modules.joinToString("\n") { """
-                    export { main as ${it.getString("name")} } from '${it.getString("name")}/${it.getString("main")}'
+                    export { default as ${it.getString("name")} } from '${it.getString("name")}/${it.getString("main")}';
                 """.trimIndent() }}
             """.trimIndent(), "\$load.mjs")
-                .mimeType("application/javascript+module")
-                .build())
-        return modules.map {
-            PluginLoadData(
-                it.getString("name"),
-                it.getString("author"),
-                it.getString("description"),
-                it.getString("version"),
-                defaults.getMember(it.getString("name")).execute().`as`(Plugin::class.java)
-            )
+                    .mimeType("application/javascript+module")
+                    .build())
+            return modules.map {
+                PluginLoadData(
+                    it.getString("name"),
+                    it.getString("author"),
+                    it.getString("description"),
+                    it.getString("version"),
+                    run {
+                        if(defaults.canExecute()) {
+                            defaults.getMember(it.getString("name")).execute().`as`(Plugin::class.java)
+                        } else {
+                            defaults.getMember(it.getString("name")).`as`(Plugin::class.java)
+                        }
+                    }
+                )
+            }
+        } catch (e: Exception) {
+            error("JavaScript plugin loading failed:$e")
         }
     }
 }

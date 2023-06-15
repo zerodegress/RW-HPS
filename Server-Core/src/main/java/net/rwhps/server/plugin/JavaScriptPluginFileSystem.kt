@@ -14,6 +14,7 @@ import java.nio.file.attribute.FileAttribute
 class JavaScriptPluginFileSystem: FileSystem {
 
     private val memoryFileSystem = Jimfs.newFileSystem(Configuration.unix())
+    private val moduleMap: MutableMap<String, Path> = HashMap()
 
     private class ReadOnlySeekableByteArrayChannel(private val data: ByteArray): SeekableByteChannel {
         var position = 0
@@ -73,7 +74,13 @@ class JavaScriptPluginFileSystem: FileSystem {
 
     }
 
-    fun getPath(first: String, vararg more: String?): Path = memoryFileSystem.getPath(first, *more)
+    fun registerModule(name: String, main: Path) {
+        moduleMap[name] = main
+    }
+
+    fun getPath(first: String, vararg more: String?): Path {
+        return memoryFileSystem.getPath(first, *more)
+    }
 
     override fun parsePath(uri: URI?): Path = memoryFileSystem.getPath(uri?.path ?: "/")
 
@@ -81,6 +88,8 @@ class JavaScriptPluginFileSystem: FileSystem {
         val parsedPath = if(path != null) {
             if(path.startsWith("../") || path.startsWith("./") || path.startsWith("/")) {
                 memoryFileSystem.getPath(path)
+            } else if(path.startsWith("@")) {
+                moduleMap[path.removePrefix("@")] ?: memoryFileSystem.getPath("/")
             } else {
                 memoryFileSystem.getPath("/").resolve(path)
             }

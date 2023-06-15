@@ -56,7 +56,7 @@ object JavaScriptPlugin {
         val defaults = cx.eval(
             Source.newBuilder("js", """
                 ${modules.joinToString("\n") { """
-                    export { main as ${it.getString("name")} } from '${it.getString("name")}/index.mjs'
+                    export { main as ${it.getString("name")} } from '${it.getString("name")}/${it.getString("main")}'
                 """.trimIndent() }}
             """.trimIndent(), "\$load.mjs")
                 .mimeType("application/javascript+module")

@@ -35,6 +35,11 @@ object PluginGlobalContext {
             Files.createDirectory(modulePath)
         }
 
+        jsFileSystem.registerModule(
+            json.getString("name"),
+            jsFileSystem.getPath("/${json.getString("name")}/${json.getString("main")}")
+        )
+
         zip.getSpecifiedSuffixInThePackage(".mjs", true).forEach {
             Files.write(modulePath.resolve(it.key), it.value)
         }

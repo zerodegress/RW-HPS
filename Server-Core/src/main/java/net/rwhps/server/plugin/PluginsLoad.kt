@@ -15,24 +15,34 @@ import net.rwhps.server.dependent.LibraryManager
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.compression.CompressionDecoderUtils
+import net.rwhps.server.util.compression.core.CompressionDecoder
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
-import org.graalvm.polyglot.io.FileSystem
 import java.io.File
-import java.io.IOException
 import java.lang.reflect.InvocationTargetException
-import java.net.URI
 import java.net.URLClassLoader
-import java.nio.ByteBuffer
-import java.nio.channels.ClosedChannelException
-import java.nio.channels.SeekableByteChannel
 import java.nio.file.*
-import java.nio.file.attribute.FileAttribute
+import kotlin.io.path.exists
 
 object PluginGlobalContext {
-    val jsFileSystems = ArrayList<FileSystem>()
+    private val jsFileSystem = JavaScriptPluginFileSystem()
+
+    fun addJSModule(zip: CompressionDecoder, json: Json) {
+        val modulePath = jsFileSystem.getPath("/${json.getString("name")}")
+        if(!modulePath.exists()) {
+            Files.createDirectory(modulePath)
+        }
+
+        zip.getSpecifiedSuffixInThePackage(".mjs", true).forEach {
+            Files.write(modulePath.resolve(it.key), it.value)
+        }
+    }
+
+    fun loadJSModules(modules: Iterable<Json>): Iterable<PluginLoadData> {
+        return JavaScriptPlugin.loadESMPlugins(modules, jsFileSystem)
+    }
 }
 
 /**
@@ -41,12 +51,12 @@ object PluginGlobalContext {
  */
 class PluginsLoad {
     private fun loadPlugin(fileList: Seq<File>): Seq<PluginLoadData> {
-        val jsFileSystem = JavaScriptPluginFileSystem(HashMap())
-        PluginGlobalContext.jsFileSystems.add(jsFileSystem)
-
         val data = Seq<PluginLoadData>()
         val dataName = Seq<String>()
         val dataImport = Seq<PluginImportData>()
+
+        val jsModules = Seq<Json>()
+
         for (file in fileList) {
             val zip = CompressionDecoderUtils.zip(file)
             try {
@@ -69,16 +79,9 @@ class PluginsLoad {
                 }
                 if (IsUtil.isBlank(json.getString("import"))) {
                     val mainPlugin = if (json.getString("main").endsWith("js",true)) {
-                        zip.getSpecifiedSuffixInThePackage(".mjs", true).forEach {
-                            jsFileSystem.addPath(Path.of(it.key), it.value)
-                        }
-                        val mainJs = zip.getZipNameInputStream(json.getString("main"))
-                        if (mainJs == null) {
-
-                            error("Invalid JavaScriptPlugin Main", json.getString("main"))
-                            continue
-                        }
-                        JavaScriptPlugin.loadESMPlugin(json.getString("main"), FileUtil.readFileString(mainJs), jsFileSystem)
+                        PluginGlobalContext.addJSModule(zip, json)
+                        jsModules.add(json)
+                        continue
                     } else {
                         loadClass(file, json.getString("main"))
                     }
@@ -100,6 +103,9 @@ class PluginsLoad {
                 zip.close()
             }
         }
+
+        //加载esm
+        PluginGlobalContext.loadJSModules(jsModules).forEach { data.add(it); dataName.add(it.name) }
 
         // 检查是否加载了依赖插件
         var i = 0
@@ -188,127 +194,3 @@ class PluginsLoad {
     }
 }
 
-class JavaScriptPluginFileSystem(
-    private val pathMap: MutableMap<Path, ByteArray>
-): FileSystem {
-    private class ReadOnlySeekableByteArrayChannel(private val data: ByteArray): SeekableByteChannel {
-        var position = 0
-        var closed = false
-        override fun close() {
-            this.closed = true
-        }
-
-        override fun isOpen(): Boolean = !closed
-
-        override fun write(src: ByteBuffer?): Int {
-            throw UnsupportedOperationException()
-        }
-
-        override fun position(): Long {
-            return position.toLong()
-        }
-
-        @Throws(IOException::class)
-        override fun position(newPosition: Long): SeekableByteChannel {
-            ensureOpen()
-            position = Math.max(0, Math.min(newPosition, size())).toInt()
-            return this
-        }
-
-        override fun size(): Long {
-            return data.size.toLong()
-        }
-
-        @Throws(IOException::class)
-        override fun read(buf: ByteBuffer): Int {
-            ensureOpen()
-            val remaining = size().toInt() - position
-            if (remaining <= 0) {
-                return -1
-            }
-            var readBytes = buf.remaining()
-            if (readBytes > remaining) {
-                readBytes = remaining
-            }
-            buf.put(data, position, readBytes)
-            position += readBytes
-            return readBytes
-        }
-
-        override fun truncate(size: Long): SeekableByteChannel {
-            throw UnsupportedOperationException()
-        }
-
-
-        @Throws(ClosedChannelException::class)
-        private fun ensureOpen() {
-            if (!isOpen) {
-                throw ClosedChannelException()
-            }
-        }
-
-    }
-    fun addPath(path: Path, arr: ByteArray) {
-        pathMap[path] = arr
-    }
-
-    override fun parsePath(uri: URI?): Path {
-        throw Exception("'parsePath(uri: URI?): Path' not implemented")
-    }
-
-    override fun parsePath(path: String?): Path {
-        return if(path != null) {
-            Path.of(path)
-        } else {
-            Path.of("")
-        }
-    }
-
-    override fun checkAccess(path: Path?, modes: MutableSet<out AccessMode>?, vararg linkOptions: LinkOption?) {
-    }
-
-    override fun createDirectory(dir: Path?, vararg attrs: FileAttribute<*>?) {
-        throw Exception("'createDirectory(dir: Path?, vararg attrs: FileAttribute<*>?)' not implemented")
-    }
-
-    override fun delete(path: Path?) {
-        throw Exception("'delete(path: Path?)' not implemented")
-    }
-
-    override fun newByteChannel(
-        path: Path?,
-        options: MutableSet<out OpenOption>?,
-        vararg attrs: FileAttribute<*>?
-    ): SeekableByteChannel {
-        return if(path != null) {
-            val res = pathMap.entries.find { it.key == path }
-            if(res != null) {
-                ReadOnlySeekableByteArrayChannel(res.value)
-            } else {
-                ReadOnlySeekableByteArrayChannel(ByteArray(0))
-            }
-        } else {
-            ReadOnlySeekableByteArrayChannel(ByteArray(0))
-        }
-    }
-
-    override fun newDirectoryStream(dir: Path?, filter: DirectoryStream.Filter<in Path>?): DirectoryStream<Path> {
-        throw Exception("'newDirectoryStream(dir: Path?, filter: DirectoryStream.Filter<in Path>?): DirectoryStream<Path>' not implemented")
-    }
-
-    override fun toAbsolutePath(path: Path?): Path {
-        return path ?: Path.of("")
-    }
-
-    override fun toRealPath(path: Path?, vararg linkOptions: LinkOption?): Path {
-        return path ?: Path.of("")
-    }
-
-    override fun readAttributes(
-        path: Path?,
-        attributes: String?,
-        vararg options: LinkOption?
-    ): MutableMap<String, Any> {
-        throw Exception("'delete(path: Path?)' not implemented")
-    }
-}

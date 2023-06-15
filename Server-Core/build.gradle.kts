@@ -56,6 +56,8 @@ dependencies {
 	api("it.unimi.dsi:fastutil-core:8.5.12")
 
 	implementation("org.graalvm.js:js:${properties["graalvm.version"]}")
+	implementation("com.google.jimfs:jimfs:1.2")
+
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

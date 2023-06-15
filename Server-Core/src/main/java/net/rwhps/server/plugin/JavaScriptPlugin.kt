@@ -10,6 +10,7 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.json.Json
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.Source
@@ -38,7 +39,7 @@ object JavaScriptPlugin {
         return context.getBindings("js").getMember("main").execute().`as`(Plugin::class.java)
     }
 
-    fun loadESMPlugin(name: String, src: String, fileSystem: FileSystem): Plugin {
+    fun loadESMPlugins(modules: Iterable<Json>, fileSystem: FileSystem): Iterable<PluginLoadData> {
         val cx = Context.newBuilder()
             .allowExperimentalOptions(true)
             .option("engine.WarnInterpreterOnly", "false")
@@ -52,12 +53,22 @@ object JavaScriptPlugin {
             .allowIO(true)
             .build()
         cx.enter()
-        return cx.eval(
-            Source.newBuilder("js", src, name)
+        val defaults = cx.eval(
+            Source.newBuilder("js", """
+                ${modules.joinToString("\n") { """
+                    export { main as ${it.getString("name")} } from '${it.getString("name")}/index.mjs'
+                """.trimIndent() }}
+            """.trimIndent(), "\$load.mjs")
                 .mimeType("application/javascript+module")
                 .build())
-            .getMember("main")
-            .execute()
-            .`as`(Plugin::class.java)
+        return modules.map {
+            PluginLoadData(
+                it.getString("name"),
+                it.getString("author"),
+                it.getString("description"),
+                it.getString("version"),
+                defaults.getMember(it.getString("name")).execute().`as`(Plugin::class.java)
+            )
+        }
     }
 }

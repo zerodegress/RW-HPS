@@ -26,10 +26,42 @@ import java.net.URLClassLoader
 import java.nio.file.*
 import kotlin.io.path.exists
 
+/**
+ * 插件全局上下文
+ * 主要用于JS插件加载
+ * @author RW-HPS/ZeroDegress
+ */
 object PluginGlobalContext {
-    private val jsFileSystem = JavaScriptPluginFileSystem()
+    val jsFileSystem = JavaScriptPluginFileSystem()
 
-    fun addJSModule(zip: CompressionDecoder, json: Json) {
+    /**
+     * 将指定Java类型注入
+     */
+    inline fun <reified T> injectJavaClass() {
+        val packageName = T::class.java.`package`.name
+        val packagePath = jsFileSystem.getPath("\$java/$packageName")
+        val main = jsFileSystem.getPath("\$java/$packageName/index.mjs")
+
+        if(!packagePath.exists()) {
+            Files.createDirectory(packagePath)
+            jsFileSystem.registerJavaPackage(packageName, main)
+        }
+        Files.write(
+            main,
+            "export const ${T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}')\n"
+                .trimIndent()
+                .toByteArray(),
+            StandardOpenOption.APPEND,
+            StandardOpenOption.CREATE
+        )
+    }
+
+    /**
+     * 添加一个ESM插件
+     * @param zip ESM插件模块所在压缩包
+     * @param json ESM插件JSON数据
+     */
+    fun addESMPlugin(zip: CompressionDecoder, json: Json) {
         val modulePath = jsFileSystem.getPath("/${json.getString("name")}")
         if(!modulePath.exists()) {
             Files.createDirectory(modulePath)
@@ -45,7 +77,12 @@ object PluginGlobalContext {
         }
     }
 
-    fun loadJSModules(modules: Iterable<Json>): Iterable<PluginLoadData> {
+    /**
+     * 加载全部ESM插件
+     * @param modules 需要加载的ESM JSON数据
+     * @return 插件加载数据
+     */
+    fun loadESMPlugins(modules: Iterable<Json>): Iterable<PluginLoadData> {
         return JavaScriptPlugin.loadESMPlugins(modules, jsFileSystem)
     }
 }
@@ -84,7 +121,7 @@ class PluginsLoad {
                 }
                 if (IsUtil.isBlank(json.getString("import"))) {
                     val mainPlugin = if (json.getString("main").endsWith("js",true)) {
-                        PluginGlobalContext.addJSModule(zip, json)
+                        PluginGlobalContext.addESMPlugin(zip, json)
                         jsModules.add(json)
                         continue
                     } else {
@@ -110,7 +147,7 @@ class PluginsLoad {
         }
 
         //加载esm
-        PluginGlobalContext.loadJSModules(jsModules).forEach { data.add(it); dataName.add(it.name) }
+        PluginGlobalContext.loadESMPlugins(jsModules).forEach { data.add(it); dataName.add(it.name) }
 
         // 检查是否加载了依赖插件
         var i = 0

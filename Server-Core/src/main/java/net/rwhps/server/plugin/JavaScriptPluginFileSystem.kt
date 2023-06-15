@@ -11,11 +11,21 @@ import java.nio.channels.SeekableByteChannel
 import java.nio.file.*
 import java.nio.file.attribute.FileAttribute
 
+/**
+ * JS插件文件系统
+ * 为JS插件加载提供虚拟环境
+ * @author RW-HPS/ZeroDegress
+ */
 class JavaScriptPluginFileSystem: FileSystem {
 
     private val memoryFileSystem = Jimfs.newFileSystem(Configuration.unix())
     private val moduleMap: MutableMap<String, Path> = HashMap()
+    private val javaMap: MutableMap<String, Path> = HashMap()
 
+    /**
+     * 只读数据流
+     * @author RW-HPS/ZeroDegress
+     */
     private class ReadOnlySeekableByteArrayChannel(private val data: ByteArray): SeekableByteChannel {
         var position = 0
         var closed = false
@@ -74,10 +84,27 @@ class JavaScriptPluginFileSystem: FileSystem {
 
     }
 
+    /**
+     * 注册一个模块，这样在js中可通过"@module"这样的方式引用
+     * @param name 模块名称
+     * @param main 模块入口文件
+     */
     fun registerModule(name: String, main: Path) {
         moduleMap[name] = main
     }
 
+    /**
+     * 注册一个Java包，这样在js中可通过"java:package"这样的方式引用
+     * @param name 包名称
+     * @param main 模块入口文件
+     */
+    fun registerJavaPackage(name: String, main: Path) {
+        javaMap[name] = main
+    }
+
+    /**
+     * 获取虚拟路径
+     */
     fun getPath(first: String, vararg more: String?): Path {
         return memoryFileSystem.getPath(first, *more)
     }
@@ -90,6 +117,8 @@ class JavaScriptPluginFileSystem: FileSystem {
                 memoryFileSystem.getPath(path)
             } else if(path.startsWith("@")) {
                 moduleMap[path.removePrefix("@")] ?: memoryFileSystem.getPath("/")
+            } else if(path.startsWith("java:")) {
+                javaMap[path.removePrefix("java:")] ?: memoryFileSystem.getPath("/")
             } else {
                 memoryFileSystem.getPath("/").resolve(path)
             }

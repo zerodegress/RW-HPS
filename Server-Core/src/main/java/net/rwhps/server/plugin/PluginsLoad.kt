@@ -103,7 +103,6 @@ object PluginGlobalContext {
     fun initJavaClasses() {
         injectJavaClass<Plugin>()
         injectJavaClass<Log>()
-        injectJavaClass<Properties>()
         injectJavaClass<AbstractEvent>()
         injectJavaClass<AbstractPlayer>()
         injectJavaClass<GameOverData>()

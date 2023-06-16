@@ -87,7 +87,7 @@ object PluginGlobalContext {
         )
 
         zip.getZipAllBytes().forEach {
-            if(!(modulePath.resolve(it.key).parent.exists())) {
+            if(!modulePath.resolve(it.key).parent.exists()) {
                 Files.createDirectories(modulePath.resolve(it.key).parent)
             }
             Files.write(modulePath.resolve(it.key), it.value)

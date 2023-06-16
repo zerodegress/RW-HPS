@@ -89,6 +89,10 @@ object PluginGlobalContext {
         zip.getSpecifiedSuffixInThePackage(".mjs", true).forEach {
             Files.write(modulePath.resolve(it.key), it.value)
         }
+
+        zip.getSpecifiedSuffixInThePackage(".js", true).forEach {
+            Files.write(modulePath.resolve(it.key), it.value)
+        }
     }
 
     /**

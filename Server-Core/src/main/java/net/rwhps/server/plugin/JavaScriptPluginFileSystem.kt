@@ -104,7 +104,7 @@ class JavaScriptPluginFileSystem: FileSystem {
      */
     fun registerJavaPackage(name: String, main: Path) {
         //debug的时候用
-        //Log.clog("Registered Java package to esm:$name")
+        //net.rwhps.server.util.log.Log.clog("Registered Java package to esm:$name")
         javaMap[name] = main
     }
 
@@ -122,10 +122,13 @@ class JavaScriptPluginFileSystem: FileSystem {
     override fun parsePath(path: String?): Path {
         val parsedPath = if(path != null) {
             if(path.startsWith("../") || path.startsWith("./") || path.startsWith("/")) {
+                //完整路径
                 memoryFileSystem.getPath(path)
             } else if(path.startsWith("@")) {
+                //插件入口快捷方式
                 moduleMap[path.removePrefix("@")] ?: memoryFileSystem.getPath("/")
             } else if(path.startsWith("java:")) {
+                //java注入类型快捷访问方式
                 javaMap[path.removePrefix("java:")] ?: memoryFileSystem.getPath("/")
             } else {
                 memoryFileSystem.getPath("/").resolve(path)
@@ -172,6 +175,7 @@ class JavaScriptPluginFileSystem: FileSystem {
         attributes: String?,
         vararg options: LinkOption?
     ): MutableMap<String, Any> {
+        println("readAttributes $path")
         throw Exception("'delete(path: Path?)' not implemented")
     }
 }

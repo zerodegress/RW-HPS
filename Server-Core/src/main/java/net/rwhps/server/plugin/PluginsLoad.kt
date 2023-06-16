@@ -86,11 +86,10 @@ object PluginGlobalContext {
             jsFileSystem.getPath("/${json.getString("name")}/${json.getString("main")}")
         )
 
-        zip.getSpecifiedSuffixInThePackage(".mjs", true).forEach {
-            Files.write(modulePath.resolve(it.key), it.value)
-        }
-
-        zip.getSpecifiedSuffixInThePackage(".js", true).forEach {
+        zip.getZipAllBytes().forEach {
+            if(!(modulePath.resolve(it.key).parent.exists())) {
+                Files.createDirectories(modulePath.resolve(it.key).parent)
+            }
             Files.write(modulePath.resolve(it.key), it.value)
         }
     }

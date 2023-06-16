@@ -52,6 +52,7 @@ object JavaScriptPlugin {
                     .build())
                 .allowHostClassLookup { _ -> true }
                 .fileSystem(fileSystem)
+                .currentWorkingDirectory(fileSystem.parsePath("/"))
                 .allowIO(true)
                 .build()
             cx.enter()

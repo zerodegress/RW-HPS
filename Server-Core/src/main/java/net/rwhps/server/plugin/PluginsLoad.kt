@@ -15,14 +15,29 @@ import net.rwhps.server.data.json.Json
 import net.rwhps.server.data.player.AbstractPlayer
 import net.rwhps.server.dependent.LibraryManager
 import net.rwhps.server.func.Cons
+import net.rwhps.server.func.Prov
+import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.simulation.core.AbstractPlayerData
+import net.rwhps.server.io.output.CompressOutputStream
+import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
+import net.rwhps.server.io.packet.Packet
+import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.core.ConnectionAgreement
+import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
+import net.rwhps.server.struct.IntMap
+import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.compression.CompressionDecoderUtils
+import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.compression.core.CompressionDecoder
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.game.CommandHandler
@@ -34,9 +49,14 @@ import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.InputStreamReader
+import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.*
+import java.util.Properties
 import kotlin.io.path.exists
 
 /**
@@ -120,6 +140,30 @@ object PluginGlobalContext {
         injectJavaClass<Command>("Command")
         injectJavaClass<CommandRunner<Any>>("CommandRunner")
         injectJavaClass<Cons<Any>>()
+        injectJavaClass<ObjectMap<Any, Any>>()
+        injectJavaClass<ObjectMap.Entry<Any, Any>>("ObjectMapEntry")
+        injectJavaClass<GroupNet>()
+        injectJavaClass<PacketType>()
+        injectJavaClass<Packet>()
+        injectJavaClass<IntMap<Any>>()
+        injectJavaClass<Prov<Any>>()
+        injectJavaClass<AbstractNetConnectServer>()
+        injectJavaClass<DataPermissionStatus.ServerStatus>("ServerStatus")
+        injectJavaClass<CompressOutputStream>()
+        injectJavaClass<DisableSyncByteArrayOutputStream>()
+        injectJavaClass<InputStream>()
+        injectJavaClass<OutputStream>()
+        injectJavaClass<AbstractPlayerData>()
+        injectJavaClass<I18NBundle>()
+        injectJavaClass<FileUtil>()
+        injectJavaClass<InputStreamReader>()
+        injectJavaClass<CompressionDecoder>()
+        injectJavaClass<AbstractDecoder>()
+        injectJavaClass<GameMaps.MapData>("MapData")
+        injectJavaClass<Properties>()
+        injectJavaClass<File>()
+        injectJavaClass<FileOutputStream>()
+        injectJavaClass<OrderedMap<Any, Any>>()
     }
 }
 

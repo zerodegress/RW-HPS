@@ -1,1 +1,1 @@
-java -Xmx512M -Dfile.encoding=UTF-8 -jar Server-All.jar
+java -Xmx512M -D"java.net.preferIPv4Stack=true" -D"file.encoding=UTF-8" -jar Server-All.jar

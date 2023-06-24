@@ -23,7 +23,7 @@ abstract class WebPost {
         if (accept.data.isEmpty()) {
             return Json(LinkedHashMap<String, String>())
         }
-        val hd = accept.getHeaders("Content-Type").ifNullResult({ it.trim()}) { "" }
+        val hd = accept.getHeaders("Content-Type").ifNullResult("") { it.trim()}
         return if (hd.contains("application/x-www-form-urlencoded",true)) {
             val paramArray: Array<String> = accept.data.split("&".toRegex()).toTypedArray()
             val listMap = LinkedHashMap<String, String>()

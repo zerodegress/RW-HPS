@@ -12,8 +12,8 @@ package net.rwhps.server.dependent.redirections.slick
 import net.rwhps.asm.agent.AsmCore
 import net.rwhps.asm.redirections.DefaultRedirections
 import net.rwhps.server.dependent.redirections.MainRedirections
-import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.alone.annotations.NeedHelp
+import net.rwhps.server.util.alone.annotations.mark.AsmMark
 import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.inline.accessibleConstructor
 import net.rwhps.server.util.inline.findMethod

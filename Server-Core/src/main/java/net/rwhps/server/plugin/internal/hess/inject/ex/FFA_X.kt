@@ -17,7 +17,7 @@ import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.util.CommonUtils
-import net.rwhps.server.util.ExtractUtil
+import net.rwhps.server.util.ExtractUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.alone.annotations.DidNotFinish
@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit
  * 能跑, 但不是理想状态, 我不想去折腾
  *
  * @date  2023/5/28 17:49
- * @author  CorrodingGames/LukeHoschke
  * @author  RW-HPS/Dr
  */
 @DidNotFinish
@@ -83,11 +82,10 @@ class FFA_X {
             setup = true
             Log.debug("ClosingBorder setup")
 
-
             //circleX=getWidthInPixels/2;
             //circleY=getHeightInPixels/2;
-            circleX = (getWidthInPixels/ 2)
-            circleY = (getHeightInPixels/ 2)
+            circleX = getWidthInPixels / 2
+            circleY = getHeightInPixels / 2
             circleSize = (map.C / 2).toFloat() * 1.4f
             circleLastChangedBy = 0f
             showSafeZone(circleX, circleY, circleSize)
@@ -151,7 +149,6 @@ class FFA_X {
             commandPacket.a(k(NetEnginePackaging.transformHessPacketNullSource(out.createPacket(PacketType.TICK))))
 
             commandPacket.c = GameEngine.data.gameHessData.tickNetHess+10
-            // 会触发同步 , 有时间了看看
             GameEngine.gameEngine.cf.b.add(commandPacket)
             //GameEngine.netEngine.a(commandPacket)
         } catch (e: Exception) {
@@ -172,7 +169,7 @@ class FFA_X {
                 "FFA","FFA", "FFA",
                 5000, 100, TimeUnit.MILLISECONDS
             ) {
-                ExtractUtil.tryRunTest {
+                ExtractUtils.tryRunTest {
                     FFA.onEachFrame()
                 }
             }

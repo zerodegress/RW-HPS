@@ -20,7 +20,7 @@ data class GameOverData(
     val allPlayerList: Seq<String>,
     val winPlayerList: Seq<String>,
     val mapName: String,
-    val playerData: ObjectMap<String,ObjectMap<String,Int>>,
+    val playerData: ObjectMap<String, ObjectMap<String, Int>>,
     val replayName: String
 ) {
     override fun toString(): String {

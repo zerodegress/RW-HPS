@@ -9,16 +9,26 @@
 
 package net.rwhps.server.struct
 
-import net.rwhps.server.func.Cons
-import net.rwhps.server.func.Find
+import net.rwhps.server.func.ConsSeq
+import net.rwhps.server.func.Control
+import net.rwhps.server.func.FindSeq
+import net.rwhps.server.util.ExtractUtils
 
 /**
  * @date  2023/5/26 13:55
  * @author  RW-HPS/Dr
+ *
+ * @param T Type
+ * @property list ObjectList<T>
+ * @property threadSafety ThreadSafety
+ * @property size Int
  */
-abstract class BaseSeq<T>(protected val list: java.util.List<T>): MutableList<T>, List<T> {
+@Suppress("UNUSED", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threadSafety: Boolean): MutableList<T>, List<T> {
 
     override val size: Int get() = list.size
+    override fun isEmpty(): Boolean = list.isEmpty()
+
     override fun add(element: T): Boolean = list.add(element)
     override fun add(index: Int, element: T) = list.add(index, element)
     override fun addAll(elements: Collection<T>): Boolean = list.addAll(elements)
@@ -39,11 +49,15 @@ abstract class BaseSeq<T>(protected val list: java.util.List<T>): MutableList<T>
      * @return T
      */
     fun first(): T = get(0)
-    override fun isEmpty(): Boolean = list.isEmpty()
+    /**
+     * 移除第一个元素
+     * @return T
+     */
+    fun removeFirst(): T = removeAt(0)
     override fun iterator(): MutableIterator<T> = list.iterator()
     override fun listIterator(): MutableListIterator<T> = list.listIterator()
     override fun listIterator(index: Int): MutableListIterator<T> = list.listIterator(index)
-    fun any(): Boolean = list.size > 0
+    fun any(): Boolean = list.isEmpty()
     override fun get(index: Int): T = list[index]
     override fun indexOf(element: @UnsafeVariance T): Int = list.indexOf(element)
     override fun lastIndexOf(element: @UnsafeVariance T): Int = list.lastIndexOf(element)
@@ -56,28 +70,46 @@ abstract class BaseSeq<T>(protected val list: java.util.List<T>): MutableList<T>
     override fun contains(element: T): Boolean = list.contains(element)
     override fun containsAll(elements: Collection<T>): Boolean = list.containsAll(elements)
 
-    fun find(findA: Find<T, Boolean>): T? {
-        list.forEach { if (findA(it)) return it }
-        return null
+    fun find(findA: FindSeq<T, Boolean>): T? {
+        var result: T? = null
+        ExtractUtils.synchronizedX(threadSafety, list) {
+            list.forEach { if (findA(it)) { result = it } }
+        }
+        return result
     }
 
-    fun find(findA: Find<T, Boolean>, findB: Find<T, Boolean>): T? {
-        list.forEach { if (findA(it) && findB(it)) return it }
-        return null
+    fun find(findA: FindSeq<T, Boolean>, findB: FindSeq<T, Boolean>): T? {
+        var result: T? = null
+        ExtractUtils.synchronizedX(threadSafety, list) {
+            list.forEach { if (findA(it) && findB(it)) { result = it } }
+        }
+        return result
     }
 
-    fun eachAll(block: Cons<T>) {
-        list.forEach { block(it) }
+    fun eachAll(block: ConsSeq<T>) {
+        ExtractUtils.synchronizedX(threadSafety, list) {
+            list.forEach { block(it) }
+        }
     }
 
-    fun eachAllFind(find: Find<T, Boolean>, block: Cons<T>) = eachAll {
+    fun eachControlAll(findA: FindSeq<T, Control>) {
+        ExtractUtils.synchronizedX(threadSafety, list) {
+            list.forEach {
+                if (findA(it) == Control.BREAK) {
+                    return@synchronizedX
+                }
+            }
+        }
+    }
+
+    fun eachAllFind(find: FindSeq<T, Boolean>, block: ConsSeq<T>) = eachAll {
         if (find(it)) {
             block(it)
         }
     }
 
-    fun eachFind(find: Find<T, Boolean>, block: Cons<T>) = find(find)?.let { block(it) }
-    fun eachAllFinds(findA: Find<T, Boolean>, findB: Find<T, Boolean>, block: Cons<T>) = find(findA, findB)?.let { block(it) }
+    fun eachFind(find: FindSeq<T, Boolean>, block: ConsSeq<T>) = find(find)?.let { block(it) }
+    fun eachAllFinds(findA: FindSeq<T, Boolean>, findB: FindSeq<T, Boolean>, block: ConsSeq<T>) = find(findA, findB)?.let { block(it) }
 
     override fun clear() = list.clear()
 

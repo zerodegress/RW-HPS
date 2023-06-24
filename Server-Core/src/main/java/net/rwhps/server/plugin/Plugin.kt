@@ -12,16 +12,17 @@ package net.rwhps.server.plugin
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import java.util.*
 
 /**
  * @author RW-HPS/Dr
  */
+@Suppress("UNUSED")
 abstract class Plugin {
-    lateinit var pluginDataFileUtil: FileUtil
-        interface set
+    lateinit var pluginDataFileUtils: FileUtils
+        internal set
 
     /**
      * 提供语言注入
@@ -46,29 +47,41 @@ abstract class Plugin {
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
-    open fun onEnable() {}
+    open fun onEnable() {
+        // Plugin inheritance, we should not implement
+    }
 
     /**
      * 注册要在服务器端使用的Core命令，例如从控制台
      * 这里注册的命令无论启动什么协议 都会存在
      */
-    open fun registerCoreCommands(handler: CommandHandler) {}
+    open fun registerCoreCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
     /**
      * 注册要在服务器端使用的Server命令，例如从控制台-Server
      * 这里注册的命令只有启动Server协议 才会存在
      */
-    open fun registerServerCommands(handler: CommandHandler) {}
+    open fun registerServerCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
     /**
      * 注册要在服务器端使用的Relay命令，例如从控制台-Relay
      * 这里注册的命令只有启动Relay协议 才会存在
      */
-    open fun registerRelayCommands(handler: CommandHandler) {}
+    open fun registerRelayCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
 
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3  */
-    open fun registerServerClientCommands(handler: CommandHandler) {}
+    open fun registerServerClientCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
     /** 注册要在客户端使用的RELAY命令，例如来自RELAY内玩家 -3  */
-    open fun registerRelayClientCommands(handler: CommandHandler) {}
+    open fun registerRelayClientCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
 
     /**
      * 注册事件
@@ -86,12 +99,13 @@ abstract class Plugin {
     }
 
     /** 创建所有插件并注册命令后调用 -5  */
-    open fun init() {}
+    open fun init() {
+        // Plugin inheritance, we should not implement
+    }
 
 
-    /** [注意 将会强制继承] Server退出时执行 可以进行Plugin的数据保存 -6  */
-    open fun onDisable() {}
-
-    /** [强制继承] Server卸载这个插件的时候执行 需要Plugin配合关闭 */
-    //abstract fun onUnLoad()
+    /** (注意 将会强制继承) Server退出时执行 可以进行Plugin的数据保存 -6  */
+    open fun onDisable() {
+        // Plugin inheritance, we should not implement
+    }
 }

@@ -19,6 +19,7 @@ import java.io.*
  * Read Bytes
  * @author RW-HPS/Dr
  */
+@Suppress("UNUSED")
 open class GameInputStream : Closeable {
     protected val buffer: InputStream
     protected val stream: DataInputStream
@@ -197,15 +198,14 @@ open class GameInputStream : Closeable {
     }
 
     @Throws(IOException::class)
+    @Suppress("UNCHECKED_CAST")
     fun readEnum(clazz: Class<*>): Enum<*>? {
         return readInt().let {
             if (it < 0) {
                 null
             } else {
-                clazz.enumConstants[it].ifNullResult({
+                clazz.enumConstants[it].ifNullResult(null) {
                     it as Enum<*>
-                }) {
-                    null
                 }
             }
         }

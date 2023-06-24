@@ -12,7 +12,7 @@ package net.rwhps.server.net.netconnectprotocol
 import net.rwhps.server.data.player.PlayerRelay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.log.exp.ParseException
 import java.io.IOException
 
@@ -37,7 +37,7 @@ object UniversalAnalysisOfGamePackages {
                         unit.readInt()
                         unit.readBoolean()
                         val cacheA = unit.readIsString()
-                        val cache = if (IsUtil.isBlank(cacheA)) "Default" else cacheA
+                        val cache = if (IsUtils.isBlank(cacheA)) "Default" else cacheA
                         if (!result.contains(cache)) {
                             result.add(cache)
                         }

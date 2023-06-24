@@ -31,9 +31,9 @@ import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.center.PluginCenter
-import net.rwhps.server.util.SystemUtil
+import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.alone.annotations.NeedHelp
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
@@ -70,9 +70,9 @@ class CoreCommands(handler: CommandHandler) {
         }
 
         handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
-            log[localeUtil.getinput("status.versionS", SystemUtil.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
+            log[localeUtil.getinput("status.versionS", SystemUtils.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-                HessModuleManage.hessLoaderMap.values().forEach {
+                HessModuleManage.hessLoaderMap.values.forEach {
                     log[localeUtil.getinput("status.versionS.server",
                         it.room.mapName,
                         it.room.playerManage.playerAll.size,
@@ -108,7 +108,7 @@ class CoreCommands(handler: CommandHandler) {
         handler.register("maps", "serverCommands.maps") { _: Array<String>?, log: StrCons ->
             val response = StringBuilder()
             val i = AtomicInteger(0)
-            Data.game.mapsData.keys().forEach { k: String? ->
+            Data.game.mapsData.keys.forEach { k: String? ->
                 response.append(localeUtil.getinput("maps.info", i.get(), k)).append(Data.LINE_SEPARATOR)
                 i.getAndIncrement()
             }
@@ -160,7 +160,6 @@ class CoreCommands(handler: CommandHandler) {
 
             handler.handleMessage("startnetservice true 5200 5500")
         }
-
 
         handler.register("startnetservice", "<isPort> [sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
             if (arg != null) {
@@ -230,7 +229,7 @@ class CoreCommands(handler: CommandHandler) {
 
         // Test (孵化器）
         handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: StrCons ->
-            HotLoadClass().load(FileUtil.getFile("a.class").readFileByte())
+            HotLoadClass().load(FileUtils.getFile("a.class").readFileByte())
         }
     }
 }

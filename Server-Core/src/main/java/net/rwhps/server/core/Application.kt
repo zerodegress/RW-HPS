@@ -15,9 +15,9 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.data.plugin.PluginManage.runOnDisable
 import net.rwhps.server.net.Administration
-import net.rwhps.server.util.RandomUtil.getRandomString
-import net.rwhps.server.util.algorithms.digest.DigestUtil
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.RandomUtils.getRandomString
+import net.rwhps.server.util.algorithms.digest.DigestUtils
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import java.math.BigInteger
 import java.util.*
@@ -45,13 +45,13 @@ class Application {
      * 读取 Setting 主数据
      */
     fun load() {
-        settings.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
+        settings.setFileUtil(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
         admin = Administration(settings)
 
         Initialization.startInit(settings)
 
         serverConnectUuid = settings.getData("serverConnectUuid") { UUID.randomUUID().toString() }
-        serverHessUuid = settings.getData("serverHessUuid") { BigInteger(1, DigestUtil.sha256(serverConnectUuid+UUID.randomUUID().toString())).toString(16).uppercase() }
+        serverHessUuid = settings.getData("serverHessUuid") { BigInteger(1, DigestUtils.sha256(serverConnectUuid+UUID.randomUUID().toString())).toString(16).uppercase() }
 
         addSavePool {
             settings.setData("serverConnectUuid", serverConnectUuid)

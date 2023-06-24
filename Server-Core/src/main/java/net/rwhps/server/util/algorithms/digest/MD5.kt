@@ -48,7 +48,7 @@ class MD5
      * @return 16位MD5摘要
      */
     fun digestHex16(data: String): String {
-        return DigestUtil.md5HexTo16(digestHex(data))
+        return DigestUtils.md5HexTo16(digestHex(data))
     }
 
     /**
@@ -59,7 +59,7 @@ class MD5
      * @return 16位MD5摘要
      */
     fun digestHex16(data: String, charset: Charset): String {
-        return DigestUtil.md5HexTo16(digestHex(data, charset))
+        return DigestUtils.md5HexTo16(digestHex(data, charset))
     }
 
     /**
@@ -69,7 +69,7 @@ class MD5
      * @return 16位MD5摘要
      */
     fun digestHex16(data: InputStream): String {
-        return DigestUtil.md5HexTo16(digestHex(data))
+        return DigestUtils.md5HexTo16(digestHex(data))
     }
 
     /**
@@ -79,7 +79,7 @@ class MD5
      * @return 16位MD5摘要
      */
     fun digestHex16(data: File): String {
-        return DigestUtil.md5HexTo16(digestHex(data))
+        return DigestUtils.md5HexTo16(digestHex(data))
     }
 
     /**
@@ -89,6 +89,6 @@ class MD5
      * @return 16位MD5摘要
      */
     fun digestHex16(data: ByteArray): String {
-        return DigestUtil.md5HexTo16(digestHex(data))
+        return DigestUtils.md5HexTo16(digestHex(data))
     }
 }

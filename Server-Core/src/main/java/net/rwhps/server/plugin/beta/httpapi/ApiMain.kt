@@ -10,7 +10,7 @@ import net.rwhps.server.util.log.Log
 
 class ApiMain : Plugin() {
     override fun onEnable() {
-        val configFile = pluginDataFileUtil.toFile("HttpApi.json")
+        val configFile = pluginDataFileUtils.toFile("HttpApi.json")
         ConfigHelper.init(configFile)
         if (!config.enabled) return
         if (config.token == "defaultToken") Log.warn("Please change the token,don't use the default token!")

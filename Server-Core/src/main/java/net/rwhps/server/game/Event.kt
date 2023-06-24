@@ -54,7 +54,7 @@ class Event : AbstractEvent {
         }
 
         if (Data.core.admin.playerDataCache.containsKey(player.connectHexID)) {
-            val info = Data.core.admin.playerDataCache[player.connectHexID]
+            val info = Data.core.admin.playerDataCache[player.connectHexID]!!
             if (info.timesKicked > millis()) {
                 try {
                     player.kickPlayer(player.i18NBundle.getinput("kick.you.time"))
@@ -92,7 +92,7 @@ class Event : AbstractEvent {
                 Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
 
-                Data.CLIENT_COMMAND.register("start",null) { HessModuleManage.hps.room.playerManage.playerGroup.find { it.isAdmin } }
+                Data.CLIENT_COMMAND.handleMessage("start",null)
             }
         }
 

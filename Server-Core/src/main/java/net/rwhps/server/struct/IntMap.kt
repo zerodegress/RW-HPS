@@ -26,6 +26,6 @@ class IntMap<V>: BaseMap<Int, V> {
             } else {
                 it
             }
-        } as java.util.Map<Int, V>
+        } as java.util.Map<Int, V>, threadSafety
     )
 }

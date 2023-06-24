@@ -33,7 +33,7 @@ import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.WaitResultUtil
+import net.rwhps.server.util.WaitResultUtils
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
@@ -110,8 +110,10 @@ internal class GameHessData : AbstractGameHessData {
             val tick = stream.readInt()
             if (stream.readBoolean()) {
                 stream.skip(16)
+                // 我们在此处验证 RW 主要的一些数据
                 stream.getDecodeStream(false).use { checkList ->
                     checkList.readInt()
+                    // 判断 : 数据长度
                     if (checkList.readInt() != GameEngine.netEngine.am.b.size) {
                         Log.debug("RustedWarfare", "checkSumSize!=syncCheckList.size()")
                     }
@@ -119,6 +121,7 @@ internal class GameHessData : AbstractGameHessData {
                     for (checkType in checkTypeList) {
                         val server = checkList.readLong()
                         val client = checkList.readLong()
+                        // 判断 : 数据
                         if (server != client) {
                             syncFlag = true
                             Log.debug("RustedWarfare", "CheckType: ${checkType.a} Checksum: $syncTick Server: $server Client: $client")
@@ -174,11 +177,12 @@ internal class GameHessData : AbstractGameHessData {
             }
             val allPlayer = Seq<String>()
 
-            val statusData = ObjectMap<String, ObjectMap<String,Int>>().apply {
+            val statusData = ObjectMap<String, ObjectMap<String, Int>>()
+                .apply {
                 for (position in 0 until Data.configServer.MaxPlayer) {
                     val player: n = n.k(position) ?:continue
                     put(player.v,PrivateClass_Player(player).let {
-                        ObjectMap<String,Int>().apply {
+                        ObjectMap<String, Int>().apply {
                             put("unitsKilled", it.unitsKilled)
                             put("buildingsKilled", it.buildingsKilled)
                             put("experimentalsKilled", it.experimentalsKilled)
@@ -246,7 +250,7 @@ internal class GameHessData : AbstractGameHessData {
     }
 
     override fun getPlayerData(site: Int): AbstractPlayerData {
-        return PrivateClass_Player(WaitResultUtil.waitResult { n.k(site) } ?: throw ImplementedException.PlayerImplementedException("[PlayerData-New] Player is invalid"))
+        return PrivateClass_Player(WaitResultUtils.waitResult { n.k(site) } ?: throw ImplementedException.PlayerImplementedException("[PlayerData-New] Player is invalid"))
     }
 
     private fun wirteGameRsyncData(asVar: GameNetOutStream) {

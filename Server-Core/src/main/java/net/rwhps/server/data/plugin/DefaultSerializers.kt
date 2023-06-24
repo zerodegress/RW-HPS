@@ -102,7 +102,6 @@ internal object DefaultSerializers {
 
     private fun registerMap() {
         AbstractPluginData.setSerializer(Seq::class.java, Seq.serializer)
-
         AbstractPluginData.setSerializer(ObjectMap::class.java, object : TypeSerializer<ObjectMap<*, *>> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: ObjectMap<*, *>) {
@@ -110,15 +109,16 @@ internal object DefaultSerializers {
                 if (objectParam.size == 0) {
                     return
                 }
-                val entry = objectParam.entries().next()
-                val keySer = AbstractPluginData.getSerializer(entry.key.javaClass) ?: throw getError(entry.key.javaClass.toString())
-                val valSer = AbstractPluginData.getSerializer(entry.value.javaClass) ?: throw getError(entry.value.javaClass.toString())
-                paramDataOutput.writeString(entry.key.javaClass.name)
-                paramDataOutput.writeString(entry.value.javaClass.name)
-                for (e in objectParam.entries()) {
-                    val en = e as ObjectMap.Entry<*, *>
-                    keySer.write(paramDataOutput, en.key)
-                    valSer.write(paramDataOutput, en.value)
+                val entry = objectParam.entries.iterator().next()
+                val key = entry.key!!
+                val value = entry.value!!
+                val keySer = AbstractPluginData.getSerializer(key.javaClass) ?: throw getError(key.javaClass.toString())
+                val valSer = AbstractPluginData.getSerializer(value.javaClass) ?: throw getError(value.javaClass.toString())
+                paramDataOutput.writeString(key.javaClass.name)
+                paramDataOutput.writeString(value.javaClass.name)
+                for (e in objectParam.entries) {
+                    keySer.write(paramDataOutput, e.key)
+                    valSer.write(paramDataOutput, e.value)
                 }
             }
 
@@ -137,7 +137,7 @@ internal object DefaultSerializers {
                     for (i in 0 until size) {
                         val key = keySer.read(paramDataInput)
                         val `val` = valSer.read(paramDataInput)
-                        map.put(key, `val`)
+                        map[key] = `val`
                     }
                     return map
                 } catch (e: ClassNotFoundException) {
@@ -153,15 +153,16 @@ internal object DefaultSerializers {
                 if (objectParam.size == 0) {
                     return
                 }
-                val entry = objectParam.entries().next()
-                val keySer = AbstractPluginData.getSerializer(entry.key.javaClass) ?: throw getError(entry.key.javaClass.toString())
-                val valSer = AbstractPluginData.getSerializer(entry.value.javaClass) ?: throw getError(entry.value.javaClass.toString())
-                paramDataOutput.writeString(entry.key.javaClass.name)
-                paramDataOutput.writeString(entry.value.javaClass.name)
-                for (e in objectParam.entries()) {
-                    val en = e as ObjectMap.Entry<*, *>
-                    keySer.write(paramDataOutput, en.key)
-                    valSer.write(paramDataOutput, en.value)
+                val entry = objectParam.entries.iterator().next()
+                val key = entry.key!!
+                val value = entry.value!!
+                val keySer = AbstractPluginData.getSerializer(key.javaClass) ?: throw getError(key.javaClass.toString())
+                val valSer = AbstractPluginData.getSerializer(value.javaClass) ?: throw getError(value.javaClass.toString())
+                paramDataOutput.writeString(key.javaClass.name)
+                paramDataOutput.writeString(value.javaClass.name)
+                for (e in objectParam.entries) {
+                    keySer.write(paramDataOutput, e.key)
+                    valSer.write(paramDataOutput, e.value)
                 }
             }
 
@@ -180,7 +181,7 @@ internal object DefaultSerializers {
                     for (i in 0 until size) {
                         val key = keySer.read(paramDataInput)
                         val `val` = valSer.read(paramDataInput)
-                        map.put(key, `val`)
+                        map[key] = `val`
                     }
                     return map
                 } catch (e: ClassNotFoundException) {

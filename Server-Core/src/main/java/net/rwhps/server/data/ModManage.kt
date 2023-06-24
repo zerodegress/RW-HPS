@@ -10,6 +10,7 @@
 package net.rwhps.server.data
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.struct.BaseMap.Companion.toSeq
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
@@ -25,7 +26,7 @@ object ModManage {
     /** 游戏核心单位的命名(便于分辨) */
     private val coreName = "RW-HPS CoreUnits"
     /** 游戏单位校验数据*/
-    private var enabledMods = OrderedMap<String,ObjectMap<String, Int>>()
+    private var enabledMods = OrderedMap<String, ObjectMap<String, Int>>()
     /** 启用的MOD(名字)-暂时无效 */
     private var enabledModsName = Seq<String>()
     /** 加载的单位数量 */
@@ -43,7 +44,7 @@ object ModManage {
         enabledMods = HessModuleManage.hps.gameUnitData.getUnitData(coreName)
         enabledModsName.clear()
 
-        modList = enabledMods.keys().toSeq()
+        modList = enabledMods.keys.toSeq()
 
         return (enabledMods.size -1).also {
             HessModuleManage.hps.gameHessData.useMod = (it > 0)

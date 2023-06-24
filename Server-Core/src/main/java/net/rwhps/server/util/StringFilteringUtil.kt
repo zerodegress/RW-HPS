@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util
 
-import net.rwhps.server.util.IsUtil.notIsBlank
+import net.rwhps.server.util.IsUtils.notIsBlank
 import net.rwhps.server.util.log.Log
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -21,7 +21,7 @@ import java.util.regex.Pattern
 object StringFilteringUtil {
     private val pattern = Pattern.compile("[1-9][0-9]{4,14}")
 
-    val IP_ADDRESS = Pattern.compile(
+    private val IP_ADDRESS: Pattern = Pattern.compile(
         "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]).(25[0-5]|2[0-4]"
                 + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0).(25[0-5]|2[0-4][0-9]|[0-1]"
                 + "[0-9]{2}|[1-9][0-9]|[1-9]|0).(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
@@ -33,11 +33,11 @@ object StringFilteringUtil {
      * as detailed in RFC 3987.
      * Specifically, those two byte Unicode characters are not included.
      */
-    private val GOOD_IRI_CHAR = "a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF"/**
+    private const val GOOD_IRI_CHAR = "a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF"/**
      * RFC 1035 Section 2.3.4 limits the labels to a maximum 63 octets.
      */
-    private val IRI = "[" + GOOD_IRI_CHAR.toString() + "]([" + GOOD_IRI_CHAR.toString() + "\\-]{0,61}[" + GOOD_IRI_CHAR.toString() + "]){0,1}"
-    private val GOOD_GTLD_CHAR = "a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF"
+    private const val IRI = "[$GOOD_IRI_CHAR]([$GOOD_IRI_CHAR\\-]{0,61}[$GOOD_IRI_CHAR]){0,1}"
+    private const val GOOD_GTLD_CHAR = "a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF"
     private val GTLD: String = "[$GOOD_GTLD_CHAR]{2,63}"
     private val HOST_NAME = "($IRI.)+$GTLD"
     private val DOMAIN_NAME = Pattern.compile("($HOST_NAME|$IP_ADDRESS)")
@@ -48,12 +48,12 @@ object StringFilteringUtil {
      */
     private val WEB_URL = Pattern.compile(
         "((?:(http|https|Http|Https|rtsp|Rtsp)://(?:(?:[a-zA-Z0-9$\\-_.+!*'()"
-                + ",;?&=]|(?:%[a-fA-F0-9]{2})){1,64}(?::(?:[a-zA-Z0-9$\\-_"
-                + ".+!*'(),;?&=]|(?:%[a-fA-F0-9]{2})){1,25})?@)?)?"
-                + "(?:" + DOMAIN_NAME + ")"
+                + ",;?&=]|%[a-fA-F0-9]{2}){1,64}(?::(?:[a-zA-Z0-9$\\-_"
+                + ".+!*'(),;?&=]|%[a-fA-F0-9]{2}){1,25})?@)?)?"
+                + "DOM" + DOMAIN_NAME + "AIN_NAME"
                 + "(?::\\d{1,5})?)" // plus option port number
-                + "(/(?:(?:[" + GOOD_IRI_CHAR + ";/?:@&=#~" // plus option query params
-                + "\\-.+!*'(),_])|(?:\\%[a-fA-F0-9]{2}))*)?"
+                + "(/(?:[GOO" + GOOD_IRI_CHAR + "D_IRI_CHA" // plus option query params
+                + "R;/?:@&=#~\\-.+!*'(),_]|%[a-fA-F0-9]{2})*)?"
                 + "(?:\\b|$)")
     private val WEB_URL0 = Pattern.compile("([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://|[wW]{3}.|[wW][aA][pP].|[fF][tT][pP].|[fF][iI][lL][eE].)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]\n")
 

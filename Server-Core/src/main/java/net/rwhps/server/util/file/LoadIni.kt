@@ -22,9 +22,9 @@ import java.util.*
 class LoadIni {
     private val data = OrderedMap<String, Any>()
 
-    constructor(fileUtil: FileUtil) {
+    constructor(fileUtils: FileUtils) {
         try {
-            load(fileUtil.readInputsStream())
+            load(fileUtils.readInputsStream())
         } catch (e: Exception) {
             Log.fatal("[Load Language Error]", e)
         }

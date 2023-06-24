@@ -30,7 +30,7 @@ class Json {
         jsonObject = JSONObject(json)
     }
 
-    constructor(json: LinkedHashMap<*, *>) {
+    constructor(json: Map<*, *>) {
         jsonObject = JSONObject(json)
     }
 
@@ -111,7 +111,7 @@ class Json {
          */
         @JvmStatic
         fun toJson(map: ObjectMap<String, Any>): String {
-            return HashMap<String,Any>().also { map.each { key, value -> it[key] = value } }.toPrettyPrintingJson()
+            return HashMap<String,Any>().also { map.eachAll { key, value -> it[key] = value } }.toPrettyPrintingJson()
         }
     }
 }

@@ -51,7 +51,6 @@ import net.rwhps.server.data.plugin.PluginManage.runRegisterEvents
 import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.dependent.HeadlessProxyClass
-import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Event
 import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
@@ -62,7 +61,7 @@ import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.net.http.WebData
 import net.rwhps.server.util.SystemSetProperty
-import net.rwhps.server.util.file.FileUtil.Companion.getFolder
+import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
@@ -92,7 +91,7 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         /* 设置Log 并开启拷贝 */
-        set("ERROR")
+        set("WARN")
         setCopyPrint(true)
 
         /* OFF WARN */
@@ -116,10 +115,17 @@ object Main {
         Data.configServer = BaseServerConfig.stringToClass()
 
         Data.configRelay = BaseRelayConfig.stringToClass()
+
         Data.core.load()
+        Initialization.loadLib()
+
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
+
+        // Test Block
+        run {
+        }
 
         /* 加载 ASM */
         HeadlessProxyClass()
@@ -195,9 +201,11 @@ object Main {
 
         while (true) {
             val line = try {
-                privateReader.readLine("> ")
+                privateReader.readLine("> ").also {
+                    last = 0
+                }
             } catch (e: InterruptedIOException) {
-                return
+                continue
             } catch (e: UserInterruptException) {
                 if (last != 1) {
                     privateReader.printAbove("Interrupt again to force exit application")
@@ -216,28 +224,25 @@ object Main {
                 exitProcess(1)
             }
 
-            last = 0
             if (line.isEmpty()) {
                 continue
             }
 
             try {
                 val response = Data.SERVER_COMMAND.handleMessage(line, Data.defPrint)
-                if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
-                    if (response.type != CommandHandler.ResponseType.valid) {
-                        val text = when (response.type) {
-                            CommandHandler.ResponseType.manyArguments -> {
-                                "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                            }
-                            CommandHandler.ResponseType.fewArguments -> {
-                                "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                            }
-                            else -> {
-                                "Unknown command. Check help"
-                            }
+                if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
+                    val text = when (response.type) {
+                        CommandHandler.ResponseType.manyArguments -> {
+                            "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                         }
-                        clog(text)
+                        CommandHandler.ResponseType.fewArguments -> {
+                            "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                        }
+                        else -> {
+                            "Unknown command. Check help"
+                        }
                     }
+                    clog(text)
                 }
             } catch (e: Exception) {
                 if (idlingCount.checkStatus()) {
@@ -290,3 +295,4 @@ object Main {
          :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
 */
 // 音无结弦之时，悦动天使之心；立于浮华之世，奏响天籁之音
+// 傻逼东西 Git, 妈的越用越气

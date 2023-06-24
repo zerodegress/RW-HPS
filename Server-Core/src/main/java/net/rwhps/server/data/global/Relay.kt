@@ -17,9 +17,11 @@ import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.struct.IntMap
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.IsUtil.isNumeric
+import net.rwhps.server.util.IsUtils.isNumeric
+import net.rwhps.server.util.Synchronize
 import net.rwhps.server.util.Time.concurrentSecond
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork
+import net.rwhps.server.util.alone.annotations.mark.SynchronizeMark
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import java.io.IOException
@@ -33,6 +35,9 @@ import kotlin.concurrent.withLock
  * @author RW-HPS/Dr
  */
 class Relay {
+    private val site = AtomicInteger(0)
+    private val size = AtomicInteger()
+
     /**
      * 玩家群发池, 通过这个来快速群发数据包
      */
@@ -47,32 +52,41 @@ class Relay {
     /**
      * 房间的管理员(HOST)
      */
-    var admin: GameVersionRelay? = null
-        set(value) {
-            field = value
-            value?.permissionStatus = DataPermissionStatus.RelayStatus.HostPermission
-        }
+    @SynchronizeMark
+    var admin: GameVersionRelay? by Synchronize(null, set = {
+        it?.permissionStatus = DataPermissionStatus.RelayStatus.HostPermission
+        return@Synchronize it
+    })
 
-    @Volatile
-    var closeRoom = false
+    /**
+     * 房间是否关闭
+     */
+    @SynchronizeMark
+    var closeRoom: Boolean by Synchronize(false)
 
     val roomCreateTime = concurrentSecond()
 
-   // val serverUuid = UUID.randomUUID().toString()
     val serverUuid = Data.SERVER_RELAY_UUID
     val internalID : Int
     val id: String
     var isMod = false
     var minSize = 0
         private set
-    var isStartGame: Boolean = false
-        set(value) {
-            if (field && value) {
-                return
-            }
-            field = value
-            startGameTime = concurrentSecond()+300
+
+    @SynchronizeMark
+    @Suppress("UNINITIALIZED_VARIABLE")
+    var isStartGame: Boolean by Synchronize(false, set = {
+        if (isStartGame && it) {
+            return@Synchronize it
         }
+
+        startGameTime = if (it) {
+            concurrentSecond() +300
+        } else {
+            0
+        }
+        return@Synchronize it
+    })
 
     /**
      * 开始游戏的时间
@@ -82,9 +96,6 @@ class Relay {
 
     var allmute = false
     var battleRoyalLock: Boolean = false
-
-    private val site = AtomicInteger(0)
-    private val size = AtomicInteger()
 
     /**
      * 实例化一个房间
@@ -98,7 +109,7 @@ class Relay {
      * @constructor
      */
     private constructor(internalID : Int, id: String, playerName: String, isMod: Boolean, betaGameVersion: Boolean, version: Int, maxPlayer: Int) {
-        serverRelayData.put(internalID, this)
+        serverRelayData[internalID] = this
         this.internalID = internalID
         this.id = id
         groupNet = GroupNet()
@@ -157,6 +168,7 @@ class Relay {
             admin = null
             isStartGame = false
         } catch (e: Exception) {
+            // Ignore
         } finally {
             serverRelayData.remove(internalID)
             run()
@@ -167,8 +179,8 @@ class Relay {
         return abstractNetConnectIntMap[site]
     }
 
-    fun setAbstractNetConnect(abstractNetConnect: GameVersionRelay): GameVersionRelay? {
-        return abstractNetConnectIntMap.put(abstractNetConnect.site, abstractNetConnect)
+    fun setAbstractNetConnect(abstractNetConnect: GameVersionRelay) {
+        abstractNetConnectIntMap[abstractNetConnect.site] = abstractNetConnect
     }
 
     fun sendMsg(msg: String) {
@@ -244,7 +256,7 @@ class Relay {
     }
 
     companion object {
-        val serverRelayOld = ObjectMap<String,String>()
+        val serverRelayOld = ObjectMap<String, String>()
         val serverRelayIpData = Seq<String>(true)
 
         private val serverRelayData = IntMap<Relay>(128,true)
@@ -300,7 +312,7 @@ class Relay {
         fun getAllRelayIpCountry(): Map<String,Int> {
             return mutableMapOf<String, Int>().also {
                 mutableMapOf<String, AtomicInteger>().also { temp ->
-                    Relay.serverRelayData.values.forEach { relay ->
+                    serverRelayData.values.forEach { relay ->
                         temp.computeIfAbsent(relay.admin!!.ipCountry) { AtomicInteger(0) }.incrementAndGet()
                         relay.abstractNetConnectIntMap.values.forEach { connect ->
                             temp.computeIfAbsent(connect.ipCountry) { AtomicInteger(0) }.incrementAndGet()
@@ -316,7 +328,7 @@ class Relay {
         fun getAllRelayVersion(): Map<Int,Int> {
             return mutableMapOf<Int, Int>().also {
                 mutableMapOf<Int, AtomicInteger>().also { temp ->
-                    Relay.serverRelayData.values.forEach { relay ->
+                    serverRelayData.values.forEach { relay ->
                         temp.computeIfAbsent(relay.admin!!.clientVersion) { AtomicInteger(0) }.incrementAndGet()
                         relay.abstractNetConnectIntMap.values.forEach { connect ->
                             temp.computeIfAbsent(connect.clientVersion) { AtomicInteger(0) }.incrementAndGet()
@@ -330,9 +342,9 @@ class Relay {
 
         internal fun cleanRoom() {
             val time = concurrentSecond() - 12 * 60 * 60
-            serverRelayData.forEach {
-                if (it.value.roomCreateTime < time) {
-                    it.value.removeRoom()
+            serverRelayData.eachAll { _,value ->
+                if (value.roomCreateTime < time || value.closeRoom) {
+                    value.re()
                 }
             }
         }
@@ -364,18 +376,18 @@ class Relay {
         internal fun getRelay(id: String = "", playerName: String, isMod: Boolean, betaGameVersion: Boolean, version: Int, maxPlayer: Int): Relay {
             var idRelay = id
             val relay: Relay =  if (id.isBlank()) {
-                                    while (true) {
-                                        val intId = rand.random(1000, 100000)
-                                        if (!getCheckRelay(intId.toString())) {
-                                            idRelay = intId.toString()
-                                            debug(intId)
-                                            break
-                                        }
-                                    }
-                                    Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
-                                } else {
-                                    Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
-                                }
+                while (true) {
+                    val intId = rand.random(1000, 100000)
+                    if (!getCheckRelay(intId.toString())) {
+                        idRelay = intId.toString()
+                        debug(intId)
+                        break
+                    }
+                }
+                Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
+            } else {
+                Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
+            }
             return relay
         }
     }

@@ -11,7 +11,7 @@ package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.alone.annotations.NeedToRefactor
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 
 /**
  * 保存 Log 部分
@@ -19,7 +19,7 @@ import net.rwhps.server.util.file.FileUtil
  * @author RW-HPS/Dr
 */
 class SaveLog {
-    private val archiveLog = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("archive-10.zip")
+    private val archiveLog = FileUtils.getFolder(Data.Plugin_Log_Path).toFile("archive-10.zip")
     private var count = 0
 
     init {

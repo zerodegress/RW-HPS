@@ -9,17 +9,18 @@
 
 package net.rwhps.server.core
 
+import com.sun.jna.NativeLibrary
 import net.rwhps.server.Main
 import net.rwhps.server.core.ServiceLoader.ServiceType
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.serverCountry
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginData
+import net.rwhps.server.dependent.LibraryManager
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.NetService
@@ -31,9 +32,8 @@ import net.rwhps.server.net.netconnectprotocol.realize.*
 import net.rwhps.server.util.*
 import net.rwhps.server.util.algorithms.Aes
 import net.rwhps.server.util.algorithms.Rsa
-import net.rwhps.server.util.file.FileUtil
-import net.rwhps.server.util.inline.readBytes
-import net.rwhps.server.util.inline.toPrettyPrintingJson
+import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.inline.*
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
 import java.io.FilterInputStream
@@ -51,7 +51,9 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class Initialization {
     private fun checkEnvironment() {
-        if (SystemUtil.osArch.contains("arm",ignoreCase = true)) {
+        try {
+            NativeLibrary.getProcess().name
+        } catch (e: UnsatisfiedLinkError) {
             Log.clog("&r RW-HPS It may not be compatible with your architecture, there will be unexpected situations, Thank you !")
         }
     }
@@ -63,7 +65,7 @@ class Initialization {
         Data.i18NBundleMap.put("EN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
 
         // Default use EN
-        Data.i18NBundle = Data.i18NBundleMap["EN"]
+        Data.i18NBundle = Data.i18NBundleMap["EN"]!!
     }
 
     private fun initMaps() {
@@ -130,17 +132,6 @@ class Initialization {
 		} catch (IOException e) {
 			Log.error("IP-LOAD ERR",e);
 		}*/
-    }
-
-    private fun initRelay() {
-        try {
-            Cache.packetCache.put("sendSurrenderPacket",GameOutputStream().also {
-                it.writeString(".surrender")
-                it.writeByte(0)
-            }.createPacket(PacketType.CHAT_RECEIVE))
-        } catch (e: Exception) {
-            Log.error(e)
-        }
     }
 
     private fun initRsa() {
@@ -229,7 +220,7 @@ class Initialization {
             serverCountry =
                 if (country.isBlank()) {
                     pluginData.getData("serverCountry") {
-                        val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.ServerLanguage.Bak"))
+                        val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.Api.ServerLanguage.Bak"))
 
                         when {
                             countryUrl.contains("香港") -> "HK"
@@ -247,7 +238,7 @@ class Initialization {
                     }
                 }
 
-            Data.i18NBundle = Data.i18NBundleMap[serverCountry]
+            Data.i18NBundle = Data.i18NBundleMap[serverCountry]!!
             Log.clog(Data.i18NBundle.getinput("server.language"))
         }
 
@@ -255,11 +246,11 @@ class Initialization {
             // Eula
             if (pluginData.getData("eulaVersion","") != Data.SERVER_EULA_VERSION) {
                 val eulaBytes = if (serverCountry == "CN") {
-                    FileUtil.getInternalFileStream("/eula/China.md").readBytes()
+                    FileUtils.getInternalFileStream("/eula/China.md").readBytes()
                 } else {
-                    FileUtil.getInternalFileStream("/eula/English.md").readBytes()
+                    FileUtils.getInternalFileStream("/eula/English.md").readBytes()
                 }
-                Log.clog(ExtractUtil.str(eulaBytes,Data.UTF_8))
+                Log.clog(ExtractUtils.str(eulaBytes,Data.UTF_8))
 
                 Log.clog("Agree to enter : Yes , Otherwise please enter : No")
                 Data.privateOut.print("Please Enter (Yes/No) > ")
@@ -288,6 +279,38 @@ class Initialization {
             }
         }
 
+        internal fun loadLib() {
+            val libraryManager = LibraryManager()
+
+            val excludeImport: (String)->Unit = {
+                val libData = it.split(":")
+                if (libData[0] == "jar") {
+                    libraryManager.implementation(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
+                }
+            }
+            FileUtils.getInternalFileStream("/maven/ASM-Framework/compileOnly.txt").readFileListString().eachAll(excludeImport)
+            FileUtils.getInternalFileStream("/maven/Server-Core/compileOnly.txt").readFileListString().eachAll(excludeImport)
+            FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/compileOnly.txt").readFileListString().eachAll(excludeImport)
+
+
+            val libImport: (String)->Unit = {
+                val libData = it.split(":")
+                if (libData[0] == "jar") {
+                    libraryManager.exclude(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
+                }
+            }
+            FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll {
+                if (!it.contains("RustedwarfareServer:TimeTaskQuartz") && !it.contains("RustedwarfareServer:ASM-Framework")) {
+                    libImport(it)
+                }
+            }
+            FileUtils.getInternalFileStream("/maven/ASM-Framework/implementation.txt").readFileListString().eachAll(libImport)
+            FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll(libImport)
+            FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/implementation.txt").readFileListString().eachAll(libImport)
+
+            libraryManager.loadToClassLoader()
+        }
+
         internal fun loadService() {
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.ServerTestProtocol.name,      TypeRwHpsJump::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name,           TypeRelay::class.java)
@@ -309,8 +332,8 @@ class Initialization {
             val SendTime: Int                             = Time.concurrentSecond(),
             val ServerRunPort: Int                        = Data.config.Port,
             val ServerNetType: String                     = NetStaticData.ServerNetType.name,
-            val System: String                            = SystemUtil.osName,
-            val JavaVersion: String                       = SystemUtil.javaVersion,
+            val System: String                            = SystemUtils.osName,
+            val JavaVersion: String                       = SystemUtils.javaVersion,
             val VersionCount: String                      = Data.SERVER_CORE_VERSION,
             val IsServerRun: Boolean                      = true,
             val IsServer: Boolean,
@@ -326,13 +349,7 @@ class Initialization {
                 )
 
                 data class RelayData(
-                    val PlayerSize: Int = AtomicInteger().also {
-                        NetStaticData.netService.eachAll { e: NetService ->
-                            it.addAndGet(
-                                e.getConnectSize()
-                            )
-                        }
-                    }.get(),
+                    val PlayerSize: Int = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
                     val RoomAllSize: Int = Relay.roomAllSize,
                     val RoomNoStartSize: Int = Relay.roomNoStartSize,
                     val RoomPublicListSize: Int = 0,
@@ -344,16 +361,6 @@ class Initialization {
     }
 
     init {
-        checkEnvironment()
-        //
-        loadLang()
-
-        initMaps()
-        // 初始化 投降
-        initRelay()
-        //initRsa()
-        initGetServerData()
-
         Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
             override fun run() {
                 if (!isClose) {
@@ -367,5 +374,13 @@ class Initialization {
                 System.setOut(Data.privateOut)
             }
         })
+
+        checkEnvironment()
+        //
+        loadLang()
+
+        initMaps()
+        //initRsa()
+        initGetServerData()
     }
 }

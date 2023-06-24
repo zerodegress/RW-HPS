@@ -9,9 +9,10 @@
 
 package net.rwhps.server.plugin
 
-import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.IsUtil.doubleToLong
+import net.rwhps.server.util.IsUtils
+import net.rwhps.server.util.IsUtils.doubleToLong
 import net.rwhps.server.util.StringFilteringUtil.StringMatcherData
+import net.rwhps.server.util.alone.annotations.NeedToRefactor
 import java.util.*
 
 /**
@@ -121,7 +122,7 @@ class GetVersion(version: String) {
     }
 
     fun getIfVersion(version: String): Boolean {
-        return if (IsUtil.isBlank(version)) {
+        return if (IsUtils.isBlank(version)) {
             false
         } else DemandChainDescription(version).getIfVersion(this)
     }
@@ -136,6 +137,13 @@ class GetVersion(version: String) {
                 '}'
     }
 
+    /**
+     * 这玩意离不开空格, 过于傻逼, 需要重写
+     *
+     * @property equalVersion Function1<[@kotlin.ParameterName] GetVersion, Boolean>
+     * @constructor
+     */
+    @NeedToRefactor
     private class DemandChainDescription(version: String) {
         private val equalVersion: ((getVersion: GetVersion)-> Boolean)
 
@@ -155,10 +163,10 @@ class GetVersion(version: String) {
                 val startVersion = GetVersion(versionArray[0]).version
                 val endVersion = GetVersion(versionArray[1]).version
                 return when {
-                    versionCache.startsWith("(") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtil.inTwoNumbersNoSE(startVersion, e.version, endVersion)}
-                    versionCache.startsWith("(") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtil.inTwoNumbersNoSrE(startVersion, e.version, endVersion,false)}
-                    versionCache.startsWith("[") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtil.inTwoNumbersNoSrE(startVersion, e.version, endVersion,true)}
-                    versionCache.startsWith("[") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtil.inTwoNumbers(startVersion, e.version, endVersion)}
+                    versionCache.startsWith("(") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSE(startVersion, e.version, endVersion)}
+                    versionCache.startsWith("(") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSrE(startVersion, e.version, endVersion,false)}
+                    versionCache.startsWith("[") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSrE(startVersion, e.version, endVersion,true)}
+                    versionCache.startsWith("[") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtils.inTwoNumbers(startVersion, e.version, endVersion)}
                     else -> { _: GetVersion -> false}
                 }
             } else {

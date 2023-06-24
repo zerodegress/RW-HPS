@@ -15,7 +15,7 @@ import net.rwhps.server.struct.Seq
  * @author RW-HPS/Dr
  */
 object Events {
-    private val EVENTS = ObjectMap<Any, Seq<(Any)->Unit>>()
+    private val EVENTS = ObjectMap<Any, Seq<(Any) -> Unit>>()
 
     @Suppress("UNCHECKED_CAST")
     fun <T> add(type: Class<T>, listener: (T)->Unit) {
@@ -34,13 +34,11 @@ object Events {
         fire(T::class.java, type)
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun <T> fire(type1: Class<*>, type: T) {
-        if (EVENTS[type] != null) {
-            EVENTS[type]?.eachAll { e: (Any)->Unit -> e(type!!) }
-        }
-        if (EVENTS[type1] != null) {
-            EVENTS[type1]?.eachAll { e: (Any)->Unit -> e(type!!) }
-        }
+        val eventType = EVENTS[type as Any]
+        eventType?.eachAll { e: (Any)->Unit -> e(type) }
+
+        val eventType1 = EVENTS[type1 as Any]
+        eventType1?.eachAll { e: (Any)->Unit -> e(type) }
     }
 }

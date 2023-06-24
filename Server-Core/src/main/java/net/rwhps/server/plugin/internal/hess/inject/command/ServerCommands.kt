@@ -26,12 +26,11 @@ import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Font16
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
-import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 
@@ -179,7 +178,7 @@ internal class ServerCommands(handler: CommandHandler) {
             } else {
                 log["Admins: {0}", Data.core.admin.playerAdminData.size]
                 val data = StringBuilder()
-                for (player in Data.core.admin.playerAdminData.values()) {
+                for (player in Data.core.admin.playerAdminData.values) {
                     data.append(LINE_SEPARATOR)
                         .append(player.name)
                         .append(" / ")
@@ -232,7 +231,7 @@ internal class ServerCommands(handler: CommandHandler) {
 
             val index = if (arg.size > 2) {
                 when {
-                    IsUtil.isNumericNegative(arg[2]) -> arg[2].toInt()
+                    IsUtils.isNumericNegative(arg[2]) -> arg[2].toInt()
                     else -> -1
                 }
             } else {
@@ -281,7 +280,7 @@ internal class ServerCommands(handler: CommandHandler) {
 
     companion object {
         private val localeUtil = Data.i18NBundle
-        private val gameModule = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()]
+        private val gameModule = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()]!!
         private val room = gameModule.room
     }
 

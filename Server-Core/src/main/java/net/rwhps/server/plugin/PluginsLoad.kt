@@ -13,9 +13,9 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.dependent.LibraryManager
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.compression.CompressionDecoderUtils
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
@@ -32,6 +32,9 @@ class PluginsLoad {
         val data = Seq<PluginLoadData>()
         val dataName = Seq<String>()
         val dataImport = Seq<PluginImportData>()
+
+        val scriptContext = JavaScriptPluginGlobalContext()
+
         for (file in fileList) {
             val zip = CompressionDecoderUtils.zip(file)
             try {
@@ -44,22 +47,23 @@ class PluginsLoad {
                 // 进行注入进服务端
                 val imports = zip.getZipNameInputStream("imports.json")
                 if (imports != null) {
-                    loadImports(Json(FileUtil.readFileString(imports)).getArraySeqData("imports"))
+                    loadImports(Json(FileUtils.readFileString(imports)).getArraySeqData("imports"))
                 }
 
-                val json = Json(FileUtil.readFileString(imp))
+                val json = Json(FileUtils.readFileString(imp))
                 if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
                     warn("Plugin版本不兼容 Plugin名字为: ", json.getString("name"))
                     continue
                 }
-                if (IsUtil.isBlank(json.getString("import"))) {
+                if (IsUtils.isBlank(json.getString("import"))) {
                     val mainPlugin = if (json.getString("main").endsWith("js",true)) {
                         val mainJs = zip.getZipNameInputStream(json.getString("main"))
                         if (mainJs == null) {
                             error("Invalid JavaScriptPlugin Main", json.getString("main"))
                             continue
                         }
-                        JavaScriptPlugin.loadJavaScriptPlugin(FileUtil.readFileString(mainJs))
+                        scriptContext.addESMPlugin(json, zip.getZipAllBytes())
+                        continue
                     } else {
                         loadClass(file, json.getString("main"))
                     }
@@ -106,6 +110,12 @@ class PluginsLoad {
             }
             i++
         }
+
+        scriptContext.loadESMPlugins().eachAll {
+            data.add(it)
+            dataName.add(it.name)
+        }
+
         return data
     }
 
@@ -113,7 +123,7 @@ class PluginsLoad {
     private fun loadImports(importsJson: Seq<Json>) {
         val lib = LibraryManager()
         importsJson.eachAll {
-            lib.implementation(it.getString("group"), it.getString("module"), it.getString("version"))
+            lib.implementation(it.getString("group"), it.getString("module"), it.getString("version"), it.getString("classifier"))
         }
         lib.loadToClassLoader()
     }
@@ -151,7 +161,7 @@ class PluginsLoad {
          * @return Seq<PluginLoadData>
          */
         @JvmStatic
-        internal fun resultPluginData(f: FileUtil): Seq<PluginLoadData> {
+        internal fun resultPluginData(f: FileUtils): Seq<PluginLoadData> {
             val jarFileList = Seq<File>()
             val list = f.fileList
             for (file in list) {

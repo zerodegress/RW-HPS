@@ -16,7 +16,6 @@ _**生命不息，折腾不止**_
 </div>
 
 #### Currently to be completed
-- [ ] Vote (Bug :( )
 - [ ] GamePanel
 
 ### Actions that won't be supported
@@ -43,11 +42,18 @@ _**生命不息，折腾不止**_
     - **RelayRU-Unofficial IP** - `vulkan.host`(Not URL)
 
 ## Recommended Configuration
+#### The system used is not supported :
++ Windows ARM
++ Windows LoongArch (Godson)
+
+**If Windows doesn't work, trying Linux might work wonders**
+
+#### Standard
 
 | Configuration 		| CPU                     | RAM 	| System 			 | Disk 	  | Java Version |
 |:--- 		|:------------------------|:---     |:-----------|:--------|:---       |
-| Recommended 	| ARMv7 Processor rev 5 + | 512MB      | Any        | 256M HDD | Java 11   |
-| Minimum 	| Any                     | 256M      | Any        | 128M HDD | Java 11   |
+| Recommended 	| ARMv7 Processor rev 5 + | 512MB      | Linux        | 256M HDD | Java 11   |
+| Minimum 	| Any                     | 256M      | Linux        | 128M HDD | Java 11   |
 
 ## version collection
 The game corresponds to the final server version collection
@@ -56,7 +62,7 @@ The game corresponds to the final server version collection
 |:------------:|:------------------:|:---------------------------------------------------------------------:|
 |   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                 Delete                                |
 | ~~1.15.P8~~  |     ~~6.0.1~~      |                                 Delete                                |
-|     1.15     |       2.0.0        | BETA |
+|     1.15     |      2.3.0-M1      |  BETA  |
 
 ## Sponsorship
 RW-HPS is a open source project released under AGPL V3. However, the amount of work required to maintain and develop new features for the project is not sustainable without your generous dedications.  

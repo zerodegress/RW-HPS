@@ -31,9 +31,9 @@ import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.RandomUtil
+import net.rwhps.server.util.RandomUtils
 import net.rwhps.server.util.algorithms.Game
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import net.rwhps.server.util.game.CommandHandler
@@ -264,7 +264,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun sendStartGame() {
         sendServerInfo(true)
         sendPacket(NetStaticData.RwHps.abstractNetPacket.getStartGamePacket())
-        if (IsUtil.notIsBlank(Data.configServer.StartAd)) {
+        if (IsUtils.notIsBlank(Data.configServer.StartAd)) {
             sendSystemMessage(Data.configServer.StartAd)
         }
     }
@@ -499,7 +499,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
 
                 val playerJoinName = PlayerJoinNameEvent(name)
                 Events.fire(playerJoinName)
-                if (IsUtil.notIsBlank(playerJoinName.resultName)) {
+                if (IsUtils.notIsBlank(playerJoinName.resultName)) {
                     name = playerJoinName.resultName
                 }
 
@@ -513,7 +513,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         Data.game.playerManage.playerGroup.add(e)
                     }
                     if (!re.get()) {
-                        if (IsUtil.isBlank(Data.configServer.StartPlayerAd)) {
+                        if (IsUtils.isBlank(Data.configServer.StartPlayerAd)) {
                             sendKick("游戏已经开局 请等待 # The game has started, please wait")
                         } else {
                             sendKick(Data.configServer.StartPlayerAd)
@@ -522,7 +522,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     }
                 } else {
                     if (Data.game.playerManage.playerGroup.size >= Data.game.maxPlayer) {
-                        if (IsUtil.isBlank(Data.configServer.MaxPlayerAd)) {
+                        if (IsUtils.isBlank(Data.configServer.MaxPlayerAd)) {
                             sendKick("服务器没有位置 # The server has no free location")
                         } else {
                             sendKick(Data.configServer.MaxPlayerAd)
@@ -538,13 +538,13 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         }
                     }
                      */
-                    player = Data.game.playerManage.addPlayer(this, uuid, name, localeUtil)
+                    player = Data.game.playerManage.addPlayer(this, uuid, name, localeUtil!!)
                 }
 
                 Call.sendTeamData()
                 sendServerInfo(true)
 
-                if (IsUtil.notIsBlank(Data.configServer.EnterAd)) {
+                if (IsUtils.notIsBlank(Data.configServer.EnterAd)) {
                     sendSystemMessage(Data.configServer.EnterAd)
                 }
 
@@ -567,7 +567,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     override fun registerConnection(packet: Packet) {
         // 生成随机Key;
         val keyLen = 6
-        val key = RandomUtil.getRandomIntString(keyLen).toInt()
+        val key = RandomUtils.getRandomIntString(keyLen).toInt()
         connectKey = Game.connectKeyLast(key)
         GameInputStream(packet).use { stream ->
             // Game Pkg Name

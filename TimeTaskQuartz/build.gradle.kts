@@ -1,3 +1,5 @@
+import buildSrc.makeDependTree
+
 dependencies {
 	// Users should not operate Quartz
 	// Hence the RunTime
@@ -7,6 +9,10 @@ dependencies {
 		exclude("com.mchange","mchange-commons-java")
 		exclude("com.zaxxer","HikariCP-java7")
 	}
+}
+
+tasks.jar {
+	project.makeDependTree()
 }
 
 publishing {

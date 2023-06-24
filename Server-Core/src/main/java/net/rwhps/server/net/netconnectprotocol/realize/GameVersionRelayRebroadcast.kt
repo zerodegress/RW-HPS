@@ -15,8 +15,8 @@ import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
@@ -59,6 +59,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
         try {
             inputPassword = false
             if (relay == null) {
+                Log.clog("sendRelayServerId -> relay : null")
                 relay = NetStaticData.relay
             }
 
@@ -66,6 +67,14 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 Log.debug("Remove Move Player $site, HOST Yes")
                 relay!!.removeAbstractNetConnect(site)
                 site = -1
+            }
+
+            if (relay!!.admin != null) {
+                relayKickData = relay!!.admin!!.relayKickData
+                relayPlayersData = relay!!.admin!!.relayPlayersData
+            } else {
+                relayKickData = ObjectMap()
+                relayPlayersData = ObjectMap()
             }
 
             relay!!.admin = this
@@ -101,19 +110,16 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelay.MainID+relay!!.id, Data.configRelay.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelay.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
 
-            val nnn = StringFilteringUtil.filterChines(name)
 
             // 人即像树，树枝越向往光明的天空，树根越伸向阴暗的地底
             /**
              * 禁止玩家使用 Server/Relay 做玩家名
-             * 禁止玩家使用带 eess 做玩家名 (色情网站)
              */
-            if (nnn.lowercase(Locale.getDefault()).contains("server")
-                || nnn.lowercase(Locale.getDefault()).contains("relay")
-                || nnn.lowercase(Locale.getDefault()).contains("eess")) {
+            if (name.equals("SERVER", ignoreCase = true) || name.equals("RELAY", ignoreCase = true)) {
                 relay!!.groupNet.disconnect() // Close Room
                 disconnect() // Close Connect & Reset Room
             }
+
         } catch (e: Exception) {
             error(e)
         }
@@ -136,14 +142,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 Packet(type, bytes).let { sendPacketData ->
                     abstractNetConnect?.sendPacket(sendPacketData)
                     lastSentPacket = sendPacketData
-                }
-
-
-                when (type) {
-                    PacketType.KICK.typeInt -> {
-                        abstractNetConnect?.relayPlayerDisconnect()
-                    }
-                    else -> {}
+                    sendPacketExtractInformation(sendPacketData,abstractNetConnect)
                 }
             }
         } catch (_: IOException) {

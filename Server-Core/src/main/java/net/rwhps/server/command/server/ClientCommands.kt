@@ -25,8 +25,9 @@ import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.GameMaps.MapType
 import net.rwhps.server.game.event.EventType.GameStartEvent
-import net.rwhps.server.util.IsUtil.notIsBlank
-import net.rwhps.server.util.IsUtil.notIsNumeric
+import net.rwhps.server.struct.BaseMap.Companion.toSeq
+import net.rwhps.server.util.IsUtils.notIsBlank
+import net.rwhps.server.util.IsUtils.notIsNumeric
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
@@ -115,15 +116,16 @@ internal class ClientCommands(handler: CommandHandler) {
                         player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
                         return@register
                     }
-                    val name = Data.game.mapsData.keys().toSeq()[inputMapName.toInt()]
-                    val data = Data.game.mapsData[name]
+                    val name = Data.game.mapsData.keys.toSeq()[inputMapName.toInt()]
+                    Data.game.mapsData.keys
+                    val data = Data.game.mapsData[name]!!
                     Data.game.maps.mapData = data
                     Data.game.maps.mapType = data.mapType
                     Data.game.maps.mapName = name
                     Data.game.maps.mapPlayer = ""
                     player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
-                Call.sendSystemMessage(localeUtil.getinput("map.to",player.name,Data.game.maps.mapName))
+                sendSystemMessage(localeUtil.getinput("map.to",player.name,Data.game.maps.mapName))
                 upDataGameData()
             }
         }
@@ -138,7 +140,7 @@ internal class ClientCommands(handler: CommandHandler) {
             val response = StringBuilder()
             val i = AtomicInteger(0)
             response.append(localeUtil.getinput("maps.top"))
-            Data.game.mapsData.keys().forEach { k: String ->
+            Data.game.mapsData.keys.forEach { k: String ->
                 response.append(localeUtil.getinput("maps.info", i.get(), k)).append(LINE_SEPARATOR)
                 i.getAndIncrement()
             }

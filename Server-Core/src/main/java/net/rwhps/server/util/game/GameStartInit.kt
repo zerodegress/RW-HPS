@@ -15,7 +15,7 @@ import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathPropertie
 import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.classload.GameModularReusableLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import java.lang.reflect.Method
 
@@ -25,66 +25,67 @@ import java.lang.reflect.Method
  * @author RW-HPS/Dr
  */
 object GameStartInit {
-    private enum class ResMD5(val md5: String) {
-        Res("6d61d95d9fd7ef679d0013efad1466de"),
-        Assets("b594e7e8d2a0ad925c8ac0e00edbdbad"),
-        GameModularReusableClass("81b24654be7578fdb56fecf5254a78cb"),
+    private val gameCorePath = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path, true)
+    private enum class ResMD5(val md5: String, val fileUtils: FileUtils) {
+        Res("408aa02d8566a771c5ad97caf9f1f701", gameCorePath.toFile("Game-Res.7z")),
+        Fonts("e27f86783a04bb6c7bc7b4388f8c8539", gameCorePath.toFile("Game-Fonts.7z")),
+        Assets("768984542af2f3bbe1269aca2c8749ff", gameCorePath.toFile("Game-Assets.7z")),
+        GameModularReusableClass("81b24654be7578fdb56fecf5254a78cb", gameCorePath.toFile("GameModularReusableClass.bin"))
     }
 
     fun init(load: GameModularReusableLoadClass): Boolean {
         try {
-            val resFile = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("Game-Res.zip")
-            val assetsFile = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("Game-Assets.zip")
-            val gameModularReusableClassFile = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("GameModularReusableClass.bin")
-            val temp = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path,true)
+            val temp = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path,true)
 
-            /* 鉴别两个文件的MD5, 不相同则重下 */
-            if (resFile.md5 != ResMD5.Res.md5) {
-                resFile.file.delete()
-            }
-            if (assetsFile.md5 != ResMD5.Assets.md5) {
-                assetsFile.file.delete()
-            }
-            if (gameModularReusableClassFile.md5 != ResMD5.GameModularReusableClass.md5) {
-                gameModularReusableClassFile.file.delete()
+            /* 鉴别两个文件的MD5, 不相同则删除 */
+            ResMD5.values().forEach {
+                if (it.fileUtils.exists() && it.md5 != it.fileUtils.md5) {
+                    Log.debug("File MD5 DoesNotMatch", it.name)
+                    it.fileUtils.delete()
+                }
             }
 
-            val resTask: (FileUtil,String,Boolean)->Unit = { file, resName, unzip ->
+            val resTask: (FileUtils, String, Boolean)->Unit = { file, resName, unzip ->
                 if (!file.exists()) {
                     if (unzip) {
                         temp.toFolder(resName).file.delete()
                     }
 
-                    HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Res")+file.name, file.file, true).also {
+                    HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Core.ResDown")+file.name, file.file, true).also {
                         Log.clog("$resName : {0}",it)
                     }
+                    file.setReadOnly()
                 }
                 if (unzip && !temp.toFolder(resName).toFile("Check").exists()) {
-                    CompressionDecoderUtils.zip(file.file).use {
-                        it.getZipAllBytes().each { filePath, bytes ->
+                    CompressionDecoderUtils.sevenZip(file.file).use {
+                        it.getZipAllBytes().eachAll { filePath, bytes ->
                             temp.toFile(filePath).writeFileByte(bytes)
                         }
                     }
-                    temp.toFolder(resName).toFile("Check").mkdir()
+                    temp.toFolder(resName).toFile("Check").also {
+                        it.mkdir()
+                        it.setReadOnly()
+                    }
                 }
             }
 
-            resTask(resFile, "res", true)
-            resTask(assetsFile, "assets", true)
+            resTask(ResMD5.Res.fileUtils, "res", true)
+            resTask(ResMD5.Assets.fileUtils, "assets", true)
+            resTask(ResMD5.Fonts.fileUtils, "fonts", false)
 
-            if (GameStartInit::class.java.getResourceAsStream("/libs.zip") == null && gameModularReusableClassFile.notExists()) {
-                resTask(gameModularReusableClassFile, "gameModularReusableClassFile", false)
-                load.readData(gameModularReusableClassFile)
-            } else if (gameModularReusableClassFile.exists()) {
-                load.readData(gameModularReusableClassFile)
+            if (GameStartInit::class.java.getResourceAsStream("/libs.zip") == null) {
+                if (ResMD5.GameModularReusableClass.fileUtils.notExists()) {
+                    resTask(ResMD5.GameModularReusableClass.fileUtils, "gameModularReusableClassFile", false)
+                }
+                load.readData(ResMD5.GameModularReusableClass.fileUtils)
             } else {
                 // 加载游戏依赖
                 CompressionDecoderUtils.zipStream(GameStartInit::class.java.getResourceAsStream("/libs.zip")!!).use {
-                    it.getSpecifiedSuffixInThePackage("jar", true).each { _, v ->
+                    it.getSpecifiedSuffixInThePackage("jar", true).eachAll { _, v ->
                         load.addSourceJar(v)
                     }
                 }
-                load.saveData(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("GameModularReusableClass.bin"))
+                load.saveData(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("GameModularReusableClass.bin"))
             }
         } catch (e: Exception) {
             Log.fatal(e)
@@ -97,8 +98,8 @@ object GameStartInit {
         // Here, several intermediate signal transmission modules are directly injected into this loader
         // Because this loader only has Game-lib.jar
         // 注入 接口
-        CompressionDecoderUtils.zipStream(FileUtil.getMyCoreJarStream()).use {
-            it.getZipAllBytes().each { k, v ->
+        CompressionDecoderUtils.zipStream(FileUtils.getMyCoreJarStream()).use {
+            it.getZipAllBytes().eachAll { k, v ->
                 if (
                     // 注入接口
                     k.startsWith(HessClassPathProperties.path.replace(".", "/")) ||

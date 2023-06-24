@@ -6,6 +6,7 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
+
 package net.rwhps.asm.redirections
 
 import net.rwhps.asm.api.Redirection
@@ -25,20 +26,18 @@ object DefaultRedirections {
     @JvmField val EQUALS = Redirection { _: Any?, _: String?, _: Class<*>?, args: Array<Any> -> args[0] === args[1] }
     @JvmField val HASHCODE = Redirection { _: Any?, _: String?, _: Class<*>?, args: Array<Any?> -> System.identityHashCode(args[0]) }
 
-    private val DEFAULTS: MutableMap<Class<*>?, Redirection> = HashMap()
-
-    init {
-        DEFAULTS[Void.TYPE] = NULL
-        DEFAULTS[Boolean::class.javaPrimitiveType] = BOOLEANF
-        DEFAULTS[Byte::class.javaPrimitiveType] = BYTE
-        DEFAULTS[Short::class.javaPrimitiveType] = SHORT
-        DEFAULTS[Int::class.javaPrimitiveType] = INT
-        DEFAULTS[Long::class.javaPrimitiveType] = LONG
-        DEFAULTS[Float::class.javaPrimitiveType] = FLOAT
-        DEFAULTS[Double::class.javaPrimitiveType] = DOUBLE
-        DEFAULTS[Char::class.javaPrimitiveType] = CHAR
-        DEFAULTS[String::class.java] = STRING
-        DEFAULTS[CharSequence::class.java] = STRING
+    private val DEFAULTS = HashMap<Class<*>?, Redirection>().apply {
+        this[Void.TYPE] = NULL
+        this[Boolean::class.javaPrimitiveType] = BOOLEANF
+        this[Byte::class.javaPrimitiveType] = BYTE
+        this[Short::class.javaPrimitiveType] = SHORT
+        this[Int::class.javaPrimitiveType] = INT
+        this[Long::class.javaPrimitiveType] = LONG
+        this[Float::class.javaPrimitiveType] = FLOAT
+        this[Double::class.javaPrimitiveType] = DOUBLE
+        this[Char::class.javaPrimitiveType] = CHAR
+        this[String::class.java] = STRING
+        this[CharSequence::class.java] = STRING
     }
 
     @JvmStatic

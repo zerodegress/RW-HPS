@@ -10,14 +10,14 @@
 package net.rwhps.server.data.plugin
 
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
-import net.rwhps.server.func.Cons
+import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.alone.annotations.DidNotFinish
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
@@ -32,12 +32,12 @@ object PluginManage {
     val loadSize: Int
         get() = pluginData!!.size
 
-    fun run(cons: Cons<PluginLoadData>) {
+    fun run(cons: ConsSeq<PluginLoadData>) {
         pluginData!!.eachAll { t: PluginLoadData -> cons(t) }
     }
 
-    fun init(fileUtil: FileUtil) {
-        pluginData = resultPluginData(fileUtil)
+    fun init(fileUtils: FileUtils) {
+        pluginData = resultPluginData(fileUtils)
     }
 
     fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean , skip: Boolean = false) {

@@ -20,13 +20,12 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.game.event.EventType.PlayerBanEvent
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Font16
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
@@ -199,7 +198,7 @@ internal class ServerCommands(handler: CommandHandler) {
             } else {
                 log["Admins: {0}", Data.core.admin.playerAdminData.size]
                 val data = StringBuilder()
-                for (player in Data.core.admin.playerAdminData.values()) {
+                for (player in Data.core.admin.playerAdminData.values) {
                     data.append(LINE_SEPARATOR)
                         .append(player.name)
                         .append(" / ")
@@ -239,54 +238,17 @@ internal class ServerCommands(handler: CommandHandler) {
             }
             val index = if (arg.size > 3) {
                 when {
-                    IsUtil.isNumericNegative(arg[3]) -> arg[3].toInt()
+                    IsUtils.isNumericNegative(arg[3]) -> arg[3].toInt()
                     else -> -1
                 }
             } else {
                 -1
             }
-            if (IsUtil.notIsNumeric(arg[1]) || IsUtil.notIsNumeric(arg[2])) {
+            if (IsUtils.notIsNumeric(arg[1]) || IsUtils.notIsNumeric(arg[2])) {
                 log["Not Numeric, Invalid coordinates"]
                 return@register
             }
             Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
-        }
-
-        handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: StrCons ->
-            if (Data.game.isStartGame) {
-                log["游戏开始"]
-                return@register
-            }
-            val response = StringBuilder(arg[0])
-            var i = 1
-            val lens = arg.size
-            while (i < lens) {
-                response.append(" ").append(arg[i])
-                i++
-            }
-            val inputMapName = response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
-            val mapPlayer = Data.MapsMap[inputMapName]
-            if (mapPlayer != null) {
-                val data = mapPlayer.split("@").toTypedArray()
-                Data.game.maps.mapName = data[0]
-                Data.game.maps.mapPlayer = data[1]
-                Data.game.maps.mapType = GameMaps.MapType.defaultMap
-            } else {
-                if (Data.game.mapsData.size == 0) {
-                    return@register
-                }
-                if (IsUtil.notIsNumeric(inputMapName)) {
-                    log[localeUtil.getinput("err.noNumber")]
-                    return@register
-                }
-                val name = Data.game.mapsData.keys().toSeq()[inputMapName.toInt()]
-                val data = Data.game.mapsData[name]
-                Data.game.maps.mapData = data
-                Data.game.maps.mapType = data.mapType
-                Data.game.maps.mapName = name
-                Data.game.maps.mapPlayer = ""
-            }
-            upDataGameData(false)
         }
 
         handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
@@ -298,7 +260,7 @@ internal class ServerCommands(handler: CommandHandler) {
 
             val index = if (arg.size > 2) {
                 when {
-                    IsUtil.isNumericNegative(arg[2]) -> arg[2].toInt()
+                    IsUtils.isNumericNegative(arg[2]) -> arg[2].toInt()
                     else -> -1
                 }
             } else {

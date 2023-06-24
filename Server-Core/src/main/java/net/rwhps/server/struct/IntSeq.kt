@@ -27,7 +27,7 @@ class IntSeq: BaseSeq<Int> {
             } else {
                 it
             }
-        } as java.util.List<Int>
+        } as java.util.List<Int>, threadSafety
     )
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -38,6 +38,6 @@ class IntSeq: BaseSeq<Int> {
             } else {
                 it
             }
-        } as java.util.List<Int>
+        } as java.util.List<Int>, threadSafety
     )
 }

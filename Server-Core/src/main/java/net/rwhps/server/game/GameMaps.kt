@@ -12,8 +12,8 @@ package net.rwhps.server.game
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.compression.CompressionDecoderUtils
-import net.rwhps.server.util.file.FileUtil
-import net.rwhps.server.util.file.FileUtil.Companion.getFolder
+import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.log.Log.error
 
 /**
@@ -61,7 +61,7 @@ class GameMaps {
         var bytesMap: ByteArray? = null
 
         var mapClean = false
-        private var mapFile: FileUtil? = null
+        private var mapFile: FileUtils? = null
 
 
         constructor(mapType: MapType, mapFileType: MapFileType, mapFileName: String) {
@@ -89,7 +89,7 @@ class GameMaps {
          * 懒加载
          * 读取地图到内部bytes
          */
-        fun readMap(): FileUtil {
+        fun readMap(): FileUtils {
             val fileUtil = getFolder(Data.Plugin_Maps_Path)
             when (mapFileType) {
                 MapFileType.file -> try {

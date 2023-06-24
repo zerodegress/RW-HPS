@@ -25,7 +25,7 @@ object HessModuleManage {
     lateinit var hpsLoader: String
 
     // 多并发使用
-    val hessLoaderMap = ObjectMap<String,AbstractGameModule>()
+    val hessLoaderMap = ObjectMap<String, AbstractGameModule>()
 
     @JvmStatic
     fun addGameModule(loadID: String, loader: AbstractGameModule) {

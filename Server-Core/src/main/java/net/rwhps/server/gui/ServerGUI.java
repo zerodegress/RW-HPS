@@ -71,7 +71,6 @@
 //    }
 //
 //    private ServerGUI() {
-//        this.e = server;
 //        setPreferredSize(new Dimension(854, 480));
 //        setLayout(new BorderLayout());
 //        try {
@@ -90,8 +89,6 @@
 //        JPanel jpanel = new JPanel(new BorderLayout());
 //        com.destroystokyo.paper.gui.GuiStatsComponent guistatscomponent = new com.destroystokyo.paper.gui.GuiStatsComponent(this.e);
 //        Collection<Runnable> collection = this.g;
-//        Objects.requireNonNull(guistatscomponent);
-//        Objects.requireNonNull(guistatscomponent);
 //        collection.add(this::close);
 //        jpanel.add(guistatscomponent, "North");
 //        jpanel.add(d(), "Center");

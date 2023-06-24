@@ -26,7 +26,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebData
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import java.nio.charset.StandardCharsets
 import java.security.KeyStore
@@ -135,7 +135,7 @@ internal class StartHttp : AbstractNet() {
         val filePass = Data.config.SSLPasswd.toCharArray()
         val sslContext: SSLContext = SSLContext.getInstance(protocol)
         val keyStore: KeyStore = KeyStore.getInstance("JKS")
-        keyStore.load(FileUtil.getFile("ssl.jks").getInputsStream(), filePass)
+        keyStore.load(FileUtils.getFile("ssl.jks").getInputsStream(), filePass)
         val kmf: KeyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
         kmf.init(keyStore, filePass)
         sslContext.init(kmf.keyManagers, null, null)

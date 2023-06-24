@@ -22,7 +22,7 @@ import net.rwhps.server.game.event.EventGlobalType
 import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.alone.annotations.AsmMark
+import net.rwhps.server.util.alone.annotations.mark.AsmMark
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
@@ -68,8 +68,8 @@ class HeadlessProxyClass : AgentAttachData() {
             val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj)
             ReflectionUtils.findField(rootClass,"guiEngine")!!.also {
                 ReflectionUtils.makeAccessible(it)
-                it.get(obj)?.let {
-                    "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("f")!!.invoke(it)
+                it.get(obj)?.let { correspondingObject ->
+                    "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("f")!!.invoke(correspondingObject)
                 }
             }
             return@addPartialMethod null
@@ -79,8 +79,8 @@ class HeadlessProxyClass : AgentAttachData() {
             val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj)
             ReflectionUtils.findField(rootClass,"guiEngine")!!.also {
                 ReflectionUtils.makeAccessible(it)
-                it.get(obj)?.let {
-                    "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("a",java.lang.Boolean::class.java)!!.invoke(it,false)
+                it.get(obj)?.let { correspondingObject ->
+                    "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("a",java.lang.Boolean::class.java)!!.invoke(correspondingObject,false)
                 }
             }
             return@addPartialMethod null
@@ -102,15 +102,15 @@ class HeadlessProxyClass : AgentAttachData() {
                     val load = classIn.classLoader
                     val loadID = load.toString()
 
-                    val loadFlagGame = GameInitStatus.loadStatus.get(loadID) {
+                    val loadFlagGame = GameInitStatus.loadStatus[loadID, {
                         GameInitStatus.NoLoad
-                    }
+                    }]
 
                     if (msg.contains("----- Game init finished in")) {
-                        GameInitStatus.loadStatus.put(loadID,GameInitStatus.LoadEndMods)
+                        GameInitStatus.loadStatus[loadID] = GameInitStatus.LoadEndMods
                     }
                     if (msg.contains("Saving settings") && loadFlagGame == GameInitStatus.LoadEndMods) {
-                        GameInitStatus.loadStatus.put(loadID,GameInitStatus.LoadEndGames)
+                        GameInitStatus.loadStatus[loadID] = GameInitStatus.LoadEndGames
 
                         // Enable the interface
                         "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
@@ -119,8 +119,8 @@ class HeadlessProxyClass : AgentAttachData() {
                     }
 
                     if (msg.startsWith("Replay: Recording replay to:")) {
-                        Log.clog("Save Replay to: {0}",msg.replace("Replay: Recording replay to:","").trim().also {
-                            HessModuleManage.hessLoaderMap[loadID].room.replayFileName = it
+                        Log.clog("Save Replay to: {0}",msg.replace("Replay: Recording replay to:","").trim().also { replayFileName ->
+                            HessModuleManage.hessLoaderMap[loadID]!!.room.replayFileName = replayFileName
                         })
                     }
                 }
@@ -131,6 +131,7 @@ class HeadlessProxyClass : AgentAttachData() {
 
         AsmAgent.agentmain(this.instrumentation)
     }
+
 
     /**
      * 游戏无头加载判断

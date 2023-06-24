@@ -18,11 +18,14 @@ import net.rwhps.server.net.NetService
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebGet
-import net.rwhps.server.util.SystemUtil
+import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.Time
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+/**
+ * @author RW-HPS/Dr
+ */
 class WebGetRelayInfo : WebGet() {
 
     override fun get(accept: AcceptWeb, send: SendWeb) {
@@ -65,12 +68,12 @@ class WebGetRelayInfo : WebGet() {
                                 <p> 目前在线人数 : ${size.get()}  </p>
                                 <p> 服务器版本 : ${Data.SERVER_CORE_VERSION}  </p>
                                 <br/>
-                                <p> Java堆大小(MB) : ${SystemUtil.javaHeap / (1024 * 1024)}  </p>
-                                <p> Java总内存(MB) : ${SystemUtil.javaTotalMemory / (1024 * 1024)}  </p>
-                                <p> Java可用内存(MB) : ${SystemUtil.javaFreeMemory / (1024 * 1024)}  </p>
-                                <p> Java供应商 : ${SystemUtil.javaVendor}  </p>
-                                <p> Java版本 : ${SystemUtil.javaVersion}  </p>
-                                <p> 系统 : ${SystemUtil.osName}  </p>
+                                <p> Java堆大小(MB) : ${SystemUtils.javaHeap / (1024 * 1024)}  </p>
+                                <p> Java总内存(MB) : ${SystemUtils.javaTotalMemory / (1024 * 1024)}  </p>
+                                <p> Java可用内存(MB) : ${SystemUtils.javaFreeMemory / (1024 * 1024)}  </p>
+                                <p> Java供应商 : ${SystemUtils.javaVendor}  </p>
+                                <p> Java版本 : ${SystemUtils.javaVersion}  </p>
+                                <p> 系统 : ${SystemUtils.osName}  </p>
                                 <p> 数据最后更新 : ${Time.getMilliFormat(1)}</p>
                                 <br/>
                                 <br/>

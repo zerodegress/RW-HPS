@@ -13,9 +13,4 @@ package net.rwhps.server.data.plugin
  * Plugin's Data Proxy
  * @author RW-HPS/Dr
  */
-internal class Value<T>(var data: T) {
-    protected fun setData(data: T): Value<T> {
-        this.data = data
-        return this
-    }
-}
+internal class Value<T>(var data: T)

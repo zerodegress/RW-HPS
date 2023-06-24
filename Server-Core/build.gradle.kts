@@ -1,10 +1,19 @@
+/*
+ * Copyright 2020-2023 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+import buildSrc.makeDependTree
 import java.text.SimpleDateFormat
 import java.util.*
 
-//Netty Version
-val nettyVersion = "4.1.90.Final"
-//Kotlin Version
-val kotlinVersion = properties["kotlin.version"]
+val nettyVersion: String by project
+val kotlinVersion: String by project
+val graalvmVersion: String by project
 
 /**
  * Fuck implementation
@@ -28,16 +37,17 @@ dependencies {
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
 
 	api("com.github.deng-rui:RUDP:2.0.0")
+
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
 	api("com.google.code.gson:gson:2.10.1")
 	api("org.json:json:20230227")
 
-	api("org.apache.commons:commons-compress:1.21")
-	api("org.tukaani:xz:1.9")
+	implementation("org.apache.commons:commons-compress:1.21")
+	implementation("org.tukaani:xz:1.9")
 
 
-	api("com.squareup.okhttp3:okhttp:4.10.0") {
+	implementation("com.squareup.okhttp3:okhttp:4.11.0") {
 		exclude("org.jetbrains.kotlin")
 	}
 	api("com.vdurmont:emoji-java:5.1.1") {
@@ -53,14 +63,17 @@ dependencies {
 	}
 	implementation("org.jline:jline-terminal-jna:3.23.0")
 
-	api("it.unimi.dsi:fastutil-core:8.5.12")
+	implementation("it.unimi.dsi:fastutil-core:8.5.12")
 
-	implementation("org.graalvm.js:js:${properties["graalvm.version"]}")
+	compileOnlyAndTest("org.graalvm.js:js:$graalvmVersion")
+	compileOnlyAndTest("org.graalvm.sdk:graal-sdk:$graalvmVersion")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 tasks.jar {
+	project.makeDependTree()
+
 	manifest {
 		attributes(mapOf("Implementation-Title" to "RW-HPS"))
 		attributes(mapOf("Implementation-Vendor" to "RW-HPS Team"))
@@ -70,6 +83,11 @@ tasks.jar {
 
 tasks.test {
 	useJUnitPlatform()
+}
+
+fun DependencyHandler.compileOnlyAndTest(dependencyNotation: Any) {
+	this.testImplementation(dependencyNotation)
+	this.compileOnly(dependencyNotation)
 }
 
 publishing {

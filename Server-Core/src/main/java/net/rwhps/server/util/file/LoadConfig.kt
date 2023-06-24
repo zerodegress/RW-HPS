@@ -12,8 +12,8 @@ package net.rwhps.server.util.file
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.data.json.Json.Companion.toJson
 import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.util.IsUtil.isBlank
-import net.rwhps.server.util.file.FileUtil.Companion.getFolder
+import net.rwhps.server.util.IsUtils.isBlank
+import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.error
 
@@ -22,24 +22,24 @@ import net.rwhps.server.util.log.Log.error
  */
 class LoadConfig {
     private val data = OrderedMap<String, Any>()
-    private val fileUtil: FileUtil
+    private val fileUtils: FileUtils
 
     constructor(file: String, isFile: Boolean) {
-        fileUtil = if (isFile) getFolder(file) else FileUtil(file)
+        fileUtils = if (isFile) getFolder(file) else FileUtils(file)
         reLoadConfig()
     }
 
     constructor(file: String, name: String) {
-        fileUtil = getFolder(file).toFile(name)
+        fileUtils = getFolder(file).toFile(name)
         reLoadConfig()
     }
 
     fun reLoadConfig() {
-        if (fileUtil.notExists() || fileUtil.readFileStringData().isEmpty()) {
+        if (fileUtils.notExists() || fileUtils.readFileStringData().isEmpty()) {
             error("NO Config.Json Use default configuration")
             return
         }
-        val json = Json(fileUtil.readFileStringData())
+        val json = Json(fileUtils.readFileStringData())
         //json对象转Map
         json.getInnerMap().forEach {
             data.put(it.key,it.value)
@@ -88,8 +88,8 @@ class LoadConfig {
 
     fun save() {
         val map: MutableMap<String, Any> = HashMap()
-        data.each { key: String, value: Any -> map[key] = value }
-        fileUtil.writeFile(toJson(map))
+        data.eachAll { key: String, value: Any -> map[key] = value }
+        fileUtils.writeFile(toJson(map))
         clog("SAVE CONFIG OK")
     }
 }

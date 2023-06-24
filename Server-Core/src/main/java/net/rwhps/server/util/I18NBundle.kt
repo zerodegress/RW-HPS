@@ -10,7 +10,7 @@
 package net.rwhps.server.util
 
 import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.io.IoReadConversion
 import net.rwhps.server.util.log.Log
 import org.jetbrains.annotations.Nls
@@ -27,9 +27,9 @@ import java.util.*
 class I18NBundle {
     private val languageData = OrderedMap<String, String>()
 
-    constructor(fileUtil: FileUtil) {
+    constructor(fileUtils: FileUtils) {
         try {
-            load(fileUtil.readInputsStream())
+            load(fileUtils.readInputsStream())
         } catch (e: Exception) {
             Log.fatal("[Load Language Error]", e)
         }
@@ -44,24 +44,24 @@ class I18NBundle {
     }
 
     @Throws(IOException::class)
-    fun addLanguageData(fileUtil: FileUtil) {
-        load(fileUtil.readInputsStream())
+    fun addLanguageData(fileUtils: FileUtils) {
+        load(fileUtils.readInputsStream())
     }
 
     private fun load(inputStreamReader: InputStreamReader) {
         try {
             val p = Properties()
             p.load(inputStreamReader)
-            p.forEach { key: Any, value: Any -> languageData.put(key as String, value as String) }
+            p.forEach { key: Any, value: Any -> languageData[key as String] = value as String }
         } catch (e: Exception) {
             Log.error("[Load Language File] Error",e)
         }
     }
 
     private fun language(input: String, params: Array<Any?>?): String {
-        val text = languageData[input]
-        return if (IsUtil.notIsBlank(text)) {
-            if (IsUtil.isBlank(params)) text else MessageFormat(text).format(params)
+        val text: String? = languageData[input]
+        return if (IsUtils.notIsBlank(text)) {
+            if (IsUtils.isBlank(params)) text!! else MessageFormat(text!!).format(params)
         } else {
             Log.warn("Translation missing, please check", input)
             "$input : Key is invalid."
@@ -83,12 +83,12 @@ class I18NBundle {
 
         kv.forEach { key: Any, value: Any ->
             if (cover) {
-                languageData.put(key as String, value as String)
+                languageData[key as String] = value as String
             } else {
                 flag = !languageData.containsKey(key as String)
 
                 if (flag) {
-                    languageData.put(key, value as String)
+                    languageData[key] = value as String
                 }
             }
         }
@@ -106,12 +106,12 @@ class I18NBundle {
         var flag = cover
 
         if (cover) {
-            languageData.put(k, v)
+            languageData[k] = v
         } else {
             flag = !languageData.containsKey(k)
 
             if (flag) {
-                languageData.put(k, v)
+                languageData[k] = v
             }
         }
 

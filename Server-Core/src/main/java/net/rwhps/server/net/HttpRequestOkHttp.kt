@@ -27,7 +27,7 @@ import java.net.HttpURLConnection
  * @author RW-HPS/Dr
  */
 object HttpRequestOkHttp {
-    private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36"
+    private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51"
     private val CLIENT = OkHttpClient()
 
     /**

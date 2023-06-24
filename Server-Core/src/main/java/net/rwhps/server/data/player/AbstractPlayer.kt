@@ -19,7 +19,7 @@ import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.NetException
@@ -84,7 +84,7 @@ open class AbstractPlayer(
     open val name get() = playerPrivateData.name
     val connectHexID get() = playerPrivateData.connectHexID
 
-    val statusData get() = ObjectMap<String,Int>().apply {
+    val statusData get() = ObjectMap<String, Int>().apply {
         put("unitsKilled", unitsKilled)
         put("buildingsKilled", buildingsKilled)
         put("experimentalsKilled", experimentalsKilled)
@@ -174,7 +174,7 @@ open class AbstractPlayer(
     @JvmOverloads
     @Throws(NetException::class)
     fun playerJumpsToAnotherServer(ip: String, port: Int = 5123) {
-        if (!IsUtil.isDomainName(ip)) {
+        if (!IsUtils.isDomainName(ip)) {
             throw NetException("[ERROR_DOMAIN] Error Domain")
         }
         if (con == null) {

@@ -10,7 +10,7 @@
 package net.rwhps.server.util.classload
 
 import net.rwhps.server.data.plugin.PluginData
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 
 /**
  * Reusable class loader
@@ -36,7 +36,7 @@ class GameModularReusableLoadClass(mainClassLoader: ClassLoader, jdkClassLoader:
      *
      * @param classPathMap OrderedMap<String, ByteArray>
      */
-    fun readData(file: FileUtil) {
+    fun readData(file: FileUtils) {
         val data = PluginData().apply {
             setFileUtil(file, "7z")
         }
@@ -53,7 +53,7 @@ class GameModularReusableLoadClass(mainClassLoader: ClassLoader, jdkClassLoader:
      *
      * @param file FileUtil
      */
-    fun saveData(file: FileUtil) {
+    fun saveData(file: FileUtils) {
         val data = PluginData().apply {
             setFileUtil(file,"7z")
         }

@@ -43,7 +43,7 @@ class PlayerConnectX(
 ) : PlayerConnect(netEngine, HessSocket(connectionAgreement)) {
 
     val netEnginePackaging: NetEnginePackaging = NetEnginePackaging(netEngine, this)
-    var room: ServerRoom = HessModuleManage.hessLoaderMap[this.javaClass.classLoader.toString()].room
+    var room: ServerRoom = HessModuleManage.hessLoaderMap[this.javaClass.classLoader.toString()]!!.room
     var player: AbstractPlayer? = null
     lateinit var serverConnect: GameVersionServer
 

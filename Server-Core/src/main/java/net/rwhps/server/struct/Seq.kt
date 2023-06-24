@@ -24,9 +24,7 @@ import java.io.IOException
  * 获取同步后得到的就是 ObjectList 只能这样分着写
  * 我不想每次判断
  *
- * @param T
- * @property list ObjectList<T>
- * @property size Int
+ * @param T Type
  *
  * @author RW-HPS/Dr
  */
@@ -41,7 +39,7 @@ class Seq<T>: BaseSeq<T> {
             } else {
                 it
             }
-        } as java.util.List<T>
+        } as java.util.List<T>, threadSafety
     )
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -52,7 +50,7 @@ class Seq<T>: BaseSeq<T> {
             } else {
                 it
             }
-        } as java.util.List<T>
+        } as java.util.List<T>, threadSafety
     )
 
     companion object {

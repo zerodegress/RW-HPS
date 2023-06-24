@@ -76,10 +76,6 @@ open class TypeRelay : TypeConnect {
             HEART_BEAT -> {
                 con.getPingData(packet)
             }
-            RELAY_BECOME_SERVER -> {
-                con.setlastSentPacket(packet)
-                con.relay!!.isStartGame = false
-            }
             CHAT -> {
                 GameInputStream(packet).use {
                     val message = it.readString()

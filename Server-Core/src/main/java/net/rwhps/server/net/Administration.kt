@@ -101,7 +101,7 @@ class Administration(pluginData: PluginData) {
 
     fun isAdmin(player: AbstractPlayer): Boolean {
         if (playerAdminData.containsKey(player.connectHexID)) {
-            playerAdminData[player.connectHexID].name = player.name
+            playerAdminData[player.connectHexID]!!.name = player.name
             return true
         }
         return false

@@ -10,7 +10,7 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import java.util.*
 
 /**
@@ -27,7 +27,7 @@ class PluginLoadData(
 ) {
     init {
         if (mkdir) {
-            main.pluginDataFileUtil = FileUtil.getFolder(Data.Plugin_Plugins_Path,true).toFolder(this.name)
+            main.pluginDataFileUtils = FileUtils.getFolder(Data.Plugin_Plugins_Path,true).toFolder(this.name)
         }
     }
 
@@ -43,12 +43,4 @@ class PluginLoadData(
     override fun hashCode(): Int {
         return Objects.hash(name)
     }
-
-    class SinglePluginLoadData(
-        @JvmField val name: String,
-        @JvmField val author: String,
-        @JvmField val description: String,
-        @JvmField val version: String,
-        @JvmField val imports: Array<String>? = null
-    )
 }

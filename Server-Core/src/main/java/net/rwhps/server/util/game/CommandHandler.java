@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util.game;
 
-import net.rwhps.server.func.Cons;
+import net.rwhps.server.func.ConsSeq;
 import net.rwhps.server.struct.ObjectMap;
 import net.rwhps.server.struct.Seq;
 
@@ -23,20 +23,20 @@ public class CommandHandler{
     private String prefix;
 
     /** Creates a command handler with a specific command prefix.*/
-    public CommandHandler(String prefix){
+    public CommandHandler(String prefix) {
         this.prefix = prefix;
     }
 
-    public void setPrefix(String prefix){
+    public void setPrefix(String prefix) {
         this.prefix = prefix;
     }
 
     /** Handles a message with no additional parameters.*/
-    public CommandResponse handleMessage(String message){
+    public CommandResponse handleMessage(String message) {
         return handleMessage(message, null);
     }
 
-    public CommandResponse handleMessage(String message, Object params){
+    public CommandResponse handleMessage(String message, Object params) {
         if (message == null || (!message.startsWith(prefix))) {
             return new CommandResponse(ResponseType.noCommand, null, null);
         }
@@ -121,11 +121,11 @@ public class CommandHandler{
         return cmd;
     }
 
-    public Command register(String text, String description, Cons<String[]> runner){
+    public Command register(String text, String description, ConsSeq<String[]> runner){
         return register(text, description, (args, p) -> runner.invoke(args));
     }
 
-    public Command register(String text, String params, String description, Cons<String[]> runner){
+    public Command register(String text, String params, String description, ConsSeq<String[]> runner){
         return register(text, params, description, (args, p) -> runner.invoke(args));
     }
 

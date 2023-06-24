@@ -20,8 +20,8 @@ import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.plugin.Plugin
-import net.rwhps.server.util.IpUtil
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IpUtils
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.game.CommandHandler
@@ -41,7 +41,7 @@ internal class UpListMain : Plugin() {
     private val version = "Version=HPS#1"
     private val privateIp: String
         get() {
-            var privateIpTemp = IpUtil.getPrivateIp()
+            var privateIpTemp = IpUtils.getPrivateIp()
             if (privateIpTemp.isNullOrBlank()) {
                 privateIpTemp = "10.0.0.1"
             }
@@ -100,12 +100,12 @@ internal class UpListMain : Plugin() {
         }
 
 
-        val url = urlIn.ifBlank { Data.urlData.readString("Get.UpListData.Bak") }
+        val url = urlIn.ifBlank { Data.urlData.readString("Get.Api.UpListData.Bak") }
 
         var resultUpList = HttpRequestOkHttp.doPost(url, version)
 
         if (resultUpList.isBlank() && urlIn.isBlank()) {
-            resultUpList = HttpRequestOkHttp.doPost(Data.urlData.readString("Get.UpListData"), version)
+            resultUpList = HttpRequestOkHttp.doPost(Data.urlData.readString("Get.Api.UpListData"), version)
         }
 
         if (resultUpList.isBlank()) {
@@ -161,10 +161,10 @@ internal class UpListMain : Plugin() {
         addData0    = addData0.replace("{RW-HPS.S.PORT}",port)
 
         if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
+            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtils.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
             addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
         } else {
-            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
+            addData0    = addData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtils.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
             addData0    = addData0.replace("{RW-HPS.PLAYER.SIZE}","0")
         }
 
@@ -205,11 +205,11 @@ internal class UpListMain : Plugin() {
         updateData0     = updateData0.replace("{RW-HPS.S.PORT}",port)
 
         if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
-            updateData0     = updateData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtil.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
+            updateData0     = updateData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtils.isBlank(Data.config.Subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.Subtitle,20))
             updateData0     = updateData0.replace("{RW-HPS.S.STATUS}", if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
             updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}",HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
         } else {
-            updateData0    = updateData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtil.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
+            updateData0    = updateData0.replace("{RW-HPS.RW.MAP.NAME}",if (IsUtils.isBlank(Data.config.Subtitle)) "RW-HPS RELAY" else cutting(Data.config.Subtitle,20))
             updateData0     = updateData0.replace("{RW-HPS.S.STATUS}", "battleroom")
             updateData0     = updateData0.replace("{RW-HPS.PLAYER.SIZE}","0")
         }
@@ -300,3 +300,4 @@ internal class UpListMain : Plugin() {
         }
     }
 }
+// 给岁月以文明，而不是给文明以岁月

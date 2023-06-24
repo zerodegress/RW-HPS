@@ -96,9 +96,7 @@ enum class PacketType(val typeInt: Int) {
     companion object {
         private val typeMap: IntMap<PacketType> = IntMap(values().size)
 
-        val nullPacket by lazy {
-            Packet(0, ByteArray(0))
-        }
+        val nullPacket = Packet(EMPTYP_ACKAGE , byteArrayOf())
 
         init {
             values().forEach {
@@ -109,6 +107,6 @@ enum class PacketType(val typeInt: Int) {
             }
         }
 
-        fun from(type: Int): PacketType = typeMap[type].ifNullResult({ it }) { NOT_RESOLVED }
+        fun from(type: Int): PacketType = typeMap[type].ifNullResult(NOT_RESOLVED) { it }
     }
 }

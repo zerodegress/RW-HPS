@@ -18,11 +18,14 @@ import net.rwhps.server.net.NetService
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebGet
-import net.rwhps.server.util.SystemUtil
+import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.Time
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+/**
+ * @author RW-HPS/Dr
+ */
 class WebGetRelayInfo : WebGet() {
 
     override fun get(accept: AcceptWeb, send: SendWeb) {
@@ -52,25 +55,27 @@ class WebGetRelayInfo : WebGet() {
                             <html lang="zh-cn">
                             <head>
                                 <meta charset="UTF-8">
-                                <title>RW-HPS RELAY  Run Status</title>
+                                <title>RELAY-CN  Run Status</title>
                             </head>
                             <body>
                                 
-                                <h1> 欢迎来到 [RW-HPS RELAY] 数据统计！  </h1>
-                                <p> RW-HPS RELAY 由 [RW-HPS Team] 开发，致力于为中国玩家提供更好的游戏体验 </p>
+                                <h1> 欢迎来到 [RELAY - CN] 数据统计！  </h1>
+                                <p> RCN（RELAY - CN）由 [Tiexiu.xyz Core Team] 与 [RCN Team] 维护，致力于为中国玩家提供更好的游戏体验 </p>
                                 <p> RCN的现有数据来自自动上报 </p>
-                                <h2> 欢迎来到 [RW-HPS RELAY] 数据统计！  </h2>
+                                <h2> 欢迎来到 [RELAY - CN] 数据统计！  </h2>
                                 <p> 房间总个数 : ${Relay.roomAllSize}  </p>
                                 <p> (未开始)游戏房间总个数 : ${Relay.roomNoStartSize}  </p>
+                                <p> (未开始)在列表房间总个数 : ${Relay.roomPublicSize}  </p>
+                                <p> (未开始)不在列表房间总个数 : ${Relay.roomNoStartSize - Relay.roomPublicSize}  </p>
                                 <p> 目前在线人数 : ${size.get()}  </p>
                                 <p> 服务器版本 : ${Data.SERVER_CORE_VERSION}  </p>
                                 <br/>
-                                <p> Java堆大小(MB) : ${SystemUtil.javaHeap / (1024 * 1024)}  </p>
-                                <p> Java总内存(MB) : ${SystemUtil.javaTotalMemory / (1024 * 1024)}  </p>
-                                <p> Java可用内存(MB) : ${SystemUtil.javaFreeMemory / (1024 * 1024)}  </p>
-                                <p> Java供应商 : ${SystemUtil.javaVendor}  </p>
-                                <p> Java版本 : ${SystemUtil.javaVersion}  </p>
-                                <p> 系统 : ${SystemUtil.osName}  </p>
+                                <p> Java堆大小(MB) : ${SystemUtils.javaHeap / (1024 * 1024)}  </p>
+                                <p> Java总内存(MB) : ${SystemUtils.javaTotalMemory / (1024 * 1024)}  </p>
+                                <p> Java可用内存(MB) : ${SystemUtils.javaFreeMemory / (1024 * 1024)}  </p>
+                                <p> Java供应商 : ${SystemUtils.javaVendor}  </p>
+                                <p> Java版本 : ${SystemUtils.javaVersion}  </p>
+                                <p> 系统 : ${SystemUtils.osName}  </p>
                                 <p> 数据最后更新 : ${Time.getMilliFormat(1)}</p>
                                 <br/>
                                 <br/>

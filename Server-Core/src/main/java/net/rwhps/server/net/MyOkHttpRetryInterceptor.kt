@@ -23,12 +23,12 @@ import java.io.InterruptedIOException
  */
 class MyOkHttpRetryInterceptor internal constructor(builder: Builder) : Interceptor {
     //最大重试次数
-    var executionCount : Int
+    private var executionCount : Int
 
     /**
      * retry间隔时间
      */
-    val retryInterval : Long
+    private val retryInterval : Long
 
     init {
         executionCount = builder.executionCount

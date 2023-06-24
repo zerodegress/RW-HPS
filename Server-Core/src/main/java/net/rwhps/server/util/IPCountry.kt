@@ -10,7 +10,7 @@
 package net.rwhps.server.util
 
 import net.rwhps.server.util.compression.CompressionDecoderUtils
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import org.lionsoul.ip2region.DbConfig
 import org.lionsoul.ip2region.DbSearcher
@@ -20,7 +20,7 @@ import org.lionsoul.ip2region.DbSearcher
  */
 object IPCountry {
     private val searcher: DbSearcher = DbSearcher(DbConfig(),
-        CompressionDecoderUtils.lz77Stream(FileUtil.getInternalFileStream("/ip2region.7z"))
+        CompressionDecoderUtils.sevenZipStream(FileUtils.getInternalFileStream("/ip2region.7z"))
             .getSpecifiedSuffixInThePackage("db",true)["ip2region.db"])
 
     fun test() {

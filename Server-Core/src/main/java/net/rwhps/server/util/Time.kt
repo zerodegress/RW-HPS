@@ -129,7 +129,7 @@ object Time {
         return SimpleDateFormat(ft[fot]).format(Date(gmt))
     }
 
-    private class CurrentTimeMillisClock() {
+    private class CurrentTimeMillisClock {
         @Volatile
         var now: Long
         private fun scheduleTick() {

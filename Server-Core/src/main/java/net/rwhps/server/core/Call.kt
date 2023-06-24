@@ -271,7 +271,8 @@ object Call {
                     val winPlayer = Data.game.playerManage.getPlayersNameOnTheSameTeam(lastWinTeam)
                     val allPlayer = Seq<String>()
 
-                    val statusData = ObjectMap<String, ObjectMap<String,Int>>().apply {
+                    val statusData = ObjectMap<String, ObjectMap<String, Int>>()
+                        .apply {
                         Data.game.playerManage.playerAll.eachAllFind({ !it.headlessDevice }) {
                             put(it.name,it.statusData)
                             allPlayer.add(it.name)

@@ -10,7 +10,7 @@
 package net.rwhps.server.util.compression
 
 import net.rwhps.server.util.compression.core.AbstractEncoder
-import net.rwhps.server.util.compression.lz77.Lz77Encoder
+import net.rwhps.server.util.compression.seven.SevenZipEncoder
 import net.rwhps.server.util.compression.zip.ZipEncoder
 
 /**
@@ -19,5 +19,5 @@ import net.rwhps.server.util.compression.zip.ZipEncoder
 object CompressionEncoderUtils {
     fun zipStream(): AbstractEncoder = ZipEncoder()
 
-    fun lz77Stream(): AbstractEncoder = Lz77Encoder()
+    fun lz77Stream(): AbstractEncoder = SevenZipEncoder()
 }

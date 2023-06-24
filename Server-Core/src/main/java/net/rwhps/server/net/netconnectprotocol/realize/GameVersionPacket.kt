@@ -22,7 +22,7 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.AbstractNetPacket
 import net.rwhps.server.net.netconnectprotocol.internal.server.*
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
@@ -115,7 +115,7 @@ open class GameVersionPacket : AbstractNetPacket {
 
     override fun getDeceiveGameSave(): Packet {
         val cPacket: Packet? = Cache.packetCache["getDeceiveGameSave"]
-        if (IsUtil.notIsBlank(cPacket)) {
+        if (IsUtils.notIsBlank(cPacket)) {
             return cPacket!!
         }
 
@@ -146,7 +146,7 @@ open class GameVersionPacket : AbstractNetPacket {
 
 
         var unitID = -2
-        if (IsUtil.notIsNumeric(unit)) {
+        if (IsUtils.notIsNumeric(unit)) {
             GameUnitType.GameUnits.values().forEach {
                 if (it.name.equals(unit,ignoreCase = true)) {
                     unitID = it.ordinal
@@ -213,7 +213,7 @@ open class GameVersionPacket : AbstractNetPacket {
     @Throws(IOException::class)
     override fun getExitPacket(): Packet {
         val cPacket: Packet? = Cache.packetCache["getExitPacket"]
-        if (IsUtil.notIsBlank(cPacket)) {
+        if (IsUtils.notIsBlank(cPacket)) {
             return cPacket!!
         }
 

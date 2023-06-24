@@ -23,8 +23,9 @@ import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.event.EventType
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
-import net.rwhps.server.util.IsUtil.notIsNumeric
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.struct.BaseMap.Companion.toSeq
+import net.rwhps.server.util.IsUtils.notIsNumeric
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.error
@@ -118,8 +119,8 @@ internal class ClientCommands(handler: CommandHandler) {
                         player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
                         return@register
                     }
-                    val name = MapManage.mapsData.keys().toSeq()[inputMapName.toInt()]
-                    val data = MapManage.mapsData[name]
+                    val name = MapManage.mapsData.keys.toSeq()[inputMapName.toInt()]
+                    val data = MapManage.mapsData[name]!!
                     MapManage.maps.mapData = data
                     MapManage.maps.mapType = data.mapType
                     MapManage.maps.mapName = name
@@ -133,7 +134,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     }
                     player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
-                room.call.sendSystemMessage(localeUtil.getinput("map.to",player.name,Data.game.maps.mapName))
+                room.call.sendSystemMessage(localeUtil.getinput("map.to",player.name,room.mapName))
                 GameEngine.netEngine.L()
             }
         }
@@ -148,7 +149,7 @@ internal class ClientCommands(handler: CommandHandler) {
             val i = AtomicInteger(0)
 
             player.sendSystemMessage(localeUtil.getinput("maps.top"))
-            MapManage.mapsData.keys().forEach { k: String ->
+            MapManage.mapsData.keys.forEach { k: String ->
                 player.sendSystemMessage(localeUtil.getinput("maps.info", i.get(), k))
                 i.getAndIncrement()
             }
@@ -274,7 +275,7 @@ internal class ClientCommands(handler: CommandHandler) {
             }
             if (player.isAdmin) {
                 val unit = args[0]
-                player.sendSystemMessage("请Ping地图需要生成位置")
+                player.sendSystemMessage("Ping map to spawn")
                 player.addData("Summon", unit)
             }
         }
@@ -366,7 +367,7 @@ internal class ClientCommands(handler: CommandHandler) {
             }
 
             if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
-                val file = FileUtil.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
+                val file = FileUtils.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
                 if (file.notExists()) {
                     MapManage.maps.mapData!!.readMap()
                 }
@@ -396,12 +397,16 @@ internal class ClientCommands(handler: CommandHandler) {
                 val site = args[1].toInt() - 1
                 val newTeam = args[2].toInt()
                 GameEngine.netEngine.a(player, site)
-                if (newTeam == -1) {
-                    player.r = site % 2;
-                } else if (newTeam == -4){
-                    player.r = -3
-                } else {
-                    player.r = newTeam
+                when (newTeam) {
+                    -1 -> {
+                        player.r = site % 2
+                    }
+                    -4 -> {
+                        player.r = -3
+                    }
+                    else -> {
+                        player.r = newTeam
+                    }
                 }
             }
         }
@@ -425,6 +430,6 @@ internal class ClientCommands(handler: CommandHandler) {
     }
     
     companion object {
-        private val room = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()].room
+        private val room = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()]!!.room
     }
 }

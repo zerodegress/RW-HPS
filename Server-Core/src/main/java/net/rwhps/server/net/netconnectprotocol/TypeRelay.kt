@@ -14,14 +14,17 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
+import net.rwhps.server.net.api.WebPostRelayHttp
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus.*
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.PacketType.*
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.threads.ServerUploadData
 
 /**
  * Parse the [net.rwhps.server.net.core.IRwHps.NetType.RelayProtocol] protocol
@@ -75,10 +78,6 @@ open class TypeRelay : TypeConnect {
             }
             HEART_BEAT -> {
                 con.getPingData(packet)
-            }
-            RELAY_BECOME_SERVER -> {
-                con.setlastSentPacket(packet)
-                con.relay!!.isStartGame = false
             }
             CHAT -> {
                 GameInputStream(packet).use {
@@ -185,7 +184,21 @@ open class TypeRelay : TypeConnect {
                             // Certified End
                             con.permissionStatus = CertifiedEnd
                             if (!Data.config.SingleUserRelay) {
-                                con.relayDirectInspection()
+                                val port = con.port
+                                if (port == 5123) {
+                                    con.relayDirectInspection()
+                                } else {
+                                    val relayData = ServerUploadData.getRelayDataPort(port)
+                                    if (WebPostRelayHttp.map.containsKey(port)) {
+                                        con.sendPacket(fromRelayJumpsToAnotherServer("a.relay.der.kim/${WebPostRelayHttp.map[port]}"))
+                                        return true
+                                    }
+                                    if (relayData != null) {
+                                        con.relayDirectInspection(relayData.relay)
+                                    } else {
+                                        con.relayDirectInspection()
+                                    }
+                                }
                             } else {
                                 NetStaticData.relay.setAddSize()
                                 // No HOST

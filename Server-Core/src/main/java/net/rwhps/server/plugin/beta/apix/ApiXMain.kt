@@ -29,7 +29,7 @@ class ApiXMain : Plugin() {
     var dataJson = Seq<String>()
 
     override fun init() {
-        data = ApiXData::class.java.toGson(pluginDataFileUtil.toFile("Data.json").readFileStringData())
+        data = ApiXData::class.java.toGson(pluginDataFileUtils.toFile("Data.json").readFileStringData())
 
         if (data.GameOverPositive) {
             WebData.addWebGetInstance("/api/get/event/GameOver", object : WebGet() {
@@ -78,7 +78,7 @@ class ApiXMain : Plugin() {
     }
 
     override fun onDisable() {
-        pluginDataFileUtil.toFile("Data.json").writeFile(data.toPrettyPrintingJson())
+        pluginDataFileUtils.toFile("Data.json").writeFile(data.toPrettyPrintingJson())
     }
 
     private data class ApixDataJson(

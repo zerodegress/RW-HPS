@@ -41,6 +41,10 @@ class ServerRoom {
                 closeTimeTask(CallTimeTask.CallTeamTask)
 
                 call.startCheckThread()
+
+//                val testAClass: Class<*> = (HessModuleManage.hps.useClassLoader as GameModularLoadClass).findClass("net.rwhps.server.plugin.internal.hess.inject.ex.FFA_X")!!
+//                val mainMethod: Method = testAClass.getDeclaredMethod("start")
+//                mainMethod.invoke(null)
             }
             field = value
         }

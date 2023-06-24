@@ -34,17 +34,17 @@ import java.util.*
  * their body transformed as described above.
  */
 open class PartialMethodTransformer : AllMethodsTransformer() {
-    override fun transform(cn: ClassNode, parameters: ArrayList<Array<String>>?) {
+    override fun transform(classNode: ClassNode, parameters: ArrayList<Array<String>>?) {
         try {
-            transformModule(cn)
+            transformModule(classNode)
         } catch (ignored: NoSuchFieldError) {
             // Ignore
         }
 
-        if (cn.access and Opcodes.ACC_MODULE == 0) {
-            patchClass(cn, cn.access and Opcodes.ACC_INTERFACE != 0, parameters!!)
+        if (classNode.access and Opcodes.ACC_MODULE == 0) {
+            patchClass(classNode, classNode.access and Opcodes.ACC_INTERFACE != 0, parameters!!)
             // make all non-static fields non-final
-            for (fn in cn.fields) {
+            for (fn in classNode.fields) {
                 if (fn.access and Opcodes.ACC_STATIC == 0) {
                     fn.access = fn.access and Opcodes.ACC_FINAL.inv()
                 }

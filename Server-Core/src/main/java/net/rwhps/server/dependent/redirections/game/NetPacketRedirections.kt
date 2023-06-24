@@ -11,7 +11,7 @@ package net.rwhps.server.dependent.redirections.game
 
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.dependent.redirections.MainRedirections
-import net.rwhps.server.util.alone.annotations.AsmMark
+import net.rwhps.server.util.alone.annotations.mark.AsmMark
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 
 /**

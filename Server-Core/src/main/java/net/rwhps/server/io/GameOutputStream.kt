@@ -15,7 +15,7 @@ import net.rwhps.server.io.output.AbstractByteArrayOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import java.io.Closeable
 import java.io.DataOutputStream
@@ -25,6 +25,7 @@ import java.io.IOException
 /**
  * @author RW-HPS/Dr
  */
+@Suppress("UNUSED")
 open class GameOutputStream @JvmOverloads constructor(private var buffer: AbstractByteArrayOutputStream = DisableSyncByteArrayOutputStream()) : Closeable {
 
     private var stream: DataOutputStream = DataOutputStream(buffer)
@@ -129,7 +130,7 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
     }
     @Throws(IOException::class)
     fun writeIsInt(value: Int?): GameOutputStream  {
-        if (IsUtil.isBlank(value)) {
+        if (IsUtils.isBlank(value)) {
             writeBoolean(false)
         } else {
             writeBoolean(true)
@@ -186,7 +187,7 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
 
     @Throws(IOException::class)
     fun writeIsString(value: String?) {
-        if (IsUtil.isBlank(value)) {
+        if (IsUtils.isBlank(value)) {
             writeBoolean(false)
         } else {
             writeBoolean(true)

@@ -12,7 +12,7 @@ package net.rwhps.server.data.base
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log
@@ -67,7 +67,7 @@ data class BaseServerConfig(
     }
 
     fun save() {
-        fileUtil.writeFile(this.toPrettyPrintingJson())
+        fileUtils.writeFile(this.toPrettyPrintingJson())
     }
 
     fun coverField(name: String,value: Any): Boolean {
@@ -94,11 +94,11 @@ data class BaseServerConfig(
     }
 
     companion object {
-        val fileUtil = FileUtil.getFolder(Data.Plugin_Data_Path).toFile("ConfigServer.json")
+        val fileUtils = FileUtils.getFolder(Data.Plugin_Data_Path).toFile("ConfigServer.json")
 
         @JvmStatic
         fun stringToClass(): BaseServerConfig {
-            val config: BaseServerConfig = BaseServerConfig::class.java.toGson(fileUtil.readFileStringData())
+            val config: BaseServerConfig = BaseServerConfig::class.java.toGson(fileUtils.readFileStringData())
 
             // PATH
             config.allName().eachAll {

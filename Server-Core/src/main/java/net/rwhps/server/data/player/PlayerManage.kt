@@ -14,7 +14,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.I18NBundle
-import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.IsUtils
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -61,7 +61,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
         }
 
         if (Data.core.admin.isAdmin(player)) {
-            val data = Data.core.admin.playerAdminData.get(player.uuid)
+            val data = Data.core.admin.playerAdminData.get(player.uuid)!!
             player.isAdmin = data.admin
             player.superAdmin = data.superAdmin
         }
@@ -174,7 +174,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
                     if (playerData[i] == null) {
                         playerData[i] = player
                         player.site = i
-                        player.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
+                        player.team = if (IsUtils.isTwoTimes(i + 1)) 1 else 0
                         return
                     }
                 }
@@ -196,7 +196,7 @@ class PlayerManage(private val maxPlayerSize: Int) {
         moveLock.withLock {
             for (i in 0 until maxPlayerSize) {
                 if (playerData[i] != null) {
-                    playerData[i]!!.team = if (IsUtil.isTwoTimes(i + 1)) 1 else 0
+                    playerData[i]!!.team = if (IsUtils.isTwoTimes(i + 1)) 1 else 0
                 }
             }
         }

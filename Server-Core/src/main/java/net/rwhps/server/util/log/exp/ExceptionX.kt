@@ -9,8 +9,7 @@
 
 package net.rwhps.server.util.log.exp
 
-import net.rwhps.server.util.SystemUtil
-import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.SystemUtils
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -48,7 +47,7 @@ object ExceptionX {
      */
     private object Java14NullPointerExceptionUsefulMessageSupport {
         fun maybeReplaceUsefulNullPointerMessage(throwableIn: Throwable): Throwable {
-            if (throwableIn is NullPointerException && SystemUtil.isJavaVersionAtLeast(14F)) {
+            if (throwableIn is NullPointerException && SystemUtils.isJavaVersionAtLeast(14F)) {
                 var throwable: NullPointerException = throwableIn
                 val stackTrace = throwable.stackTrace
                 throwable = try {

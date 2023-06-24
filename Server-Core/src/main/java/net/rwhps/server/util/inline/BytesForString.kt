@@ -12,7 +12,7 @@
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.util.algorithms.HexUtil
+import net.rwhps.server.util.algorithms.HexUtils
 
 
 @JvmOverloads
@@ -22,9 +22,9 @@ fun Byte.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) : Str
 
 @JvmOverloads
 fun ByteArray.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) : String {
-    HexUtil.encodeHexStr(this, toLowerCase).let {
+    HexUtils.encodeHexStr(this, toLowerCase).let {
         if (format) {
-            return HexUtil.format(it)
+            return HexUtils.format(it)
         } else {
             return it
         }
@@ -32,9 +32,9 @@ fun ByteArray.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) 
 }
 
 fun String.hexToByte() : Byte {
-    return HexUtil.decodeHex(this)[0]
+    return HexUtils.decodeHex(this)[0]
 }
 
 fun String.hexToBytes() : ByteArray {
-    return HexUtil.decodeHex(this)
+    return HexUtils.decodeHex(this)
 }

@@ -13,7 +13,8 @@
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.io.IoRead
 import java.io.InputStream
 
@@ -25,11 +26,19 @@ fun InputStream.readBytes(): ByteArray {
     return IoRead.readInputStreamBytes(this)
 }
 
+fun InputStream.readString(): String {
+    return FileUtils.readFileString(this)
+}
+
+fun InputStream.readFileListString(): Seq<String> {
+    return FileUtils.readFileListString(this)
+}
+
 fun Class<*>.readBytes(): ByteArray {
     return this.javaClass.toString().readAsClassBytes()
 }
 fun String.readAsClassBytes(): ByteArray {
-    return FileUtil.getInternalFileStream(
+    return FileUtils.getInternalFileStream(
         "/"+this
             .replace("class ", "")
             .replace(".", "/")+".class"

@@ -10,7 +10,7 @@
 package net.rwhps.server.util.algorithms.codec
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.ExtractUtil
+import net.rwhps.server.util.ExtractUtils
 import java.nio.charset.Charset
 
 
@@ -43,7 +43,7 @@ object Base32 {
      */
     @JvmOverloads
     fun encode(source: String, charset: Charset = Data.UTF_8): String {
-        return encode(ExtractUtil.bytes(source, charset))
+        return encode(ExtractUtils.bytes(source, charset))
     }
 
     /**
@@ -64,7 +64,7 @@ object Base32 {
      */
     @JvmOverloads
     fun encodeHex(source: String, charset: Charset = Data.UTF_8): String {
-        return encodeHex(ExtractUtil.bytes(source, charset))
+        return encodeHex(ExtractUtils.bytes(source, charset))
     }
     
     /**
@@ -85,7 +85,7 @@ object Base32 {
      */
     @JvmOverloads
     fun decodeStr(source: String, charset: Charset = Data.UTF_8): String {
-        return ExtractUtil.str(decode(source), charset)
+        return ExtractUtils.str(decode(source), charset)
     }
 
     /**
@@ -106,6 +106,6 @@ object Base32 {
      */
     @JvmOverloads
     fun decodeStrHex(source: String, charset: Charset = Data.UTF_8): String {
-        return ExtractUtil.str(decodeHex(source), charset)
+        return ExtractUtils.str(decodeHex(source), charset)
     }
 }

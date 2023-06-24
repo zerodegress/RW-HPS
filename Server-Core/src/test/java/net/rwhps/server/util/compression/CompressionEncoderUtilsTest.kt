@@ -2,9 +2,10 @@ package net.rwhps.server.util.compression
 
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
-import net.rwhps.server.util.ExtractUtil
+import net.rwhps.server.util.ExtractUtils
 import net.rwhps.server.util.log.Log
 import org.junit.jupiter.api.Test
+
 import java.io.ByteArrayInputStream
 
 /**
@@ -19,7 +20,7 @@ class CompressionEncoderUtilsTest {
 
     @Test
     fun zipStream() {
-        ExtractUtil.tryRunTest {
+        ExtractUtils.tryRunTest {
             val zip = CompressionEncoderUtils.zipStream()
             val bytes = GameOutputStream().apply {
                 writeInt(0)
@@ -52,7 +53,7 @@ class CompressionEncoderUtilsTest {
 
     @Test
     fun lz77Stream() {
-        ExtractUtil.tryRunTest {
+        ExtractUtils.tryRunTest {
             val lz77 = CompressionEncoderUtils.lz77Stream()
             val bytes = GameOutputStream().apply {
                 writeInt(0)
@@ -74,12 +75,12 @@ class CompressionEncoderUtilsTest {
             lz77New.addCompressBytes("/bytes/inStream-HPS", DisableSyncByteArrayInputStream(bytes))
             lz77New.addCompressBytes("/bytes/inStream-Java", ByteArrayInputStream(bytes))
 
-            val unzip = CompressionDecoderUtils.lz77Stream(DisableSyncByteArrayInputStream(lz77New.flash()))
+            val unzip = CompressionDecoderUtils.sevenZipStream(DisableSyncByteArrayInputStream(lz77New.flash()))
 
             lz77.addCompressBytes("7z_New", unzip)
 
 //            val file = FileUtil.getFile("CompressionEncoderUtilsTest.7z")
-//            file.writeFileByte(lz77.flash())
+//            file.writeFileByte(seven.flash())
         }
     }
 }

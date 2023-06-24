@@ -12,7 +12,7 @@ package net.rwhps.server.data.base
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
@@ -36,7 +36,7 @@ data class BaseRelayConfig(
 ) {
 
     fun save() {
-        fileUtil.writeFile(this.toPrettyPrintingJson())
+        fileUtils.writeFile(this.toPrettyPrintingJson())
     }
 
     private fun coverField(name: String,value: Any): Boolean {
@@ -63,12 +63,12 @@ data class BaseRelayConfig(
     }
 
     companion object {
-        val fileUtil = FileUtil.getFolder(Data.Plugin_Data_Path).toFile("RelayConfig.json")
+        val fileUtils = FileUtils.getFolder(Data.Plugin_Data_Path).toFile("RelayConfig.json")
 
         @JvmStatic
         fun stringToClass(): BaseRelayConfig {
 
-            val config: BaseRelayConfig = BaseRelayConfig::class.java.toGson(fileUtil.readFileStringData())
+            val config: BaseRelayConfig = BaseRelayConfig::class.java.toGson(fileUtils.readFileStringData())
 
             // PATH
             config.allName().eachAll {

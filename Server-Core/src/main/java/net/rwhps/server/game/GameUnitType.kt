@@ -53,7 +53,7 @@ class GameUnitType {
             // 进行全匹配 查看是否在游戏内置列表中
             fun from(type: String?): GameActions? = GameActions.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
 
-            fun from(type: Int): GameActions = actionMap[type].ifNullResult({ it }) { UNKNOWN }
+            fun from(type: Int): GameActions = actionMap[type].ifNullResult(UNKNOWN) { it }
         }
     }
 
@@ -127,7 +127,7 @@ class GameUnitType {
             // 进行全匹配 查看是否在游戏内置列表中
             fun from(type: String?): GameUnits? = GameUnits.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
 
-            fun from(type: Int): GameUnits = unitMap[type].ifNullResult({ it }) { UNKNOWN }
+            fun from(type: Int): GameUnits = unitMap[type].ifNullResult(UNKNOWN) { it }
         }
     }
     
@@ -240,7 +240,7 @@ class GameUnitType {
             // 进行全匹配 查看是否在游戏内置列表中
             fun from(type: String?): GameCustomUnits? = GameCustomUnits.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
 
-            fun from(type: Int): GameCustomUnits = customUnitMap[type].ifNullResult({ it }) { UNKNOWN }
+            fun from(type: Int): GameCustomUnits = customUnitMap[type].ifNullResult(UNKNOWN) { it }
         }
     }
 }

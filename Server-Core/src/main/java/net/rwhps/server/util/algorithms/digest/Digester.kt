@@ -10,10 +10,10 @@
 package net.rwhps.server.util.algorithms.digest
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.ExtractUtil
-import net.rwhps.server.util.algorithms.HexUtil
-import net.rwhps.server.util.algorithms.SecureUtil
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.ExtractUtils
+import net.rwhps.server.util.algorithms.HexUtils
+import net.rwhps.server.util.algorithms.SecureUtils
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.io.IoRead
 import net.rwhps.server.util.log.exp.CryptoException
 import java.io.File
@@ -83,7 +83,7 @@ open class Digester {
      */
     fun init(algorithm: String, provider: Provider?): Digester {
         digest = if (null == provider) {
-            SecureUtil.createMessageDigest(algorithm)
+            SecureUtils.createMessageDigest(algorithm)
         } else {
             try {
                 MessageDigest.getInstance(algorithm, provider)
@@ -170,7 +170,7 @@ open class Digester {
      * @return 摘要
      */
     fun digest(data: String, charset: Charset): ByteArray {
-        return digest(ExtractUtil.bytes(data, charset))
+        return digest(ExtractUtils.bytes(data, charset))
     }
 
     /**
@@ -202,7 +202,7 @@ open class Digester {
      * @return 摘要
      */
     fun digestHex(data: String, charset: Charset): String {
-        return HexUtil.encodeHexStr(digest(data, charset))
+        return HexUtils.encodeHexStr(digest(data, charset))
     }
 
     /**
@@ -215,7 +215,7 @@ open class Digester {
      */
     @Throws(IOException::class)
     fun digest(file: File): ByteArray {
-        return FileUtil(file,false).readFileByte()
+        return FileUtils(file,false).readFileByte()
     }
 
     /**
@@ -226,7 +226,7 @@ open class Digester {
      * @return 摘要
      */
     fun digestHex(file: File): String {
-        return HexUtil.encodeHexStr(digest(file))
+        return HexUtils.encodeHexStr(digest(file))
     }
 
     /**
@@ -262,7 +262,7 @@ open class Digester {
      * @return 摘要
      */
     fun digestHex(data: ByteArray): String {
-        return HexUtil.encodeHexStr(digest(data))
+        return HexUtils.encodeHexStr(digest(data))
     }
 
     /**
@@ -286,7 +286,7 @@ open class Digester {
      * @return 摘要
      */
     fun digestHex(data: InputStream): String {
-        return HexUtil.encodeHexStr(digest(data))
+        return HexUtils.encodeHexStr(digest(data))
     }
 
     /**

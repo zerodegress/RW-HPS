@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Simple utility class for working with the reflection API and handling
  * reflection exceptions.
- *
+ * <p>
  * Only intended for internal use.
  */
 public abstract class ReflectionUtils {
@@ -530,7 +530,6 @@ public abstract class ReflectionUtils {
         }
     }
 
-    @Nullable
     public static boolean findSuperClass(Class<?> clazz, @Nullable Class<?> sup) {
         Class<?> searchType = clazz;
         while (Object.class != searchType && searchType != null) {

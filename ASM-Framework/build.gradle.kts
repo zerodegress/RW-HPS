@@ -1,6 +1,26 @@
+/*
+ * Copyright 2020-2023 RW-HPS Team and contributors.
+ *
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ */
+
+import buildSrc.makeDependTree
+
 dependencies {
-	implementation("org.ow2.asm:asm:9.4")
-	implementation("org.ow2.asm:asm-tree:9.4")
+	compileOnlyAndTest("org.ow2.asm:asm:9.4")
+	compileOnlyAndTest("org.ow2.asm:asm-tree:9.4")
+}
+
+tasks.jar {
+	project.makeDependTree()
+}
+
+fun DependencyHandler.compileOnlyAndTest(dependencyNotation: Any) {
+	this.testImplementation(dependencyNotation)
+	this.compileOnly(dependencyNotation)
 }
 
 publishing {

@@ -82,9 +82,9 @@ fun String.toClassAutoLoader(obj: Any): Class<*>? {
  */
 fun String.toClass(loader: ClassLoader?): Class<*>? {
     return loader.ifNullResult({
-        Class.forName(this,true,loader)
-    }) {
         Class.forName(this)
+    }) {
+        Class.forName(this,true,loader)
     }
 }
 

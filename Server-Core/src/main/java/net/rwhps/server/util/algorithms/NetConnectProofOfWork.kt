@@ -12,10 +12,10 @@ package net.rwhps.server.util.algorithms
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.struct.SerializerTypeAll
-import net.rwhps.server.util.RandomUtil
+import net.rwhps.server.util.RandomUtils
 import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.algorithms.digest.DigestUtil
+import net.rwhps.server.util.algorithms.digest.DigestUtils
 import java.io.IOException
 import java.math.BigInteger
 import java.util.concurrent.ThreadLocalRandom
@@ -65,18 +65,18 @@ internal class NetConnectProofOfWork {
         when (authenticateType) {
             in 3..4 -> {
                 outcome = StringFilteringUtil.cutting(
-                    BigInteger(1, DigestUtil.sha256("$initInt_1|$initInt_2")).toString(16).uppercase(), 14
+                    BigInteger(1, DigestUtils.sha256("$initInt_1|$initInt_2")).toString(16).uppercase(), 14
                 )
                 fixedInitial = ""
                 off = 0
                 maximumNumberOfCalculations = 0
             }
             in 5..6 -> {
-                fixedInitial = RandomUtil.getRandomIetterString(4).let { if (authenticateType == 6) "$it$initInt_1" else it }
+                fixedInitial = RandomUtils.getRandomIetterString(4).let { if (authenticateType == 6) "$it$initInt_1" else it }
                 off = rand.nextInt(0, 10)
                 maximumNumberOfCalculations = rand.nextInt(0, 10000000)
                 outcome = StringFilteringUtil.cutting(
-                    BigInteger(1, DigestUtil.sha256(fixedInitial + "" + off)).toString(16).uppercase(), 14
+                    BigInteger(1, DigestUtils.sha256(fixedInitial + "" + off)).toString(16).uppercase(), 14
                 )
             }
             else -> {

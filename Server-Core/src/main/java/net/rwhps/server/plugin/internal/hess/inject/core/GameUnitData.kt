@@ -35,11 +35,11 @@ internal class GameUnitData : AbstractGameUnitData {
         for(data in gameUnitDataList) {
             val group = data.t() ?: coreName
             if (modsData.containsKey(group)) {
-                modsData.get(group).put(data.M,data.H)
+                modsData[group]!![data.M] = data.H
             } else {
-                val cache = OrderedMap<String, Int>()
-                modsData.put(group,cache)
-                cache.put(data.M,data.H)
+                val cache = ObjectMap<String, Int>()
+                modsData[group] = cache
+                cache[data.M] = data.H
             }
         }
         return modsData

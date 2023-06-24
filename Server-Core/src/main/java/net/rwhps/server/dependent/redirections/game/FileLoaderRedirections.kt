@@ -15,12 +15,12 @@ import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.alone.annotations.AsmMark
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.util.alone.annotations.mark.AsmMark
 import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileName
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.inline.accessibleConstructor
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.readAsClassBytes
@@ -41,17 +41,17 @@ import java.lang.reflect.Method
 @AsmMark.ClassLoaderCompatible
 @GameSimulationLayer.GameSimulationLayer_KeyWords("FileLoader: ")
 class FileLoaderRedirections : MainRedirections {
-    private val font = CompressionDecoderUtils.lz77Stream(FileUtil.getInternalFileStream("/font.7z")).getZipAllBytes()
+    private val font by lazy { CompressionDecoderUtils.sevenZip(FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).toFile("Game-Fonts.7z").file).getZipAllBytes() }
     private val fileSystemAsm = "FileLoader-ASM: "
-    private val fileSystemLocation = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).file
+    private val fileSystemLocation = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).file
 
     init {
         // Mkdie Mods Folder
-        FileUtil.getFolder(Data.Plugin_Mods_Path).mkdir()
+        FileUtils.getFolder(Data.Plugin_Mods_Path).mkdir()
         // 清理Hess的数据, 避免启用安全模式
-        FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFile("preferences.ini").delete()
+        FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).toFile("preferences.ini").delete()
         // 清除无用缓存
-        FileUtil.getFolder(Data.Plugin_Cache_Path).delete()
+        FileUtils.getFolder(Data.Plugin_Cache_Path).delete()
     }
 
     override fun register() {
@@ -77,7 +77,7 @@ class FileLoaderRedirections : MainRedirections {
         }
 
         // 重定向部分文件系统 (mods maps replay)
-        val filePath = FileUtil.getPath(Data.Plugin_Data_Path)+"/"
+        val filePath = FileUtils.getPath(Data.Plugin_Data_Path)+"/"
         // 设置 重定向文件PATH类
         redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("f","()Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             filePath
@@ -87,9 +87,9 @@ class FileLoaderRedirections : MainRedirections {
         }
 
         // 重定向资源文件系统 (Res FileSystem)
-        val resAndAssetsPath = FileUtil.getPath(Data.Plugin_GameCore_Data_Path)+"/"
+        val resAndAssetsPath = FileUtils.getPath(Data.Plugin_GameCore_Data_Path)+"/"
         redirect("com/corrodinggames/rts/gameFramework/e/c" , arrayOf("a","(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
-            val listFiles: Seq<File> = FileUtil.getFolder(Data.Plugin_GameCore_Data_Path).toFolder(args[0].toString()).fileList
+            val listFiles: Seq<File> = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).toFolder(args[0].toString()).fileList
             for (file in listFiles) {
                 val name: String = FileName.getFileNameNoSuffix(file.name)
                 if (name == args[1]) {
@@ -121,10 +121,10 @@ class FileLoaderRedirections : MainRedirections {
                 val find: (String, String,String)->String? = { pathIn,  path, toPath ->
                     if (pathIn.startsWith(path)) {
                         if (pathIn == path) {
-                            FileUtil.getPath(toPath)
+                            FileUtils.getPath(toPath)
                         } else {
                             // 一个小问题, 来自 splicePath , 他会默认在屁股后面加一个 /
-                            FileUtil.splicePath(FileUtil.getPath(toPath),pathIn.substring(path.length))
+                            FileUtils.splicePath(FileUtils.getPath(toPath),pathIn.substring(path.length))
                         }
                     } else {
                         null

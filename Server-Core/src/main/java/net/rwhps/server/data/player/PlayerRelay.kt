@@ -10,6 +10,7 @@
 package net.rwhps.server.data.player
 
 import net.rwhps.server.data.totalizer.TimeAndNumber
+import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.Time
 
@@ -41,6 +42,12 @@ class PlayerRelay(
         }
     /** List position  */
     var site = 0
+        set(value) {
+            if (field != value && con.relay!!.battleRoyalLock) {
+                con.sendPackageToHOST(chatUserMessagePacketInternal("-qc -self_team ${value+1}"))
+            }
+            field = value
+        }
     var watch = false
         private set
     /** Mute expiration time */

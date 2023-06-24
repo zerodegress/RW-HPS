@@ -10,6 +10,7 @@
 package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.struct.BaseMap.Companion.toSeq
 import net.rwhps.server.struct.ObjectMap
 
 /**
@@ -103,8 +104,8 @@ internal object ColorCodes {
         }
 
 
-        CODES = map.keys().toSeq().toArray(String::class.java)
-        VALUES = map.values().toSeq().toArray(String::class.java)
+        CODES = map.keys.toSeq().toArray(String::class.java)
+        VALUES = map.values.toSeq().toArray(String::class.java)
     }
 
     fun formatColors(text: String, empty: Boolean = false): String {

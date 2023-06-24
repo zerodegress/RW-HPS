@@ -27,6 +27,6 @@ class LongIntMap : BaseMap<Long, Int> {
             } else {
                 it
             }
-        } as java.util.Map<Long, Int>
+        } as java.util.Map<Long, Int>, threadSafety
     )
 }

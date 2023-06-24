@@ -50,7 +50,7 @@ class PlayerHessManage {
             }
 
             if (Data.core.admin.isAdmin(player!!)) {
-                val data = Data.core.admin.playerAdminData.get(player!!.connectHexID)
+                val data = Data.core.admin.playerAdminData.get(player!!.connectHexID)!!
                 player!!.isAdmin = data.admin
                 player!!.superAdmin = data.superAdmin
             }

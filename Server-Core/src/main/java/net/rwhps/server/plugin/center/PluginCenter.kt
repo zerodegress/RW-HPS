@@ -15,7 +15,8 @@ import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.plugin.GetVersion
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.file.FileUtil.Companion.getFolder
+import net.rwhps.server.util.alone.annotations.NeedToRefactor
+import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
 
 /**
@@ -23,6 +24,7 @@ import net.rwhps.server.util.game.CommandHandler
  *
  * @author RW-HPS/Dr
  */
+@NeedToRefactor
 class PluginCenter {
     private val pluginCommand = CommandHandler("")
     private var pluginCenterData: PluginCenterData

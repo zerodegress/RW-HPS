@@ -17,11 +17,10 @@ import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.SerializerTypeAll
-import net.rwhps.server.util.IsUtil.isBlank
-import net.rwhps.server.util.alone.annotations.NeedToRefactor
+import net.rwhps.server.util.IsUtils.isBlank
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.compression.gzip.GzipDecoder.getGzipInputStream
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
 import net.rwhps.server.util.log.exp.CompressionException
@@ -34,22 +33,21 @@ import java.io.*
  * 此类型处于实验性阶段. 使用其中定义的属性和函数是安全的, 但将来可能会新增成员抽象函数.
  * @author RW-HPS/Dr
  */
-@NeedToRefactor
 internal open class AbstractPluginData {
     private val pluginData = OrderedMap<String, Value<*>>()
     private val byteInputStream = ReusableDisableSyncByteArrayInputStream()
     private val byteStream = ByteArrayOutputStream()
     private val dataOutput = GameOutputStream(byteStream)
-    private var fileUtil: FileUtil? = null
+    private var fileUtils: FileUtils? = null
     private var code: String = "gzip"
 
     /**
      * 这个 [PluginData] 保存时使用的文件.
-     * @param fileUtil FileUtil
+     * @param fileUtils FileUtil
      */
-    fun setFileUtil(fileUtil: FileUtil, code: String = "gzip") {
-        this.fileUtil = fileUtil
-        fileUtil.createNewFile()
+    fun setFileUtil(fileUtils: FileUtils, code: String = "gzip") {
+        this.fileUtils = fileUtils
+        fileUtils.createNewFile()
         this.code = code
         this.read()
     }
@@ -62,7 +60,7 @@ internal open class AbstractPluginData {
     </T> */
     inline fun <reified T> setData(name: String, data: T) {
         if (SERIALIZERS.containsKey(T::class.java)) {
-            pluginData.put(name, Value(data))
+            pluginData[name] = Value(data)
         } else {
             throw VariableException.ObjectMapRuntimeException("${T::class.java} : UNSUPPORTED_SERIALIZATION")
         }
@@ -80,7 +78,7 @@ internal open class AbstractPluginData {
     </T> */
     @Suppress("UNCHECKED_CAST")
     fun <T> getData(name: String): T {
-        return pluginData[name].data as T
+        return pluginData[name]?.data as T
     }
 
     /**
@@ -101,11 +99,11 @@ internal open class AbstractPluginData {
     }
 
     fun read() {
-        if (isBlank(fileUtil) || fileUtil!!.notExists() || fileUtil!!.length() < 1) {
+        if (isBlank(fileUtils) || fileUtils!!.notExists() || fileUtils!!.length() < 1) {
             return
         }
         try {
-            fileUtil!!.getInputsStream().use { stream -> read(stream) }
+            fileUtils!!.getInputsStream().use { stream -> read(stream) }
         } catch (e: Exception) {
             error("[Read BIN Error]",e)
         }
@@ -115,7 +113,7 @@ internal open class AbstractPluginData {
     fun read(inStream: InputStream) {
         val gameInputStream: GameInputStream =
             when(code) {
-                "7z" -> GameInputStream(CompressionDecoderUtils.lz77Stream(inStream).getZipAllBytes()["file"])
+                "7z" -> GameInputStream(CompressionDecoderUtils.sevenZipStream(inStream).getZipAllBytes()["file"]!!)
                 "gzip" -> GameInputStream(getGzipInputStream(inStream))
                 else -> throw CompressionException.CryptographicException(code)
             }
@@ -125,20 +123,19 @@ internal open class AbstractPluginData {
                 val amount = stream.readInt()
                 for (i in 0 until amount) {
                     var length: Int
-                    var bytes: ByteArray
                     val key = stream.readString()
                     when (val type = stream.readByte()) {
-                        0 -> pluginData.put(key, Value(stream.readBoolean()))
-                        1 -> pluginData.put(key, Value(stream.readInt()))
-                        2 -> pluginData.put(key, Value(stream.readLong()))
-                        3 -> pluginData.put(key, Value(stream.readFloat()))
-                        4 -> pluginData.put(key, Value(stream.readString()))
+                        0 -> pluginData[key] = Value(stream.readBoolean())
+                        1 -> pluginData[key] = Value(stream.readInt())
+                        2 -> pluginData[key] = Value(stream.readLong())
+                        3 -> pluginData[key] = Value(stream.readFloat())
+                        4 -> pluginData[key] = Value(stream.readString())
                         5 -> {
                             /* 把String转为Class,来进行反序列化 */
                             val classCache: Class<*> = Class.forName(stream.readString().replace("net.rwhps.server", "net.rwhps.server"))
                             length = stream.readInt()
-                            bytes = stream.readNBytes(length)
-                            pluginData.put(key, Value(getObject(classCache, bytes)))
+                            val bytes = stream.readNBytes(length)
+                            pluginData[key] = Value(getObject(classCache, bytes))
                         }
 
                         else -> throw IllegalStateException("Unexpected value: $type")
@@ -154,11 +151,11 @@ internal open class AbstractPluginData {
     }
 
     fun save() {
-        if (isBlank(fileUtil) || fileUtil!!.notExists()) {
+        if (isBlank(fileUtils) || fileUtils!!.notExists()) {
             return
         }
         try {
-            fileUtil!!.writeByteOutputStream(false).use { stream -> save(stream) }
+            fileUtils!!.writeByteOutputStream(false).use { stream -> save(stream) }
         } catch (e: Exception) {
             error("[Write BIN Error]",e)
         }
@@ -216,7 +213,7 @@ internal open class AbstractPluginData {
             outputStream.write(gameOutputStream.getByteArray())
             outputStream.flush()
         } catch (e: Exception) {
-            fileUtil!!.file.delete()
+            fileUtils!!.file.delete()
             error("Write Data", e)
             throw RuntimeException()
         }
@@ -231,7 +228,7 @@ internal open class AbstractPluginData {
             error(IllegalArgumentException("Type $type does not have a serializer registered!"))
             return null
         }
-        val serializer = SERIALIZERS[type]
+        val serializer = SERIALIZERS[type]!!
         return try {
             byteInputStream.setBytes(bytes)
             val obj = serializer.read(GameInputStream(byteInputStream)) ?: return null
@@ -254,7 +251,8 @@ internal open class AbstractPluginData {
     }
 
     companion object {
-        private val SERIALIZERS = ObjectMap<Class<*>, SerializerTypeAll.TypeSerializer<Any?>>()
+        private val SERIALIZERS =
+            ObjectMap<Class<*>, SerializerTypeAll.TypeSerializer<Any?>>()
 
         init {
             register()
@@ -266,7 +264,7 @@ internal open class AbstractPluginData {
 
         internal fun <T> setSerializer(type: Class<*>, ser: SerializerTypeAll.TypeSerializer<T>) {
             @Suppress("UNCHECKED_CAST")
-            SERIALIZERS.put(type, ser as SerializerTypeAll.TypeSerializer<Any?>)
+            SERIALIZERS[type] = (ser as SerializerTypeAll.TypeSerializer<Any?>)
         }
     }
 }

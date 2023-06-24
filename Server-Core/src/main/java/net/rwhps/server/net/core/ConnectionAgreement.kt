@@ -15,7 +15,7 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.handler.rudp.PackagingSocket
 import net.rwhps.server.util.IPCountry
-import net.rwhps.server.util.IpUtil
+import net.rwhps.server.util.IpUtils
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
@@ -63,7 +63,7 @@ class ConnectionAgreement {
         isClosed = { false }
 
         ip = convertIp(channel.remoteAddress().toString())
-        ipLong24 = IpUtil.ipToLong24(ip,false)
+        ipLong24 = IpUtils.ipToLong24(ip,false)
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = (channel.localAddress() as InetSocketAddress).port
@@ -88,7 +88,7 @@ class ConnectionAgreement {
         isClosed = { socket.isClosed }
 
         ip = convertIp(socket.remoteSocketAddressString)
-        ipLong24 = IpUtil.ipToLong24(ip,false)
+        ipLong24 = IpUtils.ipToLong24(ip,false)
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = socket.localPort
@@ -116,6 +116,16 @@ class ConnectionAgreement {
         }
     }
 
+    fun remove(groupNet: GroupNet?) {
+        if (groupNet != null) {
+            if (objectOutStream is ChannelHandlerContext) {
+                groupNet.remove(objectOutStream.channel())
+            } else if (objectOutStream is PackagingSocket) {
+                groupNet.remove(this)
+            }
+        }
+    }
+
     /**
      * 接管Send逻辑
      * 整合不同协议的发送逻辑
@@ -139,13 +149,8 @@ class ConnectionAgreement {
     fun close(groupNet: GroupNet?) {
         Events.fire(EventGlobalType.NewCloseEvent(this))
 
-        if (groupNet != null) {
-            if (objectOutStream is ChannelHandlerContext) {
-                groupNet.remove(objectOutStream.channel())
-            } else if (objectOutStream is PackagingSocket) {
-                groupNet.remove(this)
-            }
-        }
+        remove(groupNet)
+
         if (objectOutStream is ChannelHandlerContext) {
             objectOutStream.channel().close()
             objectOutStream.close()

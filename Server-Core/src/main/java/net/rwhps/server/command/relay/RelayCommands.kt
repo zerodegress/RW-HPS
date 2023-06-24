@@ -13,8 +13,8 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.util.IpUtil
-import net.rwhps.server.util.IsUtil.isBlank
+import net.rwhps.server.util.IpUtils
+import net.rwhps.server.util.IsUtils.isBlank
 import net.rwhps.server.util.game.CommandHandler
 
 /**
@@ -37,7 +37,7 @@ class RelayCommands(handler: CommandHandler) {
                 relay!!.groupNet.disconnect()
                 relay.sendMsg("You are banned by the administrator, please do not occupy public resources")
                 val ip = relay.admin!!.ip
-                Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(ip,false))
+                Data.core.admin.bannedIP24.add(IpUtils.ipToLong24(ip,false))
                 relay.admin!!.disconnect()
                 log["OK!  $ip The *.*.*.0 segment is disabled"]
             }
@@ -45,13 +45,13 @@ class RelayCommands(handler: CommandHandler) {
 
         handler.register("banip", "<ip>", "serverCommands.banrelay") { arg: Array<String>, log: StrCons ->
             val ip = arg[0]
-            Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(ip,false))
+            Data.core.admin.bannedIP24.add(IpUtils.ipToLong24(ip,false))
             log["OK!  $ip The *.*.*.0 segment is disabled"]
         }
 
         handler.register("unbanrelay", "<ip>", "serverCommands.unBanrelay") { arg: Array<String>, log: StrCons ->
             val ip = arg[0]
-            Data.core.admin.bannedIP24.remove(IpUtil.ipToLong24(ip,false))
+            Data.core.admin.bannedIP24.remove(IpUtils.ipToLong24(ip,false))
             log["OK!  $ip The *.*.*.0 segment is unDisabled"]
         }
 
@@ -63,7 +63,7 @@ class RelayCommands(handler: CommandHandler) {
                 val data = StringBuilder()
                 for (ipLong in Data.core.admin.bannedIP24) {
                     data.append(Data.LINE_SEPARATOR)
-                        .append("IP: ").append(IpUtil.longToIp(ipLong))
+                        .append("IP: ").append(IpUtils.longToIp(ipLong))
                 }
                 log[data.toString()]
             }

@@ -9,11 +9,16 @@
 
 package net.rwhps.server.dependent
 
+import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.plugin.PluginData
+import net.rwhps.server.func.Control
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import net.rwhps.server.net.HttpRequestOkHttp
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.algorithms.digest.DigestUtils
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.LibraryManagerError
 import org.w3c.dom.Node
@@ -29,18 +34,23 @@ import java.util.jar.JarFile
  * @author RW-HPS/Dr
  */
 class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachData() {
-    private val source = Seq<UrlData>()
+    private val source = Seq<String>()
 
     init {
         if (china) {
-            source.add(UrlData.MavenAli)
-            source.add(UrlData.Maven)
+            source.add(UrlData["MavenAli"]!!)
+            source.add(UrlData["MavenTencent"]!!)
+            source.add(UrlData["MavenNetease"]!!)
+            source.add(UrlData["MavenHuaWei"]!!)
+            source.add(UrlData["Maven"]!!)
+            source.add(UrlData["JitPack"]!!)
         } else {
-            source.add(UrlData.Maven)
+            source.add(UrlData["Maven"]!!)
+            source.add(UrlData["JitPack"]!!)
         }
     }
 
-    fun addSource(source: UrlData) {
+    fun addSource(source: String) {
         this.source.add(source)
     }
 
@@ -58,7 +68,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
      *
      * @param file FileUtil
      */
-    fun customImportLib(file: FileUtil) {
+    fun customImportLib(file: FileUtils) {
         dependenciesFile.add(file.file)
     }
 
@@ -87,9 +97,9 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
      */
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     @JvmOverloads
-    fun implementation(group: String, module: String, version: String, block: (LibraryManager.() -> Unit)? = null) {
+    fun implementation(group: String, module: String, version: String, classifier: String = "", block: (LibraryManager.() -> Unit)? = null) {
         block?.run { this() }
-        importLib0(group, module, version)
+        importLib0(group, module, version, classifier)
     }
 
     /**
@@ -98,8 +108,11 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
      * @param group                 组
      * @param module                模块
      */
-    fun exclude(group: String, module: String) {
-        tempGroup.add(ImportGroupData(group,module,""))
+    fun exclude(group: String, module: String, version: String, classifier: String) {
+        val import = ImportGroupData(group, module, version, classifier)
+        if (!tempGroup.contains(import)) {
+            tempGroup.add(import)
+        }
     }
 
     /**
@@ -130,7 +143,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
      */
     private fun load() {
         dependenciesDown.eachAll {
-            val file = FileUtil.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
+            val file = FileUtils.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
             if (!file.exists()) {
                 HttpRequestOkHttp.downUrl(it.getDownUrl(),file,true).also { success ->
                     if (success) {
@@ -183,11 +196,11 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
         if (array.size == 4) {
             importLib0(array[0], array[1], array[2], array[3], down)
         } else {
-            importLib0(array[0], array[1], array[2], down = down)
+            importLib0(array[0], array[1], array[2], "", down = down)
         }
     }
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
-    private fun importLib0(group: String, module: String, version: String, classifier: String = "", down: Boolean = true) {
+    private fun importLib0(group: String, module: String, version: String, classifier: String, down: Boolean = true) {
         val groupArray = group.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val constructSource = StringBuilder("/")
         for (s in groupArray) {
@@ -195,16 +208,16 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
         }
         constructSource.append(module).append("/")
             .append(version).append("/")
-            .append(module).append("-")
-            .append(version)
-        val savePath =  if (classifier.isBlank()) "$module-$version.jar" else "$module-$version-$classifier.jar"
-        val groupLibData = ImportGroupData(group,module,version)
+            .append(module).append("-").append(version)
+
+        val saveFileName = if (classifier.isBlank()) "$module-$version.jar" else "$module-$version-$classifier.jar"
+        val groupLibData = ImportGroupData(group, module, version, classifier)
         if (tempGroup.contains(groupLibData)) {
-            Log.debug("[Maven module]",module)
+            //Log.debug("[Maven module]",module)
             return
         }
         tempGroup.add(groupLibData)
-        getDepend(ImportData(constructSource.toString(), savePath),down)
+        getDepend(groupLibData, ImportData(constructSource.toString(), classifier, saveFileName),down)
     }
 
     /**
@@ -218,22 +231,35 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
      * @author way-zer
      */
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
-    private fun getDepend(importData: ImportData, down: Boolean) {
-        source.eachAll { pomUrl ->
-            val result = HttpRequestOkHttp.doGet(importData.getDownPom(pomUrl))
-            if (result.isNotBlank() && result.contains("project",true)) {
+    private fun getDepend(groupLibData: ImportGroupData, importData: ImportData, down: Boolean) {
+        source.eachControlAll { pomUrl ->
+            val pomCacheResult = pomCache[groupLibData.toString()] ?:HttpRequestOkHttp.doGet(importData.getDownPom(pomUrl)).let {
+                    if (it.isBlank()) {
+                        return@let ""
+                    }
+
+                    if (!DigestUtils.md5Hex(it).equals(HttpRequestOkHttp.doGet(importData.getPomVerifyHash(pomUrl)), ignoreCase = true)) {
+                        Log.error("[Pom Verify Hash] Does not match", importData.getDownPom(pomUrl))
+                        return@let ""
+                    } else {
+                        pomCache[groupLibData.toString()] = it
+                        return@let it
+                    }
+                }
+
+            if (pomCacheResult.isNotBlank() && pomCacheResult.contains("project", true)) {
                 // Set a valid source
                 importData.mainSource = pomUrl
                 try {
                     val doc = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply {
                         isIgnoringComments = true
                         isIgnoringElementContentWhitespace = true
-                    }.newDocumentBuilder().parse(DisableSyncByteArrayInputStream(result.toByteArray()))
+                    }.newDocumentBuilder().parse(DisableSyncByteArrayInputStream(pomCacheResult.toByteArray()))
 
                     val root = doc.firstChild.also {
                         if (it.nodeName != "project") {
                             Log.error("[resolve Pom] Error Pom: $pomUrl")
-                            return@eachAll
+                            return@eachControlAll Control.CONTINUE
                         }
                     }.toMap()
 
@@ -284,22 +310,30 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
                                 return@forEach
                             }
 
-                        importLib0(group, name, version, down = down)
+                        val versionArray = version.split("-")
+                        if (versionArray.size > 1) {
+                            importLib0(group, name, versionArray[0], versionArray[1], down = down)
+                        } else {
+                            importLib0(group, name, version, "", down = down)
+                        }
                     }
                 } catch (_: Exception) {
                 }
                 if (down) {
-                    dependenciesDown.add(importData)
+                    if (!dependenciesDown.contains(importData)) {
+                        dependenciesDown.add(importData)
+                    }
                 }
-                return@eachAll
+                return@eachControlAll Control.BREAK
             }
+            return@eachControlAll Control.CONTINUE
         }
     }
 
-    private class ImportGroupData(val group: String, val module: String, val version: String) {
+    private class ImportGroupData(val group: String, val module: String, val version: String, val classifier: String) {
         override fun equals(other: Any?): Boolean {
             if (other is ImportGroupData) {
-                return other.group == group && other.module == module
+                return other.group == group && other.module == module && other.classifier == classifier
             }
             return false
         }
@@ -307,40 +341,43 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
         override fun hashCode(): Int {
             var result = group.hashCode()
             result = 31 * result + module.hashCode()
+            result = 31 * result + classifier.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "ImportGroupData(group='$group', module='$module', version='$version', classifier='$classifier')"
         }
     }
 
-    private class ImportData(private val constructSource: String, val fileName: String) {
+    private class ImportData(private val constructSource: String, private val classifier: String, val fileName: String) {
         // The main Maven is used by default
-        var mainSource: UrlData = UrlData.Maven
+        var mainSource: String = UrlData["Maven"]!!
+        val downURLConstruct = if (classifier.isBlank()) constructSource else "$constructSource-$classifier"
 
         fun getDownUrl(): String {
             return if (constructSource.startsWith("/")) {
-                "${mainSource.url}$constructSource.jar"
+                "${mainSource}$downURLConstruct.jar"
             } else {
-                "${mainSource.url}/$constructSource.jar"
+                "${mainSource}/$downURLConstruct.jar"
             }
         }
+        fun getJarVerifyHash(): String = getDownUrl()+".md5"
 
-        fun getDownPom(mainSource: UrlData): String {
+
+        fun getDownPom(mainSource: String): String {
             return if (constructSource.startsWith("/")) {
-                "${mainSource.url}$constructSource.pom"
+                "${mainSource}$constructSource.pom"
             } else {
-                "${mainSource.url}/$constructSource.pom"
+                "${mainSource}/$constructSource.pom"
             }
         }
+        fun getPomVerifyHash(mainSource: String): String = getDownPom(mainSource)+".md5"
     }
 
     private fun Node.toSeq() = generateSequence(firstChild) { it.nextSibling }
 
     private fun Node.toMap() = toSeq().associateBy { it.nodeName }
-
-    enum class UrlData(val url: String) {
-        Maven("https://repo1.maven.org/maven2"),
-        MavenAli("https://maven.aliyun.com/repository/central"),
-        JitPack("https://jitpack.io"),
-    }
 
     companion object {
         private val loadEnd = Seq<File>()
@@ -349,5 +386,42 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
         private val dependenciesDown = Seq<ImportData>()
         private val dependenciesFile = Seq<File>()
         private val tempGroup = Seq<ImportGroupData>()
+
+        private val pomCache: ObjectMap<String,String>
+
+        val UrlData = ObjectMap<String,String>().apply {
+            // Maven
+            this["Maven"] = "https://repo1.maven.org/maven2"
+            // Maven China
+            // 腾讯, 行
+            this["MavenTencent"] = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public"
+            // 阿里, 更新不及时
+            this["MavenAli"] = "https://maven.aliyun.com/repository/central"
+            // 网易, 不存在的是现拉
+            this["MavenNetease"] = "https://mirrors.163.com/maven/repository/maven-public"
+            // 华为, 很奇怪, 文件直接是下载
+            this["MavenHuaWei"] = "https://repo.huaweicloud.com/repository/maven"
+            // 第三方库
+            this["JitPack"] = "https://jitpack.io"
+        }
+
+        init {
+            val pomCacheBin = PluginData().apply {
+                setFileUtil(FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("libData.bin"), "7z")
+            }
+
+            pomCache = pomCacheBin.getData("pomCache", ObjectMap())
+
+            Threads.addSavePool {
+                pomCacheBin.setData("pomCache", pomCache)
+                pomCacheBin.save()
+
+                FileUtils.getFolder(Data.Plugin_Lib_Path).fileListNotNullSize.eachAll {
+                    if (it.name.endsWith("jar") && !loadEnd.contains(it)) {
+                        it.delete()
+                    }
+                }
+            }
+        }
     }
 }

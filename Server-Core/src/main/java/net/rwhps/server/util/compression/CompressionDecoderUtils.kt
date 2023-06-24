@@ -10,7 +10,7 @@
 package net.rwhps.server.util.compression
 
 import net.rwhps.server.util.compression.core.CompressionDecoder
-import net.rwhps.server.util.compression.lz77.Lz77FileDecoder
+import net.rwhps.server.util.compression.seven.SevenZipFileDecoder
 import net.rwhps.server.util.compression.zip.ZipFileDecoder
 import net.rwhps.server.util.compression.zip.ZipStreamDecoder
 import java.io.File
@@ -24,7 +24,7 @@ object CompressionDecoderUtils {
     fun zipSeek(inStream: InputStream): CompressionDecoder = CompressionDecoder(ZipFileDecoder(inStream))
     fun zipStream(inStream: InputStream): CompressionDecoder = CompressionDecoder(ZipStreamDecoder(inStream))
 
-    fun lz77(file: File): CompressionDecoder = CompressionDecoder(Lz77FileDecoder(file))
-    fun lz77Seek(inStream: InputStream): CompressionDecoder = CompressionDecoder(Lz77FileDecoder(inStream))
-    fun lz77Stream(inStream: InputStream): CompressionDecoder = lz77Seek(inStream)
+    fun sevenZip(file: File): CompressionDecoder = CompressionDecoder(SevenZipFileDecoder(file))
+    fun sevenZipSeek(inStream: InputStream): CompressionDecoder = CompressionDecoder(SevenZipFileDecoder(inStream))
+    fun sevenZipStream(inStream: InputStream): CompressionDecoder = sevenZipSeek(inStream)
 }

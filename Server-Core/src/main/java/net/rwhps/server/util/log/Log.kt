@@ -11,12 +11,10 @@ package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.Time.getMilliFormat
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.ColorCodes.formatColors
 import net.rwhps.server.util.log.exp.ExceptionX
 import java.io.FileOutputStream
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.text.MessageFormat
 
 /**
@@ -47,7 +45,7 @@ object Log {
     }
 
     init {
-        val logLogFile = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
+        val logLogFile = FileUtils.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
         outLog = logLogFile.writeByteOutputStream(logLogFile.file.length() <= 512 * 1024)
 
         // 设置默认的线程异常捕获处理器

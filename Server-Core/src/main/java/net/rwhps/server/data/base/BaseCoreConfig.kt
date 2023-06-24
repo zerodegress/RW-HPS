@@ -12,8 +12,8 @@ package net.rwhps.server.data.base
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.SystemUtil
-import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.SystemUtils
+import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
@@ -32,6 +32,8 @@ data class BaseCoreConfig(
     val DefStartCommand: String = "start",
 
     val Log: String = "WARN",
+
+    val CmdTitle: String = "",
 
     /** Port */
     val Port: Int = 5123,
@@ -66,8 +68,8 @@ data class BaseCoreConfig(
     var RunPid: Long = 0
 ) {
     fun save() {
-        RunPid = SystemUtil.pid
-        fileUtil.writeFile(this.toPrettyPrintingJson())
+        RunPid = SystemUtils.pid
+        fileUtils.writeFile(this.toPrettyPrintingJson())
     }
 
     fun coverField(name: String,value: Any): Boolean {
@@ -94,12 +96,12 @@ data class BaseCoreConfig(
     }
 
     companion object {
-        val fileUtil = FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Config.json")
+        val fileUtils = FileUtils.getFolder(Data.Plugin_Data_Path).toFile("Config.json")
 
         @JvmStatic
         fun stringToClass(): BaseCoreConfig {
 
-            val config: BaseCoreConfig = BaseCoreConfig::class.java.toGson(fileUtil.readFileStringData())
+            val config: BaseCoreConfig = BaseCoreConfig::class.java.toGson(fileUtils.readFileStringData())
 
             // PATH
             config.allName().eachAll {

@@ -33,7 +33,7 @@ import net.rwhps.server.util.inline.findField
  * 内部实现通过 [GameEngine] 来减少一些混淆 也可以参见 (RW-AC项目)
  *
  * @author RW-HPS/Dr
- */
+*/
 internal object GameEngine {
     lateinit var data: AbstractGameModule
         private set

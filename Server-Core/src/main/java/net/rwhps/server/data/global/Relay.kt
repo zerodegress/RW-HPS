@@ -15,26 +15,16 @@ import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.struct.IntMap
-import net.rwhps.server.struct.IntSeq
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtils.isNumeric
-import net.rwhps.server.util.IsUtils.notIsBlank
-import net.rwhps.server.util.RandomUtils.getRandomString
-import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.Synchronize
 import net.rwhps.server.util.Time.concurrentSecond
-import net.rwhps.server.util.Time.utcMillis
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork
-import net.rwhps.server.util.algorithms.digest.DigestUtils.md5Hex
-import net.rwhps.server.util.algorithms.digest.DigestUtils.sha256
 import net.rwhps.server.util.alone.annotations.mark.SynchronizeMark
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
-import net.rwhps.server.util.pool.ProxyPool.ProxyData
-import net.rwhps.server.util.threads.ServerUploadData
 import java.io.IOException
-import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
@@ -74,10 +64,6 @@ class Relay {
     @SynchronizeMark
     var closeRoom: Boolean by Synchronize(false)
 
-    /**
-     * 房间 UP 数据
-     */
-    internal val relayData: RelayData
     val roomCreateTime = concurrentSecond()
 
     val serverUuid = Data.SERVER_RELAY_UUID
@@ -94,9 +80,6 @@ class Relay {
             return@Synchronize it
         }
 
-        if (relayData.uplistStatus == RelayData.UpListStatus.UpIng) {
-            ServerUploadData.sendPostRM(internalID)
-        }
         startGameTime = if (it) {
             concurrentSecond() +300
         } else {
@@ -131,7 +114,6 @@ class Relay {
         this.id = id
         groupNet = GroupNet()
         this.isMod = isMod
-        relayData = RelayData(internalID, this, playerName, betaGameVersion, version, maxPlayer)
     }
 
     /**
@@ -145,7 +127,6 @@ class Relay {
         this.internalID = 0
         this.id = id
         this.groupNet = groupNet
-        relayData = RelayData(0, this,"", false, 0,0)
     }
 
     val allIP: String
@@ -173,11 +154,7 @@ class Relay {
         }
 
     fun re() {
-        removeRoom {
-            if (relayData.uplistStatus == RelayData.UpListStatus.UpIng) {
-                ServerUploadData.sendPostRM(internalID)
-            }
-        }
+        removeRoom()
     }
 
     fun removeRoom(run: ()->Unit = {}) {
@@ -252,10 +229,6 @@ class Relay {
         size.decrementAndGet()
     }
 
-    fun setRelayDataMapName(name: String) {
-        relayData.mapName = name
-    }
-
     fun updateMinSize() {
         try {
             if (abstractNetConnectIntMap.size < 1) {
@@ -280,177 +253,6 @@ class Relay {
 
     override fun hashCode(): Int {
         return Objects.hash(id)
-    }
-
-    internal class RelayData(
-        val id: Int,
-        val relay: Relay,
-        playerName: String,
-        betaGameVersion: Boolean,
-        private val version: Int,
-        maxPlayer: Int,
-    ) {
-        private val name: String
-
-        @SynchronizeMark
-        var mapName by Synchronize("RelayCN-MapName", set = {
-            return@Synchronize it.replace("&","").replace("=","")
-        })
-
-        var port = 0
-        @SynchronizeMark
-        var proxyData: ProxyData? by Synchronize(null)
-
-        private lateinit var serverToken: String
-        private lateinit var userId: String
-
-        private val playerMaxSzie = maxPlayer
-        @Volatile
-        var makeTime = 0
-            private set
-
-        @SynchronizeMark
-        var uplistStatus: UpListStatus by Synchronize(UpListStatus.NoUp)
-        var uplistMake = 0
-            private set
-
-        private val betaGameVersion: Boolean
-
-
-        //5200-5500
-        init {
-            name = playerName.replace("&","").replace("=","").ifBlank { "NOT Player" }
-            this.betaGameVersion = betaGameVersion
-
-        }
-
-        fun up(): Boolean {
-            if (uplistStatus == UpListStatus.UpIng || (uplistMake+900) > concurrentSecond()) {
-                return false
-            }
-            makeTime = concurrentSecond()
-
-            proxyData = NetStaticData.httpSynchronize.proxyData
-
-            return if (notIsBlank(proxyData)) {
-                uplistStatus = UpListStatus.UpIng
-                uplistMake = concurrentSecond()
-
-                while (true) {
-                    // 端口段
-                    val randInt = rand.random(5250, 5500)
-                    if (!portUsed.contains(randInt)) {
-                        port = randInt
-                        break
-                    }
-                }
-                debug("RELAY DATA", port)
-
-                serverToken = getRandomString(40)
-                userId = "u_" + UUID.randomUUID()
-
-                portUsed.add(port)
-                ServerUploadData.registerRelayData(id, this)
-                true
-            } else {
-                false
-            }
-        }
-
-        val add: String
-            get() {
-                val sb = StringBuilder()
-                val time = utcMillis
-                sb.append("action=add")
-                    .append("&user_id=").append(userId)
-                    .append("&game_name=RW-HPS")
-                    .append("&_1=").append(time)
-                    .append("&tx2=").append(reup("_" + userId + 5))
-                    .append("&tx3=").append(reup("_" + userId + (5 + time)))
-                    .append("&game_version=").append(version)
-                    .append("&game_version_string=")
-                    .append(
-                        if(version == 176) {
-                            if (relay.isMod) "1.15-RN-MOD" else "1.15-RN"
-                        } else (if (betaGameVersion) {
-                            if (relay.isMod) "1.15.P*-RN-MOD" else "1.15.P*-RN"
-                        } else if (relay.isMod) "1.14-RN-MOD" else "1.14-RN"))
-                    .append("&game_version_beta=").append(betaGameVersion)
-                    .append("&private_token=").append(serverToken)
-                    .append("&private_token_2=").append(md5Hex(md5Hex(serverToken)))
-                    .append("&confirm=").append(md5Hex("a" + md5Hex(serverToken)))
-                    .append("&password_required=").append(false)
-                    .append("&created_by=").append(cutting(name,15))
-                    .append("&private_ip=10.0.0.1")
-                    .append("&port_number=").append(port)
-                    .append("&game_map=").append(mapName)
-                    .append("&game_mode=skirmishMap")
-                    .append("&game_status=battleroom")
-                    .append("&player_count=").append(relay.getSize())
-                    .append("&max_player_count=").append(playerMaxSzie)
-                return sb.toString()
-            }
-        val up: String
-            get() {
-                var stat = "battleroom"
-                if (relay.isStartGame) {
-                    stat = "ingame"
-                }
-                val sb = StringBuilder()
-                sb.append("action=update")
-                    .append("&id=").append(userId)
-                    .append("&game_name=RW-HPS")
-                    .append("&private_token=").append(serverToken)
-                    .append("&password_required=").append(false)
-                    .append("&created_by=").append(cutting(name,15).replace("&",""))
-                    .append("&private_ip=127.0.0.1")
-                    .append("&port_number=").append(port)
-                    .append("&game_map=").append(mapName)
-                    .append("&game_mode=skirmishMap")
-                    .append("&game_status=").append(stat)
-                    .append("&player_count=").append(relay.getSize())
-                    .append("&max_player_count=").append(playerMaxSzie)
-                return sb.toString()
-            }
-        val portCheck: String
-            get() = "action=self_info&port=" + port + "&id=" + userId + "&tx3=" + reup("-" + userId + "54")
-
-        val rmList: String
-            get() {
-                val sb = StringBuilder()
-                sb.append("action=remove")
-                    .append("&id=").append(userId)
-                    .append("&private_token=").append(serverToken)
-                return sb.toString()
-            }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-            if (other == null || javaClass != other.javaClass) {
-                return false
-            }
-            val relay = other as RelayData
-            return id == relay.id
-        }
-
-        override fun hashCode(): Int {
-            return Objects.hash(id)
-        }
-
-        companion object {
-            val portUsed = IntSeq(true)
-            private val rand = Rand()
-
-            private fun reup(str: String): String {
-                return cutting(BigInteger(1, sha256(str)).toString(16).uppercase(), 4)
-            }
-        }
-
-        enum class UpListStatus {
-            NoUp,UpEnd,UpIng;
-        }
     }
 
     companion object {
@@ -489,10 +291,6 @@ class Relay {
                 val size = AtomicInteger()
                 serverRelayData.values.forEach(Consumer { e: Relay -> if (!e.isStartGame) size.incrementAndGet() })
                 return size.get()
-            }
-        val roomPublicSize: Int
-            get() {
-                return RelayData.portUsed.size
             }
 
         @get:Synchronized

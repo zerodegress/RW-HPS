@@ -11,8 +11,8 @@ package net.rwhps.server.dependent.redirections.game
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.MainRedirections
-import net.rwhps.server.util.alone.annotations.mark.AsmMark
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.util.alone.annotations.mark.AsmMark
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader

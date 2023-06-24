@@ -55,18 +55,16 @@ class WebGetRelayInfo : WebGet() {
                             <html lang="zh-cn">
                             <head>
                                 <meta charset="UTF-8">
-                                <title>RELAY-CN  Run Status</title>
+                                <title>RW-HPS RELAY  Run Status</title>
                             </head>
                             <body>
                                 
-                                <h1> 欢迎来到 [RELAY - CN] 数据统计！  </h1>
-                                <p> RCN（RELAY - CN）由 [Tiexiu.xyz Core Team] 与 [RCN Team] 维护，致力于为中国玩家提供更好的游戏体验 </p>
+                                <h1> 欢迎来到 [RW-HPS RELAY] 数据统计！  </h1>
+                                <p> RW-HPS RELAY 由 [RW-HPS Team] 开发，致力于为中国玩家提供更好的游戏体验 </p>
                                 <p> RCN的现有数据来自自动上报 </p>
-                                <h2> 欢迎来到 [RELAY - CN] 数据统计！  </h2>
+                                <h2> 欢迎来到 [RW-HPS RELAY] 数据统计！  </h2>
                                 <p> 房间总个数 : ${Relay.roomAllSize}  </p>
                                 <p> (未开始)游戏房间总个数 : ${Relay.roomNoStartSize}  </p>
-                                <p> (未开始)在列表房间总个数 : ${Relay.roomPublicSize}  </p>
-                                <p> (未开始)不在列表房间总个数 : ${Relay.roomNoStartSize - Relay.roomPublicSize}  </p>
                                 <p> 目前在线人数 : ${size.get()}  </p>
                                 <p> 服务器版本 : ${Data.SERVER_CORE_VERSION}  </p>
                                 <br/>

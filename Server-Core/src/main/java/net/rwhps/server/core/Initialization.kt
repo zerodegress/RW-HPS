@@ -352,7 +352,7 @@ class Initialization {
                     val PlayerSize: Int = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
                     val RoomAllSize: Int = Relay.roomAllSize,
                     val RoomNoStartSize: Int = Relay.roomNoStartSize,
-                    val RoomPublicListSize: Int = Relay.roomPublicSize,
+                    val RoomPublicListSize: Int = 0,
                     val PlayerVersion: Map<Int, Int> = Relay.getAllRelayVersion(),
                     val IpPlayerCountry: Map<String, Int> = Relay.getAllRelayIpCountry(),
                 )

@@ -42,7 +42,6 @@ import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
-import net.rwhps.server.util.threads.ServerUploadData
 import java.io.IOException
 import java.util.*
 
@@ -331,7 +330,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 o.writeBoolean(true)
                 o.writeString(relay!!.serverUuid)
                 o.writeBoolean(relay!!.isMod) //MOD
-                o.writeBoolean(relay!!.relayData.uplistStatus == Relay.RelayData.UpListStatus.UpIng)
+                o.writeBoolean(false)
                 o.writeBoolean(true)
                 o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 o.writeBoolean(false)
@@ -348,7 +347,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 // useMods
                 o.writeBoolean(relay!!.isMod) //MOD
                 // showPublicly
-                o.writeBoolean(relay!!.relayData.uplistStatus == Relay.RelayData.UpListStatus.UpIng)
+                o.writeBoolean(false)
                 // relayMessageOnServer
                 o.writeIsString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 // useMulticast
@@ -365,7 +364,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 relay!!.groupNet.disconnect() // Close Room
                 disconnect() // Close Connect & Reset Room
             }
-
         } catch (e: Exception) {
             error(e)
         }
@@ -411,10 +409,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
             inputPassword = false
             if (relay == null) {
-                Log.clog("?????")
                 relay = NetStaticData.relay
             }
-
 
             site = relay!!.setAddPosition()
             relay!!.setAbstractNetConnect(this)
@@ -634,7 +630,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 } else {
                     Relay.serverRelayIpData.remove(ip)
                     // 房间开始游戏 或者 在列表
-                    if (relay!!.isStartGame || relay!!.relayData.uplistStatus.ordinal < Relay.RelayData.UpListStatus.UpIng.ordinal) {
+                    if (relay!!.isStartGame) {
                         if (relay!!.getSize() > 0) {
                             // Move Room Admin
                             adminMoveNew()
@@ -660,16 +656,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     open fun sendPacketExtractInformation(packet: Packet, abstractNetConnect: GameVersionRelay?) {
         when (packet.type) {
-            PacketType.SERVER_INFO -> {
-                if (relay != null && relay!!.relayData.uplistStatus == Relay.RelayData.UpListStatus.UpIng && !relay!!.isStartGame) {
-                    if (relay!!.relayData.mapName == "RelayCN-MapName") {
-                        relay!!.relayData.mapName = NetStaticData.RwHps.abstractNetPacket.getPacketMapName(packet.bytes)
-                        ServerUploadData.updateCustom(relay!!.relayData)
-                    } else {
-                        relay!!.relayData.mapName = NetStaticData.RwHps.abstractNetPacket.getPacketMapName(packet.bytes)
-                    }
-                }
-            }
             PacketType.TEAM_LIST -> {
                 if (!relay!!.isStartGame) {
                     abstractNetConnect?.let {
@@ -680,7 +666,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             PacketType.RETURN_TO_BATTLEROOM -> {
                 if (relay!!.isStartGame) {
                     relay!!.isStartGame = false
-                    relay!!.relayData.uplistStatus = Relay.RelayData.UpListStatus.NoUp
                 }
             }
             PacketType.START_GAME -> {
@@ -835,29 +820,28 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 return
             }
 
-            if (uplist) {
-                newRelayIdUpList(mod = mods, customRelayData = custom)
-            } else {
+            if (newRoom) {
                 newRelayId(mod = mods, customRelayData = custom)
-            }
-            if (custom.maxPlayerSize != -1 || custom.maxUnitSizt != 200) {
-                sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("自定义人数: ${custom.maxPlayerSize} 自定义单位: ${custom.maxUnitSizt}", "RELAY_CN-Custom", 5))
-            }
-        } else {
-            try {
-                if (id.contains(".")) {
-                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", "不能包含 [ . ]"))
-                    return
+
+                if (custom.maxPlayerSize != -1 || custom.maxUnitSizt != 200) {
+                    sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("自定义人数: ${custom.maxPlayerSize} 自定义单位: ${custom.maxUnitSizt}", "RELAY_CN-Custom", 5))
                 }
-                relay = Relay.getRelay(id)
-                if (relay != null) {
-                    addRelayConnect()
-                } else {
-                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
+            } else {
+                try {
+                    if (id.contains(".")) {
+                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", "不能包含 [ . ]"))
+                        return
+                    }
+                    relay = Relay.getRelay(id)
+                    if (relay != null) {
+                        addRelayConnect()
+                    } else {
+                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
+                    }
+                } catch (e: Exception) {
+                    debug(e)
+                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", e.message))
                 }
-            } catch (e: Exception) {
-                debug(e)
-                sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", e.message))
             }
         }
     }
@@ -881,53 +865,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             it.sendRelayServerId()
             relay!!.abstractNetConnectIntMap.values.forEach { obj: GameVersionRelay -> obj.addReRelayConnect() }
             this.addReRelayConnect()
-        }
-    }
-
-    private fun newRelayIdUpList(id: String? = null, mod: Boolean, customRelayData: CustomRelayData = CustomRelayData()) {
-        val maxPlayer = if (customRelayData.maxPlayerSize == -1) 10 else customRelayData.maxPlayerSize
-
-        if (Relay.serverRelayIpData.contains(ip)) {
-            newRelayId(id, mod)
-            try {
-                sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("您已建立了一个开放房间,不能再建立一个,这个房间将是隐藏的", "RELAY_CN-ADMIN", 5))
-            } catch (e: IOException) {
-                error("[RELAY-newRelayIdUpList]", e)
-            }
-            return
-        }
-        if (!Data.configRelay.UpList) {
-            newRelayId(id, mod)
-            try {
-                sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("这个节点未开放UP", "RELAY_CN-Check", 5))
-            } catch (e: IOException) {
-                error("[RELAY-newRelayIdUpList]", e)
-            }
-            return
-        }
-
-        sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("欢迎您 [前瞻] 游客!", "RELAY_CN-Check", 5))
-
-        Relay.serverRelayIpData.add(ip)
-
-        relay = if (IsUtils.isBlank(id)) {
-            Relay.getRelay( playerName = name, isMod = mod, betaGameVersion = betaGameVersion, version = clientVersion, maxPlayer = maxPlayer)
-        } else {
-            Relay.getRelay( id!!, name, mod, betaGameVersion, clientVersion, maxPlayer)
-        }
-
-        val status = relay!!.relayData.up()
-
-        if (customRelayData.maxPlayerSize != -1 || customRelayData.income != 1F) {
-            customModePlayerSize(customRelayData)
-        }
-
-        sendRelayServerId()
-        relay!!.setAddSize()
-        if (status) {
-            getRelayT4(Data.i18NBundle.getinput("relay.uplist", relay!!.relayData.port.toString(), relay!!.id, relay!!.internalID))
-        } else {
-            getRelayT4(Data.i18NBundle.getinput("relay.uplistno",Data.configRelay.MainID+relay!!.id))
         }
     }
 

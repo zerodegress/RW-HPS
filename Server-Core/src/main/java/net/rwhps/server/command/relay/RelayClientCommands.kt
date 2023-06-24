@@ -11,7 +11,6 @@ package net.rwhps.server.command.relay
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
@@ -106,11 +105,6 @@ internal class RelayClientCommands(handler: CommandHandler) {
 
     private fun findPlayer(con: GameVersionRelay, findIn: String): GameVersionRelay? {
         var conTg: GameVersionRelay? = null
-
-        if (con.relay!!.relayData.uplistStatus == Relay.RelayData.UpListStatus.NoUp) {
-            sendMsg(con,"NoUpList 禁止使用本命令")
-            return conTg
-        }
 
         var findNameIn: String? = null
         var findPositionIn: Int? = null

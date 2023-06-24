@@ -36,14 +36,11 @@ import net.rwhps.server.command.LogCommands
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
-import net.rwhps.server.custom.RCNBind
 import net.rwhps.server.data.base.BaseCoreConfig
 import net.rwhps.server.data.base.BaseRelayConfig
 import net.rwhps.server.data.base.BaseServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
-import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.NetStaticData.initPx
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.data.plugin.PluginManage.init
@@ -63,7 +60,6 @@ import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.net.http.WebData
-import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
@@ -119,10 +115,8 @@ object Main {
         Data.configServer = BaseServerConfig.stringToClass()
 
         Data.configRelay = BaseRelayConfig.stringToClass()
-        Data.configRelay.BindCustom["BindCode"] = arrayOf("-1","123456","战队")
 
         Data.core.load()
-        RCNBind.load()
         Initialization.loadLib()
 
         clog(Data.i18NBundle.getinput("server.hi"))
@@ -132,7 +126,6 @@ object Main {
         // Test Block
         run {
         }
-
 
         /* 加载 ASM */
         HeadlessProxyClass()
@@ -166,27 +159,16 @@ object Main {
         set(Data.config.Log)
 
         /* 默认直接启动服务器 */
-        //val response = Data.SERVER_COMMAND.handleMessage("startrelay",StrCons { obj: String -> clog(obj) })
-        //val response = Data.SERVER_COMMAND.handleMessage("starthd",StrCons { obj: String -> clog(obj) })
-        //val response = Data.SERVER_COMMAND.handleMessage("start", Data.defPrint)
-        val response = Data.SERVER_COMMAND.handleMessage("startrelaytest", Data.defPrint)
-        //val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, StrCons { obj: String -> clog(obj) })
-        if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
-            clog("Please check the command , Unable to use StartCommand inside Config to start the server")
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, Data.defPrint)
+        if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
+            if (response.type != CommandHandler.ResponseType.valid) {
+                clog("Please check the command , Unable to use StartCommand inside Config to start the server")
+            }
         }
-
-        if (Data.config.CmdTitle.isBlank()) {
-            CLITools.setWindowsCmdTitle("[RW-HPS] Port: ${Data.config.Port}, Run Server: ${NetStaticData.ServerNetType.name}")
-        } else {
-            CLITools.setWindowsCmdTitle(Data.config.CmdTitle)
-        }
-
-        initPx()
 
         newThreadCore {
             WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
-
-            NetService(StartHttp::class.java).openPort(4994)
+            NetService(StartHttp::class.java).openPort(5000)
         }
 
         newThreadCore(this::inputMonitor)
@@ -313,3 +295,4 @@ object Main {
          :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
 */
 // 音无结弦之时，悦动天使之心；立于浮华之世，奏响天籁之音
+// 傻逼东西 Git, 妈的越用越气

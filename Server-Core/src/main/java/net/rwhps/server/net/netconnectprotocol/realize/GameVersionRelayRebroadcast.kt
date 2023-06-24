@@ -11,7 +11,6 @@ package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -88,7 +87,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 o.writeBoolean(true)
                 o.writeString(relay!!.serverUuid)
                 o.writeBoolean(relay!!.isMod) //MOD
-                o.writeBoolean(relay!!.relayData.uplistStatus == Relay.RelayData.UpListStatus.UpIng)
+                o.writeBoolean(false)
                 o.writeBoolean(true)
                 o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 o.writeBoolean(true)
@@ -101,7 +100,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 o.writeString(relay!!.serverUuid)
                 o.writeBoolean(relay!!.isMod) //MOD
                 // List OPEN
-                o.writeBoolean(relay!!.relayData.uplistStatus == Relay.RelayData.UpListStatus.UpIng)
+                o.writeBoolean(false)
                 o.writeBoolean(true)
                 o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
                 // 多播

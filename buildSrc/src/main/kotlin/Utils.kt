@@ -70,6 +70,7 @@ fun File.mk() {
         try {
             Files.createFile(toPath());
         } catch (e: IOException) {
+            println(canWrite())
             error(e)
         }
     }

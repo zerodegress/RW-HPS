@@ -15,7 +15,12 @@ import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.impl.StdSchedulerFactory
 import java.util.*
 
-
+/**
+ * 定时任务管理, 基于 Quartz
+ *
+ * @property scheduler Scheduler
+ * @author RW-HPS/Dr
+ */
 class TimeTaskManage {
     private val scheduler: Scheduler = StdSchedulerFactory().scheduler
 
@@ -102,17 +107,42 @@ class TimeTaskManage {
         scheduler.scheduleJob(jobDetail, trigger)
     }
 
+    /**
+     * 查找是否有对应的任务
+     *
+     * @param jobKey 任务 [JobKey] 实例
+     * @return 是否存在
+     */
     fun contains(jobKey: JobKey): Boolean {
         return scheduler.checkExists(jobKey)
     }
+    /**
+     * 查找是否有对应的任务
+     *
+     * @param name 任务名字
+     * @param group 任务组
+     * @return 是否存在
+     */
     fun contains(name: String, group: String): Boolean {
         return contains(JobKey(name,group))
     }
 
-
+    /**
+     * 取消对应的任务
+     *
+     * @param jobKey 任务 [JobKey] 实例
+     * @return 是否取消
+     */
     fun remove(jobKey: JobKey): Boolean {
         return scheduler.deleteJob(jobKey)
     }
+    /**
+     * 取消对应的任务
+     *
+     * @param name 任务名字
+     * @param group 任务组
+     * @return 是否取消
+     */
     fun remove(name: String, group: String): Boolean {
         return remove(JobKey(name,group))
     }

@@ -14,7 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.ServerRoom
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -25,24 +25,24 @@ import java.util.concurrent.TimeUnit
  */
 class CallHess(private val serverRoom: ServerRoom) {
     fun sendSystemMessage(text: String) {
-        serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(text) }
+        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(text) }
     }
 
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }
 
     fun sendSystemTeamMessageLocal(team: Int, text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAllFind({ e: AbstractPlayer -> e.team == team }) { p: AbstractPlayer -> p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj)) }
+        serverRoom.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == team }) { p: PlayerHess -> p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj)) }
     }
 
     fun sendSystemMessage(text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
     }
 
     @JvmOverloads
     fun killAllPlayer(msg: String = "Game Over") {
-        serverRoom.playerManage.playerGroup.eachAll { e: AbstractPlayer ->
+        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
             try {
                 e.kickPlayer(msg)
             } catch (err: IOException) {
@@ -59,7 +59,7 @@ class CallHess(private val serverRoom: ServerRoom) {
                     sendSystemMessageLocal("gameOver.forced")
                 }
                 serverRoom.flagData.forcedCloseSendMsg = false
-                if (Time.concurrentSecond() > Data.game.endTime + 60) {
+                if (Time.concurrentSecond() > serverRoom.endTime + 60) {
                     serverRoom.gr()
                     return@newTimedTask
                 }

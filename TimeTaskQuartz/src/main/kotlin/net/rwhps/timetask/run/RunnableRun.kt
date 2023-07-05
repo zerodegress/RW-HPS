@@ -12,7 +12,11 @@ package net.rwhps.timetask.run
 import org.quartz.Job
 import org.quartz.JobExecutionContext
 
-
+/**
+ * 基于Runnable的任务器
+ *
+ * @author RW-HPS/Dr
+ */
 class RunnableRun : Job {
     override fun execute(context: JobExecutionContext) {
         @Suppress("UNCHECKED_CAST")

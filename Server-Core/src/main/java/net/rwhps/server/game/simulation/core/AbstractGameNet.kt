@@ -10,7 +10,7 @@
 package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.GameSimulationLayer
 
 interface AbstractGameNet {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("lastNetworkPlayerName")

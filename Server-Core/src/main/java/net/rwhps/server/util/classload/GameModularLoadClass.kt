@@ -61,7 +61,7 @@ open class GameModularLoadClass(
     open fun addSourceJar(inStream: InputStream) {
         // [CompressionDecoderUtils.zipStream] cannot be used here, otherwise it will prompt ZIP 0x0
         // I do not know why either
-        CompressionDecoderUtils.zipSeek(inStream).also {
+        CompressionDecoderUtils.zipAllReadStream(inStream).also {
             it.getZipAllBytes().forEach {
                 var name = it.key
                 if (name.startsWith("/")) {

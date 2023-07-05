@@ -14,7 +14,7 @@ import net.rwhps.server.struct.BaseMap.Companion.toSeq
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.alone.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.DidNotFinish
 
 /**
  * Mods 加载管理器

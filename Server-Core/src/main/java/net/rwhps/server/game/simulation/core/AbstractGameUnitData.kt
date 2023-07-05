@@ -11,7 +11,7 @@ package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.GameSimulationLayer
 
 interface AbstractGameUnitData {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("Failed to reserve memory pre-mod load")

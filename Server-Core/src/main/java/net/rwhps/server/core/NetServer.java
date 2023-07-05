@@ -18,8 +18,19 @@ import net.rwhps.server.data.global.NetStaticData;
 import net.rwhps.server.func.StrCons;
 import net.rwhps.server.net.NetService;
 import net.rwhps.server.net.core.IRwHps;
+import net.rwhps.server.util.RandomUtils;
+import net.rwhps.server.util.StringFilteringUtil;
+import net.rwhps.server.util.Time;
+import net.rwhps.server.util.algorithms.digest.DigestUtils;
 import net.rwhps.server.util.log.Log;
 import org.jetbrains.annotations.NotNull;
+
+import java.math.BigInteger;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.rwhps.server.net.HttpRequestOkHttp.doPostRw;
 
 /**
  * @author RW-HPS/Dr
@@ -30,63 +41,8 @@ public class NetServer {
     static String userId;
 
     public static void closeServer() {
-        if (Data.INSTANCE.getGame() != null) {
-            Data.INSTANCE.setExitFlag(true);
-
-            TimeTaskData.INSTANCE.stopCallTickTask();
-
-            Call.killAllPlayer("Server Close");
-
-            NetStaticData.netService.eachAll(NetService::stop);
-            NetStaticData.netService.clear();
-            NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);
-            Threads.closeNet();
-            //Threads.newThreadCoreNet();
-
-            if (NetStaticData.INSTANCE.getServerNetType() == IRwHps.NetType.ServerProtocol) {
-                HessModuleManage.INSTANCE.getHps().getGameHessData().clean();
-            }
-
-            Threads.closeTimeTask(CallTimeTask.AutoCheckTask);
-            Threads.closeTimeTask(CallTimeTask.CallPingTask);
-            Threads.closeTimeTask(CallTimeTask.CallTeamTask);
-            Threads.closeTimeTask(CallTimeTask.PlayerAfkTask);
-            Threads.closeTimeTask(CallTimeTask.GameOverTask);
-            Threads.closeTimeTask(CallTimeTask.AutoStartTask);
-            Threads.closeTimeTask(CallTimeTask.AutoUpdateMapsTask);
-
-            Data.SERVER_COMMAND.handleMessage("uplist remove", new StrCons() {
-                @Override
-                public void get(@NotNull String t) {
-                    Log.clog(t);
-                }
-            });
-
-            Data.INSTANCE.getGame().getPlayerManage().playerGroup.clear();
-            Data.INSTANCE.getGame().getPlayerManage().playerAll.clear();
-
-            System.gc();
-            Log.clog("Server closed");
-        }
     }
 
     public static void reLoadServer() {
-        if (Data.vote!= null) {
-            Data.vote.stopVote();
-        }
-        TimeTaskData.INSTANCE.stopCallTickTask();
-        Threads.closeTimeTask(CallTimeTask.GameOverTask);
-        Threads.closeTimeTask(CallTimeTask.AutoCheckTask);
-
-
-        Call.killAllPlayer();
-        Data.INSTANCE.getGame().re();
-        Data.INSTANCE.getGame().setStartGame(false);
-
-        synchronized (net.udp.Data.waitData) {
-            net.udp.Data.waitData.notify();
-        }
-
-        Log.clog("[Server Gameover completed]");
     }
 }

@@ -14,10 +14,17 @@ import com.sun.jna.Native
 import net.rwhps.server.util.log.Log
 
 /**
+ * 操作控制台
+ *
  * @date  2023/6/23 11:40
  * @author  RW-HPS/Dr
  */
 object CLITools {
+    /**
+     * 在 Windows 上设置 Cmd 的标题
+     *
+     * @param title 需要设置的标题
+     */
     fun setWindowsCmdTitle(title: String) {
         if (SystemUtils.isWindows) {
             CLibrary.INSTANCE.SetConsoleTitleA(title)
@@ -26,7 +33,7 @@ object CLITools {
         }
     }
 
-    interface CLibrary : Library {
+    private interface CLibrary : Library {
         fun SetConsoleTitleA(title: String?): Boolean
 
         companion object {

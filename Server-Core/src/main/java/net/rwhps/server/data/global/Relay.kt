@@ -10,21 +10,30 @@
 package net.rwhps.server.data.global
 
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
+import net.rwhps.server.data.player.PlayerRelay
 import net.rwhps.server.math.Rand
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.struct.IntMap
+import net.rwhps.server.struct.IntSeq
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtils.isNumeric
+import net.rwhps.server.util.IsUtils.notIsBlank
+import net.rwhps.server.util.RandomUtils.getRandomString
+import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.Synchronize
 import net.rwhps.server.util.Time.concurrentSecond
+import net.rwhps.server.util.Time.utcMillis
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork
-import net.rwhps.server.util.alone.annotations.mark.SynchronizeMark
+import net.rwhps.server.util.algorithms.digest.DigestUtils.md5Hex
+import net.rwhps.server.util.algorithms.digest.DigestUtils.sha256
+import net.rwhps.server.util.annotations.mark.SynchronizeMark
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import java.io.IOException
+import java.math.BigInteger
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
@@ -49,6 +58,7 @@ class Relay {
      */
     val abstractNetConnectIntMap = IntMap<GameVersionRelay>(10,true)
 
+
     /**
      * 房间的管理员(HOST)
      */
@@ -57,6 +67,11 @@ class Relay {
         it?.permissionStatus = DataPermissionStatus.RelayStatus.HostPermission
         return@Synchronize it
     })
+
+    /** The server kicks the player's time data */
+    val relayKickData: ObjectMap<String, Int> = ObjectMap()
+    /** Server exits player data */
+    val relayPlayersData: ObjectMap<String, PlayerRelay> = ObjectMap()
 
     /**
      * 房间是否关闭
@@ -376,18 +391,18 @@ class Relay {
         internal fun getRelay(id: String = "", playerName: String, isMod: Boolean, betaGameVersion: Boolean, version: Int, maxPlayer: Int): Relay {
             var idRelay = id
             val relay: Relay =  if (id.isBlank()) {
-                while (true) {
-                    val intId = rand.random(1000, 100000)
-                    if (!getCheckRelay(intId.toString())) {
-                        idRelay = intId.toString()
-                        debug(intId)
-                        break
-                    }
-                }
-                Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
-            } else {
-                Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
-            }
+                                    while (true) {
+                                        val intId = rand.random(1000, 100000)
+                                        if (!getCheckRelay(intId.toString())) {
+                                            idRelay = intId.toString()
+                                            debug(intId)
+                                            break
+                                        }
+                                    }
+                                    Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
+                                } else {
+                                    Relay(coverRelayID(idRelay),idRelay,playerName,isMod,betaGameVersion,version,maxPlayer)
+                                }
             return relay
         }
     }

@@ -11,7 +11,7 @@ package net.rwhps.server.dependent.redirections.lwjgl
 
 import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.util.ByteBufferInputStream
-import net.rwhps.server.util.alone.annotations.mark.AsmMark
+import net.rwhps.server.util.annotations.mark.AsmMark
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.nio.ByteBuffer

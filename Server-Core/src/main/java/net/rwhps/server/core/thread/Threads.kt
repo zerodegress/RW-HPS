@@ -29,6 +29,9 @@ object Threads {
     /** Execute runnable on exit  */
     private val SAVE_POOL = Seq<Runnable>()
 
+    /**
+     * 关闭全部线程池
+     */
     @JvmStatic
 	fun close() {
         CORE_THREAD.shutdownNow()
@@ -37,27 +40,51 @@ object Threads {
         PLAYER_HEAT_THREAD.shutdownNow()
     }
 
+    /**
+     * 关闭网络线程池
+     */
     @JvmStatic
     fun closeNet() {
         CORE_NET_THREAD.shutdownNow()
         CORE_NET_THREAD = GetNewThreadPool.getNewFixedThreadPool(3, "Core-Net-")
     }
 
+    /**
+     * 在玩家心跳线程池执行 [run]
+     *
+     * @param run 待执行
+     */
     @JvmStatic
     fun newThreadPlayerHeat(run: Runnable) {
         PLAYER_HEAT_THREAD.execute(run)
     }
 
+    /**
+     * 在核心线程池执行 [run]
+     *
+     * @param run 待执行
+     */
     @JvmStatic
 	fun newThreadCore(run: Runnable) {
         CORE_THREAD.execute(run)
     }
 
+    /**
+     * 在网络线程池执行 [run]
+     *
+     * @param run 待执行
+     */
     @JvmStatic
     fun newThreadCoreNet(run: Runnable) {
         CORE_NET_THREAD.execute(run)
     }
 
+    /**
+     * 在退出保存线程池执行 [run]
+     * 此线程仅在退出时开始运行
+     *
+     * @param run 待执行
+     */
     @JvmStatic
 	fun addSavePool(run: Runnable) {
         SAVE_POOL.add(run)

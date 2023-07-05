@@ -10,23 +10,41 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.core.Initialization
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.Player
+import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.global.ServerHessLoadEvent
+import net.rwhps.server.game.event.global.ServerLoadEvent
+import net.rwhps.server.game.event.global.ServerStartTypeEvent
 import net.rwhps.server.net.Administration
 import net.rwhps.server.net.core.IRwHps
-import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.annotations.core.EventListenerHandler
 import net.rwhps.server.util.log.Log
 
 
 /**
  * @author RW-HPS/Dr
  */
-class EventGlobal : AbstractGlobalEvent {
-    override fun registerServerLoadEvent() {
+@Suppress("UNUSED")
+class EventGlobal : EventListener {
+    @EventListenerHandler
+    fun registerServerHessLoadEvent(serverHessLoadEvent: ServerHessLoadEvent) {
+        if (serverHessLoadEvent.loadID == HessModuleManage.hpsLoader) {
+            // 不支持多端 :(
+            // 多端请自行兼容
+            serverHessLoadEvent.eventManage.registerListener(Event())
+            PluginManage.runRegisterEvents(serverHessLoadEvent.loadID, serverHessLoadEvent.eventManage)
+        }
+    }
+
+    @EventListenerHandler
+    fun registerServerLoadEvent(serverLoadEvent: ServerLoadEvent) {
         Data.core.admin.addChatFilter(object : Administration.ChatFilter {
-            override fun filter(player: Player, message: String?): String? {
+            override fun filter(player: PlayerHess, message: String?): String? {
                 if (player.muteTime > Time.millis()) {
                     return null
                 }
@@ -44,11 +62,17 @@ class EventGlobal : AbstractGlobalEvent {
         Initialization.loadService()
     }
 
-    override fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) {
-        if (serverNetType == IRwHps.NetType.RelayProtocol || serverNetType == IRwHps.NetType.RelayMulticastProtocol) {
-            if (Data.config.AutoUpList) {
-                Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
+    @EventListenerHandler
+    fun registerServerStartTypeEvent(serverStartTypeEvent: ServerStartTypeEvent) {
+        when (serverStartTypeEvent.serverNetType) {
+            IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
             }
+            IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
+                if (Data.config.AutoUpList) {
+                    Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
+                }
+            }
+            else -> {}
         }
     }
 }

@@ -34,6 +34,9 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
     private var netService: NetService? = null
     private var port = 0
 
+    /**
+     * 启动线程, 开启端口
+     */
     override fun run() {
         if (f) {
             Log.clog("Does not support UDP")
@@ -56,14 +59,27 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
         netService!!.openPort(port)
     }
 
+    /**
+     * 关闭端口监听
+     */
     override fun b() {
         close()
     }
 
-    override fun a(p0: Boolean) {
-        startPort(p0)
+    /**
+     * 监听端口
+     *
+     * @param udp 是否是 UDP
+     */
+    override fun a(udp: Boolean) {
+        startPort(udp)
     }
 
+    /**
+     * 监听端口
+     *
+     * @param udp 是否是 UDP
+     */
     private fun startPort(udp: Boolean) {
         f = udp
         port = netEngine.m
@@ -71,6 +87,9 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
         netService = NetService(StartGameHessNetTcp(netEngine))
     }
 
+    /**
+     * 关闭端口监听
+     */
     override fun close() {
         Log.debug("[Close]")
         netService!!.stop()

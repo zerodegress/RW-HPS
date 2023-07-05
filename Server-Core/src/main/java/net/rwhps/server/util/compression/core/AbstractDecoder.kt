@@ -12,24 +12,24 @@ package net.rwhps.server.util.compression.core
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
+import java.io.Closeable
 import java.io.InputStream
 
 /**
  * 解压 通用接口
  * @author RW-HPS/Dr
  */
-interface AbstractDecoder {
-    /**
-     * 关闭 Close
-     */
-    fun close()
+interface AbstractDecoder : Closeable {
+    fun setPhysicalOrder(value: Boolean) {
+        // Ignore, It is not mandatory
+    }
 
     /**
      * 获取ZIP内的指定后辍的文件名(无后辍)与bytes
      * @param endWith String
      * @return OrderedMap<String, ByteArray>
      */
-    fun getSpecifiedSuffixInThePackage(endWith: String, withSuffix: Boolean): OrderedMap<String, ByteArray>
+    fun getSpecifiedSuffixInThePackage(endWith: String, withSuffix: Boolean = false): OrderedMap<String, ByteArray>
 
     /**
      * 获取ZIP内的指定后辍的文件名(全名+路径)与bytes
@@ -63,5 +63,10 @@ interface AbstractDecoder {
      * 获取 ZIP 全部数据
      * @return OrderedMap<String, ByteArray>
      */
-    fun getZipAllBytes(withPath: Boolean): OrderedMap<String, ByteArray>
+    fun getZipAllBytes(withPath: Boolean = true): OrderedMap<String, ByteArray>
+
+    /**
+     * 关闭 Close
+     */
+    override fun close()
 }

@@ -11,12 +11,14 @@ package net.rwhps.server.net.handler.tcp
 
 import io.netty.channel.socket.SocketChannel
 import net.rwhps.server.net.core.AbstractNet
+import net.rwhps.server.net.core.web.AbstractNetWeb
+import net.rwhps.server.net.http.WebData
 
 /**
  * @author HuiAnXiaoXing
  * @author RW-HPS/Dr
  */
-internal class StartGamePortDivider : AbstractNet() {
+internal class StartGamePortDivider : AbstractNet(), AbstractNetWeb {
     private val divider: GamePortDivider = GamePortDivider(this)
     
     private var socketChannel: SocketChannel? = null
@@ -29,5 +31,9 @@ internal class StartGamePortDivider : AbstractNet() {
 
     fun resetGameProtocol() {
         rwinit(socketChannel!!.pipeline())
+    }
+
+    override fun setWebData(data: WebData) {
+        divider.setWebData(data)
     }
 }

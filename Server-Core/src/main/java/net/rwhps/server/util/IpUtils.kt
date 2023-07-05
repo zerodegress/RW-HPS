@@ -9,16 +9,30 @@
 
 package net.rwhps.server.util
 
+import net.rwhps.server.data.global.ArrayData
+import net.rwhps.server.data.global.RegexData
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.UnknownHostException
+import java.util.*
+import java.util.regex.Pattern
 
 /**
  * IP 工具类
  * @author RW-HPS/Dr
  */
 object IpUtils {
+    private val IPV4_PATTERN = Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")
+    private const val IPV4_MAX_OCTET_VALUE = 255
+
+    private const val IPV6_MAX_HEX_GROUPS = 8
+    private const val IPV6_MAX_HEX_DIGITS_PER_GROUP = 4
+    private const val MAX_UNSIGNED_SHORT = 0xffff
+    private const val BASE_16 = 16
+
+    private val REG_NAME_PART_PATTERN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9-]*$")
+
     /**
      * 获取本机内网ip
      * @return
@@ -96,5 +110,139 @@ object IpUtils {
         // 将高24位置0
         sb.append((longIp and 0x000000FF).toString())
         return sb.toString()
+    }
+
+    /**
+     * Checks whether a given string is a valid host name according to
+     * RFC 3986.
+     *
+     *
+     * Accepted are IP addresses (v4 and v6) as well as what the
+     * RFC calls a "reg-name". Percent encoded names don't seem to be
+     * valid names in UNC paths.
+     *
+     * @see "https://tools.ietf.org/html/rfc3986.section-3.2.2"
+     *
+     * @param name the hostname to validate
+     * @return true if the given name is a valid host name
+     */
+    @JvmStatic
+    fun isValidHostName(name: String): Boolean {
+        return isIPv6Address(name) || isRFC3986HostName(name)
+    }
+
+    /**
+     * Checks whether a given string represents a valid IPv4 address.
+     *
+     * @param name the name to validate
+     * @return true if the given name is a valid IPv4 address
+     */
+    // mostly copied from org.apache.commons.validator.routines.InetAddressValidator#isValidInet4Address
+    private fun isIPv4Address(name: String): Boolean {
+        val m = IPV4_PATTERN.matcher(name)
+        if (!m.matches() || m.groupCount() != 4) {
+            return false
+        }
+
+        // verify that address subgroups are legal
+        for (i in 1..4) {
+            val ipSegment = m.group(i)
+            val iIpSegment = ipSegment.toInt()
+            if (iIpSegment > IPV4_MAX_OCTET_VALUE) {
+                return false
+            }
+            if (ipSegment.length > 1 && ipSegment.startsWith("0")) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * Checks whether a given string represents a valid IPv6 address.
+     *
+     * @param inet6Address the name to validate
+     * @return true if the given name is a valid IPv6 address
+     */
+    private fun isIPv6Address(inet6Address: String): Boolean {
+        val containsCompressedZeroes = inet6Address.contains("::")
+        if (containsCompressedZeroes && inet6Address.indexOf("::") != inet6Address.lastIndexOf("::")) {
+            return false
+        }
+        if (inet6Address.startsWith(":") && !inet6Address.startsWith("::") || inet6Address.endsWith(":") && !inet6Address.endsWith("::")) {
+            return false
+        }
+        var octets = inet6Address.split(RegexData.colon).dropLastWhile { it.isEmpty() }.toTypedArray()
+        if (containsCompressedZeroes) {
+            val octetList: ArrayList<String> = ArrayList(listOf(*octets))
+            if (inet6Address.endsWith("::")) {
+                // String.split() drops ending empty segments
+                octetList.add("")
+            } else if (inet6Address.startsWith("::") && octetList.isNotEmpty()) {
+                octetList.removeAt(0)
+            }
+            octets = octetList.toArray(ArrayData.stringArray)
+        }
+        if (octets.size > IPV6_MAX_HEX_GROUPS) {
+            return false
+        }
+        var validOctets = 0
+        // consecutive empty chunks
+        var emptyOctets = 0
+        for (index in octets.indices) {
+            val octet = octets[index]
+            if (octet.isEmpty()) {
+                emptyOctets++
+                if (emptyOctets > 1) {
+                    return false
+                }
+            } else {
+                emptyOctets = 0
+                // Is last chunk an IPv4 address?
+                if (index == octets.size - 1 && octet.contains(".")) {
+                    if (!isIPv4Address(octet)) {
+                        return false
+                    }
+                    validOctets += 2
+                    continue
+                }
+                if (octet.length > IPV6_MAX_HEX_DIGITS_PER_GROUP) {
+                    return false
+                }
+                val octetInt: Int = try {
+                    octet.toInt(BASE_16)
+                } catch (e: NumberFormatException) {
+                    return false
+                }
+                if (octetInt < 0 || octetInt > MAX_UNSIGNED_SHORT) {
+                    return false
+                }
+            }
+            validOctets++
+        }
+        return validOctets <= IPV6_MAX_HEX_GROUPS && (validOctets >= IPV6_MAX_HEX_GROUPS || containsCompressedZeroes)
+    }
+
+    /**
+     * Checks whether a given string is a valid host name according to
+     * RFC 3986 - not accepting IP addresses.
+     *
+     * @see "https://tools.ietf.org/html/rfc3986.section-3.2.2"
+     *
+     * @param name the hostname to validate
+     * @return true if the given name is a valid host name
+     */
+    private fun isRFC3986HostName(name: String): Boolean {
+        val parts = name.split("\\.".toRegex()).toTypedArray()
+        for (i in parts.indices) {
+            if (parts[i].isEmpty()) {
+                // trailing dot is legal, otherwise we've hit a .. sequence
+                return i == parts.size - 1
+            }
+            if (!REG_NAME_PART_PATTERN.matcher(parts[i]).matches()) {
+                return false
+            }
+        }
+        return true
     }
 }

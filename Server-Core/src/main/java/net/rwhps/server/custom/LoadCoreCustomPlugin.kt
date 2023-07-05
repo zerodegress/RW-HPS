@@ -12,8 +12,7 @@ package net.rwhps.server.custom
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.plugin.beta.UpListMain
-import net.rwhps.server.plugin.beta.apix.ApiXMain
-import net.rwhps.server.plugin.beta.httpapi.ApiMain
+import net.rwhps.server.plugin.beta.http.RwHpsWebApiMain
 import net.rwhps.server.plugin.internal.hess.HessMain
 
 /**
@@ -31,10 +30,9 @@ internal class LoadCoreCustomPlugin {
     private val amusement = "[Amusement Plugin]"
     private val example = "[Example Plugin]"
     init {
-        PluginManage.addPluginClass("HessServer", "Dr", "$core HessServer", Data.SERVER_CORE_VERSION, HessMain(), mkdir = false, skip = true)
-        PluginManage.addPluginClass("ApiX", "Dr", "$coreEx ApiX", Data.SERVER_CORE_VERSION, ApiXMain(), mkdir = true, skip = true)
+        PluginManage.addPluginClass("HessServer", "RW-HPS/Dr", "$core HessServer", Data.SERVER_CORE_VERSION, HessMain(), mkdir = false, skip = true)
 
         PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpListMain(), mkdir = false, skip = true)
-        PluginManage.addPluginClass("HttpApi", "zhou2008", "$coreEx HttpApi", "1.0", ApiMain(), mkdir = true, skip = true)
+        PluginManage.addPluginClass(RwHpsWebApiMain.pluginInfo, RwHpsWebApiMain(), mkdir = true, skip = true)
     }
 }

@@ -19,9 +19,7 @@ enum class CallTimeTask(
     val group: String,
     val description: String
     ) {
-    CallPingTask(                   coreServer,         "Update player delay"),
     CallTeamTask(                   coreServer,         "Update player team list"),
-    CallCheckTask(                  coreServer,         "Update player check data"),
 
     PlayerAfkTask(                  coreServer,         "Transfer of authority"),
     GameOverTask(                   coreServer,         "Check gameover"),
@@ -29,9 +27,6 @@ enum class CallTimeTask(
     AutoStartTask(                  coreExpandServer,   "Start automatically"),
     AutoUpdateMapsTask(             coreExpandServer,   "Auto update maps"),
     AutoCheckTask(                  coreExpandServer,   "Auto Check player survives"),
-
-    TestStatus(                  "[TEST]",  "Auto Check player survives"),
-
 
     CustomUpServerListTask(         "UpList",         "[Plugin UpList] Update Data"),
     UpServerListTask(               "UpList",         "Core"),
@@ -43,7 +38,6 @@ enum class CallTimeTask(
     ServerUploadData_CheckTimeTask( "[RCN]",          "超时"),
     RelayRoom_CheckTimeTask(        "[RCN]",          "房间超时机制"),
     ServerStatusUpdate(             "[RCN]",          "状态更新"),
-    ServerIDCheckUpdate(            "[RCN]",          "检查ID过期"),
 
 
     ServerUpStatistics(             "[RW-HPS]",       "统计数据更新")

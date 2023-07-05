@@ -10,56 +10,51 @@
 package net.rwhps.server.net.http
 
 import io.netty.handler.codec.http.HttpRequest
+import net.rwhps.server.net.core.web.WebGet
+import net.rwhps.server.net.core.web.WebPost
+import net.rwhps.server.net.core.web.WebSocket
 import net.rwhps.server.net.handler.tcp.GamePortWebSocket
 import net.rwhps.server.util.log.exp.VariableException
 
 /**
  * @author RW-HPS/Dr
  */
-object WebData {
+class WebData {
     private val getData: MutableMap<String, WebGet> = HashMap()
     private val postData: MutableMap<String, WebPost> = HashMap()
     private val webSocketData: MutableMap<String, GamePortWebSocket> = HashMap()
 
-    internal val WS_URI = "/WebSocket"
-
-    @JvmStatic
     fun addWebGetInstance(url: String, webGet: WebGet) {
         if (getData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebGetInstance] Repeat Add")
         }
-        if (url.startsWith(WebData.WS_URI)) {
+        if (url.startsWith(WS_URI)) {
             throw VariableException.TabooAddException("[AddWebGetInstance] TabooA Add, Can not be used WebSocket URL")
         }
         getData[url] = webGet
     }
-    @JvmStatic
     fun addWebPostInstance(url: String, webPost: WebPost) {
         if (postData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebPostInstance] Repeat Add")
         }
-        if (url.startsWith(WebData.WS_URI)) {
+        if (url.startsWith(WS_URI)) {
             throw VariableException.TabooAddException("[AddWebGetInstance] TabooA Add, Can not be used WebSocket URL")
         }
         postData[url] = webPost
     }
-    @JvmStatic
     fun addWebSocketInstance(url: String, webSocket: WebSocket) {
         if (webSocketData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebSocketInstance] Repeat Add")
         }
         webSocketData[url] = GamePortWebSocket(webSocket)
     }
-
-    @JvmStatic
+    
     fun removeWebGetInstance(url: String) {
         getData.remove(url)
     }
-    @JvmStatic
     fun removeWebPostInstance(url: String) {
         postData.remove(url)
     }
-    @JvmStatic
     fun removeWebSocketInstance(url: String) {
         webSocketData.remove(url)
     }
@@ -89,7 +84,7 @@ object WebData {
         if (getData.containsKey(getUrl)) {
             getData[getUrl]?.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
         } else if (getData.containsKey(wildcard)) {
-            getData[wildcard]!!.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
+            getData[wildcard]?.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
         } else {
             sendWeb.send404()
         }
@@ -120,5 +115,9 @@ object WebData {
             return webSocketData[url]!!
         }
         return null
+    }
+
+    companion object {
+        const val WS_URI = "/WebSocket"
     }
 }

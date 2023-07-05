@@ -18,16 +18,15 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.GameMaps
-import net.rwhps.server.game.event.EventType
+import net.rwhps.server.game.event.game.ServerGameStartEvent
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.struct.BaseMap.Companion.toSeq
 import net.rwhps.server.util.IsUtils.notIsNumeric
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -40,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger
 internal class ClientCommands(handler: CommandHandler) {
     private val localeUtil = Data.i18NBundle
 
-    private fun isAdmin(player: AbstractPlayer): Boolean {
+    private fun isAdmin(player: PlayerHess): Boolean {
         if (player.isAdmin) {
             return true
         }
@@ -48,7 +47,7 @@ internal class ClientCommands(handler: CommandHandler) {
         return false
     }
 
-    private fun checkPositionNumb(int: String, player: AbstractPlayer): Boolean {
+    private fun checkPositionNumb(int: String, player: PlayerHess): Boolean {
         if (notIsNumeric(int)) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.noNumber"))
             return false
@@ -65,7 +64,7 @@ internal class ClientCommands(handler: CommandHandler) {
     }
 
     init {
-        handler.register("help", "clientCommands.help") { _: Array<String>?, player: AbstractPlayer ->
+        handler.register("help", "clientCommands.help") { _: Array<String>?, player: PlayerHess ->
             val str = StringBuilder(16)
             for (command in handler.commandList) {
                 if (command.description.startsWith("#")) {
@@ -82,7 +81,7 @@ internal class ClientCommands(handler: CommandHandler) {
             }
             player.sendSystemMessage(str.toString())
         }
-        handler.register("map", "<MapNumber...>", "clientCommands.map") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("map", "<MapNumber...>", "clientCommands.map") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 if (room.isStartGame) {
                     return@register
@@ -138,7 +137,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 GameEngine.netEngine.L()
             }
         }
-        handler.register("maps", "[page]", "clientCommands.maps") { _: Array<String>?, player: AbstractPlayer ->
+        handler.register("maps", "[page]", "clientCommands.maps") { _: Array<String>?, player: PlayerHess ->
             if (room.isStartGame) {
                 player.sendSystemMessage(localeUtil.getinput("err.startGame"))
                 return@register
@@ -154,7 +153,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 i.getAndIncrement()
             }
         }
-        handler.register("afk", "clientCommands.afk") { _: Array<String>?, player: AbstractPlayer ->
+        handler.register("afk", "clientCommands.afk") { _: Array<String>?, player: PlayerHess ->
             if (!room.isAfk) {
                 player.sendSystemMessage(player.i18NBundle.getinput("ban.comm", "afk"))
                 return@register
@@ -170,7 +169,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
                 val admin = AtomicBoolean(true)
-                room.playerManage.playerGroup.eachAllFind({ p: AbstractPlayer -> p.isAdmin },{ _: AbstractPlayer -> admin.set(false) })
+                room.playerManage.playerGroup.eachAllFind({ p: PlayerHess -> p.isAdmin },{ _: PlayerHess -> admin.set(false) })
                 if (admin.get()) {
                     player.isAdmin = true
                     room.call.sendSystemMessageLocal("afk.end.noAdmin", player.name)
@@ -178,7 +177,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 Threads.newCountdown(CallTimeTask.PlayerAfkTask, 30, TimeUnit.SECONDS) {
                     room.playerManage.playerGroup.eachFind(
-                        { p: AbstractPlayer -> p.isAdmin }) { i: AbstractPlayer ->
+                        { p: PlayerHess -> p.isAdmin }) { i: PlayerHess ->
                         i.isAdmin = false
                         player.isAdmin = true
                         room.call.sendSystemMessageLocal("afk.end.ok", player.name)
@@ -188,7 +187,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 room.call.sendSystemMessageLocal("afk.start", player.name)
             }
         }
-        handler.register("income", "<income>", "clientCommands.income") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("income", "<income>", "clientCommands.income") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 if (room.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame.warn"))
@@ -196,7 +195,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 GameEngine.data.gameDataLink.income = args[0].toFloat()
             }
         }
-        handler.register("addmoney", "<PlayerPositionNumber> <money>", "clientCommands.addmoney") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("addmoney", "<PlayerPositionNumber> <money>", "clientCommands.addmoney") { args: Array<String>, player: PlayerHess ->
             if (!room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                 return@register
@@ -218,7 +217,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("ai", "<difficuld>", "clientCommands.income") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("ai", "<difficuld>", "clientCommands.income") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 if (room.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
@@ -236,7 +235,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("status", "clientCommands.status") { _: Array<String>?, player: AbstractPlayer ->
+        handler.register("status", "clientCommands.status") { _: Array<String>?, player: PlayerHess ->
             player.sendSystemMessage(player.i18NBundle.getinput(
                 "status.version",
                 room.playerManage.playerGroup.size,
@@ -245,10 +244,10 @@ internal class ClientCommands(handler: CommandHandler) {
                 "RW-HPS-Hess"
             ))
         }
-        handler.register("vote", "<gameover>","clientCommands.vote") { _: Array<String>?, player: AbstractPlayer ->
+        handler.register("vote", "<gameover>","clientCommands.vote") { _: Array<String>?, player: PlayerHess ->
             Data.vote = Vote("gameover",player)
         }
-        handler.register("iunit", "<PlayerPositionNumber> <unitID>","clientCommands.iunit") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("iunit", "<PlayerPositionNumber> <unitID>","clientCommands.iunit") { args: Array<String>, player: PlayerHess ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -268,7 +267,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("summon", "<unitName>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("summon", "<unitName>", "clientCommands.kick") { args: Array<String>, player: PlayerHess ->
             if (!room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                 return@register
@@ -279,7 +278,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 player.addData("Summon", unit)
             }
         }
-        handler.register("kick", "<PlayerPositionNumber>", "clientCommands.kick") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("kick", "<PlayerPositionNumber>", "clientCommands.kick") { args: Array<String>, player: PlayerHess ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -306,7 +305,7 @@ internal class ClientCommands(handler: CommandHandler) {
         }
 
         /* QC */
-        handler.register("credits", "<money>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("credits", "<money>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 if (notIsNumeric(args[0])) {
                     player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
@@ -326,32 +325,32 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("nukes", "<boolean>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("nukes", "<boolean>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 GameEngine.data.gameDataLink.nukes = !args[0].toBoolean()
             }
         }
-        handler.register("addai", "HIDE") { _: Array<String>?, player: AbstractPlayer ->
+        handler.register("addai", "HIDE") { _: Array<String>?, player: PlayerHess ->
             if (isAdmin(player)) {
                 GameEngine.root.multiplayer.addAI()
             }
         }
-        handler.register("fog", "<type>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("fog", "<type>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 GameEngine.data.gameDataLink.fog = if ("off" == args[0]) 0 else if ("basic" == args[0]) 1 else 2
             }
         }
-        handler.register("sharedcontrol", "<boolean>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("sharedcontrol", "<boolean>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 GameEngine.data.gameDataLink.sharedcontrol = args[0].toBoolean()
             }
         }
-        handler.register("startingunits", "<type>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("startingunits", "<type>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (isAdmin(player)) {
                 GameEngine.data.gameDataLink.startingunits = args[0].toInt()
             }
         }
-        handler.register("start", "clientCommands.start") { _: Array<String>?, player: AbstractPlayer? ->
+        handler.register("start", "clientCommands.start") { _: Array<String>?, player: PlayerHess? ->
             if (player != null && isAdmin(player)) {
                 if (room.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
@@ -378,10 +377,10 @@ internal class ClientCommands(handler: CommandHandler) {
 
             GameEngine.root.multiplayer.multiplayerStart()
 
-            Events.fire(EventType.GameStartEvent())
+            GameEngine.data.eventManage.fire(ServerGameStartEvent())
 
         }
-        handler.register("move", "<PlayerPositionNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("move", "<PlayerPositionNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -410,7 +409,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
             }
         }
-        handler.register("team", "<PlayerPositionNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: AbstractPlayer ->
+        handler.register("team", "<PlayerPositionNumber> <ToTeamNumber>", "HIDE") { args: Array<String>, player: PlayerHess ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register

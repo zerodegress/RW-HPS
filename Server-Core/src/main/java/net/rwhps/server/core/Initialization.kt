@@ -312,17 +312,13 @@ class Initialization {
         }
 
         internal fun loadService() {
-            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.ServerTestProtocol.name,      TypeRwHpsJump::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name,           TypeRelay::class.java)
             ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name,  TypeRelayRebroadcast::class.java)
 
-            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerProtocolOld.name,       GameVersionServerOld::class.java)
-            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.ServerTestProtocol.name,      GameVersionServerJump::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayProtocol.name,           GameVersionRelay::class.java)
             ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayMulticastProtocol.name,  GameVersionRelayRebroadcast::class.java)
 
             ServiceLoader.addService(ServiceType.ProtocolPacket,IRwHps.NetType.ServerProtocol.name,         GameVersionPacket::class.java)
-            ServiceLoader.addService(ServiceType.ProtocolPacket,IRwHps.NetType.ServerProtocolOld.name,      GameVersionPacketOld::class.java)
 
             ServiceLoader.addService(ServiceType.IRwHps,"IRwHps", RwHps::class.java)
 

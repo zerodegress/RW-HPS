@@ -33,6 +33,29 @@ class AsmAgent : ClassFileTransformer, AsmCore() {
         setAgent(this)
     }
 
+    /**
+     * Transforms the given class file and returns a new replacement class file.
+     * This method is invoked when the {@link Module Module} bearing {@link
+     * ClassFileTransformer#transform(Module,ClassLoader,String,Class,ProtectionDomain,byte[])
+     * transform} is not overridden.
+     *
+     * @param loader                the defining loader of the class to be transformed,
+     *                              may be {@code null} if the bootstrap loader
+     * @param className             the name of the class in the internal form of fully
+     *                              qualified class and interface names as defined in
+     *                              <i>The Java Virtual Machine Specification</i>.
+     *                              For example, <code>"java/util/List"</code>.
+     * @param classBeingRedefined   if this is triggered by a redefine or retransform,
+     *                              the class being redefined or retransformed;
+     *                              if this is a class load, {@code null}
+     * @param protectionDomain      the protection domain of the class being defined or redefined
+     * @param classfileBuffer       the input byte buffer in class file format - must not be modified
+     *
+     * @throws IllegalClassFormatException
+     *         if the input does not represent a well-formed class file
+     * @return a well-formed class file buffer (the result of the transform),
+     *         or {@code null} if no transform is performed
+     */
     @Throws(IllegalClassFormatException::class)
     override fun transform(loader: ClassLoader?, className: String, classBeingRedefined: Class<*>?, protectionDomain: ProtectionDomain?, classfileBuffer: ByteArray): ByteArray {
         // 这个是单纯的 Debug 用的

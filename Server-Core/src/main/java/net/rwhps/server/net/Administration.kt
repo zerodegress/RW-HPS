@@ -10,8 +10,7 @@ package net.rwhps.server.net
 
 import net.rwhps.server.core.thread.Threads.addSavePool
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.AbstractPlayer
-import net.rwhps.server.data.player.Player
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
@@ -37,7 +36,7 @@ class Administration(pluginData: PluginData) {
 
     init {
         addChatFilter(object : ChatFilter {
-            override fun filter(player: Player, message: String?): String? {
+            override fun filter(player: PlayerHess, message: String?): String? {
                 if (!player.isAdmin) {
                     //防止玩家在 30 秒内两次发送相同的消息
                     if (message == player.lastSentMessage && getTimeSinceMillis(player.lastMessageTime) < 1000 * 30) {
@@ -80,7 +79,7 @@ class Administration(pluginData: PluginData) {
     }
 
     /** 过滤掉聊天消息  */
-    fun filterMessage(player: Player, message: String?): String? {
+    fun filterMessage(player: PlayerHess, message: String?): String? {
         var current = message
         for (f in chatFilters) {
             current = f.filter(player, message)
@@ -99,7 +98,7 @@ class Administration(pluginData: PluginData) {
         playerAdminData.remove(uuid)
     }
 
-    fun isAdmin(player: AbstractPlayer): Boolean {
+    fun isAdmin(player: PlayerHess): Boolean {
         if (playerAdminData.containsKey(player.connectHexID)) {
             playerAdminData[player.connectHexID]!!.name = player.name
             return true
@@ -114,7 +113,7 @@ class Administration(pluginData: PluginData) {
          * @param message Message
          * @return 过滤后的消息 空字符串表示不应发送该消息
          */
-        fun filter(player: Player, message: String?): String?
+        fun filter(player: PlayerHess, message: String?): String?
     }
 
     class PlayerInfo {

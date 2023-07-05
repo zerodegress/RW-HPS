@@ -10,7 +10,7 @@
 package net.rwhps.server.core
 
 import net.rwhps.server.data.plugin.Value
-import net.rwhps.server.net.core.AbstractNetPacket
+import net.rwhps.server.net.core.server.packet.AbstractNetPacket
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.ReflectionUtils

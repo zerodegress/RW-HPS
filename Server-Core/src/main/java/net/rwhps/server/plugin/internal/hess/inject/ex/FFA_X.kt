@@ -20,7 +20,7 @@ import net.rwhps.server.util.CommonUtils
 import net.rwhps.server.util.ExtractUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.alone.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.DidNotFinish
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
 

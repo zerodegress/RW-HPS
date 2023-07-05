@@ -15,8 +15,8 @@ import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
-import net.rwhps.server.util.alone.annotations.mark.AsmMark
+import net.rwhps.server.util.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.mark.AsmMark
 import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileName
@@ -148,11 +148,9 @@ class FileLoaderRedirections : MainRedirections {
             return@redirect if (cc.get(null) as Boolean) {
                 if (d.startsWith("/SD/rusted_warfare_maps")) {
                     d = "/SD/mods/maps" + d.substring("/SD/rusted_warfare_maps".length)
-                    //l.e(fileSystemAsm + "convertAbstractPath: Changing to:" + d)
                 }
                 if (d.startsWith("/SD/rustedWarfare/maps")) {
                     d = "/SD/mods/maps" + d.substring("/SD/rustedWarfare/maps".length)
-                    //l.e(fileSystemAsm + "convertAbstractPath2: Changing to:" + d)
                 }
 
                 if (d.startsWith("/SD/") || d.startsWith("\\SD\\")) {
@@ -190,8 +188,7 @@ class FileLoaderRedirections : MainRedirections {
                 try {
                     findNewClass_AssetInputStream(obj,InputStream::class.java,String::class.java,String::class.java).newInstance(
                         // AssetManager
-                        FileInputStream("${resAndAssetsPath}assets/${str2}"),
-                        str3, str2)
+                        FileInputStream("${resAndAssetsPath}assets/${str2}"), str3, str2)
                 } catch (e: FileNotFoundException) {
                     null
                 }

@@ -7,8 +7,6 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-import buildSrc.makeDependTree
-
 dependencies {
 	compileOnlyAndTest("org.ow2.asm:asm:9.4")
 	compileOnlyAndTest("org.ow2.asm:asm-tree:9.4")

@@ -15,11 +15,11 @@ import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.util.AttributeKey
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.game.event.EventGlobalType.NewConnectEvent
+import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.game.event.global.NetConnectNewEvent
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.exp.ExceptionX
@@ -52,8 +52,8 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                         return
                     }
 
-                    val newConnectEvent = NewConnectEvent(connectionAgreement)
-                    Events.fire(newConnectEvent)
+                    val newConnectEvent = NetConnectNewEvent(connectionAgreement)
+                    PluginManage.runGlobalEventManage(newConnectEvent)
                     if (newConnectEvent.result) {
                         type.abstractNetConnect.disconnect()
                         return

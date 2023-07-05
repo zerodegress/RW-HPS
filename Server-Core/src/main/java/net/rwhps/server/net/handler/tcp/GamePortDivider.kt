@@ -20,8 +20,9 @@ import io.netty.handler.timeout.IdleStateHandler
 import io.netty.util.CharsetUtil
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebData
-import net.rwhps.server.net.http.WebData.WS_URI
+import net.rwhps.server.net.http.WebData.Companion.WS_URI
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.log.exp.ExceptionX
 import java.nio.charset.StandardCharsets
 
 
@@ -32,6 +33,12 @@ import java.nio.charset.StandardCharsets
  */
 @ChannelHandler.Sharable
 internal class GamePortDivider(private val divider: StartGamePortDivider) : ChannelInboundHandlerAdapter() {
+    private lateinit var webData: WebData
+
+    fun setWebData(data: WebData) {
+        webData = data
+    }
+
     private fun isHttpReq(head: String): Boolean {
         return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith("HEAD ") || head.startsWith("PUT ")
     }
@@ -61,7 +68,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
                     HttpObjectAggregator(1048576),
                     WebSocketServerProtocolHandler(head)
                 )
-                val wsProcessing = WebData.runWebSocketInstance(head)
+                val wsProcessing = webData.runWebSocketInstance(head)
                 if (wsProcessing != null) {
                     ctx.channel().pipeline().addLast(wsProcessing)
                 } else {
@@ -78,7 +85,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
                             val url = request.uri()
 
                             if (request.method().equals(HttpMethod.GET)) {
-                                WebData.runWebGetInstance(url, request, SendWeb(ctx.channel(), request))
+                                webData.runWebGetInstance(url, request, SendWeb(ctx.channel(), request))
                                 return
                             } else if (request.method().equals(HttpMethod.POST)) {
                                 if (msg is HttpContent) {
@@ -86,7 +93,7 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
                                     val content = httpContent.content()
                                     val buf = StringBuilder()
                                     buf.append(content.toString(CharsetUtil.UTF_8))
-                                    WebData.runWebPostInstance(url, buf.toString(), request, SendWeb(ctx.channel(), request))
+                                    webData.runWebPostInstance(url, buf.toString(), request, SendWeb(ctx.channel(), request))
                                     return
                                 }
                             }
@@ -99,5 +106,12 @@ internal class GamePortDivider(private val divider: StartGamePortDivider) : Chan
         }
         ctx.pipeline().remove("GamePortDivider")
         super.channelRead(ctx, msg)
+    }
+
+    @Throws(Exception::class)
+    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
+        cause?.let {
+            Log.error(ExceptionX.resolveTrace(it))
+        }
     }
 }

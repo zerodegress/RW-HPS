@@ -14,7 +14,7 @@ package net.rwhps.server.struct
  * @author  RW-HPS/Dr
  */
 class SeqSave {
-    private val data = Seq<String>()
+    val data = Seq<String>()
 
     private val maxSeq: Int
 

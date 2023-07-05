@@ -9,22 +9,27 @@
 
 package net.rwhps.server.util.compression
 
-import net.rwhps.server.util.compression.core.CompressionDecoder
+import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.compression.seven.SevenZipFileDecoder
 import net.rwhps.server.util.compression.zip.ZipFileDecoder
-import net.rwhps.server.util.compression.zip.ZipStreamDecoder
+import net.rwhps.server.util.io.IoRead
 import java.io.File
 import java.io.InputStream
 
 /**
+ * 获取解压构造器
+ *
+ * 不支持 网络流 , 需要本地全部读取成 bytes
+ *
  * @author RW-HPS/Dr
  */
 object CompressionDecoderUtils {
-    fun zip(file: File): CompressionDecoder = CompressionDecoder(ZipFileDecoder(file))
-    fun zipSeek(inStream: InputStream): CompressionDecoder = CompressionDecoder(ZipFileDecoder(inStream))
-    fun zipStream(inStream: InputStream): CompressionDecoder = CompressionDecoder(ZipStreamDecoder(inStream))
 
-    fun sevenZip(file: File): CompressionDecoder = CompressionDecoder(SevenZipFileDecoder(file))
-    fun sevenZipSeek(inStream: InputStream): CompressionDecoder = CompressionDecoder(SevenZipFileDecoder(inStream))
-    fun sevenZipStream(inStream: InputStream): CompressionDecoder = sevenZipSeek(inStream)
+    fun zip(file: File): AbstractDecoder = ZipFileDecoder(file)
+    fun zip(bytes: ByteArray): AbstractDecoder = ZipFileDecoder(bytes)
+    fun zipAllReadStream(inStream: InputStream): AbstractDecoder = ZipFileDecoder(IoRead.readInputStreamBytes(inStream))
+
+    fun sevenZip(file: File): AbstractDecoder = SevenZipFileDecoder(file)
+    fun sevenZip(bytes: ByteArray): AbstractDecoder = SevenZipFileDecoder(bytes)
+    fun sevenAllReadStream(inStream: InputStream): AbstractDecoder = sevenZip(IoRead.readInputStreamBytes(inStream))
 }

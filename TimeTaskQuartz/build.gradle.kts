@@ -1,5 +1,3 @@
-import buildSrc.makeDependTree
-
 dependencies {
 	// Users should not operate Quartz
 	// Hence the RunTime

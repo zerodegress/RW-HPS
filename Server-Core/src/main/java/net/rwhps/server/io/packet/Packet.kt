@@ -18,6 +18,10 @@ import net.rwhps.server.util.log.Log
 import java.io.IOException
 
 /**
+ * 网络传输包的具象化
+ *
+ * @property type 包的类型
+ * @property bytes 这个包包含的字节
  * @author RW-HPS/Dr
  */
 class Packet {

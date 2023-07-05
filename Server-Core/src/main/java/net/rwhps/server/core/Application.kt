@@ -42,7 +42,7 @@ class Application {
     var upServerList = false
 
     /**
-     * 读取 Setting 主数据
+     * 加载并读取 Setting 主数据
      */
     fun load() {
         settings.setFileUtil(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))

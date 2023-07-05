@@ -12,7 +12,7 @@ package net.rwhps.server.plugin
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.IsUtils.doubleToLong
 import net.rwhps.server.util.StringFilteringUtil.StringMatcherData
-import net.rwhps.server.util.alone.annotations.NeedToRefactor
+import net.rwhps.server.util.annotations.NeedToRefactor
 import java.util.*
 
 /**

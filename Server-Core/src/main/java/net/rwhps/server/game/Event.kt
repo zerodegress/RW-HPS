@@ -13,12 +13,12 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
-import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.game.*
 import net.rwhps.server.net.Administration.PlayerInfo
-import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.Time.millis
+import net.rwhps.server.util.annotations.core.EventListenerHandler
 import net.rwhps.server.util.inline.coverConnect
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
@@ -28,8 +28,10 @@ import java.util.concurrent.TimeUnit
 /**
  * @author RW-HPS/Dr
  */
-class Event : AbstractEvent {
-    override fun registerServerHessStartPort() {
+@Suppress("UNUSED")
+class Event : EventListener {
+    @EventListenerHandler
+    fun registerServerHessStartPort(serverHessStartPort: ServerHessStartPort) {
         HessModuleManage.hps.gameDataLink.maxUnit = Data.configServer.MaxUnit
         HessModuleManage.hps.gameDataLink.income = Data.configServer.DefIncome
 
@@ -38,7 +40,9 @@ class Event : AbstractEvent {
         }
     }
 
-    override fun registerPlayerJoinEvent(player: AbstractPlayer) {
+    @EventListenerHandler
+    fun registerPlayerJoinEvent(playerJoinEvent: PlayerJoinEvent) {
+        val player = playerJoinEvent.player
         if (player.name.isBlank() || player.name.length > 30) {
             player.kickPlayer(player.getinput("kick.name.failed"))
             return
@@ -102,7 +106,9 @@ class Event : AbstractEvent {
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
-    override fun registerPlayerLeaveEvent(player: AbstractPlayer) {
+    @EventListenerHandler
+    fun registerPlayerLeaveEvent(playerLeaveEvent: PlayerLeaveEvent) {
+        val player = playerLeaveEvent.player
         if (Data.configServer.OneAdmin &&
             player.isAdmin &&
             player.autoAdmin &&
@@ -116,7 +122,7 @@ class Event : AbstractEvent {
                 }
         }
 
-        Data.core.admin.playerDataCache.put(player.connectHexID, PlayerInfo(player.connectHexID, player.kickTime, player.muteTime))
+        Data.core.admin.playerDataCache[player.connectHexID] = PlayerInfo(player.connectHexID, player.kickTime, player.muteTime)
 
         if (HessModuleManage.hps.room.isStartGame) {
             HessModuleManage.hps.room.call.sendSystemMessage("player.dis", player.name)
@@ -133,7 +139,8 @@ class Event : AbstractEvent {
         }
     }
 
-    override fun registerGameStartEvent() {
+    @EventListenerHandler
+    fun registerGameStartEvent(serverGameStartEvent: ServerGameStartEvent) {
         Data.core.admin.playerDataCache.clear()
 
         if (Data.configServer.StartAd.isNotBlank()) {
@@ -143,13 +150,16 @@ class Event : AbstractEvent {
         Log.clog("[Start New Game]")
     }
 
-    override fun registerGameOverEvent(gameOverData: GameOverData?) {
+    @EventListenerHandler
+    fun registerGameOverEvent(serverGameOverEvent: ServerGameOverEvent) {
         MapManage.maps.mapData?.clean()
 
         System.gc()
     }
 
-    override fun registerPlayerBanEvent(player: AbstractPlayer) {
+    @EventListenerHandler
+    fun registerPlayerBanEvent(serverBanEvent: PlayerBanEvent) {
+        val player = serverBanEvent.player
         Data.core.admin.bannedUUIDs.add(player.connectHexID)
         Data.core.admin.bannedIPs.add(player.con!!.coverConnect().ip)
         try {
@@ -160,7 +170,9 @@ class Event : AbstractEvent {
         HessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
     }
 
-    override fun registerPlayerIpBanEvent(player: AbstractPlayer) {
+    @EventListenerHandler
+    fun registerPlayerIpBanEvent(serverIpBanEvent: PlayerIpBanEvent) {
+        val player = serverIpBanEvent.player
         Data.core.admin.bannedIPs.add(player.con!!.coverConnect().ip)
         try {
             player.kickPlayer("kick.ban")

@@ -7,18 +7,27 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package buildSrc
-
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.maven
+import org.gradle.kotlin.dsl.repositories
 
-val lineSeparator = System.getProperty("line.separator")!!
-val mavenPath = "/src/main/resources/maven"
+fun Project.setRepositories() {
+    repositories {
+        maven(url = "https://maven.aliyun.com/repository/public")
+        maven(url = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public")
+        maven(url = "https://repo.huaweicloud.com/repository/maven")
+        maven(url = "https://jitpack.io")
+        maven(url = "https://plugins.gradle.org/m2")
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
 
 fun Project.makeDependTree() {
     val project = this
 
-    val implementationFile = file("$mavenPath/${this.project.name}/implementation.txt").apply { mkdirs();delete() }
-    val compileOnlyFile = file("$mavenPath/${this.project.name}/compileOnly.txt").apply { mkdirs();delete() }
+    val implementationFile = file("${Data.mavenPath}/${this.project.name}/implementation.txt").apply { mkdirs();delete() }
+    val compileOnlyFile = file("${Data.mavenPath}/${this.project.name}/compileOnly.txt").apply { mkdirs();delete() }
 
     var implementation = ""
     var compileOnly = ""
@@ -35,9 +44,9 @@ fun Project.makeDependTree() {
 
     project.configurations.findByName("compileClasspath")!!.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
         if (onlyList.contains(artifact.moduleVersion.id.group + artifact.moduleVersion.id.name + artifact.classifier)) {
-            compileOnly += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}$lineSeparator"
+            compileOnly += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}${Data.lineSeparator}"
         } else {
-            implementation += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}$lineSeparator"
+            implementation += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}${Data.lineSeparator}"
         }
     }
     implementationFile.writeText(implementation)

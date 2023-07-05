@@ -14,7 +14,7 @@ import net.rwhps.server.struct.Seq
 /**
  * @author RW-HPS/Dr
  */
-object Events {
+class Events {
     private val EVENTS = ObjectMap<Any, Seq<(Any) -> Unit>>()
 
     @Suppress("UNCHECKED_CAST")
@@ -28,10 +28,6 @@ object Events {
 
     fun <T> remove(type: Class<T>) {
         EVENTS[type, { Seq() }].clear()
-    }
-
-    inline fun <reified T> fire(type: T) {
-        fire(T::class.java, type)
     }
 
     fun <T> fire(type1: Class<*>, type: T) {

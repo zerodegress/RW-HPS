@@ -1,6 +1,6 @@
 package net.rwhps.server.util.compression.zip
 
-import net.rwhps.server.util.alone.annotations.mark.TestMark
+import net.rwhps.server.util.annotations.mark.TestMark
 import org.junit.jupiter.api.Test
 
 /**

@@ -16,15 +16,15 @@ import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.PlayerHessManage
 import net.rwhps.server.data.temp.ServerCacheFlag
-import net.rwhps.server.game.event.EventType
+import net.rwhps.server.game.event.game.ServerGameOverEvent
+import net.rwhps.server.game.simulation.core.AbstractGameModule
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.clog
 
 /**
  * @author RW-HPS/Dr
  */
-class ServerRoom {
+class ServerRoom(private val gameModule: AbstractGameModule) {
     lateinit var roomID: String
 
     val playerManage = PlayerHessManage()
@@ -115,7 +115,7 @@ class ServerRoom {
 
         forcedReturn = false
 
-        Events.fire(EventType.GameOverEvent(gameOverData))
+        gameModule.eventManage.fire(ServerGameOverEvent(gameOverData))
 
         gameOverData = null
 

@@ -27,6 +27,11 @@ class NetEnginePackaging(
     private val netEngine: ad,
     private val playerConnectX: PlayerConnectX
 ) {
+    /**
+     * 将 Packet 扔进 Hess 内的处理器
+     *
+     * @param packet Packet
+     */
     fun addPacket(packet: Packet) {
         val packetHess = transformHessPacket(packet)
 
@@ -37,6 +42,12 @@ class NetEnginePackaging(
         }
     }
 
+    /**
+     * 转换[Packet]为Hess的[PacketHess]
+     *
+     * @param packet RW-HPS的[PacketHess]
+     * @return Hess 的 [PacketHess]
+     */
     fun transformHessPacket(packet: Packet): PacketHess {
         return PacketHess(packet.type.typeInt).apply {
             c = packet.bytes
@@ -44,6 +55,12 @@ class NetEnginePackaging(
         }
     }
 
+    /**
+     * 转换[Packet]为Hess的[PacketHess]
+     *
+     * @param packetHess Hess的[PacketHess]
+     * @return RW-HPS的[PacketHess]
+     */
     fun transformPacket(packetHess: PacketHess): Packet {
         return Packet(packetHess.b,packetHess.c)
     }

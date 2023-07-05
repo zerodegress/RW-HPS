@@ -14,9 +14,8 @@ import com.corrodinggames.rts.gameFramework.j.CustomServerSocket
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.c
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.game.event.EventType
+import net.rwhps.server.game.event.game.ServerHessStartPort
 import net.rwhps.server.game.simulation.core.AbstractGameNet
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -48,7 +47,7 @@ internal class GameNet : AbstractGameNet {
     }
 
     override fun startHessPort(port: Int, passwd: String?, name: String) {
-//        for (a in (GameEngine.gameEngine.bZ::class.java.findField("e")!![GameEngine.gameEngine.bZ] as ArrayList<b>)) {
+//        for (a in (GameEngine.gameEngine.bZ::class.java.findField("e")!![GameEngine.gameEngine.bZ] as ArrayList<com.corrodinggames.rts.gameFramework.i.b>)) {
 //            a.U.iterator().forEach {
 //                Log.clog(it.toString())
 //            }
@@ -65,6 +64,9 @@ internal class GameNet : AbstractGameNet {
             roomID = "Port: $port"
             startServer = {
                 try {
+                    // 设置客户端UUID, 避免Admin/ban等不能持久化
+                    GameEngine.settingsEngine.networkServerId = Data.core.serverConnectUuid
+
                     GameEngine.root.hostStartWithPasswordAndMods(false, passwd, true)
 
                     val tcp = GameEngine.netEngine::class.java.findField("aE", ServerAcceptRunnable::class.java)!!
@@ -86,8 +88,7 @@ internal class GameNet : AbstractGameNet {
                     // 避免同步爆炸
                     GameEngine.netEngine.z.k = -3
 
-                    Events.fire(EventType.ServerHessStartPort())
-
+                    GameEngine.data.eventManage.fire(ServerHessStartPort())
                 } catch (e: Exception) {
                     Log.error(e)
                 }

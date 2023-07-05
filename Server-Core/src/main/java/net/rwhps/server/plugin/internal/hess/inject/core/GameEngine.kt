@@ -16,8 +16,8 @@ import com.corrodinggames.librocket.scripts.ScriptContext
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
 import net.rwhps.server.core.ServiceLoader
+import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.game.simulation.core.*
 import net.rwhps.server.net.core.IRwHps
@@ -67,22 +67,21 @@ internal object GameEngine {
         val loader = GameEngine.javaClass.classLoader
         HessModuleManage.addGameModule(loader.toString(), object: AbstractGameModule {
             override val useClassLoader: ClassLoader = loader
+            override val eventManage: EventManage = EventManage()
             override val gameHessData: AbstractGameHessData = GameHessData()
             override val gameNet: AbstractGameNet = GameNet()
             override val gameUnitData: AbstractGameUnitData = GameUnitData()
             override val gameFast: AbstractGameFast = GameFast()
             override val gameData: AbstractGameData = GameData()
             override val gameDataLink: AbstractGameLinkData = GameLinkData()
-            override val room: ServerRoom = ServerRoom()
+            override val room: ServerRoom = ServerRoom(this)
         }.also {
             data = it
         })
 
-        // 设置客户端UUID, 避免Admin/ban等不能持久化
-        settingsEngine.networkServerId = Data.core.serverConnectUuid
-
         ServiceLoader.addService(ServiceLoader.ServiceType.IRwHps, IRwHps.NetType.ServerProtocol.name, HessRwHps::class.java)
 
+        /* Register Server Protocol Command */
         ServerCommands(HessMain.serverServerCommands)
         ClientCommands(HessMain.serverClientCommands)
     }

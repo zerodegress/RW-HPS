@@ -22,6 +22,7 @@ internal class PrivateClass_Player(private val playerData: n) : AbstractPlayerDa
         gameStatistics = GameEngine.gameStatistics.a(playerData)
     }
 
+    // 队伍是否为观战 && 没判定过该玩家 && 不知道 && 不知道
     override val survive get() = (!playerData.b() && !playerData.G && !playerData.F && !playerData.E)
 
 

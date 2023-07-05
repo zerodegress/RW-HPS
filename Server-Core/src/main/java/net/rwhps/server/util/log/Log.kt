@@ -36,6 +36,7 @@ object Log {
     private lateinit var logPrint: (Boolean,String) -> Unit
     private val outLog: FileOutputStream
 
+    /** 默认错误捕获器 */
     val errorDispose = Thread.UncaughtExceptionHandler { thread, error ->
         if (thread != null) {
             error("[Error] ${thread.name}", error)
@@ -56,6 +57,11 @@ object Log {
         Thread.currentThread().uncaughtExceptionHandler = errorDispose
     }
 
+    /**
+     * 设置 [Log] 级别
+     *
+     * @param log [Logg]
+     */
     @JvmStatic
 	fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()

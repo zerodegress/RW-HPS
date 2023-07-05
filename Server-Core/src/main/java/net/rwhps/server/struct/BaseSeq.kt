@@ -10,7 +10,7 @@
 package net.rwhps.server.struct
 
 import net.rwhps.server.func.ConsSeq
-import net.rwhps.server.func.Control
+import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.func.FindSeq
 import net.rwhps.server.util.ExtractUtils
 
@@ -92,10 +92,10 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
         }
     }
 
-    fun eachControlAll(findA: FindSeq<T, Control>) {
+    fun eachControlAll(findA: FindSeq<T, ControlFind>) {
         ExtractUtils.synchronizedX(threadSafety, list) {
             list.forEach {
-                if (findA(it) == Control.BREAK) {
+                if (findA(it) == ControlFind.BREAK) {
                     return@synchronizedX
                 }
             }

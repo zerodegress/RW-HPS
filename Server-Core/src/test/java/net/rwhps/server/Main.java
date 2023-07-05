@@ -9,8 +9,15 @@
 
 package net.rwhps.server;
 
+import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Platform;
+import com.sun.jna.Structure;
+import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.StdCallLibrary;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author RW-HPS/Dr
@@ -24,7 +31,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //User32 user32 = User32.INSTANCE;
-        //user32.MessageBoxA(0, "Hello, World!", "Notification Example", 0x00000040); // MB_ICONINFORMATION
+        User32 user32 = User32.INSTANCE;
+        user32.MessageBoxA(0, "Hello, World!", "Notification Example", 0x00000040); // MB_ICONINFORMATION
     }
 }

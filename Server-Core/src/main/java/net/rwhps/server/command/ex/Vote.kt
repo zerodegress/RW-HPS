@@ -14,7 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
@@ -31,8 +31,8 @@ import kotlin.math.ceil
  */
 class Vote {
     private val command: String
-    val player: AbstractPlayer
-    val targetPlayer: AbstractPlayer?
+    val player: PlayerHess
+    val targetPlayer: PlayerHess?
     private var isTeam: Boolean = false
 
     private var require: Int = 0
@@ -48,21 +48,21 @@ class Vote {
     private val playerList = Seq<String>()
 
     // Gameover Suss~
-    constructor(command: String, hostPlayer: AbstractPlayer) {
+    constructor(command: String, hostPlayer: PlayerHess) {
         this.command = command
         this.player = hostPlayer
         this.targetPlayer = null
         preprocessing()
     }
     // Kick Other
-    constructor(command: String, hostPlayer: AbstractPlayer, targetPlayer: AbstractPlayer) {
+    constructor(command: String, hostPlayer: PlayerHess, targetPlayer: PlayerHess) {
         this.command = command
         this.player = hostPlayer
         this.targetPlayer = targetPlayer
         preprocessing()
     }
 
-    fun toVote(votePlayer: AbstractPlayer, playerPick: String) {
+    fun toVote(votePlayer: PlayerHess, playerPick: String) {
         if (playerList.contains(votePlayer.connectHexID)) {
             votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.rey"))
             return
@@ -131,7 +131,7 @@ class Vote {
      */
     private fun teamOnly() {
         val require = AtomicInteger(0)
-        HessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: AbstractPlayer -> e.team == player.team }) { _: AbstractPlayer -> require.getAndIncrement() }
+        HessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == player.team }) { _: PlayerHess -> require.getAndIncrement() }
         this.require = require.get()
         endNoMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?:""),pass,this.require) }
         endYesMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ok") }

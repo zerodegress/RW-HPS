@@ -14,10 +14,20 @@ import net.rwhps.server.util.compression.seven.SevenZipEncoder
 import net.rwhps.server.util.compression.zip.ZipEncoder
 
 /**
+ * 获取压缩构造器
+ *
  * @author RW-HPS/Dr
  */
 object CompressionEncoderUtils {
+    /**
+     * 获取 Zip 压缩构造器
+     * @return AbstractEncoder
+     */
     fun zipStream(): AbstractEncoder = ZipEncoder()
 
-    fun lz77Stream(): AbstractEncoder = SevenZipEncoder()
+    /**
+     * 获取 7z 压缩构造器
+     * @return AbstractEncoder
+     */
+    fun sevenStream(): AbstractEncoder = SevenZipEncoder()
 }

@@ -12,7 +12,7 @@ package net.rwhps.server.dependent
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginData
-import net.rwhps.server.func.Control
+import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.struct.ObjectMap
@@ -259,7 +259,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
                     val root = doc.firstChild.also {
                         if (it.nodeName != "project") {
                             Log.error("[resolve Pom] Error Pom: $pomUrl")
-                            return@eachControlAll Control.CONTINUE
+                            return@eachControlAll ControlFind.CONTINUE
                         }
                     }.toMap()
 
@@ -324,9 +324,9 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
                         dependenciesDown.add(importData)
                     }
                 }
-                return@eachControlAll Control.BREAK
+                return@eachControlAll ControlFind.BREAK
             }
-            return@eachControlAll Control.CONTINUE
+            return@eachControlAll ControlFind.CONTINUE
         }
     }
 
@@ -380,13 +380,18 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN") : AgentAttachD
     private fun Node.toMap() = toSeq().associateBy { it.nodeName }
 
     companion object {
+        /** 已经加载的Jar */
         private val loadEnd = Seq<File>()
+        /** 需要加载的Jar */
         private val load = Seq<File>()
 
+        /** 需要下载的依赖数据 */
         private val dependenciesDown = Seq<ImportData>()
+        /** 需要导入的依赖 */
         private val dependenciesFile = Seq<File>()
         private val tempGroup = Seq<ImportGroupData>()
 
+        /** 依赖Pom缓存 */
         private val pomCache: ObjectMap<String,String>
 
         val UrlData = ObjectMap<String,String>().apply {

@@ -13,17 +13,17 @@ import net.rwhps.asm.agent.AsmAgent
 import net.rwhps.asm.agent.AsmCore
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.redirections.game.CustomRedirections
 import net.rwhps.server.dependent.redirections.game.FileLoaderRedirections
 import net.rwhps.server.dependent.redirections.game.NetPacketRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
-import net.rwhps.server.game.event.EventGlobalType
+import net.rwhps.server.game.event.global.ServerHessLoadEvent
 import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.alone.annotations.mark.AsmMark
-import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.annotations.mark.AsmMark
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
@@ -115,7 +115,7 @@ class HeadlessProxyClass : AgentAttachData() {
                         // Enable the interface
                         "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
 
-                        Events.fire(EventGlobalType.GameLibLoadEvent(loadID))
+                        PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!.eventManage))
                     }
 
                     if (msg.startsWith("Replay: Recording replay to:")) {

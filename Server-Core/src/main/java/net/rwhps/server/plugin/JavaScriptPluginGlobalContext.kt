@@ -9,10 +9,10 @@
 
 package net.rwhps.server.plugin
 
+import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.json.Json
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.func.ConsMap
 import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.func.Prov
@@ -24,12 +24,11 @@ import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
+import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
-import net.rwhps.server.plugin.event.AbstractEvent
-import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.struct.IntMap
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
@@ -59,20 +58,20 @@ import kotlin.io.path.pathString
 /**
  * 插件全局上下文
  * 主要用于JS插件加载
+ *
  * @author RW-HPS/ZeroDegress
  */
 class JavaScriptPluginGlobalContext {
     private val moduleMap = ObjectMap<String, Path>()
     private val javaMap = ObjectMap<String, Path>()
+    private val urlMap = Seq<String>()
     private val scriptFileSystem = OrderedMap<String, ByteArray>()
-    private val modules = ObjectMap<Json, String>()
+    private val modules = ObjectMap<BeanPluginInfo, String>()
 
     init {
         injectJavaClass<AbstractDecoder>()
-        injectJavaClass<AbstractEvent>()
-        injectJavaClass<AbstractGlobalEvent>()
         injectJavaClass<AbstractNetConnectServer>()
-        injectJavaClass<AbstractPlayer>()
+        injectJavaClass<PlayerHess>()
         injectJavaClass<AbstractPlayerData>()
         injectJavaClass<ConnectionAgreement>()
         injectJavaClass<CompressOutputStream>()
@@ -105,6 +104,7 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<Packet>()
         injectJavaClass<PacketType>()
         injectJavaClass<Plugin>()
+        injectJavaClass<GetVersion>()
         injectJavaClass<Properties>()
         injectJavaClass<Prov<Any>>()
         injectJavaClass<Log>()
@@ -112,6 +112,7 @@ class JavaScriptPluginGlobalContext {
 
     /**
      * 注册一个模块，这样在js中可通过"@module"这样的方式引用
+     *
      * @param name 模块名称
      * @param main 模块入口文件
      */
@@ -122,6 +123,7 @@ class JavaScriptPluginGlobalContext {
 
     /**
      * 注册一个Java包，这样在js中可通过"java:package"这样的方式引用
+     *
      * @param name 包名称
      * @param main 模块入口文件
      */
@@ -132,22 +134,24 @@ class JavaScriptPluginGlobalContext {
 
     /**
      * 添加一个ESM插件
-     * @param json ESM插件JSON数据
+     *
+     * @param pluginInfo ESM插件JSON数据
      * @param pluginData ESM插件模块所在压缩包的Map格式
      */
-    fun addESMPlugin(json: Json, pluginData: OrderedMap<String, ByteArray>) {
-        val pluginName = json.getString("name")
-        registerModule(pluginName, Path("/$pluginName/${json.getString("main")}"))
+    fun addESMPlugin(pluginInfo: BeanPluginInfo, pluginData: OrderedMap<String, ByteArray>) {
+        val pluginName = pluginInfo.name
+        registerModule(pluginName, Path("/$pluginName/${pluginInfo.main}"))
 
         pluginData.eachAll { k,v ->
-           scriptFileSystem["/$pluginName$k"] = v
+           scriptFileSystem["/$pluginName/$k"] = v
         }
 
-        modules[json, RandomUtils.getRandomIetterString(10)]
+        modules[pluginInfo, RandomUtils.getRandomIetterString(10)]
     }
 
     /**
      * 加载全部ESM插件
+     *
      * @return 插件加载数据
      */
     fun loadESMPlugins(): Seq<PluginLoadData> {
@@ -155,6 +159,7 @@ class JavaScriptPluginGlobalContext {
             val cx = Context.newBuilder()
                 .allowExperimentalOptions(true)
                 .option("engine.WarnInterpreterOnly", "false")
+                //.option("js.webassembly", "true")
                 .option("js.esm-eval-returns-exports", "true")
                 .allowHostAccess(HostAccess.newBuilder()
                     .allowAllClassImplementations(true)
@@ -168,20 +173,20 @@ class JavaScriptPluginGlobalContext {
             cx.enter()
 
             var loadScript = ""
-            modules.eachAll { k,v ->
-                loadScript += "export { default as $v } from '/${k.getString("name")}/${k.getString("main")}';"
+            modules.eachAll { pluginInfo,v ->
+                loadScript += "export { default as $v } from '/${pluginInfo.name}/${pluginInfo.main}';"
                 loadScript += Data.LINE_SEPARATOR
             }
 
             val defaults = cx.eval(Source.newBuilder("js", loadScript, "\$load.mjs").build())
 
             return Seq<PluginLoadData>().apply {
-                modules.eachAll { k,v ->
+                modules.eachAll { pluginInfo,v ->
                     this.add(PluginLoadData(
-                        k.getString("name"),
-                        k.getString("author"),
-                        k.getString("description"),
-                        k.getString("version"),
+                        pluginInfo.name,
+                        pluginInfo.author,
+                        pluginInfo.description,
+                        pluginInfo.version,
                         if(defaults.canExecute()) {
                             defaults.getMember(v).execute().`as`(Plugin::class.java)
                         } else {
@@ -202,11 +207,16 @@ class JavaScriptPluginGlobalContext {
         val packageName = T::class.java.`package`.name
         val packagePathAll = "/\$java/$packageName/index.mjs"
 
-        if(!scriptFileSystem.containsKey("\$java/$packageName")) {
+        if(!javaMap.containsKey(packageName)) {
             registerJavaPackage(packageName, Path(packagePathAll))
+            scriptFileSystem[packagePathAll] = """
+                export const ${rename ?: T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}');
+            """.trimIndent().toByteArray()
+            return
         }
 
         scriptFileSystem[packagePathAll] = """
+            ${String(scriptFileSystem[packagePathAll]!!)}
             export const ${rename ?: T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}');
         """.trimIndent().toByteArray()
     }
@@ -232,17 +242,24 @@ class JavaScriptPluginGlobalContext {
                  * 我们在这里使用 contains(".."), 来识别以下路径
                  *  /a/../a.mjs 将被解析成 /a.mjs
                  */
-                val parsedPath = if(path.contains("..") || path.startsWith("./") || path.startsWith("/")) {
+                val parsedPath = when {
                     //完整路径
-                    Path(path)
-                } else if(path.startsWith("@")) {
+                    path.contains("..") || path.startsWith("./") || path.startsWith("/") -> Path(path)
                     //插件入口快捷方式
-                    moduleMap[path.removePrefix("@")] ?: defPath
-                } else if(path.startsWith("java:")) {
+                    path.startsWith("@") -> moduleMap[path.removePrefix("@")] ?: defPath
                     //java注入类型快捷访问方式
-                    javaMap[path.removePrefix("java:")] ?: defPath
-                } else {
-                    defPath.resolve(path)
+                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: defPath
+                    // URL
+                    path.startsWith("http://") || path.startsWith("https://") -> {
+                        val js = HttpRequestOkHttp.doGet(path)
+                        if (!urlMap.contains(path)) {
+                            urlMap.add(path)
+                            scriptFileSystem[path] = js.toByteArray()
+                        }
+                        Path(path)
+                    }
+                    // Other
+                    else -> defPath.resolve(path)
                 }
                 return parsedPath
             }

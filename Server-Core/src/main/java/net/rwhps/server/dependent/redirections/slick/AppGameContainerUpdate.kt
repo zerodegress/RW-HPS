@@ -13,7 +13,7 @@ import net.rwhps.asm.api.Redirection
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglClassProperties
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.alone.annotations.mark.AsmMark
+import net.rwhps.server.util.annotations.mark.AsmMark
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 import java.lang.reflect.Method

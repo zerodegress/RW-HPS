@@ -10,32 +10,27 @@
 package net.rwhps.server.command
 
 import net.rwhps.server.command.relay.RelayCommands
-import net.rwhps.server.command.server.ServerCommands
-import net.rwhps.server.core.Call
-import net.rwhps.server.core.Core
-import net.rwhps.server.core.Initialization
-import net.rwhps.server.core.NetServer
+import net.rwhps.server.core.*
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.ModManage
-import net.rwhps.server.data.base.BaseCoreConfig
+import net.rwhps.server.data.bean.BeanCoreConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.HotLoadClass
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.event.EventGlobalType
+import net.rwhps.server.game.event.global.ServerStartTypeEvent
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.center.PluginCenter
 import net.rwhps.server.util.SystemUtils
-import net.rwhps.server.util.alone.annotations.NeedHelp
+import net.rwhps.server.util.annotations.NeedHelp
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -90,7 +85,7 @@ class CoreCommands(handler: CommandHandler) {
             Initialization.initServerLanguage(Data.core.settings,arg[0])
         }
 
-        handler.register("reloadconfig", "serverCommands.reloadconfig") { Data.config = BaseCoreConfig.stringToClass() }
+        handler.register("reloadconfig", "serverCommands.reloadconfig") { Data.config = BeanCoreConfig.stringToClass() }
         handler.register("exit", "serverCommands.exit") { Core.exit() }
     }
 
@@ -123,9 +118,6 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     private fun registerStartServer(handler: CommandHandler) {
-        handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
-
-
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.netService.size > 0) {
                 log["The server is not closed, please close"]
@@ -180,40 +172,11 @@ class CoreCommands(handler: CommandHandler) {
                         netServiceTcp1.openPort(Data.config.SeparateWebPort)
                     }
                 }
-                Events.fire(EventGlobalType.ServerStartTypeEvent(NetStaticData.ServerNetType))
+                PluginManage.runGlobalEventManage(ServerStartTypeEvent(NetStaticData.ServerNetType))
             } else {
                 Log.clog("[Start Service] No parameter")
             }
         }
-    }
-
-    /**
-     * 根据提供的协议来完成对应的初始化与设定
-     *
-     *
-     * @param handler CommandHandler 命令头
-     * @param netType NetType        协议
-     * @param log StrCons            Log打印
-     */
-    private fun startServer(handler: CommandHandler ,netType: IRwHps.NetType, log: StrCons) {
-        if (NetStaticData.netService.size > 0) {
-            log["The server is not closed, please close"]
-            return
-        }
-
-        /* Register Server Protocol Command */
-        ServerCommands(handler)
-
-        Log.set(Data.config.Log.uppercase(Locale.getDefault()))
-        //Data.game = Rules(Data.config)
-        Data.game.init()
-
-        NetStaticData.ServerNetType = netType
-
-        Threads.newTimedTask(CallTimeTask.CallTeamTask,0,2,TimeUnit.SECONDS,Call::sendTeamData)
-        Threads.newTimedTask(CallTimeTask.CallPingTask,0,2,TimeUnit.SECONDS,Call::sendPlayerPing)
-
-        handler.handleMessage("startnetservice true")
     }
 
     companion object {

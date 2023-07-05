@@ -14,7 +14,7 @@ import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
-import net.rwhps.server.net.http.WebSocket
+import net.rwhps.server.net.core.web.WebSocket
 import java.util.function.Consumer
 
 /**

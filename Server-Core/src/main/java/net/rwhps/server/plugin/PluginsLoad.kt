@@ -9,6 +9,7 @@
 
 package net.rwhps.server.plugin
 
+import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.dependent.LibraryManager
@@ -50,34 +51,34 @@ class PluginsLoad {
                     loadImports(Json(FileUtils.readFileString(imports)).getArraySeqData("imports"))
                 }
 
-                val json = Json(FileUtils.readFileString(imp))
-                if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
-                    warn("Plugin版本不兼容 Plugin名字为: ", json.getString("name"))
+                val pluginInfo = BeanPluginInfo.stringToClass(FileUtils.readFileString(imp))
+                if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(pluginInfo.supportedVersions)) {
+                    warn("Plugin版本不兼容 Plugin名字为: ", pluginInfo.name)
                     continue
                 }
-                if (IsUtils.isBlank(json.getString("import"))) {
-                    val mainPlugin = if (json.getString("main").endsWith("js",true)) {
-                        val mainJs = zip.getZipNameInputStream(json.getString("main"))
+                if (IsUtils.isBlank(pluginInfo.import)) {
+                    val mainPlugin = if (pluginInfo.main.endsWith("js",true)) {
+                        val mainJs = zip.getZipNameInputStream(pluginInfo.main)
                         if (mainJs == null) {
-                            error("Invalid JavaScriptPlugin Main", json.getString("main"))
+                            error("Invalid JavaScriptPlugin Main", pluginInfo.main)
                             continue
                         }
-                        scriptContext.addESMPlugin(json, zip.getZipAllBytes())
+                        scriptContext.addESMPlugin(pluginInfo, zip.getZipAllBytes())
                         continue
                     } else {
-                        loadClass(file, json.getString("main"))
+                        loadClass(file, pluginInfo.main)
                     }
 
                     data.add(PluginLoadData(
-                        json.getString("name"),
-                        json.getString("author"),
-                        json.getString("description"),
-                        json.getString("version"),
+                        pluginInfo.name,
+                        pluginInfo.author,
+                        pluginInfo.description,
+                        pluginInfo.version,
                         mainPlugin
                     ))
-                    dataName.add(json.getString("name"))
+                    dataName.add(pluginInfo.name)
                 } else {
-                    dataImport.add(PluginImportData(json, file))
+                    dataImport.add(PluginImportData(pluginInfo, file))
                 }
             } catch (e: Exception) {
                 error("Failed to load", e)
@@ -91,17 +92,17 @@ class PluginsLoad {
         val count = dataImport.size
         while (i < count) {
             dataImport.eachAll { e: PluginImportData ->
-                if (dataName.contains(e.pluginData.getString("import"))) {
+                if (dataName.contains(e.pluginData.import)) {
                     try {
-                        val mainPlugin = loadClass(e.file, e.pluginData.getString("main"))
+                        val mainPlugin = loadClass(e.file, e.pluginData.main)
                         data.add(PluginLoadData(
-                            e.pluginData.getString("name"),
-                            e.pluginData.getString("author"),
-                            e.pluginData.getString("description"),
-                            e.pluginData.getString("version"),
+                            e.pluginData.name,
+                            e.pluginData.author,
+                            e.pluginData.description,
+                            e.pluginData.version,
                             mainPlugin
                         ))
-                        dataName.add(e.pluginData.getString("name"))
+                        dataName.add(e.pluginData.name)
                         dataImport.remove(e)
                     } catch (err: Exception) {
                         error("Failed to load", e)
@@ -152,7 +153,7 @@ class PluginsLoad {
      * @property file Jar的文件
      * @constructor PluginImportData
      */
-    private class PluginImportData(@JvmField val pluginData: Json, @JvmField val file: File)
+    private class PluginImportData(@JvmField val pluginData: BeanPluginInfo, @JvmField val file: File)
 
     companion object {
         /**
@@ -173,7 +174,7 @@ class PluginsLoad {
         }
 
         @JvmStatic
-        internal fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean,skip: Boolean,list: Seq<PluginLoadData>) {
+        internal fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin, mkdir: Boolean,skip: Boolean,list: Seq<PluginLoadData>) {
             list.add(PluginLoadData(name, author, description, version, main, mkdir , skip))
         }
     }

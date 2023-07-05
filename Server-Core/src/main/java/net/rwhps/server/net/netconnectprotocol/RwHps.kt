@@ -12,11 +12,11 @@ package net.rwhps.server.net.netconnectprotocol
 import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.core.ServiceLoader.ServiceType
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.net.core.AbstractNetPacket
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.net.core.server.packet.AbstractNetPacket
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
 

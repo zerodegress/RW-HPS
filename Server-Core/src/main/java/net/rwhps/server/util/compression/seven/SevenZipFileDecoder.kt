@@ -32,16 +32,12 @@ import java.io.InputStream
 internal open class SevenZipFileDecoder : AbstractDecoder {
     private val sevenZipFile: SevenZFile
 
-    constructor(inStream: InputStream) {
-        sevenZipFile = SevenZFile(SeekableInMemoryByteChannel(IoRead.readInputStreamBytes(inStream)))
+    constructor(bytes: ByteArray) {
+        sevenZipFile = SevenZFile(SeekableInMemoryByteChannel(bytes))
     }
 
     constructor(file: File) {
         sevenZipFile = SevenZFile(file)
-    }
-
-    override fun close() {
-        this.sevenZipFile.close()
     }
 
     override fun getSpecifiedSuffixInThePackage(endWith: String, withSuffix: Boolean): OrderedMap<String, ByteArray> {
@@ -154,5 +150,9 @@ internal open class SevenZipFileDecoder : AbstractDecoder {
             Log.error(e)
         }
         return data
+    }
+
+    override fun close() {
+        this.sevenZipFile.close()
     }
 }

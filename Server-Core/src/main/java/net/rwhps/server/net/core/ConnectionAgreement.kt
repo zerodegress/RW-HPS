@@ -10,13 +10,13 @@
 package net.rwhps.server.net.core
 
 import io.netty.channel.ChannelHandlerContext
-import net.rwhps.server.game.event.EventGlobalType
+import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.game.event.global.NetConnectCloseEvent
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.handler.rudp.PackagingSocket
 import net.rwhps.server.util.IPCountry
 import net.rwhps.server.util.IpUtils
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
 import java.io.IOException
@@ -147,7 +147,7 @@ class ConnectionAgreement {
      */
     @Throws(IOException::class)
     fun close(groupNet: GroupNet?) {
-        Events.fire(EventGlobalType.NewCloseEvent(this))
+        PluginManage.runGlobalEventManage(NetConnectCloseEvent(this))
 
         remove(groupNet)
 

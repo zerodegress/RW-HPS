@@ -9,10 +9,12 @@
 
 package net.rwhps.server.util.compression.zip
 
+import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.compression.core.AbstractDecoder
+import net.rwhps.server.util.file.FileName
 import net.rwhps.server.util.io.IoRead
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.FileException
@@ -22,7 +24,6 @@ import org.apache.commons.compress.utils.SeekableInMemoryByteChannel
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.util.zip.ZipEntry
 
 /**
  * Zip
@@ -31,135 +32,139 @@ import java.util.zip.ZipEntry
  */
 internal class ZipFileDecoder : AbstractDecoder {
     private val zipFile: ZipFile
+    private var physicalOrder = false
 
-    constructor(inStream: InputStream) {
-        zipFile = ZipFile(SeekableInMemoryByteChannel(IoRead.readInputStreamBytes(inStream)))
+    constructor(bytes: ByteArray) {
+        zipFile = ZipFile(SeekableInMemoryByteChannel(bytes))
     }
 
     constructor(file: File) {
         zipFile = ZipFile(file)
     }
 
+    override fun setPhysicalOrder(value: Boolean) {
+        physicalOrder = value
+    }
+
+    override fun getSpecifiedSuffixInThePackage(endWith: String, withSuffix: Boolean): OrderedMap<String, ByteArray> {
+        val result = OrderedMap<String, ByteArray>(8)
+
+        zipUtils { zipEntry, multiplexingReadStream ->
+            var name = FileName.getFileName(zipEntry.name)
+            if (name.endsWith(endWith)) {
+                if (!withSuffix) {
+                    name = FileName.getFileNameNoSuffix(name)
+                }
+                result[name] = multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry))
+            }
+            return@zipUtils ControlFind.CONTINUE
+        }
+
+        return result
+    }
+
+    override fun getSpecifiedSuffixInThePackageAllFileNameAndPath(endWithSeq: Seq<String>): OrderedMap<String, ByteArray> {
+        val result = OrderedMap<String, ByteArray>(8)
+
+        zipUtils { zipEntry, multiplexingReadStream ->
+            val nameCache = zipEntry.name
+            endWithSeq.eachAllFind({ nameCache.endsWith(it) }) { _: String ->
+                result[nameCache] = multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry))
+            }
+            return@zipUtils ControlFind.CONTINUE
+        }
+
+        return result
+    }
+
+    override fun getTheFileNameOfTheSpecifiedSuffixInTheZip(endWith: String): Seq<String> {
+        val result = Seq<String>(8)
+
+        zipUtils { zipEntry, _ ->
+            val name = zipEntry.name
+            if (name.endsWith(endWith)) {
+                result.add(name.substring(0, name.length - name.substring(name.lastIndexOf(".")).length))
+            }
+            return@zipUtils ControlFind.CONTINUE
+        }
+
+        return result
+    }
+
+    @Throws(FileException::class)
+    override fun getTheFileBytesOfTheSpecifiedSuffixInTheZip(mapData: GameMaps.MapData): ByteArray {
+        var result: ByteArray? = null
+
+        zipUtils { zipEntry, _ ->
+            val name = zipEntry.name
+            if (name.endsWith(mapData.type) && name.contains(mapData.mapFileName)) {
+                result = IoRead.readInputStreamBytes(zipFile.getInputStream(zipEntry))
+                return@zipUtils ControlFind.BREAK
+            }
+            return@zipUtils ControlFind.CONTINUE
+        }
+
+        return result ?:throw FileException("CANNOT_FIND_FILE")
+    }
+
+    override fun getZipNameInputStream(nameIn: String): InputStream? {
+        var result: InputStream? = null
+
+        zipUtils { zipEntry, _ ->
+            if (zipEntry.name == nameIn) {
+                result = zipFile.getInputStream(zipEntry)
+                return@zipUtils ControlFind.BREAK
+            }
+            return@zipUtils ControlFind.CONTINUE
+        }
+
+        return result
+    }
+
+    override fun getZipAllBytes(withPath: Boolean): OrderedMap<String, ByteArray> {
+        val result = OrderedMap<String, ByteArray>(8)
+
+        zipUtils { zipEntry, multiplexingReadStream ->
+            val nameCache = zipEntry.name
+            val name = if (withPath) {
+                nameCache
+            } else {
+                FileName.getFileName(zipEntry.name)
+            }
+
+            val bytes = multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry))
+            result[name] = bytes
+
+            return@zipUtils ControlFind.CONTINUE
+        }
+
+        return result
+    }
+
     override fun close() {
         this.zipFile.close()
     }
 
-    override fun getSpecifiedSuffixInThePackage(endWith: String, withSuffix: Boolean): OrderedMap<String, ByteArray> {
-        val data = OrderedMap<String, ByteArray>(8)
-        var zipEntry: ZipArchiveEntry
-        try {
-            IoRead.MultiplexingReadStream().use { multiplexingReadStream ->
-                val entries = zipFile.entries
-                while (entries.hasMoreElements()) {
-                    zipEntry = entries.nextElement() as ZipArchiveEntry
-                    val nameCache = zipEntry.name
-                    var name = nameCache.split("/").toTypedArray()[nameCache.split("/").toTypedArray().size - 1]
-                    if (name.endsWith(endWith)) {
-                        name = if (withSuffix) {
-                            name
-                        } else {
-                            name.substring(0, name.length - name.substring(name.lastIndexOf(".")).length)
-                        }
-                        data.put(name,multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry)))
-                    }
-                }
-            }
-        } catch (e: IOException) {
-            Log.error(e)
-        }
-        return data
-    }
-
-    override fun getSpecifiedSuffixInThePackageAllFileNameAndPath(endWithSeq: Seq<String>): OrderedMap<String, ByteArray> {
-        val data = OrderedMap<String, ByteArray>(8)
+    private fun zipUtils(run: (ZipArchiveEntry, IoRead.MultiplexingReadStream)-> ControlFind) {
         try {
             var zipEntry: ZipArchiveEntry
             IoRead.MultiplexingReadStream().use { multiplexingReadStream ->
-                val entries = zipFile.entries
-                while (entries.hasMoreElements()) {
-                    zipEntry = entries.nextElement() as ZipArchiveEntry
-                    val nameCache = zipEntry.name
-                    endWithSeq.eachAllFind({ nameCache.endsWith(it) }) { _: String ->
-                        //Log.debug(nameCache,name)
-                        data.put(nameCache, multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry)))
-                    }
+                val entries = if (physicalOrder) {
+                    zipFile.entriesInPhysicalOrder
+                } else {
+                    zipFile.entries
                 }
-            }
-        } catch (e: IOException) {
-            Log.error(e)
-        }
-        return data
-    }
-
-    override fun getTheFileNameOfTheSpecifiedSuffixInTheZip(endWith: String): Seq<String> {
-        val data = Seq<String>(8)
-        var zipEntry: ZipEntry
-        val entries = zipFile.entries
-        while (entries.hasMoreElements()) {
-            zipEntry = entries.nextElement() as ZipEntry
-            val name = zipEntry.name
-            if (name.endsWith(endWith)) {
-                data.add(name.substring(0, name.length - name.substring(name.lastIndexOf(".")).length))
-            }
-        }
-        return data
-    }
-
-    @Throws(Exception::class)
-    override fun getTheFileBytesOfTheSpecifiedSuffixInTheZip(mapData: GameMaps.MapData): ByteArray {
-        var zipEntry: ZipArchiveEntry
-        val entries = zipFile.entries
-        while (entries.hasMoreElements()) {
-            zipEntry = entries.nextElement() as ZipArchiveEntry
-            val name = zipEntry.name
-            if (name.endsWith(mapData.type) && name.contains(mapData.mapFileName)) {
-                return IoRead.readInputStreamBytes(zipFile.getInputStream(zipEntry))
-            }
-        }
-        throw FileException("CANNOT_FIND_FILE")
-    }
-
-    override fun getZipNameInputStream(nameIn: String): InputStream? {
-        try {
-            val entries = zipFile.entries
-            var ze: ZipEntry
-            while (entries.hasMoreElements()) {
-                ze = entries.nextElement()
-                if (!ze.isDirectory) {
-                    if (ze.name == nameIn) {
-                        return zipFile.getInputStream(ze)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.error(e)
-        }
-        return null
-    }
-
-    override fun getZipAllBytes(withPath: Boolean): OrderedMap<String, ByteArray> {
-        val data = OrderedMap<String, ByteArray>(8)
-        try {
-            var zipEntry: ZipArchiveEntry
-            IoRead.MultiplexingReadStream().use { multiplexingReadStream ->
-                val entries = zipFile.entriesInPhysicalOrder
                 while (entries.hasMoreElements()) {
                     zipEntry = entries.nextElement() as ZipArchiveEntry
                     if (!zipEntry.isDirectory) {
-                        val nameCache = zipEntry.name
-                        val name = if (withPath) {
-                            nameCache
-                        } else {
-                            nameCache.split("/").toTypedArray()[nameCache.split("/").toTypedArray().size - 1]
+                        if (run(zipEntry, multiplexingReadStream) == ControlFind.BREAK) {
+                            return
                         }
-                        val bytes = multiplexingReadStream.readInputStreamBytes(zipFile.getInputStream(zipEntry))
-                        data.put(name,bytes)
                     }
                 }
             }
         } catch (e: IOException) {
             Log.error(e)
         }
-        return data
     }
 }

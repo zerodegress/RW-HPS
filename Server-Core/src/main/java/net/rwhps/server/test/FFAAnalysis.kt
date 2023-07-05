@@ -22,7 +22,7 @@ import net.rwhps.server.util.log.Log
 class FFAAnalysis {
     fun test() {
         val bytes = GameOutputStream()
-        CompressionDecoderUtils.zipStream(FileUtils.getFile("ffa.zip").getInputsStream()).getSpecifiedSuffixInThePackage("bin").also {
+        CompressionDecoderUtils.zipAllReadStream(FileUtils.getFile("ffa.zip").getInputsStream()).getSpecifiedSuffixInThePackage("bin").also {
             for (i in 0..3542) {
                 bytes.writeBytes(it[i.toString()]!!)
             }

@@ -17,7 +17,7 @@ import net.rwhps.server.data.global.Relay
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
-import net.rwhps.server.net.http.WebGet
+import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.Time
 import java.util.concurrent.TimeUnit

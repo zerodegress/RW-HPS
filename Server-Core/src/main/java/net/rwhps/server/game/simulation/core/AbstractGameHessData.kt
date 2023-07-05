@@ -10,9 +10,8 @@
 package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.data.event.GameOverData
-import net.rwhps.server.data.player.Player
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.util.alone.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.GameSimulationLayer
 import net.rwhps.server.util.log.exp.ImplementedException
 
 interface AbstractGameHessData {
@@ -28,9 +27,6 @@ interface AbstractGameHessData {
 
     @GameSimulationLayer.GameSimulationLayer_KeyWords("30")
     fun getGameCheck(): Packet
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("checkSumSize!")
-    fun verifyGameSync(player: Player, packet: Packet): Boolean
 
     /**
      * 获取位子上玩家是否存活

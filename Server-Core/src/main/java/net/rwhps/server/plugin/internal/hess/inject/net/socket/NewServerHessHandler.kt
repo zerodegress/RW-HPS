@@ -15,14 +15,14 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.util.AttributeKey
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.game.event.EventGlobalType
+import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.game.event.global.NetConnectNewEvent
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.plugin.internal.hess.inject.net.GameVersionServer
 import net.rwhps.server.plugin.internal.hess.inject.net.TypeHessRwHps
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 
 /**
@@ -60,8 +60,8 @@ class NewServerHessHandler(private val netEngine: ad) : SimpleChannelInboundHand
                         return
                     }
 
-                    val newConnectEvent = EventGlobalType.NewConnectEvent(connectionAgreement)
-                    Events.fire(newConnectEvent)
+                    val newConnectEvent = NetConnectNewEvent(connectionAgreement)
+                    PluginManage.runGlobalEventManage(newConnectEvent)
                     if (newConnectEvent.result) {
                         type.abstractNetConnect.disconnect()
                         return

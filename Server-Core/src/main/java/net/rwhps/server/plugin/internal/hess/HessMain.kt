@@ -9,12 +9,13 @@
 
 package net.rwhps.server.plugin.internal.hess
 
-import net.rwhps.server.command.server.ServerCommands
+import net.rwhps.server.data.EventGlobalManage
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.plugin.Plugin
-import net.rwhps.server.plugin.event.AbstractGlobalEvent
+import net.rwhps.server.plugin.internal.hess.inject.command.ClientCommands
+import net.rwhps.server.plugin.internal.hess.inject.command.ServerCommands
 import net.rwhps.server.plugin.internal.hess.service.event.GameHeadlessEventGlobal
 import net.rwhps.server.util.classload.GameModularReusableLoadClass
 import net.rwhps.server.util.game.CommandHandler
@@ -26,7 +27,7 @@ import java.util.*
  * @author RW-HPS/Dr
  */
 class HessMain : Plugin() {
-    override fun registerGlobalEvents(): AbstractGlobalEvent = GameHeadlessEventGlobal()
+    override fun registerGlobalEvents(eventManage: EventGlobalManage) = eventManage.registerListener(GameHeadlessEventGlobal())
 
     override fun registerCoreCommands(handler: CommandHandler) {
         handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons ->
@@ -35,9 +36,6 @@ class HessMain : Plugin() {
                 return@register
             }
             Data.startServer = true
-
-            /* Register Server Protocol Command */
-            ServerCommands(handler)
 
             // Start Hess Core
             val load = GameModularReusableLoadClass(

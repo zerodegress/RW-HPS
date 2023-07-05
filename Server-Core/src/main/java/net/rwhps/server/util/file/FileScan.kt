@@ -19,7 +19,7 @@ object FileScan {
     @JvmStatic
     fun scanPacketPathClass(packetPath: String): Seq<String> {
         val name = Seq<String>()
-        CompressionDecoderUtils.zipStream(FileUtils.getMyCoreJarStream()).use {
+        CompressionDecoderUtils.zipAllReadStream(FileUtils.getMyCoreJarStream()).use {
             it.getZipAllBytes().eachAll { k, _ ->
                 val packetPathRep = packetPath.replace(".", "/")+"/"
                 if (k.startsWith(packetPathRep) && k.endsWith("class") && !k.contains("$")) {

@@ -80,7 +80,7 @@ object GameStartInit {
                 load.readData(ResMD5.GameModularReusableClass.fileUtils)
             } else {
                 // 加载游戏依赖
-                CompressionDecoderUtils.zipStream(GameStartInit::class.java.getResourceAsStream("/libs.zip")!!).use {
+                CompressionDecoderUtils.zipAllReadStream(GameStartInit::class.java.getResourceAsStream("/libs.zip")!!).use {
                     it.getSpecifiedSuffixInThePackage("jar", true).eachAll { _, v ->
                         load.addSourceJar(v)
                     }
@@ -98,7 +98,7 @@ object GameStartInit {
         // Here, several intermediate signal transmission modules are directly injected into this loader
         // Because this loader only has Game-lib.jar
         // 注入 接口
-        CompressionDecoderUtils.zipStream(FileUtils.getMyCoreJarStream()).use {
+        CompressionDecoderUtils.zipAllReadStream(FileUtils.getMyCoreJarStream()).use {
             it.getZipAllBytes().eachAll { k, v ->
                 if (
                     // 注入接口

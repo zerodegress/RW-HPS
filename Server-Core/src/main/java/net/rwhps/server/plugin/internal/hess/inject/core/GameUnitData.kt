@@ -13,7 +13,6 @@ import com.corrodinggames.rts.game.units.custom.ag
 import com.corrodinggames.rts.game.units.custom.l
 import com.corrodinggames.rts.game.units.y
 import com.corrodinggames.rts.gameFramework.w
-import net.rwhps.server.core.Call
 import net.rwhps.server.game.simulation.core.AbstractGameUnitData
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
@@ -51,12 +50,10 @@ internal class GameUnitData : AbstractGameUnitData {
                 w.er.remove(fastUnit)
                 GameEngine.gameEngine.bU.a(fastUnit)
                 Log.clog(fastUnit.r().i())
-                Call.sendSystemMessage("删掉了一个单位: ${fastUnit.r().i()}")
+                GameEngine.data.room.call.sendSystemMessage("删掉了一个单位: ${fastUnit.r().i()}")
             }
         }
         // 让 Core 完成记载
         Thread.sleep(100)
-
-        Call.sendSync(false)
     }
 }

@@ -10,7 +10,7 @@
 package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.alone.annotations.NeedToRefactor
+import net.rwhps.server.util.annotations.NeedToRefactor
 import net.rwhps.server.util.file.FileUtils
 
 /**

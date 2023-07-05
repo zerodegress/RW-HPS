@@ -18,8 +18,8 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.ServerRoom
-import net.rwhps.server.data.player.AbstractPlayer
-import net.rwhps.server.game.event.EventType
+import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.game.event.game.PlayerJoinEvent
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -30,7 +30,6 @@ import net.rwhps.server.plugin.internal.hess.inject.core.PrivateClass_Player
 import net.rwhps.server.plugin.internal.hess.inject.net.GameVersionServer
 import net.rwhps.server.plugin.internal.hess.inject.net.socket.HessSocket
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.game.Events
 import java.util.concurrent.TimeUnit
 import com.corrodinggames.rts.gameFramework.j.c as PlayerConnect
 
@@ -44,7 +43,7 @@ class PlayerConnectX(
 
     val netEnginePackaging: NetEnginePackaging = NetEnginePackaging(netEngine, this)
     var room: ServerRoom = HessModuleManage.hessLoaderMap[this.javaClass.classLoader.toString()]!!.room
-    var player: AbstractPlayer? = null
+    var player: PlayerHess? = null
     lateinit var serverConnect: GameVersionServer
 
     @Volatile
@@ -71,7 +70,7 @@ class PlayerConnectX(
                 player = room.playerManage.addAbstractPlayer(serverConnect, PrivateClass_Player(z))
                 serverConnect.player = player!!
 
-                Events.fire(EventType.PlayerJoinEvent(player!!))
+                GameEngine.data.eventManage.fire(PlayerJoinEvent(player!!))
 
                 if (!Threads.containsTimeTask(CallTimeTask.CallTeamTask)) {
                     Threads.newTimedTask(CallTimeTask.CallTeamTask, 0, 1, TimeUnit.SECONDS) {

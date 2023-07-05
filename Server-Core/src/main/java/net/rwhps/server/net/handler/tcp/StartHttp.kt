@@ -24,8 +24,10 @@ import io.netty.handler.timeout.IdleStateHandler
 import io.netty.util.CharsetUtil
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.net.core.AbstractNet
+import net.rwhps.server.net.core.web.AbstractNetWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebData
+import net.rwhps.server.net.http.WebData.Companion.WS_URI
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import java.nio.charset.StandardCharsets
@@ -37,9 +39,14 @@ import javax.net.ssl.SSLEngine
 /**
  * @author RW-HPS/Dr
  */
-internal class StartHttp : AbstractNet() {
+internal class StartHttp : AbstractNet(), AbstractNetWeb {
     var socketChannel: SocketChannel? = null
     private var sslContext: SSLContext? = null
+    private lateinit var webData: WebData
+
+    override fun setWebData(data: WebData) {
+        webData = data
+    }
 
     private fun isHttpReq(head: String): Boolean {
         return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith("HEAD ") || head.startsWith("PUT ")
@@ -61,7 +68,7 @@ internal class StartHttp : AbstractNet() {
 
                 val headS: String = firstData.toString(StandardCharsets.UTF_8)
                 if (isHttpReq(headS)) {
-                    if (headS.startsWith("GET ${WebData.WS_URI}")) {
+                    if (headS.startsWith("GET ${WS_URI}")) {
                         firstData.retain()
                         val head = headS.split("\\R")[0].split(" ")[1]
                         ctx.channel().pipeline().addLast(
@@ -83,7 +90,7 @@ internal class StartHttp : AbstractNet() {
                                 }
                             }
                         )
-                        val wsProcessing = WebData.runWebSocketInstance(head)
+                        val wsProcessing = webData.runWebSocketInstance(head)
                         if (wsProcessing != null) {
                             ctx.channel().pipeline().addLast(wsProcessing)
                         } else {
@@ -100,7 +107,7 @@ internal class StartHttp : AbstractNet() {
                                     val url = request.uri()
 
                                     if (request.method().equals(HttpMethod.GET)) {
-                                        WebData.runWebGetInstance(url, request, SendWeb(ctx.channel(), request))
+                                        webData.runWebGetInstance(url, request, SendWeb(ctx.channel(), request))
                                         return
                                     } else if (request.method().equals(HttpMethod.POST)) {
                                         if (msg is HttpContent) {
@@ -108,7 +115,7 @@ internal class StartHttp : AbstractNet() {
                                             val content = httpContent.content()
                                             val buf = StringBuilder()
                                             buf.append(content.toString(CharsetUtil.UTF_8))
-                                            WebData.runWebPostInstance(url, buf.toString(), request, SendWeb(ctx.channel(), request))
+                                            webData.runWebPostInstance(url, buf.toString(), request, SendWeb(ctx.channel(), request))
                                             return
                                         }
                                     }

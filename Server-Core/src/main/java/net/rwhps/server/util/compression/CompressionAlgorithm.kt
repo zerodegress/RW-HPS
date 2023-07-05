@@ -16,5 +16,5 @@ package net.rwhps.server.util.compression
 enum class CompressionAlgorithm {
     Gzip,
     Zip,
-    SevenZ,
+    SevenZip,
 }

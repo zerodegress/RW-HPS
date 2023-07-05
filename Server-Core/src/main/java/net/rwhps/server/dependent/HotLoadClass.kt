@@ -10,7 +10,7 @@
 package net.rwhps.server.dependent
 
 import net.rwhps.server.dependent.hot.DynamicByteClassLoader
-import net.rwhps.server.util.alone.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.DidNotFinish
 import java.lang.instrument.ClassDefinition
 
 /**

@@ -9,7 +9,7 @@
 
 package net.rwhps.server.net.core.server
 
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.DataPermissionStatus
@@ -35,7 +35,7 @@ interface AbstractNetConnectServer {
      * Acquire players
      * @return Player
      */
-    val player: AbstractPlayer
+    val player: PlayerHess
 
     /**
      * Send the message package named by the system

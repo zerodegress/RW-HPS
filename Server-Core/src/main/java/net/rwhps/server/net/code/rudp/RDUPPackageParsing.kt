@@ -10,7 +10,7 @@
 package net.rwhps.server.net.code.rudp
 
 import net.rwhps.server.net.code.rudp.RDUPPackageParsing.RudpStatus.*
-import net.rwhps.server.util.alone.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.DidNotFinish
 import net.udp.ReliableSocketProfile
 import net.udp.impl.*
 import okhttp3.internal.wait

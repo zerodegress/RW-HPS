@@ -20,13 +20,11 @@ import java.io.IOException
 import java.util.zip.GZIPOutputStream
 
 /**
- * 这个方法类 初衷是:
- * 在读取数据的同时 将数据再输入进OutStream
+ * 这个方法类 初衷是在读取数据的同时 将数据再输入进OutStream
  *
  * 避免了边读边写 (指 内部包装)
  *
  * @property out GameOutputStream
- *
  * @author RW-HPS/Dr
  */
 class GameInputStreamAndOutputStream : GameInputStream {

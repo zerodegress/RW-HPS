@@ -66,7 +66,8 @@ internal class RelayClientCommands(handler: CommandHandler) {
             if (isAdmin(con)) {
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
                 conTg?.let {
-                    con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Time.concurrentSecond()+60)
+                    con.relay!!.relayKickData["KICK"+it.playerRelay!!.uuid] = Time.concurrentSecond()+60
+
                     it.kick("你被踢出服务器")
                     sendMsg(con,"Kick : ${args[0]} OK")
                 }
@@ -81,8 +82,8 @@ internal class RelayClientCommands(handler: CommandHandler) {
                 }
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
                 conTg?.let {
-                    con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Int.MAX_VALUE)
-                    con.relayKickData.put("BAN"+it.ip, Int.MAX_VALUE)
+                    con.relay!!.relayKickData["KICK"+it.playerRelay!!.uuid] = Int.MAX_VALUE
+                    con.relay!!.relayKickData["BAN"+it.ip] = Int.MAX_VALUE
                     it.kick("你被服务器 BAN")
                     sendMsg(con,"BAN : ${args[0]} OK")
                 }

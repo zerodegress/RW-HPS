@@ -11,6 +11,7 @@ package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -67,14 +68,6 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 Log.debug("Remove Move Player $site, HOST Yes")
                 relay!!.removeAbstractNetConnect(site)
                 site = -1
-            }
-
-            if (relay!!.admin != null) {
-                relayKickData = relay!!.admin!!.relayKickData
-                relayPlayersData = relay!!.admin!!.relayPlayersData
-            } else {
-                relayKickData = ObjectMap()
-                relayPlayersData = ObjectMap()
             }
 
             relay!!.admin = this

@@ -31,13 +31,12 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInf
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
 import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
-import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.GameOtherUtils.getBetaVersion
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork
-import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
+import net.rwhps.server.util.annotations.MainProtocolImplementation
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
@@ -109,18 +108,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     // 172
     protected val version2 = 172
-
-    // Lazy loading reduces memory usage
-    /** The server kicks the player's time data */
-    @get:Synchronized
-    @set:Synchronized
-    lateinit var relayKickData: ObjectMap<String, Int>
-        protected set
-    /** Server exits player data */
-    @get:Synchronized
-    @set:Synchronized
-    lateinit var relayPlayersData: ObjectMap<String, PlayerRelay>
-        protected set
 
     override fun setCachePacket(packet: Packet) {
         cachePacket = packet
@@ -310,16 +297,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 relay!!.removeAbstractNetConnect(site)
                 site = -1
             }
-
-            if (relay!!.admin != null) {
-                debug("Remove Move Player $site, HOST Yes")
-                relayKickData = relay!!.admin!!.relayKickData
-                relayPlayersData = relay!!.admin!!.relayPlayersData
-            } else {
-                relayKickData = ObjectMap()
-                relayPlayersData = ObjectMap()
-            }
-
+            
             relay!!.admin = this
 
             val o = GameOutputStream()
@@ -409,8 +387,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
             inputPassword = false
             if (relay == null) {
+                Log.clog("?????")
                 relay = NetStaticData.relay
             }
+
 
             site = relay!!.setAddPosition()
             relay!!.setAbstractNetConnect(this)
@@ -473,22 +453,22 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             if (permissionStatus.ordinal >= RelayStatus.PlayerPermission.ordinal) {
                 // Relay-EX
                 if (playerRelay == null) {
-                    playerRelay = relay!!.admin!!.relayPlayersData[registerPlayerId] ?: PlayerRelay(this, registerPlayerId!!, name).also {
-                        relay!!.admin!!.relayPlayersData[registerPlayerId!!] = it
+                    playerRelay = relay!!.relayPlayersData[registerPlayerId] ?: PlayerRelay(this, registerPlayerId!!, name).also {
+                        relay!!.relayPlayersData[registerPlayerId!!] = it
                     }
 
                     playerRelay!!.nowName = name
                     playerRelay!!.disconnect = false
                 }
 
-                if (relay!!.admin!!.relayKickData.containsKey("BAN$ip")) {
+                if (relay!!.relayKickData.containsKey("BAN$ip")) {
                     kick("您被这个房间BAN了 请换一个房间")
                     return
                 }
 
-                var time: Int? = relay!!.admin!!.relayKickData["KICK$registerPlayerId"]
+                var time: Int? = relay!!.relayKickData["KICK$registerPlayerId"]
                 if (time == null) {
-                    time = relay!!.admin!!.relayKickData["KICK${connectionAgreement.ipLong24}"]
+                    time = relay!!.relayKickData["KICK${connectionAgreement.ipLong24}"]
                 }
 
                 if (time != null) {
@@ -496,8 +476,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                         kick("您被这个房间踢出了 请稍等一段时间 或者换一个房间")
                         return
                     } else {
-                        relay!!.admin!!.relayKickData.remove("KICK$registerPlayerId")
-                        relay!!.admin!!.relayKickData.remove("KICK${connectionAgreement.ipLong24}")
+                        relay!!.relayKickData.remove("KICK$registerPlayerId")
+                        relay!!.relayKickData.remove("KICK${connectionAgreement.ipLong24}")
                     }
                 }
             }
@@ -615,40 +595,45 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         if (relay != null && (permissionStatus == RelayStatus.PlayerPermission || permissionStatus == RelayStatus.HostPermission)) {
             relay!!.setRemoveSize()
 
-            var errorClose = false
+            // 避免多个玩家断开导致 NPE
+            synchronized(relay!!) {
+                var errorClose = false
 
-            try {
-                if (this !== relay!!.admin) {
-                    relay!!.removeAbstractNetConnect(site)
+                try {
+                    if (this !== relay!!.admin) {
+                        relay!!.removeAbstractNetConnect(site)
 
-                    if (relay!!.admin != null) {
-                        sendPackageToHOST(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
-                        if (!relay!!.isStartGame) {
-                            relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
-                        }
-                    }
-                } else {
-                    Relay.serverRelayIpData.remove(ip)
-                    // 房间开始游戏 或者 在列表
-                    if (relay!!.isStartGame) {
-                        if (relay!!.getSize() > 0) {
-                            // Move Room Admin
-                            adminMoveNew()
+                        if (relay!!.admin != null) {
+                            sendPackageToHOST(NetStaticData.RwHps.abstractNetPacket.getExitPacket())
+                            if (!relay!!.isStartGame) {
+                                relay!!.relayPlayersData.remove(registerPlayerId)
+                            }
                         }
                     } else {
-                        // Close Room
-                        relay!!.groupNet.disconnect()
+                        Relay.serverRelayIpData.remove(ip)
+                        // 房间开始游戏 或者 在列表
+                        if (relay!!.isStartGame) {
+                            if (relay!!.getSize() > 0) {
+                                // Move Room Admin
+                                adminMoveNew()
+                            }
+                        } else {
+                            // Close Room
+                            relay!!.groupNet.disconnect()
+                        }
                     }
+                } catch (e: Exception) {
+                    if (!relay!!.closeRoom) {
+                        debug("[Relay Close Error]", e)
+                    }
+                    errorClose =true
                 }
-            } catch (e: Exception) {
-                debug("[Relay Close Error]",e)
-                errorClose =true
+                if ((relay!!.getSize() <= 0 && !relay!!.closeRoom) || errorClose) {
+                    debug("[Relay] Gameover")
+                    relay!!.re()
+                }
+                super.close(relay!!.groupNet)
             }
-            if ((relay!!.getSize() <= 0 && !relay!!.closeRoom) || errorClose) {
-                debug("[Relay] Gameover")
-                relay!!.re()
-            }
-            super.close(relay!!.groupNet)
         } else {
             super.close(null)
         }

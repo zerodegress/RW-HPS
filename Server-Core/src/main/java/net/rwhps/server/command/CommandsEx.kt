@@ -9,6 +9,7 @@
 
 package net.rwhps.server.command
 
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
@@ -38,15 +39,16 @@ class CommandsEx(handler: CommandHandler) {
             when (NetStaticData.ServerNetType) {
                 ServerProtocol, ServerProtocolOld, ServerTestProtocol -> {
                     out.writeString("PlayerSize")
-                    out.writeInt(Data.game.playerManage.playerGroup.size)
+                    out.writeInt(HessModuleManage.hps.room.playerManage.playerGroup.size)
                     out.writeString("MaxPlayer")
                     out.writeInt(Data.configServer.MaxPlayer)
 
                     out.writeString("MapName")
-                    out.writeString(Data.game.maps.mapName)
+                    out.writeString(HessModuleManage.hps.room.mapName)
                     out.writeString("Income")
+                    out.writeFloat(HessModuleManage.hps.gameDataLink.income)
                     out.writeString("Credits")
-                    out.writeInt(when (Data.game.credits) {
+                    out.writeInt(when (HessModuleManage.hps.gameDataLink.credits) {
                         1 -> 0
                         2 -> 1000
                         3 -> 2000
@@ -59,13 +61,13 @@ class CommandsEx(handler: CommandHandler) {
                         else -> 0
                     })
                     out.writeString("NoNukes")
-                    out.writeBoolean(Data.game.noNukes)
+                    out.writeBoolean(HessModuleManage.hps.gameDataLink.nukes)
                     out.writeString("InitUnit")
-                    out.writeInt(Data.game.initUnit)
+                    out.writeInt(HessModuleManage.hps.gameDataLink.startingunits)
                     out.writeString("Mist")
-                    out.writeInt(Data.game.mist)
+                    out.writeInt(HessModuleManage.hps.gameDataLink.fog)
                     out.writeString("SharedControl")
-                    out.writeBoolean(Data.game.sharedControl)
+                    out.writeBoolean(HessModuleManage.hps.gameDataLink.sharedcontrol)
                 }
                 RelayProtocol,RelayMulticastProtocol -> {
                     out.writeString("PlayerSize")

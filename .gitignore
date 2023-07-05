@@ -1,8 +1,10 @@
 logs/
 /net/build/
+/Server-All/*
+/Server-Core/build/
+/TimeTaskQuartz/build/
+/Java-Doc/pages/
 /*/build/
-*/build/
-/timetask/build/
 config/
 *.gif
 

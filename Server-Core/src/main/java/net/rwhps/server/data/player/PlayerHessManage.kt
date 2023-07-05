@@ -21,24 +21,24 @@ import net.rwhps.server.util.I18NBundle
 class PlayerHessManage {
     /** Online players   */
     @JvmField
-    val playerGroup = Seq<AbstractPlayer>(16,true)
+    val playerGroup = Seq<PlayerHess>(16,true)
 
     /** ALL players  */
     @JvmField
-    val playerAll = Seq<AbstractPlayer>(16,true)
+    val playerAll = Seq<PlayerHess>(16,true)
 
-    fun addAbstractPlayer(con: AbstractNetConnectServer, playerData: AbstractPlayerData, i18NBundle: I18NBundle = Data.i18NBundle): AbstractPlayer {
-        var player: AbstractPlayer? = null
+    fun addAbstractPlayer(con: AbstractNetConnectServer, playerData: AbstractPlayerData, i18NBundle: I18NBundle = Data.i18NBundle): PlayerHess {
+        var player: PlayerHess? = null
         var resultFlag = true
 
-        playerAll.eachAllFind({ i: AbstractPlayer -> i.connectHexID == playerData.connectHexID }) { e: AbstractPlayer ->
+        playerAll.eachAllFind({ i: PlayerHess -> i.connectHexID == playerData.connectHexID }) { e: PlayerHess ->
             e.con = con
             resultFlag = false
             player = e
         }
 
         if (resultFlag) {
-            player = AbstractPlayer(con, i18NBundle, playerData)
+            player = PlayerHess(con, i18NBundle, playerData)
             if (Data.configServer.OneAdmin) {
                 var hasAutoAdmin = false
                 playerGroup.eachFind({ it.isAdmin && it.autoAdmin }) { hasAutoAdmin = true }
@@ -62,7 +62,7 @@ class PlayerHessManage {
         return player!!
     }
 
-    fun runPlayerArrayDataRunnable(run: (AbstractPlayer) -> Unit) {
+    fun runPlayerArrayDataRunnable(run: (PlayerHess) -> Unit) {
         for (player in playerAll) {
             run(player)
         }
@@ -78,7 +78,7 @@ class PlayerHessManage {
         return result
     }
 
-    fun getPlayerArray(site: Int): AbstractPlayer? {
+    fun getPlayerArray(site: Int): PlayerHess? {
         for (player in playerAll) {
             if (player.site == site) {
                 return player

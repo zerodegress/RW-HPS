@@ -74,6 +74,7 @@ class I18NBundle {
 
     /**
      * 向本地语言中加入自定义
+     *
      * @param kv Properties
      * @param cover 强制覆盖
      * @return 是否成功
@@ -97,6 +98,7 @@ class I18NBundle {
     }
     /**
      * 向本地语言中加入自定义
+     *
      * @param k String
      * @param v String
      * @param cover 强制覆盖
@@ -120,6 +122,7 @@ class I18NBundle {
 
     /**
      * 传多参
+     *
      * @param      input   语言目标
      * @param      params  替换参
      * @return     文本
@@ -133,6 +136,7 @@ class I18NBundle {
 
     /**
      * 传一数组
+     *
      * @param      input  语言目标
      * @param      ps     Object替换组
      * @return     文本

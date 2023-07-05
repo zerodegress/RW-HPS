@@ -22,10 +22,8 @@ import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.simulation.core.AbstractGameHessData
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
-import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.IRwHps
@@ -98,49 +96,6 @@ internal class GameHessData : AbstractGameHessData {
             arVar.a((it.next() as al).b)
         }
         return Packet(PacketType.SYNC_CHECK,arVar.b(PacketType.SYNC_CHECK.typeInt).c)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun verifyGameSync(player: Player, packet: Packet): Boolean {
-        var syncFlag = false
-
-        GameInputStream(packet).use { stream ->
-            stream.readByte()
-            val syncTick = stream.readInt()
-            val tick = stream.readInt()
-            if (stream.readBoolean()) {
-                stream.skip(16)
-                // 我们在此处验证 RW 主要的一些数据
-                stream.getDecodeStream(false).use { checkList ->
-                    checkList.readInt()
-                    // 判断 : 数据长度
-                    if (checkList.readInt() != GameEngine.netEngine.am.b.size) {
-                        Log.debug("RustedWarfare", "checkSumSize!=syncCheckList.size()")
-                    }
-                    val checkTypeList: ArrayList<al> = GameEngine.netEngine.am.b as ArrayList<al>
-                    for (checkType in checkTypeList) {
-                        val server = checkList.readLong()
-                        val client = checkList.readLong()
-                        // 判断 : 数据
-                        if (server != client) {
-                            syncFlag = true
-                            Log.debug("RustedWarfare", "CheckType: ${checkType.a} Checksum: $syncTick Server: $server Client: $client")
-                        }
-                        if (player.lastSyncTick >= syncTick) {
-                            Log.debug("RustedWarfare", "Not marking desync, already resynced before tick: $tickHess <= $tick")
-                            return false
-                        }
-                    }
-                    val syncAllSumFlag = stream.readBoolean()
-                    if (!player.syncAllSumFlag && syncAllSumFlag) {
-                        syncFlag = true
-                    }
-                    player.syncAllSumFlag = syncAllSumFlag
-                }
-            }
-        }
-
-        return syncFlag
     }
 
     override fun getWin(position: Int): Boolean {

@@ -60,8 +60,6 @@ abstract class AbstractNet(
         channelPipeline.addLast(ioGroup,newServerHandler)
     }
 
-
-
     protected fun rwinit(channelPipeline: ChannelPipeline) {
         //speedlimt(channelPipeline)
         addTimeOut(channelPipeline)

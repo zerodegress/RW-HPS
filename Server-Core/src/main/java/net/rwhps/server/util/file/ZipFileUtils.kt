@@ -10,7 +10,7 @@
 package net.rwhps.server.util.file
 
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.alone.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.DidNotFinish
 import net.rwhps.server.util.log.exp.ImplementedException
 import java.io.File
 import java.io.FileOutputStream

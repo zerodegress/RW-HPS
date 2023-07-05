@@ -9,14 +9,19 @@
 
 package net.rwhps.server.data.plugin
 
-import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
+import net.rwhps.server.data.EventGlobalManage
+import net.rwhps.server.data.EventManage
+import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.func.ConsSeq
+import net.rwhps.server.game.event.AbstractEvent
+import net.rwhps.server.game.event.AbstractGlobalEvent
+import net.rwhps.server.game.event.EventListener
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.alone.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.DidNotFinish
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.error
@@ -27,10 +32,17 @@ import java.io.IOException
  * @author RW-HPS/Dr
  */
 object PluginManage {
-    private val pluginEventManage = PluginEventManage()
+    private val pluginGlobalEventManage = EventGlobalManage()
     private var pluginData: Seq<PluginLoadData>? = null
     val loadSize: Int
         get() = pluginData!!.size
+
+    internal fun runGlobalEventManage(abstractGlobalEvent: AbstractGlobalEvent) {
+        pluginGlobalEventManage.fire(abstractGlobalEvent)
+    }
+    internal fun addGlobalEventManage(eventListener: EventListener) {
+        pluginGlobalEventManage.registerListener(eventListener)
+    }
 
     fun run(cons: ConsSeq<PluginLoadData>) {
         pluginData!!.eachAll { t: PluginLoadData -> cons(t) }
@@ -40,6 +52,9 @@ object PluginManage {
         pluginData = resultPluginData(fileUtils)
     }
 
+    fun addPluginClass(pluginInfo: BeanPluginInfo, main: Plugin, mkdir: Boolean, skip: Boolean) {
+        addPluginClass(pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, main, mkdir , skip)
+    }
     fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean , skip: Boolean = false) {
         addPluginClass(name,author,description,version,main,mkdir,skip,pluginData!!)
     }
@@ -72,12 +87,12 @@ object PluginManage {
     }
 
     /** 注册事件 -4  */
-    fun runRegisterEvents() {
-        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerEvents()?.let { add(it)} }
+    fun runRegisterEvents(hessLoadID: String, eventManage: EventManage) {
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerEvents(hessLoadID, eventManage) }
     }
     /** 注册事件 -4  */
     fun runRegisterGlobalEvents() {
-        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerGlobalEvents()?.let { add(it)} }
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerGlobalEvents(pluginGlobalEventManage) }
     }
 
     /** 创建所有插件并注册命令后调用 -5  */

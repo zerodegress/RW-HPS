@@ -17,9 +17,9 @@ import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.event.EventType.PlayerBanEvent
+import net.rwhps.server.game.event.game.PlayerBanEvent
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.net.core.server.AbstractNetConnect
@@ -30,7 +30,6 @@ import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 
@@ -98,7 +97,7 @@ internal class ServerCommands(handler: CommandHandler) {
             val site = arg[0].toInt() - 1
             val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
-                Events.fire(PlayerBanEvent(player))
+                GameEngine.data.eventManage.fire(PlayerBanEvent(player))
             }
         }
         handler.register("mute", "<PlayerPositionNumber> [Time(s)]", "serverCommands.mute") { arg: Array<String>, _: StrCons ->
@@ -135,7 +134,7 @@ internal class ServerCommands(handler: CommandHandler) {
         }
         handler.register("giveadmin", "<PlayerPositionNumber...>", "serverCommands.giveadmin") { arg: Array<String>, _: StrCons ->
             room.playerManage.playerGroup.eachAllFind(
-                { p: AbstractPlayer -> p.isAdmin }) { i: AbstractPlayer ->
+                { p: PlayerHess -> p.isAdmin }) { i: PlayerHess ->
                 val player = room.playerManage.getPlayerArray(arg[0].toInt())
                 if (player != null) {
                     i.isAdmin = false
@@ -145,7 +144,7 @@ internal class ServerCommands(handler: CommandHandler) {
             }
         }
         handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
-            room.playerManage.playerGroup.eachAll { e: AbstractPlayer -> e.muteTime = 0 }
+            room.playerManage.playerGroup.eachAll { e: PlayerHess -> e.muteTime = 0 }
         }
     }
 

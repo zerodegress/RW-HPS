@@ -36,34 +36,33 @@ import net.rwhps.server.command.LogCommands
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
-import net.rwhps.server.data.base.BaseCoreConfig
-import net.rwhps.server.data.base.BaseRelayConfig
-import net.rwhps.server.data.base.BaseServerConfig
+import net.rwhps.server.data.bean.BeanCoreConfig
+import net.rwhps.server.data.bean.BeanRelayConfig
+import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
-import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
+import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.data.plugin.PluginManage.addGlobalEventManage
 import net.rwhps.server.data.plugin.PluginManage.init
 import net.rwhps.server.data.plugin.PluginManage.loadSize
 import net.rwhps.server.data.plugin.PluginManage.runInit
 import net.rwhps.server.data.plugin.PluginManage.runOnEnable
-import net.rwhps.server.data.plugin.PluginManage.runRegisterEvents
 import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.dependent.HeadlessProxyClass
-import net.rwhps.server.game.Event
 import net.rwhps.server.game.EventGlobal
-import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
+import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.net.http.WebData
+import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.set
@@ -111,10 +110,10 @@ object Main {
         clog(Data.i18NBundle.getinput("server.login"))
         clog("Load ing...")
 
-        Data.config = BaseCoreConfig.stringToClass()
-        Data.configServer = BaseServerConfig.stringToClass()
+        Data.config = BeanCoreConfig.stringToClass()
+        Data.configServer = BeanServerConfig.stringToClass()
 
-        Data.configRelay = BaseRelayConfig.stringToClass()
+        Data.configRelay = BeanRelayConfig.stringToClass()
 
         Data.core.load()
         Initialization.loadLib()
@@ -136,8 +135,7 @@ object Main {
         clog(Data.i18NBundle.getinput("server.load.command"))
 
         /* Event加载 */
-        add(Event())
-        add(EventGlobal())
+        addGlobalEventManage(EventGlobal())
 
         clog(Data.i18NBundle.getinput("server.load.events"))
 
@@ -145,12 +143,13 @@ object Main {
         init(getFolder(Data.Plugin_Plugins_Path))
         LoadCoreCustomPlugin()
         runOnEnable()
-        runRegisterEvents()
         runRegisterGlobalEvents()
         PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
+        PluginManage.runRegisterServerCommands(Data.SERVER_COMMAND)
+        PluginManage.runRegisterServerClientCommands(Data.CLIENT_COMMAND)
 
         /* 加载完毕 */
-        Events.fire(ServerLoadEvent())
+        PluginManage.runGlobalEventManage(ServerLoadEvent())
 
         /* 初始化Plugin Init */
         runInit()
@@ -159,15 +158,19 @@ object Main {
         set(Data.config.Log)
 
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand, Data.defPrint)
-        if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
-            if (response.type != CommandHandler.ResponseType.valid) {
-                clog("Please check the command , Unable to use StartCommand inside Config to start the server")
-            }
+        val response = Data.SERVER_COMMAND.handleMessage("start", Data.defPrint)
+        if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
+            clog("Please check the command , Unable to use StartCommand inside Config to start the server")
+        }
+
+        if (Data.config.CmdTitle.isBlank()) {
+            CLITools.setWindowsCmdTitle("[RW-HPS] Port: ${Data.config.Port}, Run Server: ${NetStaticData.ServerNetType.name}")
+        } else {
+            CLITools.setWindowsCmdTitle(Data.config.CmdTitle)
         }
 
         newThreadCore {
-            WebData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
+            Data.webData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
             NetService(StartHttp::class.java).openPort(5000)
         }
 
@@ -295,4 +298,3 @@ object Main {
          :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
 */
 // 音无结弦之时，悦动天使之心；立于浮华之世，奏响天籁之音
-// 傻逼东西 Git, 妈的越用越气

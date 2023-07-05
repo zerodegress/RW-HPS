@@ -13,19 +13,23 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.global.ServerHessLoadEvent
 import net.rwhps.server.net.core.IRwHps
-import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.plugin.internal.hess.HessMain
+import net.rwhps.server.util.annotations.core.EventListenerHandler
 import net.rwhps.server.util.log.Log
 
 /**
  * @author RW-HPS/Dr
  */
-class GameHeadlessEventGlobal : AbstractGlobalEvent {
+@Suppress("UNUSED")
+class GameHeadlessEventGlobal : EventListener {
 
-    override fun registerGameLibLoadEvent(loadID: String) {
-        if (HessModuleManage.hpsLoader != loadID) {
-            Log.clog("Run GameHeadless ID: $loadID , This is not the first time to load, please customize the initialization")
+    @EventListenerHandler
+    fun registerGameLibLoadEvent(serverHessLoadEvent: ServerHessLoadEvent) {
+        if (HessModuleManage.hpsLoader != serverHessLoadEvent.loadID) {
+            Log.clog("Run GameHeadless ID: ${serverHessLoadEvent.loadID} , This is not the first time to load, please customize the initialization")
             return
         }
 
@@ -42,6 +46,6 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
         }
         HessModuleManage.hps.gameNet.startHessPort(Data.config.Port, passwd)
         Log.clog(Data.i18NBundle.getinput("server.load.end"))
-        Log.clog("Run GameHeadless ID: $loadID")
+        Log.clog("Run GameHeadless ID: ${serverHessLoadEvent.loadID}")
     }
 }

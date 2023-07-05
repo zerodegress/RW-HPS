@@ -326,7 +326,7 @@ object DigestUtils {
     }
 
     /**
-     * 计算SHA-1摘要值，并转为16进制字符串
+     * 计算SHA-256摘要值，并转为16进制字符串
      *
      * @param data 被摘要数据
      * @return SHA-256摘要的16进制表示

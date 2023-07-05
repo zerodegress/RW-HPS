@@ -17,7 +17,7 @@ import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.algorithms.digest.DigestUtils
 import net.rwhps.server.util.compression.CompressionDecoderUtils
-import net.rwhps.server.util.compression.core.CompressionDecoder
+import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.io.IoOutConversion.fileToOutStream
 import net.rwhps.server.util.io.IoOutConversion.fileToStream
 import net.rwhps.server.util.io.IoRead.readFileToByteArray
@@ -30,48 +30,45 @@ import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermission
 
 /**
- * FileUtil() refers to instance fileUtil. FileUtil refers to static method
+ * Server文件处理核心
  *
- * Recommended tutorial:
- * FileUtil.getFile("文件名") 因为不会创建文件 同时 位置和Jar同目录
- * FileUtil.getFolder("文件夹名") 因为不会创建文件 只会创建目录
- * FileUtil.getFolder("文件夹名").toFile("文件名") 只会创建目录
+ * ## 推荐教程:  
+ * ### 误区
+ * FileUtils() 是指实例 FileUtils, `FileUtils.` 是指静态方法
+ * 
+ * ### 快捷使用
+ * - FileUtils.getFile("文件名") 因为不会创建文件 同时 位置和Jar同目录
+ * - FileUtils.getFolder("文件夹名") 因为不会创建文件 只会创建目录
+ * - FileUtils.getFolder("文件夹名").toFile("文件名") 只会创建目录
+ * 
+ * #### 扩展
+ * FileUtils.getFolder("文件夹名" , true)返回的 FileUtil 在您操作 toFile toFolder 时 会直接返回新的 FileUtil 对象, 而原来的对象可重用
  *
- * FileUtil.getFolder("文件夹名" , true) 返回的 FileUtil 在您操作 toFile toFolder 时 会直接返回新的 FileUtil 对象
- *     而原来的对象可重用 toFile toFolder
+ * ## 注意:
+ * FileUtils.toFolder 初始目录是Server.jar的目录或者Main提交的参数目录
+ * - toFolder 只是起一个进入作用
+ * - FileUtil().mkdir() 会创建文件夹并尝试创建文件
+ * - FileUtil().createNewFile() 会尝试创建文件
+ * - FileUtil(filepath,true).toFile() 会直接返回一个新的 FileUtil
+ * - FileUtil(filepath,true).toFolder() 会直接返回一个新的 FileUtil
  *
+ * #### FileUtils 的三个实例不会做任何事情，也不会创建目录和文件:
+ * - 如果需要先目录再文件 那么用FileUtils.toFolder(文件夹名).toFile(文件名)
+ * - 如果需要先进入多个目录 那么用FileUtils.toFolder(文件夹名).toFolder(文件夹名)
+ * - 只有使用FileUtil().read/Write时才会进行文件创建
  *
+ * ## 部分误区:
+ * 在操作FileUtils()的时候不会进行创建文件,但是当你操作File的时候,那么就会创建文件
  *
- * FileUtil The three instances of will not do anything and will not create directories and files:
- * 如果需要先目录再文件 那么用FileUtil.toFolder(文件夹名).toFile(文件名)
- * 如果需要先进入多个目录 那么用FileUtil.toFolder(文件夹名).toFolder(文件夹名)
+ * 例子:
+ * - FileUtils.getFile("文件名").exists()的时候就不会创建文件
+ * - FileUtils.getFile("文件名").getInputsStream()的时候就会自动创建一个文件
  *
- * 只有使用FileUtil().read/Write时才会进行文件创建
- *
- * 注意:
- * FileUtil.toFolder初始目录是Server.jar的目录或者Main提交的参数目录
- * toFolder只是起一个进入作用
- * FileUtil().mkdir()会创建文件夹并尝试创建文件
- * FileUtil().createNewFile()会尝试创建文件
- *
- * FileUtil(filepath,true).toFile() 会直接返回一个新的 FileUtil
- * FileUtil(filepath,true).toFolder() 会直接返回一个新的 FileUtil
- *
- *
- * 部分误区:
- * 在操作FileUtil()的时候不会进行创建文件,但是当你操作File的时候,那么就会创建文件
- *     例子:
- *         FileUtil.getFile("文件名").exists()的时候就不会创建文件
- *         FileUtil.getFile("文件名").getInputsStream()的时候就会自动创建一个文件
- *
- * 只有FileUtil.getFolder("文件夹名" , true) 创建的 和 FileUtil(filepath,true) 创建的 FileUtil 在您操作 toFile toFolder 时 会直接返回新的 FileUtil 对象
+ * 只有FileUtils.getFolder("文件夹名" , true) 创建的 和 FileUtil(filepath,true) 创建的 FileUtil 在您操作 toFile toFolder 时 会直接返回新的 FileUtil 对象
  *
  * 欢迎提交修改
- */
-/**
- * Server文件处理核心
+ *
  * @author RW-HPS/Dr
- * @version 5.5.0
  */
 open class FileUtils {
     /** 内部的File  */
@@ -183,11 +180,11 @@ open class FileUtils {
             for (value in array!!) {
                 if (!value.isDirectory) {
                     if (value.isFile) {
-                        fileList.put(value.name,value)
+                        fileList[value.name] = value
                     }
                 } else {
                     FileUtils(value).filePollingList.eachAll { k, v ->
-                        fileList.put("${value.name}/${k}",v)
+                        fileList["${value.name}/${k}"] = v
                     }
                 }
             }
@@ -208,7 +205,7 @@ open class FileUtils {
             return list
         }
 
-    val zipDecoder: CompressionDecoder
+    val zipDecoder: AbstractDecoder
         get() = CompressionDecoderUtils.zip(file)
 
     val md5: String
@@ -217,7 +214,7 @@ open class FileUtils {
     fun setReadOnly(): Boolean = file.setReadOnly()
 
     fun setPosixFilePermissions(permission: Array<PosixFilePermission>) {
-        Files.setPosixFilePermissions(file.toPath(), permission.toSet());
+        Files.setPosixFilePermissions(file.toPath(), permission.toSet())
     }
 
     /**
@@ -338,7 +335,6 @@ open class FileUtils {
          * 如果不为null将会直接使用path而不是使用jar的位置
          */
         private var defaultFilePath: String = ""
-            private set
 
         /**
          * 加载默认的文件路径

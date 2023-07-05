@@ -5,8 +5,8 @@ import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.redirections.DefaultRedirections
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.dependent.redirections.slick.AppGameContainerUpdate
-import net.rwhps.server.util.alone.annotations.NeedHelp
-import net.rwhps.server.util.alone.annotations.mark.AsmMark
+import net.rwhps.server.util.annotations.NeedHelp
+import net.rwhps.server.util.annotations.mark.AsmMark
 import java.nio.*
 
 @NeedHelp(info_EN = "redirect Keyboard and Mouse")

@@ -13,10 +13,12 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.player.AbstractPlayer
+import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.game.GameUnitType
-import net.rwhps.server.game.event.EventType.*
+import net.rwhps.server.game.event.game.PlayerChatEvent
+import net.rwhps.server.game.event.game.PlayerLeaveEvent
+import net.rwhps.server.game.event.game.PlayerOperationUnitEvent
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -28,9 +30,8 @@ import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
+import net.rwhps.server.util.annotations.MainProtocolImplementation
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.ColorCodes
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -69,7 +70,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     override val clientVersion: Int get() = supportedVersionInt
 
     /** 玩家  */
-    override lateinit var player: AbstractPlayer
+    override lateinit var player: PlayerHess
     override var permissionStatus: ServerStatus = ServerStatus.InitialConnection
         internal set
 
@@ -153,7 +154,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
                     sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
                     throw Exception()
                 }
-                Events.fire(PlayerChatEvent(player, message))
+                GameEngine.data.eventManage.fire(PlayerChatEvent(player, message))
             } else if (response.type != CommandHandler.ResponseType.valid) {
                 when (response.type) {
                     CommandHandler.ResponseType.manyArguments -> {
@@ -197,7 +198,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
                     val gameUnits: GameUnitType.GameUnits = GameUnitType.GameUnits.from(unitType)
                     // 玩家操作单位事件
                     val playerOperationUnitEvent = PlayerOperationUnitEvent(player, gameActions, gameUnits, x, y)
-                    Events.fire(playerOperationUnitEvent)
+                    GameEngine.data.eventManage.fire(playerOperationUnitEvent)
                     if(!playerOperationUnitEvent.resultStatus){
                         return
                     }
@@ -289,7 +290,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             if (!playerConnectX.room.isStartGame) {
                 playerConnectX.room.playerManage.playerAll.remove(player)
             }
-            Events.fire(PlayerLeaveEvent(player))
+            GameEngine.data.eventManage.fire(PlayerLeaveEvent(player))
 
             player.clear()
         }

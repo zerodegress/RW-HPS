@@ -9,6 +9,7 @@
 
 package net.rwhps.server.game.simulation.core
 
+import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.global.ServerRoom
 
 /**
@@ -24,6 +25,8 @@ import net.rwhps.server.data.global.ServerRoom
 interface AbstractGameModule {
     val useClassLoader: ClassLoader
 
+    val eventManage: EventManage
+
     val gameHessData: AbstractGameHessData
     val gameNet: AbstractGameNet
     val gameUnitData: AbstractGameUnitData
@@ -31,5 +34,6 @@ interface AbstractGameModule {
 
     val gameData: AbstractGameData
     val gameDataLink: AbstractGameLinkData
+
     val room: ServerRoom
 }

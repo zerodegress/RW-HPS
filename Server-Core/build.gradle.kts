@@ -7,36 +7,33 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-import buildSrc.makeDependTree
-import java.text.SimpleDateFormat
-import java.util.*
-
-val nettyVersion: String by project
-val kotlinVersion: String by project
-val graalvmVersion: String by project
-
 /**
  * Fuck implementation
  */
 dependencies {
-	api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+	api("org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlinVersion}")
 	api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
 
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
 
-	api("io.netty:netty-buffer:$nettyVersion")
-	api("io.netty:netty-codec:$nettyVersion")
-	api("io.netty:netty-codec-http:$nettyVersion")
-	api("io.netty:netty-handler:$nettyVersion")
-	api("io.netty:netty-transport:$nettyVersion")
-	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-aarch_64")
-	api("io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64")
+	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
+	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
+
+	api("io.netty:netty-buffer:${Versions.nettyVersion}")
+	api("io.netty:netty-codec:${Versions.nettyVersion}")
+	api("io.netty:netty-codec-http:${Versions.nettyVersion}")
+	api("io.netty:netty-handler:${Versions.nettyVersion}")
+	api("io.netty:netty-transport:${Versions.nettyVersion}")
+	api("io.netty:netty-transport-native-epoll:${Versions.nettyVersion}:linux-aarch_64")
+	api("io.netty:netty-transport-native-epoll:${Versions.nettyVersion}:linux-x86_64")
 
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
 	compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
 
 	api("com.github.deng-rui:RUDP:2.0.0")
+	//implementation(fileTree(mapOf("dir" to "libs", "include" to "RUDP.jar")))
+	//api("com.github.jmecn:TMXLoader:v0.2")
 
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
@@ -65,8 +62,8 @@ dependencies {
 
 	implementation("it.unimi.dsi:fastutil-core:8.5.12")
 
-	compileOnlyAndTest("org.graalvm.js:js:$graalvmVersion")
-	compileOnlyAndTest("org.graalvm.sdk:graal-sdk:$graalvmVersion")
+	compileOnlyAndTest("org.graalvm.js:js:${Versions.graalvmVersion}")
+	compileOnlyAndTest("org.graalvm.sdk:graal-sdk:${Versions.graalvmVersion}")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
@@ -76,8 +73,6 @@ tasks.jar {
 
 	manifest {
 		attributes(mapOf("Implementation-Title" to "RW-HPS"))
-		attributes(mapOf("Implementation-Vendor" to "RW-HPS Team"))
-		attributes(mapOf("Build-Jar-Time" to SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date().time)))
 	}
 }
 

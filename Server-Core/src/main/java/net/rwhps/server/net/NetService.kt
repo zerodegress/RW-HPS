@@ -18,9 +18,11 @@ import io.netty.channel.socket.nio.NioServerSocketChannel
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.net.core.AbstractNet
+import net.rwhps.server.net.core.web.AbstractNetWeb
 import net.rwhps.server.net.handler.rudp.StartGameNetUdp
 import net.rwhps.server.net.handler.tcp.StartGameNetTcp
 import net.rwhps.server.net.handler.tcp.StartGamePortDivider
+import net.rwhps.server.net.http.WebData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.log.Log
@@ -45,6 +47,7 @@ class NetService {
 
     constructor(abstractNet: AbstractNet = if (Data.config.WebGameBypassPort) StartGamePortDivider() else StartGameNetTcp()) {
         this.start = abstractNet
+        setWebData()
     }
 
     constructor(abstractNetClass: Class<out AbstractNet>) {
@@ -56,11 +59,20 @@ class NetService {
                 null
             }
         this.start = startNet ?:StartGameNetTcp()
+        setWebData()
     }
 
     init {
         NetStaticData.netService.add(this)
     }
+
+    fun setWebData(data: WebData = Data.webData): NetService {
+        if (start is AbstractNetWeb) {
+            start.setWebData(data)
+        }
+        return this
+    }
+
 
     /**
      * Start the Game Server on the specified port

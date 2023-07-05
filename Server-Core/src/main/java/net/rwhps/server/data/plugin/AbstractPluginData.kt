@@ -113,7 +113,7 @@ internal open class AbstractPluginData {
     fun read(inStream: InputStream) {
         val gameInputStream: GameInputStream =
             when(code) {
-                "7z" -> GameInputStream(CompressionDecoderUtils.sevenZipStream(inStream).getZipAllBytes()["file"]!!)
+                "7z" -> GameInputStream(CompressionDecoderUtils.sevenAllReadStream(inStream).getZipAllBytes()["file"]!!)
                 "gzip" -> GameInputStream(getGzipInputStream(inStream))
                 else -> throw CompressionException.CryptographicException(code)
             }

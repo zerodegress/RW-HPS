@@ -12,6 +12,7 @@ import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.repositories
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 
 fun Project.setRepositories() {
     repositories {
@@ -67,7 +68,7 @@ fun File.mk() {
 
     if (!this.exists()) {
         try {
-            this.createNewFile()
+            Files.createFile(toPath());
         } catch (e: IOException) {
             error(e)
         }

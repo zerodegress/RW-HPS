@@ -26,8 +26,8 @@ fun Project.setRepositories() {
 fun Project.makeDependTree() {
     val project = this
 
-    val implementationFile = file("${Data.mavenPath}/${this.project.name}/implementation.txt").apply { delete();mkdirs() }
-    val compileOnlyFile = file("${Data.mavenPath}/${this.project.name}/compileOnly.txt").apply { delete();mkdirs() }
+    val implementationFile = file("${Data.mavenPath}/${this.project.name}/implementation.txt").apply { delete();mkdirs();createNewFile() }
+    val compileOnlyFile = file("${Data.mavenPath}/${this.project.name}/compileOnly.txt").apply { delete();mkdirs();createNewFile() }
 
     var implementation = ""
     var compileOnly = ""

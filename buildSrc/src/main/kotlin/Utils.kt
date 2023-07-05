@@ -29,8 +29,8 @@ fun Project.setRepositories() {
 fun Project.makeDependTree() {
     val project = this
 
-    val implementationFile = file("${Data.mavenPath}/${this.project.name}/implementation.txt")
-    val compileOnlyFile = file("${Data.mavenPath}/${this.project.name}/compileOnly.txt")
+    val implementationFile = project.file("${Data.mavenPath}/${this.project.name}/implementation.txt")
+    val compileOnlyFile = project.file("${Data.mavenPath}/${this.project.name}/compileOnly.txt")
 
     implementationFile.mk()
     compileOnlyFile.mk()
@@ -70,6 +70,7 @@ fun File.mk() {
         try {
             Files.createFile(toPath());
         } catch (e: IOException) {
+            println(path)
             println(canWrite())
             error(e)
         }

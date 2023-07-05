@@ -10,6 +10,8 @@
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.repositories
+import java.io.File
+import java.io.IOException
 
 fun Project.setRepositories() {
     repositories {
@@ -26,8 +28,11 @@ fun Project.setRepositories() {
 fun Project.makeDependTree() {
     val project = this
 
-    val implementationFile = file("${Data.mavenPath}/${this.project.name}/implementation.txt").apply { delete();mkdirs();createNewFile() }
-    val compileOnlyFile = file("${Data.mavenPath}/${this.project.name}/compileOnly.txt").apply { delete();mkdirs();createNewFile() }
+    val implementationFile = file("${Data.mavenPath}/${this.project.name}/implementation.txt")
+    val compileOnlyFile = file("${Data.mavenPath}/${this.project.name}/compileOnly.txt")
+
+    implementationFile.mk()
+    compileOnlyFile.mk()
 
     var implementation = ""
     var compileOnly = ""
@@ -51,4 +56,20 @@ fun Project.makeDependTree() {
     }
     implementationFile.writeText(implementation)
     compileOnlyFile.writeText(compileOnly)
+}
+
+fun File.mk() {
+    this.parentFile?.mkdirs()
+
+    if (this.isDirectory) {
+        return
+    }
+
+    if (!this.exists()) {
+        try {
+            this.createNewFile()
+        } catch (e: IOException) {
+            error("Mk file")
+        }
+    }
 }

@@ -69,7 +69,7 @@ fun File.mk() {
         try {
             this.createNewFile()
         } catch (e: IOException) {
-            error("Mk file")
+            error(e)
         }
     }
 }

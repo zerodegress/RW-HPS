@@ -10,19 +10,23 @@
 package net.rwhps.server.net.http
 
 import io.netty.handler.codec.http.HttpRequest
+import net.rwhps.server.func.Control
 import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.net.core.web.WebPost
 import net.rwhps.server.net.core.web.WebSocket
 import net.rwhps.server.net.handler.tcp.GamePortWebSocket
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.log.exp.VariableException
 
 /**
  * @author RW-HPS/Dr
  */
 class WebData {
-    private val getData: MutableMap<String, WebGet> = HashMap()
-    private val postData: MutableMap<String, WebPost> = HashMap()
-    private val webSocketData: MutableMap<String, GamePortWebSocket> = HashMap()
+    private val getData: ObjectMap<String, WebGet> = ObjectMap()
+    private val postData: ObjectMap<String, WebPost> = ObjectMap()
+    private val getWildcardAllData: ObjectMap<String, WebGet> = ObjectMap()
+    private val postWildcardAllData: ObjectMap<String, WebPost> = ObjectMap()
+    private val webSocketData: ObjectMap<String, GamePortWebSocket> = ObjectMap()
 
     fun addWebGetInstance(url: String, webGet: WebGet) {
         if (getData.containsKey(url)) {
@@ -31,7 +35,11 @@ class WebData {
         if (url.startsWith(WS_URI)) {
             throw VariableException.TabooAddException("[AddWebGetInstance] TabooA Add, Can not be used WebSocket URL")
         }
-        getData[url] = webGet
+        if (url.endsWith("**")) {
+            getWildcardAllData[url.removeSuffix("**")] = webGet
+        } else {
+            getData[url] = webGet
+        }
     }
     fun addWebPostInstance(url: String, webPost: WebPost) {
         if (postData.containsKey(url)) {
@@ -40,7 +48,11 @@ class WebData {
         if (url.startsWith(WS_URI)) {
             throw VariableException.TabooAddException("[AddWebGetInstance] TabooA Add, Can not be used WebSocket URL")
         }
-        postData[url] = webPost
+        if (url.endsWith("**")) {
+            postWildcardAllData[url.removeSuffix("**")] = webPost
+        } else {
+            postData[url] = webPost
+        }
     }
     fun addWebSocketInstance(url: String, webSocket: WebSocket) {
         if (webSocketData.containsKey(url)) {
@@ -48,7 +60,7 @@ class WebData {
         }
         webSocketData[url] = GamePortWebSocket(webSocket)
     }
-    
+
     fun removeWebGetInstance(url: String) {
         getData.remove(url)
     }
@@ -84,8 +96,16 @@ class WebData {
         if (getData.containsKey(getUrl)) {
             getData[getUrl]?.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
         } else if (getData.containsKey(wildcard)) {
-            getData[wildcard]?.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
+            getData[wildcard]?.get(AcceptWeb(getUrl, urlData, "", request), sendWeb)
         } else {
+            getWildcardAllData.eachControlAll { k,v ->
+                if (url.startsWith(k)) {
+                    v.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
+                    return@eachControlAll Control.ControlFind.BREAK
+                }
+                return@eachControlAll Control.ControlFind.CONTINUE
+            }
+
             sendWeb.send404()
         }
     }
@@ -107,6 +127,14 @@ class WebData {
         } else if (postData.containsKey(wildcard)) {
             postData[wildcard]!!.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
         } else {
+            postWildcardAllData.eachControlAll { k,v ->
+                if (url.startsWith(k)) {
+                    v.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
+                    return@eachControlAll Control.ControlFind.BREAK
+                }
+                return@eachControlAll Control.ControlFind.CONTINUE
+            }
+
             sendWeb.send404()
         }
     }

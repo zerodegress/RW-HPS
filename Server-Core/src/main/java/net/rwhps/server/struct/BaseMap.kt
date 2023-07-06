@@ -9,10 +9,7 @@
 
 package net.rwhps.server.struct
 
-import net.rwhps.server.func.ConsMap
-import net.rwhps.server.func.FindMap
-import net.rwhps.server.func.KeyValue
-import net.rwhps.server.func.Prov
+import net.rwhps.server.func.*
 import net.rwhps.server.util.ExtractUtils
 
 /**
@@ -78,6 +75,16 @@ abstract class BaseMap<K,V>(private val map: java.util.Map<K,V>, private val thr
     fun eachAll(block: ConsMap<K, V>) {
         ExtractUtils.synchronizedX(threadSafety, map) {
             map.forEach { k,v -> block(k,v) }
+        }
+    }
+
+    fun eachControlAll(findA: FindMap<K, V, Control.ControlFind>) {
+        ExtractUtils.synchronizedX(threadSafety, map) {
+            map.entrySet().forEach {
+                if (findA(it.key, it.value) == Control.ControlFind.BREAK) {
+                    return@synchronizedX
+                }
+            }
         }
     }
 

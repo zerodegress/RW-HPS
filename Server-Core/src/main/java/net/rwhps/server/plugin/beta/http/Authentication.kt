@@ -34,7 +34,7 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
         Data.webData.addWebGetInstance("${RwHpsWebApiMain.url}/api/AuthCookie", object: WebGet() {
             override fun get(accept: AcceptWeb, send: SendWeb) = registerCookie(stringUrlDataResolveToJson(accept), accept, send)
         })
-        Data.webData.addWebGetInstance("${RwHpsWebApiMain.url}/api/get/*", object: WebGet() {
+        Data.webData.addWebGetInstance("${RwHpsWebApiMain.url}/api/get/**", object: WebGet() {
             override fun get(accept: AcceptWeb, send: SendWeb) {
                 val cookies = headResolveToCookie(accept)
                 if (authentication(cookies, send)) {
@@ -46,7 +46,7 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
         Data.webData.addWebPostInstance("${RwHpsWebApiMain.url}/api/AuthCookie", object: WebPost() {
             override fun post(accept: AcceptWeb, send: SendWeb) = registerCookie(stringPostDataResolveToJson(accept), accept, send)
         })
-        Data.webData.addWebPostInstance("${RwHpsWebApiMain.url}/api/post/*", object: WebPost() {
+        Data.webData.addWebPostInstance("${RwHpsWebApiMain.url}/api/post/**", object: WebPost() {
             override fun post(accept: AcceptWeb, send: SendWeb) {
                 val cookies = headResolveToCookie(accept)
                 if (authentication(cookies, send)) {

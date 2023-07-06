@@ -36,23 +36,28 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.RandomUtils
+import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.plugin.ScriptResUtils
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
+import org.graalvm.polyglot.PolyglotAccess
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.io.FileSystem
 import java.io.*
 import java.net.URI
+import java.nio.ByteBuffer
 import java.nio.channels.SeekableByteChannel
 import java.nio.file.*
 import java.nio.file.attribute.FileAttribute
 import java.util.*
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 
 /**
@@ -60,6 +65,7 @@ import kotlin.io.path.pathString
  * 主要用于JS插件加载
  *
  * @author RW-HPS/ZeroDegress
+ * @author RW-HPS/Dr
  */
 class JavaScriptPluginGlobalContext {
     private val moduleMap = ObjectMap<String, Path>()
@@ -107,7 +113,11 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<GetVersion>()
         injectJavaClass<Properties>()
         injectJavaClass<Prov<Any>>()
+        injectJavaClass<Base64>()
         injectJavaClass<Log>()
+
+        injectJavaClass<ScriptResUtils>()
+        injectJavaClass<ByteBuffer>()
     }
 
     /**
@@ -158,19 +168,27 @@ class JavaScriptPluginGlobalContext {
         try {
             val cx = Context.newBuilder()
                 .allowExperimentalOptions(true)
+                .allowPolyglotAccess(PolyglotAccess.ALL)
                 .option("engine.WarnInterpreterOnly", "false")
-                //.option("js.webassembly", "true")
                 .option("js.esm-eval-returns-exports", "true")
+                .option("js.webassembly", "true")
                 .allowHostAccess(HostAccess.newBuilder()
                     .allowAllClassImplementations(true)
                     .allowAllImplementations(true)
                     .allowPublicAccess(true)
+                    .allowArrayAccess(true)
+                    .allowListAccess(true)
+                    .allowIterableAccess(true)
+                    .allowIteratorAccess(true)
+                    .allowMapAccess(true)
                     .build())
                 .allowHostClassLookup { _ -> true }
                 .fileSystem(getOnlyReadFileSystem(scriptFileSystem))
                 .allowIO(true)
                 .build()
             cx.enter()
+
+            ScriptResUtils.setFileSystem(scriptFileSystem)
 
             var loadScript = ""
             modules.eachAll { pluginInfo,v ->
@@ -196,8 +214,9 @@ class JavaScriptPluginGlobalContext {
                 }
             }
         } catch (e: Exception) {
-            error("JavaScript plugin loading failed: $e")
+            Log.error("JavaScript plugin loading failed: ", e)
         }
+        return Seq()
     }
 
     /**
@@ -228,15 +247,13 @@ class JavaScriptPluginGlobalContext {
      * @return FileSystem
      */
     private fun getOnlyReadFileSystem(fileSystem: OrderedMap<String, ByteArray>): FileSystem {
-        return object: FileSystem {
-            val defPath = Path("/")
-            override fun parsePath(uri: URI?): Path {
+        return object: FileSystem { override fun parsePath(uri: URI?): Path {
                 return parsePath(uri.toString())
             }
 
             override fun parsePath(path: String?): Path {
                 if (path == null) {
-                    return defPath
+                    return ScriptResUtils.defPath
                 }
                 /*
                  * 我们在这里使用 contains(".."), 来识别以下路径
@@ -246,9 +263,9 @@ class JavaScriptPluginGlobalContext {
                     //完整路径
                     path.contains("..") || path.startsWith("./") || path.startsWith("/") -> Path(path)
                     //插件入口快捷方式
-                    path.startsWith("@") -> moduleMap[path.removePrefix("@")] ?: defPath
+                    path.startsWith("@") -> moduleMap[path.removePrefix("@")] ?: ScriptResUtils.defPath
                     //java注入类型快捷访问方式
-                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: defPath
+                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: ScriptResUtils.defPath
                     // URL
                     path.startsWith("http://") || path.startsWith("https://") -> {
                         val js = HttpRequestOkHttp.doGet(path)
@@ -259,7 +276,7 @@ class JavaScriptPluginGlobalContext {
                         Path(path)
                     }
                     // Other
-                    else -> defPath.resolve(path)
+                    else -> ScriptResUtils.defPath.resolve(path)
                 }
                 return parsedPath
             }
@@ -317,8 +334,7 @@ class JavaScriptPluginGlobalContext {
             }
 
             override fun readAttributes(path: Path?, attributes: String?, vararg options: LinkOption?): MutableMap<String, Any> {
-                Log.debug("J readAttributes")
-                TODO("Not yet implemented")
+                TODO()
             }
         }
     }

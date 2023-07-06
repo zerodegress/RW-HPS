@@ -96,6 +96,25 @@ class JavaScriptPluginTest {
                     }))()
             """.trimIndent(), Data.UTF_8))
         }
+
+        val plugin1 = OrderedMap<String, ByteArray>().apply {
+            put("a/index.js", ExtractUtils.bytes("""
+                export const a = 10
+                export default new (Java.extend(Plugin, {}))()
+            """.trimIndent()))
+        }
+
+        val plugin2 = OrderedMap<String, ByteArray>().apply {
+            put("b/index.js", ExtractUtils.bytes("""
+                import { a } from "a"
+                export default new (Java.extend(Plugin, {
+                    onEnable() {
+                        console.log(a)
+                    }
+                }))()
+            """.trimIndent()))
+        }
+
         // 这个是模块化, 可以使用import/export
         scriptPluginGlobalContext.addESMPlugin(
             BeanPluginInfo(
@@ -109,6 +128,18 @@ class JavaScriptPluginTest {
                 author = "Dr",
                 main = "main.mjs"
             ), data1)
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "a",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin1)
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "b",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin2)
         scriptPluginGlobalContext.loadESMPlugins().eachAll {
             it.main.onEnable()
             it.main.init()

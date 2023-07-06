@@ -13,9 +13,7 @@ package net.rwhps.server.util.plugin
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.util.log.Log
 import java.net.URLDecoder
-import java.nio.ByteBuffer
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
@@ -39,12 +37,12 @@ object ScriptResUtils {
      * @return ByteArray?
      */
     @JvmStatic
-    fun getPluginFileBytes(path: String, filePath: String): ByteBuffer? {
+    fun getPluginFileBytes(path: String, filePath: String): ByteArray? {
         try {
             val pluginUrl = path.split(defPath.toAbsolutePath().pathString.replace("\\", "/"))[1].split("/")[0]
             val pluginName = URLDecoder.decode(pluginUrl, Data.UTF_8)
             val bytes = scriptFileSystem["/$pluginName/$filePath"] ?: return null
-            return ByteBuffer.wrap(bytes)
+            return bytes
         } catch (_: Exception) {
             return null
         }

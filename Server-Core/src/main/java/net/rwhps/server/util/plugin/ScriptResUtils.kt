@@ -47,4 +47,13 @@ object ScriptResUtils {
             return null
         }
     }
+
+    @JvmStatic
+    fun getFileBytes(path: String): ByteArray? {
+        return try {
+            scriptFileSystem[path]
+        } catch (_: Exception) {
+            null
+        }
+    }
 }

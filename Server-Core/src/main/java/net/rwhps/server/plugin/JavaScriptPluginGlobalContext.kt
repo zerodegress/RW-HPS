@@ -231,6 +231,9 @@ class JavaScriptPluginGlobalContext {
                         }
                         Path(path)
                     }
+                    // 与直接文件路径没有区别
+                    path.startsWith("file://") -> ScriptResUtils.defPath.resolve(path.removePrefix("file://"))
+                    // 直接引用插件模块
                     !path.contains("/") -> run {
                         moduleMap[path] ?: ScriptResUtils.defPath.resolve(path)
                     }

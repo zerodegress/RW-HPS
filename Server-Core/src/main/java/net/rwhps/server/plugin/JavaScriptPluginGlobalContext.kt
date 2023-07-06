@@ -10,36 +10,13 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.BeanPluginInfo
-import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.PlayerHess
-import net.rwhps.server.func.ConsMap
-import net.rwhps.server.func.ConsSeq
-import net.rwhps.server.func.Prov
-import net.rwhps.server.game.GameMaps
-import net.rwhps.server.game.GameUnitType
-import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.io.input.SyncByteArrayChannel
-import net.rwhps.server.io.output.CompressOutputStream
-import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
-import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.HttpRequestOkHttp
-import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.net.core.DataPermissionStatus
-import net.rwhps.server.net.core.IRwHps
-import net.rwhps.server.net.core.server.AbstractNetConnectServer
-import net.rwhps.server.struct.IntMap
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.I18NBundle
-import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.RandomUtils
-import net.rwhps.server.util.algorithms.Base64
-import net.rwhps.server.util.compression.core.AbstractDecoder
-import net.rwhps.server.util.file.FileUtils
-import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
@@ -51,13 +28,10 @@ import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.io.FileSystem
 import java.io.*
 import java.net.URI
-import java.nio.ByteBuffer
 import java.nio.channels.SeekableByteChannel
 import java.nio.file.*
 import java.nio.file.attribute.FileAttribute
-import java.util.*
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.pathString
 
 /**
@@ -73,52 +47,6 @@ class JavaScriptPluginGlobalContext {
     private val urlMap = Seq<String>()
     private val scriptFileSystem = OrderedMap<String, ByteArray>()
     private val modules = ObjectMap<BeanPluginInfo, String>()
-
-    init {
-        injectJavaClass<AbstractDecoder>()
-        injectJavaClass<AbstractNetConnectServer>()
-        injectJavaClass<PlayerHess>()
-        injectJavaClass<AbstractPlayerData>()
-        injectJavaClass<ConnectionAgreement>()
-        injectJavaClass<CompressOutputStream>()
-        injectJavaClass<CommandHandler>()
-        injectJavaClass<CommandHandler.Command>()
-        injectJavaClass<CommandHandler.CommandResponse>()
-        injectJavaClass<CommandHandler.CommandRunner<Any>>()
-        injectJavaClass<CommandHandler.ResponseType>()
-        injectJavaClass<ConsMap<Any, Any>>()
-        injectJavaClass<ConsSeq<Any>>()
-        injectJavaClass<ConnectionAgreement>()
-        injectJavaClass<DisableSyncByteArrayOutputStream>()
-        injectJavaClass<DataPermissionStatus.ServerStatus>("ServerStatus")
-        injectJavaClass<File>()
-        injectJavaClass<FileOutputStream>()
-        injectJavaClass<FileUtils>()
-        injectJavaClass<GameMaps.MapData>("MapData")
-        injectJavaClass<GameOverData>()
-        injectJavaClass<GameUnitType.GameActions>("GameActions")
-        injectJavaClass<GameUnitType.GameUnits>("GameUnits")
-        injectJavaClass<GroupNet>()
-        injectJavaClass<I18NBundle>()
-        injectJavaClass<IntMap<Any>>()
-        injectJavaClass<InputStream>()
-        injectJavaClass<InputStreamReader>()
-        injectJavaClass<IRwHps.NetType>("NetType")
-        injectJavaClass<ObjectMap<Any, Any>>()
-        injectJavaClass<OrderedMap<Any, Any>>()
-        injectJavaClass<OutputStream>()
-        injectJavaClass<Packet>()
-        injectJavaClass<PacketType>()
-        injectJavaClass<Plugin>()
-        injectJavaClass<GetVersion>()
-        injectJavaClass<Properties>()
-        injectJavaClass<Prov<Any>>()
-        injectJavaClass<Base64>()
-        injectJavaClass<Log>()
-
-        injectJavaClass<ScriptResUtils>()
-        injectJavaClass<ByteBuffer>()
-    }
 
     /**
      * 注册一个模块，这样在js中可通过"@module"这样的方式引用
@@ -220,24 +148,49 @@ class JavaScriptPluginGlobalContext {
     }
 
     /**
-     * 将指定Java类型注入
+     * 注入指定的Java包
+     * @param packname 被注入的Java包名
      */
-    private inline fun <reified T> injectJavaClass(rename: String? = null) {
-        val packageName = T::class.java.`package`.name
-        val packagePathAll = "/\$java/$packageName/index.mjs"
-
-        if(!javaMap.containsKey(packageName)) {
-            registerJavaPackage(packageName, Path(packagePathAll))
-            scriptFileSystem[packagePathAll] = """
-                export const ${rename ?: T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}');
-            """.trimIndent().toByteArray()
-            return
+    private fun injectJavaPackage(packname: String) {
+        val classes = getPackageClasses(packname)
+        val packagePathAll = "/\$java/$packname/index.js"
+        if(!javaMap.containsKey(packname)) {
+            registerJavaPackage(packname, Path(packagePathAll))
+            val script = classes.joinToString(Data.LINE_SEPARATOR) { cls ->
+                if(!cls.name.contains("$")) {
+                    "export const ${cls.name.split(".").last()} = Java.type('${cls.name}');"
+                } else {
+                    "export const ${cls.name.split(".").last().split("$").last()} = Java.type('${cls.name}');"
+                }
+            }
+            scriptFileSystem[packagePathAll] = script.toByteArray()
         }
+    }
 
-        scriptFileSystem[packagePathAll] = """
-            ${String(scriptFileSystem[packagePathAll]!!)}
-            export const ${rename ?: T::class.java.name.split(".").last()} = Java.type('${T::class.java.name}');
-        """.trimIndent().toByteArray()
+    private fun getPackageClasses(packname: String): Seq<Class<*>> {
+        val types = Seq<Class<*>>()
+        val loader = Thread.currentThread().contextClassLoader
+        val resources = loader.getResources(packname.replace(".", "/"))
+        while(resources.hasMoreElements()) {
+            val resource = resources.nextElement()
+            val file = File(resource.file)
+
+            if (file.isDirectory) {
+                val files = file.list()
+                if (files != null) {
+                    for (fileName in files) {
+                        if(!fileName.endsWith(".class")) {
+                            continue
+                        }
+                        val className: String =
+                            ("$packname.").toString() + fileName.substring(0, fileName.lastIndexOf('.'))
+                        val type = Class.forName(className)
+                        types.add(type)
+                    }
+                }
+            }
+        }
+        return types
     }
 
     /**
@@ -265,7 +218,10 @@ class JavaScriptPluginGlobalContext {
                     //插件入口快捷方式
                     path.startsWith("@") -> moduleMap[path.removePrefix("@")] ?: ScriptResUtils.defPath
                     //java注入类型快捷访问方式
-                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: ScriptResUtils.defPath
+                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: run {
+                        injectJavaPackage(path.removePrefix("java:"))
+                        javaMap[path.removePrefix("java:")] ?: ScriptResUtils.defPath.resolve(path)
+                    }
                     // URL
                     path.startsWith("http://") || path.startsWith("https://") -> {
                         val js = HttpRequestOkHttp.doGet(path)
@@ -274,6 +230,9 @@ class JavaScriptPluginGlobalContext {
                             scriptFileSystem[path] = js.toByteArray()
                         }
                         Path(path)
+                    }
+                    !path.contains("/") -> run {
+                        moduleMap[path] ?: ScriptResUtils.defPath.resolve(path)
                     }
                     // Other
                     else -> ScriptResUtils.defPath.resolve(path)

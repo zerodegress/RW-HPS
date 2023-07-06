@@ -19,8 +19,6 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          fetch-depth: 0
-          persist-credentials: false
           distribution: 'temurin'
           java-version: ${{ matrix.jdk }}
           

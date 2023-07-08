@@ -42,6 +42,7 @@ import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.plugin.PluginFileSystem
 import net.rwhps.server.util.plugin.ScriptResUtils
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
@@ -71,6 +72,11 @@ class JavaScriptPluginGlobalContext {
     private val urlMap = Seq<String>()
     private val scriptFileSystem = OrderedMap<String, ByteArray>()
     private val modules = ObjectMap<BeanPluginInfo, String>()
+    private val fakeFileSystem = PluginFileSystem()
+    private val rwhpsObject = RwHpsJS()
+    private class RwHpsJS {
+
+    }
 
     init {
         injectJavaClass<AbstractDecoder>()
@@ -147,10 +153,11 @@ class JavaScriptPluginGlobalContext {
      */
     fun addESMPlugin(pluginInfo: BeanPluginInfo, pluginData: OrderedMap<String, ByteArray>) {
         val pluginName = pluginInfo.name
-        registerModule(pluginName, Path("/$pluginName/${pluginInfo.main}"))
+        val mainPath = this.fakeFileSystem.getPath("\$plugins", pluginName, pluginInfo.main)
+        registerModule(pluginName, mainPath)
 
-        pluginData.eachAll { k,v ->
-           scriptFileSystem["/$pluginName/$k"] = v
+        pluginData.eachAll { _,v ->
+           scriptFileSystem[mainPath.toString()] = v
         }
 
         modules[pluginInfo, RandomUtils.getRandomIetterString(10)]
@@ -180,20 +187,22 @@ class JavaScriptPluginGlobalContext {
                     .allowMapAccess(true)
                     .build())
                 .allowHostClassLookup { _ -> true }
-                .fileSystem(getOnlyReadFileSystem(scriptFileSystem))
+                .fileSystem(getOnlyReadFileSystem(this.scriptFileSystem, this.fakeFileSystem))
                 .allowIO(true)
                 .build()
             cx.enter()
+            cx.getBindings("js")
+                .putMember("RwHps", rwhpsObject)
 
             ScriptResUtils.setFileSystem(scriptFileSystem)
 
             var loadScript = ""
             modules.eachAll { pluginInfo,v ->
-                loadScript += "export { default as $v } from '/${pluginInfo.name}/${pluginInfo.main}';"
+                loadScript += "export { default as $v } from '/\$plugins/${pluginInfo.name}/${pluginInfo.main}';"
                 loadScript += Data.LINE_SEPARATOR
             }
 
-            val defaults = cx.eval(Source.newBuilder("js", loadScript, "\$load.mjs").build())
+            val defaults = cx.eval(Source.newBuilder("js", loadScript, "/\$work/\$load.mjs").build())
 
             return Seq<PluginLoadData>().apply {
                 modules.eachAll { pluginInfo,v ->
@@ -243,7 +252,10 @@ class JavaScriptPluginGlobalContext {
      * @param fileSystem OrderedMap<String, ByteArray>
      * @return FileSystem
      */
-    private fun getOnlyReadFileSystem(fileSystem: OrderedMap<String, ByteArray>): FileSystem {
+    private fun getOnlyReadFileSystem(
+        fileSystem: OrderedMap<String, ByteArray>,
+        fakeFileSystem: java.nio.file.FileSystem
+    ): FileSystem {
         return object: FileSystem { override fun parsePath(uri: URI?): Path {
                 return parsePath(uri.toString())
             }
@@ -259,13 +271,13 @@ class JavaScriptPluginGlobalContext {
                 val parsedPath = when {
                     //完整路径
                     path.contains("..") || path.startsWith("./") || path.startsWith("/") -> run {
-                        Path(path)
+                        fakeFileSystem.getPath(path)
                     }
-                    //插件入口快捷方式
-                    path.startsWith("@") -> moduleMap[path.removePrefix("@")] ?: ScriptResUtils.defPath
                     //java注入类型快捷访问方式
-                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: ScriptResUtils.defPath
+                    path.startsWith("java:///") -> javaMap[path.removePrefix("java:///")] ?: fakeFileSystem.getPath("/")
+                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: fakeFileSystem.getPath("/")
                     // URL
+                    // TODO: 需要修改
                     path.startsWith("http://") || path.startsWith("https://") -> {
                         val js = HttpRequestOkHttp.doGet(path)
                         if (!urlMap.contains(path)) {
@@ -275,13 +287,13 @@ class JavaScriptPluginGlobalContext {
                         Path(path)
                     }
                     // 与直接文件路径没有区别
-                    path.startsWith("file://") -> ScriptResUtils.defPath.resolve(path.removePrefix("file://"))
+                    path.startsWith("plugins://") -> fakeFileSystem.getPath(path.removePrefix("plugins://"))
                     // 直接引用插件模块
                     !path.contains("/") -> run {
-                        moduleMap[path] ?: ScriptResUtils.defPath.resolve(path)
+                        moduleMap[path] ?: fakeFileSystem.getPath(path)
                     }
                     // Other
-                    else -> ScriptResUtils.defPath.resolve(path)
+                    else -> fakeFileSystem.getPath(path)
                 }
                 return parsedPath
             }
@@ -313,6 +325,7 @@ class JavaScriptPluginGlobalContext {
             }
 
             override fun newByteChannel(path: Path, options: MutableSet<out OpenOption>?, vararg attrs: FileAttribute<*>?): SeekableByteChannel {
+                // TODO:需要修改加载wasm的部分
                 val bytes = if(path.toString().endsWith(".wasm")) {
                     """
                         const ScriptResUtils = Java.type('net.rwhps.server.util.plugin.ScriptResUtils')
@@ -343,14 +356,14 @@ class JavaScriptPluginGlobalContext {
              * @return Path
              */
             override fun toAbsolutePath(path: Path): Path {
-                return path
+                return path.toAbsolutePath()
             }
             /**
              * toRealPath Ignored, Because the RAM File System does not need it
              * @param path Path
              * @return Path
              */override fun toRealPath(path: Path, vararg linkOptions: LinkOption?): Path {
-                return path
+                return path.toRealPath()
             }
 
             override fun readAttributes(path: Path?, attributes: String?, vararg options: LinkOption?): MutableMap<String, Any> {

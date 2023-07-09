@@ -37,18 +37,21 @@ class PluginFileSystem: FileSystem() {
 
     override fun getPath(first: String, vararg more: String?): Path {
         val fragments = Seq<String>()
-        val abs = if(more.isNotEmpty()) {
-            more[0] == "/"
-        } else {
-            false
-        }
+        val abs = first.startsWith("/")
         if(abs) {
             fragments.add("/")
         }
+        first.split("/").forEach { str ->
+            val str1 = str.trim().removePrefix("/").removeSuffix("/")
+            if(str1.isNotEmpty()) {
+                fragments.add(str1)
+            }
+        }
         more.forEach { str ->
             str?.split("/")?.forEach { str1 ->
-                if(str1.trim().isNotEmpty()) {
-                    fragments.add(str1.trim())
+                val str2 = str1.trim().removePrefix("/").removeSuffix("/")
+                if(str2.isNotEmpty()) {
+                    fragments.add(str2)
                 }
             }
         }
@@ -71,6 +74,7 @@ class PluginFileSystem: FileSystem() {
         private val fileSystem: PluginFileSystem,
         vararg val fragments: String
     ): Path {
+
         override fun compareTo(other: Path): Int {
             return this.toString().compareTo(other.toString())
         }
@@ -133,21 +137,32 @@ class PluginFileSystem: FileSystem() {
                             nFragments.pop()
                         }
                     }
+                    else -> {
+                        nFragments.add(str)
+                    }
                 }
             }
             return this.fileSystem.getPath("", *nFragments.toArray(String::class.java))
         }
 
-        override fun resolve(other: Path): Path = this.fileSystem.getPath(this.toString(), other.toString())
+        override fun resolve(other: Path): Path = if(other.isAbsolute) {
+            other
+        } else {
+            this.fileSystem.getPath(this.toString(), other.toString())
+        }
 
         override fun relativize(other: Path): Path = this.fileSystem.getPath(other.toString().removePrefix(this.toString()))
 
-        override fun toUri(): URI = URI("plugins:///${this.normalize().toString()}")
+        override fun toUri(): URI = URI("ram:///${this.normalize().toString()}")
 
         override fun toAbsolutePath(): Path = this.fileSystem.getRoot().resolve(this)
 
         override fun toRealPath(vararg options: LinkOption?): Path = this.toAbsolutePath()
 
-        override fun toString(): String = this.fragments.joinToString("/")
+        override fun toString(): String = if(this.fragments.isNotEmpty() && this.fragments.first() == "/") {
+            "/" + this.fragments.slice(1 until fragments.size).joinToString("/")
+        } else {
+            this.fragments.joinToString("/")
+        }
     }
 }

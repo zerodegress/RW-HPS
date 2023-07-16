@@ -146,6 +146,14 @@ internal class ServerCommands(handler: CommandHandler) {
         handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
             room.playerManage.playerGroup.eachAll { e: PlayerHess -> e.muteTime = 0 }
         }
+        handler.register("team", "<PlayerPositionNumber> <Team>", "serverCommands.team") { arg: Array<String> ->
+            val site = arg[0].toInt() - 1
+            val team = arg[1].toInt() - 1
+            val player = room.playerManage.getPlayerArray(site)
+            if (player != null) {
+                player.team = team
+            }
+        }
     }
 
     private fun registerPlayerStatusCommand(handler: CommandHandler) {

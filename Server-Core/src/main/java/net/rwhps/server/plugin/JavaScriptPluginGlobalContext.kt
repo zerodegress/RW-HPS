@@ -42,8 +42,6 @@ import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.plugin.PluginFileSystem
-import net.rwhps.server.util.plugin.ScriptResUtils
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.PolyglotAccess
@@ -70,7 +68,7 @@ class JavaScriptPluginGlobalContext {
     private val javaMap = ObjectMap<String, Path>()
     private val scriptFileSystem = OrderedMap<String, ByteArray>()
     private val modules = ObjectMap<BeanPluginInfo, String>()
-    private val fakeFileSystem = PluginFileSystem()
+    private val fakeFileSystem = FakeFileSystem()
     private val truffleFileSystem = getOnlyReadFileSystem(this.fakeFileSystem)
     private val rwhpsObject = RwHpsJS(this)
     class RwHpsJS(
@@ -133,8 +131,6 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<Prov<Any>>()
         injectJavaClass<Base64>()
         injectJavaClass<Log>()
-
-        injectJavaClass<ScriptResUtils>()
         injectJavaClass<ByteBuffer>()
     }
 
@@ -208,8 +204,6 @@ class JavaScriptPluginGlobalContext {
             cx.getBindings("js")
                 .putMember("RwHps", rwhpsObject)
             cx.enter()
-
-            ScriptResUtils.setFileSystem(scriptFileSystem)
 
             var loadScript = ""
             modules.eachAll { pluginInfo,v ->

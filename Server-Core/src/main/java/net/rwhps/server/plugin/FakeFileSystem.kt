@@ -1,4 +1,4 @@
-package net.rwhps.server.util.plugin
+package net.rwhps.server.plugin
 
 import net.rwhps.server.struct.Seq
 import java.net.URI
@@ -6,7 +6,7 @@ import java.nio.file.*
 import java.nio.file.attribute.UserPrincipalLookupService
 import java.nio.file.spi.FileSystemProvider
 
-class PluginFileSystem: FileSystem() {
+class FakeFileSystem: FileSystem() {
     private var isOpen = true
     private val rootDir = PluginFileSystemPath(this, "/")
 
@@ -71,7 +71,7 @@ class PluginFileSystem: FileSystem() {
     }
 
     private class PluginFileSystemPath(
-        private val fileSystem: PluginFileSystem,
+        private val fileSystem: FakeFileSystem,
         vararg val fragments: String
     ): Path {
 

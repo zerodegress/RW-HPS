@@ -1,11 +1,10 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.plugin.PluginFileSystem
 import org.junit.jupiter.api.Test
 
-class PluginFileSystemTest {
-    private val fakeFileSystem = PluginFileSystem()
+class FakeFileSystemTest {
+    private val fakeFileSystem = FakeFileSystem()
     init {
         Log.set("DEBUG")
         Log.setCopyPrint(true)

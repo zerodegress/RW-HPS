@@ -7,7 +7,7 @@
 ![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)
 ![](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)
 
-[Engilsh version / 英文介绍](README.md) **or** [Chinese version / 中文介绍](README-CN.md)  
+[English version / 英文介绍](README.md) **or** [Chinese version / 中文介绍](README-CN.md)  
 **RW-HPS** is a **Rusted Warfare** game server  
 Used to quickly set up high-performance game servers on servers running Java11  
 Provide players with the same gaming experience as the official server  
@@ -26,7 +26,7 @@ _**生命不息，折腾不止**_
 - Update log: [release](https://github.com/RW-HPS/RW-HPS/releases)
 - Development milestones: [milestones](https://github.com/RW-HPS/RW-HPS/milestones)
 - Discussion:
-  > The developemenet team is actively answering questions on Github Discussions, please feel free to share you ideas about this project.  
+  > The development team is actively answering questions on Github Discussions, please feel free to share you ideas about this project.  
   > Email contact: dr@der.kim      
   > Tencent QQ Group: [901913920](https://qm.qq.com/cgi-bin/qm/qr?k=qhJ6ekYF9pD9jO6j8H2rZw8ePAVypoU0&jump_from=webapi)  
   > <del>Telegram Group: [RW-HPS](https://t.me/RW_HPS) </del>  

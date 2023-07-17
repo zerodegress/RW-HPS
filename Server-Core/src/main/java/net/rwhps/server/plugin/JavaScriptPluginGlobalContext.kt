@@ -275,7 +275,7 @@ class JavaScriptPluginGlobalContext {
                     "plugin" -> {
                         toPath += "/plugins/${uri.host}"
                         if(uri.path.isBlank()) {
-                            toPath = (moduleMap[uri.host]).toString()
+                            toPath = moduleMap[uri.host].toString()
                         }
                     }
                     "java" -> toPath += "/java/${uri.host}${uri.path}"
@@ -364,7 +364,7 @@ class JavaScriptPluginGlobalContext {
                     ]
                     else -> scriptFileSystem[pathString]
                 }
-                return SyncByteArrayChannel((when {
+                return SyncByteArrayChannel(when {
                     pathString.startsWith("/web") -> bytes
                     fragment.isBlank() -> when {
                         query.isBlank() -> bytes
@@ -395,7 +395,7 @@ class JavaScriptPluginGlobalContext {
                         else -> null
                     }
                     else -> null
-                }).ifNullResult(IOUtils.EMPTY_BYTE_ARRAY) { it },true)
+                }.ifNullResult(IOUtils.EMPTY_BYTE_ARRAY) { it },true)
             }
 
             override fun newDirectoryStream(dir: Path?, filter: DirectoryStream.Filter<in Path>?): DirectoryStream<Path> {

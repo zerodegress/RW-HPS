@@ -27,14 +27,14 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin1 = OrderedMap<String, ByteArray>().apply {
-            put("/\$plugins/a/index.js", ExtractUtils.bytes("""
+            put("/plugins/a/index.js", ExtractUtils.bytes("""
                 export const a = 10
                 export default new (Java.extend(Plugin, {}))()
             """.trimIndent()))
         }
 
         val plugin2 = OrderedMap<String, ByteArray>().apply {
-            put("/\$plugins/b/index.js", ExtractUtils.bytes("""
+            put("/plugins/b/index.js", ExtractUtils.bytes("""
                 import { a } from "a"
                 export default new (Java.extend(Plugin, {
                     onEnable() {
@@ -86,5 +86,141 @@ class JavaScriptPluginTest {
 //
 //        oneClassOnlyOneFile.onEnable()
 //        oneClassOnlyOneFile.init()
+    }
+
+    @Test
+    fun readPluginFile() {
+        val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
+
+        val plugin = OrderedMap<String, ByteArray>().apply {
+            put("/plugins/a/index.json", ExtractUtils.bytes("""
+                {
+                    "hello": "world"
+                }
+            """.trimIndent()))
+
+            put("/plugins/a/index.js", ExtractUtils.bytes("""
+                import a from './index.js/?text'
+                import b from './index.json/?json'
+                export default new (Java.extend(Plugin, {
+                    onEnable() {
+                        console.log(a)
+                        console.log(JSON.stringfy(b))
+                    }
+                }))()
+            """.trimIndent()))
+        }
+
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "a",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin)
+
+        scriptPluginGlobalContext.loadESMPlugins().eachAll {
+            it.main.onEnable()
+            it.main.init()
+        }
+
+    }
+
+    @Test
+    fun fetchWeb() {
+        val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
+
+        val plugin = OrderedMap<String, ByteArray>().apply {
+            put("/plugins/a/index.js", ExtractUtils.bytes("""
+                import a from 'https://github.com'
+                
+                export default new (Java.extend(Plugin, {
+                    onEnable() {
+                        console.log(a)
+                    }
+                }))()
+            """.trimIndent()))
+        }
+
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "a",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin)
+
+        scriptPluginGlobalContext.loadESMPlugins().eachAll {
+            it.main.onEnable()
+            it.main.init()
+        }
+    }
+
+    @Test
+    fun urlImport() {
+        val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
+
+        val plugin1 = OrderedMap<String, ByteArray>().apply {
+            put(
+                "/plugins/a/index.js", ExtractUtils.bytes(
+                    """
+                export const a = 10
+                export default new (Java.extend(Plugin, {}))()
+            """.trimIndent()
+                )
+            )
+        }
+
+        val plugin3 = OrderedMap<String, ByteArray>().apply {
+            put(
+                "/plugins/c/index.js", ExtractUtils.bytes(
+                    """
+                export const c = 100
+                export default new (Java.extend(Plugin, {}))()
+            """.trimIndent()
+                )
+            )
+        }
+
+        val plugin2 = OrderedMap<String, ByteArray>().apply {
+            put(
+                "/plugins/b/index.js", ExtractUtils.bytes(
+                    """
+                import { a } from "plugin://a"
+                import { c } from "ram:///plugins/a/index.js"
+                export default new (Java.extend(Plugin, {
+                    onEnable() {
+                        console.log(a)
+                    }
+                }))()
+            """.trimIndent()
+                )
+            )
+        }
+
+        // 这个是模块化, 可以使用import/export
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "a",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin1
+        )
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "b",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin2
+        )
+        scriptPluginGlobalContext.addESMPlugin(
+            BeanPluginInfo(
+                name = "c",
+                author = "zerodegress",
+                main = "index.js"
+            ), plugin3
+        )
+        scriptPluginGlobalContext.loadESMPlugins().eachAll {
+            it.main.onEnable()
+            it.main.init()
+        }
     }
 }

@@ -131,7 +131,7 @@ class FakeFileSystem: FileSystem() {
                 when (str) {
                     "." -> {}
                     ".." -> {
-                        if(nFragments.isEmpty() || (nFragments.isNotEmpty() && (nFragments.last() == "/"))) {
+                        if(nFragments.isEmpty() || (nFragments.isNotEmpty() && nFragments.last() == "/")) {
                             nFragments.add(str)
                         } else {
                             nFragments.pop()

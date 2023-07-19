@@ -27,16 +27,16 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin1 = OrderedMap<String, ByteArray>().apply {
-            put("/plugins/a/index.js", ExtractUtils.bytes("""
+            put("index.js", ExtractUtils.bytes("""
                 export const a = 10
-                export default new (Java.extend(Plugin, {}))()
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {}))()
             """.trimIndent()))
         }
 
         val plugin2 = OrderedMap<String, ByteArray>().apply {
-            put("/plugins/b/index.js", ExtractUtils.bytes("""
+            put("index.js", ExtractUtils.bytes("""
                 import { a } from "a"
-                export default new (Java.extend(Plugin, {
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
                     onEnable() {
                         console.log(a)
                     }
@@ -93,19 +93,19 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin = OrderedMap<String, ByteArray>().apply {
-            put("/plugins/a/index.json", ExtractUtils.bytes("""
+            put("index.json", ExtractUtils.bytes("""
                 {
                     "hello": "world"
                 }
             """.trimIndent()))
 
-            put("/plugins/a/index.js", ExtractUtils.bytes("""
+            put("index.js", ExtractUtils.bytes("""
                 import a from './index.js/?text'
                 import b from './index.json/?json'
-                export default new (Java.extend(Plugin, {
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
                     onEnable() {
                         console.log(a)
-                        console.log(JSON.stringfy(b))
+                        console.log(JSON.stringify(b))
                     }
                 }))()
             """.trimIndent()))
@@ -130,10 +130,10 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin = OrderedMap<String, ByteArray>().apply {
-            put("/plugins/a/index.js", ExtractUtils.bytes("""
-                import a from 'https://github.com'
+            put("index.js", ExtractUtils.bytes("""
+                const a = RwHps.readRamText('https://www.baidu.com')
                 
-                export default new (Java.extend(Plugin, {
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
                     onEnable() {
                         console.log(a)
                     }
@@ -159,40 +159,35 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin1 = OrderedMap<String, ByteArray>().apply {
-            put(
-                "/plugins/a/index.js", ExtractUtils.bytes(
-                    """
+            put("index.js", ExtractUtils.bytes("""
                 export const a = 10
-                export default new (Java.extend(Plugin, {}))()
-            """.trimIndent()
-                )
-            )
-        }
-
-        val plugin3 = OrderedMap<String, ByteArray>().apply {
-            put(
-                "/plugins/c/index.js", ExtractUtils.bytes(
-                    """
-                export const c = 100
-                export default new (Java.extend(Plugin, {}))()
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {}))()
             """.trimIndent()
                 )
             )
         }
 
         val plugin2 = OrderedMap<String, ByteArray>().apply {
-            put(
-                "/plugins/b/index.js", ExtractUtils.bytes(
-                    """
+            put("index.js", ExtractUtils.bytes("""
                 import { a } from "plugin://a"
-                import { c } from "ram:///plugins/a/index.js"
-                export default new (Java.extend(Plugin, {
+                import { c } from "ram:///plugins/c/index.js"
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
                     onEnable() {
                         console.log(a)
+                        console.log(c)
                     }
                 }))()
             """.trimIndent()
                 )
+            )
+        }
+
+        val plugin3 = OrderedMap<String, ByteArray>().apply {
+            put("index.js", ExtractUtils.bytes("""
+                export const c = 100
+                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {}))()
+            """.trimIndent()
+            )
             )
         }
 

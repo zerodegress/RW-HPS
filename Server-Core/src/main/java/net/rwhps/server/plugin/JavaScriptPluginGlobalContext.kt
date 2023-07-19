@@ -168,7 +168,9 @@ class JavaScriptPluginGlobalContext {
         registerModule(pluginName, mainPath)
 
         pluginData.eachAll { k,v ->
-           scriptFileSystem[fakeFileSystem.getPath("/plugins", pluginName, k).toString()] = v
+            val path = fakeFileSystem.getPath("/plugins", pluginName, k)
+            scriptFileSystem[path.toString()] = v
+            fakeFileSystem.addFile(path)
         }
 
         modules[pluginInfo, RandomUtils.getRandomIetterString(10)]
@@ -268,7 +270,6 @@ class JavaScriptPluginGlobalContext {
                 if(uri == null) {
                     return fakeFileSystem.getPath("/null")
                 }
-                println("uri from: $uri")
                 var toPath = ""
                 when(uri.scheme) {
                     "ram" -> toPath += uri.path
@@ -289,7 +290,6 @@ class JavaScriptPluginGlobalContext {
                 if(uri.fragment != null) {
                     toPath = toPath.removeSuffix("/") + "/#${uri.fragment}"
                 }
-                println("uri to: $toPath")
                 return fakeFileSystem.getPath(toPath)
             }
 
@@ -297,9 +297,7 @@ class JavaScriptPluginGlobalContext {
                 if (path == null) {
                     return fakeFileSystem.getPath("/null")
                 }
-                println("str from: $path")
                 return if(path.startsWith("../") || path.startsWith("./") || path.startsWith("/")) {
-                    println("str to: $path")
                     fakeFileSystem.getPath(path)
                 } else {
                     try {
@@ -349,7 +347,7 @@ class JavaScriptPluginGlobalContext {
                 }
                 val bytes = when {
                     pathString.startsWith("/web") -> {
-                        val webReg = Regex("^/web/(http|https)(.+?)(/\\?[^?#]+)?(/#[^#]+)?\$")
+                        val webReg = Regex("^/web/(https|http)(.+?)(/\\?[^?#]+)?(/#[^#]+)?\$")
                         val webRes = webReg.matchEntire(pathString)
                         if(webRes != null) {
                             val list = webRes.groupValues

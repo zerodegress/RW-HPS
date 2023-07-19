@@ -9,6 +9,7 @@ import java.nio.file.spi.FileSystemProvider
 class FakeFileSystem: FileSystem() {
     private var isOpen = true
     private val rootDir = PluginFileSystemPath(this, "/")
+    private val files = Seq<Path>()
 
     fun getRoot(): Path = rootDir
     override fun close() {
@@ -70,6 +71,10 @@ class FakeFileSystem: FileSystem() {
         TODO("Not yet implemented")
     }
 
+    fun addFile(filePath: Path) {
+        files.add(filePath)
+    }
+
     private class PluginFileSystemPath(
         private val fileSystem: FakeFileSystem,
         vararg val fragments: String
@@ -109,7 +114,7 @@ class FakeFileSystem: FileSystem() {
             this.fileSystem.getPath("/")
         } else {
             this.fileSystem.getPath(
-                this.fragments.slice(0 until this.fragments.size).joinToString("/")
+                this.fragments.slice(0 until this.fragments.size - 1).joinToString("/")
             )
         }
 
@@ -148,7 +153,11 @@ class FakeFileSystem: FileSystem() {
         override fun resolve(other: Path): Path = if(other.isAbsolute) {
             other
         } else {
-            this.fileSystem.getPath(this.toString(), other.toString())
+            if(fileSystem.files.find { o -> o.toString() == this.toString() } != null) {
+                this.parent.resolve(other)
+            } else {
+                this.fileSystem.getPath(this.toString(), other.toString())
+            }
         }
 
         override fun relativize(other: Path): Path = this.fileSystem.getPath(other.toString().removePrefix(this.toString()))

@@ -308,6 +308,8 @@ class Initialization {
             FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll(libImport)
             FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/implementation.txt").readFileListString().eachAll(libImport)
 
+            libraryManager.customImportLib(FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("wasm.jar"))
+
             libraryManager.loadToClassLoader()
         }
 

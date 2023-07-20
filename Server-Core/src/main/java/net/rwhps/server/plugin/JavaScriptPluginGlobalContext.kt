@@ -36,14 +36,12 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.RandomUtils
-import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.plugin.ScriptResUtils
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.PolyglotAccess
@@ -57,8 +55,6 @@ import java.nio.file.*
 import java.nio.file.attribute.FileAttribute
 import java.util.*
 import kotlin.io.path.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.pathString
 
 /**
  * 插件全局上下文
@@ -70,9 +66,30 @@ import kotlin.io.path.pathString
 class JavaScriptPluginGlobalContext {
     private val moduleMap = ObjectMap<String, Path>()
     private val javaMap = ObjectMap<String, Path>()
-    private val urlMap = Seq<String>()
     private val scriptFileSystem = OrderedMap<String, ByteArray>()
     private val modules = ObjectMap<BeanPluginInfo, String>()
+    private val fakeFileSystem = FakeFileSystem()
+    private val truffleFileSystem = getOnlyReadFileSystem(this.fakeFileSystem)
+    private val rwhpsObject = RwHpsJS(this)
+    class RwHpsJS(
+        private val context: JavaScriptPluginGlobalContext
+    ) {
+        fun readRamBytes(path: String): ByteArray? {
+            return if(path.startsWith("/")) {
+                context.scriptFileSystem[path]
+            } else {
+                context.scriptFileSystem[context.truffleFileSystem.parsePath(URI(path)).toString()]
+            }
+        }
+
+        fun readRamText(path: String): String? {
+            return if(path.startsWith("/")) {
+                context.scriptFileSystem[path]
+            } else {
+                context.scriptFileSystem[context.truffleFileSystem.parsePath(URI(path)).toString()]
+            }?.decodeToString()
+        }
+    }
 
     init {
         injectJavaClass<AbstractDecoder>()
@@ -82,13 +99,12 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<ConnectionAgreement>()
         injectJavaClass<CompressOutputStream>()
         injectJavaClass<CommandHandler>()
-        injectJavaClass<CommandHandler.Command>()
-        injectJavaClass<CommandHandler.CommandResponse>()
-        injectJavaClass<CommandHandler.CommandRunner<Any>>()
-        injectJavaClass<CommandHandler.ResponseType>()
+        injectJavaClass<CommandHandler.Command>("Command")
+        injectJavaClass<CommandHandler.CommandResponse>("CommandResponse")
+        injectJavaClass<CommandHandler.CommandRunner<Any>>("CommandRunner")
+        injectJavaClass<CommandHandler.ResponseType>("ResponseType")
         injectJavaClass<ConsMap<Any, Any>>()
         injectJavaClass<ConsSeq<Any>>()
-        injectJavaClass<ConnectionAgreement>()
         injectJavaClass<DisableSyncByteArrayOutputStream>()
         injectJavaClass<DataPermissionStatus.ServerStatus>("ServerStatus")
         injectJavaClass<File>()
@@ -115,8 +131,6 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<Prov<Any>>()
         injectJavaClass<Base64>()
         injectJavaClass<Log>()
-
-        injectJavaClass<ScriptResUtils>()
         injectJavaClass<ByteBuffer>()
     }
 
@@ -150,10 +164,13 @@ class JavaScriptPluginGlobalContext {
      */
     fun addESMPlugin(pluginInfo: BeanPluginInfo, pluginData: OrderedMap<String, ByteArray>) {
         val pluginName = pluginInfo.name
-        registerModule(pluginName, Path("/$pluginName/${pluginInfo.main}"))
+        val mainPath = this.fakeFileSystem.getPath("/plugins", pluginName, pluginInfo.main)
+        registerModule(pluginName, mainPath)
 
         pluginData.eachAll { k,v ->
-           scriptFileSystem["/$pluginName/$k"] = v
+            val path = fakeFileSystem.getPath("/plugins", pluginName, k)
+            scriptFileSystem[path.toString()] = v
+            fakeFileSystem.addFile(path)
         }
 
         modules[pluginInfo, RandomUtils.getRandomIetterString(10)]
@@ -183,20 +200,20 @@ class JavaScriptPluginGlobalContext {
                     .allowMapAccess(true)
                     .build())
                 .allowHostClassLookup { _ -> true }
-                .fileSystem(getOnlyReadFileSystem(scriptFileSystem))
+                .fileSystem(this.truffleFileSystem)
                 .allowIO(true)
                 .build()
+            cx.getBindings("js")
+                .putMember("RwHps", rwhpsObject)
             cx.enter()
-
-            ScriptResUtils.setFileSystem(scriptFileSystem)
 
             var loadScript = ""
             modules.eachAll { pluginInfo,v ->
-                loadScript += "export { default as $v } from '/${pluginInfo.name}/${pluginInfo.main}';"
+                loadScript += "export { default as $v } from '${pluginInfo.name}';"
                 loadScript += Data.LINE_SEPARATOR
             }
 
-            val defaults = cx.eval(Source.newBuilder("js", loadScript, "\$load.mjs").build())
+            val defaults = cx.eval(Source.newBuilder("js", loadScript, "/work/load.mjs").build())
 
             return Seq<PluginLoadData>().apply {
                 modules.eachAll { pluginInfo,v ->
@@ -224,7 +241,7 @@ class JavaScriptPluginGlobalContext {
      */
     private inline fun <reified T> injectJavaClass(rename: String? = null) {
         val packageName = T::class.java.`package`.name
-        val packagePathAll = "/\$java/$packageName/index.mjs"
+        val packagePathAll = "/java/$packageName/index.mjs"
 
         if(!javaMap.containsKey(packageName)) {
             registerJavaPackage(packageName, Path(packagePathAll))
@@ -243,42 +260,52 @@ class JavaScriptPluginGlobalContext {
     /**
      * RamFileSystem
      *
-     * @param fileSystem OrderedMap<String, ByteArray>
      * @return FileSystem
      */
-    private fun getOnlyReadFileSystem(fileSystem: OrderedMap<String, ByteArray>): FileSystem {
-        return object: FileSystem { override fun parsePath(uri: URI?): Path {
-                return parsePath(uri.toString())
+    private fun getOnlyReadFileSystem(
+        fakeFileSystem: java.nio.file.FileSystem
+    ): FileSystem {
+        return object: FileSystem {
+            override fun parsePath(uri: URI?): Path {
+                if(uri == null) {
+                    return fakeFileSystem.getPath("/null")
+                }
+                var toPath = ""
+                when(uri.scheme) {
+                    "ram" -> toPath += uri.path
+                    "plugin" -> {
+                        toPath += "/plugins/${uri.host}"
+                        if(uri.path.isBlank()) {
+                            toPath = moduleMap[uri.host].toString()
+                        }
+                    }
+                    "java" -> toPath += "/java/${uri.host}${uri.path}"
+                    "http" -> toPath += "/web/http/${uri.authority}${uri.path}"
+                    "https" -> toPath += "/web/https/${uri.authority}${uri.path}"
+                    else -> parsePath(uri.rawPath)
+                }
+                if(uri.query != null) {
+                    toPath = toPath.removeSuffix("/") + "/?${uri.query}"
+                }
+                if(uri.fragment != null) {
+                    toPath = toPath.removeSuffix("/") + "/#${uri.fragment}"
+                }
+                return fakeFileSystem.getPath(toPath)
             }
 
             override fun parsePath(path: String?): Path {
                 if (path == null) {
-                    return ScriptResUtils.defPath
+                    return fakeFileSystem.getPath("/null")
                 }
-                /*
-                 * 我们在这里使用 contains(".."), 来识别以下路径
-                 *  /a/../a.mjs 将被解析成 /a.mjs
-                 */
-                val parsedPath = when {
-                    //完整路径
-                    path.contains("..") || path.startsWith("./") || path.startsWith("/") -> Path(path)
-                    //插件入口快捷方式
-                    path.startsWith("@") -> moduleMap[path.removePrefix("@")] ?: ScriptResUtils.defPath
-                    //java注入类型快捷访问方式
-                    path.startsWith("java:") -> javaMap[path.removePrefix("java:")] ?: ScriptResUtils.defPath
-                    // URL
-                    path.startsWith("http://") || path.startsWith("https://") -> {
-                        val js = HttpRequestOkHttp.doGet(path)
-                        if (!urlMap.contains(path)) {
-                            urlMap.add(path)
-                            scriptFileSystem[path] = js.toByteArray()
-                        }
-                        Path(path)
+                return if(path.startsWith("../") || path.startsWith("./") || path.startsWith("/")) {
+                    fakeFileSystem.getPath(path)
+                } else {
+                    try {
+                        parsePath(URI("plugin://$path"))
+                    } catch (e: java.net.URISyntaxException) {
+                        fakeFileSystem.getPath("/null")
                     }
-                    // Other
-                    else -> ScriptResUtils.defPath.resolve(path)
                 }
-                return parsedPath
             }
 
             /**
@@ -308,8 +335,65 @@ class JavaScriptPluginGlobalContext {
             }
 
             override fun newByteChannel(path: Path, options: MutableSet<out OpenOption>?, vararg attrs: FileAttribute<*>?): SeekableByteChannel {
-                val bytes = fileSystem[path.pathString.replace("\\","/")]
-                return SyncByteArrayChannel(bytes.ifNullResult(IOUtils.EMPTY_BYTE_ARRAY) { it },true)
+                var pathString = path.toString()
+                val reg = Regex("^(.+?)(/\\?[^?#]+)?(/#[^#]+)?\$")
+                val res = reg.matchEntire(pathString)
+                var query = ""
+                var fragment = ""
+                if(res != null) {
+                    pathString = res.groupValues[1]
+                    query = res.groupValues[2].removePrefix("/?")
+                    fragment = res.groupValues[3].removePrefix("/#")
+                }
+                val bytes = when {
+                    pathString.startsWith("/web") -> {
+                        val webReg = Regex("^/web/(https|http)(.+?)(/\\?[^?#]+)?(/#[^#]+)?\$")
+                        val webRes = webReg.matchEntire(pathString)
+                        if(webRes != null) {
+                            val list = webRes.groupValues
+                            val uri = "${list[1]}://${list[2]}${list[3].removePrefix("/")}${list[4].removePrefix("/")}"
+                            HttpRequestOkHttp.doGet(uri).toByteArray()
+                        } else {
+                            null
+                        }
+                    }
+                    pathString.matches(Regex("^/plugins/[^/]+\$")) -> scriptFileSystem[
+                        moduleMap[pathString.removePrefix("/plugins/")].toString()
+                    ]
+                    else -> scriptFileSystem[pathString]
+                }
+                return SyncByteArrayChannel(when {
+                    pathString.startsWith("/web") -> bytes
+                    fragment.isBlank() -> when {
+                        query.isBlank() -> bytes
+                        query == "bytes" -> """
+                            const bytes = new Uint8Array(RwHps.readRamBytes('$pathString'));
+                            export default bytes;
+                            export const url = 'ram://$pathString';
+                            export const type = 'bytes';
+                        """.trimIndent().encodeToByteArray()
+                        query == "text" -> """
+                            const text = RwHps.readRamText('$pathString');
+                            export default text;
+                            export const url = 'ram://$pathString';
+                            export const type = 'text';
+                        """.trimIndent().encodeToByteArray()
+                        query == "json" -> """
+                            const json = JSON.parse(RwHps.readRamText('$pathString'));
+                            export default json;
+                            export const url = 'ram://$pathString';
+                            export const type = 'json';
+                        """.trimIndent().encodeToByteArray()
+                        query == "wasm" -> """
+                            const wasm = WebAssembly.instantiate(new Uint8Array(RwHps.readRamBytes('$pathString')),{});
+                            export default wasm
+                            export const url = 'ram://$pathString';
+                            export const type = 'wasm';
+                        """.trimIndent().encodeToByteArray()
+                        else -> null
+                    }
+                    else -> null
+                }.ifNullResult(IOUtils.EMPTY_BYTE_ARRAY) { it },true)
             }
 
             override fun newDirectoryStream(dir: Path?, filter: DirectoryStream.Filter<in Path>?): DirectoryStream<Path> {
@@ -323,14 +407,14 @@ class JavaScriptPluginGlobalContext {
              * @return Path
              */
             override fun toAbsolutePath(path: Path): Path {
-                return path
+                return path.toAbsolutePath()
             }
             /**
              * toRealPath Ignored, Because the RAM File System does not need it
              * @param path Path
              * @return Path
              */override fun toRealPath(path: Path, vararg linkOptions: LinkOption?): Path {
-                return path
+                return path.toRealPath()
             }
 
             override fun readAttributes(path: Path?, attributes: String?, vararg options: LinkOption?): MutableMap<String, Any> {

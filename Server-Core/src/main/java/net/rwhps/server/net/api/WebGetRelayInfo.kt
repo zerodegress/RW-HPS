@@ -15,9 +15,9 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.global.Relay
 import net.rwhps.server.net.NetService
+import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
-import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.Time
 import java.util.concurrent.TimeUnit
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * @author RW-HPS/Dr
  */
-class WebGetRelayInfo : WebGet() {
+class WebGetRelayInfo: WebGet() {
 
     override fun get(accept: AcceptWeb, send: SendWeb) {
         send.setData(relayInfo)

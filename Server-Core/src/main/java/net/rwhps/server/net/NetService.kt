@@ -19,18 +19,17 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.core.web.AbstractNetWeb
-import net.rwhps.server.net.handler.rudp.StartGameNetUdp
 import net.rwhps.server.net.handler.tcp.StartGameNetTcp
-import net.rwhps.server.net.handler.tcp.StartGamePortDivider
 import net.rwhps.server.net.http.WebData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
+import net.rwhps.server.util.SystemUtils
+import net.rwhps.server.util.internal.net.rudp.ReliableServerSocket
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.threads.GetNewThreadPool.getEventLoopGroup
 import java.net.BindException
-import java.net.ServerSocket
 
 /**
  * NetGameServer Service
@@ -39,26 +38,23 @@ import java.net.ServerSocket
  * @author RW-HPS/Dr
  */
 class NetService {
-    private val connectChannel = Seq<Channel>(4)
-    private var serverSocket: ServerSocket? = null
-    private var startGameNetUdp: StartGameNetUdp? = null
+    private val closeSeq = Seq<() -> Unit>(4)
     private val start: AbstractNet
     private var errorIgnore = false
 
-    constructor(abstractNet: AbstractNet = if (Data.config.WebGameBypassPort) StartGamePortDivider() else StartGameNetTcp()) {
+    constructor(abstractNet: AbstractNet = StartGameNetTcp()) {
         this.start = abstractNet
         setWebData()
     }
 
     constructor(abstractNetClass: Class<out AbstractNet>) {
-        val startNet: AbstractNet? =
-            try {
-                ReflectionUtils.accessibleConstructor(abstractNetClass).newInstance()
-            } catch (e: Exception) {
-                Log.fatal("[StartNet Load Error] Use default implementation",e)
-                null
-            }
-        this.start = startNet ?:StartGameNetTcp()
+        val startNet: AbstractNet? = try {
+            ReflectionUtils.accessibleConstructor(abstractNetClass).newInstance()
+        } catch (e: Exception) {
+            Log.fatal("[StartNet Load Error] Use default implementation", e)
+            null
+        }
+        this.start = startNet ?: StartGameNetTcp()
         setWebData()
     }
 
@@ -79,7 +75,7 @@ class NetService {
      * @param port Port
      */
     fun openPort(port: Int) {
-        openPort(port,1,0)
+        openPort(port, 1, 0)
     }
 
     /**
@@ -89,12 +85,18 @@ class NetService {
      * @param startPort Start Port
      * @param endPort End Port
      */
-    fun openPort(port: Int,startPort:Int,endPort:Int) {
+    fun openPort(port: Int, startPort: Int, endPort: Int) {
         Data.config.save()
+
+        val threadCount = if (startPort < endPort) {
+            SystemUtils.availableProcessors * 4
+        } else {
+            0
+        }
 
         clog(Data.i18NBundle.getinput("server.start.open"))
         val bossGroup: EventLoopGroup = getEventLoopGroup()
-        val workerGroup: EventLoopGroup = getEventLoopGroup()
+        val workerGroup: EventLoopGroup = getEventLoopGroup(threadCount)
         val runClass: Class<out ServerChannel>
 
         if (Epoll.isAvailable()) {
@@ -104,27 +106,21 @@ class NetService {
         }
         try {
             val serverBootstrapTcp = ServerBootstrap()
-            serverBootstrapTcp.group(bossGroup, workerGroup)
-                .channel(runClass)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                // Tuned sending, compatible with 200Mbps
-                .childOption(ChannelOption.SO_RCVBUF,2048 * 1024)
-                .childOption(ChannelOption.SO_SNDBUF,4096 * 1024)
-                // Corresponds to the largest packet in the decoder, because there will be cases where the received [PacketType.PACKET_FORWARD_CLIENT_TO] size is 50M
-                .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark(minLowWaterMark,maxPacketSizt))
-                .childHandler(start)
+            serverBootstrapTcp.group(bossGroup, workerGroup).channel(runClass)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT).childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true).childHandler(start)
 
             clog(Data.i18NBundle.getinput("server.start.openPort"))
 
             val channelFutureTcp = serverBootstrapTcp.bind(port)
-            for (i in startPort..endPort) {
+            for (i in startPort .. endPort) {
                 serverBootstrapTcp.bind(i)
             }
 
             val start = channelFutureTcp.channel()
-            connectChannel.add(start)
+            closeSeq.add {
+                start.close().sync()
+            }
             clog(Data.i18NBundle.getinput("server.start.end"))
 
             /*
@@ -146,6 +142,33 @@ class NetService {
     }
 
     /**
+     * Start the Game Server in the specified port range
+     *
+     * @param port MainPort
+     * @param startPort Start Port
+     * @param endPort End Port
+     */
+    fun openPortRUDP(port: Int) {
+        clog(Data.i18NBundle.getinput("server.start.open"))
+        try {
+            ReliableServerSocket(port).use {
+                closeSeq.add {
+                    it.close()
+                }
+                while (!it.isClosed) {
+                    it.accept()
+                }
+            }
+        } catch (e: InterruptedException) {
+            if (!errorIgnore) error("[TCP Start Error]", e)
+        } catch (bindError: BindException) {
+            if (!errorIgnore) error("[Port Bind Error]", bindError)
+        } catch (e: Exception) {
+            if (!errorIgnore) error("[NET Error]", e)
+        }
+    }
+
+    /**
      * Get the number of connections
      * @return Int
      */
@@ -155,14 +178,18 @@ class NetService {
 
     fun stop() {
         errorIgnore = true
-        connectChannel.eachAll { obj: Channel -> obj.close().sync() }
+        closeSeq.eachAll {
+            it()
+        }
         errorIgnore = false
     }
 
     companion object {
         const val minLowWaterMark = 512 * 1024
+
         /** Maximum accepted single package size */
         const val maxPacketSizt = 50 * 1024 * 1024
+
         /** Packet header data length */
         const val headerSize = 8
     }

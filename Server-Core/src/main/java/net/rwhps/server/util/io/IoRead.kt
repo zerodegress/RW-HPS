@@ -62,14 +62,14 @@ object IoRead {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyInputStream(inputStream: InputStream, outputStream: OutputStream, back: (Int)->Unit = {}): Int {
+    fun copyInputStream(inputStream: InputStream, outputStream: OutputStream, back: (Int) -> Unit = {}): Int {
         return copyLarge(inputStream, outputStream, ByteArray(DEFAULT_BUFFER_SIZE), back)
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun copyLarge(inputStream: InputStream, outputStream: OutputStream, buffer: ByteArray, back: (Int)->Unit = {}): Int {
-        var len: Int = 0
+    fun copyLarge(inputStream: InputStream, outputStream: OutputStream, buffer: ByteArray, back: (Int) -> Unit = {}): Int {
+        var len = 0
         var n: Int
         while (IOUtils.EOF != inputStream.read(buffer).also { n = it }) {
             outputStream.write(buffer, 0, n)
@@ -79,12 +79,11 @@ object IoRead {
         return len
     }
 
-    class MultiplexingReadStream @JvmOverloads constructor(byteSize: Int = 16384) : Closeable {
+    class MultiplexingReadStream @JvmOverloads constructor(byteSize: Int = 16384): Closeable {
         private val BYTE_BUFFER_SIZE: ByteArray
         private val byteArrayOutputStream: DisableSyncByteArrayOutputStream
 
-        init {
-            /* 使用的默认缓冲区大小 */
+        init {/* 使用的默认缓冲区大小 */
             BYTE_BUFFER_SIZE = ByteArray(byteSize)
             byteArrayOutputStream = DisableSyncByteArrayOutputStream(byteSize)
         }

@@ -19,18 +19,23 @@ interface AbstractPlayerData {
     val survive: Boolean
 
     @GameSimulationLayer.GameSimulationLayer_KeyWords("Units Killed")
-    /** 单位击杀数 */
+            /** 单位击杀数 */
     val unitsKilled: Int
+
     /** 建筑毁灭数 */
     val buildingsKilled: Int
+
     /** 单实验单位击杀数 */
     val experimentalsKilled: Int
+
     /** 单位被击杀数 */
     val unitsLost: Int
+
     /** 建筑被毁灭数 */
     val buildingsLost: Int
+
     /** 单实验单位被击杀数 */
-    val experimentalsLost : Int
+    val experimentalsLost: Int
 
     var credits: Int
 

@@ -57,8 +57,7 @@ object UniversalAnalysisOfGamePackages {
 
         parse.use { inStream ->
             playerRelay.site = inStream.readInt()
-            if (inStream.readBoolean())
-                return
+            if (inStream.readBoolean()) return
             val playerSize = inStream.readInt()
             inStream.getDecodeStream(true).use {
                 for (count in 0 until playerSize) {
@@ -80,8 +79,12 @@ object UniversalAnalysisOfGamePackages {
                         if (parse.parseVersion >= 91) it.skip(5)  // Int+Byte
                         if (parse.parseVersion >= 97) it.skip(2)  // Boolean *2
                         if (parse.parseVersion >= 125) it.skip(6) // Boolean+Boolean+Int
-                        if (parse.parseVersion >= 149) {it.readIsString(); it.skip(4) }// Int
-                        if (parse.parseVersion >= 156) {it.readIsInt(); it.readIsInt(); it.readIsInt(); it.readIsInt(); it.skip(4) }// Int
+                        if (parse.parseVersion >= 149) {
+                            it.readIsString(); it.skip(4)
+                        }// Int
+                        if (parse.parseVersion >= 156) {
+                            it.readIsInt(); it.readIsInt(); it.readIsInt(); it.readIsInt(); it.skip(4)
+                        }// Int
                     }
                 }
             }

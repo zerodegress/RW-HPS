@@ -49,7 +49,7 @@ class BlackList {
     }
 
     init {
-        newTimedTask(CallTimeTask.BlackListCheckTask, 0, 1, TimeUnit.HOURS){
+        newTimedTask(CallTimeTask.BlackListCheckTask, 0, 1, TimeUnit.HOURS) {
             val time = millis()
             blackList.eachAllFind({ it.time < time }) { value: BlackData -> blackList.remove(value) }
         }

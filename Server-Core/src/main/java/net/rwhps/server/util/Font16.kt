@@ -36,10 +36,10 @@ object Font16 {
             arr = Array(fontHeight) { ByteArray(fontWidth) }
             data = read_a(str[0])
             byteCount = 0
-            for (line in 0..15) {
+            for (line in 0 .. 15) {
                 lCount = 0
-                for (k in 0..0) {
-                    for (j in 0..7) {
+                for (k in 0 .. 0) {
+                    for (j in 0 .. 7) {
                         if (((data[byteCount].toInt() shr (7 - j)) and 0x1) == 1) {
                             arr[line][lCount] = 1
                         } else {
@@ -63,7 +63,7 @@ object Font16 {
                 //一个汉字等于两个字节
                 val all_2_4 = 2
                 for (k in 0 until all_2_4) {
-                    for (j in 0..7) {
+                    for (j in 0 .. 7) {
                         if (((data[byteCount].toInt() shr (7 - j)) and 0x1) == 1) {
                             arr[line][lCount] = 1
                         } else {

@@ -15,18 +15,18 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 /**
  * @author RW-HPS/Dr
  */
-class LongMap<V> : BaseMap<Long, V> {
+class LongMap<V>: BaseMap<Long, V> {
 
-    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
+    @JvmOverloads
+    constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
-        Long2ObjectOpenHashMap<V>(capacity).let {
-            if (threadSafety) {
-                Long2ObjectMaps.synchronize(it, it)
-            } else {
-                it
-            }
-        } as java.util.Map<Long, V>, threadSafety
-    )
+    @JvmOverloads
+    constructor(capacity: Int, threadSafety: Boolean = false): super(Long2ObjectOpenHashMap<V>(capacity).let {
+        if (threadSafety) {
+            Long2ObjectMaps.synchronize(it, it)
+        } else {
+            it
+        }
+    } as java.util.Map<Long, V>, threadSafety)
 }

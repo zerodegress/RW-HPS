@@ -162,9 +162,7 @@ object Topt {
     private fun truncate(target: ByteArray): String {
         val result: StringBuilder
         val offset = target[target.size - 1].toInt() and 0xf
-        val binary = (target[offset].toInt() and 0x7f shl 24
-                or (target[offset + 1].toInt() and 0xff shl 16)
-                or (target[offset + 2].toInt() and 0xff shl 8) or (target[offset + 3].toInt() and 0xff))
+        val binary = (target[offset].toInt() and 0x7f shl 24 or (target[offset + 1].toInt() and 0xff shl 16) or (target[offset + 2].toInt() and 0xff shl 8) or (target[offset + 3].toInt() and 0xff))
         val otp = binary % DIGITS_POWER[CODE_DIGITS]
         result = StringBuilder(otp.toString())
         while (result.length < CODE_DIGITS) {

@@ -9,21 +9,19 @@
 
 package net.rwhps.server.util.log.exp
 
-import net.rwhps.server.util.log.ErrorCode
-
 /**
  * @author RW-HPS/Dr
  */
-class VariableException(info: String) : RuntimeException(info) {
-    class ArrayRuntimeException(info: String) : Exception(info)
+open class VariableException(info: String): RuntimeException(info) {
+    class ArrayRuntimeException(info: String): VariableException(info)
 
-    class ObjectMapRuntimeException(info: String) : RuntimeException(info)
+    class ObjectMapRuntimeException(info: String): VariableException(info)
 
-    class MapRuntimeException(type: String) : RuntimeException(ErrorCode.valueOf(type).error)
+    class MapRuntimeException(type: String): VariableException(type)
 
-    class RepeatAddException(info: String) : Exception(info)
+    class RepeatAddException(info: String): VariableException(info)
 
-    class TabooAddException(info: String) : Exception(info)
+    class TabooAddException(info: String): VariableException(info)
 
-    class TypeMismatchException(info: String) : Exception(info)
+    class TypeMismatchException(info: String): VariableException(info)
 }

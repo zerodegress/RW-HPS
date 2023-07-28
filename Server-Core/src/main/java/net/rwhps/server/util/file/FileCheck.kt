@@ -52,8 +52,7 @@ object FileCheck {
         val canonicalPath = file1.canonicalPath
         require(canonicalPath != file2.canonicalPath) {
             String.format(
-                "File canonical paths are equal: '%s' (file1='%s', file2='%s')",
-                canonicalPath, file1, file2
+                    "File canonical paths are equal: '%s' (file1='%s', file2='%s')", canonicalPath, file1, file2
             )
         }
     }

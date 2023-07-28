@@ -55,9 +55,7 @@ import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.io.output.DynamicPrintStream
-import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
-import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
@@ -65,7 +63,6 @@ import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.set
-import net.rwhps.server.util.log.Log.setCopyPrint
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
@@ -87,18 +84,15 @@ import kotlin.system.exitProcess
  */
 object Main {
     @JvmStatic
-    fun main(args: Array<String>) {
-        /* 设置Log 并开启拷贝 */
+    fun main(args: Array<String>) {/* 设置Log 并开启拷贝 */
         set("WARN")
-        setCopyPrint(true)
 
         /* OFF WARN */
         System.setProperty("org.jline.terminal.dumb", "true")
         Logger.getLogger("io.netty").level = Level.OFF
 
         /* Fix Idea */
-        System.setProperty("jansi.passthrough", "true")
-        /* 覆盖输入输出流 */
+        System.setProperty("jansi.passthrough", "true")/* 覆盖输入输出流 */
         inputMonitorInit()
 
         SystemSetProperty.setOnlyIpv4()
@@ -113,7 +107,6 @@ object Main {
         Data.configServer = BeanServerConfig.stringToClass()
 
         Data.configRelay = BeanRelayConfig.stringToClass()
-
         Data.core.load()
         Initialization.loadLib()
 
@@ -122,8 +115,7 @@ object Main {
         clog(Data.i18NBundle.getinput("server.thanks"))
 
         // Test Block
-        run {
-        }
+        run {}
 
         /* 加载 ASM */
         HeadlessProxyClass()
@@ -154,7 +146,7 @@ object Main {
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
 
-        set(Data.config.Log)
+        set(Data.config.log)
 
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage("start", Data.defPrint)
@@ -162,18 +154,13 @@ object Main {
             clog("Please check the command , Unable to use StartCommand inside Config to start the server")
         }
 
-        val title = if (Data.config.CmdTitle.isBlank()) "[RW-HPS] Port: ${Data.config.Port}, Run Server: ${NetStaticData.ServerNetType.name}" else Data.config.CmdTitle
-
-        if (System.getProperty("os.name").contains("win")) {
-            CLITools.setWindowsCmdTitle(title)
+        if (Data.config.cmdTitle.isBlank()) {
+            CLITools.setConsoleTitle("[RW-HPS] Port: ${Data.config.port}, Run Server: ${NetStaticData.ServerNetType.name}")
         } else {
-            print("\u001B]30;$title\u0007") // VT100
+            CLITools.setConsoleTitle(Data.config.cmdTitle)
         }
 
-        newThreadCore {
-            Data.webData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
-            NetService(StartHttp::class.java).openPort(5000)
-        }
+        Data.webData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
 
         newThreadCore(this::inputMonitor)
     }
@@ -183,9 +170,7 @@ object Main {
      * Win的CMD就是个垃圾
      */
     private fun inputMonitorInit() {
-        val terminal = TerminalBuilder.builder()
-            .encoding(Data.DefaultEncoding)
-            .build()
+        val terminal = TerminalBuilder.builder().encoding(Data.DefaultEncoding).build()
 
         privateReader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
@@ -264,38 +249,38 @@ object Main {
 
 // 你的身体是为你服务的 而不是RW-HPS(?)  !
 /**
-                        ::
-                      :;J7, :,                        ::;7:
-                      ,ivYi, ,                       ;LLLFS:
-                      :iv7Yi                       :7ri;j5PL
-                     ,:ivYLvr                    ,ivrrirrY2X,
-                    :;r@Wwz.7r:                :ivu@kexianli.
-                    :iL7::,:::iiirii:ii;::::,,irvF7rvvLujL7ur
-                   ri::,:,::i:iiiiiii:i:irrv177JX7rYXqZEkvv17
-                ;i:, , ::::iirrririi:i:::iiir2XXvii;L8OGJr71i
-              :,, ,,:   ,::ir@mingyi.irii:i:::j1jri7ZBOS7ivv,
-                 ,::,    ::rv77iiiriii:iii:i::,rvLq@huhao.Li
-             ,,      ,, ,:ir7ir::,:::i;ir:::i:i::rSGGYri712:
-           :::  ,v7r:: ::rrv77:, ,, ,:i7rrii:::::, ir7ri7Lri
-          ,     2OBBOi,iiir;r::        ,irriiii::,, ,iv7Luur:
-        ,,     i78MBBi,:,:::,:,  :7FSL: ,iriii:::i::,,:rLqXv::
-        :      iuMMP: :,:::,:ii;2GY7OBB0viiii:i:iii:i:::iJqL;::
-       ,     ::::i   ,,,,, ::LuBBu BBBBBErii:i:i:i:i:i:i:r77ii
-      ,       :       , ,,:::rruBZ1MBBqi, :,,,:::,::::::iiriri:
-     ,               ,,,,::::i:  @arqiao.       ,:,, ,:::ii;i7:
-    :,       rjujLYLi   ,,:::::,:::::::::,,   ,:i,:,,,,,::i:iii
-    ::      BBBBBBBBB0,    ,,::: , ,:::::: ,      ,,,, ,,:::::::
-    i,  ,  ,8BMMBBBBBBi     ,,:,,     ,,, , ,   , , , :,::ii::i::
-    :      iZMOMOMBBM2::::::::::,,,,     ,,,,,,:,,,::::i:irr:i:::,
-    i   ,,:;u0MBMOG1L:::i::::::  ,,,::,   ,,, ::::::i:i:iirii:i:i:
-    :    ,iuUuuXUkFu7i:iii:i:::, :,:,: ::::::::i:i:::::iirr7iiri::
-    :     :rk@Yizero.i:::::, ,:ii:::::::i:::::i::,::::iirrriiiri::,
-     :      5BMBBBBBBSr:,::rv2kuii:::iii::,:i:,, , ,,:,:i@petermu.,
-          , :r50EZ8MBBBBGOBBBZP7::::i::,:::::,: :,:,::i;rrririiii::
-              :jujYY7LS0ujJL7r::,::i::,::::::::::::::iirirrrrrrr:ii:
-           ,:  :@kevensun.:,:,,,::::i:i:::::,,::::::iir;ii;7v77;ii;i,
-           ,,,     ,,:,::::::i:iiiii:i::::,, ::::iiiir@xingjief.r;7:i,
-        , , ,,,:,,::::::::iiiiiiiiii:,:,:::::::::iiir;ri7vL77rrirri::
-         :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
-*/
+ *                        ::
+ *                      :;J7, :,                        ::;7:
+ *                      ,ivYi, ,                       ;LLLFS:
+ *                      :iv7Yi                       :7ri;j5PL
+ *                     ,:ivYLvr                    ,ivrrirrY2X,
+ *                    :;r@Wwz.7r:                :ivu@kexianli.
+ *                    :iL7::,:::iiirii:ii;::::,,irvF7rvvLujL7ur
+ *                   ri::,:,::i:iiiiiii:i:irrv177JX7rYXqZEkvv17
+ *                ;i:, , ::::iirrririi:i:::iiir2XXvii;L8OGJr71i
+ *              :,, ,,:   ,::ir@mingyi.irii:i:::j1jri7ZBOS7ivv,
+ *                 ,::,    ::rv77iiiriii:iii:i::,rvLq@huhao.Li
+ *             ,,      ,, ,:ir7ir::,:::i;ir:::i:i::rSGGYri712:
+ *         :::  ,v7r:: ::rrv77:, ,, ,:i7rrii:::::, ir7ri7Lri
+ *          ,     2OBBOi,iiir;r::        ,irriiii::,, ,iv7Luur:
+ *        ,,     i78MBBi,:,:::,:,  :7FSL: ,iriii:::i::,,:rLqXv::
+ *        :      iuMMP: :,:::,:ii;2GY7OBB0viiii:i:iii:i:::iJqL;::
+ *       ,     ::::i   ,,,,, ::LuBBu BBBBBErii:i:i:i:i:i:i:r77ii
+ *      ,       :       , ,,:::rruBZ1MBBqi, :,,,:::,::::::iiriri:
+ *     ,               ,,,,::::i:  @arqiao.       ,:,, ,:::ii;i7:
+ *    :,       rjujLYLi   ,,:::::,:::::::::,,   ,:i,:,,,,,::i:iii
+ *    ::      BBBBBBBBB0,    ,,::: , ,:::::: ,      ,,,, ,,:::::::
+ *    i,  ,  ,8BMMBBBBBBi     ,,:,,     ,,, , ,   , , , :,::ii::i::
+ *    :      iZMOMOMBBM2::::::::::,,,,     ,,,,,,:,,,::::i:irr:i:::,
+ *    i   ,,:;u0MBMOG1L:::i::::::  ,,,::,   ,,, ::::::i:i:iirii:i:i:
+ *    :    ,iuUuuXUkFu7i:iii:i:::, :,:,: ::::::::i:i:::::iirr7iiri::
+ *    :     :rk@Yizero.i:::::, ,:ii:::::::i:::::i::,::::iirrriiiri::,
+ *     :      5BMBBBBBBSr:,::rv2kuii:::iii::,:i:,, , ,,:,:i@petermu.,
+ *          , :r50EZ8MBBBBGOBBBZP7::::i::,:::::,: :,:,::i;rrririiii::
+ *              :jujYY7LS0ujJL7r::,::i::,::::::::::::::iirirrrrrrr:ii:
+ *           ,:  :@kevensun.:,:,,,::::i:i:::::,,::::::iir;ii;7v77;ii;i,
+ *           ,,,     ,,:,::::::i:iiiii:i::::,, ::::iiiir@xingjief.r;7:i,
+ *        , , ,,,:,,::::::::iiiiiiiiii:,:,:::::::::iiir;ri7vL77rrirri::
+ **         :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
+ */
 // 音无结弦之时，悦动天使之心；立于浮华之世，奏响天籁之音

@@ -8,33 +8,74 @@
  */
 package net.rwhps.server.util.game
 
+import kotlinx.coroutines.*
+import net.rwhps.server.func.Control
+import net.rwhps.server.game.event.core.AbstractEventCore
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.annotations.core.EventAsync
+import net.rwhps.server.util.inline.ifNull
 
 /**
  * @author RW-HPS/Dr
  */
 class Events {
-    private val EVENTS = ObjectMap<Any, Seq<(Any) -> Unit>>()
+    private val eventData = ObjectMap<Any, Seq<(Any) -> Any?>>()
+    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T> add(type: Class<T>, listener: (T)->Unit) {
-        EVENTS[type, { Seq() }].add(listener as (Any)->Unit)
+    fun <T> addEvent(type: Class<T>, listener: (T) -> Unit) {
+        addEvent(false, type, listener)
     }
 
-    fun add(type: Any, listener: ()->Unit) {
-        EVENTS[type, { Seq() }].add { listener() }
+    @Suppress("UNCHECKED_CAST")
+    fun <T> addEvent(async: Boolean, type: Class<T>, listener: (T) -> Unit) {
+        if (async || type.getAnnotation(EventAsync::class.java) != null) {
+            eventData[type, { Seq() }].add { value ->
+                return@add mainScope.launch {
+                    listener(value as T)
+                }
+            }
+        } else {
+            eventData[type, { Seq() }].add { value ->
+                listener(value as T)
+                return@add null
+            }
+        }
+    }
+
+    fun addEvent(type: Any, listener: () -> Unit) {
+        eventData[type, { Seq() }].add { listener() }
     }
 
     fun <T> remove(type: Class<T>) {
-        EVENTS[type, { Seq() }].clear()
+        eventData[type, { Seq() }].clear()
     }
 
     fun <T> fire(type1: Class<*>, type: T) {
-        val eventType = EVENTS[type as Any]
-        eventType?.eachAll { e: (Any)->Unit -> e(type) }
+        val async = Seq<Job>()
 
-        val eventType1 = EVENTS[type1 as Any]
-        eventType1?.eachAll { e: (Any)->Unit -> e(type) }
+        val eventType = eventData[type as Any]
+        eventType?.eachAll { e: (Any) -> Any? -> runAsync(async, e, type) }
+
+        val eventType1 = eventData[type1]
+        eventType1?.eachAll { e: (Any) -> Any? -> runAsync(async, e, type) }
+
+        runBlocking {
+            async.forEach {
+                it.join()
+            }
+        }
+    }
+
+    private fun <T> runAsync(async: Seq<Job>, e: (T) -> Any?, type: T) {
+        if (type is AbstractEventCore) {
+            if (type.status() == Control.EventNext.CONTINUE) {
+                e(type).ifNull({
+                    if (it is Job) {
+                        async.add(it)
+                    }
+                })
+            }
+        }
     }
 }

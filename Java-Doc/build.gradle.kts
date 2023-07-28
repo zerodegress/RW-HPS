@@ -8,7 +8,7 @@
  */
 
 dependencies {
-	// https://mvnrepository.com/artifact/org.jetbrains.dokka/all-modules-page-plugin
-	//runtimeOnly("org.jetbrains.dokka:all-modules-page-plugin:${Versions.dokka}")
+    // https://mvnrepository.com/artifact/org.jetbrains.dokka/all-modules-page-plugin
+    //runtimeOnly("org.jetbrains.dokka:all-modules-page-plugin:${Versions.dokka}")
 
 }

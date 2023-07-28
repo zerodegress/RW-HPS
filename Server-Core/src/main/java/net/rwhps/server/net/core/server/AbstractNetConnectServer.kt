@@ -13,8 +13,6 @@ import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.DataPermissionStatus
-import net.rwhps.server.util.log.Log
-import org.intellij.lang.annotations.JdkConstants
 import org.jetbrains.annotations.Nls
 import java.io.IOException
 
@@ -42,7 +40,10 @@ interface AbstractNetConnectServer {
      * SERVER: ...
      * @param msg The message
      */
-    fun sendSystemMessage(@Nls msg: String)
+    fun sendSystemMessage(
+        @Nls
+        msg: String
+    )
 
     /**
      * Send a message named by username
@@ -50,7 +51,10 @@ interface AbstractNetConnectServer {
      * @param sendBy String
      * @param team Int
      */
-    fun sendChatMessage(@Nls msg: String, sendBy: String, team: Int)
+    fun sendChatMessage(
+        @Nls
+        msg: String, sendBy: String, team: Int
+    )
 
     /**
      * Send server info
@@ -77,7 +81,10 @@ interface AbstractNetConnectServer {
      * @throws IOException Error
      */
     @Throws(IOException::class)
-    fun sendKick(@Nls reason: String)
+    fun sendKick(
+        @Nls
+        reason: String
+    )
 
     /**
      * Ping
@@ -144,7 +151,6 @@ interface AbstractNetConnectServer {
      * @return Registration status
      * @throws IOException err
      */
-    @JdkConstants.BoxLayoutAxis
     @Throws(IOException::class)
     fun getPlayerInfo(packet: Packet): Boolean
 
@@ -157,19 +163,6 @@ interface AbstractNetConnectServer {
     fun registerConnection(packet: Packet)
 
     fun gameSummon(unit: String, x: Float, y: Float)
-
-
-    fun reConnect() {
-        try {
-            sendKick("不支持重连 || Does not support reconnection")
-        } catch (e: IOException) {
-            Log.error("(", e)
-        }
-    }
-
-    fun sync(fastSync: Boolean = false) {
-        // 选择性实现
-    }
 
     /**
      * Server type

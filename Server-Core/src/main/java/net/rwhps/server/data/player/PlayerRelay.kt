@@ -27,29 +27,32 @@ import net.rwhps.server.util.Time
  * @constructor
  *
  * @author RW-HPS/Dr
-*/
+ */
 class PlayerRelay(
-    val con: GameVersionRelay,
-    val uuid: String,
-    var name: String
+    private val conIn: GameVersionRelay, val uuid: String, var name: String
 ) {
+    var con: GameVersionRelay = conIn
+        internal set
+
     var nowName = ""
 
     var team = 0
         set(value) {
-            watch = (value == -3) ;
+            watch = (value == -3)
             field = site
         }
+
     /** List position  */
     var site = 0
         set(value) {
             if (field != value && con.relay!!.battleRoyalLock) {
-                con.sendPackageToHOST(chatUserMessagePacketInternal("-qc -self_team ${value+1}"))
+                con.sendPackageToHOST(chatUserMessagePacketInternal("-qc -self_team ${value + 1}"))
             }
             field = value
         }
     var watch = false
         private set
+
     /** Mute expiration time */
     var mute = false
 
@@ -60,9 +63,10 @@ class PlayerRelay(
         }
     var lastMessageTime: Int = 0
         private set
+    val lastMessageCount = TimeAndNumber(10, 3)
+    val lastShortMessageCount = TimeAndNumber(10, 5)
 
-    val messageSimilarityCount = TimeAndNumber(60,5)
-    val messageCount = TimeAndNumber(60,10)
+    val playerSyncCount = TimeAndNumber(60, 3)
 
     var disconnect: Boolean = false
         set(value) {
@@ -73,7 +77,7 @@ class PlayerRelay(
         private set
 
     override fun toString(): String {
-        return  """
+        return """
                 Player :
                 Name : $name
                 uuid-Hash : $uuid

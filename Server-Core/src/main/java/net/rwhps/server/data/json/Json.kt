@@ -44,18 +44,21 @@ class Json {
             it.getString(str)
         }!!
     }
+
     @JvmOverloads
     fun getInt(str: String, defaultValue: Int? = null): Int? {
         return jsonObject.getDataResult(defaultValue) {
             it.getInt(str)
         }
     }
+
     @JvmOverloads
     fun getLong(str: String, defaultValue: Long? = null): Long? {
         return jsonObject.getDataResult(defaultValue) {
             it.getLong(str)
         }
     }
+
     @JvmOverloads
     fun getBoolean(str: String, defaultValue: Boolean? = null): Boolean? {
         return jsonObject.getDataResult(defaultValue) {
@@ -69,13 +72,13 @@ class Json {
             jsonObject.toMap().forEach {
                 when (it.value) {
                     is JSONArray -> {
-                        put(it.key,JsonArray(it.value as JSONArray))
+                        put(it.key, JsonArray(it.value as JSONArray))
                     }
                     is ArrayList<*> -> {
-                        put(it.key,JsonArray(JSONArray((it.value as Iterable<*>))))
+                        put(it.key, JsonArray(JSONArray((it.value as Iterable<*>))))
                     }
                     else -> {
-                        put(it.key,it.value)
+                        put(it.key, it.value)
                     }
                 }
             }
@@ -111,7 +114,7 @@ class Json {
          */
         @JvmStatic
         fun toJson(map: ObjectMap<String, Any>): String {
-            return HashMap<String,Any>().also { map.eachAll { key, value -> it[key] = value } }.toPrettyPrintingJson()
+            return HashMap<String, Any>().also { map.eachAll { key, value -> it[key] = value } }.toPrettyPrintingJson()
         }
     }
 }

@@ -15,6 +15,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.totalizer.TimeAndNumber
+import net.rwhps.server.func.Control
 import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.game.event.game.PlayerChatEvent
 import net.rwhps.server.game.event.game.PlayerLeaveEvent
@@ -27,6 +28,8 @@ import net.rwhps.server.net.core.DataPermissionStatus.ServerStatus
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
+import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
+import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.util.PacketType
@@ -44,7 +47,6 @@ import com.corrodinggames.rts.gameFramework.j.k as GameNetInputStream
  * @property supportedversionBeta   Server is Beta
  * @property supportedversionGame   Server Support Version String
  * @property supportedVersionInt    Server Support Version Int
- * @property sync                   Key lock to prevent concurrency
  * @property player                 Player
  * @property permissionStatus       ServerStatus
  * @property version                Protocol version
@@ -54,14 +56,16 @@ import com.corrodinggames.rts.gameFramework.j.k as GameNetInputStream
  * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
-open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetConnect(playerConnectX.connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
+open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetConnect(playerConnectX.connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
     init {
         playerConnectX.serverConnect = this
     }
 
+    private var relaySelect: ((String) -> Unit)? = null
+
     override val supportedversionBeta = false
     override val supportedversionGame = "1.15"
-    override val supportedVersionInt  = 176
+    override val supportedVersionInt = 176
 
     override val name: String get() = player.name
     override val registerPlayerId: String? get() = player.connectHexID
@@ -77,7 +81,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     override val version: String
         get() = "1.15 RW-HPS"
 
-    val update = TimeAndNumber(2,1)
+    val update = TimeAndNumber(2, 1)
 
     override fun sendSystemMessage(msg: String) {
         try {
@@ -127,7 +131,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             var response: CommandHandler.CommandResponse? = null
 
             //Log.clog("[${playerConnectX.room.roomID}] [&by {0} &fr]: &y{1}", name, ColorCodes.formatColors(message,true))
-            Log.clog("[&by {0} &fr]: &y{1}", player.name, ColorCodes.formatColors(message,true))
+            Log.clog("[&by {0} &fr]: &y{1}", player.name, ColorCodes.formatColors(message, true))
 
             // Afk Stop
             if (player.isAdmin && Threads.containsTimeTask(CallTimeTask.PlayerAfkTask)) {
@@ -135,7 +139,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             }
 
             if (Data.vote != null) {
-                Data.vote!!.toVote(player,message)
+                Data.vote!!.toVote(player, message)
             }
 
             // Msg Command
@@ -150,27 +154,28 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             }
 
             if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
-                if (message.length > Data.configServer.MaxMessageLen) {
+                if (message.length > Data.configServer.maxMessageLen) {
                     sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
-                    throw Exception()
+                    packet.status = Control.EventNext.STOPPED
+                    return
                 }
                 GameEngine.data.eventManage.fire(PlayerChatEvent(player, message))
             } else if (response.type != CommandHandler.ResponseType.valid) {
                 when (response.type) {
                     CommandHandler.ResponseType.manyArguments -> {
                         player.sendSystemMessage("Too many arguments. Usage: " + response.command.text + " " + response.command.paramText)
-                        throw Exception()
+                        packet.status = Control.EventNext.STOPPED
                     }
                     CommandHandler.ResponseType.fewArguments -> {
                         player.sendSystemMessage("Too few arguments. Usage: " + response.command.text + " " + response.command.paramText)
-                        throw Exception()
+                        packet.status = Control.EventNext.STOPPED
                     }
                     else -> {
                         // Ignore
                     }
                 }
             } else {
-                throw Exception()
+                packet.status = Control.EventNext.STOPPED
             }
         }
     }
@@ -178,16 +183,17 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     @Throws(IOException::class)
     override fun receiveCommand(packet: Packet) {
         try {
-            GameInputStream(packet).use { inStream ->
+            GameInputStream(GameInputStream(packet).getDecodeBytes()).use { inStream ->
                 inStream.skip(1)
                 val boolean1 = inStream.readBoolean()
                 if (boolean1) {
                     // 操作类型
-                    var status = inStream.readInt()
+                    val status = inStream.readInt()
+                    var nameUnit = ""
                     // 单位类型
                     val unitType = inStream.readInt()
                     if (unitType == -2) {
-                        val nameUnit = inStream.readString()
+                        nameUnit = inStream.readString()
                     }
                     val x = inStream.readFloat()
                     val y = inStream.readFloat()
@@ -198,9 +204,17 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
                     val gameUnits: GameUnitType.GameUnits = GameUnitType.GameUnits.from(unitType)
                     // 玩家操作单位事件
                     val playerOperationUnitEvent = PlayerOperationUnitEvent(player, gameActions, gameUnits, x, y)
-                    GameEngine.data.eventManage.fire(playerOperationUnitEvent)
-                    if(!playerOperationUnitEvent.resultStatus){
+
+                    if (Data.configServer.turnStoneIntoGold && gameActions == GameUnitType.GameActions.BUILD) {
+                        gameSummon(if (unitType == -2) nameUnit else gameUnits.name, x, y)
+                        packet.status = Control.EventNext.STOPPED
                         return
+                    } else {
+                        GameEngine.data.eventManage.fire(playerOperationUnitEvent)
+                        if (!playerOperationUnitEvent.resultStatus) {
+                            packet.status = Control.EventNext.STOPPED
+                            return
+                        }
                     }
                     inStream.skip(20)
                     inStream.readIsString()
@@ -238,7 +252,6 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     }
 
     @Throws(IOException::class)
-    @Suppress("UNCHECKED_CAST")
     override fun receiveCheckPacket(packet: Packet) {
     }
 
@@ -261,17 +274,41 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
             val commandPacket = GameEngine.gameEngine.cf.b()
 
             val out = GameOutputStream()
-            out.flushEncodeData(
-                CompressOutputStream.getGzipOutputStream("c",false).apply {
-                    writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(player.site,unit,x, y).bytes)
-                }
-            )
+            out.flushEncodeData(CompressOutputStream.getGzipOutputStream("c", false).apply {
+                writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(player.site, unit, x, y).bytes)
+            })
 
             commandPacket.a(GameNetInputStream(playerConnectX.netEnginePackaging.transformHessPacket(out.createPacket(PacketType.TICK))))
 
-            commandPacket.c = GameEngine.data.gameHessData.tickNetHess+10
+            commandPacket.c = GameEngine.data.gameHessData.tickNetHess + 10
             GameEngine.gameEngine.cf.b.add(commandPacket)
             //GameEngine.netEngine.a(commandPacket)
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
+    override fun sendRelayServerType(msg: String, run: ((String) -> Unit)?) {
+        try {
+            sendPacket(relayServerTypeInternal(msg))
+
+            relaySelect = run
+
+            inputPassword = true
+        } catch (e: Exception) {
+            Log.error(e)
+        }
+    }
+
+    override fun sendRelayServerTypeReply(packet: Packet) {
+        try {
+            inputPassword = false
+
+            val id = relayServerTypeReplyInternal(packet)
+            if (relaySelect != null) {
+                relaySelect!!(id)
+                relaySelect = null
+            }
         } catch (e: Exception) {
             Log.error(e)
         }

@@ -23,16 +23,17 @@ import net.rwhps.server.plugin.internal.hess.HessMain
  * @property amusement String
  *
  * @author RW-HPS/Dr
-*/
+ */
 internal class LoadCoreCustomPlugin {
     private val core = "[Core Plugin]"
     private val coreEx = "[Core Plugin Extend]"
     private val amusement = "[Amusement Plugin]"
     private val example = "[Example Plugin]"
+
     init {
         PluginManage.addPluginClass("HessServer", "RW-HPS/Dr", "$core HessServer", Data.SERVER_CORE_VERSION, HessMain(), mkdir = false, skip = true)
 
-        PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpListMain(), mkdir = false, skip = true)
+        PluginManage.addPluginClass("UpList", "Dr", "$core UpList", "1.0", UpListMain(), mkdir = false, skip = true)
         PluginManage.addPluginClass(RwHpsWebApiMain.pluginInfo, RwHpsWebApiMain(), mkdir = true, skip = true)
     }
 }

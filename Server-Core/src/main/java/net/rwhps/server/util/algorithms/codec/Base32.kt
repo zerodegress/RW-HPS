@@ -10,7 +10,7 @@
 package net.rwhps.server.util.algorithms.codec
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.ExtractUtils
+import net.rwhps.server.util.StringUtils
 import java.nio.charset.Charset
 
 
@@ -20,11 +20,12 @@ import java.nio.charset.Charset
  * 所以，5个ASCII字符经过base32编码后会变为8个字符（公约数为40），长度增加3/5.不足8n用“=”补足。<br></br>
  * 根据RFC4648 Base32规范，支持两种模式：
  *
- *  * Base 32 Alphabet                 (ABCDEFGHIJKLMNOPQRSTUVWXYZ234567)
- *  * "Extended Hex" Base 32 Alphabet  (0123456789ABCDEFGHIJKLMNOPQRSTUV)
+ * Base 32 Alphabet                 (ABCDEFGHIJKLMNOPQRSTUVWXYZ234567)
+ * "Extended Hex" Base 32 Alphabet  (0123456789ABCDEFGHIJKLMNOPQRSTUV)
  */
 object Base32 {
     private val INSTANCE = Base32Codec()
+
     /**
      * 编码
      *
@@ -34,6 +35,7 @@ object Base32 {
     fun encode(bytes: ByteArray): String {
         return INSTANCE.encode(bytes)
     }
+
     /**
      * base32编码
      *
@@ -43,7 +45,7 @@ object Base32 {
      */
     @JvmOverloads
     fun encode(source: String, charset: Charset = Data.UTF_8): String {
-        return encode(ExtractUtils.bytes(source, charset))
+        return encode(StringUtils.bytes(source, charset))
     }
 
     /**
@@ -55,6 +57,7 @@ object Base32 {
     fun encodeHex(bytes: ByteArray): String {
         return INSTANCE.encode(bytes, true)
     }
+
     /**
      * base32编码（Hex模式）
      *
@@ -64,9 +67,9 @@ object Base32 {
      */
     @JvmOverloads
     fun encodeHex(source: String, charset: Charset = Data.UTF_8): String {
-        return encodeHex(ExtractUtils.bytes(source, charset))
+        return encodeHex(StringUtils.bytes(source, charset))
     }
-    
+
     /**
      * 解码
      *
@@ -76,6 +79,7 @@ object Base32 {
     fun decode(base32: String): ByteArray {
         return INSTANCE.decode(base32)
     }
+
     /**
      * base32解码
      *
@@ -85,7 +89,7 @@ object Base32 {
      */
     @JvmOverloads
     fun decodeStr(source: String, charset: Charset = Data.UTF_8): String {
-        return ExtractUtils.str(decode(source), charset)
+        return StringUtils.str(decode(source), charset)
     }
 
     /**
@@ -97,6 +101,7 @@ object Base32 {
     fun decodeHex(base32: String): ByteArray {
         return INSTANCE.decode(base32, true)
     }
+
     /**
      * base32解码
      *
@@ -106,6 +111,6 @@ object Base32 {
      */
     @JvmOverloads
     fun decodeStrHex(source: String, charset: Charset = Data.UTF_8): String {
-        return ExtractUtils.str(decodeHex(source), charset)
+        return StringUtils.str(decodeHex(source), charset)
     }
 }

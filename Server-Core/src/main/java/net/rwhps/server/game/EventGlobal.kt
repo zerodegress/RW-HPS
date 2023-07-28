@@ -15,7 +15,7 @@ import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.global.ServerHessLoadEvent
 import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.game.event.global.ServerStartTypeEvent
@@ -30,20 +30,20 @@ import net.rwhps.server.util.log.Log
  * @author RW-HPS/Dr
  */
 @Suppress("UNUSED")
-class EventGlobal : EventListener {
+class EventGlobal: EventListenerHost {
     @EventListenerHandler
     fun registerServerHessLoadEvent(serverHessLoadEvent: ServerHessLoadEvent) {
         if (serverHessLoadEvent.loadID == HessModuleManage.hpsLoader) {
             // 不支持多端 :(
             // 多端请自行兼容
             serverHessLoadEvent.eventManage.registerListener(Event())
-            PluginManage.runRegisterEvents(serverHessLoadEvent.loadID, serverHessLoadEvent.eventManage)
+            PluginManage.runRegisterEvents(serverHessLoadEvent.eventManage)
         }
     }
 
     @EventListenerHandler
     fun registerServerLoadEvent(serverLoadEvent: ServerLoadEvent) {
-        Data.core.admin.addChatFilter(object : Administration.ChatFilter {
+        Data.core.admin.addChatFilter(object: Administration.ChatFilter {
             override fun filter(player: PlayerHess, message: String?): String? {
                 if (player.muteTime > Time.millis()) {
                     return null
@@ -68,7 +68,7 @@ class EventGlobal : EventListener {
             IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
             }
             IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
-                if (Data.config.AutoUpList) {
+                if (Data.config.autoUpList) {
                     Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
                 }
             }

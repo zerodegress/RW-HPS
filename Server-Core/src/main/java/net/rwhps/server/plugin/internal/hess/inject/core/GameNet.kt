@@ -24,7 +24,7 @@ import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable
 /**
  * @author RW-HPS/Dr
  */
-internal class GameNet : AbstractGameNet {
+internal class GameNet: AbstractGameNet {
     override fun newConnect(ip: String, name: String) {
         try {
             //val settingsEngine = GameEngine.settingsEngine
@@ -35,14 +35,14 @@ internal class GameNet : AbstractGameNet {
             //val playerName = settingsEngine.lastNetworkPlayerName
 
             netEngine.y = name
-            val kVar2 = ad.b(ip,false)
+            val kVar2 = ad.b(ip, false)
             netEngine.a(kVar2)
             val it: Iterator<*> = netEngine.aM.iterator()
             while (it.hasNext()) {
                 (it.next() as c).i = true
             }
         } catch (e2: IOException) {
-            Log.error("[GameCore] NewConnect Error",e2)
+            Log.error("[GameCore] NewConnect Error", e2)
         }
     }
 
@@ -56,7 +56,8 @@ internal class GameNet : AbstractGameNet {
         val netEngine = GameEngine.netEngine
         GameEngine.settingsEngine.networkPort = port
         GameEngine.settingsEngine.udpInMultiplayer = false
-        GameEngine.settingsEngine.saveMultiplayerReplays = Data.configServer.SaveRePlayFile
+        GameEngine.settingsEngine.saveMultiplayerReplays = Data.configServer.saveRePlayFile
+
         netEngine.m = port
         netEngine.y = name
 
@@ -64,9 +65,6 @@ internal class GameNet : AbstractGameNet {
             roomID = "Port: $port"
             startServer = {
                 try {
-                    // 设置客户端UUID, 避免Admin/ban等不能持久化
-                    GameEngine.settingsEngine.networkServerId = Data.core.serverConnectUuid
-
                     GameEngine.root.hostStartWithPasswordAndMods(false, passwd, true)
 
                     val tcp = GameEngine.netEngine::class.java.findField("aE", ServerAcceptRunnable::class.java)!!
@@ -78,7 +76,7 @@ internal class GameNet : AbstractGameNet {
                     GameEngine.netEngine::class.java.findField("aD", Thread::class.java)!!
                         .set(GameEngine.netEngine, Thread(tcpRunnable).apply { start() })
 
-                    n.b(Data.configServer.MaxPlayer, true)
+                    n.b(Data.configServer.maxPlayer, true)
 
                     // 隐藏 Hess(HOST)
                     n.k(0).run {
@@ -87,6 +85,10 @@ internal class GameNet : AbstractGameNet {
                     }
                     // 避免同步爆炸
                     GameEngine.netEngine.z.k = -3
+
+                    // 不能在启动前设置, 因为每次会变
+                    // 设置客户端UUID, 避免Admin/ban等不能持久化
+                    GameEngine.settingsEngine.networkServerId = Data.core.serverConnectUuid
 
                     GameEngine.data.eventManage.fire(ServerHessStartPort())
                 } catch (e: Exception) {

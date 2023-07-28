@@ -27,7 +27,7 @@ import net.rwhps.server.util.ExtractUtils
  * @author RW-HPS/Dr
  */
 @Suppress("UNUSED", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-abstract class BaseMap<K,V>(private val map: java.util.Map<K,V>, private val threadSafety: Boolean) : MutableMap<K,V>, Map<K,V> {
+abstract class BaseMap<K, V>(private val map: java.util.Map<K, V>, private val threadSafety: Boolean): MutableMap<K, V>, Map<K, V> {
     override val size: Int get() = map.size()
     override fun isEmpty(): Boolean = map.isEmpty
 
@@ -37,6 +37,7 @@ abstract class BaseMap<K,V>(private val map: java.util.Map<K,V>, private val thr
         put(key, value)
         return value
     }
+
     operator fun get(key: K, defaultValue: V): V {
         val value = map[key] ?: defaultValue
         put(key, value)
@@ -56,51 +57,69 @@ abstract class BaseMap<K,V>(private val map: java.util.Map<K,V>, private val thr
     override fun containsValue(value: V): Boolean = map.containsValue(value)
     override fun containsKey(key: K): Boolean = map.containsKey(key)
 
-    fun find(findA: FindMap<K, V, Boolean>): KeyValue<K,V>? {
-        var result: KeyValue<K,V>? = null
+    fun find(findA: FindMapKV<K, V, Boolean>): KeyValue<K, V>? {
+        var result: KeyValue<K, V>? = null
         ExtractUtils.synchronizedX(threadSafety, map) {
-            map.forEach { k,v -> if (findA(k,v)) { result = KeyValue(k,v) } }
+            map.forEach { k, v ->
+                if (findA(k, v)) {
+                    result = KeyValue(k, v)
+                }
+            }
         }
         return result
     }
 
-    fun find(findA: FindMap<K, V, Boolean>, findB: FindMap<K, V, Boolean>): KeyValue<K,V>? {
-        var result: KeyValue<K,V>? = null
+    fun find(findA: FindMapKV<K, V, Boolean>, findB: FindMapKV<K, V, Boolean>): KeyValue<K, V>? {
+        var result: KeyValue<K, V>? = null
         ExtractUtils.synchronizedX(threadSafety, map) {
-            map.forEach { k,v -> if (findA(k,v) && findB(k,v)) { result = KeyValue(k,v) } }
+            map.forEach { k, v ->
+                if (findA(k, v) && findB(k, v)) {
+                    result = KeyValue(k, v)
+                }
+            }
         }
         return result
     }
 
     fun eachAll(block: ConsMap<K, V>) {
         ExtractUtils.synchronizedX(threadSafety, map) {
-            map.forEach { k,v -> block(k,v) }
+            map.forEach { k, v -> block(k, v) }
         }
     }
 
-    fun eachControlAll(findA: FindMap<K, V, Control.ControlFind>) {
+    fun eachControl(findA: FindMapKV<K, V, Control.ControlFind>) {
+        eachControl { entry ->
+            findA(entry.key, entry.value)
+        }
+    }
+
+    fun eachControl(findA: FindMapE<Map.Entry<K, V>, Control.ControlFind>) {
         ExtractUtils.synchronizedX(threadSafety, map) {
             map.entrySet().forEach {
-                if (findA(it.key, it.value) == Control.ControlFind.BREAK) {
+                if (findA(it) == Control.ControlFind.BREAK) {
                     return@synchronizedX
                 }
             }
         }
     }
 
-    fun eachAllFind(find: FindMap<K, V, Boolean>, block: ConsMap<K, V>) = eachAll { k,v ->
-        if (find(k,v)) {
-            block(k,v)
+    fun eachAllFind(find: FindMapKV<K, V, Boolean>, block: ConsMap<K, V>) = eachAll { k, v ->
+        if (find(k, v)) {
+            block(k, v)
         }
     }
 
-    fun eachFind(find: FindMap<K, V, Boolean>, block: ConsMap<K, V>) = find(find)?.let { block(it.key, it.value) }
-    fun eachAllFinds(findA: FindMap<K, V, Boolean>, findB: FindMap<K, V, Boolean>, block: ConsMap<K, V>) = find(findA, findB)?.let { block(it.key, it.value) }
+    fun eachFind(find: FindMapKV<K, V, Boolean>, block: ConsMap<K, V>) = find(find)?.let { block(it.key, it.value) }
+    fun eachAllFinds(
+        findA: FindMapKV<K, V, Boolean>,
+        findB: FindMapKV<K, V, Boolean>,
+        block: ConsMap<K, V>
+    ) = find(findA, findB)?.let { block(it.key, it.value) }
 
     override fun clear() = map.clear()
 
-    fun toArrayKey(): Seq<K> =  Seq<K>(size).also { keys.forEach { value-> it.add(value) } }
-    fun toArrayValues(): Seq<V> =  Seq<V>(size).also { values.forEach { value-> it.add(value) } }
+    fun toArrayKey(): Seq<K> = Seq<K>(size).also { keys.forEach { value -> it.add(value) } }
+    fun toArrayValues(): Seq<V> = Seq<V>(size).also { values.forEach { value -> it.add(value) } }
 
     override fun toString(): String = map.toString()
 
@@ -113,6 +132,7 @@ abstract class BaseMap<K,V>(private val map: java.util.Map<K,V>, private val thr
                 }
             }
         }
+
         fun <V> MutableCollection<V>.toSeq(): Seq<V> {
             val set = this
             return Seq<V>().apply {

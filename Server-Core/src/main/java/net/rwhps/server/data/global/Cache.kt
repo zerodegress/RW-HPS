@@ -17,6 +17,5 @@ import net.rwhps.server.struct.ObjectMap
  */
 object Cache {
     @JvmStatic
-    val packetCache: ObjectMap<String, Packet> =
-        ObjectMap(8)
+    val packetCache: ObjectMap<String, Packet> = ObjectMap(8)
 }

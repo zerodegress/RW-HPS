@@ -29,13 +29,15 @@ import net.rwhps.server.util.game.CommandHandler
  * @property version            Parser version
  * @author RW-HPS/Dr
  */
-class TypeRelayRebroadcast : TypeRelay {
-    constructor(con: GameVersionRelay) : super(con)
+class TypeRelayRebroadcast: TypeRelay {
+    constructor(con: GameVersionRelay): super(con)
 
-    constructor(con: Class<out GameVersionRelayRebroadcast>) : super(con)
+    constructor(con: Class<out GameVersionRelayRebroadcast>): super(con)
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeRelayRebroadcast(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+        return TypeRelayRebroadcast(
+                ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement)
+        )
     }
 
     @Throws(Exception::class)
@@ -43,18 +45,17 @@ class TypeRelayRebroadcast : TypeRelay {
         when (packet.type) {
             // 每个玩家不一样, 不需要处理/缓存
             TEAM_LIST,
-            // Nobody dealt with it
+                // Nobody dealt with it
             PACKET_DOWNLOAD_PENDING,
-            // Refusal to Process
-            EMPTYP_ACKAGE, NOT_RESOLVED
-            -> {
+                // Refusal to Process
+            EMPTYP_ACKAGE, NOT_RESOLVED -> {
                 // Ignore
             }
-            PACKET_FORWARD_CLIENT_TO  -> {
+            PACKET_FORWARD_CLIENT_TO -> {
                 con.addRelaySend(packet)
                 return
             }
-            PACKET_FORWARD_CLIENT_TO_REPEATED  -> {
+            PACKET_FORWARD_CLIENT_TO_REPEATED -> {
                 con.multicastAnalysis(packet)
                 return
             }
@@ -62,7 +63,7 @@ class TypeRelayRebroadcast : TypeRelay {
                 con.setlastSentPacket(packet)
                 con.getPingData(packet)
             }
-            RELAY_BECOME_SERVER -> {
+            RETURN_TO_BATTLEROOM -> {
                 con.setlastSentPacket(packet)
                 con.relay!!.isStartGame = false
             }

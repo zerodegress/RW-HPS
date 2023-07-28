@@ -16,29 +16,28 @@ import net.rwhps.server.core.thread.CallGroupData.coreServer
  * @author RW-HPS/Dr
  */
 enum class CallTimeTask(
-    val group: String,
-    val description: String
-    ) {
-    CallTeamTask(                   coreServer,         "Update player team list"),
+    val group: String, val description: String
+) {
+    CallTeamTask(coreServer, "Update player team list"),
 
-    PlayerAfkTask(                  coreServer,         "Transfer of authority"),
-    GameOverTask(                   coreServer,         "Check gameover"),
-    VoteTask(                       coreServer,         "Vote"),
-    AutoStartTask(                  coreExpandServer,   "Start automatically"),
-    AutoUpdateMapsTask(             coreExpandServer,   "Auto update maps"),
-    AutoCheckTask(                  coreExpandServer,   "Auto Check player survives"),
+    PlayerAfkTask(coreServer, "Transfer of authority"),
+    GameOverTask(coreServer, "Check gameover"),
+    VoteTask(coreServer, "Vote"),
+    AutoStartTask(coreExpandServer, "Start automatically"),
+    AutoUpdateMapsTask(coreExpandServer, "Auto update maps"),
+    AutoCheckTask(coreExpandServer, "Auto Check player survives"),
 
-    CustomUpServerListTask(         "UpList",         "[Plugin UpList] Update Data"),
-    UpServerListTask(               "UpList",         "Core"),
-    UpServerListNewTask(            "UpList",         "Core"),
-
-
-    BlackListCheckTask(             "[Netx]",         "超时去除"),
-    ServerUploadDataTask(           "[RCN]",          "列表更新"),
-    ServerUploadData_CheckTimeTask( "[RCN]",          "超时"),
-    RelayRoom_CheckTimeTask(        "[RCN]",          "房间超时机制"),
-    ServerStatusUpdate(             "[RCN]",          "状态更新"),
+    CustomUpServerListTask("UpList", "[Plugin UpList] Update Data"),
+    UpServerListTask("UpList", "Core"),
+    UpServerListNewTask("UpList", "Core"),
 
 
-    ServerUpStatistics(             "[RW-HPS]",       "统计数据更新")
+    BlackListCheckTask("[Netx]", "超时去除"),
+    ServerUploadDataTask("[RCN]", "列表更新"),
+    ServerUploadData_CheckTimeTask("[RCN]", "超时"),
+    RelayRoom_CheckTimeTask("[RCN]", "房间超时机制"),
+    ServerStatusUpdate("[RCN]", "状态更新"),
+
+
+    ServerUpStatistics("[RW-HPS]", "统计数据更新")
 }

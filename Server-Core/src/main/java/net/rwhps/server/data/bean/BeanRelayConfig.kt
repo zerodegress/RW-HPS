@@ -20,7 +20,6 @@ import net.rwhps.server.util.log.Log.error
 import java.lang.reflect.Field
 
 
-
 /**
  * Relay-Protocol configuration file
  *
@@ -28,22 +27,22 @@ import java.lang.reflect.Field
  * @author RW-HPS/Dr
  */
 data class BeanRelayConfig(
-    val MainID: String = "",
-    val MainServer: Boolean = true,
-    val UpList: Boolean = false,
-    val MainServerIP: String = "",
-    val MainServerPort: Int = 0,
+    val mainID: String = "",
+    val mainServer: Boolean = true,
+    val upList: Boolean = false,
+    val mainServerIP: String = "",
+    val mainServerPort: Int = 0
 ) {
 
     fun save() {
         fileUtils.writeFile(this.toPrettyPrintingJson())
     }
 
-    private fun coverField(name: String,value: Any): Boolean {
+    private fun coverField(name: String, value: Any): Boolean {
         try {
-            val field: Field = ReflectionUtils.findField(this::class.java, name) ?:return false
+            val field: Field = ReflectionUtils.findField(this::class.java, name) ?: return false
             field.isAccessible = true
-            field.set(this,value)
+            field[this] = value
             field.isAccessible = false
         } catch (e: Exception) {
             error("Cover Gameover error", e)
@@ -56,8 +55,7 @@ data class BeanRelayConfig(
         val fields = this.javaClass.declaredFields
         for (field in fields) {
             // 过滤Kt生成的和不能被覆盖的
-            if (field.name != "Companion" && field.name != "fileUtil")
-            allName.add(field.name)
+            if (field.name != "Companion" && field.name != "fileUtil") allName.add(field.name)
         }
         return allName
     }
@@ -74,7 +72,7 @@ data class BeanRelayConfig(
             config.allName().eachAll {
                 val data = System.getProperties().getProperty("rwhps.relay.config.$it")
                 if (data != null) {
-                    if (config.coverField(it,data)) {
+                    if (config.coverField(it, data)) {
                         debug("Set OK $it = $data")
                     } else {
                         debug("Set ERROR $it = $data")

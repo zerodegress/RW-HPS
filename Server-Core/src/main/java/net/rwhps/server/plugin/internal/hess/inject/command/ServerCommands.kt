@@ -9,6 +9,7 @@
 
 package net.rwhps.server.plugin.internal.hess.inject.command
 
+import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.gameFramework.j.NetEnginePackaging
 import com.corrodinggames.rts.gameFramework.j.k
 import net.rwhps.server.data.HessModuleManage
@@ -28,25 +29,36 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Font16
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.Time
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author RW-HPS/Dr
  */
 internal class ServerCommands(handler: CommandHandler) {
     private fun registerPlayerCommand(handler: CommandHandler) {
-        handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, _: StrCons ->
-            val response = StringBuilder(arg[0])
-            var i = 1
-            val lens = arg.size
-            while (i < lens) {
-                response.append(" ").append(arg[i])
-                i++
+        handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, log: StrCons ->
+            val msg = arg.joinToString(" ").replace("<>", "")
+            room.call.sendSystemMessage(msg)
+            log("All players has received the message : {0}", msg)
+        }
+        handler.register("whisper", "<PlayerPosition/PlayerName> <text...>", "serverCommands.whisper") { arg: Array<String>, log: StrCons ->
+            room.playerManage.findPlayer(log, arg[0])?.let {
+                val msg = arg.drop(1).joinToString(" ")
+                it.sendSystemMessage(msg)
+                log("{0} has received the message : {1}", it.name, msg)
             }
-            room.call.sendSystemMessage(response.toString().replace("<>", ""))
+        }
+        handler.register("gametime", "serverCommands.gametime") { _: Array<String>, log: StrCons ->
+            if (room.isStartGame) {
+                log("Gameing Time : {0}", Time.format(Time.getTimeSinceSecond(room.startTime).toLong(), 6))
+            } else {
+                log("No Start Game")
+            }
         }
         handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
             GameEngine.data.room.gr()
@@ -55,16 +67,16 @@ internal class ServerCommands(handler: CommandHandler) {
             if (room.isStartGame) {
                 gameModule.gameData.saveGame()
             } else {
-                log["No Start Game"]
+                log("No Start Game")
             }
         }
         handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
             if (room.isStartGame) {
-                log[localeUtil.getinput("err.startGame")]
+                log(localeUtil.getinput("err.startGame"))
                 return@register
             }
             if (!("add" == arg[0] || "remove" == arg[0])) {
-                log["Second parameter must be either 'add' or 'remove'."]
+                log("Second parameter must be either 'add' or 'remove'.")
                 return@register
             }
             val add = "add" == arg[0]
@@ -73,7 +85,7 @@ internal class ServerCommands(handler: CommandHandler) {
             val supAdmin = arg.size > 2
             if (player != null) {
                 if (add) {
-                    Data.core.admin.addAdmin(player.connectHexID,supAdmin)
+                    Data.core.admin.addAdmin(player.connectHexID, supAdmin)
                 } else {
                     Data.core.admin.removeAdmin(player.connectHexID)
                 }
@@ -86,7 +98,7 @@ internal class ServerCommands(handler: CommandHandler) {
                 } catch (e: IOException) {
                     error("[Player] Send Server Info Error", e)
                 }
-                log["Changed admin status of player: {0}", player.name]
+                log("Changed admin status of player: {0}", player.name)
             }
         }
         handler.register("clearbanall", "serverCommands.clearbanall") { _: Array<String>?, _: StrCons ->
@@ -112,7 +124,7 @@ internal class ServerCommands(handler: CommandHandler) {
             val player = room.playerManage.getPlayerArray(site)
             if (player != null) {
                 player.kickTime = if (arg.size > 1) getTimeFutureMillis(
-                    arg[1].toInt() * 1000L
+                        arg[1].toInt() * 1000L
                 ) else getTimeFutureMillis(60 * 1000L)
                 try {
                     player.kickPlayer(localeUtil.getinput("kick.you"))
@@ -129,12 +141,11 @@ internal class ServerCommands(handler: CommandHandler) {
                     player.con!!.sendSurrender()
                 }
             } else {
-                log[localeUtil.getinput("err.noStartGame")]
+                log(localeUtil.getinput("err.noStartGame"))
             }
         }
         handler.register("giveadmin", "<PlayerPositionNumber...>", "serverCommands.giveadmin") { arg: Array<String>, _: StrCons ->
-            room.playerManage.playerGroup.eachAllFind(
-                { p: PlayerHess -> p.isAdmin }) { i: PlayerHess ->
+            room.playerManage.playerGroup.eachAllFind({ p: PlayerHess -> p.isAdmin }) { i: PlayerHess ->
                 val player = room.playerManage.getPlayerArray(arg[0].toInt())
                 if (player != null) {
                     i.isAdmin = false
@@ -146,64 +157,59 @@ internal class ServerCommands(handler: CommandHandler) {
         handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
             room.playerManage.playerGroup.eachAll { e: PlayerHess -> e.muteTime = 0 }
         }
-        handler.register("team", "<PlayerPositionNumber> <Team>", "serverCommands.team") { arg: Array<String> ->
-            val site = arg[0].toInt() - 1
-            val team = arg[1].toInt() - 1
-            val player = room.playerManage.getPlayerArray(site)
-            if (player != null) {
-                player.team = team
+
+        handler.register("team", "<PlayerPositionNumber> <Team>", "serverCommands.team") { arg: Array<String>, log: StrCons ->
+            if (GameEngine.data.room.isStartGame) {
+                log(localeUtil.getinput("err.startGame"))
+                return@register
             }
+
+            if (IsUtils.notIsNumeric(arg[0]) && IsUtils.notIsNumeric(arg[1])) {
+                log(localeUtil.getinput("err.noNumber"))
+                return@register
+            }
+            val playerPosition = arg[0].toInt() - 1
+            val newPosition = arg[1].toInt() - 1
+            n.k(playerPosition).r = newPosition
         }
     }
 
     private fun registerPlayerStatusCommand(handler: CommandHandler) {
         handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
             if (room.playerManage.playerGroup.size == 0) {
-                log["No players are currently in the server."]
+                log("No players are currently in the server.")
             } else {
-                log["Players: {0}", room.playerManage.playerGroup.size]
+                log("Players: {0}", room.playerManage.playerGroup.size)
                 val data = StringBuilder()
                 for (player in room.playerManage.playerGroup) {
-                    data.append(LINE_SEPARATOR)
-                        .append(player.name)
-                        .append(" / ")
-                        .append("Position: ").append(player.site)
-                        .append(" / ")
-                        .append("IP: ").append((player.con!! as AbstractNetConnect).ip)
-                        .append(" / ")
-                        .append("Protocol: ").append((player.con!! as AbstractNetConnect).useConnectionAgreement)
-                        .append(" / ")
-                        .append("Admin: ").append(player.isAdmin)
+                    data.append(LINE_SEPARATOR).append(player.name).append(" / ").append("Position: ").append(player.site).append(" / ")
+                        .append("IP: ").append((player.con!! as AbstractNetConnect).ip).append(" / ").append("Protocol: ")
+                        .append((player.con!! as AbstractNetConnect).useConnectionAgreement).append(" / ").append("Admin: ")
+                        .append(player.isAdmin)
                 }
-                log[data.toString()]
+                log(data.toString())
             }
         }
 
         handler.register("admins", "serverCommands.admins") { _: Array<String>?, log: StrCons ->
             if (Data.core.admin.playerAdminData.size == 0) {
-                log["No admins are currently in the server."]
+                log("No admins are currently in the server.")
             } else {
-                log["Admins: {0}", Data.core.admin.playerAdminData.size]
+                log("Admins: {0}", Data.core.admin.playerAdminData.size)
                 val data = StringBuilder()
                 for (player in Data.core.admin.playerAdminData.values) {
-                    data.append(LINE_SEPARATOR)
-                        .append(player.name)
-                        .append(" / ")
-                        .append("ID: ").append(player.uuid)
-                        .append(" / ")
-                        .append("Admin: ").append(player.admin)
-                        .append(" / ")
-                        .append("SuperAdmin: ").append(player.superAdmin)
+                    data.append(LINE_SEPARATOR).append(player.name).append(" / ").append("ID: ").append(player.uuid).append(" / ")
+                        .append("Admin: ").append(player.admin).append(" / ").append("SuperAdmin: ").append(player.superAdmin)
                 }
-                log[data.toString()]
+                log(data.toString())
             }
         }
 
         handler.register("reloadmods", "serverCommands.reloadmods") { _: Array<String>?, log: StrCons ->
             if (room.isStartGame) {
-                log[Data.i18NBundle.getinput("err.startGame")]
+                log(localeUtil.getinput("err.startGame"))
             } else {
-                log[Data.i18NBundle.getinput("server.loadMod", ModManage.reLoadMods())]
+                log(localeUtil.getinput("server.loadMod", ModManage.reLoadMods()))
             }
 
         }
@@ -212,14 +218,28 @@ internal class ServerCommands(handler: CommandHandler) {
             MapManage.mapsData.clear()
             MapManage.checkMaps()
             // Reload 旧列表的Custom数量 : 新列表的Custom数量
-            log["Reload Old Size:New Size is {0}:{1}", size, MapManage.mapsData.size]
+            log("Reload Old Size:New Size is {0}:{1}", size, MapManage.mapsData.size)
+        }
+        handler.register("mods", "serverCommands.mods") { _: Array<String>?, log: StrCons ->
+            for ((index, name) in ModManage.getModsList().withIndex()) {
+                log(localeUtil.getinput("mod.info", index, name))
+            }
+        }
+        handler.register("maps", "serverCommands.maps") { _: Array<String>?, log: StrCons ->
+            val response = StringBuilder()
+            val i = AtomicInteger(0)
+            MapManage.mapsData.keys.forEach { k: String? ->
+                response.append(localeUtil.getinput("maps.info", i.get(), k)).append(LINE_SEPARATOR)
+                i.getAndIncrement()
+            }
+            log(response.toString())
         }
     }
 
     private fun registerPlayerCustomEx(handler: CommandHandler) {
         handler.register("addmoney", "<PlayerPositionNumber> <money>", "serverCommands.addmoney") { arg: Array<String>, log: StrCons ->
             if (!room.isStartGame) {
-                log[localeUtil.getinput("err.noStartGame")]
+                log(localeUtil.getinput("err.noStartGame"))
                 return@register
             }
             val site = arg[0].toInt() - 1
@@ -262,15 +282,13 @@ internal class ServerCommands(handler: CommandHandler) {
                                 val commandPacket = GameEngine.gameEngine.cf.b()
 
                                 val out = GameOutputStream()
-                                out.flushEncodeData(
-                                    CompressOutputStream.getGzipOutputStream("c",false).apply {
-                                        writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index, arg[0], ((off+width)*20).toFloat(), (height*20).toFloat()).bytes)
-                                    }
-                                )
+                                out.flushEncodeData(CompressOutputStream.getGzipOutputStream("c", false).apply {
+                                    writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index, arg[0], ((off + width) * 20).toFloat(), (height * 20).toFloat()).bytes)
+                                })
 
                                 commandPacket.a(k(NetEnginePackaging.transformHessPacketNullSource(out.createPacket(PacketType.TICK))))
 
-                                commandPacket.c = GameEngine.data.gameHessData.tickNetHess+10
+                                commandPacket.c = GameEngine.data.gameHessData.tickNetHess + 10
                                 GameEngine.gameEngine.cf.b.add(commandPacket)
                             } catch (e: Exception) {
                                 error(e)

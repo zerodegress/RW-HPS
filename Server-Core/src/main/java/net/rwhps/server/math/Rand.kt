@@ -20,7 +20,7 @@ import kotlin.math.min
  * @author Inferno
  * @author davebaol
  */
-class Rand : Random {
+class Rand: Random {
     /** 这个伪随机数发生器内部状态的前半部分.  */
     private var seed0: Long = 0
 

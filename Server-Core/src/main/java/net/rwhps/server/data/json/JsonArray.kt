@@ -19,7 +19,7 @@ import org.json.JSONArray
  *
  * @property jsonObject JSONArray
  * @author RW-HPS/Dr
-*/
+ */
 class JsonArray {
     private val jsonObject: JSONArray
 
@@ -47,18 +47,21 @@ class JsonArray {
             it.getString(index)
         }!!
     }
+
     @JvmOverloads
     fun getInt(index: Int, defaultValue: Int? = null): Int? {
         return jsonObject.getDataResult(defaultValue) {
             it.getInt(index)
         }
     }
+
     @JvmOverloads
     fun getLong(index: Int, defaultValue: Long? = null): Long? {
         return jsonObject.getDataResult(defaultValue) {
             it.getLong(index)
         }
     }
+
     @JvmOverloads
     fun getBoolean(index: Int, defaultValue: Boolean? = null): Boolean? {
         return jsonObject.getDataResult(defaultValue) {

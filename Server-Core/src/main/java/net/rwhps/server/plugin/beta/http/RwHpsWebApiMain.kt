@@ -9,17 +9,22 @@
 
 package net.rwhps.server.plugin.beta.http
 
+import net.rwhps.server.data.EventGlobalManage
 import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.game.event.core.EventListenerHost
+import net.rwhps.server.game.event.global.ServerConsolePrintEvent
 import net.rwhps.server.plugin.Plugin
+import net.rwhps.server.plugin.beta.http.data.GetData
 import net.rwhps.server.plugin.beta.http.data.HttpApiEvent
+import net.rwhps.server.util.annotations.core.EventListenerHandler
 
 /**
  * @date  2023/6/27 11:11
  * @author  RW-HPS/Dr
  */
-class RwHpsWebApiMain : Plugin() {
+class RwHpsWebApiMain: Plugin() {
 
     override fun onEnable() {
         val mc = MessageForwardingCenter()
@@ -27,20 +32,28 @@ class RwHpsWebApiMain : Plugin() {
         auth.registerAuthenticationCenter()
     }
 
-    override fun registerEvents(hessLoadID: String, eventManage: EventManage) {
+    override fun registerEvents(eventManage: EventManage) {
         eventManage.registerListener(HttpApiEvent())
+    }
+
+    override fun registerGlobalEvents(eventManage: EventGlobalManage) {
+        eventManage.registerListener(object: EventListenerHost {
+            @EventListenerHandler
+            fun registerServerConsolePrintEvent(serverConsolePrintEvent: ServerConsolePrintEvent) {
+                GetData.consoleCache.addSeq(serverConsolePrintEvent.print)
+                GetData.agentConsoleLog.values.forEach {
+                    it(serverConsolePrintEvent.print)
+                }
+            }
+        })
     }
 
     companion object {
         val pluginInfo = BeanPluginInfo(
-            name = "RW-HPS API",
-            author = "RW-HPS/Dr",
-            description = "API interface for RW-HPS",
-            version = "0.0.1",
-            supportedVersions = "= ${Data.SERVER_CORE_VERSION}"
+                name = "RW-HPS API", author = "RW-HPS/Dr", description = "API interface for RW-HPS", version = "0.0.2", supportedVersions = "= ${Data.SERVER_CORE_VERSION}"
         )
 
-        const val url = "/HttpApi"
+        const val name = "HttpApi"
         const val cookieName = "HttpApi-Authentication"
     }
 }

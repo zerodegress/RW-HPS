@@ -34,13 +34,14 @@ import java.util.concurrent.TimeUnit
 abstract class AbstractNet(
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger(),
     private val newServerHandler: SimpleChannelInboundHandler<Any?> = NewServerHandler(),
-) : ChannelInitializer<SocketChannel>() {
+): ChannelInitializer<SocketChannel>() {
     private val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(64, ThreadFactoryName.nameThreadFactory("IO-Group"))
+
     // Speed Limt 8Mbps
-    private val trafficHandler = GlobalTrafficShapingHandler(GetNewThreadPool.getNewScheduledThreadPool(1,"SpeedLimt"), 1048576, 0);
+    private val trafficHandler = GlobalTrafficShapingHandler(GetNewThreadPool.getNewScheduledThreadPool(1, "SpeedLimt"), 1048576, 0)
 
     protected fun speedlimt(channelPipeline: ChannelPipeline) {
-        channelPipeline.addLast("SpeedLimt",trafficHandler)
+        channelPipeline.addLast("SpeedLimt", trafficHandler)
     }
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {
@@ -56,15 +57,17 @@ abstract class AbstractNet(
     protected fun addNewServerHandler(channelPipeline: ChannelPipeline) {
         channelPipeline.addLast(newServerHandler)
     }
+
     protected fun addNewServerHandlerExecutorGroup(channelPipeline: ChannelPipeline) {
-        channelPipeline.addLast(ioGroup,newServerHandler)
+        channelPipeline.addLast(ioGroup, newServerHandler)
     }
 
     protected fun rwinit(channelPipeline: ChannelPipeline) {
         //speedlimt(channelPipeline)
         addTimeOut(channelPipeline)
         addPacketDecoderAndEncoder(channelPipeline)
-        addNewServerHandlerExecutorGroup(channelPipeline)
+        addNewServerHandler(channelPipeline)
+        //addNewServerHandlerExecutorGroup(channelPipeline)
     }
 
     internal fun getConnectSize(): Int {

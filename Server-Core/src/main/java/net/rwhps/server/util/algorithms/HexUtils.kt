@@ -9,8 +9,8 @@
 package net.rwhps.server.util.algorithms
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.ExtractUtils
 import net.rwhps.server.util.IsUtils
+import net.rwhps.server.util.StringUtils
 import net.rwhps.server.util.algorithms.codec.Base16Codec
 import java.math.BigInteger
 import java.nio.charset.Charset
@@ -55,7 +55,7 @@ object HexUtils {
      */
     @JvmStatic
     fun encodeHex(str: String, charset: Charset?): CharArray {
-        return encodeHex(ExtractUtils.bytes(str, charset), true)
+        return encodeHex(StringUtils.bytes(str, charset), true)
     }
     /**
      * 将字节数组转换为十六进制字符数组
@@ -91,7 +91,7 @@ object HexUtils {
     @JvmOverloads
     @JvmStatic
     fun encodeHexStr(data: String, charset: Charset = Data.UTF_8): String {
-        return encodeHexStr(ExtractUtils.bytes(data, charset), true)
+        return encodeHexStr(StringUtils.bytes(data, charset), true)
     }
     /**
      * 将字节数组转换为十六进制字符串
@@ -130,7 +130,7 @@ object HexUtils {
         return if (IsUtils.isBlank(hexStr)) {
             hexStr
         } else {
-            ExtractUtils.str(decodeHex(hexStr), charset)
+            StringUtils.str(decodeHex(hexStr), charset)
         }
     }
 
@@ -143,7 +143,7 @@ object HexUtils {
      */
     @JvmStatic
     fun decodeHexStr(hexData: CharArray, charset: Charset?): String {
-        return ExtractUtils.str(decodeHex(hexData), charset)
+        return StringUtils.str(decodeHex(hexData), charset)
     }
 
     /**

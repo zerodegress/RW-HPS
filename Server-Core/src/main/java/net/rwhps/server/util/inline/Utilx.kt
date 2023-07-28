@@ -7,8 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 

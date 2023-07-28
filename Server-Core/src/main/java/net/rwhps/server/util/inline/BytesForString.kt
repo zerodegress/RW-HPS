@@ -7,8 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
@@ -16,12 +15,12 @@ import net.rwhps.server.util.algorithms.HexUtils
 
 
 @JvmOverloads
-fun Byte.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) : String {
+fun Byte.toStringHex(toLowerCase: Boolean = false, format: Boolean = true): String {
     return byteArrayOf(this).toStringHex(toLowerCase, format)
 }
 
 @JvmOverloads
-fun ByteArray.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) : String {
+fun ByteArray.toStringHex(toLowerCase: Boolean = false, format: Boolean = true): String {
     HexUtils.encodeHexStr(this, toLowerCase).let {
         if (format) {
             return HexUtils.format(it)
@@ -31,10 +30,10 @@ fun ByteArray.toStringHex(toLowerCase: Boolean = false, format: Boolean = true) 
     }
 }
 
-fun String.hexToByte() : Byte {
+fun String.hexToByte(): Byte {
     return HexUtils.decodeHex(this)[0]
 }
 
-fun String.hexToBytes() : ByteArray {
+fun String.hexToBytes(): ByteArray {
     return HexUtils.decodeHex(this)
 }

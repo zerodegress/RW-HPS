@@ -22,10 +22,8 @@ object StringFilteringUtil {
     private val pattern = Pattern.compile("[1-9][0-9]{4,14}")
 
     private val IP_ADDRESS: Pattern = Pattern.compile(
-        "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]).(25[0-5]|2[0-4]"
-                + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0).(25[0-5]|2[0-4][0-9]|[0-1]"
-                + "[0-9]{2}|[1-9][0-9]|[1-9]|0).(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
-                + "|[1-9][0-9]|[0-9]))")
+            "((25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]).(25[0-5]|2[0-4]" + "[0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0).(25[0-5]|2[0-4][0-9]|[0-1]" + "[0-9]{2}|[1-9][0-9]|[1-9]|0).(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}" + "|[1-9][0-9]|[0-9]))"
+    )
 
     /**
      * Good characters for Internationalized Resource Identifiers (IRI).
@@ -33,7 +31,9 @@ object StringFilteringUtil {
      * as detailed in RFC 3987.
      * Specifically, those two byte Unicode characters are not included.
      */
-    private const val GOOD_IRI_CHAR = "a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF"/**
+    private const val GOOD_IRI_CHAR = "a-zA-Z0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF"
+
+    /**
      * RFC 1035 Section 2.3.4 limits the labels to a maximum 63 octets.
      */
     private const val IRI = "[$GOOD_IRI_CHAR]([$GOOD_IRI_CHAR\\-]{0,61}[$GOOD_IRI_CHAR]){0,1}"
@@ -41,20 +41,17 @@ object StringFilteringUtil {
     private val GTLD: String = "[$GOOD_GTLD_CHAR]{2,63}"
     private val HOST_NAME = "($IRI.)+$GTLD"
     private val DOMAIN_NAME = Pattern.compile("($HOST_NAME|$IP_ADDRESS)")
+
     /**
      * Regular expression pattern to match most part of RFC 3987
      * Internationalized URLs, aka IRIs.  Commonly used Unicode characters are
      * added.
      */
     private val WEB_URL = Pattern.compile(
-        "((?:(http|https|Http|Https|rtsp|Rtsp)://(?:(?:[a-zA-Z0-9$\\-_.+!*'()"
-                + ",;?&=]|%[a-fA-F0-9]{2}){1,64}(?::(?:[a-zA-Z0-9$\\-_"
-                + ".+!*'(),;?&=]|%[a-fA-F0-9]{2}){1,25})?@)?)?"
-                + "DOM" + DOMAIN_NAME + "AIN_NAME"
-                + "(?::\\d{1,5})?)" // plus option port number
-                + "(/(?:[GOO" + GOOD_IRI_CHAR + "D_IRI_CHA" // plus option query params
-                + "R;/?:@&=#~\\-.+!*'(),_]|%[a-fA-F0-9]{2})*)?"
-                + "(?:\\b|$)")
+            "((?:(http|https|Http|Https|rtsp|Rtsp)://(?:(?:[a-zA-Z0-9$\\-_.+!*'()" + ",;?&=]|%[a-fA-F0-9]{2}){1,64}(?::(?:[a-zA-Z0-9$\\-_" + ".+!*'(),;?&=]|%[a-fA-F0-9]{2}){1,25})?@)?)?" + "DOM" + DOMAIN_NAME + "AIN_NAME" + "(?::\\d{1,5})?)" // plus option port number
+                    + "(/(?:[GOO" + GOOD_IRI_CHAR + "D_IRI_CHA" // plus option query params
+                    + "R;/?:@&=#~\\-.+!*'(),_]|%[a-fA-F0-9]{2})*)?" + "(?:\\b|$)"
+    )
     private val WEB_URL0 = Pattern.compile("([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://|[wW]{3}.|[wW][aA][pP].|[fF][tT][pP].|[fF][iI][lL][eE].)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]\n")
 
     private fun findFirstGroup(matcher: Matcher): String {
@@ -69,7 +66,7 @@ object StringFilteringUtil {
             val matcher = pattern.matcher(str)
             findFirstGroup(matcher)
         } catch (e: java.lang.Exception) {
-            Log.error("[Find Match] Error",e)
+            Log.error("[Find Match] Error", e)
             ""
         }
     }
@@ -133,7 +130,7 @@ object StringFilteringUtil {
     }
 
     @JvmStatic
-	fun cutting(str: String, length: Int): String {
+    fun cutting(str: String, length: Int): String {
         return if (str.length < length) {
             str
         } else str.substring(0, length)
@@ -141,7 +138,7 @@ object StringFilteringUtil {
 
     @JvmStatic
     fun cuttingEnd(str: String): String {
-        return str.substring(0,str.length-1)
+        return str.substring(0, str.length - 1)
     }
 
 
@@ -160,7 +157,7 @@ object StringFilteringUtil {
     }
 
 
-        /***
+    /***
      * 把中文替换为指定字符<br></br>
      * 注意:一次只匹配一个中文字符
      * @param source

@@ -63,7 +63,7 @@ object IpUtils {
 
     @JvmStatic
     fun ipToLong24(strIp: String, separateAddress: Boolean = true): String {
-        return ipToLong(strIp,separateAddress)
+        return ipToLong(strIp, separateAddress)
     }
 
     @JvmStatic
@@ -145,7 +145,7 @@ object IpUtils {
         }
 
         // verify that address subgroups are legal
-        for (i in 1..4) {
+        for (i in 1 .. 4) {
             val ipSegment = m.group(i)
             val iIpSegment = ipSegment.toInt()
             if (iIpSegment > IPV4_MAX_OCTET_VALUE) {

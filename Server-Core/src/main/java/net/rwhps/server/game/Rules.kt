@@ -8,19 +8,13 @@
  */
 package net.rwhps.server.game
 
-import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.bean.BeanCoreConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.game.GameMaps.MapData
-import net.rwhps.server.io.packet.GameCommandPacket
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtils.notIsBlank
 import net.rwhps.server.util.algorithms.digest.DigestUtils.sha256
 import java.math.BigInteger
-import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author RW-HPS/Dr
@@ -50,44 +44,18 @@ class Rules(private var config: BeanCoreConfig, private var configServer: BeanSe
 
     /** 密码  */
     @JvmField
-    val passwd: String = if (notIsBlank(Data.configServer.Passwd)) BigInteger(1, sha256(Data.configServer.Passwd)).toString(16).uppercase() else ""
-
-    /** 按键包缓存  */
-    val gameCommandCache = Seq<GameCommandPacket>(16,true)
-
+    val passwd: String = if (notIsBlank(Data.configServer.passwd)) BigInteger(1, sha256(Data.configServer.passwd)).toString(16)
+        .uppercase() else ""
 
     /** 游戏暂停  */
     @Volatile
     var gamePaused = false
 
-    /** AFK  */
-    var isAfk: Boolean = true
-    /** Mpa Lock  */
-    var mapLock: Boolean = false
-    var battleRoyalLock: Boolean = false
-
-    /* */
-    val mapsData = OrderedMap<String, MapData>(8)
-
-    val tickGame = AtomicInteger(6)
-
     init {
-        NetStaticData.relay.isMod = config.SingleUserRelayMod
-        val maxPlayer = configServer.MaxPlayer+1
+        NetStaticData.relay.isMod = config.singleUserRelayMod
+        val maxPlayer = configServer.maxPlayer + 1
         this.maxPlayer = maxPlayer
-        income = configServer.DefIncome
+        income = configServer.defIncome
     }
 
-    fun init() {
-        isAfk = Data.core.settings.getData("Rules.IsAfk") { isAfk }
-        mapLock = Data.core.settings.getData("Rules.MapLock") { mapLock }
-        battleRoyalLock = Data.core.settings.getData("Rules.DogfightLock") { battleRoyalLock }
-
-
-        Threads.addSavePool {
-            Data.core.settings.setData("Rules.IsAfk",isAfk)
-            Data.core.settings.setData("Rules.MapLock",mapLock)
-            Data.core.settings.setData("Rules.DogfightLock",battleRoyalLock)
-        }
-    }
 }

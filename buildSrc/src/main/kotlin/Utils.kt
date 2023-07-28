@@ -29,11 +29,11 @@ fun Project.setRepositories() {
 fun Project.makeDependTree() {
     val project = this
 
-    val implementationFile = File("${project.rootDir}${Data.mavenPath}/${this.project.name}/implementation.txt")
-    val compileOnlyFile = File("${project.rootDir}${Data.mavenPath}/${this.project.name}/compileOnly.txt")
+    val implementationFile = File("${project.rootDir}/${this.project.name}/${Data.mavenPath}/${this.project.name}/implementation.txt")
+    val compileOnlyFile = File("${project.rootDir}/${this.project.name}/${Data.mavenPath}/${this.project.name}/compileOnly.txt")
 
-    implementationFile.mk()
-    compileOnlyFile.mk()
+    implementationFile.fuckGithub()
+    compileOnlyFile.fuckGithub()
 
     var implementation = ""
     var compileOnly = ""
@@ -59,7 +59,8 @@ fun Project.makeDependTree() {
     compileOnlyFile.writeText(compileOnly)
 }
 
-fun File.mk() {
+fun File.fuckGithub() {
+    this.parentFile?.delete()
     this.parentFile?.mkdirs()
 
     if (this.isDirectory) {

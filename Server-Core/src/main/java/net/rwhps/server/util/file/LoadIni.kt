@@ -44,33 +44,33 @@ class LoadIni {
             p.load(inputStreamReader)
             p.forEach { key: Any, value: Any -> data.put(key as String, value as String) }
         } catch (e: Exception) {
-            Log.error("[Load Language File] Error",e)
+            Log.error("[Load Language File] Error", e)
         }
     }
-    
+
     private fun readObject(input: String): String? {
         return data[input]?.toString()
     }
 
     @JvmOverloads
     fun readString(input: String, def: String = ""): String {
-        return readObject(input) ?:def
+        return readObject(input) ?: def
     }
 
     fun readInt(input: String, def: Int): Int {
-        return readObject(input)?.toInt() ?:def
+        return readObject(input)?.toInt() ?: def
     }
 
     fun readBoolean(input: String, def: Boolean): Boolean {
-        return readObject(input)?.toBoolean() ?:def
+        return readObject(input)?.toBoolean() ?: def
     }
 
     fun readFloat(input: String, def: Float): Float {
-        return readObject(input)?.toFloat() ?:def
+        return readObject(input)?.toFloat() ?: def
     }
 
     fun readLong(input: String, def: Long): Long {
-        return readObject(input)?.toLong() ?:def
+        return readObject(input)?.toLong() ?: def
     }
 
     fun setObject(input: String, key: Any) {

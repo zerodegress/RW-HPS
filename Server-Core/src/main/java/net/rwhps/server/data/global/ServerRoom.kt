@@ -36,7 +36,7 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
                 checkGameStatusFlag = false
 
                 startTime = Time.concurrentSecond()
-                endTime = Time.concurrentSecond()+Data.configServer.MaxGameIngTime
+                endTime = Time.concurrentSecond() + Data.configServer.maxGameIngTime
 
                 closeTimeTask(CallTimeTask.CallTeamTask)
 
@@ -51,6 +51,7 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
 
     // Start Time
     var startTime = 0
+
     /** End Time */
     var endTime = 0
         private set
@@ -82,8 +83,8 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
     internal var gameOverData: GameOverData? = null
 
 
-    var closeServer: ()->Unit = {}
-    var startServer: ()->Unit = {}
+    var closeServer: () -> Unit = {}
+    var startServer: () -> Unit = {}
 
     internal fun gr() {
         if (forcedReturn) {

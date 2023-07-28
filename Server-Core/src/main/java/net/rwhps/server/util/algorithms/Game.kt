@@ -18,7 +18,7 @@ package net.rwhps.server.util.algorithms
 object Game {
     // 1.14
     @JvmStatic
-	fun connectKey_114(paramInt: Int): String {
+    fun connectKey_114(paramInt: Int): String {
         return buildString {
             append("c:${paramInt}")
             append("m:${paramInt * 87 + 24}")

@@ -1,6 +1,7 @@
 # RW-HPS - File
+
 在 RW-HPS 中 文件操作同一使用 `FileUtil` 进行操作  
-`FileUtil` 默认根是在与jar同级目录 因此 不需要特别进行管理  
+`FileUtil` 默认根是在与jar同级目录 因此 不需要特别进行管理
 
 对于插件在 `pluginDataFileUtil`  中获取到的, 则根在 `plugin/插件名/`
 

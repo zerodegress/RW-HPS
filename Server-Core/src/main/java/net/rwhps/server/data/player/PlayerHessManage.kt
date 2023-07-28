@@ -10,24 +10,37 @@
 package net.rwhps.server.data.player
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.I18NBundle
+import net.rwhps.server.util.IsUtils
 
 /**
+ * Hess 下的玩家管理器
+ *
+ * 不需要用户手动创建, 在每个 Hess Server自带.
+ *
+ * RW-HPS 单例下使用(java) :
+ * HessModuleManage.INSTANCE.getHps().getRoom().getPlayerManage()
+ *
  * @author RW-HPS/Dr
  */
 class PlayerHessManage {
     /** Online players   */
     @JvmField
-    val playerGroup = Seq<PlayerHess>(16,true)
+    val playerGroup = Seq<PlayerHess>(16, true)
 
     /** ALL players  */
     @JvmField
-    val playerAll = Seq<PlayerHess>(16,true)
+    val playerAll = Seq<PlayerHess>(16, true)
 
-    fun addAbstractPlayer(con: AbstractNetConnectServer, playerData: AbstractPlayerData, i18NBundle: I18NBundle = Data.i18NBundle): PlayerHess {
+    fun addAbstractPlayer(
+        con: AbstractNetConnectServer,
+        playerData: AbstractPlayerData,
+        i18NBundle: I18NBundle = Data.i18NBundle
+    ): PlayerHess {
         var player: PlayerHess? = null
         var resultFlag = true
 
@@ -39,7 +52,7 @@ class PlayerHessManage {
 
         if (resultFlag) {
             player = PlayerHess(con, i18NBundle, playerData)
-            if (Data.configServer.OneAdmin) {
+            if (Data.configServer.oneAdmin) {
                 var hasAutoAdmin = false
                 playerGroup.eachFind({ it.isAdmin && it.autoAdmin }) { hasAutoAdmin = true }
 
@@ -50,7 +63,7 @@ class PlayerHessManage {
             }
 
             if (Data.core.admin.isAdmin(player!!)) {
-                val data = Data.core.admin.playerAdminData.get(player!!.connectHexID)!!
+                val data = Data.core.admin.playerAdminData[player!!.connectHexID]!!
                 player!!.isAdmin = data.admin
                 player!!.superAdmin = data.superAdmin
             }
@@ -60,6 +73,51 @@ class PlayerHessManage {
 
         playerGroup.add(player!!)
         return player!!
+    }
+
+    fun findPlayer(writeConsole: StrCons, findIn: String): PlayerHess? {
+        var conTg: PlayerHess? = null
+
+        var findNameIn: String? = null
+        var findPositionIn: Int? = null
+
+        if (IsUtils.isNumeric(findIn)) {
+            findPositionIn = findIn.toInt() - 1
+        } else {
+            findNameIn = findIn
+        }
+
+        findNameIn?.let { findName ->
+            var count = 0
+            playerGroup.eachAll {
+                if (it.name.contains(findName, ignoreCase = true)) {
+                    conTg = it
+                    count++
+                }
+            }
+            if (count > 1) {
+                writeConsole("目标不止一个, 请不要输入太短的玩家名")
+                return@let
+            }
+            if (conTg == null) {
+                writeConsole("找不到玩家")
+                return@let
+            }
+        }
+
+        findPositionIn?.let { findPosition ->
+            playerGroup.eachAll {
+                if (it.site == findPosition) {
+                    conTg = it
+                }
+            }
+            if (conTg == null) {
+                writeConsole("找不到玩家")
+                return@let
+            }
+        }
+
+        return conTg
     }
 
     fun runPlayerArrayDataRunnable(run: (PlayerHess) -> Unit) {

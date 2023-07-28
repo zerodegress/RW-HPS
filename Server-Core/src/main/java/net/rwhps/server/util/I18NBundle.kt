@@ -54,7 +54,7 @@ class I18NBundle {
             p.load(inputStreamReader)
             p.forEach { key: Any, value: Any -> languageData[key as String] = value as String }
         } catch (e: Exception) {
-            Log.error("[Load Language File] Error",e)
+            Log.error("[Load Language File] Error", e)
         }
     }
 
@@ -96,6 +96,7 @@ class I18NBundle {
 
         return flag
     }
+
     /**
      * 向本地语言中加入自定义
      *
@@ -123,8 +124,8 @@ class I18NBundle {
     /**
      * 传多参
      *
-     * @param      input   语言目标
-     * @param      params  替换参
+     * @param      input   localeKey
+     * @param      params  传入的参数, 永于替换 {0} {1}等
      * @return     文本
      */
     @Nls

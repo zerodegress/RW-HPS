@@ -7,8 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("RelayPacket")
-@file:JvmMultifileClass
+@file:JvmName("RelayPacket") @file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.relay
 

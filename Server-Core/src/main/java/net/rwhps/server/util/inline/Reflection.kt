@@ -7,8 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
@@ -33,7 +32,7 @@ import java.lang.reflect.Method
  * @return the Method object
  */
 fun Class<*>.findMethod(name: String, vararg paramTypes: Class<*>): Method? {
-    return ReflectionUtils.findMethod(this,name,*paramTypes)
+    return ReflectionUtils.findMethod(this, name, *paramTypes)
 }
 
 /**
@@ -48,7 +47,7 @@ fun Class<*>.findMethod(name: String, vararg paramTypes: Class<*>): Method? {
  * @return Field?
  */
 fun Class<*>.findField(name: String, type: Class<*>? = null): Field? {
-    return ReflectionUtils.findField(this,name,type)?.also {
+    return ReflectionUtils.findField(this, name, type)?.also {
         ReflectionUtils.makeAccessible(it)
     }
 }
@@ -84,7 +83,7 @@ fun String.toClass(loader: ClassLoader?): Class<*>? {
     return loader.ifNullResult({
         Class.forName(this)
     }) {
-        Class.forName(this,true,loader)
+        Class.forName(this, true, loader)
     }
 }
 
@@ -102,5 +101,5 @@ fun <T> Class<T>.accessibleConstructor(vararg parameterTypes: Class<*>): Constru
 }
 
 fun Class<*>.forName(): String {
-    return this.toString().replace("class ","")
+    return this.toString().replace("class ", "")
 }

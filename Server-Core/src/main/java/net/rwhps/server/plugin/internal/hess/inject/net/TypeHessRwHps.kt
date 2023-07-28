@@ -10,6 +10,7 @@
 package net.rwhps.server.plugin.internal.hess.inject.net
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.func.Control
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
@@ -25,7 +26,7 @@ import net.rwhps.server.util.ReflectionUtils
  * @property version            Parser version
  * @author RW-HPS/Dr
  */
-open class TypeHessRwHps : TypeConnect {
+open class TypeHessRwHps: TypeConnect {
     val con: GameVersionServer
     var conClass: Class<out GameVersionServer>? = null
 
@@ -35,6 +36,7 @@ open class TypeHessRwHps : TypeConnect {
     constructor(con: GameVersionServer) {
         this.con = con
     }
+
     constructor(con: Class<out GameVersionServer>) {
         // will not be used ; just override the initial value to avoid refusing to compile
         this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
@@ -44,20 +46,28 @@ open class TypeHessRwHps : TypeConnect {
     }
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeHessRwHps(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+        return TypeHessRwHps(
+                ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement)
+        )
     }
 
     @Throws(Exception::class)
     override fun typeConnect(packet: Packet) {
         try {
+            // 需要设计一个返回
             when (packet.type) {
                 PacketType.CHAT_RECEIVE -> {
                     con.receiveChat(packet)
                 }
-
+                // TODO 用户不可信
+                PacketType.GAMECOMMAND_RECEIVE -> {
+                    con.receiveCommand(packet)
+                }
                 else -> {}
             }
-            con.recivePacket(packet)
+            if (packet.status == Control.EventNext.CONTINUE) {
+                con.recivePacket(packet)
+            }
         } catch (_: Exception) {
         }
     }

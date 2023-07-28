@@ -41,25 +41,27 @@ class CommandsEx(handler: CommandHandler) {
                     out.writeString("PlayerSize")
                     out.writeInt(HessModuleManage.hps.room.playerManage.playerGroup.size)
                     out.writeString("MaxPlayer")
-                    out.writeInt(Data.configServer.MaxPlayer)
+                    out.writeInt(Data.configServer.maxPlayer)
 
                     out.writeString("MapName")
                     out.writeString(HessModuleManage.hps.room.mapName)
                     out.writeString("Income")
                     out.writeFloat(HessModuleManage.hps.gameDataLink.income)
                     out.writeString("Credits")
-                    out.writeInt(when (HessModuleManage.hps.gameDataLink.credits) {
-                        1 -> 0
-                        2 -> 1000
-                        3 -> 2000
-                        4 -> 5000
-                        5 -> 10000
-                        6 -> 50000
-                        7 -> 100000
-                        8 -> 200000
-                        0 -> 4000
-                        else -> 0
-                    })
+                    out.writeInt(
+                            when (HessModuleManage.hps.gameDataLink.credits) {
+                                1 -> 0
+                                2 -> 1000
+                                3 -> 2000
+                                4 -> 5000
+                                5 -> 10000
+                                6 -> 50000
+                                7 -> 100000
+                                8 -> 200000
+                                0 -> 4000
+                                else -> 0
+                            }
+                    )
                     out.writeString("NoNukes")
                     out.writeBoolean(HessModuleManage.hps.gameDataLink.nukes)
                     out.writeString("InitUnit")
@@ -69,7 +71,7 @@ class CommandsEx(handler: CommandHandler) {
                     out.writeString("SharedControl")
                     out.writeBoolean(HessModuleManage.hps.gameDataLink.sharedcontrol)
                 }
-                RelayProtocol,RelayMulticastProtocol -> {
+                RelayProtocol, RelayMulticastProtocol -> {
                     out.writeString("PlayerSize")
                     val size = AtomicInteger()
                     NetStaticData.netService.eachAll { e: NetService -> size.addAndGet(e.getConnectSize()) }
@@ -82,7 +84,7 @@ class CommandsEx(handler: CommandHandler) {
                     out.writeString("RoomNoStartSize")
                     out.writeInt(Relay.roomNoStartSize)
                 }
-                NullProtocol,DedicatedToTheBackend -> {}
+                NullProtocol, DedicatedToTheBackend -> {}
             }
             con.sendExCommand(out.createPacket(PacketType.GET_SERVER_INFO))
         }

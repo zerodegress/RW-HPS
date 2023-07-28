@@ -19,9 +19,10 @@ import org.lionsoul.ip2region.DbSearcher
  * @author RW-HPS/Dr
  */
 object IPCountry {
-    private val searcher: DbSearcher = DbSearcher(DbConfig(),
-        CompressionDecoderUtils.sevenAllReadStream(FileUtils.getInternalFileStream("/ip2region.7z"))
-            .getSpecifiedSuffixInThePackage("db",true)["ip2region.db"])
+    private val searcher: DbSearcher = DbSearcher(
+            DbConfig(), CompressionDecoderUtils.sevenAllReadStream(FileUtils.getInternalFileStream("/ip2region.7z"))
+        .getSpecifiedSuffixInThePackage("db", true)["ip2region.db"]
+    )
 
     fun test() {
         Log.clog(searcher.memorySearch("111.173.64.99").region.toString())

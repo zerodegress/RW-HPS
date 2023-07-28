@@ -21,7 +21,7 @@ import java.io.InputStream
  * @date  2023/5/27 12:33
  * @author  RW-HPS/Dr
  */
-class SevenZipEncoder : AbstractEncoder() {
+class SevenZipEncoder: AbstractEncoder() {
     private val outputStream = SeekableInMemoryByteChannel()
     private val sevenZipOutCache = SevenZOutputFile(outputStream)
 

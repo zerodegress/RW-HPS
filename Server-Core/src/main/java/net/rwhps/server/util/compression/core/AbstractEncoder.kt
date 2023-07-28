@@ -23,7 +23,7 @@ abstract class AbstractEncoder {
 
     fun addCompressBytes(name: String, compressionDecoder: AbstractDecoder) {
         compressionDecoder.use {
-            it.getZipAllBytes().forEach { addCompressBytes(it.key,it.value) }
+            it.getZipAllBytes().forEach { addCompressBytes(it.key, it.value) }
         }
     }
 

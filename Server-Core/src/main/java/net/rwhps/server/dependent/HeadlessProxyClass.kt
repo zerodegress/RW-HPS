@@ -11,6 +11,7 @@ package net.rwhps.server.dependent
 
 import net.rwhps.asm.agent.AsmAgent
 import net.rwhps.asm.agent.AsmCore
+import net.rwhps.asm.agent.AsmData
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginManage
@@ -37,50 +38,45 @@ import net.rwhps.server.util.log.Log
  * @author RW-HPS
  */
 @AsmMark.ClassLoaderCompatible
-class HeadlessProxyClass : AgentAttachData() {
+class HeadlessProxyClass: AgentAttachData() {
     init {
         initProxyClass()
     }
 
-    private fun initProxyClass() {
-        /* Register headless Lwjgl */
-        LwjglRedirections().register()
-        /* Register headless Slick */
-        SlickRedirections().register()
-        /* Register headless FileSystem */
-        FileLoaderRedirections().register()
-        /* Register some dependent features */
-        CustomRedirections().register()
-        /* Register for network blocking */
+    private fun initProxyClass() {/* Register headless Lwjgl */
+        LwjglRedirections().register()/* Register headless Slick */
+        SlickRedirections().register()/* Register headless FileSystem */
+        FileLoaderRedirections().register()/* Register some dependent features */
+        CustomRedirections().register()/* Register for network blocking */
         NetPacketRedirections().register()
 
         // 直接空实现 因为意义不大
         AsmCore.allMethod.add("org/newdawn/slick/util/DefaultLogSystem")
         AsmCore.allMethod.add("com/LibRocket")
         AsmCore.allMethod.add("com/corrodinggames/librocket/scripts/ScriptEngine")
-        // 这两个 因为 [LibRocket] 是空 所以被调用时 会 NPE
+        // 这两个 因为 [LibRocket] 如果是空的话, 会被……游戏调用导致 NPE, 所以我们要覆盖掉方法
         //需要空实现
-        AsmCore.addPartialMethod("com/corrodinggames/librocket/b" , arrayOf("closeDocument","(Lcom/ElementDocument;)V"))
-        AsmCore.addPartialMethod("com/corrodinggames/librocket/b" , arrayOf("closeActiveDocument","()V"))
+        AsmData.addPartialMethod("com/corrodinggames/librocket/b", arrayOf("closeDocument", "(Lcom/ElementDocument;)V"))
+        AsmData.addPartialMethod("com/corrodinggames/librocket/b", arrayOf("closeActiveDocument", "()V"))
 
         /* 恢复-Root */
-        AsmCore.addPartialMethod("com/corrodinggames/librocket/scripts/Root" , arrayOf("resume","()V")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
-            val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj)
-            ReflectionUtils.findField(rootClass,"guiEngine")!!.also {
+        AsmData.addPartialMethod("com/corrodinggames/librocket/scripts/Root", arrayOf("resume", "()V")) { obj: Any?, _: String, _: Class<*>, _: Array<out Any?> ->
+            val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj!!)
+            ReflectionUtils.findField(rootClass, "guiEngine")!!.also {
                 ReflectionUtils.makeAccessible(it)
-                it.get(obj)?.let { correspondingObject ->
+                it[obj]?.let { correspondingObject ->
                     "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("f")!!.invoke(correspondingObject)
                 }
             }
             return@addPartialMethod null
-        }
-        /* 恢复-Root */
-        AsmCore.addPartialMethod("com/corrodinggames/librocket/scripts/Root" , arrayOf("resumeNonMenu","()V")) { obj: Any, _: String?, _: Class<*>?, _: Array<Any?>? ->
-            val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj)
-            ReflectionUtils.findField(rootClass,"guiEngine")!!.also {
+        }/* 恢复-Root */
+        AsmData.addPartialMethod("com/corrodinggames/librocket/scripts/Root", arrayOf("resumeNonMenu", "()V")) { obj: Any?, _: String, _: Class<*>, _: Array<out Any?> ->
+            val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj!!)
+            ReflectionUtils.findField(rootClass, "guiEngine")!!.also {
                 ReflectionUtils.makeAccessible(it)
-                it.get(obj)?.let { correspondingObject ->
-                    "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("a",java.lang.Boolean::class.java)!!.invoke(correspondingObject,false)
+                it[obj]?.let { correspondingObject ->
+                    "com.corrodinggames.librocket.a".toClassAutoLoader(obj)!!.findMethod("a", java.lang.Boolean::class.java)!!
+                        .invoke(correspondingObject, false)
                 }
             }
             return@addPartialMethod null
@@ -88,41 +84,39 @@ class HeadlessProxyClass : AgentAttachData() {
 
 
         /* 取代游戏自己打印的 */
-        AsmCore.addPartialMethod("android/util/Log", arrayOf("a","(ILjava/lang/String;Ljava/lang/String;)I")) { obj: Any, _: String?, _: Class<*>?, args: Array<Any?>? ->
-            args?.let {
-                args[2]?.let {
-                    val classIn = obj as Class<*>
+        AsmData.addPartialMethod("android/util/Log", arrayOf("a", "(ILjava/lang/String;Ljava/lang/String;)I")) { obj: Any?, _: String, _: Class<*>, args: Array<out Any?> ->
+            args[2]?.let {
+                val classIn = obj as Class<*>
 
-                    val msg = it.toString()
+                val msg = it.toString()
 
-                    if (Data.config.Log == "ALL") {
-                        println("[${classIn.classLoader}]  :  "+msg)
-                    }
+                if (Data.config.log == "ALL") {
+                    println("[${classIn.classLoader}]  :  " + msg)
+                }
 
-                    val load = classIn.classLoader
-                    val loadID = load.toString()
+                val load = classIn.classLoader
+                val loadID = load.toString()
 
-                    val loadFlagGame = GameInitStatus.loadStatus[loadID, {
-                        GameInitStatus.NoLoad
-                    }]
+                val loadFlagGame = GameInitStatus.loadStatus[loadID, {
+                    GameInitStatus.NoLoad
+                }]
 
-                    if (msg.contains("----- Game init finished in")) {
-                        GameInitStatus.loadStatus[loadID] = GameInitStatus.LoadEndMods
-                    }
-                    if (msg.contains("Saving settings") && loadFlagGame == GameInitStatus.LoadEndMods) {
-                        GameInitStatus.loadStatus[loadID] = GameInitStatus.LoadEndGames
+                if (msg.contains("----- Game init finished in")) {
+                    GameInitStatus.loadStatus[loadID] = GameInitStatus.LoadEndMods
+                }
+                if (msg.contains("Saving settings") && loadFlagGame == GameInitStatus.LoadEndMods) {
+                    GameInitStatus.loadStatus[loadID] = GameInitStatus.LoadEndGames
 
-                        // Enable the interface
-                        "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
+                    // Enable the interface
+                    "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
 
-                        PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!.eventManage))
-                    }
+                    PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!.eventManage))
+                }
 
-                    if (msg.startsWith("Replay: Recording replay to:")) {
-                        Log.clog("Save Replay to: {0}",msg.replace("Replay: Recording replay to:","").trim().also { replayFileName ->
-                            HessModuleManage.hessLoaderMap[loadID]!!.room.replayFileName = replayFileName
-                        })
-                    }
+                if (msg.startsWith("Replay: Recording replay to:")) {
+                    Log.clog("Save Replay to: {0}", msg.replace("Replay: Recording replay to:", "").trim().also { replayFileName ->
+                        HessModuleManage.hessLoaderMap[loadID]!!.room.replayFileName = replayFileName
+                    })
                 }
             }
             0
@@ -144,9 +138,5 @@ class HeadlessProxyClass : AgentAttachData() {
         companion object {
             val loadStatus = ObjectMap<String, GameInitStatus>()
         }
-    }
-
-    companion object {
-        private var loadFlagGame = GameInitStatus.NoLoad
     }
 }

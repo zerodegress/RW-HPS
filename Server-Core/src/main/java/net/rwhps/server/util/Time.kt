@@ -117,14 +117,16 @@ object Time {
         return format(utcMillis, fot)
     }
 
-    private fun format(gmt: Long, fot: Int): String {
+    @JvmStatic
+    fun format(gmt: Long, fot: Int): String {
         val ft = arrayOf(
-            "yyyy-MM-dd",
-            "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd'T'HH:mm:ss'Z'",
-            "dd-MM-yyyy HH:mm:ss",
-            "MM-dd-yyyy HH:mm:ss",
-            "yyyy-MM-dd_HH-mm-ss",
+                "yyyy-MM-dd",
+                "yyyy-MM-dd HH:mm:ss",
+                "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                "dd-MM-yyyy HH:mm:ss",
+                "MM-dd-yyyy HH:mm:ss",
+                "yyyy-MM-dd_HH-mm-ss",
+                "HH:mm:ss",
         )
         return SimpleDateFormat(ft[fot]).format(Date(gmt))
     }

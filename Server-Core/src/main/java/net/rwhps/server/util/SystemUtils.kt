@@ -19,31 +19,40 @@ import java.util.*
 object SystemUtils {
     /** 获取服务器默认编码 */
     val defaultEncoding: Charset
-        get() = Charset.forName(get("sun.stdout.encoding") ?:Charset.defaultCharset().name())
+        get() = Charset.forName(get("sun.stdout.encoding") ?: Charset.defaultCharset().name())
+
     /** 获取服务器堆大小 */
     val javaHeap: Long
         get() = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+
     /** 获取服务器内存总大小 */
     val javaTotalMemory: Long
         get() = Runtime.getRuntime().totalMemory()
+
     /** 获取服务器空闲内存大小 */
     val javaFreeMemory: Long
         get() = Runtime.getRuntime().freeMemory()
+
     /** 获取服务器可用CPU数量 */
     val availableProcessors: Int
         get() = Runtime.getRuntime().availableProcessors()
+
     /** 获取Java名称 */
     val javaName: String
         get() = get("java.vm.name")!!
+
     /** 获取Java作者 */
     val javaVendor: String
         get() = get("java.vendor")!!
+
     /** 获取Java版本 */
     val javaVersion: String
         get() = get("java.version")!!
+
     /** 获取系统名称 */
     val osName: String
         get() = get("os.name")!!
+
     /** 获取系统架构 */
     val osArch: String
         get() = get("os.arch")!!
@@ -65,6 +74,7 @@ object SystemUtils {
             val os = get("os.name")!!
             return IsUtils.isBlank(os) || os.lowercase(Locale.getDefault()).contains("windows")
         }
+
     /** 获取JVM运行的PID */
     val pid: Long = ProcessHandle.current().pid()
 

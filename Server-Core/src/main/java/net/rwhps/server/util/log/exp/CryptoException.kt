@@ -9,5 +9,4 @@
 
 package net.rwhps.server.util.log.exp
 
-class CryptoException(info: Throwable) : Exception(info) {
-}
+class CryptoException(info: Throwable): Exception(info) {}

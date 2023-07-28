@@ -14,6 +14,6 @@ import net.rwhps.server.plugin.Plugin
 /**
  * @author RW-HPS/Dr
  */
-class ClosingBorder : Plugin() {
+class ClosingBorder: Plugin() {
 
 }

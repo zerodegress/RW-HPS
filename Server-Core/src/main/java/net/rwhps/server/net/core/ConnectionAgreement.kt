@@ -14,9 +14,11 @@ import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.event.global.NetConnectCloseEvent
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
-import net.rwhps.server.net.handler.rudp.PackagingSocket
+import net.rwhps.server.net.handler.bio.PackagingSocket
+import net.rwhps.server.net.handler.tcp.NewServerHandler
 import net.rwhps.server.util.IPCountry
 import net.rwhps.server.util.IpUtils
+import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
 import java.io.IOException
@@ -33,7 +35,7 @@ class ConnectionAgreement {
     private val objectOutStream: Any
     private val udpDataOutputStream: DataOutputStream?
 
-    val isClosed: ()->Boolean
+    val isClosed: () -> Boolean
     val useAgreement: String
     val ip: String
     val ipLong24: String
@@ -59,11 +61,16 @@ class ConnectionAgreement {
         }
         objectOutStream = channelHandlerContext
         udpDataOutputStream = null
-        useAgreement = "TCP"
-        isClosed = { false }
+        useAgreement = "TCP-NIO"
+        isClosed = {
+            val typeConnect = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
+            typeConnect.ifNullResult(false) {
+                it.abstractNetConnect.isDis
+            }
+        }
 
         ip = convertIp(channel.remoteAddress().toString())
-        ipLong24 = IpUtils.ipToLong24(ip,false)
+        ipLong24 = IpUtils.ipToLong24(ip, false)
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = (channel.localAddress() as InetSocketAddress).port
@@ -84,11 +91,11 @@ class ConnectionAgreement {
         }
         objectOutStream = socket
         udpDataOutputStream = socketStream
-        useAgreement = "UDP"
+        useAgreement = "UDP-BIO"
         isClosed = { socket.isClosed }
 
         ip = convertIp(socket.remoteSocketAddressString)
-        ipLong24 = IpUtils.ipToLong24(ip,false)
+        ipLong24 = IpUtils.ipToLong24(ip, false)
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = socket.localPort
@@ -158,8 +165,8 @@ class ConnectionAgreement {
             try {
                 udpDataOutputStream!!.close()
                 objectOutStream.close()
-            } catch (e : SocketException) {
-                Log.debug("[RUDP Close] Passive")
+            } catch (e: SocketException) {
+                Log.error("[RUDP Close] Passive")
             }
         }
     }

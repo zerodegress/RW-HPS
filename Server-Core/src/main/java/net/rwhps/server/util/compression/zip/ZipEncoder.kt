@@ -30,7 +30,7 @@ import java.util.zip.ZipOutputStream
  *
  * @author RW-HPS/Dr
  */
-class ZipEncoder : AbstractEncoder() {
+class ZipEncoder: AbstractEncoder() {
     private val outputStream = DisableSyncByteArrayOutputStream()
     private val zipOutCache = ZipArchiveOutputStream(outputStream)
 
@@ -61,8 +61,7 @@ class ZipEncoder : AbstractEncoder() {
                     val enumeration: Enumeration<out ZipArchiveEntry> = zipFile.entries
                     while (enumeration.hasMoreElements()) {
                         ze = enumeration.nextElement()
-                        if (!ze.isDirectory) {
-                            /* 只合并第一个源压缩包里面的文件，后面若有相同的文件则跳过执行合并 */
+                        if (!ze.isDirectory) {/* 只合并第一个源压缩包里面的文件，后面若有相同的文件则跳过执行合并 */
                             if (names.contains(ze.name) || !updateFile.contains(ze.name)) {
                                 continue
                             }

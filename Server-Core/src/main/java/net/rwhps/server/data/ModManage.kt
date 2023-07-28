@@ -25,12 +25,16 @@ import net.rwhps.server.util.annotations.DidNotFinish
 object ModManage {
     /** 游戏核心单位的命名(便于分辨) */
     private val coreName = "RW-HPS CoreUnits"
+
     /** 游戏单位校验数据*/
     private var enabledMods = OrderedMap<String, ObjectMap<String, Int>>()
+
     /** 启用的MOD(名字)-暂时无效 */
     private var enabledModsName = Seq<String>()
+
     /** 加载的单位数量 */
     private var loadUnitsCount = 0
+
     /** MOD的名字列表 */
     private var modList = Seq<String>()
 
@@ -46,7 +50,7 @@ object ModManage {
 
         modList = enabledMods.keys.toSeq()
 
-        return (enabledMods.size -1).also {
+        return (enabledMods.size - 1).also {
             HessModuleManage.hps.gameHessData.useMod = (it > 0)
         }
     }

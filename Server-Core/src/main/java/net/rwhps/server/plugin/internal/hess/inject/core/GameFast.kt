@@ -16,10 +16,10 @@ import com.corrodinggames.rts.gameFramework.j.au as Packet
 /**
  * @author RW-HPS/Dr
  */
-class GameFast : AbstractGameFast {
+class GameFast: AbstractGameFast {
     override fun filteredPacket(packet: Any): Boolean {
         if (packet is Packet) {
-            val playerConnect = packet.a as PlayerConnectX?;
+            val playerConnect = packet.a as PlayerConnectX?
             val type = packet.b
 
             if (type == 140 && playerConnect != null) {
@@ -27,10 +27,10 @@ class GameFast : AbstractGameFast {
             }
 
             if (GameEngine.netEngine.C && playerConnect != null && !playerConnect.p && type != 105 && type != 110 && type != 111 && type != 108 && type != 160) {
-                return true;
+                return true
             }
-            return false;
+            return false
         }
-        return false;
+        return false
     }
 }

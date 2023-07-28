@@ -22,15 +22,12 @@ interface AbstractGameHessData {
 
     var useMod: Boolean
 
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("gameSave")
-    fun getGameData(fastSync: Boolean = false): Packet
-
     @GameSimulationLayer.GameSimulationLayer_KeyWords("30")
     fun getGameCheck(): Packet
 
     /**
      * 获取位子上玩家是否存活
-     * 
+     *
      * @param position Position
      * @return Boolean
      */
@@ -55,7 +52,7 @@ interface AbstractGameHessData {
 
     fun getDefPlayerData(): AbstractPlayerData {
         return object: AbstractPlayerData {
-            private val error: ()->Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
+            private val error: () -> Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
 
             override fun updateDate() {}
             override val survive get() = error()

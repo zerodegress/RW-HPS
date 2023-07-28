@@ -22,11 +22,12 @@ import net.rwhps.server.util.log.Log
 class FFAAnalysis {
     fun test() {
         val bytes = GameOutputStream()
-        CompressionDecoderUtils.zipAllReadStream(FileUtils.getFile("ffa.zip").getInputsStream()).getSpecifiedSuffixInThePackage("bin").also {
-            for (i in 0..3542) {
-                bytes.writeBytes(it[i.toString()]!!)
+        CompressionDecoderUtils.zipAllReadStream(FileUtils.getFile("ffa.zip").getInputsStream()).getSpecifiedSuffixInThePackage("bin")
+            .also {
+                for (i in 0 .. 3542) {
+                    bytes.writeBytes(it[i.toString()]!!)
+                }
             }
-        }
 
         val read = GameInputStream(bytes.getPacketBytes())
         while (read.getSize() > 0) {
@@ -47,7 +48,7 @@ class FFAAnalysis {
                                 //Log.debug("Build",it)
                                 if (it) {
                                     c.readInt()
-                                   // Log.debug("Build GameActions", c.readEnum(GameUnitType.GameActions::class.java)!!.name)
+                                    // Log.debug("Build GameActions", c.readEnum(GameUnitType.GameActions::class.java)!!.name)
                                     val em = c.readEnum(GameUnitType.GameUnits::class.java)
 
                                     if (em == GameUnitType.GameUnits.damagingBorder || em == GameUnitType.GameUnits.zoneMarker) {

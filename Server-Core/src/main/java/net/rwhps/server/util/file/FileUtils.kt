@@ -32,15 +32,15 @@ import java.nio.file.attribute.PosixFilePermission
 /**
  * Server文件处理核心
  *
- * ## 推荐教程:  
+ * ## 推荐教程:
  * ### 误区
  * FileUtils() 是指实例 FileUtils, `FileUtils.` 是指静态方法
- * 
+ *
  * ### 快捷使用
  * - FileUtils.getFile("文件名") 因为不会创建文件 同时 位置和Jar同目录
  * - FileUtils.getFolder("文件夹名") 因为不会创建文件 只会创建目录
  * - FileUtils.getFolder("文件夹名").toFile("文件名") 只会创建目录
- * 
+ *
  * #### 扩展
  * FileUtils.getFolder("文件夹名" , true)返回的 FileUtil 在您操作 toFile toFolder 时 会直接返回新的 FileUtil 对象, 而原来的对象可重用
  *
@@ -127,11 +127,11 @@ open class FileUtils {
 
         if (filename.contains("/")) {
             fileName = filename.split("/").toTypedArray()[filename.split("/").toTypedArray().size - 1]
-            fileUtil = fileUtil.toFolder(filename.replace(fileName,""))
+            fileUtil = fileUtil.toFolder(filename.replace(fileName, ""))
         }
 
         return if (isNewFile) {
-            FileUtils(File(fileUtil.path + "/" + fileName),isNewFile)
+            FileUtils(File(fileUtil.path + "/" + fileName), isNewFile)
         } else {
             file = File(fileUtil.path + "/" + fileName)
             path = this.path + "/" + filename
@@ -143,10 +143,10 @@ open class FileUtils {
         if (filename == "") {
             return this
         }
-        val to = cehckFolderPath(this.path,filename)
+        val to = cehckFolderPath(this.path, filename)
 
         return if (isNewFile) {
-            FileUtils(File(to),to,true,isNewFile)
+            FileUtils(File(to), to, true, isNewFile)
         } else {
             this.file = File(to)
             this.path = to
@@ -248,7 +248,7 @@ open class FileUtils {
     }
 
     @Throws(Exception::class)
-    open fun writeByteOutputStream(tail: Boolean): FileOutputStream {
+    open fun writeByteOutputStream(tail: Boolean = false): FileOutputStream {
         mkdir()
         return fileToStream(file, tail)
     }
@@ -276,7 +276,7 @@ open class FileUtils {
         try {
             FileInputStream(file).use { fileInputStream -> return readFileString(fileInputStream) }
         } catch (fileNotFoundException: FileNotFoundException) {
-            error("FileNotFoundException",fileNotFoundException)
+            error("FileNotFoundException", fileNotFoundException)
         } catch (ioException: IOException) {
             error("Read IO Error", ioException)
         }
@@ -296,7 +296,7 @@ open class FileUtils {
     }
 
     fun copy(newFile: FileUtils) {
-        FileOperation.copyFile(file,newFile.file)
+        FileOperation.copyFile(file, newFile.file)
     }
 
     fun mkdir() {
@@ -340,14 +340,14 @@ open class FileUtils {
          * 加载默认的文件路径
          * 默认使用Jar同目录下的 与启动的位置无关
          */
-		init {
+        init {
             val path = this::class.java.protectionDomain.codeSource.location.path
             val pathSplit = path.split("/").toTypedArray()
             val jarName = pathSplit[pathSplit.size - 1]
             val jarPath = path.replace(jarName, "")
 
             setFilePath(decode(jarPath, Data.UTF_8))
-		}
+        }
 
         /**
          * 设置Jar的数据存储位置
@@ -363,13 +363,12 @@ open class FileUtils {
                 if (SystemUtils.isWindows && cache.contains(":")) {
                     cache = cache.substring(1)
                 }
-                val customFilePath = cache.replace("\\","/")
-                defaultFilePath =
-                    if (customFilePath.endsWith("/")) {
-                        customFilePath
-                    } else {
-                        "$customFilePath/"
-                    }
+                val customFilePath = cache.replace("\\", "/")
+                defaultFilePath = if (customFilePath.endsWith("/")) {
+                    customFilePath
+                } else {
+                    "$customFilePath/"
+                }
             }
         }
 
@@ -379,14 +378,14 @@ open class FileUtils {
          * @return FileUtil
          */
         @JvmStatic
-		@JvmOverloads
+        @JvmOverloads
         fun getFolder(toFile: String? = null, isNewFile: Boolean = false): FileUtils {
-            var to = if (null != toFile) {
-                cehckFolderPath(defaultFilePath,toFile)
+            val to = if (null != toFile) {
+                cehckFolderPath(defaultFilePath, toFile)
             } else {
                 defaultFilePath
             }
-            return FileUtils(File(to), to,true,isNewFile)
+            return FileUtils(File(to), to, true, isNewFile)
         }
 
         @JvmStatic
@@ -416,17 +415,17 @@ open class FileUtils {
 
         @JvmStatic
         fun getInternalFileStream(name: String): InputStream {
-            return FileUtils::class.java.getResourceAsStream(name) ?:throw FileNotFoundException("The file could not be found: $name")
+            return FileUtils::class.java.getResourceAsStream(name) ?: throw FileNotFoundException("The file could not be found: $name")
         }
 
         @JvmStatic
         fun getPath(name: String): String {
-            return cehckFolderPath(defaultFilePath,name)
+            return cehckFolderPath(defaultFilePath, name)
         }
 
         @JvmStatic
-        fun splicePath(splice1:String, splice2: String): String {
-            return cehckFolderPath(splice1,splice2)
+        fun splicePath(splice1: String, splice2: String): String {
+            return cehckFolderPath(splice1, splice2)
         }
 
         @JvmStatic
@@ -443,7 +442,7 @@ open class FileUtils {
             return FileUtils(getMyFilePath()).getInputsStream()
         }
 
-        private fun cehckFolderPath(defPath:String, path: String): String {
+        private fun cehckFolderPath(defPath: String, path: String): String {
             if (path == "") {
                 return defPath
             }
@@ -455,13 +454,13 @@ open class FileUtils {
             }
             // 过滤末尾 /
             to = if (to.endsWith("/")) {
-                to.substring(0,to.length-1)
+                to.substring(0, to.length - 1)
             } else {
                 to
             }
 
             return if (defPath.endsWith("/")) {
-                defPath+to
+                defPath + to
             } else {
                 "$defPath/$to"
             }

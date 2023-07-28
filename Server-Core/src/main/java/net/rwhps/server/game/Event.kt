@@ -14,7 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.game.*
 import net.rwhps.server.net.Administration.PlayerInfo
 import net.rwhps.server.util.Time.millis
@@ -29,13 +29,13 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 @Suppress("UNUSED")
-class Event : EventListener {
+class Event: EventListenerHost {
     @EventListenerHandler
     fun registerServerHessStartPort(serverHessStartPort: ServerHessStartPort) {
-        HessModuleManage.hps.gameDataLink.maxUnit = Data.configServer.MaxUnit
-        HessModuleManage.hps.gameDataLink.income = Data.configServer.DefIncome
+        HessModuleManage.hps.gameDataLink.maxUnit = Data.configServer.maxUnit
+        HessModuleManage.hps.gameDataLink.income = Data.configServer.defIncome
 
-        if (Data.config.AutoUpList) {
+        if (Data.config.autoUpList) {
             Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
         }
     }
@@ -72,13 +72,11 @@ class Event : EventListener {
         }
 
         HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
-        Log.clog("&c"+Data.i18NBundle.getinput("player.ent", player.name))
+        Log.clog("&c" + Data.i18NBundle.getinput("player.ent", player.name))
 
-        if (Data.configServer.AutoStartMinPlayerSize != -1 &&
-            HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.AutoStartMinPlayerSize &&
-            !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
+        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.autoStartMinPlayerSize && !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             var flagCount = 60
-            Threads.newTimedTask(CallTimeTask.AutoStartTask,0,1,TimeUnit.SECONDS){
+            Threads.newTimedTask(CallTimeTask.AutoStartTask, 0, 1, TimeUnit.SECONDS) {
                 if (HessModuleManage.hps.room.isStartGame) {
                     Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                     return@newTimedTask
@@ -88,7 +86,7 @@ class Event : EventListener {
 
                 if (flagCount > 0) {
                     if ((flagCount - 5) > 0) {
-                        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start",flagCount))
+                        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start", flagCount))
                     }
                     return@newTimedTask
                 }
@@ -96,12 +94,12 @@ class Event : EventListener {
                 Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
 
-                Data.CLIENT_COMMAND.handleMessage("start",null)
+                Data.CLIENT_COMMAND.handleMessage("start", null)
             }
         }
 
-        if (Data.configServer.EnterAd.isNotBlank()) {
-            player.sendSystemMessage(Data.configServer.EnterAd)
+        if (Data.configServer.enterAd.isNotBlank()) {
+            player.sendSystemMessage(Data.configServer.enterAd)
         }
         // ConnectServer("127.0.0.1",5124,player.con)
     }
@@ -109,17 +107,14 @@ class Event : EventListener {
     @EventListenerHandler
     fun registerPlayerLeaveEvent(playerLeaveEvent: PlayerLeaveEvent) {
         val player = playerLeaveEvent.player
-        if (Data.configServer.OneAdmin &&
-            player.isAdmin &&
-            player.autoAdmin &&
-            HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
-                HessModuleManage.hps.room.playerManage.playerGroup.eachFind({ !it.isAdmin }) {
-                    it.isAdmin = true
-                    it.autoAdmin = true
-                    player.isAdmin = false
-                    player.autoAdmin = false
-                    HessModuleManage.hps.room.call.sendSystemMessage("give.ok", it.name)
-                }
+        if (Data.configServer.oneAdmin && player.isAdmin && player.autoAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
+            HessModuleManage.hps.room.playerManage.playerGroup.eachFind({ !it.isAdmin }) {
+                it.isAdmin = true
+                it.autoAdmin = true
+                player.isAdmin = false
+                player.autoAdmin = false
+                HessModuleManage.hps.room.call.sendSystemMessage("give.ok", it.name)
+            }
         }
 
         Data.core.admin.playerDataCache[player.connectHexID] = PlayerInfo(player.connectHexID, player.kickTime, player.muteTime)
@@ -131,10 +126,7 @@ class Event : EventListener {
         }
         Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
 
-        if (Data.configServer.AutoStartMinPlayerSize != -1 &&
-            HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.AutoStartMinPlayerSize &&
-            Threads.containsTimeTask(CallTimeTask.AutoStartTask)
-        ) {
+        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.autoStartMinPlayerSize && Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }
     }
@@ -143,8 +135,8 @@ class Event : EventListener {
     fun registerGameStartEvent(serverGameStartEvent: ServerGameStartEvent) {
         Data.core.admin.playerDataCache.clear()
 
-        if (Data.configServer.StartAd.isNotBlank()) {
-            HessModuleManage.hps.room.call.sendSystemMessage(Data.configServer.StartAd)
+        if (Data.configServer.startAd.isNotBlank()) {
+            HessModuleManage.hps.room.call.sendSystemMessage(Data.configServer.startAd)
         }
 
         Log.clog("[Start New Game]")

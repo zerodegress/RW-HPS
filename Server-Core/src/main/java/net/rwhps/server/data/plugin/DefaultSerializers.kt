@@ -32,7 +32,7 @@ internal object DefaultSerializers {
     }
 
     private fun registrationBasis() {
-        AbstractPluginData.setSerializer(String::class.java, object : TypeSerializer<String?> {
+        AbstractPluginData.setSerializer(String::class.java, object: TypeSerializer<String?> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: String?) {
                 paramDataOutput.writeString(objectParam ?: "")
@@ -43,7 +43,7 @@ internal object DefaultSerializers {
                 return paramDataInput.readString()
             }
         })
-        AbstractPluginData.setSerializer(Integer::class.java, object : TypeSerializer<Int> {
+        AbstractPluginData.setSerializer(Integer::class.java, object: TypeSerializer<Int> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: Int) {
                 paramDataOutput.writeInt(objectParam)
@@ -54,7 +54,7 @@ internal object DefaultSerializers {
                 return paramDataInput.readInt()
             }
         })
-        AbstractPluginData.setSerializer(java.lang.Float::class.java, object : TypeSerializer<Float> {
+        AbstractPluginData.setSerializer(java.lang.Float::class.java, object: TypeSerializer<Float> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: Float) {
                 paramDataOutput.writeFloat(objectParam)
@@ -65,7 +65,7 @@ internal object DefaultSerializers {
                 return paramDataInput.readFloat()
             }
         })
-        AbstractPluginData.setSerializer(java.lang.Long::class.java, object : TypeSerializer<Long> {
+        AbstractPluginData.setSerializer(java.lang.Long::class.java, object: TypeSerializer<Long> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: Long) {
                 paramDataOutput.writeLong(objectParam)
@@ -76,7 +76,7 @@ internal object DefaultSerializers {
                 return paramDataInput.readLong()
             }
         })
-        AbstractPluginData.setSerializer(java.lang.Boolean::class.java, object : TypeSerializer<Boolean> {
+        AbstractPluginData.setSerializer(java.lang.Boolean::class.java, object: TypeSerializer<Boolean> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: Boolean) {
                 paramDataOutput.writeBoolean(objectParam)
@@ -87,7 +87,7 @@ internal object DefaultSerializers {
                 return paramDataInput.readBoolean()
             }
         })
-        AbstractPluginData.setSerializer(ByteArray::class.java, object : TypeSerializer<ByteArray> {
+        AbstractPluginData.setSerializer(ByteArray::class.java, object: TypeSerializer<ByteArray> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: ByteArray) {
                 paramDataOutput.writeBytesAndLength(objectParam)
@@ -102,7 +102,7 @@ internal object DefaultSerializers {
 
     private fun registerMap() {
         AbstractPluginData.setSerializer(Seq::class.java, Seq.serializer)
-        AbstractPluginData.setSerializer(ObjectMap::class.java, object : TypeSerializer<ObjectMap<*, *>> {
+        AbstractPluginData.setSerializer(ObjectMap::class.java, object: TypeSerializer<ObjectMap<*, *>> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: ObjectMap<*, *>) {
                 paramDataOutput.writeInt(objectParam.size)
@@ -146,7 +146,7 @@ internal object DefaultSerializers {
                 return map
             }
         })
-        AbstractPluginData.setSerializer(OrderedMap::class.java, object : TypeSerializer<OrderedMap<*, *>> {
+        AbstractPluginData.setSerializer(OrderedMap::class.java, object: TypeSerializer<OrderedMap<*, *>> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: OrderedMap<*, *>) {
                 paramDataOutput.writeInt(objectParam.size)
@@ -193,7 +193,7 @@ internal object DefaultSerializers {
     }
 
     private fun registerCustomClass() {
-        AbstractPluginData.setSerializer(PlayerInfo::class.java, object : TypeSerializer<PlayerInfo> {
+        AbstractPluginData.setSerializer(PlayerInfo::class.java, object: TypeSerializer<PlayerInfo> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: PlayerInfo) {
                 AbstractPluginData.getSerializer(String::class.java)!!.write(paramDataOutput, objectParam.uuid)
@@ -214,7 +214,7 @@ internal object DefaultSerializers {
             }
         })
 
-        AbstractPluginData.setSerializer(PlayerAdminInfo::class.java, object : TypeSerializer<PlayerAdminInfo> {
+        AbstractPluginData.setSerializer(PlayerAdminInfo::class.java, object: TypeSerializer<PlayerAdminInfo> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: PlayerAdminInfo) {
                 paramDataOutput.writeString(objectParam.uuid)

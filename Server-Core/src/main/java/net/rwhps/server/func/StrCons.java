@@ -19,16 +19,18 @@ import java.text.MessageFormat;
 public interface StrCons {
     /**
      * Log 专用
+     *
      * @param str String
      */
-    void get(String str);
+    void invoke(String str);
 
     /**
      * Log 转换
-     * @param t String
+     *
+     * @param t   String
      * @param obj Object...
      */
-    default void get(String t, Object... obj) {
-        get(new MessageFormat(t).format(obj));
+    default void invoke(String t, Object... obj) {
+        invoke(new MessageFormat(t).format(obj));
     }
 }

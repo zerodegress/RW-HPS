@@ -23,8 +23,7 @@ package net.rwhps.server.util.annotations.mark
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
 @Target(
-    AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.PROPERTY
+        AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.PROPERTY
 )
 @Suppress("UNINITIALIZED_VARIABLE")
 annotation class SynchronizeMark

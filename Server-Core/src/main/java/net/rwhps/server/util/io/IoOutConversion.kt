@@ -18,15 +18,16 @@ import java.nio.charset.StandardCharsets
 object IoOutConversion {
     @JvmStatic
     @Throws(IOException::class)
-    fun outToOutStream(outputStream: OutputStream): OutputStreamWriter =
-        OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
-    @JvmStatic
-    @Throws(IOException::class)
-    fun fileToOutStream(file: File, cover: Boolean): OutputStreamWriter =
-        OutputStreamWriter(fileToStream(file, cover), StandardCharsets.UTF_8)
+    fun outToOutStream(outputStream: OutputStream): OutputStreamWriter = OutputStreamWriter(outputStream, StandardCharsets.UTF_8)
 
     @JvmStatic
     @Throws(IOException::class)
-    fun fileToStream(file: File, tail: Boolean): FileOutputStream =
-        FileOutputStream(file, tail)
+    fun fileToOutStream(
+        file: File,
+        cover: Boolean
+    ): OutputStreamWriter = OutputStreamWriter(fileToStream(file, cover), StandardCharsets.UTF_8)
+
+    @JvmStatic
+    @Throws(IOException::class)
+    fun fileToStream(file: File, tail: Boolean): FileOutputStream = FileOutputStream(file, tail)
 }

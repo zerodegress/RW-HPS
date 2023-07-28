@@ -24,8 +24,10 @@ import net.rwhps.server.util.Time.millis
  */
 class Administration(pluginData: PluginData) {
     private val chatFilters = Seq<ChatFilter>()
+
     //@JvmField
     val bannedIPs: Seq<String>
+
     @JvmField
     val bannedIP24: Seq<String>
     val bannedUUIDs: Seq<String>
@@ -35,7 +37,7 @@ class Administration(pluginData: PluginData) {
     val playerAdminData: ObjectMap<String, PlayerAdminInfo>
 
     init {
-        addChatFilter(object : ChatFilter {
+        addChatFilter(object: ChatFilter {
             override fun filter(player: PlayerHess, message: String?): String? {
                 if (!player.isAdmin) {
                     //防止玩家在 30 秒内两次发送相同的消息
@@ -158,9 +160,7 @@ class Administration(pluginData: PluginData) {
         }
 
         override fun toString(): String {
-            return "uuid: " + uuid +
-                    "admin: " + admin +
-                    "supAdmin: " + superAdmin
+            return "uuid: " + uuid + "admin: " + admin + "supAdmin: " + superAdmin
         }
     }
 }

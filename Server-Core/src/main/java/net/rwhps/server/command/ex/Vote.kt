@@ -38,10 +38,10 @@ class Vote {
     private var require: Int = 0
     private var pass: Int = 0
 
-    private var endNoMsg: ()->Unit = {}
-    private var endYesMsg: ()->Unit = {}
-    private var votePlayerIng: ()->Unit = {}
-    private var voteIng: ()->Unit = {}
+    private var endNoMsg: () -> Unit = {}
+    private var endYesMsg: () -> Unit = {}
+    private var votePlayerIng: () -> Unit = {}
+    private var voteIng: () -> Unit = {}
 
     private var reciprocal: Int = 60
 
@@ -54,6 +54,7 @@ class Vote {
         this.targetPlayer = null
         preprocessing()
     }
+
     // Kick Other
     constructor(command: String, hostPlayer: PlayerHess, targetPlayer: PlayerHess) {
         this.command = command
@@ -67,10 +68,10 @@ class Vote {
             votePlayer.sendSystemMessage(votePlayer.i18NBundle.getinput("vote.rey"))
             return
         }
-        
+
         val accapt = "y"
         val noAccapt = "n"
-        
+
         if (accapt == playerPick) {
             if (isTeam) {
                 if (votePlayer.team == player.team) {
@@ -119,11 +120,11 @@ class Vote {
      */
     private fun normalDistribution() {
         require = HessModuleManage.hps.room.playerManage.playerGroup.size
-        endNoMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.done.no", command + " " + (targetPlayer?.name ?:""), pass, this.require) }
+        endNoMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require) }
         endYesMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.ok") }
-        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.y.ing", command,pass,this.require) }
+        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.y.ing", command, pass, this.require) }
         voteIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.ing", reciprocal) }
-        start { HessModuleManage.hps.room.call.sendSystemMessage("vote.start", player.name, command + " " + (targetPlayer?.name ?:"")) }
+        start { HessModuleManage.hps.room.call.sendSystemMessage("vote.start", player.name, command + " " + (targetPlayer?.name ?: "")) }
     }
 
     /**
@@ -133,14 +134,14 @@ class Vote {
         val require = AtomicInteger(0)
         HessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == player.team }) { _: PlayerHess -> require.getAndIncrement() }
         this.require = require.get()
-        endNoMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?:""),pass,this.require) }
+        endNoMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require) }
         endYesMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
-        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team,"vote.y.ing", command,pass,this.require) }
+        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.y.ing", command, pass, this.require) }
         voteIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ing", reciprocal) }
-        start { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?:"")) }
+        start { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?: "")) }
     }
 
-    private fun start(run: ()->Unit) {
+    private fun start(run: () -> Unit) {
         val temp = require
         require = if (temp <= 1) {
             player.sendSystemMessage("vote.no1")
@@ -158,7 +159,7 @@ class Vote {
         if (pass >= require) {
             end()
         } else {
-            newTimedTask(CallTimeTask.VoteTask, 10, 10, TimeUnit.SECONDS){
+            newTimedTask(CallTimeTask.VoteTask, 10, 10, TimeUnit.SECONDS) {
                 this.reciprocal -= 10
                 voteIng()
                 if (this.reciprocal <= 0) {
@@ -201,10 +202,10 @@ class Vote {
      */
     private fun clearUp() {
         Threads.closeTimeTask(CallTimeTask.VoteTask)
-        
+
         playerList.clear()
 
-        val nullVal: ()->Unit = {}
+        val nullVal: () -> Unit = {}
         endNoMsg = nullVal
         endYesMsg = nullVal
         votePlayerIng = nullVal
@@ -221,8 +222,8 @@ class Vote {
     }
 
     companion object {
-        private val commandStartData = mutableMapOf<String, (vote: Vote)->Unit>()
-        private val commandEndData = mutableMapOf<String, (vote: Vote)->Unit>()
+        private val commandStartData = mutableMapOf<String, (vote: Vote) -> Unit>()
+        private val commandEndData = mutableMapOf<String, (vote: Vote) -> Unit>()
 
         init {
             commandStartData["gameover"] = { it.normalDistribution() }
@@ -231,21 +232,21 @@ class Vote {
         }
 
         @JvmStatic
-        fun addVoteFullParticipation(command: String,run: (vote: Vote)->Unit): Boolean {
+        fun addVoteFullParticipation(command: String, run: (vote: Vote) -> Unit): Boolean {
             return if (commandStartData.contains(command)) {
                 false
             } else {
-                commandStartData[command] = { run(it) ; it.normalDistribution()}
+                commandStartData[command] = { run(it); it.normalDistribution() }
                 true
             }
         }
 
         @JvmStatic
-        fun addVoteTeamOnly(command: String,run: (vote: Vote)->Unit): Boolean {
+        fun addVoteTeamOnly(command: String, run: (vote: Vote) -> Unit): Boolean {
             return if (commandStartData.contains(command)) {
                 false
             } else {
-                commandStartData[command] = { run(it) ; it.isTeam = true ; it.teamOnly() }
+                commandStartData[command] = { run(it); it.isTeam = true; it.teamOnly() }
                 true
             }
         }

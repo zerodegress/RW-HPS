@@ -17,14 +17,13 @@ import kotlin.random.nextInt
  * @author RW-HPS/Dr
  */
 object RandomUtils {
-    private val defaultRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z', '0'..'9')
-    private val letterRanges: Array<CharRange> = arrayOf('a'..'z', 'A'..'Z')
-    private val intCharRanges: Array<CharRange> = arrayOf('0'..'9')
+    private val defaultRanges: Array<CharRange> = arrayOf('a' .. 'z', 'A' .. 'Z', '0' .. '9')
+    private val letterRanges: Array<CharRange> = arrayOf('a' .. 'z', 'A' .. 'Z')
+    private val intCharRanges: Array<CharRange> = arrayOf('0' .. '9')
 
 
     @JvmStatic
-    fun getRandomByteArray(length: Int, random: Random = Random): ByteArray =
-        ByteArray(length) { random.nextInt(0..255).toByte() }
+    fun getRandomByteArray(length: Int, random: Random = Random): ByteArray = ByteArray(length) { random.nextInt(0 .. 255).toByte() }
 
     /**
      * 随机生成一个正整数
@@ -37,33 +36,36 @@ object RandomUtils {
      */
     @JvmStatic
     @JvmOverloads
-    fun getRandomString(length: Int, random: Random = Random): String =
-        getRandomString(length, *defaultRanges, random = random)
+    fun getRandomString(length: Int, random: Random = Random): String = getRandomString(length, *defaultRanges, random = random)
 
     /**
      * 根据所给 [charRange] 随机生成长度为 [length] 的 [String].
      */
     @JvmStatic
-    fun getRandomString(length: Int, charRange: CharRange, random: Random = Random): String =
-        CharArray(length) { charRange.random(random) }.concatToString()
+    fun getRandomString(
+        length: Int,
+        charRange: CharRange,
+        random: Random = Random
+    ): String = CharArray(length) { charRange.random(random) }.concatToString()
 
     /**
      * 根据所给 [charRanges] 随机生成长度为 [length] 的 [String].
      */
     @JvmStatic
-    fun getRandomString(length: Int, vararg charRanges: CharRange, random: Random = Random): String =
-        CharArray(length) { charRanges[random.nextInt(0..charRanges.lastIndex)].random(random) }.concatToString()
+    fun getRandomString(
+        length: Int,
+        vararg charRanges: CharRange,
+        random: Random = Random
+    ): String = CharArray(length) { charRanges[random.nextInt(0 .. charRanges.lastIndex)].random(random) }.concatToString()
 
-    
-    
+
     /**
      * 产生len长度的随机数字
      * @param length
      * @return
      */
     @JvmStatic
-    fun getRandomIntString(length: Int, random: Random = Random): String =
-        getRandomString(length, *intCharRanges, random = random)
+    fun getRandomIntString(length: Int, random: Random = Random): String = getRandomString(length, *intCharRanges, random = random)
 
     /**
      * 产生len长度的随机字母串(只包含大小写字母)
@@ -71,8 +73,7 @@ object RandomUtils {
      * @return
      */
     @JvmStatic
-    fun getRandomIetterString(length: Int, random: Random = Random): String =
-        getRandomString(length, *letterRanges, random = random)
+    fun getRandomIetterString(length: Int, random: Random = Random): String = getRandomString(length, *letterRanges, random = random)
 
     /**
      * 返回一个定长的随机纯大写字母字符串(只包含大小写字母)
@@ -80,8 +81,7 @@ object RandomUtils {
      * @return 随机字符串
      */
     @JvmStatic
-    fun generateLowerStr(length: Int): String =
-        getRandomIetterString(length).lowercase()
+    fun generateLowerStr(length: Int): String = getRandomIetterString(length).lowercase()
 
     /**
      * 返回一个定长的随机纯小写字母字符串(只包含大小写字母)
@@ -89,6 +89,5 @@ object RandomUtils {
      * @return 随机字符串
      */
     @JvmStatic
-    fun generateUpperStr(length: Int): String =
-        getRandomIetterString(length).uppercase()
+    fun generateUpperStr(length: Int): String = getRandomIetterString(length).uppercase()
 }

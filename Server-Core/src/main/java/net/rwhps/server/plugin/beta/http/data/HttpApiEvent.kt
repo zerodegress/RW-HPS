@@ -9,7 +9,7 @@
 
 package net.rwhps.server.plugin.beta.http.data
 
-import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.game.ServerGameOverEvent
 import net.rwhps.server.util.annotations.core.EventListenerHandler
 import net.rwhps.server.util.inline.toJson
@@ -18,7 +18,7 @@ import net.rwhps.server.util.inline.toJson
  * @date  2023/6/27 16:12
  * @author  RW-HPS/Dr
  */
-class HttpApiEvent : EventListener {
+class HttpApiEvent: EventListenerHost {
     @EventListenerHandler
     fun registerGameOverEvent(gameOverEvent: ServerGameOverEvent) {
         gameOverEvent.gameOverData?.run {

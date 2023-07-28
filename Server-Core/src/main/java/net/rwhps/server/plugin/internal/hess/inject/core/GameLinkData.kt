@@ -16,7 +16,7 @@ import net.rwhps.server.game.simulation.core.AbstractGameLinkData
  *
  * @author RW-HPS/Dr
  */
-class GameLinkData : AbstractGameLinkData {
+class GameLinkData: AbstractGameLinkData {
     override var maxUnit: Int
         set(value) {
             GameEngine.netEngine.ax = value

@@ -9,9 +9,9 @@
 
 package net.rwhps.server.util.log.exp
 
-open class NetException(type: String) : Exception(type) {
+open class NetException(type: String): Exception(type) {
 
-    class DownException(type: String) : NetException(type)
+    class DownException(type: String): NetException(type)
 
-    class PermissionException(type: String) : NetException(type)
+    class PermissionException(type: String): NetException(type)
 }

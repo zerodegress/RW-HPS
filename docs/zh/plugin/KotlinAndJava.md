@@ -1,4 +1,5 @@
 # Kotlin And Java
+
 [本文档来源 - Mirai Doc](https://github.com/mamoe/mirai/blob/dev/docs/KotlinAndJava.md)
 
 本章介绍部分 Kotlin 定义对应的 Java 定义，以帮助 Java 使用者理解 Mirai 的源代码。
@@ -8,13 +9,16 @@
 预计阅读时间：5 分钟
 
 #### 通用
+
 - Kotlin 的定义都默认是 `public` 和 `final`
 - Kotlin 不需要句末分号，通常以换行作为一个语句的结束
 
 #### `class`
+
 ```kotlin
 class A
 ```
+
 ```java
 public final class A {
 }
@@ -45,6 +49,7 @@ class A(val value: String) { // 类定义后面的括号表示主构造器
 ```
 
 对应的 Java 定义为：
+
 ```java
 public final class A {
     private final String value;
@@ -74,6 +79,7 @@ A a = new A("test");
 ```
 
 #### 函数
+
 ```kotlin
 class A {
     fun test(string: String): Int = 1
@@ -89,6 +95,7 @@ public final class A {
 ```
 
 #### 属性 `val`
+
 - Kotlin 的 `val` 是不可变的，只能被赋值一次
 - 编译器为 `val` 创建 `getter`
 
@@ -108,6 +115,7 @@ public final class A {
 ```
 
 #### 属性 `var`
+
 - Kotlin 的 `var` 相较于 `val` 是可变的，可以被多次赋值。
 - 编译器为 `var` 创建 `getter` 和 `setter`
 
@@ -130,6 +138,7 @@ public final class A {
 ```
 
 #### 顶层定义和 `const`
+
 - Kotlin 的定义不一定需要在 `class` 中，允许直接存在于文件中的「顶层函数」和「顶层属性」
 - `XXX.kt` 中的顶层定义会被编译为名为 `XXXKt` 的 `class`
 - 顶层定义会被编译为 `static`
@@ -159,6 +168,7 @@ public final class TestKt {
 ```
 
 #### 单例对象
+
 - Kotlin `object` 定义一个单例对象
 
 ```kotlin
@@ -201,7 +211,6 @@ public final class Test {
     }
 } 
 ```
-
 
 #### 静态
 

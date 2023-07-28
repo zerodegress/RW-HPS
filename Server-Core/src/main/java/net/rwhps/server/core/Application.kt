@@ -32,12 +32,14 @@ class Application {
 
     /** 服务器唯一UUID  */
     lateinit var serverConnectUuid: String
+
     /** Hess HEX */
     lateinit var serverHessUuid: String
 
     @JvmField
     var serverToken: String = getRandomString(40)
     lateinit var admin: Administration
+
     @JvmField
     var upServerList = false
 
@@ -51,7 +53,9 @@ class Application {
         Initialization.startInit(settings)
 
         serverConnectUuid = settings.getData("serverConnectUuid") { UUID.randomUUID().toString() }
-        serverHessUuid = settings.getData("serverHessUuid") { BigInteger(1, DigestUtils.sha256(serverConnectUuid+UUID.randomUUID().toString())).toString(16).uppercase() }
+        serverHessUuid = settings.getData("serverHessUuid") {
+            BigInteger(1, DigestUtils.sha256(serverConnectUuid + UUID.randomUUID().toString())).toString(16).uppercase()
+        }
 
         addSavePool {
             settings.setData("serverConnectUuid", serverConnectUuid)

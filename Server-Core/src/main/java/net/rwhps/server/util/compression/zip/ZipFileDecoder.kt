@@ -30,7 +30,7 @@ import java.io.InputStream
  * @property zipFile ZipFile
  * @author RW-HPS/Dr
  */
-internal class ZipFileDecoder : AbstractDecoder {
+internal class ZipFileDecoder: AbstractDecoder {
     private val zipFile: ZipFile
     private var physicalOrder = false
 
@@ -104,7 +104,7 @@ internal class ZipFileDecoder : AbstractDecoder {
             return@zipUtils ControlFind.CONTINUE
         }
 
-        return result ?:throw FileException("CANNOT_FIND_FILE")
+        return result ?: throw FileException("CANNOT_FIND_FILE")
     }
 
     override fun getZipNameInputStream(nameIn: String): InputStream? {
@@ -145,7 +145,7 @@ internal class ZipFileDecoder : AbstractDecoder {
         this.zipFile.close()
     }
 
-    private fun zipUtils(run: (ZipArchiveEntry, IoRead.MultiplexingReadStream)-> ControlFind) {
+    private fun zipUtils(run: (ZipArchiveEntry, IoRead.MultiplexingReadStream) -> ControlFind) {
         try {
             var zipEntry: ZipArchiveEntry
             IoRead.MultiplexingReadStream().use { multiplexingReadStream ->

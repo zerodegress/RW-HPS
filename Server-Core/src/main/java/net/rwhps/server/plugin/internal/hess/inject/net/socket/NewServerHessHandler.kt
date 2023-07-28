@@ -29,7 +29,7 @@ import net.rwhps.server.util.log.Log
  * @author RW-HPS/Dr
  */
 @ChannelHandler.Sharable
-class NewServerHessHandler(private val netEngine: ad) : SimpleChannelInboundHandler<Any?>() {
+class NewServerHessHandler(private val netEngine: ad): SimpleChannelInboundHandler<Any?>() {
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Any?) {
         if (msg == null) {
@@ -85,8 +85,8 @@ class NewServerHessHandler(private val netEngine: ad) : SimpleChannelInboundHand
             val ste = stack[i1]
             val className = ste.className + "." + ste.methodName
             if (!className.contains("net.rwhps.server.util.log.Log")) {
-                sb.append("[").append(ste.fileName).append("] : ")
-                    .append(ste.methodName).append(" : ").append(ste.lineNumber).append(Data.LINE_SEPARATOR)
+                sb.append("[").append(ste.fileName).append("] : ").append(ste.methodName).append(" : ").append(ste.lineNumber)
+                    .append(Data.LINE_SEPARATOR)
                 break
             }
             i1++

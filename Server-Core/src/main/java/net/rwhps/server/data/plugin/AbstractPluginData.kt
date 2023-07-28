@@ -94,7 +94,7 @@ internal open class AbstractPluginData {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getData(name: String, data: ()->T): T {
+    fun <T> getData(name: String, data: () -> T): T {
         return pluginData[name, { Value(data()) }].data as T
     }
 
@@ -105,18 +105,17 @@ internal open class AbstractPluginData {
         try {
             fileUtils!!.getInputsStream().use { stream -> read(stream) }
         } catch (e: Exception) {
-            error("[Read BIN Error]",e)
+            error("[Read BIN Error]", e)
         }
     }
 
     @Throws(CompressionException.CryptographicException::class)
     fun read(inStream: InputStream) {
-        val gameInputStream: GameInputStream =
-            when(code) {
-                "7z" -> GameInputStream(CompressionDecoderUtils.sevenAllReadStream(inStream).getZipAllBytes()["file"]!!)
-                "gzip" -> GameInputStream(getGzipInputStream(inStream))
-                else -> throw CompressionException.CryptographicException(code)
-            }
+        val gameInputStream: GameInputStream = when (code) {
+            "7z" -> GameInputStream(CompressionDecoderUtils.sevenAllReadStream(inStream).getZipAllBytes()["file"]!!)
+            "gzip" -> GameInputStream(getGzipInputStream(inStream))
+            else -> throw CompressionException.CryptographicException(code)
+        }
 
         try {
             gameInputStream.use { stream ->
@@ -130,8 +129,7 @@ internal open class AbstractPluginData {
                         2 -> pluginData[key] = Value(stream.readLong())
                         3 -> pluginData[key] = Value(stream.readFloat())
                         4 -> pluginData[key] = Value(stream.readString())
-                        5 -> {
-                            /* 把String转为Class,来进行反序列化 */
+                        5 -> {/* 把String转为Class,来进行反序列化 */
                             val classCache: Class<*> = Class.forName(stream.readString().replace("net.rwhps.server", "net.rwhps.server"))
                             length = stream.readInt()
                             val bytes = stream.readNBytes(length)
@@ -157,17 +155,16 @@ internal open class AbstractPluginData {
         try {
             fileUtils!!.writeByteOutputStream(false).use { stream -> save(stream) }
         } catch (e: Exception) {
-            error("[Write BIN Error]",e)
+            error("[Write BIN Error]", e)
         }
     }
 
     fun save(outputStream: OutputStream) {
-        val gameOutputStream: GameOutputStream =
-            when(code) {
-                "7z" -> CompressOutputStream.get7zOutputStream("",true)
-                "gzip" -> CompressOutputStream.getGzipOutputStream("",true)
-                else -> throw CompressionException.CryptographicException(code)
-            }
+        val gameOutputStream: GameOutputStream = when (code) {
+            "7z" -> CompressOutputStream.get7zOutputStream("", true)
+            "gzip" -> CompressOutputStream.getGzipOutputStream("", true)
+            else -> throw CompressionException.CryptographicException(code)
+        }
 
         try {
             gameOutputStream.use { stream ->
@@ -198,8 +195,7 @@ internal open class AbstractPluginData {
                         else -> {
                             try {
                                 val bytes = putBytes(value)
-                                stream.writeByte(5)
-                                /* 去除ToString后的前缀(class com.xxx~) */
+                                stream.writeByte(5)/* 去除ToString后的前缀(class com.xxx~) */
                                 stream.writeString(value.javaClass.toString().replace("class ", ""))
                                 stream.writeInt(bytes.size)
                                 stream.writeBytes(bytes)
@@ -232,8 +228,7 @@ internal open class AbstractPluginData {
         return try {
             byteInputStream.setBytes(bytes)
             val obj = serializer.read(GameInputStream(byteInputStream)) ?: return null
-            @Suppress("UNCHECKED_CAST")
-            obj as T
+            @Suppress("UNCHECKED_CAST") obj as T
         } catch (e: Exception) {
             null
         }
@@ -251,8 +246,7 @@ internal open class AbstractPluginData {
     }
 
     companion object {
-        private val SERIALIZERS =
-            ObjectMap<Class<*>, SerializerTypeAll.TypeSerializer<Any?>>()
+        private val SERIALIZERS = ObjectMap<Class<*>, SerializerTypeAll.TypeSerializer<Any?>>()
 
         init {
             register()
@@ -263,8 +257,7 @@ internal open class AbstractPluginData {
         }
 
         internal fun <T> setSerializer(type: Class<*>, ser: SerializerTypeAll.TypeSerializer<T>) {
-            @Suppress("UNCHECKED_CAST")
-            SERIALIZERS[type] = (ser as SerializerTypeAll.TypeSerializer<Any?>)
+            @Suppress("UNCHECKED_CAST") SERIALIZERS[type] = (ser as SerializerTypeAll.TypeSerializer<Any?>)
         }
     }
 }

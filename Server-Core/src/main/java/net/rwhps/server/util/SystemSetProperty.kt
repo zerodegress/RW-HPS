@@ -16,12 +16,12 @@ package net.rwhps.server.util
 object SystemSetProperty {
     fun setOnlyIpv4() {
         // F U C K IPV6
-        System.setProperty("java.net.preferIPv6Stack","false")
-        System.setProperty("java.net.preferIPv4Stack","true")
+        System.setProperty("java.net.preferIPv6Stack", "false")
+        System.setProperty("java.net.preferIPv4Stack", "true")
     }
 
     fun setAwtHeadless() {
         // F U C K Termux
-        System.setProperty("java.awt.headless","true")
+        System.setProperty("java.awt.headless", "true")
     }
 }

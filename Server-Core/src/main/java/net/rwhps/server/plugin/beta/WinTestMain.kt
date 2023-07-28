@@ -12,7 +12,7 @@ package net.rwhps.server.plugin.beta
 import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginData
-import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.game.ServerGameOverEvent
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.ExtractUtils
@@ -22,30 +22,28 @@ import net.rwhps.server.util.file.FileUtils
 /**
  * @author RW-HPS/Dr
  */
-class WinTestMain : Plugin() {
-    override fun registerEvents(hessLoadID: String, eventManage: EventManage) {
-        eventManage.registerListener(
-            object: EventListener {
-                @EventListenerHandler
-                fun registerGameOverEvent(gameOverEvent: ServerGameOverEvent) {
-                    if (gameOverEvent.gameOverData == null) {
-                        return
-                    }
+class WinTestMain: Plugin() {
+    override fun registerEvents(eventManage: EventManage) {
+        eventManage.registerListener(object: EventListenerHost {
+            @EventListenerHandler
+            fun registerGameOverEvent(gameOverEvent: ServerGameOverEvent) {
+                if (gameOverEvent.gameOverData == null) {
+                    return
+                }
 
-                    ExtractUtils.tryRunTest {
-                        gameOverEvent.gameOverData.run {
-                            val data = PluginData()
-                            data.setFileUtil(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("T.bin"))
-                            data.setData("All Player", allPlayerList)
-                            data.setData("Win Player", winPlayerList)
-                            data.setData("Map Name", mapName)
-                            data.setData("Player Data", playerData)
-                            data.setData("RePlay Size", FileUtils.getFolder(Data.Plugin_RePlays_Path).toFile(replayName).readFileByte())
-                            data.save()
-                        }
+                ExtractUtils.tryRunTest {
+                    gameOverEvent.gameOverData.run {
+                        val data = PluginData()
+                        data.setFileUtil(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("T.bin"))
+                        data.setData("All Player", allPlayerList)
+                        data.setData("Win Player", winPlayerList)
+                        data.setData("Map Name", mapName)
+                        data.setData("Player Data", playerData)
+                        data.setData("RePlay Size", FileUtils.getFolder(Data.Plugin_RePlays_Path).toFile(replayName).readFileByte())
+                        data.save()
                     }
                 }
             }
-        )
+        })
     }
 }

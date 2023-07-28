@@ -19,7 +19,6 @@ import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.plugin.beta.http.data.GetData
 import net.rwhps.server.util.inline.toJson
-import net.rwhps.server.util.log.Log
 
 /**
  * @date  2023/6/27 10:49
@@ -29,7 +28,7 @@ class MessageForwardingCenter {
     val getCategorize = object: WebGet() {
         override fun get(accept: AcceptWeb, send: SendWeb) {
             send.setConnectType(HttpHeaderValues.APPLICATION_JSON)
-            when (accept.getUrl.removePrefix("${RwHpsWebApiMain.url}/api/get/")) {
+            when (accept.getUrl.removePrefix("/${RwHpsWebApiMain.name}/api/get/")) {
                 "event/GameOver" -> {
                     send.setData(GetData.GameOverPositive.data.data.toList().toJson().toWebStatusJson())
                     GetData.GameOverPositive.data.data.clear()
@@ -46,17 +45,17 @@ class MessageForwardingCenter {
     val postCategorize = object: WebPost() {
         override fun post(accept: AcceptWeb, send: SendWeb) {
             send.setConnectType(HttpHeaderValues.APPLICATION_JSON)
-            when (accept.getUrl.removePrefix("${RwHpsWebApiMain.url}/api/post/")) {
+            when (accept.getUrl.removePrefix("/${RwHpsWebApiMain.name}/api/post/")) {
                 "run/ServerCommand" -> {
                     val result = StringBuilder()
-                    checkStringPost(accept, send, "RunCommand")?.let { command ->
+                    checkStringPost(accept, send, "runCommand")?.let { command ->
                         Data.SERVER_COMMAND.handleMessage(command, StrCons { result.append(it) })
                         send.setData(result.toString().toWebStatusJson())
                     }
                 }
                 "run/ClientCommand" -> {
                     val result = StringBuilder()
-                    checkStringPost(accept, send, "RunCommand")?.let { command ->
+                    checkStringPost(accept, send, "runCommand")?.let { command ->
                         Data.CLIENT_COMMAND.handleMessage(command, StrCons { result.append(it) })
                         send.setData(result.toString().toWebStatusJson())
                     }
@@ -82,8 +81,7 @@ class MessageForwardingCenter {
      * @author  RW-HPS/Dr
      */
     private data class WebStatus(
-        val status: String,
-        val data: String
+        val status: String, val data: String
     )
 
     private fun String.toWebStatus(status: String = "OK"): WebStatus {

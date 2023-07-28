@@ -16,7 +16,7 @@ import net.rwhps.server.util.log.exp.VariableException
  *
  * @param lowerCase 是否小写
  */
-class Base16Codec(lowerCase: Boolean) : Encoder<ByteArray, CharArray>, Decoder<CharSequence, ByteArray> {
+class Base16Codec(lowerCase: Boolean): Encoder<ByteArray, CharArray>, Decoder<CharSequence, ByteArray> {
     private val alphabets: CharArray
 
     init {
@@ -38,7 +38,7 @@ class Base16Codec(lowerCase: Boolean) : Encoder<ByteArray, CharArray>, Decoder<C
     }
 
     override fun decode(encodedIn: CharSequence): ByteArray {
-        var encoded = encodedIn.replace("\\s".toRegex(),"")
+        var encoded = encodedIn.replace("\\s".toRegex(), "")
         var len = encoded.length
         if (len and 0x01 != 0) {
             // 如果提供的数据是奇数长度，则前面补0凑偶数

@@ -12,10 +12,10 @@ package net.rwhps.server.util
 /**
  * 等待并且获取 直到得到有效值
  * @author RW-HPS/Dr
-*/
+ */
 object WaitResultUtils {
     @Throws(NullPointerException::class)
-    fun <T> waitResult(sleep: Long = 10, block: ()->T?): T? {
+    fun <T> waitResult(sleep: Long = 10, block: () -> T?): T? {
         var result: T? = block()
         var count = 0
         while (result == null) {

@@ -9,23 +9,23 @@
 
 package net.rwhps.server.struct
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @author RW-HPS/Dr
  */
 class IntMap<V>: BaseMap<Int, V> {
-    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
+    @JvmOverloads
+    constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
-        Int2ObjectOpenHashMap<V>(capacity).let {
+    @JvmOverloads
+    constructor(capacity: Int, threadSafety: Boolean = false): super(
             if (threadSafety) {
-                Int2ObjectMaps.synchronize<V>(it, it)
+                ConcurrentHashMap<Int, V>(capacity)
             } else {
-                it
-            }
-        } as java.util.Map<Int, V>, threadSafety
+                Int2ObjectOpenHashMap<V>(capacity)
+            } as java.util.Map<Int, V>, threadSafety
     )
 }

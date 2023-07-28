@@ -23,7 +23,7 @@ import java.net.URL
  * @constructor
  * @author RW-HPS/Dr
  */
-class ZipFileSystemLocation(private val data: OrderedMap<String, ByteArray>) : ResourceLocation {
+class ZipFileSystemLocation(private val data: OrderedMap<String, ByteArray>): ResourceLocation {
     override fun getResourceAsStream(ref: String): InputStream? {
         return data.get(ref)?.let { DisableSyncByteArrayInputStream(it) }
     }

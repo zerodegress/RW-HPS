@@ -17,9 +17,8 @@ import java.io.Closeable
  * @author RW-HPS/Dr
  */
 class ProgressBar(
-    private val start: Int,
-    private val end: Int
-) : Closeable {
+    private val start: Int, private val end: Int
+): Closeable {
 
     fun progress(progressIn: Int) {
         val progress = Algorithms.scale(progressIn.toDouble(), start.toDouble(), end.toDouble(), 0.0, 100.0).toInt()

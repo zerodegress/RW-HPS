@@ -9,6 +9,7 @@
 
 package net.rwhps.server.io.packet
 
+import net.rwhps.server.func.Control
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.struct.SerializerTypeAll
@@ -26,7 +27,10 @@ import java.io.IOException
  */
 class Packet {
     val type: PacketType
-    @JvmField val bytes: ByteArray
+    val bytes: ByteArray
+
+    /** 决定这个包是否向下继续传递 */
+    var status = Control.EventNext.CONTINUE
 
     constructor(type0: Int, bytes: ByteArray) {
         this.type = PacketType.from(type0)
@@ -64,7 +68,7 @@ class Packet {
      * @return Packet String
      */
     override fun toString(): String {
-        return  """
+        return """
                 Packet{
                     Bytes=${bytes.contentToString()}
                     BytesHex=${bytes.toStringHex()}
@@ -86,16 +90,16 @@ class Packet {
          *   |  Type |Data length| Data
          *   +---------------+---------------+
          */
-        internal val serializer = object : SerializerTypeAll.TypeSerializer<Packet> {
+        internal val serializer = object: SerializerTypeAll.TypeSerializer<Packet> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: Packet) {
-                stream.writeInt(objectData.type.typeInt)
-                stream.writeBytesAndLength(objectData.bytes)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: Packet) {
+                paramDataOutput.writeInt(objectParam.type.typeInt)
+                paramDataOutput.writeBytesAndLength(objectParam.bytes)
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): Packet {
-                return Packet(stream.readInt(), stream.readStreamBytes())
+            override fun read(paramDataInput: GameInputStream): Packet {
+                return Packet(paramDataInput.readInt(), paramDataInput.readStreamBytes())
             }
         }
     }

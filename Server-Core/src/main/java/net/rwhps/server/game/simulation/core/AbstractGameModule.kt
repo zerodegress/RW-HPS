@@ -32,7 +32,7 @@ interface AbstractGameModule {
     val gameUnitData: AbstractGameUnitData
     val gameFast: AbstractGameFast
 
-    val gameData: AbstractGameData
+    val gameData: AbstractGameLinkFunction
     val gameDataLink: AbstractGameLinkData
 
     val room: ServerRoom

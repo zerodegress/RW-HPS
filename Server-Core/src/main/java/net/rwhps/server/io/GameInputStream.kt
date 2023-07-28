@@ -20,7 +20,7 @@ import java.io.*
  * @author RW-HPS/Dr
  */
 @Suppress("UNUSED")
-open class GameInputStream : Closeable {
+open class GameInputStream: Closeable {
     protected val buffer: InputStream
     protected val stream: DataInputStream
     val parseVersion: Int
@@ -45,6 +45,7 @@ open class GameInputStream : Closeable {
         this.stream = DataInputStream(buffer)
         this.parseVersion = parseVersion
     }
+
     /**
      * Read a Byte (1 byte)
      * @return Byte
@@ -94,6 +95,7 @@ open class GameInputStream : Closeable {
     open fun readShort(): Short {
         return stream.readShort()
     }
+
     @Throws(IOException::class)
     open fun readBackwardsShort(): Short {
         val ch1: Int = buffer.read()
@@ -198,7 +200,6 @@ open class GameInputStream : Closeable {
     }
 
     @Throws(IOException::class)
-    @Suppress("UNCHECKED_CAST")
     fun readEnum(clazz: Class<*>): Enum<*>? {
         return readInt().let {
             if (it < 0) {
@@ -229,7 +230,7 @@ open class GameInputStream : Closeable {
     @Throws(IOException::class)
     fun transferToFixedLength(out: OutputStream, length: Int) {
         if (this.buffer is DisableSyncByteArrayInputStream) {
-            this.buffer.transferToFixedLength(out,length)
+            this.buffer.transferToFixedLength(out, length)
         } else {
             out.write(this.buffer.readNBytes(length))
         }
@@ -255,17 +256,13 @@ open class GameInputStream : Closeable {
     }
 
 
-
     fun getSize(): Long {
         return this.buffer.available().toLong()
     }
 
 
     override fun toString(): String {
-        return "GameInputStream{" +
-                "buffer=" + buffer +
-                ", stream=" + stream +
-                '}'
+        return "GameInputStream{" + "buffer=" + buffer + ", stream=" + stream + '}'
     }
 
     @Throws(IOException::class)
@@ -282,6 +279,19 @@ open class GameInputStream : Closeable {
             val ch2: Int = packet.bytes[1].toInt()
             val ch3: Int = packet.bytes[2].toInt()
             val ch4: Int = packet.bytes[3].toInt()
+            if (ch1 or ch2 or ch3 or ch4 < 0) {
+                throw EOFException()
+            }
+            return (ch1 shl 24) + (ch2 shl 16) + (ch3 shl 8) + (ch4 shl 0)
+        }
+
+        @JvmStatic
+        @Throws(IOException::class)
+        fun readHeadInt(bytes: ByteArray): Int {
+            val ch1: Int = bytes[0].toInt()
+            val ch2: Int = bytes[1].toInt()
+            val ch3: Int = bytes[2].toInt()
+            val ch4: Int = bytes[3].toInt()
             if (ch1 or ch2 or ch3 or ch4 < 0) {
                 throw EOFException()
             }

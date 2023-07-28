@@ -16,17 +16,17 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
  * @date  2023/6/14 20:38
  * @author  RW-HPS/Dr
  */
-class OrderedMap<K, V> : BaseMap<K, V> {
-    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
+class OrderedMap<K, V>: BaseMap<K, V> {
+    @JvmOverloads
+    constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
-        Object2ObjectLinkedOpenHashMap<K,V>(capacity).let {
-            if (threadSafety) {
-                Object2ObjectMaps.synchronize<K,V>(it, it)
-            } else {
-                it
-            }
-        } as java.util.Map<K, V>, threadSafety
-    )
+    @JvmOverloads
+    constructor(capacity: Int, threadSafety: Boolean = false): super(Object2ObjectLinkedOpenHashMap<K, V>(capacity).let {
+        if (threadSafety) {
+            Object2ObjectMaps.synchronize<K, V>(it, it)
+        } else {
+            it
+        }
+    } as java.util.Map<K, V>, threadSafety)
 }

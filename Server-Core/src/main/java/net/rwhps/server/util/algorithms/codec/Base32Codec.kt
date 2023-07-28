@@ -17,10 +17,10 @@ import java.util.*
  * 所以，5个ASCII字符经过base32编码后会变为8个字符（公约数为40），长度增加3/5.不足8n用“=”补足。<br></br>
  * 根据RFC4648 Base32规范，支持两种模式：
  *
- *  * Base 32 Alphabet                 (ABCDEFGHIJKLMNOPQRSTUVWXYZ234567)
- *  * "Extended Hex" Base 32 Alphabet  (0123456789ABCDEFGHIJKLMNOPQRSTUV)
+ * Base 32 Alphabet                 (ABCDEFGHIJKLMNOPQRSTUVWXYZ234567)
+ * "Extended Hex" Base 32 Alphabet  (0123456789ABCDEFGHIJKLMNOPQRSTUV)
  */
-internal class Base32Codec : Encoder<ByteArray, String>, Decoder<CharSequence, ByteArray> {
+internal class Base32Codec: Encoder<ByteArray, String>, Decoder<CharSequence, ByteArray> {
     /**
      * 编码数据
      *
@@ -38,7 +38,7 @@ internal class Base32Codec : Encoder<ByteArray, String>, Decoder<CharSequence, B
     }
 
     override fun encode(data: ByteArray): String {
-        return encode(data,false)
+        return encode(data, false)
     }
 
     /**
@@ -58,7 +58,7 @@ internal class Base32Codec : Encoder<ByteArray, String>, Decoder<CharSequence, B
     }
 
     override fun decode(encoded: CharSequence): ByteArray {
-        return decode(encoded,false)
+        return decode(encoded, false)
     }
 
     /**
@@ -67,7 +67,7 @@ internal class Base32Codec : Encoder<ByteArray, String>, Decoder<CharSequence, B
      * @param alphabet 自定义编码字母表，见 [.DEFAULT_ALPHABET]和 [.HEX_ALPHABET]
      * @param pad      补位字符
      */
-    class Base32Encoder(alphabet: String, private val pad: Char?) : Encoder<ByteArray, String> {
+    class Base32Encoder(alphabet: String, private val pad: Char?): Encoder<ByteArray, String> {
         private val alphabet: CharArray
 
         init {
@@ -132,7 +132,7 @@ internal class Base32Codec : Encoder<ByteArray, String>, Decoder<CharSequence, B
      *
      * @param alphabet 编码字母表
      */
-    class Base32Decoder(alphabet: String) : Decoder<CharSequence, ByteArray> {
+    class Base32Decoder(alphabet: String): Decoder<CharSequence, ByteArray> {
         private val lookupTable: ByteArray = ByteArray(128)
 
         init {
@@ -144,7 +144,7 @@ internal class Base32Codec : Encoder<ByteArray, String>, Decoder<CharSequence, B
                 c = alphabet[i]
                 lookupTable[c.code - BASE_CHAR.code] = i.toByte()
                 // 支持小写字母解码
-                if (c in 'A'..'Z') {
+                if (c in 'A' .. 'Z') {
                     lookupTable[c.lowercaseChar() - BASE_CHAR] = i.toByte()
                 }
             }

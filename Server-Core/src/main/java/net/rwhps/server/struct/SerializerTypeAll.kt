@@ -18,7 +18,7 @@ import java.io.IOException
  * @author RW-HPS/Dr
  */
 class SerializerTypeAll {
-   interface TypeSerializer<T> {
+    interface TypeSerializer<T> {
         /**
          * 序列化写入
          * @param paramDataOutput 输出流

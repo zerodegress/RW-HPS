@@ -56,7 +56,7 @@ internal class ClientCommands(handler: CommandHandler) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.noInt"))
             return false
         }
-        if (int.toInt() > (Data.configServer.MaxPlayer)) {
+        if (int.toInt() > (Data.configServer.maxPlayer)) {
             player.sendSystemMessage(player.i18NBundle.getinput("err.maxPlayer"))
             return false
         }
@@ -68,15 +68,14 @@ internal class ClientCommands(handler: CommandHandler) {
             val str = StringBuilder(16)
             for (command in handler.commandList) {
                 if (command.description.startsWith("#")) {
-                    str.append("   ").append(command.text).append(if (command.paramText.isEmpty()) "" else " ")
-                        .append(command.paramText).append(" - ").append(command.description.substring(1))
+                    str.append("   ").append(command.text).append(if (command.paramText.isEmpty()) "" else " ").append(command.paramText)
+                        .append(" - ").append(command.description.substring(1))
                 } else {
                     if ("HIDE" == command.description) {
                         continue
                     }
-                    str.append("   ").append(command.text).append(if (command.paramText.isEmpty()) "" else " ")
-                        .append(command.paramText).append(" - ").append(player.i18NBundle.getinput(command.description))
-                        .append(LINE_SEPARATOR)
+                    str.append("   ").append(command.text).append(if (command.paramText.isEmpty()) "" else " ").append(command.paramText)
+                        .append(" - ").append(player.i18NBundle.getinput(command.description)).append(LINE_SEPARATOR)
                 }
             }
             player.sendSystemMessage(str.toString())
@@ -95,7 +94,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 val inputMapName = response.toString().replace("'", "").replace(" ", "").replace("-", "").replace("_", "")
                 val mapPlayer = Data.MapsMap[inputMapName]
-                if (inputMapName.equals("DEF",ignoreCase = true)) {
+                if (inputMapName.equals("DEF", ignoreCase = true)) {
                     GameEngine.netEngine.az = "maps/skirmish/[z;p10]Crossing Large (10p).tmx"
                     GameEngine.netEngine.ay.b = "[z;p10]Crossing Large (10p).tmx"
                     room.mapName = "Crossing Large (10p)"
@@ -133,7 +132,7 @@ internal class ClientCommands(handler: CommandHandler) {
                     }
                     player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
-                room.call.sendSystemMessage(localeUtil.getinput("map.to",player.name,room.mapName))
+                room.call.sendSystemMessage(localeUtil.getinput("map.to", player.name, room.mapName))
                 GameEngine.netEngine.L()
             }
         }
@@ -169,15 +168,14 @@ internal class ClientCommands(handler: CommandHandler) {
                     return@register
                 }
                 val admin = AtomicBoolean(true)
-                room.playerManage.playerGroup.eachAllFind({ p: PlayerHess -> p.isAdmin },{ _: PlayerHess -> admin.set(false) })
+                room.playerManage.playerGroup.eachAllFind({ p: PlayerHess -> p.isAdmin }, { _: PlayerHess -> admin.set(false) })
                 if (admin.get()) {
                     player.isAdmin = true
                     room.call.sendSystemMessageLocal("afk.end.noAdmin", player.name)
                     return@register
                 }
                 Threads.newCountdown(CallTimeTask.PlayerAfkTask, 30, TimeUnit.SECONDS) {
-                    room.playerManage.playerGroup.eachFind(
-                        { p: PlayerHess -> p.isAdmin }) { i: PlayerHess ->
+                    room.playerManage.playerGroup.eachFind({ p: PlayerHess -> p.isAdmin }) { i: PlayerHess ->
                         i.isAdmin = false
                         player.isAdmin = true
                         room.call.sendSystemMessageLocal("afk.end.ok", player.name)
@@ -225,7 +223,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 }
                 GameEngine.data.gameDataLink.aiDifficuld = args[0].toInt()
 
-                for (site in 0 until Data.configServer.MaxPlayer) {
+                for (site in 0 until Data.configServer.maxPlayer) {
                     if (room.playerManage.getPlayerArray(site) == null) {
                         if (n.k(site) != null) {
                             n.k(site).x = args[0].toInt()
@@ -236,18 +234,16 @@ internal class ClientCommands(handler: CommandHandler) {
             }
         }
         handler.register("status", "clientCommands.status") { _: Array<String>?, player: PlayerHess ->
-            player.sendSystemMessage(player.i18NBundle.getinput(
-                "status.version",
-                room.playerManage.playerGroup.size,
-                0,
-                Data.SERVER_CORE_VERSION,
-                "RW-HPS-Hess"
-            ))
+            player.sendSystemMessage(
+                    player.i18NBundle.getinput(
+                            "status.version", room.playerManage.playerGroup.size, 0, Data.SERVER_CORE_VERSION, "RW-HPS-Hess"
+                    )
+            )
         }
-        handler.register("vote", "<gameover>","clientCommands.vote") { _: Array<String>?, player: PlayerHess ->
-            Data.vote = Vote("gameover",player)
+        handler.register("vote", "<gameover>", "clientCommands.vote") { _: Array<String>?, player: PlayerHess ->
+            Data.vote = Vote("gameover", player)
         }
-        handler.register("iunit", "<PlayerPositionNumber> <unitID>","clientCommands.iunit") { args: Array<String>, player: PlayerHess ->
+        handler.register("iunit", "<PlayerPositionNumber> <unitID>", "clientCommands.iunit") { args: Array<String>, player: PlayerHess ->
             if (room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                 return@register
@@ -263,7 +259,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 if (playerUnit != null) {
                     playerUnit.startUnit = args[1].toInt()
                 } else {
-                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.no.site",args[0]))
+                    player.sendSystemMessage(player.i18NBundle.getinput("err.player.no.site", args[0]))
                 }
             }
         }
@@ -293,7 +289,7 @@ internal class ClientCommands(handler: CommandHandler) {
                 val kickPlayer = room.playerManage.getPlayerArray(site)
                 if (kickPlayer != null) {
                     try {
-                        kickPlayer.kickPlayer(localeUtil.getinput("kick.you"),60)
+                        kickPlayer.kickPlayer(localeUtil.getinput("kick.you"), 60)
                     } catch (e: IOException) {
                         error("[Player] Send Kick Player Error", e)
                     }
@@ -351,18 +347,20 @@ internal class ClientCommands(handler: CommandHandler) {
             }
         }
         handler.register("start", "clientCommands.start") { _: Array<String>?, player: PlayerHess? ->
-            if (player != null && isAdmin(player)) {
-                if (room.isStartGame) {
-                    player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+            if (player != null) {
+                if (isAdmin(player)) {
+                    if (room.isStartGame) {
+                        player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
+                        return@register
+                    }
+
+                    if (Data.configServer.startMinPlayerSize != -1 && Data.configServer.startMinPlayerSize > room.playerManage.playerGroup.size) {
+                        player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.configServer.startMinPlayerSize))
+                        return@register
+                    }
+                } else {
                     return@register
                 }
-
-                if (Data.configServer.StartMinPlayerSize != -1 &&
-                    Data.configServer.StartMinPlayerSize > room.playerManage.playerGroup.size) {
-                    player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.configServer.StartMinPlayerSize))
-                    return@register
-                }
-
             }
 
             if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
@@ -427,7 +425,7 @@ internal class ClientCommands(handler: CommandHandler) {
 
         PluginManage.runRegisterServerClientCommands(handler)
     }
-    
+
     companion object {
         private val room = HessModuleManage.hessLoaderMap[this::class.java.classLoader.toString()]!!.room
     }

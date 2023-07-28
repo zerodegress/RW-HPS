@@ -15,7 +15,7 @@ import java.io.PrintStream
 /**
  * @author RW-HPS/Dr
  */
-internal class DynamicPrintStream(private val block: (String) -> Unit) : PrintStream(ByteArrayOutputStream()) {
+internal class DynamicPrintStream(private val block: (String) -> Unit): PrintStream(ByteArrayOutputStream()) {
     private val bufOut = out as ByteArrayOutputStream
 
     private var last = -1

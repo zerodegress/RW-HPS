@@ -28,6 +28,7 @@ object DigestUtils {
     fun md5(data: ByteArray): ByteArray {
         return MD5().digest(data)
     }
+
     /**
      * 计算32位MD5摘要值
      *
@@ -141,6 +142,7 @@ object DigestUtils {
     fun md5Hex16(data: ByteArray): String {
         return MD5().digestHex16(data)
     }
+
     /**
      * 计算16位MD5摘要值，并转为16进制字符串
      *
@@ -186,7 +188,7 @@ object DigestUtils {
     fun md5HexTo16(md5Hex: String): String {
         return md5Hex.substring(8, 24)
     }
-   
+
     /**
      * 计算SHA-1摘要值
      *
@@ -197,6 +199,7 @@ object DigestUtils {
     fun sha1(data: ByteArray): ByteArray {
         return Digester(DigestAlgorithm.SHA1).digest(data)
     }
+
     /**
      * 计算SHA-1摘要值
      *
@@ -230,7 +233,7 @@ object DigestUtils {
     @JvmStatic
     fun sha1(file: File): ByteArray {
         return Digester(DigestAlgorithm.SHA1).digest(
-            file
+                file
         )
     }
 
@@ -243,6 +246,7 @@ object DigestUtils {
     fun sha1Hex(data: ByteArray): String {
         return Digester(DigestAlgorithm.SHA1).digestHex(data)
     }
+
     /**
      * 计算SHA-1摘要值，并转为16进制字符串
      *
@@ -254,7 +258,7 @@ object DigestUtils {
     @JvmStatic
     fun sha1Hex(data: String, charset: String = "UTF-8"): String {
         return Digester(DigestAlgorithm.SHA1).digestHex(
-            data, charset
+                data, charset
         )
     }
 
@@ -279,7 +283,7 @@ object DigestUtils {
     fun sha1Hex(file: File): String {
         return Digester(DigestAlgorithm.SHA1).digestHex(file)
     }
-   
+
     /**
      * 计算SHA-256摘要值
      *
@@ -290,6 +294,7 @@ object DigestUtils {
     fun sha256(data: ByteArray): ByteArray {
         return Digester(DigestAlgorithm.SHA256).digest(data)
     }
+
     /**
      * 计算SHA-256摘要值
      *
@@ -335,6 +340,7 @@ object DigestUtils {
     fun sha256Hex(data: ByteArray): String {
         return Digester(DigestAlgorithm.SHA256).digestHex(data)
     }
+
     /**
      * 计算SHA-256摘要值，并转为16进制字符串
      *
@@ -402,6 +408,7 @@ object DigestUtils {
     fun sha512(data: ByteArray): ByteArray {
         return Digester(DigestAlgorithm.SHA512).digest(data)
     }
+
     /**
      * 计算SHA-512摘要值
      *
@@ -413,7 +420,7 @@ object DigestUtils {
     @JvmStatic
     fun sha512(data: String, charset: String = "UTF-8"): ByteArray {
         return Digester(DigestAlgorithm.SHA512).digest(
-            data, charset
+                data, charset
         )
     }
 
@@ -449,6 +456,7 @@ object DigestUtils {
     fun sha512Hex(data: ByteArray): String {
         return Digester(DigestAlgorithm.SHA512).digestHex(data)
     }
+
     /**
      * 计算SHA-512摘要值，并转为16进制字符串
      *

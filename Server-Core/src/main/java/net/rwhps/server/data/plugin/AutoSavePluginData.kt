@@ -12,4 +12,4 @@ package net.rwhps.server.data.plugin
  * @author RW-HPS/Dr
  */
 @Suppress("EXPOSED_SUPER_CLASS")
-open class AutoSavePluginData : AbstractPluginData()
+open class AutoSavePluginData: AbstractPluginData()

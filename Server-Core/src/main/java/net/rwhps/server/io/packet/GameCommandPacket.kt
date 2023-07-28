@@ -15,15 +15,14 @@ import net.rwhps.server.util.inline.toStringHex
  * @author RW-HPS/Dr
  */
 class GameCommandPacket(
-    val sendBy: Int, val bytes: ByteArray,
-    val gzip: Boolean = true
+    val sendBy: Int, val bytes: ByteArray, val gzip: Boolean = true
 ) {
     /**
      * Return detailed Packet data
      * @return Packet String
      */
     override fun toString(): String {
-        return  """
+        return """
                 GameCommandPacket {
                     Bytes=${bytes.contentToString()}
                     BytesHex=${bytes.toStringHex()}

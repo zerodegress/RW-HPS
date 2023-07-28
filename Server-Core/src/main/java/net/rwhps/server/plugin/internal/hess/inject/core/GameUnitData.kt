@@ -21,7 +21,7 @@ import net.rwhps.server.util.log.Log
 /**
  * @author RW-HPS/Dr
  */
-internal class GameUnitData : AbstractGameUnitData {
+internal class GameUnitData: AbstractGameUnitData {
     override fun reloadUnitData() {
         ag.h()
     }
@@ -31,7 +31,7 @@ internal class GameUnitData : AbstractGameUnitData {
         val modsData = OrderedMap<String, ObjectMap<String, Int>>()
         val gameUnitDataList: List<l> = l.c as List<l>
 
-        for(data in gameUnitDataList) {
+        for (data in gameUnitDataList) {
             val group = data.t() ?: coreName
             if (modsData.containsKey(group)) {
                 modsData[group]!![data.M] = data.H

@@ -40,7 +40,9 @@ class GameMaps {
          * customMap  : 自定义的地图
          * savedGames : 游戏里保存的进度
          */
-        defaultMap, customMap, savedGames
+        defaultMap,
+        customMap,
+        savedGames
     }
 
     enum class MapFileType {
@@ -49,7 +51,9 @@ class GameMaps {
          * zip  : 以ZIP提供(文件在ZIP内)
          * web  : 以WebFile的形式提供(需要下载)
          */
-        file, zip, web
+        file,
+        zip,
+        web
     }
 
     class MapData {
@@ -99,7 +103,8 @@ class GameMaps {
                     error("Read Map Bytes Error", e)
                 }
                 MapFileType.zip -> try {
-                    bytesMap = CompressionDecoderUtils.zip(fileUtil.toFile(zipFileName!!).file).use { it.getTheFileBytesOfTheSpecifiedSuffixInTheZip(this) }
+                    bytesMap = CompressionDecoderUtils.zip(fileUtil.toFile(zipFileName!!).file)
+                        .use { it.getTheFileBytesOfTheSpecifiedSuffixInTheZip(this) }
                     mapSize = bytesMap!!.size
                 } catch (e: Exception) {
                     error("Read Map Bytes Error", e)

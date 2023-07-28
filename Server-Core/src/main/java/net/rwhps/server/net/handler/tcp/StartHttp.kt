@@ -36,10 +36,11 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLEngine
 
+
 /**
  * @author RW-HPS/Dr
  */
-internal class StartHttp : AbstractNet(), AbstractNetWeb {
+internal class StartHttp: AbstractNet(), AbstractNetWeb {
     var socketChannel: SocketChannel? = null
     private var sslContext: SSLContext? = null
     private lateinit var webData: WebData
@@ -49,11 +50,13 @@ internal class StartHttp : AbstractNet(), AbstractNetWeb {
     }
 
     private fun isHttpReq(head: String): Boolean {
-        return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith("HEAD ") || head.startsWith("PUT ")
+        return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith("HEAD ") || head.startsWith(
+                "PUT "
+        )
     }
 
     override fun initChannel(socketChannel: SocketChannel) {
-        if (Data.config.SSL) {
+        if (Data.config.ssl) {
             if (sslContext == null) {
                 sslContext = getSslContext()
             }
@@ -61,7 +64,7 @@ internal class StartHttp : AbstractNet(), AbstractNetWeb {
             sslEngine.useClientMode = false
             socketChannel.pipeline().addLast("ssl", SslHandler(sslEngine))
         }
-        socketChannel.pipeline().addLast("http",object : SimpleChannelInboundHandler<Any>() {
+        socketChannel.pipeline().addLast("http", object: SimpleChannelInboundHandler<Any>() {
             @Throws(Exception::class)
             override fun channelRead0(ctx: ChannelHandlerContext, msg: Any) {
                 val firstData: ByteBuf = msg as ByteBuf
@@ -72,24 +75,18 @@ internal class StartHttp : AbstractNet(), AbstractNetWeb {
                         firstData.retain()
                         val head = headS.split("\\R")[0].split(" ")[1]
                         ctx.channel().pipeline().addLast(
-                            HttpServerCodec(),
-                            ChunkedWriteHandler(),
-                            HttpObjectAggregator(1048576),
-                            WebSocketServerProtocolHandler(head)
+                                HttpServerCodec(), ChunkedWriteHandler(), HttpObjectAggregator(1048576), WebSocketServerProtocolHandler(head)
                         )
-                        ctx.channel().pipeline().addFirst(
-                            IdleStateHandler(10, 0, 0),
-                            object : ChannelDuplexHandler() {
-                                @Throws(Exception::class)
-                                override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
-                                    val evt1: IdleStateEvent = evt as IdleStateEvent
-                                    if (evt1.state() === IdleState.READER_IDLE) {
-                                        Log.clog("已经10秒没有读到数据了,主动断开连接" + ctx.channel())
-                                        ctx.channel().close()
-                                    }
+                        ctx.channel().pipeline().addFirst(IdleStateHandler(10, 0, 0), object: ChannelDuplexHandler() {
+                            @Throws(Exception::class)
+                            override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
+                                val evt1: IdleStateEvent = evt as IdleStateEvent
+                                if (evt1.state() === IdleState.READER_IDLE) {
+                                    Log.clog("已经10秒没有读到数据了,主动断开连接" + ctx.channel())
+                                    ctx.channel().close()
                                 }
                             }
-                        )
+                        })
                         val wsProcessing = webData.runWebSocketInstance(head)
                         if (wsProcessing != null) {
                             ctx.channel().pipeline().addLast(wsProcessing)
@@ -98,16 +95,23 @@ internal class StartHttp : AbstractNet(), AbstractNetWeb {
                         }
                     } else {
                         ctx.channel().pipeline().addLast(HttpServerCodec(), HttpObjectAggregator(1048576))
-                        ctx.channel().pipeline().addLast(object : SimpleChannelInboundHandler<Any>() {
+                        ctx.channel().pipeline().addLast(object: SimpleChannelInboundHandler<Any>() {
                             @Throws(Exception::class)
                             override fun channelRead0(ctx: ChannelHandlerContext, msg: Any) {
                                 if (msg is HttpRequest) {
                                     val request = msg
 
+                                    val send = SendWeb(ctx.channel(), request)
+                                    // 获取请求的域名
+                                    if (Data.config.webHOST != "" && request.headers()[HttpHeaderNames.HOST] != Data.config.webHOST) {
+                                        send.sendBedRequest()
+                                        return
+                                    }
+
                                     val url = request.uri()
 
                                     if (request.method().equals(HttpMethod.GET)) {
-                                        webData.runWebGetInstance(url, request, SendWeb(ctx.channel(), request))
+                                        webData.runWebGetInstance(url, request, send)
                                         return
                                     } else if (request.method().equals(HttpMethod.POST)) {
                                         if (msg is HttpContent) {
@@ -115,7 +119,7 @@ internal class StartHttp : AbstractNet(), AbstractNetWeb {
                                             val content = httpContent.content()
                                             val buf = StringBuilder()
                                             buf.append(content.toString(CharsetUtil.UTF_8))
-                                            webData.runWebPostInstance(url, buf.toString(), request, SendWeb(ctx.channel(), request))
+                                            webData.runWebPostInstance(url, buf.toString(), request, send)
                                             return
                                         }
                                     }
@@ -139,7 +143,7 @@ internal class StartHttp : AbstractNet(), AbstractNetWeb {
     }
 
     private fun getSslContext(protocol: String = "TLSv1.2"): SSLContext {
-        val filePass = Data.config.SSLPasswd.toCharArray()
+        val filePass = Data.config.sslPasswd.toCharArray()
         val sslContext: SSLContext = SSLContext.getInstance(protocol)
         val keyStore: KeyStore = KeyStore.getInstance("JKS")
         keyStore.load(FileUtils.getFile("ssl.jks").getInputsStream(), filePass)

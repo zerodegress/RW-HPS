@@ -42,12 +42,9 @@ object HttpRequestOkHttp {
             return ""
         }
 
-        val request: Request = Builder()
-            .url(url)
-            .addHeader("User-Agent", USER_AGENT)
-            .build()
+        val request: Request = Builder().url(url).addHeader("User-Agent", USER_AGENT).build()
         try {
-            CLIENT.newCall(request).execute().use { response -> return response.body?.string() ?:"" }
+            CLIENT.newCall(request).execute().use { response -> return response.body?.string() ?: "" }
         } catch (e: Exception) {
             error(e)
         }
@@ -84,11 +81,7 @@ object HttpRequestOkHttp {
             return ""
         }
 
-        val request: Request = Builder()
-            .url(url)
-            .addHeader("User-Agent", USER_AGENT)
-            .post(data.build())
-            .build()
+        val request: Request = Builder().url(url).addHeader("User-Agent", USER_AGENT).post(data.build()).build()
         return getHttpResultString(request)
     }
 
@@ -106,11 +99,7 @@ object HttpRequestOkHttp {
         }
 
         val body: RequestBody = param.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
-        val request: Request = Builder()
-            .url(url)
-            .addHeader("User-Agent", USER_AGENT)
-            .post(body)
-            .build()
+        val request: Request = Builder().url(url).addHeader("User-Agent", USER_AGENT).post(body).build()
         return getHttpResultString(request)
     }
 
@@ -121,12 +110,13 @@ object HttpRequestOkHttp {
      */
     private fun getHttpResultString(request: Request): String {
         return try {
-            getHttpResultString(request,false)
+            getHttpResultString(request, false)
         } catch (e: Exception) {
-            error("[HttpResult]",e)
+            error("[HttpResult]", e)
             ""
         }
     }
+
     /**
      * Request and Return
      * @param request     Request
@@ -141,7 +131,7 @@ object HttpRequestOkHttp {
                 if (!response.isSuccessful) {
                     error("Unexpected code", IOException())
                 }
-                result = response.body?.string() ?:""
+                result = response.body?.string() ?: ""
                 response.body?.close()
             }
         } catch (e: Exception) {
@@ -160,13 +150,8 @@ object HttpRequestOkHttp {
             val keyValue = pam.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             formBody.add(keyValue[0], keyValue[1])
         }
-        val request: Request = Builder()
-            .url(url)
-            .addHeader("User-Agent", "rw android 151 zh")
-            .addHeader("Language", "zh")
-            .addHeader("Connection", "close")
-            .post(formBody.build())
-            .build()
+        val request: Request = Builder().url(url).addHeader("User-Agent", "rw android 151 zh").addHeader("Language", "zh")
+            .addHeader("Connection", "close").post(formBody.build()).build()
         try {
             return getHttpResultString(request, true)
         } catch (e: Exception) {
@@ -177,22 +162,24 @@ object HttpRequestOkHttp {
 
     @JvmOverloads
     @JvmStatic
-    fun downUrl(url: String?, file: File?, progressFlag: Boolean = false): Boolean {
-        if (url.isNullOrBlank() || file == null) {
+    fun downUrl(url: String, file: File, progressFlag: Boolean = false): Boolean {
+        return downUrl(url, file.outputStream(), file.name, progressFlag)
+    }
+
+    @JvmOverloads
+    @JvmStatic
+    fun downUrl(url: String, output: OutputStream, fileName: String = "", progressFlag: Boolean = false): Boolean {
+        if (url.isBlank()) {
             error("[DownUrl URL] NULL")
             return false
         }
 
         var flagStatus = true
-        val output = FileOutputStream(file)
 
-        val request: Request = Builder()
-            .url(url)
-            .addHeader("User-Agent", USER_AGENT)
-            .build()
+        val request: Request = Builder().url(url).addHeader("User-Agent", USER_AGENT).build()
 
         try {
-            CLIENT.newCall(request).enqueue(object : Callback {
+            CLIENT.newCall(request).enqueue(object: Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     throw e
                 }
@@ -214,8 +201,10 @@ object HttpRequestOkHttp {
                         var progress: ProgressBar? = null
                         //获取文件大小
                         if (headers["Content-Length"] != null && progressFlag) {
-                            progress = ProgressBar(0,headers["Content-Length"]!!.toInt())
-                            Log.clog("Start Down File : ${file.name}")
+                            progress = ProgressBar(0, headers["Content-Length"]!!.toInt())
+                            if (fileName.isNotBlank()) {
+                                Log.clog("Start Down File : $fileName")
+                            }
                         }
 
                         IoRead.copyInputStream(response.body!!.byteStream(), output) { len ->

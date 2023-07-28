@@ -1,9 +1,7 @@
-
-
-
 > 本镜像为方便管理 (后台运行+前台交互, 异常时自动重启), 已打包 `Supervisor`, 并将常用管理脚本打包
 
-> PS: Docker 镜像使用 `GitHub Actions` 自动更新, 可选版本号, 或选择最新开发版 (tag: `{last_release}-beta`), [点击查看](https://github.com/RW-HPS/RW-HPS/pkgs/container/rw-hps)
+> PS: Docker 镜像使用 `GitHub Actions` 自动更新, 可选版本号, 或选择最新开发版 (
+> tag: `{last_release}-beta`), [点击查看](https://github.com/RW-HPS/RW-HPS/pkgs/container/rw-hps)
 
 ## Docker
 
@@ -37,8 +35,6 @@ rw-hps                           RUNNING   pid 9, uptime 0:26:01
 ```bash
 ./restart.sh
 ```
-
-
 
 ## Docker Compose
 

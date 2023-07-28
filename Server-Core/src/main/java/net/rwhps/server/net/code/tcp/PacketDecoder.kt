@@ -33,7 +33,7 @@ import net.rwhps.server.util.log.Log.warn
  *   |    Packet Head    | Data
  *   +---------------+---------------+
  */
-internal class PacketDecoder : ByteToMessageDecoder() {
+internal class PacketDecoder: ByteToMessageDecoder() {
     @Throws(Exception::class)
     override fun decode(ctx: ChannelHandlerContext, bufferIn: ByteBuf?, out: MutableList<Any>) {
         if (bufferIn == null) {

@@ -35,49 +35,48 @@ class PluginCenter {
         val response = pluginCommand.handleMessage(str, log)
         if (response.type != CommandHandler.ResponseType.valid) {
             val text: String = when (response.type) {
-                        CommandHandler.ResponseType.manyArguments -> {
-                            "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                        }
-                        CommandHandler.ResponseType.fewArguments -> {
-                            "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
-                        }
-                        else -> {
-                            "Unknown command. use [plugin help]"
-                        }
-                    }
-            log[text]
+                CommandHandler.ResponseType.manyArguments -> {
+                    "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                }
+                CommandHandler.ResponseType.fewArguments -> {
+                    "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                }
+                else -> {
+                    "Unknown command. use [plugin help]"
+                }
+            }
+            log(text)
         }
     }
 
     private fun register() {
         pluginCommand.register("help", "") { _: Array<String?>?, log: StrCons ->
-            log["plugin list  查看插件列表"]
-            log["plugin updatalist  更新插件列表"]
-            log["plugin install PluginID  安装指定id的插件"]
+            log("plugin list  查看插件列表")
+            log("plugin updatalist  更新插件列表")
+            log("plugin install PluginID  安装指定id的插件")
         }
         pluginCommand.register("updatelist", "") { _: Array<String?>?, log: StrCons ->
             pluginCenterData = PluginCenterData(url + "PluginData")
-            log["更新插件列表完成"]
+            log("更新插件列表完成")
         }
         pluginCommand.register("list", "") { _: Array<String?>?, log: StrCons ->
-            log[pluginCenterData.pluginData]
+            log(pluginCenterData.pluginData)
         }
         pluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: StrCons ->
             val json = pluginCenterData.getJson(arg[0].toInt())
             if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
-                log["Plugin version is not compatible Plugin name is: {0}", json.getString("name")]
+                log("Plugin version is not compatible Plugin name is: {0}", json.getString("name"))
             } else {
                 HttpRequestOkHttp.downUrl(
-                    url + json.getString("name") + ".jar",
-                    getFolder(Data.Plugin_Plugins_Path).toFile(json.getString("name") + ".jar").file
+                        url + json.getString("name") + ".jar", getFolder(Data.Plugin_Plugins_Path).toFile(json.getString("name") + ".jar").file
                 )
-                log["Installation is complete, please restart the server"]
+                log("Installation is complete, please restart the server")
             }
         }
     }
 
     private class PluginCenterData(url: String) {
-         val pluginCenterData: Seq<Json>
+        val pluginCenterData: Seq<Json>
 
         val pluginData: String
             get() {
@@ -85,8 +84,7 @@ class PluginCenter {
                 var json: Json
                 for (i in 0 until pluginCenterData.size) {
                     json = pluginCenterData[i]
-                    stringBuilder.append("ID: ").append(i).append("  ")
-                        .append("Name: ").append(json.getString("name")).append("  ")
+                    stringBuilder.append("ID: ").append(i).append("  ").append("Name: ").append(json.getString("name")).append("  ")
                         .append("Description: ").append(json.getString("description")).append(Data.LINE_SEPARATOR)
                 }
                 return stringBuilder.toString()

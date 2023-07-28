@@ -14,7 +14,7 @@ import net.rwhps.server.func.Control
 import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.net.core.web.WebPost
 import net.rwhps.server.net.core.web.WebSocket
-import net.rwhps.server.net.handler.tcp.GamePortWebSocket
+import net.rwhps.server.net.handler.tcp.StartWebSocket
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.log.exp.VariableException
 
@@ -26,7 +26,7 @@ class WebData {
     private val postData: ObjectMap<String, WebPost> = ObjectMap()
     private val getWildcardAllData: ObjectMap<String, WebGet> = ObjectMap()
     private val postWildcardAllData: ObjectMap<String, WebPost> = ObjectMap()
-    private val webSocketData: ObjectMap<String, GamePortWebSocket> = ObjectMap()
+    private val webSocketData: ObjectMap<String, StartWebSocket> = ObjectMap()
 
     fun addWebGetInstance(url: String, webGet: WebGet) {
         if (getData.containsKey(url)) {
@@ -41,6 +41,7 @@ class WebData {
             getData[url] = webGet
         }
     }
+
     fun addWebPostInstance(url: String, webPost: WebPost) {
         if (postData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebPostInstance] Repeat Add")
@@ -54,19 +55,22 @@ class WebData {
             postData[url] = webPost
         }
     }
+
     fun addWebSocketInstance(url: String, webSocket: WebSocket) {
         if (webSocketData.containsKey(url)) {
             throw VariableException.RepeatAddException("[AddWebSocketInstance] Repeat Add")
         }
-        webSocketData[url] = GamePortWebSocket(webSocket)
+        webSocketData[url] = StartWebSocket(webSocket)
     }
 
     fun removeWebGetInstance(url: String) {
         getData.remove(url)
     }
+
     fun removeWebPostInstance(url: String) {
         postData.remove(url)
     }
+
     fun removeWebSocketInstance(url: String) {
         webSocketData.remove(url)
     }
@@ -82,28 +86,28 @@ class WebData {
      * @param sendWeb SendWeb
      */
     internal fun runWebGetInstance(url: String, request: HttpRequest, sendWeb: SendWeb) {
-        val wildcard = "${url.substring(0,url.lastIndexOf("/")+1)}*"
+        val wildcard = "${url.substring(0, url.lastIndexOf("/") + 1)}*"
         var getUrl = url
         var urlData = ""
 
         if (url.contains("?")) {
-            getUrl = url.substring(0,url.lastIndexOf("?"))
-            if (url.length > url.lastIndexOf("?")+1) {
-                urlData = url.substring(url.lastIndexOf("?")+1)
+            getUrl = url.substring(0, url.lastIndexOf("?"))
+            if (url.length > url.lastIndexOf("?") + 1) {
+                urlData = url.substring(url.lastIndexOf("?") + 1)
             }
         }
 
         if (getData.containsKey(getUrl)) {
-            getData[getUrl]?.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
+            getData[getUrl]?.get(AcceptWeb(getUrl, urlData, "", request), sendWeb)
         } else if (getData.containsKey(wildcard)) {
             getData[wildcard]?.get(AcceptWeb(getUrl, urlData, "", request), sendWeb)
         } else {
-            getWildcardAllData.eachControlAll { k,v ->
+            getWildcardAllData.eachControl { k, v ->
                 if (url.startsWith(k)) {
-                    v.get(AcceptWeb(getUrl,urlData,"",request),sendWeb)
-                    return@eachControlAll Control.ControlFind.BREAK
+                    v.get(AcceptWeb(getUrl, urlData, "", request), sendWeb)
+                    return@eachControl Control.ControlFind.BREAK
                 }
-                return@eachControlAll Control.ControlFind.CONTINUE
+                return@eachControl Control.ControlFind.CONTINUE
             }
 
             sendWeb.send404()
@@ -111,34 +115,35 @@ class WebData {
     }
 
     internal fun runWebPostInstance(url: String, data: String, request: HttpRequest, sendWeb: SendWeb) {
-        val wildcard = "${url.substring(0,url.lastIndexOf("/")+1)}*"
+        val wildcard = "${url.substring(0, url.lastIndexOf("/") + 1)}*"
         var getUrl = url
         var urlData = ""
 
         if (url.contains("?")) {
-            getUrl = url.substring(0,url.lastIndexOf("?"))
-            if (url.length > url.lastIndexOf("?")+1) {
-                urlData = url.substring(url.lastIndexOf("?")+1)
+            getUrl = url.substring(0, url.lastIndexOf("?"))
+            if (url.length > url.lastIndexOf("?") + 1) {
+                urlData = url.substring(url.lastIndexOf("?") + 1)
             }
         }
 
         if (postData.containsKey(getUrl)) {
-            postData[getUrl]!!.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
+            postData[getUrl]!!.post(AcceptWeb(getUrl, urlData, data, request), sendWeb)
         } else if (postData.containsKey(wildcard)) {
-            postData[wildcard]!!.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
+            postData[wildcard]!!.post(AcceptWeb(getUrl, urlData, data, request), sendWeb)
         } else {
-            postWildcardAllData.eachControlAll { k,v ->
+            postWildcardAllData.eachControl { k, v ->
                 if (url.startsWith(k)) {
-                    v.post(AcceptWeb(getUrl,urlData,data,request),sendWeb)
-                    return@eachControlAll Control.ControlFind.BREAK
+                    v.post(AcceptWeb(getUrl, urlData, data, request), sendWeb)
+                    return@eachControl Control.ControlFind.BREAK
                 }
-                return@eachControlAll Control.ControlFind.CONTINUE
+                return@eachControl Control.ControlFind.CONTINUE
             }
 
             sendWeb.send404()
         }
     }
-    internal fun runWebSocketInstance(url: String): GamePortWebSocket? {
+
+    internal fun runWebSocketInstance(url: String): StartWebSocket? {
         if (webSocketData.containsKey(url)) {
             return webSocketData[url]!!
         }

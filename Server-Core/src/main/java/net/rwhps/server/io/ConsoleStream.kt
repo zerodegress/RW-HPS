@@ -21,12 +21,12 @@ import org.jline.reader.ParsedLine
  */
 class ConsoleStream {
     // Tab兼容
-    object TabCompleter : Completer {
+    object TabCompleter: Completer {
         override fun complete(reader: LineReader, line: ParsedLine, candidates: MutableList<Candidate>) {
             val cmd = line.line().substring(0, line.cursor()).split(' ')[0]
             val candidatesList = Seq<String>()
             Data.SERVER_COMMAND.commandList.eachAll {
-                if (it.text.startsWith(cmd,ignoreCase = true)) {
+                if (it.text.startsWith(cmd, ignoreCase = true)) {
                     if (it.text == cmd) {
                         return@eachAll
                     }

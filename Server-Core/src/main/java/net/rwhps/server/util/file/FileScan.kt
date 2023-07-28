@@ -21,10 +21,10 @@ object FileScan {
         val name = Seq<String>()
         CompressionDecoderUtils.zipAllReadStream(FileUtils.getMyCoreJarStream()).use {
             it.getZipAllBytes().eachAll { k, _ ->
-                val packetPathRep = packetPath.replace(".", "/")+"/"
-                if (k.startsWith(packetPathRep) && k.endsWith("class") && !k.contains("$")) {
-                    if (!k.replace(packetPathRep,"").contains("/")) {
-                        name.add(k.replace(".class","").replace("/","."))
+                val packetPathRep = packetPath.replace(".", "/") + "/"
+                if (k.startsWith(packetPathRep) && k.endsWith(".class") && !k.contains("$")) {
+                    if (!k.replace(packetPathRep, "").contains("/")) {
+                        name.add(k.replace(".class", "").replace("/", "."))
                     }
                 }
             }

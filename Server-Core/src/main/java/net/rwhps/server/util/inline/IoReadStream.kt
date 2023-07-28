@@ -8,8 +8,7 @@
  */
 
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
@@ -37,10 +36,9 @@ fun InputStream.readFileListString(): Seq<String> {
 fun Class<*>.readBytes(): ByteArray {
     return this.javaClass.toString().readAsClassBytes()
 }
+
 fun String.readAsClassBytes(): ByteArray {
     return FileUtils.getInternalFileStream(
-        "/"+this
-            .replace("class ", "")
-            .replace(".", "/")+".class"
+            "/" + this.replace("class ", "").replace(".", "/") + ".class"
     ).readBytes()
 }

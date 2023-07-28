@@ -9,12 +9,16 @@
 
 package net.rwhps.server.plugin.beta.http
 
+import io.netty.channel.Channel
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.codec.http.HttpResponseStatus
+import io.netty.util.AttributeKey
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.net.core.web.WebPost
+import net.rwhps.server.net.core.web.WebSocket
+import net.rwhps.server.net.handler.tcp.StartWebSocket
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.struct.ObjectIntMap
@@ -31,10 +35,10 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
     private val cookiesData = ObjectIntMap<String>()
 
     fun registerAuthenticationCenter() {
-        Data.webData.addWebGetInstance("${RwHpsWebApiMain.url}/api/AuthCookie", object: WebGet() {
+        Data.webData.addWebGetInstance("/${RwHpsWebApiMain.name}/api/AuthCookie", object: WebGet() {
             override fun get(accept: AcceptWeb, send: SendWeb) = registerCookie(stringUrlDataResolveToJson(accept), accept, send)
         })
-        Data.webData.addWebGetInstance("${RwHpsWebApiMain.url}/api/get/**", object: WebGet() {
+        Data.webData.addWebGetInstance("/${RwHpsWebApiMain.name}/api/get/**", object: WebGet() {
             override fun get(accept: AcceptWeb, send: SendWeb) {
                 val cookies = headResolveToCookie(accept)
                 if (authentication(cookies, send)) {
@@ -43,15 +47,64 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
             }
         })
 
-        Data.webData.addWebPostInstance("${RwHpsWebApiMain.url}/api/AuthCookie", object: WebPost() {
+        Data.webData.addWebPostInstance("/${RwHpsWebApiMain.name}/api/AuthCookie", object: WebPost() {
             override fun post(accept: AcceptWeb, send: SendWeb) = registerCookie(stringPostDataResolveToJson(accept), accept, send)
         })
-        Data.webData.addWebPostInstance("${RwHpsWebApiMain.url}/api/post/**", object: WebPost() {
+        Data.webData.addWebPostInstance("/${RwHpsWebApiMain.name}/api/post/**", object: WebPost() {
             override fun post(accept: AcceptWeb, send: SendWeb) {
                 val cookies = headResolveToCookie(accept)
                 if (authentication(cookies, send)) {
                     messageForwardingCenter.postCategorize.post(accept, send)
                 }
+            }
+        })
+
+        Data.webData.addWebSocketInstance("/WebSocket/${RwHpsWebApiMain.name}/api/Console", object: WebSocket() {
+            val NETTY_CHANNEL_KEY = AttributeKey.valueOf<ConsoleWebSocket>("${RwHpsWebApiMain.name}-Ws")!!
+
+            override fun ws(ws: StartWebSocket, channel: Channel, msg: String) {
+                try {
+                    val json = Json(msg)
+
+                    val attr = channel.attr(NETTY_CHANNEL_KEY)
+                    var type = attr.get()
+
+                    if (type == null) {
+                        if (cookiesData[json.getString("cookie", ""), 0] < Time.concurrentSecond()) {
+                            channel.writeAndFlush(
+                                    msg(
+                                            """
+                                {
+                                    "code" : 401, "data" : "[Unauthorized] The cookies expires"
+                                }
+                            """.trimIndent()
+                                    )
+                            )
+                            return
+                        }
+                        type = ConsoleWebSocket()
+                        attr.setIfAbsent(type)
+                    }
+
+                    type.ws(ws, channel, json)
+                } catch (e: Exception) {
+                    channel.writeAndFlush(
+                            msg(
+                                    """
+                        {
+                            "code" : 400,
+                            "data" : "[Bad Request] 请传入正确 Json !"
+                        }
+                    """.trimIndent()
+                            )
+                    )
+                }
+            }
+
+            override fun closeWs(ws: StartWebSocket, channel: Channel) {
+                val attr = channel.attr(NETTY_CHANNEL_KEY)
+                val type = attr.get()
+                type?.closeWs(ws, channel)
             }
         })
     }
@@ -60,13 +113,13 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
         if (accept.getHeaders(HttpHeaderNames.ORIGIN) != null) {
             // 允许跨域
             send.setHead(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, accept.getHeaders(HttpHeaderNames.ORIGIN)!!)
-            send.setHead(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS,"true")
+            send.setHead(HttpHeaderNames.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
         }
 
-        if (json.getString("passwd") == Data.config.WebToken) {
+        if (json.getString("passwd") == Data.config.webToken) {
             val cValue = DigestUtils.sha256Hex(RandomUtils.getRandomString(32))
-            send.setCookie(RwHpsWebApiMain.cookieName, cValue, 86400, RwHpsWebApiMain.url)
-            cookiesData[cValue] = Time.concurrentSecond()+86400
+            send.setCookie(RwHpsWebApiMain.cookieName, cValue, 86400, RwHpsWebApiMain.name)
+            cookiesData[cValue] = Time.concurrentSecond() + 86400
             send.setData("Hi RW-HPS !")
             send.send()
         } else {

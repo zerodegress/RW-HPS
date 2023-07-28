@@ -18,7 +18,10 @@ import net.rwhps.server.util.file.FileUtils
  * @date  2023/5/26 15:14
  * @author  RW-HPS/Dr
  */
-class GameModularReusableLoadClass(mainClassLoader: ClassLoader, jdkClassLoader: ClassLoader) : GameModularLoadClass(mainClassLoader, jdkClassLoader) {
+class GameModularReusableLoadClass(
+    mainClassLoader: ClassLoader,
+    jdkClassLoader: ClassLoader
+): GameModularLoadClass(mainClassLoader, jdkClassLoader) {
     /** 是否是缓存加载 */
     private var asmCacheFlag = false
 
@@ -55,10 +58,10 @@ class GameModularReusableLoadClass(mainClassLoader: ClassLoader, jdkClassLoader:
      */
     fun saveData(file: FileUtils) {
         val data = PluginData().apply {
-            setFileUtil(file,"7z")
+            setFileUtil(file, "7z")
         }
         classPathMapData.forEach {
-            data.setData(it.key, super.asmClass(it.key,it.value))
+            data.setData(it.key, super.asmClass(it.key, it.value))
         }
 
         data.save()

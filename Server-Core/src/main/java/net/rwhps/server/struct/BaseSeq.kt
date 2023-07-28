@@ -39,16 +39,19 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
      * @return T
      */
     fun pop(): T = removeAt(size - 1)
+
     /**
      * 获取最后一个元素
      * @return T
      */
     fun peek(): T = get(size - 1)
+
     /**
      * 获取第一个元素
      * @return T
      */
     fun first(): T = get(0)
+
     /**
      * 移除第一个元素
      * @return T
@@ -73,7 +76,11 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
     fun find(findA: FindSeq<T, Boolean>): T? {
         var result: T? = null
         ExtractUtils.synchronizedX(threadSafety, list) {
-            list.forEach { if (findA(it)) { result = it } }
+            list.forEach {
+                if (findA(it)) {
+                    result = it
+                }
+            }
         }
         return result
     }
@@ -81,7 +88,11 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
     fun find(findA: FindSeq<T, Boolean>, findB: FindSeq<T, Boolean>): T? {
         var result: T? = null
         ExtractUtils.synchronizedX(threadSafety, list) {
-            list.forEach { if (findA(it) && findB(it)) { result = it } }
+            list.forEach {
+                if (findA(it) && findB(it)) {
+                    result = it
+                }
+            }
         }
         return result
     }

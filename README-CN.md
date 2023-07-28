@@ -15,29 +15,36 @@
 _**生命不息，折腾不止**_
 </div>
 
-
 ## 声明
+
 ### 一切开发旨在学习，请勿用于非法用途
+
 - RW-HPS 是完全免费且开放源代码的软件，仅供学习和娱乐用途使用
 - RW-HPS 不会通过任何方式强制收取费用，或对使用者提出物质条件
 
 `RW-HPS` 采用 `AGPLv3` 协议开源。为了整个社区的良性发展，我们**强烈建议**您做到以下几点：
+
 - **间接接触（包括但不限于使用 `Http API` 或 跨进程技术 以及字节码修改）到 `RW-HPS` 的软件使用 `AGPLv3` 开源**
 - **不鼓励，不支持一切商业使用**
 
 **鉴于项目的特殊性，开发团队可能在任何时间停止更新或删除项目。**
 
 ### 衍生软件需声明引用
+
 - 若引用 RW-HPS 发布的软件包而不修改 RW-HPS，则衍生项目需在描述的任意部位提及使用 RW-HPS。
-- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置**明确声明**来源于本仓库 (`https://github.com/RW-HPS/RW-HPS`) 不得扭曲或隐藏免费且开源的事实。
+- 若修改 RW-HPS 源代码再发布，**或参考 RW-HPS 内部实现发布另一个项目**，则衍生项目必须在**文章首部**或 'RW-HPS' 相关内容**首次出现**的位置*
+  *明确声明**来源于本仓库 (`https://github.com/RW-HPS/RW-HPS`) 不得扭曲或隐藏免费且开源的事实。
 
 #### 目前待完成
+
 - [ ] WEB面板
 
 ### 不会支持的游戏协议
+
 - 金钱相关，如增值服务
 
 ## 开始
+
 - 用户手册: [docs](docs/zh/run/UserManual.md)
 - 开发文档: [docs](docs/zh/README.md)
 - 更新日志: [release](https://github.com/RW-HPS/RW-HPS/releases)
@@ -49,58 +56,66 @@ _**生命不息，折腾不止**_
   > <del>电报群: [RW-HPS](https://t.me/RW_HPS) </del>  
   > Discord: [RW-HPS](https://discord.gg/VwwxJhVG64)
 - 镜像:
-  [Github](https://github.com/RW-HPS/RW-HPS) ;  [Gitee](https://gitee.com/derdct/RW-HPS)  
+  [Github](https://github.com/RW-HPS/RW-HPS) ;  [Gitee](https://gitee.com/derdct/RW-HPS)
 
 ### 我们被谁使用
+
 - Tiexiu.xyz
-    - [简幻欢](https://sfe.simpfun.cn)  
+    - [简幻欢](https://sfe.simpfun.cn)
 - 非官方RELAY
     - **RelayCN-Unofficial IP** - [SimpFun Cloud](https://cloud.simpfun.cn) : relay.der.kim
-    - **RelayRU-Unofficial IP** - `kaif.cloud`(Not URL)
+    - **RelayRU-Unofficial IP** - `Vulkan (RMT)`: vulkan.host
 
 ## 运行配置
+
 #### 不支持使用的系统 :
+
 + Windows ARM
 + Windows LoongArch (龙芯)
 
 **如果在 Windows 无法运行, 试试 Linux 可能有奇效**
 
 #### 标准
-| 配置 		| CPU                     | 内存 	| 系统 			 | 硬盘大小 	   | Java      |
-|:--- 		|:------------------------|:---     |:-------|:---------|:---       |
-| 建议配置 	| ARMv7 Processor rev 5 + | 512MB      | Linux  | 256MB HDD | Java 11   |
-| 最低配置 	| 任何                      | 256M      | Linux  | 128M HDD  | Java 11   |
+
+| 配置 		  | CPU                     | 内存 	  | 系统 			 | 硬盘大小 	    | Java    |
+|:-------|:------------------------|:------|:-------|:----------|:--------|
+| 建议配置 	 | ARMv7 Processor rev 5 + | 512MB | Linux  | 256MB HDD | Java 11 |
+| 最低配置 	 | 任何                      | 256M  | Linux  | 128M HDD  | Java 11 |
 
 ## 版本合集
+
 游戏对应最终服务端版本合集
 
-| 游戏版本 |      RW-HPS版本      |  我要飞飞  |
-|:----:|:------------------:|:------:|
-|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ | Delete |
-| ~~1.15.P8~~  |     ~~6.0.1~~      | Delete |
-|     1.15     |      2.3.0-M1      |  BETA  |
+|    游戏版本     |      RW-HPS版本      |  我要飞飞  |
+|:-----------:|:------------------:|:------:|
+|  ~~1.14~~   | ~~6.0.0-M3（beta）~~ | Delete |
+| ~~1.15.P8~~ |     ~~6.0.1~~      | Delete |
+|    1.15     |      3.0.0-M1      |  BETA  |
 
 ## 赞助
+
 RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如果没有适当的资金支持，为项目维护和开发新功能所需的工作量是不可持续的。  
 请注意，赞助是全自愿的。赞助者不会获得特权，不赞助也可以使用全部的功能。
 
-我们通过以下渠道接受捐赠：  
+我们通过以下渠道接受捐赠：
+
 + [爱发电](https://afdian.net/@derdct)
 + [EN - Ko-Fi](https://ko-fi.com/derdct)
 
-
 ## 感谢
+
 > [IntelliJ IDEA](https://zh.wikipedia.org/zh-hans/IntelliJ_IDEA) 是一个在各个方面都最大程度地提高开发人员的生产力的 IDE，适用于 JVM 平台语言。
 
-特别感谢 [JetBrains](https://www.jetbrains.com/?from=rw-hps) 为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=rw-hps) 等 IDE 的授权  
+特别感谢 [JetBrains](https://www.jetbrains.com/?from=rw-hps)
+为开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=rw-hps) 等 IDE 的授权  
 [<img src=".github/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=rw-hps)
-  
 
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/RW-HPS/RW-HPS.svg)](https://starchart.cc/RW-HPS/RW-HPS)
 
 ## 许可证
+
 <details>
   <summary><a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0</a></summary>
 
@@ -120,6 +135,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
+
 </details>
 
 
@@ -140,6 +156,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 本协议与GNU Affero通用公共许可证(即AGPL协议)共同作为本软件与您的协议，且本协议与AGPL协议的冲突部分均按照本协议约束。您必须同时同意并遵守本协议与AGPL协议，否则，您应立即卸载、删除本软件、附属资源及其相关源代码。
 ```
+
 </details>
 
 <details>

@@ -7,8 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("ServerPacket")
-@file:JvmMultifileClass
+@file:JvmName("ServerPacket") @file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.server
 

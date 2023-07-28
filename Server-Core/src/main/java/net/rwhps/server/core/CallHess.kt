@@ -24,22 +24,48 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 class CallHess(private val serverRoom: ServerRoom) {
+    /**
+     * 向服务器玩家发送指定消息
+     *
+     * @param text String
+     */
     fun sendSystemMessage(text: String) {
         serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(text) }
     }
 
+    /**
+     * 向服务器玩家发送从 i18NBundle 获取过的消息
+     *
+     * @param text String
+     * @param obj Array<out Any>
+     */
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
+            e.sendSystemMessage(
+                    e.i18NBundle.getinput(
+                            text, *obj
+                    )
+            )
+        }
     }
 
     fun sendSystemTeamMessageLocal(team: Int, text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == team }) { p: PlayerHess -> p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj)) }
+        serverRoom.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == team }) { p: PlayerHess ->
+            p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj))
+        }
     }
 
     fun sendSystemMessage(text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(e.i18NBundle.getinput(text, *obj)) }
+        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
+            e.sendSystemMessage(e.i18NBundle.getinput(text, *obj))
+        }
     }
 
+    /**
+     * 踢掉全部玩家
+     *
+     * @param msg 踢出消息
+     */
     @JvmOverloads
     fun killAllPlayer(msg: String = "Game Over") {
         serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
@@ -54,7 +80,7 @@ class CallHess(private val serverRoom: ServerRoom) {
     fun startCheckThread() {
         var aiEndTime = 0
         Threads.newTimedTask(CallTimeTask.AutoCheckTask, 0, 1, TimeUnit.SECONDS) {
-            if ((Data.configServer.MaxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime)) {
+            if ((Data.configServer.maxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime)) {
                 if (serverRoom.flagData.forcedCloseSendMsg) {
                     sendSystemMessageLocal("gameOver.forced")
                 }
@@ -72,8 +98,8 @@ class CallHess(private val serverRoom: ServerRoom) {
                 }
                 if (serverRoom.playerManage.playerGroup.size == 0) {
                     if (aiEndTime != 0) {
-                        aiEndTime = Time.concurrentSecond()+Data.configServer.MaxOnlyAIGameIngTime
-                    } else if (Data.configServer.MaxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime) {
+                        aiEndTime = Time.concurrentSecond() + Data.configServer.maxOnlyAIGameIngTime
+                    } else if (Data.configServer.maxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime) {
                         serverRoom.gr()
                         return@newTimedTask
                     }
@@ -88,7 +114,6 @@ class CallHess(private val serverRoom: ServerRoom) {
                         sendSystemMessageLocal("gameOver.oneMin")
                         Threads.newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) { serverRoom.gr() }
                     }
-
                     else -> {
                         if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
                             serverRoom.flagData.oneSay = true

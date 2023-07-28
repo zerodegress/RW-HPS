@@ -94,6 +94,7 @@ interface IRwHps {
      * 主要提供 包的解析 功能
      */
     val typeConnect: TypeConnect
+
     /**
      * 服务器Packet协议
      * 作为游戏功能的主要实现
@@ -105,16 +106,22 @@ interface IRwHps {
     enum class NetType {
         /** (默认) Server协议 原汁原味服务器实现 */
         ServerProtocol,
+
         /** Server旧协议 提供过去版本的服务器实现 */
         ServerProtocolOld,
+
         /** Server协议 Server服务器实现 加入测试功能 */
         ServerTestProtocol,
+
         /** Relay协议 普通RELAY实现 */
         RelayProtocol,
+
         /** Relay协议 多播RELAY实现 */
         RelayMulticastProtocol,
+
         /** 专用后端 */
         DedicatedToTheBackend,
+
         /** 无实现 找不到对应实现 */
         NullProtocol;
 

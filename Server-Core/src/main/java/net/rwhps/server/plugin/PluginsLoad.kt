@@ -17,6 +17,7 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
@@ -51,13 +52,13 @@ class PluginsLoad {
                     loadImports(Json(FileUtils.readFileString(imports)).getArraySeqData("imports"))
                 }
 
-                val pluginInfo = BeanPluginInfo.stringToClass(FileUtils.readFileString(imp))
+                val pluginInfo = BeanPluginInfo::class.java.toGson(FileUtils.readFileString(imp))
                 if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(pluginInfo.supportedVersions)) {
                     warn("Plugin版本不兼容 Plugin名字为: ", pluginInfo.name)
                     continue
                 }
                 if (IsUtils.isBlank(pluginInfo.import)) {
-                    val mainPlugin = if (pluginInfo.main.endsWith("js",true)) {
+                    val mainPlugin = if (pluginInfo.main.endsWith("js", true)) {
                         val mainJs = zip.getZipNameInputStream(pluginInfo.main)
                         if (mainJs == null) {
                             error("Invalid JavaScriptPlugin Main", pluginInfo.main)
@@ -69,13 +70,11 @@ class PluginsLoad {
                         loadClass(file, pluginInfo.main)
                     }
 
-                    data.add(PluginLoadData(
-                        pluginInfo.name,
-                        pluginInfo.author,
-                        pluginInfo.description,
-                        pluginInfo.version,
-                        mainPlugin
-                    ))
+                    data.add(
+                            PluginLoadData(
+                                    pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, mainPlugin
+                            )
+                    )
                     dataName.add(pluginInfo.name)
                 } else {
                     dataImport.add(PluginImportData(pluginInfo, file))
@@ -95,13 +94,11 @@ class PluginsLoad {
                 if (dataName.contains(e.pluginData.import)) {
                     try {
                         val mainPlugin = loadClass(e.file, e.pluginData.main)
-                        data.add(PluginLoadData(
-                            e.pluginData.name,
-                            e.pluginData.author,
-                            e.pluginData.description,
-                            e.pluginData.version,
-                            mainPlugin
-                        ))
+                        data.add(
+                                PluginLoadData(
+                                        e.pluginData.name, e.pluginData.author, e.pluginData.description, e.pluginData.version, mainPlugin
+                                )
+                        )
                         dataName.add(e.pluginData.name)
                         dataImport.remove(e)
                     } catch (err: Exception) {
@@ -153,7 +150,12 @@ class PluginsLoad {
      * @property file Jar的文件
      * @constructor PluginImportData
      */
-    private class PluginImportData(@JvmField val pluginData: BeanPluginInfo, @JvmField val file: File)
+    private class PluginImportData(
+        @JvmField
+        val pluginData: BeanPluginInfo,
+        @JvmField
+        val file: File
+    )
 
     companion object {
         /**
@@ -166,7 +168,7 @@ class PluginsLoad {
             val jarFileList = Seq<File>()
             val list = f.fileList
             for (file in list) {
-                if (file.name.endsWith("jar") || file.name.endsWith("zip")) {
+                if (file.name.endsWith(".jar") || file.name.endsWith(".zip")) {
                     jarFileList.add(file)
                 }
             }
@@ -174,8 +176,17 @@ class PluginsLoad {
         }
 
         @JvmStatic
-        internal fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin, mkdir: Boolean,skip: Boolean,list: Seq<PluginLoadData>) {
-            list.add(PluginLoadData(name, author, description, version, main, mkdir , skip))
+        internal fun addPluginClass(
+            name: String,
+            author: String,
+            description: String,
+            version: String,
+            main: Plugin,
+            mkdir: Boolean,
+            skip: Boolean,
+            list: Seq<PluginLoadData>
+        ) {
+            list.add(PluginLoadData(name, author, description, version, main, mkdir, skip))
         }
     }
 }

@@ -29,42 +29,41 @@ import java.io.IOException
  * @author RW-HPS/Dr
  */
 class Seq<T>: BaseSeq<T> {
-    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
+    @JvmOverloads
+    constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
-        ObjectArrayList<T>(capacity).let {
-            if (threadSafety) {
-                ObjectLists.synchronize<T>(it, it)
-            } else {
-                it
-            }
-        } as java.util.List<T>, threadSafety
-    )
+    @JvmOverloads
+    constructor(capacity: Int, threadSafety: Boolean = false): super(ObjectArrayList<T>(capacity).let {
+        if (threadSafety) {
+            ObjectLists.synchronize<T>(it, it)
+        } else {
+            it
+        }
+    } as java.util.List<T>, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(array: Array<T>, threadSafety: Boolean = false): super(
-        ObjectArrayList<T>(array).let {
-            if (threadSafety) {
-                ObjectLists.synchronize<T>(it, it)
-            } else {
-                it
-            }
-        } as java.util.List<T>, threadSafety
-    )
+    @JvmOverloads
+    constructor(array: Array<T>, threadSafety: Boolean = false): super(ObjectArrayList<T>(array).let {
+        if (threadSafety) {
+            ObjectLists.synchronize<T>(it, it)
+        } else {
+            it
+        }
+    } as java.util.List<T>, threadSafety)
 
     companion object {
         /*
          * serializer
          */
-        val serializer = object : SerializerTypeAll.TypeSerializer<Seq<*>> {
+        val serializer = object: SerializerTypeAll.TypeSerializer<Seq<*>> {
             @Throws(IOException::class)
             override fun write(paramDataOutput: GameOutputStream, objectParam: Seq<*>) {
                 paramDataOutput.writeInt(objectParam.size)
                 if (objectParam.size != 0) {
                     val first = objectParam.first()!!
                     val ser = AbstractPluginData.getSerializer(first.javaClass) ?: throw DefaultSerializers.getError(
-                        first.javaClass.toString()
+                            first.javaClass.toString()
                     )
                     paramDataOutput.writeString(first.javaClass.name)
                     for (element in objectParam) {
@@ -82,8 +81,7 @@ class Seq<T>: BaseSeq<T> {
                         return arr
                     }
                     val type = paramDataInput.readString()
-                    val ser = AbstractPluginData.getSerializer(DefaultSerializers.lookup(type))
-                        ?: throw DefaultSerializers.getError(type)
+                    val ser = AbstractPluginData.getSerializer(DefaultSerializers.lookup(type)) ?: throw DefaultSerializers.getError(type)
 
                     for (i in 0 until size) {
                         arr.add(ser.read(paramDataInput))

@@ -1,8 +1,7 @@
 /*
  * Copyright 2020-2023 RW-HPS Team and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束,
-   可以在以下链接找到该许可证.
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
@@ -41,6 +40,7 @@ class GameUnitType {
 
         companion object {
             private val actionMap: IntMap<GameActions> = IntMap(GameActions.values().size)
+
             init {
                 GameActions.values().forEach {
                     if (actionMap.containsKey(it.ordinal)) {
@@ -51,7 +51,8 @@ class GameUnitType {
             }
 
             // 进行全匹配 查看是否在游戏内置列表中
-            fun from(type: String?): GameActions? = GameActions.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
+            fun from(type: String?): GameActions? = GameActions.values()
+                .find { it.name == type || it.name.lowercase() == type?.lowercase() }
 
             fun from(type: Int): GameActions = actionMap[type].ifNullResult(UNKNOWN) { it }
         }
@@ -110,7 +111,7 @@ class GameUnitType {
         zoneMarker,
         editorOrBuilder,
         UNKNOWN;
-            //modularSpider
+        //modularSpider
 
         companion object {
             private val unitMap: IntMap<GameUnits> = IntMap(GameUnits.values().size)
@@ -130,7 +131,7 @@ class GameUnitType {
             fun from(type: Int): GameUnits = unitMap[type].ifNullResult(UNKNOWN) { it }
         }
     }
-    
+
     enum class GameCustomUnits {
         aaBeamGunship,
         bomber,
@@ -228,6 +229,7 @@ class GameUnitType {
 
         companion object {
             private val customUnitMap: IntMap<GameCustomUnits> = IntMap(GameCustomUnits.values().size)
+
             init {
                 GameCustomUnits.values().forEach {
                     if (customUnitMap.containsKey(it.ordinal)) {
@@ -238,7 +240,8 @@ class GameUnitType {
             }
 
             // 进行全匹配 查看是否在游戏内置列表中
-            fun from(type: String?): GameCustomUnits? = GameCustomUnits.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
+            fun from(type: String?): GameCustomUnits? = GameCustomUnits.values()
+                .find { it.name == type || it.name.lowercase() == type?.lowercase() }
 
             fun from(type: Int): GameCustomUnits = customUnitMap[type].ifNullResult(UNKNOWN) { it }
         }

@@ -1,7 +1,7 @@
 # RW-HPS - SaveData API
 
-
 ## Plugin保存数据
+
 ### 设计目标
 
 - 源码级静态强类型：避免 `getString()`, `getList()`...
@@ -14,6 +14,7 @@
 *暂无数据库保存支持，但这已经被提上日程。*
 
 ## [`Value`]
+
 ```java
 interface Value<T> {
     private T data;
@@ -38,9 +39,11 @@ interface Value<T> {
 [`AutoSavePluginData`] 监听保存在它之中的值的修改，并在合适的时机在提供的 [`AutoSavePluginDataHolder`] 协程作用域下启动协程保存数据。
 
 ### 使用 `PluginData`
-示例在此时比理论更高效  
+
+示例在此时比理论更高效
 
 1. 插件自己创建
+
 ```java
 public class Main extends Plugin {
     PluginData pluginData = new PluginData();

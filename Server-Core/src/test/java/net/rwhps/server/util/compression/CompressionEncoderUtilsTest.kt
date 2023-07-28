@@ -5,7 +5,6 @@ import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import net.rwhps.server.util.ExtractUtils
 import net.rwhps.server.util.log.Log
 import org.junit.jupiter.api.Test
-
 import java.io.ByteArrayInputStream
 
 /**
@@ -15,7 +14,6 @@ import java.io.ByteArrayInputStream
 class CompressionEncoderUtilsTest {
     init {
         Log.set("ERROR")
-        Log.setCopyPrint(true)
     }
 
     @Test

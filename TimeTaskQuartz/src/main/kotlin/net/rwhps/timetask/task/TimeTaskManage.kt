@@ -49,13 +49,9 @@ class TimeTaskManage {
             remove(key)
         }
 
-        val trigger: Trigger = TriggerBuilder.newTrigger()
-            .usingJobData(dataMap)
-            .withDescription(description)
-            .withIdentity(name, group)
+        val trigger: Trigger = TriggerBuilder.newTrigger().usingJobData(dataMap).withDescription(description).withIdentity(name, group)
             //.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(time).withRepeatCount(0))
-            .startAt(Date(startTime))
-            .build()
+            .startAt(Date(startTime)).build()
         scheduler.scheduleJob(jobDetail, trigger)
     }
 
@@ -74,13 +70,9 @@ class TimeTaskManage {
         val dataMap = JobDataMap()
         dataMap["run"] = { runnable.run() }
 
-        val trigger: Trigger = TriggerBuilder.newTrigger()
-            .usingJobData(dataMap)
-            .withDescription(description)
-            .withIdentity(name, group)
+        val trigger: Trigger = TriggerBuilder.newTrigger().usingJobData(dataMap).withDescription(description).withIdentity(name, group)
             .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInMilliseconds(intervalTime).repeatForever())
-            .startAt(Date(startTime))
-            .build()
+            .startAt(Date(startTime)).build()
         scheduler.scheduleJob(jobDetail, trigger)
     }
 
@@ -98,12 +90,8 @@ class TimeTaskManage {
         val dataMap = JobDataMap()
         dataMap["run"] = { runnable.run() }
 
-        val trigger: Trigger = TriggerBuilder.newTrigger()
-            .usingJobData(dataMap)
-            .withDescription(description)
-            .withIdentity(name, group)
-            .withSchedule(cronSchedule(corn))
-            .build()
+        val trigger: Trigger = TriggerBuilder.newTrigger().usingJobData(dataMap).withDescription(description).withIdentity(name, group)
+            .withSchedule(cronSchedule(corn)).build()
         scheduler.scheduleJob(jobDetail, trigger)
     }
 
@@ -116,6 +104,7 @@ class TimeTaskManage {
     fun contains(jobKey: JobKey): Boolean {
         return scheduler.checkExists(jobKey)
     }
+
     /**
      * 查找是否有对应的任务
      *
@@ -124,7 +113,7 @@ class TimeTaskManage {
      * @return 是否存在
      */
     fun contains(name: String, group: String): Boolean {
-        return contains(JobKey(name,group))
+        return contains(JobKey(name, group))
     }
 
     /**
@@ -136,6 +125,7 @@ class TimeTaskManage {
     fun remove(jobKey: JobKey): Boolean {
         return scheduler.deleteJob(jobKey)
     }
+
     /**
      * 取消对应的任务
      *
@@ -144,7 +134,7 @@ class TimeTaskManage {
      * @return 是否取消
      */
     fun remove(name: String, group: String): Boolean {
-        return remove(JobKey(name,group))
+        return remove(JobKey(name, group))
     }
 
 }

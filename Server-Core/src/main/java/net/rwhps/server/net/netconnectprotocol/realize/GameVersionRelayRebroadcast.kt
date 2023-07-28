@@ -9,17 +9,10 @@
 
 package net.rwhps.server.net.netconnectprotocol.realize
 
-import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.io.GameInputStream
-import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
 
@@ -44,78 +37,19 @@ import java.util.*
  *
  * @author RW-HPS/Dr
  */
-class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : GameVersionRelay(connectionAgreement) {
+class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement): GameVersionRelay(connectionAgreement) {
     // last Unwrapped Or Normal Packet From Server
-    //@get:Synchronized
     private lateinit var lastSentPacket: Packet
 
     override val version: String
-        get() = "1.14 RELAY Rebroadcast"
+        get() = "1.15 RELAY Rebroadcast"
 
     override fun setlastSentPacket(packet: Packet) {
         lastSentPacket = packet
     }
 
-    override fun sendRelayServerId() {
-        try {
-            inputPassword = false
-            if (relay == null) {
-                Log.clog("sendRelayServerId -> relay : null")
-                relay = NetStaticData.relay
-            }
-
-            if (site != -1) {
-                Log.debug("Remove Move Player $site, HOST Yes")
-                relay!!.removeAbstractNetConnect(site)
-                site = -1
-            }
-
-            relay!!.admin = this
-
-            val o = GameOutputStream()
-            if (clientVersion >= version2) {
-                o.writeByte(2)
-                o.writeBoolean(true)
-                o.writeBoolean(true)
-                o.writeBoolean(true)
-                o.writeString(relay!!.serverUuid)
-                o.writeBoolean(relay!!.isMod) //MOD
-                o.writeBoolean(false)
-                o.writeBoolean(true)
-                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
-                o.writeBoolean(true)
-                o.writeIsString(registerPlayerId)
-            } else {
-                o.writeByte(1)
-                o.writeBoolean(true)
-                o.writeBoolean(true)
-                o.writeBoolean(true)
-                o.writeString(relay!!.serverUuid)
-                o.writeBoolean(relay!!.isMod) //MOD
-                // List OPEN
-                o.writeBoolean(false)
-                o.writeBoolean(true)
-                o.writeString("{{RW-HPS Relay}}.Room ID : ${Data.configRelay.MainID}" + relay!!.id)
-                // 多播
-                o.writeBoolean(true)
-            }
-            sendPacket(o.createPacket(PacketType.RELAY_BECOME_SERVER)) //+108+140
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelay.MainID+relay!!.id, Data.configRelay.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
-            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelay.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
-
-
-            // 人即像树，树枝越向往光明的天空，树根越伸向阴暗的地底
-            /**
-             * 禁止玩家使用 Server/Relay 做玩家名
-             */
-            if (name.equals("SERVER", ignoreCase = true) || name.equals("RELAY", ignoreCase = true)) {
-                relay!!.groupNet.disconnect() // Close Room
-                disconnect() // Close Connect & Reset Room
-            }
-
-        } catch (e: Exception) {
-            error(e)
-        }
+    override fun sendRelayServerId(multicast: Boolean) {
+        super.sendRelayServerId(true)
     }
 
     override fun addRelaySend(packet: Packet) {
@@ -135,13 +69,11 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 Packet(type, bytes).let { sendPacketData ->
                     abstractNetConnect?.sendPacket(sendPacketData)
                     lastSentPacket = sendPacketData
-                    sendPacketExtractInformation(sendPacketData,abstractNetConnect)
+                    sendPacketExtractInformation(sendPacketData, abstractNetConnect)
                 }
             }
-        } catch (_: IOException) {
-            /* 忽略 */
-        } catch (_: NullPointerException) {
-            /* 忽略 */
+        } catch (_: IOException) {/* 忽略 */
+        } catch (_: NullPointerException) {/* 忽略 */
         }
     }
 
@@ -152,8 +84,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 val target = stream.readInt()
                 relay!!.getAbstractNetConnect(target)?.sendPacket(lastSentPacket)
             }
-        } catch (_: IOException) {
-            /* 忽略 */
+        } catch (_: IOException) {/* 忽略 */
         }
     }
 }

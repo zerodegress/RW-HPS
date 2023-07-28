@@ -17,7 +17,7 @@ import net.rwhps.server.net.core.AbstractNet
  * @author RW-HPS/Dr
  */
 @Sharable
-internal class StartGameNetTcp : AbstractNet() {
+internal class StartGameNetTcp: AbstractNet() {
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
         rwinit(socketChannel.pipeline())

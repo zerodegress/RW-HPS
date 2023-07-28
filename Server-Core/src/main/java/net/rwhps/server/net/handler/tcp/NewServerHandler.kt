@@ -29,7 +29,7 @@ import net.rwhps.server.util.log.exp.ExceptionX
  * @author RW-HPS/Dr
  */
 @Sharable
-internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
+internal class NewServerHandler: SimpleChannelInboundHandler<Any?>() {
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Any?) {

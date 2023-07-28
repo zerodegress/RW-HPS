@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test
 internal class GameCommandPacketTest {
     @Test
     fun newTest() {
-        val bytes = byteArrayOf(0,1,2,3,4,5,6,7,8,9)
+        val bytes = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
         val packet = GameCommandPacket(100, bytes)
 
-        assertEquals(packet.sendBy,100) { "[GameCommandPacket] sendBy Error"}
-        assertEquals(packet.bytes,bytes) { "[GameCommandPacket] Bytes Error"}
+        assertEquals(packet.sendBy, 100) { "[GameCommandPacket] sendBy Error" }
+        assertEquals(packet.bytes, bytes) { "[GameCommandPacket] Bytes Error" }
 
         packet.toString()
     }

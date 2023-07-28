@@ -29,7 +29,7 @@ import java.io.InputStream
  * @property sevenZipFile SevenZFile
  * @author RW-HPS/Dr
  */
-internal open class SevenZipFileDecoder : AbstractDecoder {
+internal open class SevenZipFileDecoder: AbstractDecoder {
     private val sevenZipFile: SevenZFile
 
     constructor(bytes: ByteArray) {
@@ -140,8 +140,7 @@ internal open class SevenZipFileDecoder : AbstractDecoder {
                         } else {
                             nameCache.split("/").toTypedArray()[nameCache.split("/").toTypedArray().size - 1]
                         }
-                        val bytes =
-                            multiplexingReadStream.readInputStreamBytes(sevenZipFile.getInputStream(sevenZipEntry))
+                        val bytes = multiplexingReadStream.readInputStreamBytes(sevenZipFile.getInputStream(sevenZipEntry))
                         data.put(name, bytes)
                     }
                 }

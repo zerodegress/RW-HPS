@@ -1,8 +1,10 @@
 ## 协议的覆盖
+
 在每一个 @MainProtocolImplementation 注解下的协议主实现 都会允许继承  
-那么您可以继承 GameVersionServer GameVersionRelay等  
+那么您可以继承 GameVersionServer GameVersionRelay等
 
 ### 例子
+
 **请先设置Plugin在协议后加载**
 
 ```

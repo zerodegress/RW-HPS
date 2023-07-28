@@ -13,7 +13,7 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.global.ServerHessLoadEvent
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.internal.hess.HessMain
@@ -24,7 +24,7 @@ import net.rwhps.server.util.log.Log
  * @author RW-HPS/Dr
  */
 @Suppress("UNUSED")
-class GameHeadlessEventGlobal : EventListener {
+class GameHeadlessEventGlobal: EventListenerHost {
 
     @EventListenerHandler
     fun registerGameLibLoadEvent(serverHessLoadEvent: ServerHessLoadEvent) {
@@ -41,10 +41,10 @@ class GameHeadlessEventGlobal : EventListener {
         Log.clog("Load Game Core END !")
 
         var passwd: String? = null
-        if (Data.configServer.Passwd.isNotBlank()) {
-            passwd = Data.configServer.Passwd
+        if (Data.configServer.passwd.isNotBlank()) {
+            passwd = Data.configServer.passwd
         }
-        HessModuleManage.hps.gameNet.startHessPort(Data.config.Port, passwd)
+        HessModuleManage.hps.gameNet.startHessPort(Data.config.port, passwd)
         Log.clog(Data.i18NBundle.getinput("server.load.end"))
         Log.clog("Run GameHeadless ID: ${serverHessLoadEvent.loadID}")
     }

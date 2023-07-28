@@ -16,7 +16,7 @@ import io.netty.handler.timeout.IdleState
 import io.netty.handler.timeout.IdleStateEvent
 import io.netty.util.AttributeKey
 import net.rwhps.server.net.core.TypeConnect
-import net.rwhps.server.net.handler.rudp.TimeoutDetection
+import net.rwhps.server.net.handler.TimeoutDetection
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * @author RW-HPS/Dr
  */
 @Sharable
-open class AcceptorIdleStateTrigger : ChannelInboundHandlerAdapter() {
+open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
     val connectNum: AtomicInteger = AtomicInteger()
 
     @Throws(Exception::class)

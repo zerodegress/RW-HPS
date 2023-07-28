@@ -8,8 +8,7 @@
  */
 
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
@@ -20,8 +19,7 @@ import net.rwhps.server.struct.ObjectMap
  * @author  RW-HPS/Dr
  */
 
-fun <K, V> mutableObjectMapOf(vararg pairs: Pair<K, V>): ObjectMap<K, V> =
-    ObjectMap<K, V>(mapCapacity(pairs.size)).apply { putAll(pairs) }
+fun <K, V> mutableObjectMapOf(vararg pairs: Pair<K, V>): ObjectMap<K, V> = ObjectMap<K, V>(mapCapacity(pairs.size)).apply { putAll(pairs) }
 
 private fun mapCapacity(expectedSize: Int): Int = when {
     // We are not coercing the value to a valid one and not throwing an exception. It is up to the caller to

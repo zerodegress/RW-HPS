@@ -1,8 +1,10 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.BeanPluginInfo
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.util.ExtractUtils
+import net.rwhps.server.util.StringUtils
+import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.log.Log
 import org.junit.jupiter.api.Test
 
@@ -18,111 +20,120 @@ import org.junit.jupiter.api.Test
  */
 class JavaScriptPluginTest {
     init {
-        Log.set("DEBUG")
-        Log.setCopyPrint(true)
+        Log.set("ALL")
     }
 
     @Test
     fun loadJavaScriptPlugin() {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
-        val plugin1 = OrderedMap<String, ByteArray>().apply {
-            put("index.js", ExtractUtils.bytes("""
-                export const a = 10
-                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {}))()
-            """.trimIndent()))
-        }
+        /**
+         * 基础测试
+         * 测试内容 :
+         * 调用其他文件, 加载其他文件, 操作 Java 方法
+         */
+        val baseTest = OrderedMap<String, ByteArray>().apply {
+            put(
+                    "main.mjs", StringUtils.bytes(
+                    """
+                import {Test} from './test.mjs'
+                import {Plugin} from 'java://net.rwhps.server.plugin'
+                import {GetVersion} from 'java://net.rwhps.server.plugin'
+                import {Log} from 'java://net.rwhps.server.util.log'
+                
+                export default new (Java.extend(Plugin, {
+                        onEnable: function() {
+                            Log.debug("Hi onEnable Test-1")
+                            Log.debug(new Test().square(5))
+                            Log.debug(new GetVersion("1.0.0-M1").toString())
+                        },
+                        init: function() {
+                            Log.debug("oneClass")
+                        }
+                    }))()
+            """.trimIndent(), Data.UTF_8
+            )
+            )
 
-        val plugin2 = OrderedMap<String, ByteArray>().apply {
-            put("index.js", ExtractUtils.bytes("""
-                import { a } from "a"
-                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
-                    onEnable() {
-                        console.log(a)
+            put(
+                    "test.mjs", StringUtils.bytes(
+                    """
+                export class Test {
+                    square(x) {
+                        return x * x;
                     }
-                }))()
-            """.trimIndent()))
+                }
+            """.trimIndent(), Data.UTF_8
+            )
+            )
         }
-
-        // 这个是模块化, 可以使用import/export
         scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "a",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin1)
-        scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "b",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin2)
-        scriptPluginGlobalContext.loadESMPlugins().eachAll {
-            it.main.onEnable()
-            it.main.init()
-        }
+                BeanPluginInfo(
+                        name = "JsScriptBaseTest", author = "Dr", main = "main.mjs"
+                ), baseTest
+        )
 
 
-//        val dataOnlyOneFile = OrderedMap<String,ByteArray>().apply {
-//            put("/main.js", ExtractUtil.bytes("""
-//                function main() {
-//                    importClass("net.rwhps.server.plugin.Plugin")
-//
-//                    var plugin = new JavaAdapter(Plugin ,{
-//                        onEnable: function() {
-//                            print("Hi onEnable")
-//                        },
-//                        init: function() {
-//                            print("oneClass")
-//                        }
-//                    })
-//
-//                    return plugin
-//                }
-//            """.trimIndent(), Data.UTF_8))
-//        }
-//        // 这个是单文件, 不可以使用import/export
-//        val oneClassOnlyOneFile = JavaScriptPlugin.loadJavaScriptPlugin(dataOnlyOneFile, "/main.js", ExtractUtil.str(dataOnlyOneFile["/main.js"]!!, Data.UTF_8))
-//
-//        oneClassOnlyOneFile.onEnable()
-//        oneClassOnlyOneFile.init()
-    }
+        /**
+         * 扩展测试
+         * 测试内容 :
+         * 其他文件的解析/导入, WASM 的加载
+         */
+        val extendedTest = OrderedMap<String, ByteArray>().apply {
+            put(
+                    "main.mjs", StringUtils.bytes(
+                    """
+                import a from './index.js/?text'
+                import b from './index.json/?json'
+                import {Plugin} from 'java://net.rwhps.server.plugin'
+                import bytes from './square.wasm/?bytes'
+                import was from './square.wasm/?wasm'
+                
+                const wasmModule = new WebAssembly.Module(bytes);
+                const wasmInstance = new WebAssembly.Instance(wasmModule);
+                // 获取导出的函数
+                const helloFunc = wasmInstance.exports.hello;
+                
+                export default new (Java.extend(Plugin, {
+                        onEnable: function() {
+                            console.log(a)
+                            console.log(JSON.stringify(b))
+                            // 调用函数
+                            const input = 5; // 输入参数
+                            const result = helloFunc(input);
+                            
+                            // 打印结果
+                            console.log(result);
+                            console.log(was.exports.hello(4));
+                        }
+                    }))()
+            """.trimIndent(), Data.UTF_8
+            )
+            )
 
-    @Test
-    fun readPluginFile() {
-        val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
-
-        val plugin = OrderedMap<String, ByteArray>().apply {
-            put("index.json", ExtractUtils.bytes("""
+            put(
+                    "index.json", StringUtils.bytes(
+                    """
                 {
                     "hello": "world"
                 }
-            """.trimIndent()))
+            """.trimIndent()
+            )
+            )
 
-            put("index.js", ExtractUtils.bytes("""
-                import a from './index.js/?text'
-                import b from './index.json/?json'
-                export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
-                    onEnable() {
-                        console.log(a)
-                        console.log(JSON.stringify(b))
-                    }
-                }))()
-            """.trimIndent()))
+            put("square.wasm", Base64.decode("AGFzbQEAAAABhoCAgAABYAF/AX8DgoCAgAABAASEgICAAAFwAAAFg4CAgAABAAEGgYCAgAAAB5KAgIAAAgZtZW1vcnkCAAVoZWxsbwAACo2AgIAAAYeAgIAAACAAIABsCw=="))
         }
-
         scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "a",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin)
+                BeanPluginInfo(
+                        name = "JsScriptExtendedTest", author = "Dr", main = "main.mjs"
+                ), extendedTest
+        )
 
+        // 运行
         scriptPluginGlobalContext.loadESMPlugins().eachAll {
             it.main.onEnable()
             it.main.init()
         }
-
     }
 
     @Test
@@ -130,7 +141,9 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin = OrderedMap<String, ByteArray>().apply {
-            put("index.js", ExtractUtils.bytes("""
+            put(
+                    "index.js", StringUtils.bytes(
+                    """
                 const a = RwHps.readRamText('https://www.baidu.com')
                 
                 export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
@@ -138,15 +151,16 @@ class JavaScriptPluginTest {
                         console.log(a)
                     }
                 }))()
-            """.trimIndent()))
+            """.trimIndent()
+            )
+            )
         }
 
         scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "a",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin)
+                BeanPluginInfo(
+                        name = "a", author = "zerodegress", main = "index.js"
+                ), plugin
+        )
 
         scriptPluginGlobalContext.loadESMPlugins().eachAll {
             it.main.onEnable()
@@ -159,16 +173,20 @@ class JavaScriptPluginTest {
         val scriptPluginGlobalContext = JavaScriptPluginGlobalContext()
 
         val plugin1 = OrderedMap<String, ByteArray>().apply {
-            put("index.js", ExtractUtils.bytes("""
+            put(
+                    "index.js", StringUtils.bytes(
+                    """
                 export const a = 10
                 export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {}))()
             """.trimIndent()
-                )
+            )
             )
         }
 
         val plugin2 = OrderedMap<String, ByteArray>().apply {
-            put("index.js", ExtractUtils.bytes("""
+            put(
+                    "index.js", StringUtils.bytes(
+                    """
                 import { a } from "plugin://a"
                 import { c } from "ram:///plugins/c/index.js"
                 export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {
@@ -178,12 +196,14 @@ class JavaScriptPluginTest {
                     }
                 }))()
             """.trimIndent()
-                )
+            )
             )
         }
 
         val plugin3 = OrderedMap<String, ByteArray>().apply {
-            put("index.js", ExtractUtils.bytes("""
+            put(
+                    "index.js", StringUtils.bytes(
+                    """
                 export const c = 100
                 export default new (Java.extend(Java.type('net.rwhps.server.plugin.Plugin'), {}))()
             """.trimIndent()
@@ -193,25 +213,19 @@ class JavaScriptPluginTest {
 
         // 这个是模块化, 可以使用import/export
         scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "a",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin1
+                BeanPluginInfo(
+                        name = "a", author = "zerodegress", main = "index.js"
+                ), plugin1
         )
         scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "b",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin2
+                BeanPluginInfo(
+                        name = "b", author = "zerodegress", main = "index.js"
+                ), plugin2
         )
         scriptPluginGlobalContext.addESMPlugin(
-            BeanPluginInfo(
-                name = "c",
-                author = "zerodegress",
-                main = "index.js"
-            ), plugin3
+                BeanPluginInfo(
+                        name = "c", author = "zerodegress", main = "index.js"
+                ), plugin3
         )
         scriptPluginGlobalContext.loadESMPlugins().eachAll {
             it.main.onEnable()

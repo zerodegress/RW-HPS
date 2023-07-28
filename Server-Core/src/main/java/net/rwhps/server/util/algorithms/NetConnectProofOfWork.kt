@@ -59,24 +59,24 @@ internal class NetConnectProofOfWork {
             if (it == 2) 5 else it
         }
 
-        initInt_1 = if (authenticateType == 0 || authenticateType in 2..4 || authenticateType == 6) rand.nextInt() else 0
-        initInt_2 = if (authenticateType == 1 || authenticateType in 2..4) rand.nextInt() else 0
+        initInt_1 = if (authenticateType == 0 || authenticateType in 2 .. 4 || authenticateType == 6) rand.nextInt() else 0
+        initInt_2 = if (authenticateType == 1 || authenticateType in 2 .. 4) rand.nextInt() else 0
 
         when (authenticateType) {
-            in 3..4 -> {
+            in 3 .. 4 -> {
                 outcome = StringFilteringUtil.cutting(
-                    BigInteger(1, DigestUtils.sha256("$initInt_1|$initInt_2")).toString(16).uppercase(), 14
+                        BigInteger(1, DigestUtils.sha256("$initInt_1|$initInt_2")).toString(16).uppercase(), 14
                 )
                 fixedInitial = ""
                 off = 0
                 maximumNumberOfCalculations = 0
             }
-            in 5..6 -> {
+            in 5 .. 6 -> {
                 fixedInitial = RandomUtils.getRandomIetterString(4).let { if (authenticateType == 6) "$it$initInt_1" else it }
                 off = rand.nextInt(0, 10)
                 maximumNumberOfCalculations = rand.nextInt(0, 10000000)
                 outcome = StringFilteringUtil.cutting(
-                    BigInteger(1, DigestUtils.sha256(fixedInitial + "" + off)).toString(16).uppercase(), 14
+                        BigInteger(1, DigestUtils.sha256(fixedInitial + "" + off)).toString(16).uppercase(), 14
                 )
             }
             else -> {
@@ -125,7 +125,7 @@ internal class NetConnectProofOfWork {
         this.initInt_2 = 0
     }
 
-    fun check(resultInt: Int, authenticateType: Int, offIn: String): Boolean {
+    fun verifyPOWResult(resultInt: Int, authenticateType: Int, offIn: String): Boolean {
         // The fucking check code is wrong, get out of here
         if (this.resultInt != resultInt || this.authenticateType.toInt() != authenticateType) {
             return false
@@ -136,8 +136,8 @@ internal class NetConnectProofOfWork {
             1 -> return initInt_2.toString() == offIn
             // 1.15 (不支持1.14) 选择性启用
             2 -> Game.connectKeyLast(initInt_1) == offIn
-            3,4 -> return outcome == offIn
-            5,6 -> return this.off == offIn.toInt()
+            3, 4 -> return outcome == offIn
+            5, 6 -> return this.off == offIn.toInt()
             else -> {}
         }
 
@@ -149,36 +149,36 @@ internal class NetConnectProofOfWork {
          * Serialize Deserialize NetConnectAuthenticate
          * thrift CPU
          */
-        internal val serializer = object : SerializerTypeAll.TypeSerializer<NetConnectProofOfWork> {
+        internal val serializer = object: SerializerTypeAll.TypeSerializer<NetConnectProofOfWork> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, objectData: NetConnectProofOfWork) {
-                stream.writeByte(objectData.authenticateType)
-                when (objectData.authenticateType.toInt()) {
-                    0 -> stream.writeInt(objectData.initInt_1)
-                    1 -> stream.writeInt(objectData.initInt_2)
-                    3,4 -> {
-                        stream.writeInt(objectData.initInt_1)
-                        stream.writeInt(objectData.initInt_2)
-                        stream.writeString(objectData.outcome)
+            override fun write(paramDataOutput: GameOutputStream, objectParam: NetConnectProofOfWork) {
+                paramDataOutput.writeByte(objectParam.authenticateType)
+                when (objectParam.authenticateType.toInt()) {
+                    0 -> paramDataOutput.writeInt(objectParam.initInt_1)
+                    1 -> paramDataOutput.writeInt(objectParam.initInt_2)
+                    3, 4 -> {
+                        paramDataOutput.writeInt(objectParam.initInt_1)
+                        paramDataOutput.writeInt(objectParam.initInt_2)
+                        paramDataOutput.writeString(objectParam.outcome)
                     }
-                    5,6 -> {
-                        stream.writeString(objectData.fixedInitial)
-                        stream.writeInt(objectData.off)
-                        stream.writeInt(objectData.maximumNumberOfCalculations)
-                        stream.writeString(objectData.outcome)
+                    5, 6 -> {
+                        paramDataOutput.writeString(objectParam.fixedInitial)
+                        paramDataOutput.writeInt(objectParam.off)
+                        paramDataOutput.writeInt(objectParam.maximumNumberOfCalculations)
+                        paramDataOutput.writeString(objectParam.outcome)
                     }
                     else -> {}
                 }
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): NetConnectProofOfWork {
-                val authenticateType = stream.readByte().toByte()
+            override fun read(paramDataInput: GameInputStream): NetConnectProofOfWork {
+                val authenticateType = paramDataInput.readByte().toByte()
                 return when (authenticateType.toInt()) {
-                    0 -> NetConnectProofOfWork(authenticateType,stream.readInt(),0)
-                    1 -> NetConnectProofOfWork(authenticateType,0,stream.readInt())
-                    3,4 -> NetConnectProofOfWork(authenticateType,stream.readInt(),stream.readInt(),stream.readString())
-                    5,6 -> NetConnectProofOfWork(authenticateType,stream.readString(),stream.readInt(),stream.readInt(),stream.readString())
+                    0 -> NetConnectProofOfWork(authenticateType, paramDataInput.readInt(), 0)
+                    1 -> NetConnectProofOfWork(authenticateType, 0, paramDataInput.readInt())
+                    3, 4 -> NetConnectProofOfWork(authenticateType, paramDataInput.readInt(), paramDataInput.readInt(), paramDataInput.readString())
+                    5, 6 -> NetConnectProofOfWork(authenticateType, paramDataInput.readString(), paramDataInput.readInt(), paramDataInput.readInt(), paramDataInput.readString())
                     else -> NetConnectProofOfWork()
                 }
             }

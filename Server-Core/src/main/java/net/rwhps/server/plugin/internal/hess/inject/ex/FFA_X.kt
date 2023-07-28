@@ -16,11 +16,11 @@ import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
-import net.rwhps.server.util.CommonUtils
 import net.rwhps.server.util.ExtractUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.annotations.DidNotFinish
+import net.rwhps.server.util.game.CommonUtils
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
 
@@ -49,8 +49,8 @@ class FFA_X {
 
     fun onNewCommand(): Boolean {
         //if (command == "shrinknow") {
-            nextUpdate = 0
-            return true
+        nextUpdate = 0
+        return true
         //}
 //        if (command == "borderpause") {
 //            nextUpdate = Int.MAX_VALUE
@@ -140,15 +140,13 @@ class FFA_X {
             val commandPacket = GameEngine.gameEngine.cf.b()
 
             val out = GameOutputStream()
-            out.flushEncodeData(
-                CompressOutputStream.getGzipOutputStream("c",false).apply {
-                    writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(-1,unit.name,x, y, size).bytes)
-                }
-            )
+            out.flushEncodeData(CompressOutputStream.getGzipOutputStream("c", false).apply {
+                writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(-1, unit.name, x, y, size).bytes)
+            })
 
             commandPacket.a(k(NetEnginePackaging.transformHessPacketNullSource(out.createPacket(PacketType.TICK))))
 
-            commandPacket.c = GameEngine.data.gameHessData.tickNetHess+10
+            commandPacket.c = GameEngine.data.gameHessData.tickNetHess + 10
             GameEngine.gameEngine.cf.b.add(commandPacket)
             //GameEngine.netEngine.a(commandPacket)
         } catch (e: Exception) {
@@ -166,8 +164,7 @@ class FFA_X {
             FFA.onNewGame()
 
             Threads.newTimedTask(
-                "FFA","FFA", "FFA",
-                5000, 100, TimeUnit.MILLISECONDS
+                    "FFA", "FFA", "FFA", 5000, 100, TimeUnit.MILLISECONDS
             ) {
                 ExtractUtils.tryRunTest {
                     FFA.onEachFrame()

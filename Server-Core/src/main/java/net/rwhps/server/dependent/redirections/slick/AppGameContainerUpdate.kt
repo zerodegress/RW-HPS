@@ -24,12 +24,12 @@ import java.lang.reflect.Method
  * set amount of time, configurable by the SystemProperty [LwjglClassProperties.DISPLAY_UPDATE].
  *
  * @author RW-HPS/Dr
-*/
+ */
 @AsmMark.ClassLoaderCompatible
-internal class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = getTime()) : Redirection {
+internal class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = getTime()): Redirection {
 
-    override fun invoke(obj: Any, desc: String, type: Class<*>?, vararg args: Any) {
-        val classAppGameContainer = SilckClassPathProperties.AppGameContainer.toClassAutoLoader(obj)!!
+    override fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?) {
+        val classAppGameContainer = SilckClassPathProperties.AppGameContainer.toClassAutoLoader(obj!!)!!
         val methodSetup: Method = classAppGameContainer.findMethod("setup").also { ReflectionUtils.makeAccessible(it) }!!
         val methodGetDelta: Method = classAppGameContainer.findMethod("getDelta").also { ReflectionUtils.makeAccessible(it) }!!
         val methodGameLoop: Method = classAppGameContainer.findMethod("gameLoop").also { ReflectionUtils.makeAccessible(it) }!!

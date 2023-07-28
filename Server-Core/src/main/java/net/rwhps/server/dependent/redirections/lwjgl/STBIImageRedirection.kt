@@ -19,11 +19,11 @@ import java.nio.IntBuffer
 import javax.imageio.ImageIO
 
 @AsmMark.ClassLoaderCompatible
-enum class STBIImageRedirection : Redirection {
+enum class STBIImageRedirection: Redirection {
     INSTANCE;
 
     @Throws(Throwable::class)
-    override fun invoke(obj: Any, desc: String, type: Class<*>?, vararg args: Any): Any {
+    override fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?): Any {
         val buffer = args[0] as ByteBuffer
         val x = args[1] as IntBuffer
         val y = args[2] as IntBuffer

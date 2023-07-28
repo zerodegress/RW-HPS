@@ -10,9 +10,7 @@
 package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Cache
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
-import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
@@ -33,14 +31,12 @@ import java.io.IOException
  * @author RW-HPS/Dr
  */
 @MainProtocolImplementation
-open class GameVersionPacket : AbstractNetPacket {
+open class GameVersionPacket: AbstractNetPacket {
     @Throws(IOException::class)
-    override fun getSystemMessagePacket(msg: String): Packet =
-        chatMessagePacketInternal(msg, "SERVER", 5)
+    override fun getSystemMessagePacket(msg: String): Packet = chatMessagePacketInternal(msg, "SERVER", 5)
 
     @Throws(IOException::class)
-    override fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet =
-        chatMessagePacketInternal(msg, sendBy, team)
+    override fun getChatMessagePacket(msg: String, sendBy: String, team: Int): Packet = chatMessagePacketInternal(msg, sendBy, team)
 
     @Throws(IOException::class)
     override fun getPingPacket(player: PlayerHess): Packet {
@@ -52,16 +48,13 @@ open class GameVersionPacket : AbstractNetPacket {
     }
 
     @Throws(IOException::class)
-    override fun getTickPacket(tick: Int): Packet =
-        gameTickPacketInternal(tick)
+    override fun getTickPacket(tick: Int): Packet = gameTickPacketInternal(tick)
 
     @Throws(IOException::class)
-    override fun getGameTickCommandPacket(tick: Int, cmd: GameCommandPacket): Packet =
-        gameTickCommandPacketInternal(tick,cmd)
+    override fun getGameTickCommandPacket(tick: Int, cmd: GameCommandPacket): Packet = gameTickCommandPacketInternal(tick, cmd)
 
     @Throws(IOException::class)
-    override fun getGameTickCommandsPacket(tick: Int, cmd: Seq<GameCommandPacket>): Packet =
-        gameTickCommandsPacketInternal(tick,cmd)
+    override fun getGameTickCommandsPacket(tick: Int, cmd: Seq<GameCommandPacket>): Packet = gameTickCommandsPacketInternal(tick, cmd)
 
     @Throws(IOException::class)
     override fun getPacketMapName(bytes: ByteArray): String {
@@ -92,7 +85,7 @@ open class GameVersionPacket : AbstractNetPacket {
         o.flushEncodeData(gzipEncoder)
 
         val cachePacket = o.createPacket(PacketType.SYNC)
-        Cache.packetCache.put("getDeceiveGameSave",cachePacket)
+        Cache.packetCache.put("getDeceiveGameSave", cachePacket)
 
         return cachePacket
     }
@@ -108,7 +101,7 @@ open class GameVersionPacket : AbstractNetPacket {
         var unitID = -2
         if (IsUtils.notIsNumeric(unit)) {
             GameUnitType.GameUnits.values().forEach {
-                if (it.name.equals(unit,ignoreCase = true)) {
+                if (it.name.equals(unit, ignoreCase = true)) {
                     unitID = it.ordinal
                     return@forEach
                 }
@@ -178,7 +171,7 @@ open class GameVersionPacket : AbstractNetPacket {
         }
 
         val cachePacket = playerExitPacketInternal()
-        Cache.packetCache.put("getExitPacket",cachePacket)
+        Cache.packetCache.put("getExitPacket", cachePacket)
 
         return cachePacket
     }

@@ -12,15 +12,30 @@ package net.rwhps.server.net.core
 /**
  * 安全认证
  * Permission Connect Status
+ *
  * @author RW-HPS/Dr
  */
 object DataPermissionStatus {
     enum class RelayStatus {
+        /** 链接初始化 */
         InitialConnection,
+
+        /** 获取链接UUID-Hex */
         GetPlayerInfo,
+
+        /** 等待认证(Pow) */
         WaitCertified,
+
+        /** 认证(Pow)结束 */
         CertifiedEnd,
+
+        /** 向对应房主注册, 但还未进行游戏注册 */
         PlayerPermission,
+
+        /** 向对应房主完成注册, 且游戏完成注册 */
+        PlayerJoinPermission,
+
+        /** 该链接为房间 HOST */
         HostPermission,
         Debug;
     }

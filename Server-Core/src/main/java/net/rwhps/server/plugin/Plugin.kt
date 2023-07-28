@@ -31,9 +31,10 @@ abstract class Plugin {
      * @return 是否成功
      */
     @JvmOverloads
-    fun loadLang(lang: String,kv: Properties, cover: Boolean = false): Boolean {
-        return Data.i18NBundleMap[lang]?.addLang(kv,cover) == true
+    fun loadLang(lang: String, kv: Properties, cover: Boolean = false): Boolean {
+        return Data.i18NBundleMap[lang]?.addLang(kv, cover) == true
     }
+
     /**
      * 提供语言注入
      * @param lang String
@@ -42,8 +43,8 @@ abstract class Plugin {
      * @return 是否成功
      */
     @JvmOverloads
-    fun loadLang(lang: String,k: String, v: String, cover: Boolean = false): Boolean {
-        return Data.i18NBundleMap[lang]?.addLang(k,v,cover) == true
+    fun loadLang(lang: String, k: String, v: String, cover: Boolean = false): Boolean {
+        return Data.i18NBundleMap[lang]?.addLang(k, v, cover) == true
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
@@ -58,6 +59,7 @@ abstract class Plugin {
     open fun registerCoreCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
+
     /**
      * 注册要在服务器端使用的Server命令，例如从控制台-Server
      * 这里注册的命令只有启动Server协议 才会存在
@@ -65,6 +67,7 @@ abstract class Plugin {
     open fun registerServerCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
+
     /**
      * 注册要在服务器端使用的Relay命令，例如从控制台-Relay
      * 这里注册的命令只有启动Relay协议 才会存在
@@ -78,6 +81,7 @@ abstract class Plugin {
     open fun registerServerClientCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
+
     /** 注册要在客户端使用的RELAY命令，例如来自RELAY内玩家 -3  */
     open fun registerRelayClientCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
@@ -104,12 +108,12 @@ abstract class Plugin {
      *
      * 在不同的 `Hess` 端, Event是不共用的, 每一个 `Hess` 端, 就有一个新的 Event 管理器
      *
-     * @param hessLoadID Hess的ID
      * @param eventManage Hess事件管理器
      */
-    open fun registerEvents(hessLoadID: String, eventManage: EventManage) {
+    open fun registerEvents(eventManage: EventManage) {
         // Plugin inheritance, we should not implement
     }
+
     /**
      * 注册全局事件
      *

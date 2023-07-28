@@ -10,30 +10,33 @@
 package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.game.event.global.ServerConsolePrintEvent
 import net.rwhps.server.util.Time.getMilliFormat
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.ColorCodes.formatColors
 import net.rwhps.server.util.log.exp.ExceptionX
 import java.io.FileOutputStream
 import java.text.MessageFormat
 
 /**
- * 在这里实现 RW-HPS 的主要输出
- * 如果您需要使用 [System.out.print] 等接口, 那么请使用 [Data.privateOut.print] , [System.out] 被 `RW-HPS` 替换
- * 替换后只检测 `/n` `/r/n` 来输出
- */
-/**
  * Log Util
  *
+ * 在这里实现 RW-HPS 的主要输出
+ *
+ * 如果您需要使用 [println] 等接口, 那么请使用 [Data.privateOut] , [System.out] 被 `RW-HPS` 替换
+ *
+ * 替换后只检测 `/n` `/r/n` 来输出
+ *
+ * @date 2020年3月8日星期日 3:54
  * @author RW-HPS/Dr
  * @version 1.1
- * @date 2020年3月8日星期日 3:54
- * 练手轮子? :P
  */
+@Suppress("UNUSED")
 object Log {
     /** 默认 WARN  */
     private var LOG_GRADE = 5
-    private lateinit var logPrint: (Boolean,String) -> Unit
     private val outLog: FileOutputStream
 
     /** 默认错误捕获器 */
@@ -63,32 +66,8 @@ object Log {
      * @param log [Logg]
      */
     @JvmStatic
-	fun set(log: String) {
+    fun set(log: String) {
         LOG_GRADE = Logg.valueOf(log).getLogg()
-    }
-
-    @JvmStatic
-	fun setCopyPrint(system: Boolean) {
-        logPrint =
-            if (system) {
-                { error:Boolean, text: String ->
-                    println(text)
-
-                    if (error) {
-                        // Remove Color
-                        var textCache = text
-                        for (i in ColorCodes.VALUES.indices) {
-                            textCache = textCache.replace(ColorCodes.VALUES[i], "")
-                        }
-
-                        outLog.write("$textCache${Data.LINE_SEPARATOR}".toByteArray())
-                    }
-                }
-            } else {
-                { _:Boolean, text: String ->
-                    println(text)
-                }
-            }
     }
 
     /**
@@ -99,14 +78,17 @@ object Log {
     fun skipping(e: Throwable) {
         log(9, "SKIPPING", e)
     }
+
     @JvmStatic
     fun skipping(tag: Any, e: Throwable) {
         log(9, tag, e)
     }
+
     @JvmStatic
     fun skipping(e: Any) {
-        logs(9, "SKIPPING",e)
+        logs(9, "SKIPPING", e)
     }
+
     @JvmStatic
     fun skipping(tag: Any, e: Any) {
         logs(9, tag, e)
@@ -116,14 +98,17 @@ object Log {
     fun fatal(e: Throwable) {
         log(7, "FATAL", e)
     }
+
     @JvmStatic
     fun fatal(tag: Any, e: Throwable) {
         log(7, tag, e)
     }
+
     @JvmStatic
     fun fatal(e: Any) {
         logs(7, "FATAL", e)
     }
+
     @JvmStatic
     fun fatal(tag: Any, e: Any) {
         logs(7, tag, e)
@@ -133,17 +118,19 @@ object Log {
     fun error(e: Throwable) {
         log(6, "ERROR", e)
     }
+
     @JvmStatic
     fun error(tag: Any, e: Throwable) {
         log(6, tag, e)
     }
+
     @JvmStatic
     fun error(e: Any) {
         logs(6, "ERROR", e)
     }
 
     @JvmStatic
-	fun error(tag: Any, e: Any) {
+    fun error(tag: Any, e: Any) {
         logs(6, tag, e)
     }
 
@@ -151,16 +138,19 @@ object Log {
     fun warn(e: Throwable) {
         log(5, "WARN", e)
     }
+
     @JvmStatic
     fun warn(tag: Any, e: Throwable) {
         log(5, tag, e)
     }
+
     @JvmStatic
     fun warn(e: Any) {
         logs(5, "WARN", e)
     }
+
     @JvmStatic
-	fun warn(tag: Any, e: Any) {
+    fun warn(tag: Any, e: Any) {
         logs(5, tag, e)
     }
 
@@ -168,16 +158,19 @@ object Log {
     fun info(e: Throwable) {
         log(4, "INFO", e)
     }
+
     @JvmStatic
     fun info(tag: Any, e: Throwable) {
         log(4, tag, e)
     }
+
     @JvmStatic
     fun info(e: Any) {
         logs(4, "INFO", e)
     }
+
     @JvmStatic
-	fun info(tag: Any, e: Any) {
+    fun info(tag: Any, e: Any) {
         logs(4, tag, e)
     }
 
@@ -185,16 +178,19 @@ object Log {
     fun debug(e: Throwable) {
         log(3, "DEBUG", e)
     }
+
     @JvmStatic
     fun debug(tag: Any, e: Throwable) {
         log(3, tag, e)
     }
+
     @JvmStatic
     fun debug(e: Any) {
         logs(3, "DEBUG", e)
     }
+
     @JvmStatic
-	fun debug(tag: Any, e: Any) {
+    fun debug(tag: Any, e: Any) {
         logs(3, tag, e)
     }
 
@@ -202,23 +198,38 @@ object Log {
     fun track(e: Throwable) {
         log(2, "TRACK", e)
     }
+
     @JvmStatic
     fun track(tag: Any, e: Throwable) {
         log(2, tag, e)
     }
 
     @JvmStatic
+    fun track(e: Any) {
+        logs(2, "TRACK", e)
+    }
+
+    @JvmStatic
+    fun track(tag: Any, e: Any) {
+        logs(2, tag, e)
+    }
+
+
+    @JvmStatic
     fun all(e: Throwable) {
         log(1, "ALL", e)
     }
+
     @JvmStatic
     fun all(tag: Any, e: Throwable) {
         log(1, tag, e)
     }
+
     @JvmStatic
     fun all(e: Any) {
         logs(1, "ALL", e)
     }
+
     @JvmStatic
     fun all(tag: Any, e: Any) {
         logs(1, tag, e)
@@ -227,11 +238,11 @@ object Log {
     @JvmStatic
     fun clog(text: String) {
         val textCache = "[" + getMilliFormat(1) + "] " + text
-        this.logPrint(false,formatColors("$textCache&fr"))
+        print(false, formatColors("$textCache&fr"))
     }
 
     @JvmStatic
-	fun clog(text: String, vararg obj: Any?) {
+    fun clog(text: String, vararg obj: Any?) {
         clog(MessageFormat(text).format(obj))
     }
 
@@ -270,8 +281,8 @@ object Log {
                 val ste = stack[i1]
                 val className = ste.className + "." + ste.methodName
                 if (!className.contains("net.rwhps.server.util.log.Log")) {
-                    sb.append("[").append(ste.fileName).append("] : ")
-                        .append(ste.methodName).append(" : ").append(ste.lineNumber).append(Data.LINE_SEPARATOR)
+                    sb.append("[").append(ste.fileName).append("] : ").append(ste.methodName).append(" : ").append(ste.lineNumber)
+                        .append(Data.LINE_SEPARATOR)
                     break
                 }
                 i1++
@@ -294,24 +305,43 @@ object Log {
             sb.append(e.toString())
         }
 
-        this.logPrint(error,sb.toString())
+        print(error, sb.toString())
+    }
+
+    private fun print(error: Boolean, text: String) {
+        println(text)
+
+        PluginManage.runGlobalEventManage(ServerConsolePrintEvent(text))
+
+        if (error) {
+            // Remove Color
+            var textCache = text
+            for (i in ColorCodes.VALUES.indices) {
+                textCache = textCache.replace(ColorCodes.VALUES[i], "")
+            }
+
+            outLog.write("$textCache${Data.LINE_SEPARATOR}".toByteArray())
+        }
     }
 
     private enum class Logg(private val logg: Int) {
-        /* Log level defaults to WARN */
-        /* ALL during development */
-        OFF(8), FATAL(7), ERROR(6), WARN(5), INFO(4), DEBUG(3), TRACK(2), ALL(1);
+        /* Log level defaults to WARN *//* ALL during development */
+        OFF(8),
+        FATAL(7),
+        ERROR(6),
+        WARN(5),
+        INFO(4),
+        DEBUG(3),
+        TRACK(2),
+        ALL(1);
 
         open fun getLogg(): Int {
             return logg
         }
-    }
 
-    private interface LogPrint<T> {
-        /**
-         * 接管Log逻辑
-         * @param t TEXT
-         */
-        fun write(t: T)
+        fun from(type: String): Logg = Logg.values().find { it.name == type || it.name.lowercase() == type.lowercase() }.ifNullResult({
+            skipping("Log Level Set Error , In: $type")
+            ALL
+        }) { it }
     }
 }

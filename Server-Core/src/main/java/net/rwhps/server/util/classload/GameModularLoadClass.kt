@@ -37,9 +37,9 @@ import java.io.InputStream
 open class GameModularLoadClass(
     private val mainClassLoader: ClassLoader,
     private val jdkClassLoader: ClassLoader,
-    private val classPathMap: OrderedMap<String, ByteArray> = OrderedMap<String, ByteArray>()
-) : ClassLoader() {
-    private val hashCode = Integer.toHexString(hashCode())
+    private val classPathMap: OrderedMap<String, ByteArray> = OrderedMap()
+): ClassLoader() {
+    private val hashCode = Integer.toHexString(this.hashCode())
 
     /**
      * Get all the Bytes of this loader, for the next reuse, and at the same time make each loader share the byte pool
@@ -67,8 +67,8 @@ open class GameModularLoadClass(
                 if (name.startsWith("/")) {
                     name = name.substring(1)
                 }
-                name = name.replace(".class","")
-                classPathMap.put(name,it.value)
+                name = name.replace(".class", "")
+                classPathMap[name] = it.value
             }
         }.close()
     }
@@ -80,8 +80,8 @@ open class GameModularLoadClass(
      * @param bytes ByteArray
      */
     fun addClassBytes(name: String, bytes: ByteArray, cove: Boolean = false) {
-        if (!classPathMap.containsKey(name.replace(".","/")) || cove) {
-            classPathMap.put(name.replace(".", "/"), bytes)
+        if (!classPathMap.containsKey(name.replace(".", "/")) || cove) {
+            classPathMap[name.replace(".", "/")] = bytes
         }
     }
 
@@ -94,10 +94,10 @@ open class GameModularLoadClass(
      * @return Class<*>?
      */
     fun loadClassBytes(name: String, bytes: ByteArray): Class<*>? {
-        if (classPathMap.containsKey(name.replace(".","/"))) {
+        if (classPathMap.containsKey(name.replace(".", "/"))) {
             return name.toClass(this)
         }
-        classPathMap.put(name.replace(".", "/"), bytes)
+        classPathMap[name.replace(".", "/")] = bytes
         return name.toClass(this)
     }
 
@@ -114,13 +114,13 @@ open class GameModularLoadClass(
      */
     @Throws(ClassNotFoundException::class)
     public override fun findClass(nameIn: String): Class<*>? {
-        val name = nameIn.replace(".","/")
+        val name = nameIn.replace(".", "/")
         var classBytes: ByteArray? = classPathMap[name]
         if (classBytes == null || classBytes.isEmpty()) {
             throw ClassNotFoundException()
         }
-        classBytes = asmClass(name,classBytes)
-        return defineClass(null,classBytes, 0, classBytes.size)
+        classBytes = asmClass(name, classBytes)
+        return defineClass(null, classBytes, 0, classBytes.size)
     }
 
     @Throws(ClassNotFoundException::class)
@@ -136,7 +136,7 @@ open class GameModularLoadClass(
             return result
         }
 
-        val name = nameIn.replace(".","/")
+        val name = nameIn.replace(".", "/")
         var classBytes: ByteArray? = classPathMap[name]
 
         if (classBytes == null || classBytes.isEmpty()) {
@@ -154,8 +154,8 @@ open class GameModularLoadClass(
         }
 
 
-        classBytes = asmClass(name,classBytes)
-        return defineClass(null,classBytes, 0, classBytes.size)
+        classBytes = asmClass(name, classBytes)
+        return defineClass(null, classBytes, 0, classBytes.size)
     }
 
     /**
@@ -166,7 +166,7 @@ open class GameModularLoadClass(
      * @return [ByteArrayInputStream]
      */
     override fun getResourceAsStream(path: String): InputStream? {
-        val classBytes: ByteArray? = classPathMap[path.replace(".class","")]
+        val classBytes: ByteArray? = classPathMap[path.replace(".class", "")]
         return if (classBytes == null) {
             return null
         } else {
@@ -182,7 +182,7 @@ open class GameModularLoadClass(
      * @return ByteArray
      */
     protected open fun asmClass(className: String, classfileBuffer: ByteArray): ByteArray {
-        return AsmCore.transform(this,className,classfileBuffer)
+        return AsmCore.transform(this, className, classfileBuffer)
     }
 
     override fun toString(): String {

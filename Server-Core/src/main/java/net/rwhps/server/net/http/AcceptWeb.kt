@@ -24,10 +24,7 @@ import io.netty.util.AsciiString
  * 请注意 在 GET 内 您获取的 data 为 空("") , 您需要使用 urlData 来得到数据
  */
 class AcceptWeb(
-    val getUrl: String,
-    val urlData: String,
-    val data: String,
-    request: HttpRequest
+    val getUrl: String, val urlData: String, val data: String, request: HttpRequest
 ) {
     private val headers = request.headers()
 

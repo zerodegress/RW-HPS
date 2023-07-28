@@ -10,7 +10,7 @@
 package net.rwhps.server.util.algorithms.digest
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.ExtractUtils
+import net.rwhps.server.util.StringUtils
 import net.rwhps.server.util.algorithms.HexUtils
 import net.rwhps.server.util.algorithms.SecureUtils
 import net.rwhps.server.util.file.FileUtils
@@ -28,7 +28,7 @@ import kotlin.math.max
 /**
  * 摘要算法
  * @author RW-HPS/Dr
-*/
+ */
 open class Digester {
     /**
      * 获得 [MessageDigest]
@@ -51,7 +51,7 @@ open class Digester {
      *
      * @param algorithm 算法枚举
      */
-    constructor(algorithm: DigestAlgorithm) : this(algorithm.type)
+    constructor(algorithm: DigestAlgorithm): this(algorithm.type)
 
     /**
      * 构造
@@ -62,6 +62,7 @@ open class Digester {
     constructor(algorithm: DigestAlgorithm, provider: Provider?) {
         init(algorithm.type, provider)
     }
+
     /**
      * 构造
      *
@@ -170,7 +171,7 @@ open class Digester {
      * @return 摘要
      */
     fun digest(data: String, charset: Charset): ByteArray {
-        return digest(ExtractUtils.bytes(data, charset))
+        return digest(StringUtils.bytes(data, charset))
     }
 
     /**
@@ -215,7 +216,7 @@ open class Digester {
      */
     @Throws(IOException::class)
     fun digest(file: File): ByteArray {
-        return FileUtils(file,false).readFileByte()
+        return FileUtils(file, false).readFileByte()
     }
 
     /**

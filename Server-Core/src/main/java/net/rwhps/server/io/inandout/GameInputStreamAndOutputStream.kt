@@ -27,58 +27,61 @@ import java.util.zip.GZIPOutputStream
  * @property out GameOutputStream
  * @author RW-HPS/Dr
  */
-class GameInputStreamAndOutputStream : GameInputStream {
+class GameInputStreamAndOutputStream: GameInputStream {
     @JvmOverloads
     constructor(packet: Packet, parseVersion: Int = 0): super(packet, parseVersion) {
     }
+
     @JvmOverloads
-    internal constructor(buffer: DisableSyncByteArrayInputStream, parseVersion: Int = 0) : super(buffer, parseVersion) {
+    internal constructor(buffer: DisableSyncByteArrayInputStream, parseVersion: Int = 0): super(buffer, parseVersion) {
     }
 
     val out = GameOutputStream()
-    
-    @Throws(IOException::class)
-    fun readByteN() = out.transferToFixedLength(this,1)
-    
-    @Throws(IOException::class)
-    fun readBooleanN() = out.transferToFixedLength(this,1)
-    
-    @Throws(IOException::class)
-    fun readIntN() = out.transferToFixedLength(this,4)
 
     @Throws(IOException::class)
-    fun readBackwardsIntN() = out.transferToFixedLength(this,4)
+    fun readByteN() = out.transferToFixedLength(this, 1)
 
     @Throws(IOException::class)
-    fun readShortN() = out.transferToFixedLength(this,2)
-    
-    @Throws(IOException::class)
-    fun readBackwardsShortN() = out.transferToFixedLength(this,2)
-    
-    @Throws(IOException::class)
-    fun readFloatN() = out.transferToFixedLength(this,4)
-    
-    @Throws(IOException::class)
-    fun readLongN() = out.transferToFixedLength(this,8)
+    fun readBooleanN() = out.transferToFixedLength(this, 1)
 
     @Throws(IOException::class)
-    fun readStringN() = readShort().let { out.transferToFixedLength(this,it.toInt()) }
-        
-    @Throws(IOException::class)
-    fun readIsStringN() = if (readBoolean()) readStringN() else {}
+    fun readIntN() = out.transferToFixedLength(this, 4)
 
     @Throws(IOException::class)
-    fun readIsIntN() = if (readBoolean()) readIntN() else {}
+    fun readBackwardsIntN() = out.transferToFixedLength(this, 4)
 
-   
+    @Throws(IOException::class)
+    fun readShortN() = out.transferToFixedLength(this, 2)
+
+    @Throws(IOException::class)
+    fun readBackwardsShortN() = out.transferToFixedLength(this, 2)
+
+    @Throws(IOException::class)
+    fun readFloatN() = out.transferToFixedLength(this, 4)
+
+    @Throws(IOException::class)
+    fun readLongN() = out.transferToFixedLength(this, 8)
+
+    @Throws(IOException::class)
+    fun readStringN() = readShort().let { out.transferToFixedLength(this, it.toInt()) }
+
+    @Throws(IOException::class)
+    fun readIsStringN() = if (readBoolean()) readStringN() else {
+    }
+
+    @Throws(IOException::class)
+    fun readIsIntN() = if (readBoolean()) readIntN() else {
+    }
+
+
     @Throws(IOException::class)
     fun skipN(skip: Long) = out.transferToFixedLength(this, skip.toInt())
 
     @Throws(IOException::class)
-    fun readNBytesN(readBytesLength: Int) = out.transferToFixedLength(this,readBytesLength)
+    fun readNBytesN(readBytesLength: Int) = out.transferToFixedLength(this, readBytesLength)
 
     @Throws(IOException::class)
-    fun readStreamBytesN() = out.transferToFixedLength(this,readInt())
+    fun readStreamBytesN() = out.transferToFixedLength(this, readInt())
 
     @Throws(IOException::class)
     fun readStreamBytesNewN() {
@@ -109,7 +112,7 @@ class GameInputStreamAndOutputStream : GameInputStream {
     }
 
     @Throws(IOException::class)
-    fun transferTo(inputStream: GameInputStreamAndOutputStream,bl: Boolean = false) {
+    fun transferTo(inputStream: GameInputStreamAndOutputStream, bl: Boolean = false) {
         if (bl) {
             val out = DisableSyncByteArrayOutputStream()
             val gzip = GZIPOutputStream(out)
@@ -122,8 +125,6 @@ class GameInputStreamAndOutputStream : GameInputStream {
     }
 
 
-
-    
     @Throws(IOException::class)
     override fun readByte(): Int = stream.readByte().toInt().also { out.writeByte(it) }
 
@@ -142,7 +143,7 @@ class GameInputStreamAndOutputStream : GameInputStream {
         if (ch1 or ch2 or ch3 or ch4 < 0) throw EOFException()
         return (ch4 shl 24) + (ch3 shl 16) + (ch2 shl 8) + (ch1 shl 0)
     }
-    
+
     @Throws(IOException::class)
     override fun readShort(): Short = stream.readShort().also { out.writeShort(it) }
 
@@ -153,7 +154,7 @@ class GameInputStreamAndOutputStream : GameInputStream {
         if (ch1 or ch2 < 0) throw EOFException()
         return ((ch2 shl 8) + (ch1 shl 0)).toShort()
     }
-    
+
     @Throws(IOException::class)
     override fun readFloat(): Float = stream.readFloat().also { out.writeFloat(it) }
 

@@ -14,8 +14,6 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.plugin.Plugin
-import net.rwhps.server.plugin.internal.hess.inject.command.ClientCommands
-import net.rwhps.server.plugin.internal.hess.inject.command.ServerCommands
 import net.rwhps.server.plugin.internal.hess.service.event.GameHeadlessEventGlobal
 import net.rwhps.server.util.classload.GameModularReusableLoadClass
 import net.rwhps.server.util.game.CommandHandler
@@ -26,21 +24,20 @@ import java.util.*
 /**
  * @author RW-HPS/Dr
  */
-class HessMain : Plugin() {
+class HessMain: Plugin() {
     override fun registerGlobalEvents(eventManage: EventGlobalManage) = eventManage.registerListener(GameHeadlessEventGlobal())
 
     override fun registerCoreCommands(handler: CommandHandler) {
         handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (Data.startServer) {
-                log["The server is not closed, please close"]
+                log("The server is not closed, please close")
                 return@register
             }
             Data.startServer = true
 
             // Start Hess Core
             val load = GameModularReusableLoadClass(
-                Thread.currentThread().contextClassLoader,
-                Thread.currentThread().contextClassLoader.parent
+                    Thread.currentThread().contextClassLoader, Thread.currentThread().contextClassLoader.parent
             )
             GameStartInit.init(load)
             Log.clog(Data.i18NBundle.getinput("server.load.headless"))
@@ -48,7 +45,7 @@ class HessMain : Plugin() {
             HessModuleManage.hpsLoader = load.toString()
             GameStartInit.start(load)
 
-            Log.set(Data.config.Log.uppercase(Locale.getDefault()))
+            Log.set(Data.config.log.uppercase(Locale.getDefault()))
         }
     }
 
@@ -60,7 +57,6 @@ class HessMain : Plugin() {
     override fun registerServerClientCommands(handler: CommandHandler) {
         serverClientCommands = handler
     }
-
 
 
     companion object {

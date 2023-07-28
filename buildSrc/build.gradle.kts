@@ -8,11 +8,11 @@
  */
 
 plugins {
-	`kotlin-dsl`
+    `kotlin-dsl`
 }
 
 repositories {
-	google()
-	mavenCentral()
-	gradlePluginPortal()
+    google()
+    mavenCentral()
+    gradlePluginPortal()
 }

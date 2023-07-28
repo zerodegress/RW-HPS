@@ -14,11 +14,11 @@ import net.rwhps.server.util.annotations.mark.AsmMark
 import java.nio.ByteBuffer
 
 @AsmMark.ClassLoaderCompatible
-enum class MemASCIIRedirection : Redirection {
+enum class MemASCIIRedirection: Redirection {
     INSTANCE;
 
     @Throws(Throwable::class)
-    override fun invoke(obj: Any, desc: String, type: Class<*>?, vararg args: Any): Any {
+    override fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?): Any {
         val buffer = args[0] as ByteBuffer
         val length = args[1] as Int
         val sb = StringBuilder(length)

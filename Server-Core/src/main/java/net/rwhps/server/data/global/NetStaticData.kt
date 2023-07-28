@@ -23,26 +23,29 @@ import net.rwhps.server.util.log.exp.ImplementedException
 object NetStaticData {
     @JvmField
     val groupNet = GroupNet()
+
     /** Single Room Mode No ID required */
-    val relay = Relay("RW-HPS Beta Relay",groupNet)
+    val relay = Relay("RW-HPS Beta Relay", groupNet)
         get() {
             field.closeRoom = false
             return field
         }
+
     @JvmField
     val blackList = BlackList()
 
     var ServerNetType: IRwHps.NetType = IRwHps.NetType.NullProtocol
         set(value) {
             field = value
-            if (value != IRwHps.NetType.NullProtocol) {
-                /* 设置协议后会自动初始化IRwHps */
+            if (value != IRwHps.NetType.NullProtocol) {/* 设置协议后会自动初始化IRwHps */
                 RwHps = try {
                     // 默认用对应协议
-                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, ServerNetType.name, IRwHps.NetType::class.java).newInstance(value) as IRwHps
+                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, ServerNetType.name, IRwHps.NetType::class.java)
+                        .newInstance(value) as IRwHps
                 } catch (e: ImplementedException) {
                     // 找不到就使用全局默认
-                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(value) as IRwHps
+                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, "IRwHps", IRwHps.NetType::class.java)
+                        .newInstance(value) as IRwHps
                 }
             }
         }
@@ -52,7 +55,7 @@ object NetStaticData {
     var netService = Seq<NetService>(4)
 
     @JvmStatic
-    fun checkServerStartNet(run : (()->Unit)?) : Boolean {
+    fun checkServerStartNet(run: (() -> Unit)?): Boolean {
         if (this::RwHps.isInitialized) {
             run?.let { it() }
             return true

@@ -30,54 +30,50 @@ import java.lang.reflect.Field
  */
 data class BeanCoreConfig(
     /** Default startup command */
-    val DefStartCommand: String = "start",
+    val defStartCommand: String = "start",
 
-    val Log: String = "WARN",
+    val log: String = "WARN",
 
-    val CmdTitle: String = "",
+    val cmdTitle: String = "",
+
+    /** 更新是否使用测试版本 */
+    val followBetaVersion: Boolean = false,
 
     /** Port */
-    val Port: Int = 5123,
+    val port: Int = 5123,
 
-    val ServerName: String = "RW-HPS",
-    val Subtitle: String = "",
+    val serverName: String = "RW-HPS", val subtitle: String = "",
     /** Automatically after starting UPLIST */
-    val AutoUpList: Boolean = false,
+    val autoUpList: Boolean = false,
 
     /** ip多语言支持 */
-    val IpCheckMultiLanguageSupport: Boolean = false,
+    val ipCheckMultiLanguageSupport: Boolean = false,
 
     /** Single user relay disable pop-up selection */
-    val SingleUserRelay: Boolean = false,
+    val singleUserRelay: Boolean = false,
     /** Default mods configuration for single user relay */
-    val SingleUserRelayMod: Boolean = false,
-
-    /** GamePort HttpPort 共用 */
-    val WebGameBypassPort: Boolean = false,
+    val singleUserRelayMod: Boolean = false,
 
     /** Test : HTTP 鉴权 */
-    val WebToken: String = RandomUtils.getRandomIetterString(10),
-    /** 单独起 HTTP 服务 */
-    val WebService: Boolean = false,
-    /** 单独的 Port */
-    val SeparateWebPort: Int = 5124,
-    val SSL: Boolean = false,
-    val SSLPasswd: String = "RW-HPS",
+    val webToken: String = RandomUtils.getRandomIetterString(10),
+    /** Web HOST 限制 */
+    val webHOST: String = "",
 
-    val Turnstoneintogold: Boolean = false,
+    /** Web的 Port, 不为 0 时启用对应服务 */
+    val webPort: Int = 0, val ssl: Boolean = false, val sslPasswd: String = "RW-HPS",
 
-    var RunPid: Long = 0
+    var runPid: Long = 0
 ) {
     fun save() {
-        RunPid = SystemUtils.pid
+        runPid = SystemUtils.pid
         fileUtils.writeFile(this.toPrettyPrintingJson())
     }
 
-    fun coverField(name: String,value: Any): Boolean {
+    fun coverField(name: String, value: Any): Boolean {
         try {
-            val field: Field = ReflectionUtils.findField(this::class.java, name) ?:return false
+            val field: Field = ReflectionUtils.findField(this::class.java, name) ?: return false
             field.isAccessible = true
-            field.set(this,value)
+            field[this] = value
             field.isAccessible = false
         } catch (e: Exception) {
             error("Cover Gameover error", e)
@@ -90,8 +86,7 @@ data class BeanCoreConfig(
         val fields = this.javaClass.declaredFields
         for (field in fields) {
             // 过滤Kt生成的和不能被覆盖的
-            if (field.name != "Companion" && field.name != "fileUtil")
-            allName.add(field.name)
+            if (field.name != "Companion" && field.name != "fileUtil") allName.add(field.name)
         }
         return allName
     }
@@ -108,7 +103,7 @@ data class BeanCoreConfig(
             config.allName().eachAll {
                 val data = System.getProperties().getProperty("rwhps.config.$it")
                 if (data != null) {
-                    if (config.coverField(it,data)) {
+                    if (config.coverField(it, data)) {
                         debug("Set OK $it = $data")
                     } else {
                         debug("Set ERROR $it = $data")

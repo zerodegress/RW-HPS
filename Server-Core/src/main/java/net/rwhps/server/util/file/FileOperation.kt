@@ -81,7 +81,7 @@ object FileOperation {
      * @throws SecurityException
      */
     @JvmStatic
-    @Throws(IOException::class,SecurityException::class)
+    @Throws(IOException::class, SecurityException::class)
     fun recursiveDelete(file: File) {
         if (!file.exists()) {
             return

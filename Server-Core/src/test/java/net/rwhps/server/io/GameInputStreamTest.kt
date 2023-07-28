@@ -27,7 +27,7 @@ internal class GameInputStreamTest {
         stream.writeByte(10)
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readByte(),DataInputStream(ByteArrayInputStream(bytes)).read()) { "[GameInputStream] readByte Error"}
+        assertEquals(GameInputStream(bytes).readByte(), DataInputStream(ByteArrayInputStream(bytes)).read()) { "[GameInputStream] readByte Error" }
     }
 
     @Test
@@ -38,7 +38,7 @@ internal class GameInputStreamTest {
         stream.writeBoolean(true)
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readBoolean(),DataInputStream(ByteArrayInputStream(bytes)).readBoolean()) { "[GameInputStream] readBoolean Error"}
+        assertEquals(GameInputStream(bytes).readBoolean(), DataInputStream(ByteArrayInputStream(bytes)).readBoolean()) { "[GameInputStream] readBoolean Error" }
     }
 
     @Test
@@ -49,7 +49,7 @@ internal class GameInputStreamTest {
         stream.writeInt(66)
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readInt(),DataInputStream(ByteArrayInputStream(bytes)).readInt()) { "[GameInputStream] readInt Error"}
+        assertEquals(GameInputStream(bytes).readInt(), DataInputStream(ByteArrayInputStream(bytes)).readInt()) { "[GameInputStream] readInt Error" }
     }
 
     @Test
@@ -60,7 +60,7 @@ internal class GameInputStreamTest {
         stream.writeShort(5)
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readShort(),DataInputStream(ByteArrayInputStream(bytes)).readShort()) { "[GameInputStream] readShort Error"}
+        assertEquals(GameInputStream(bytes).readShort(), DataInputStream(ByteArrayInputStream(bytes)).readShort()) { "[GameInputStream] readShort Error" }
     }
 
     @Test
@@ -71,7 +71,7 @@ internal class GameInputStreamTest {
         stream.writeFloat(6.66F)
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readFloat(),DataInputStream(ByteArrayInputStream(bytes)).readFloat()) { "[GameInputStream] readFloat Error"}
+        assertEquals(GameInputStream(bytes).readFloat(), DataInputStream(ByteArrayInputStream(bytes)).readFloat()) { "[GameInputStream] readFloat Error" }
     }
 
     @Test
@@ -82,7 +82,7 @@ internal class GameInputStreamTest {
         stream.writeLong(6666666)
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readLong(),DataInputStream(ByteArrayInputStream(bytes)).readLong()) { "[GameInputStream] readLong Error"}
+        assertEquals(GameInputStream(bytes).readLong(), DataInputStream(ByteArrayInputStream(bytes)).readLong()) { "[GameInputStream] readLong Error" }
     }
 
     @Test
@@ -93,7 +93,7 @@ internal class GameInputStreamTest {
         stream.writeUTF("RW-HPS Test !")
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readString(),DataInputStream(ByteArrayInputStream(bytes)).readUTF()) { "[GameInputStream] readString Error"}
+        assertEquals(GameInputStream(bytes).readString(), DataInputStream(ByteArrayInputStream(bytes)).readUTF()) { "[GameInputStream] readString Error" }
     }
 
     @Test
@@ -105,7 +105,7 @@ internal class GameInputStreamTest {
         stream.writeUTF("RW-HPS Test !")
         val bytes = buffer.toByteArray()
 
-        assertEquals(GameInputStream(bytes).readIsString(),DataInputStream(ByteArrayInputStream(bytes)).use { if (it.readBoolean()) it.readUTF() else "" }) { "[GameInputStream] readString Error"}
+        assertEquals(GameInputStream(bytes).readIsString(), DataInputStream(ByteArrayInputStream(bytes)).use { if (it.readBoolean()) it.readUTF() else "" }) { "[GameInputStream] readString Error" }
     }
 
     @Disabled

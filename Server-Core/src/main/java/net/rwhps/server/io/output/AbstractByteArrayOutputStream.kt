@@ -30,8 +30,8 @@ import kotlin.math.min
  * 这样就不需要对缓冲区进行垃圾收集，而且内容也没有复制到新得到缓冲区
  *
  * @author RW-HPS/Dr
-*/
-abstract class AbstractByteArrayOutputStream : OutputStream() {
+ */
+abstract class AbstractByteArrayOutputStream: OutputStream() {
     /** 缓冲区列表，它会增长并且永远不会减少  */
     private val buffers = Seq<ByteArray>(2)
 
@@ -177,8 +177,7 @@ abstract class AbstractByteArrayOutputStream : OutputStream() {
      * @throws IOException No Error will be raised (this method should not declare this exception but must now due to backwards compatibility)
      */
     @Throws(IOException::class)
-    override fun close() {
-        /*
+    override fun close() {/*
          * Same as [java.io.ByteArrayOutputStream]
          * Methods in this class can be called after the stream has been closed without throwing `IOException`.
          */

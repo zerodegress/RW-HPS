@@ -33,7 +33,7 @@ import net.rwhps.server.util.inline.findField
  * 内部实现通过 [GameEngine] 来减少一些混淆 也可以参见 (RW-AC项目)
  *
  * @author RW-HPS/Dr
-*/
+ */
 internal object GameEngine {
     lateinit var data: AbstractGameModule
         private set
@@ -44,7 +44,7 @@ internal object GameEngine {
         this.multiplayer = Multiplayer::class.java.accessibleConstructor(Root::class.java).newInstance(this)
 
         // 初始化 ScriptContext 的 libRocket
-        ScriptContext::class.java.findField("libRocket")!!.set(this,object: b() {
+        ScriptContext::class.java.findField("libRocket")!!.set(this, object: b() {
             override fun EnableScissorRegion(p0: Boolean) {
                 // ignore
             }
@@ -72,7 +72,7 @@ internal object GameEngine {
             override val gameNet: AbstractGameNet = GameNet()
             override val gameUnitData: AbstractGameUnitData = GameUnitData()
             override val gameFast: AbstractGameFast = GameFast()
-            override val gameData: AbstractGameData = GameData()
+            override val gameData: AbstractGameLinkFunction = GameLinkFunction()
             override val gameDataLink: AbstractGameLinkData = GameLinkData()
             override val room: ServerRoom = ServerRoom(this)
         }.also {

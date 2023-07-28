@@ -28,9 +28,9 @@ import com.corrodinggames.rts.gameFramework.l as GameEe
  * @constructor
  *
  * @author RW-HPS/Dr
-*/
-class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
-    private val netEngine: ad = this::class.java.findField("r",ad::class.java)!!.get(this)!! as ad
+ */
+class CustomServerSocket(var1: ad): ServerAcceptRunnable(var1), Closeable {
+    private val netEngine: ad = this::class.java.findField("r", ad::class.java)!!.get(this)!! as ad
     private var netService: NetService? = null
     private var port = 0
 
@@ -48,7 +48,7 @@ class CustomServerSocket(var1: ad) : ServerAcceptRunnable(var1), Closeable {
         GameEngine.data.room.closeServer = {
             GameEngine.data.room.call.killAllPlayer()
 
-            val site = GameEngine.data.room.playerManage.playerAll.ifResult({ it.size > 0}, { it[0].site }, { 0 })
+            val site = GameEngine.data.room.playerManage.playerAll.ifResult({ it.size > 0 }, { it[0].site }, { 0 })
             // 恢复
             GameEngine.netEngine.z.k = site
 

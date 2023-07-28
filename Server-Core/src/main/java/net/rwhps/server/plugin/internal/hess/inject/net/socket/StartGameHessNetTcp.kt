@@ -21,13 +21,12 @@ import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
  * @author RW-HPS/Dr
  */
 @ChannelHandler.Sharable
-class StartGameHessNetTcp(netEngine: ad) : AbstractNet(
-    object: AcceptorIdleStateTrigger() {
-        override fun getAttributeKey(): AttributeKey<TypeConnect> {
-            return NewServerHessHandler.nettyChannelData
-        }
-    },
-    NewServerHessHandler(netEngine)
+class StartGameHessNetTcp(netEngine: ad): AbstractNet(
+        object: AcceptorIdleStateTrigger() {
+            override fun getAttributeKey(): AttributeKey<TypeConnect> {
+                return NewServerHessHandler.nettyChannelData
+            }
+        }, NewServerHessHandler(netEngine)
 ) {
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {

@@ -16,16 +16,16 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
  * @author RW-HPS/Dr
  */
 class ObjectIntMap<K>: BaseMap<K, Int> {
-    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
+    @JvmOverloads
+    constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
-        Object2IntOpenHashMap<K>(capacity).let {
-            if (threadSafety) {
-                Object2IntMaps.synchronize<K>(it, it)
-            } else {
-                it
-            }
-        } as java.util.Map<K, Int>, threadSafety
-    )
+    @JvmOverloads
+    constructor(capacity: Int, threadSafety: Boolean = false): super(Object2IntOpenHashMap<K>(capacity).let {
+        if (threadSafety) {
+            Object2IntMaps.synchronize<K>(it, it)
+        } else {
+            it
+        }
+    } as java.util.Map<K, Int>, threadSafety)
 }

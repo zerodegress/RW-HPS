@@ -22,10 +22,9 @@ import com.corrodinggames.rts.gameFramework.j.au as PacketHess
  * @constructor
  *
  * @author RW-HPS/Dr
-*/
+ */
 class NetEnginePackaging(
-    private val netEngine: ad,
-    private val playerConnectX: PlayerConnectX
+    private val netEngine: ad, private val playerConnectX: PlayerConnectX
 ) {
     /**
      * 将 Packet 扔进 Hess 内的处理器
@@ -62,7 +61,7 @@ class NetEnginePackaging(
      * @return RW-HPS的[PacketHess]
      */
     fun transformPacket(packetHess: PacketHess): Packet {
-        return Packet(packetHess.b,packetHess.c)
+        return Packet(packetHess.b, packetHess.c)
     }
 
     companion object {

@@ -13,9 +13,11 @@
  */
 object Versions {
     // Netty Version
-    const val nettyVersion = "4.1.94.Final"
+    const val nettyVersion = "4.1.95.Final"
+
     // Kotlin Version
-    const val kotlinVersion = "1.8.20"
+    const val kotlinVersion = "1.9.0"
+
     // Graalvm Version
     const val graalvmVersion = "22.3.2"
 

@@ -10,16 +10,17 @@
 package net.rwhps.server.data.player
 
 import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.func.Prov
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
+import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.inline.coverConnect
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
@@ -28,16 +29,18 @@ import java.util.*
 /**
  * @author RW-HPS/Dr
  */
+@Suppress("UNUSED")
 open class PlayerHess(
     open var con: AbstractNetConnectServer?,
     /**   */
     open val i18NBundle: I18NBundle,
-    //
+        //
     var playerPrivateData: AbstractPlayerData = HessModuleManage.hps.gameHessData.getDefPlayerData()
 ) {
     /** is Admin  */
     @Volatile
     var isAdmin: Boolean = false
+
     // 自动分配的 ADMIN 标记
     var autoAdmin: Boolean = false
     var superAdmin: Boolean = false
@@ -49,9 +52,12 @@ open class PlayerHess(
     open var team by playerPrivateData::team
 
     /** Last move time  */
-    @Volatile var lastMoveTime: Int = 0
+    @Volatile
+    var lastMoveTime: Int = 0
+
     /** Mute expiration time */
     var muteTime: Long = 0
+
     /** Kick expiration time */
     var kickTime: Long = 0
     var timeTemp: Long = 0
@@ -59,23 +65,28 @@ open class PlayerHess(
     var lastSentMessage: String? = ""
     var noSay = false
 
-
     /** */
     var credits by playerPrivateData::credits
     open var startUnit by playerPrivateData::startUnit
 
     /** Is the player alive  */
     val survive get() = playerPrivateData.survive
+
     /** 单位击杀数 */
     val unitsKilled get() = playerPrivateData.unitsKilled
+
     /** 建筑毁灭数 */
     val buildingsKilled get() = playerPrivateData.buildingsKilled
+
     /** 单实验单位击杀数 */
     val experimentalsKilled get() = playerPrivateData.experimentalsKilled
+
     /** 单位被击杀数 */
     val unitsLost get() = playerPrivateData.unitsLost
+
     /** 建筑被毁灭数 */
     val buildingsLost get() = playerPrivateData.buildingsLost
+
     /** 单实验单位被击杀数 */
     val experimentalsLost get() = playerPrivateData.experimentalsLost
 
@@ -83,16 +94,17 @@ open class PlayerHess(
     open val name get() = playerPrivateData.name
     val connectHexID get() = playerPrivateData.connectHexID
 
-    val statusData get() = ObjectMap<String, Int>().apply {
-        put("unitsKilled", unitsKilled)
-        put("buildingsKilled", buildingsKilled)
-        put("experimentalsKilled", experimentalsKilled)
-        put("unitsLost", unitsLost)
-        put("buildingsLost", buildingsLost)
-        put("experimentalsLost", experimentalsLost)
-    }
+    val statusData
+        get() = ObjectMap<String, Int>().apply {
+            put("unitsKilled", unitsKilled)
+            put("buildingsKilled", buildingsKilled)
+            put("experimentalsKilled", experimentalsKilled)
+            put("unitsLost", unitsLost)
+            put("buildingsLost", buildingsLost)
+            put("experimentalsLost", experimentalsLost)
+        }
 
-    private val noBindError: ()->Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
+    private val noBindError: () -> Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
 
     fun updateDate() {
         playerPrivateData.updateDate()
@@ -104,54 +116,73 @@ open class PlayerHess(
     private val customData = ObjectMap<String, Value<*>>()
 
     @Throws(ImplementedException.PlayerImplementedException::class)
-    fun sendSystemMessage(@Nls text: String) {
+    fun sendSystemMessage(
+        @Nls
+        text: String
+    ) {
         con?.sendSystemMessage(text) ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
-    fun sendMessage(player: PlayerHess, @Nls text: String) {
+    fun sendMessage(
+        player: PlayerHess,
+        @Nls
+        text: String
+    ) {
         con?.sendChatMessage(text, player.name, player.team) ?: noBindError()
     }
 
-    @Throws(ImplementedException.PlayerImplementedException::class)
-    fun sendPopUps(@Nls msg: String, run: ((String) -> Unit)) {
-        con?.sendRelayServerType(msg,run) ?: noBindError()
-    }
 
+    /**
+     * 调用生成一个 RELAY 输入 (一次性, 回调只会调用一次, 多次请自行解决)
+     *
+     * @param msg 显示的信息
+     * @param run 用户输入回调
+     * @throws ImplementedException
+     */
     @Throws(ImplementedException.PlayerImplementedException::class)
-    fun sync() {
-        con?.sync() ?: noBindError()
+    fun sendPopUps(
+        @Nls
+        msg: String, run: ((String) -> Unit)
+    ) {
+        con?.sendRelayServerType(msg, run) ?: noBindError()
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     @JvmOverloads
-    fun kickPlayer(@Nls text: String, time: Int = 0) {
+    fun kickPlayer(
+        @Nls
+        text: String, time: Int = 0
+    ) {
         kickTime = Time.getTimeFutureMillis(time * 1000L)
         con?.sendKick(text) ?: noBindError()
     }
 
 
-
     fun getinput(input: String, vararg params: Any?): String {
-        return i18NBundle.getinput(input,params)
+        return i18NBundle.getinput(input, params)
     }
 
 
     fun <T> addData(dataName: String, value: T) {
-        customData.put(dataName, Value(value))
+        customData[dataName] = Value(value)
     }
+
     @Suppress("UNCHECKED_CAST")
     fun <T> getData(dataName: String): T? {
         return customData[dataName]?.data as T
     }
+
     @Suppress("UNCHECKED_CAST")
     fun <T> getData(dataName: String, defValue: T): T {
-        return (customData[dataName]?.data ?:defValue) as T
+        return (customData[dataName]?.data ?: defValue) as T
     }
+
     @Suppress("UNCHECKED_CAST")
     fun <T> getData(dataName: String, defProv: Prov<T>): T {
-        return (customData[dataName]?.data ?:defProv.get()) as T
+        return (customData[dataName]?.data ?: defProv.get()) as T
     }
+
     fun removeData(dataName: String) {
         customData.remove(dataName)
     }
@@ -174,7 +205,7 @@ open class PlayerHess(
         if (con == null) {
             throw NetException("[CONNECT_CLOSE] Connect disconnect")
         }
-        throw ImplementedException("[PlayerJumpsToAnotherServer] NOT SUPPORT")
+        con!!.coverConnect().sendPacket(fromRelayJumpsToAnotherServer("$ip:$port"))
     }
 
     open fun clear() {
@@ -185,7 +216,7 @@ open class PlayerHess(
         if (this === other) {
             return true
         }
-        return  if (other == null || javaClass != other.javaClass) {
+        return if (other == null || javaClass != other.javaClass) {
             false
         } else if (other is PlayerHess) {
             connectHexID == other.connectHexID

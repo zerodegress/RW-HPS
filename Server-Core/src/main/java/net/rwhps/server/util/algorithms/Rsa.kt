@@ -23,8 +23,7 @@ import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.NoSuchPaddingException
 
-class Rsa {
-    /*
+class Rsa {/*
         public static void main(String [] args) throws Exception {
             // 获取钥匙
             KeyPair keyPair = buildKeyPair();

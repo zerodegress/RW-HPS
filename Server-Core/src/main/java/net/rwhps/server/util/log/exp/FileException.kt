@@ -9,8 +9,4 @@
 
 package net.rwhps.server.util.log.exp
 
-import net.rwhps.server.util.log.ErrorCode
-
-class FileException(type: String) : Exception(
-    ErrorCode.valueOf(type).error
-)
+class FileException(type: String): Exception(type)

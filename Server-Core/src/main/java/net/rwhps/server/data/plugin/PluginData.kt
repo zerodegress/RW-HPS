@@ -12,5 +12,4 @@ package net.rwhps.server.data.plugin
 /**
  * @author RW-HPS/Dr
  */
-class PluginData() : AutoSavePluginData() {
-}
+class PluginData(): AutoSavePluginData() {}

@@ -9,12 +9,10 @@
 
 package net.rwhps.server.data.bean
 
-import net.rwhps.server.util.inline.toGson
-
 /**
  * @date  2023/6/27 11:15
  * @author  RW-HPS/Dr
-*/
+ */
 data class BeanPluginInfo(
     val name: String = "",
     val author: String = "",
@@ -23,11 +21,4 @@ data class BeanPluginInfo(
     val version: String = "",
     val supportedVersions: String = "",
     val import: String = ""
-) {
-    companion object {
-        @JvmStatic
-        fun stringToClass(json: String): BeanPluginInfo {
-            return BeanPluginInfo::class.java.toGson(json)
-        }
-    }
-}
+)

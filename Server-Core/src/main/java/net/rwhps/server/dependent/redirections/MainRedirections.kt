@@ -1,6 +1,7 @@
 package net.rwhps.server.dependent.redirections
 
 import net.rwhps.asm.agent.AsmCore
+import net.rwhps.asm.agent.AsmData
 import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.redirections.AsmRedirections
 import net.rwhps.asm.redirections.DefaultRedirections
@@ -23,7 +24,7 @@ interface MainRedirections {
         AsmRedirections.redirect(desc, redirection)
     }
 
-    fun redirect(desc: String, p: Array<String>, redirection: Redirection = DefaultRedirections.NULL) {
-        AsmCore.addPartialMethod(desc, p, redirection)
+    fun redirect(packetName: String, p: Array<String>, redirection: Redirection = DefaultRedirections.NULL) {
+        AsmData.addPartialMethod(packetName, p, redirection)
     }
 }

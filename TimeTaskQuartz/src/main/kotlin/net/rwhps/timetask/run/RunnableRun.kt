@@ -17,9 +17,8 @@ import org.quartz.JobExecutionContext
  *
  * @author RW-HPS/Dr
  */
-class RunnableRun : Job {
+class RunnableRun: Job {
     override fun execute(context: JobExecutionContext) {
-        @Suppress("UNCHECKED_CAST")
-        (context.mergedJobDataMap["run"] as (()->Unit))()
+        @Suppress("UNCHECKED_CAST") (context.mergedJobDataMap["run"] as (() -> Unit))()
     }
 }

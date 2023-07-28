@@ -177,9 +177,9 @@ public abstract class ReflectionUtils {
      */
     @SuppressWarnings("deprecation")  // on JDK 9
     public static void makeAccessible(Constructor<?> ctor) {
-        if ((!Modifier.isPublic(ctor.getModifiers()) || 
-             !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) && 
-             !ctor.isAccessible()) {
+        if ((!Modifier.isPublic(ctor.getModifiers()) ||
+                !Modifier.isPublic(ctor.getDeclaringClass().getModifiers())) &&
+                !ctor.isAccessible()) {
             ctor.setAccessible(true);
         }
     }

@@ -11,16 +11,21 @@ package net.rwhps.server.net.core.web
 
 import io.netty.channel.Channel
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
-import net.rwhps.server.net.handler.tcp.GamePortWebSocket
+import net.rwhps.server.net.handler.tcp.StartWebSocket
 
 /**
  * @author RW-HPS/Dr
  */
 abstract class WebSocket {
-    abstract fun ws(ws: GamePortWebSocket,channel: Channel,msg: String)
+    abstract fun ws(ws: StartWebSocket, channel: Channel, msg: String)
 
-    protected fun error(code: Int): TextWebSocketFrame {
-        return TextWebSocketFrame("错误：$code")
+    abstract fun closeWs(ws: StartWebSocket, channel: Channel)
+
+    protected fun msg(msg: String): TextWebSocketFrame {
+        return TextWebSocketFrame(msg)
     }
 
+    protected fun error(code: String): TextWebSocketFrame {
+        return TextWebSocketFrame("错误：$code")
+    }
 }

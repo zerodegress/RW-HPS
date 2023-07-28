@@ -24,7 +24,7 @@ import kotlin.math.min
  * @date 2023/6/15 8:33
  * @author jdk.nio.zipfs.ByteArrayChannel
  */
-class SyncByteArrayChannel : SeekableByteChannel {
+class SyncByteArrayChannel: SeekableByteChannel {
     private val rwlock: ReadWriteLock = ReentrantReadWriteLock()
     private var buf: ByteArray?
 

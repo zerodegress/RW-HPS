@@ -21,13 +21,13 @@ import net.rwhps.server.util.inline.mutableObjectMapOf
  * @author  RW-HPS/Dr
  */
 abstract class WebFunction {
-    protected fun stringUrlDataResolveToJson(accept: AcceptWeb) : Json {
+    protected fun stringUrlDataResolveToJson(accept: AcceptWeb): Json {
         return stringUrlDataResolveToJson(accept.urlData)
     }
 
-    protected fun stringUrlDataResolveToJson(data: String) : Json {
+    protected fun stringUrlDataResolveToJson(data: String): Json {
         if (data.isEmpty()) {
-            return Json(LinkedHashMap<String, String>());
+            return Json(LinkedHashMap<String, String>())
         }
         val paramArray: Array<String> = data.split(RegexData.and).toTypedArray()
         val listMap = LinkedHashMap<String, String>()

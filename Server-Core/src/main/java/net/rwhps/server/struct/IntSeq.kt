@@ -17,27 +17,26 @@ import it.unimi.dsi.fastutil.ints.IntLists
  * @author  RW-HPS/Dr
  */
 class IntSeq: BaseSeq<Int> {
-    @JvmOverloads constructor(threadSafety: Boolean = false): this(16, threadSafety)
+    @JvmOverloads
+    constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(capacity: Int, threadSafety: Boolean = false): super(
-        IntArrayList(capacity).let {
-            if (threadSafety) {
-                IntLists.synchronize(it, it)
-            } else {
-                it
-            }
-        } as java.util.List<Int>, threadSafety
-    )
+    @JvmOverloads
+    constructor(capacity: Int, threadSafety: Boolean = false): super(IntArrayList(capacity).let {
+        if (threadSafety) {
+            IntLists.synchronize(it, it)
+        } else {
+            it
+        }
+    } as java.util.List<Int>, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    @JvmOverloads constructor(array: IntArray, threadSafety: Boolean = false): super(
-        IntArrayList(array).let {
-            if (threadSafety) {
-                IntLists.synchronize(it, it)
-            } else {
-                it
-            }
-        } as java.util.List<Int>, threadSafety
-    )
+    @JvmOverloads
+    constructor(array: IntArray, threadSafety: Boolean = false): super(IntArrayList(array).let {
+        if (threadSafety) {
+            IntLists.synchronize(it, it)
+        } else {
+            it
+        }
+    } as java.util.List<Int>, threadSafety)
 }

@@ -9,6 +9,6 @@
 
 package net.rwhps.server.util.log.exp
 
-open class LibraryManagerError(string: String) : Exception(string) {
-    class DependencyNotFoundException(type: String) : LibraryManagerError(type)
+open class LibraryManagerError(string: String): Exception(string) {
+    class DependencyNotFoundException(type: String): LibraryManagerError(type)
 }

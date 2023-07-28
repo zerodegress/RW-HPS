@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util.log.exp
 
-open class EggsException(type: String) : Exception(type) {
+open class EggsException(type: String): Exception(type) {
 
-    class MoneyNotEnoughException(type: String) : EggsException(type)
+    class MoneyNotEnoughException(type: String): EggsException(type)
 }

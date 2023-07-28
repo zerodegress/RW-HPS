@@ -63,6 +63,11 @@ class GetVersion(version: String) {
     val metadata: String
 
     /**
+     * 是否是正式版
+     */
+    val formalEdition: Boolean
+
+    /**
      * 解析一个版本号, 将会返回一个 [GetVersion()],
      * 如果发生解析错误将会抛出一个 {@link IllegalArgumentException} 或者 {@link NumberFormatException}
      *
@@ -73,7 +78,7 @@ class GetVersion(version: String) {
      * - 核心版本号只允许 `x.y` 和`x.y.z` 的存在
      * - `1.0-RC` 是合法的
      * - `1.0.0-RC` 也是合法的, 与 `1.0-RC` 一样
-     * - `1.0.0.0-RC` 是不合法的, 将会抛出一个 {@link IllegalArgumentException}
+     * - `1.0.0.0-RC` 是不合法的, 将会抛出一个 [IllegalArgumentException]
      *
      * 注意情况:
      * - 第一个 `+` 之后的所有内容全部识别为元数据
@@ -86,6 +91,8 @@ class GetVersion(version: String) {
         patch = getVersion.getInt(3)
         identifier = getVersion.getString(4)
         metadata = getVersion.getString(5)
+
+        formalEdition = identifier.isBlank()
     }
 
     /**
@@ -102,25 +109,33 @@ class GetVersion(version: String) {
 
     val version: Double
         get() {
-        var version = toMainInt().toDouble()
-        val identifierArray = identifier.split("-").toTypedArray()
-        for (identifierData in identifierArray) {
-            val identifierUpCase = identifierData.uppercase(Locale.getDefault())
+            var version = toMainInt().toDouble()
+            val identifierUpCase = identifier.uppercase(Locale.getDefault())
             when {
-                identifierUpCase.contains("M") -> {
-                    version += identifierUpCase.replace("M", "").toInt() * 0.1
+                identifierUpCase.startsWith("M") -> {
+                    version += identifierUpCase.removePrefix("M").toInt() * 0.1
                 }
-                identifierUpCase.contains("RC") -> {
+                identifierUpCase.startsWith("RC") -> {
                     version += 1.0
                 }
-                identifierUpCase.contains("DEV") -> {
-                    version += (identifierUpCase.replace("DEV", "").ifBlank { "1" }).toInt() * 0.001
+                identifierUpCase.startsWith("DEV") -> {
+                    version += (identifierUpCase.removePrefix("DEV").ifBlank { "1" }).toInt() * 0.001
                 }
             }
+            return version
         }
-        return version
-    }
 
+
+    /**
+     * 比较双方版本大小
+     *
+     * 输入 :
+     * >/>=/ 等
+     *
+     * @param version 待比较
+     * @return Boolean
+     */
+    @NeedToRefactor
     fun getIfVersion(version: String): Boolean {
         return if (IsUtils.isBlank(version)) {
             false
@@ -128,13 +143,7 @@ class GetVersion(version: String) {
     }
 
     override fun toString(): String {
-        return "GetVersion{" +
-                "major=" + major +
-                ", minor=" + minor +
-                ", patch=" + patch +
-                ", identifier='" + identifier + '\'' +
-                ", metadata='" + metadata + '\'' +
-                '}'
+        return "GetVersion{" + "major=" + major + ", minor=" + minor + ", patch=" + patch + ", identifier='" + identifier + '\'' + ", metadata='" + metadata + '\'' + ", formalEdition='" + formalEdition + '\'' + '}'
     }
 
     /**
@@ -145,7 +154,7 @@ class GetVersion(version: String) {
      */
     @NeedToRefactor
     private class DemandChainDescription(version: String) {
-        private val equalVersion: ((getVersion: GetVersion)-> Boolean)
+        private val equalVersion: ((getVersion: GetVersion) -> Boolean)
 
         init {
             equalVersion = register(version)
@@ -163,22 +172,22 @@ class GetVersion(version: String) {
                 val startVersion = GetVersion(versionArray[0]).version
                 val endVersion = GetVersion(versionArray[1]).version
                 return when {
-                    versionCache.startsWith("(") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSE(startVersion, e.version, endVersion)}
-                    versionCache.startsWith("(") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSrE(startVersion, e.version, endVersion,false)}
-                    versionCache.startsWith("[") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSrE(startVersion, e.version, endVersion,true)}
-                    versionCache.startsWith("[") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtils.inTwoNumbers(startVersion, e.version, endVersion)}
-                    else -> { _: GetVersion -> false}
+                    versionCache.startsWith("(") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSE(startVersion, e.version, endVersion) }
+                    versionCache.startsWith("(") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSrE(startVersion, e.version, endVersion, false) }
+                    versionCache.startsWith("[") && versionCache.endsWith(")") -> { e: GetVersion -> IsUtils.inTwoNumbersNoSrE(startVersion, e.version, endVersion, true) }
+                    versionCache.startsWith("[") && versionCache.endsWith("]") -> { e: GetVersion -> IsUtils.inTwoNumbers(startVersion, e.version, endVersion) }
+                    else -> { _: GetVersion -> false }
                 }
             } else {
                 val versionArray = versionCache.trim { it <= ' ' }.split(" ").toTypedArray()
                 val sourceVersion = doubleToLong(GetVersion(if (versionArray.size > 1) versionArray[1] else versionArray[0]).version)
                 return when {
-                    versionArray[0] == ">" -> { e: GetVersion-> doubleToLong(e.version) > sourceVersion}
-                    versionArray[0] == ">=" -> { e: GetVersion-> doubleToLong(e.version) >= sourceVersion}
-                    versionArray[0] == "<" -> { e: GetVersion-> doubleToLong(e.version) < sourceVersion}
-                    versionArray[0] == "<=" -> { e: GetVersion-> doubleToLong(e.version) <= sourceVersion}
-                    versionArray[0] == "!=" -> { e: GetVersion-> doubleToLong(e.version) != sourceVersion}
-                    else -> { e: GetVersion -> doubleToLong(e.version) == sourceVersion}
+                    versionArray[0] == ">" -> { e: GetVersion -> doubleToLong(e.version) > sourceVersion }
+                    versionArray[0] == ">=" -> { e: GetVersion -> doubleToLong(e.version) >= sourceVersion }
+                    versionArray[0] == "<" -> { e: GetVersion -> doubleToLong(e.version) < sourceVersion }
+                    versionArray[0] == "<=" -> { e: GetVersion -> doubleToLong(e.version) <= sourceVersion }
+                    versionArray[0] == "!=" -> { e: GetVersion -> doubleToLong(e.version) != sourceVersion }
+                    else -> { e: GetVersion -> doubleToLong(e.version) == sourceVersion }
                 }
             }
         }

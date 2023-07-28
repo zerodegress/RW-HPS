@@ -13,5 +13,5 @@
  */
 object Data {
     val lineSeparator = System.getProperty("line.separator")!!
-    const val mavenPath = "/src/main/resources/maven"
+    const val mavenPath = "src/main/resources/maven"
 }

@@ -21,8 +21,7 @@ import net.rwhps.server.util.inline.mutableObjectMapOf
  * @author RW-HPS/Dr
  */
 class SendWeb(
-    private val channel: Channel,
-    private val request: HttpRequest
+    private val channel: Channel, private val request: HttpRequest
 ) {
     private var cacheData: ByteArray? = null
 
@@ -30,12 +29,10 @@ class SendWeb(
     var status: HttpResponseStatus = HttpResponseStatus.OK
 
     /** 覆盖原header */
-    private val replaceHeaders: ObjectMap<AsciiString, String> = mutableObjectMapOf(
-        /* 默认头 使用 RW-HPS 自定义 */
-        HttpHeaderNames.SERVER to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)",
-        HttpHeaderNames.CONTENT_TYPE to "${HttpHeaderValues.TEXT_HTML};charset=utf-8",
-        HttpHeaderNames.ACCEPT_CHARSET to "UTF-8"
+    private val replaceHeaders: ObjectMap<AsciiString, String> = mutableObjectMapOf(/* 默认头 使用 RW-HPS 自定义 */
+            HttpHeaderNames.SERVER to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)", HttpHeaderNames.CONTENT_TYPE to "${HttpHeaderValues.TEXT_HTML};charset=utf-8", HttpHeaderNames.ACCEPT_CHARSET to "UTF-8"
     )
+
     /** 附加的header,用于需要重复的header */
     private val appendHeaders: ObjectMap<String, ArrayList<String>> = mutableObjectMapOf()
 
@@ -49,13 +46,19 @@ class SendWeb(
 
     fun setConnectType(type: AsciiString) = setConnectType(type.toString())
     fun setConnectType(type: String) = setHead(HttpHeaderNames.CONTENT_TYPE, "$type;charset=UTF-8")
-    fun setCookie(cKey: String, cValue: String, maxAge: Int, path: String) = customAppendHead(HttpHeaderNames.SET_COOKIE.toString(), "$cKey=$cValue; Max-Age=$maxAge; Path=$path")
+    fun setCookie(
+        cKey: String,
+        cValue: String,
+        maxAge: Int,
+        path: String
+    ) = customAppendHead(HttpHeaderNames.SET_COOKIE.toString(), "$cKey=$cValue; Max-Age=$maxAge; Path=$path")
 
 
     fun setData(bytes: ByteArray) {
         setConnectType(HttpHeaderValues.MULTIPART_FORM_DATA.toString())
         cacheData = bytes
     }
+
     fun setData(string: String) {
         cacheData = string.toByteArray(Data.UTF_8)
     }
@@ -87,7 +90,6 @@ class SendWeb(
 
     fun send404(send: Boolean = true) {
         status = HttpResponseStatus.NOT_FOUND
-        setConnectType(HttpHeaderValues.TEXT_HTML)
         cacheData = """
         <p>[404] File not found
             <br>The project is based on 
@@ -96,6 +98,24 @@ class SendWeb(
                     <a href="https://github.com/RW-HPS/RW-HPS">RW-HPS Github</a>
                 </p>
         """.trimIndent().toByteArray(Data.UTF_8)
+        privateBedReq(send)
+    }
+
+    fun sendBedRequest(send: Boolean = true) {
+        status = HttpResponseStatus.BAD_REQUEST
+        cacheData = """
+        <p>[400] Can't find a match HOST
+            <br>The project is based on 
+                <strong>RW-HPS</strong>
+                <br>
+                    <a href="https://github.com/RW-HPS/RW-HPS">RW-HPS Github</a>
+                </p>
+        """.trimIndent().toByteArray(Data.UTF_8)
+        privateBedReq(send)
+    }
+
+    private fun privateBedReq(send: Boolean) {
+        setConnectType(HttpHeaderValues.TEXT_HTML)
         if (send) {
             send()
         }

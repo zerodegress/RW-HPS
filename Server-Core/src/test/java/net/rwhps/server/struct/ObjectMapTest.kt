@@ -11,7 +11,6 @@ class ObjectMapTest {
 
     init {
         Log.set("ERROR")
-        Log.setCopyPrint(true)
     }
 
     @Test

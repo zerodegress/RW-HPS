@@ -20,17 +20,17 @@ import java.io.FileOutputStream
  * @author RW-HPS/Dr
  */
 @DidNotFinish
-class ZipFileUtils : FileUtils {
+class ZipFileUtils: FileUtils {
 
     constructor(file: File): super(file) {
 
     }
 
-    constructor(filepath: String): super(filepath){
+    constructor(filepath: String): super(filepath) {
 
     }
 
-    private constructor(file: File, filepath: String, ismkdir: Boolean = false): super(file,filepath,ismkdir) {
+    private constructor(file: File, filepath: String, ismkdir: Boolean = false): super(file, filepath, ismkdir) {
     }
 
     override fun exists(): Boolean = file.exists()

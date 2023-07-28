@@ -17,17 +17,20 @@ import java.util.*
  * @author RW-HPS/Dr
  */
 class PluginLoadData(
-    @JvmField val name: String,
-    @JvmField val author: String,
-    @JvmField val description: String,
-    @JvmField val version: String,
-    @JvmField val main: Plugin,
-    private val mkdir: Boolean = true,
-    private val skip: Boolean = false
+    @JvmField
+    val name: String,
+    @JvmField
+    val author: String,
+    @JvmField
+    val description: String,
+    @JvmField
+    val version: String,
+    @JvmField
+    val main: Plugin, private val mkdir: Boolean = true, private val skip: Boolean = false
 ) {
     init {
         if (mkdir) {
-            main.pluginDataFileUtils = FileUtils.getFolder(Data.Plugin_Plugins_Path,true).toFolder(this.name)
+            main.pluginDataFileUtils = FileUtils.getFolder(Data.Plugin_Plugins_Path, true).toFolder(this.name)
         }
     }
 

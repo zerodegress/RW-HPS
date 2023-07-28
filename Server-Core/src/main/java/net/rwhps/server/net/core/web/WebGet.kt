@@ -15,7 +15,7 @@ import net.rwhps.server.net.http.SendWeb
 /**
  * @author RW-HPS/Dr
  */
-abstract class WebGet : WebFunction() {
+abstract class WebGet: WebFunction() {
     /**
      * 开发者不应该在类中缓存任何数据
      * 因为 GET/POST 不是长链接 只是一个短链接 当请求发送完毕 那么就会被 Close

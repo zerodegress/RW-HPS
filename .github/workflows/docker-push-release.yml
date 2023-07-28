@@ -1,15 +1,15 @@
 name: Docker Image CI/CD - Release - RW-HPS
 
 on:
-#  release:
-#    types: [published]
+  #  release:
+  #    types: [published]
   push:
     tags:
       - '*.*.*'
 
 jobs:
   # build and push
-  build: 
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

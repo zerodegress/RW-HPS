@@ -11,7 +11,7 @@ package net.rwhps.server.util
 
 import com.sun.jna.Library
 import com.sun.jna.Native
-import net.rwhps.server.util.log.Log
+import net.rwhps.server.data.global.Data
 
 /**
  * 操作控制台
@@ -22,18 +22,20 @@ import net.rwhps.server.util.log.Log
 object CLITools {
     /**
      * 在 Windows 上设置 Cmd 的标题
+     * 在 VT 100 上设置 Cmd 的标题
      *
      * @param title 需要设置的标题
      */
-    fun setWindowsCmdTitle(title: String) {
+    fun setConsoleTitle(title: String) {
         if (SystemUtils.isWindows) {
             CLibrary.INSTANCE.SetConsoleTitleA(title)
         } else {
-            Log.debug("Not supported : setWindowsCmdTitle")
+            // VT100
+            Data.privateOut.print("\u001B]30;$title\u0007")
         }
     }
 
-    private interface CLibrary : Library {
+    private interface CLibrary: Library {
         fun SetConsoleTitleA(title: String?): Boolean
 
         companion object {

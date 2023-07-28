@@ -13,9 +13,8 @@ import net.rwhps.server.data.EventGlobalManage
 import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.func.ConsSeq
-import net.rwhps.server.game.event.AbstractEvent
-import net.rwhps.server.game.event.AbstractGlobalEvent
-import net.rwhps.server.game.event.EventListener
+import net.rwhps.server.game.event.core.AbstractGlobalEvent
+import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
@@ -40,8 +39,9 @@ object PluginManage {
     internal fun runGlobalEventManage(abstractGlobalEvent: AbstractGlobalEvent) {
         pluginGlobalEventManage.fire(abstractGlobalEvent)
     }
-    internal fun addGlobalEventManage(eventListener: EventListener) {
-        pluginGlobalEventManage.registerListener(eventListener)
+
+    internal fun addGlobalEventManage(eventListenerHost: EventListenerHost) {
+        pluginGlobalEventManage.registerListener(eventListenerHost)
     }
 
     fun run(cons: ConsSeq<PluginLoadData>) {
@@ -53,10 +53,19 @@ object PluginManage {
     }
 
     fun addPluginClass(pluginInfo: BeanPluginInfo, main: Plugin, mkdir: Boolean, skip: Boolean) {
-        addPluginClass(pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, main, mkdir , skip)
+        addPluginClass(pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, main, mkdir, skip)
     }
-    fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean , skip: Boolean = false) {
-        addPluginClass(name,author,description,version,main,mkdir,skip,pluginData!!)
+
+    fun addPluginClass(
+        name: String,
+        author: String,
+        description: String,
+        version: String,
+        main: Plugin,
+        mkdir: Boolean,
+        skip: Boolean = false
+    ) {
+        addPluginClass(name, author, description, version, main, mkdir, skip, pluginData!!)
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */
@@ -68,10 +77,12 @@ object PluginManage {
     fun runRegisterCoreCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerCoreCommands(handler) }
     }
+
     /** 注册要在服务器端使用的任何命令，例如从控制台-Server */
     fun runRegisterServerCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerCommands(handler) }
     }
+
     /** 注册要在服务器端使用的任何命令，例如从控制台-Relay */
     fun runRegisterRelayCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
@@ -81,15 +92,17 @@ object PluginManage {
     fun runRegisterServerClientCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
     }
+
     /** 注册要在客户端使用的任何命令，例如来自RELAY内玩家 */
     fun runRegisterRelayClientCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
     }
 
     /** 注册事件 -4  */
-    fun runRegisterEvents(hessLoadID: String, eventManage: EventManage) {
-        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerEvents(hessLoadID, eventManage) }
+    fun runRegisterEvents(eventManage: EventManage) {
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerEvents(eventManage) }
     }
+
     /** 注册事件 -4  */
     fun runRegisterGlobalEvents() {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerGlobalEvents(pluginGlobalEventManage) }

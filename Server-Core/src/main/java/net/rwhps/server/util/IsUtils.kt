@@ -24,12 +24,12 @@ object IsUtils {
     private const val IPV4_MAX_OCTET_VALUE = 255
 
     @JvmStatic
-	fun isBlank(string: Any?): Boolean {
+    fun isBlank(string: Any?): Boolean {
         return string == null || "" == string.toString().trim { it <= ' ' }
     }
 
     @JvmStatic
-	fun notIsBlank(string: Any?): Boolean {
+    fun notIsBlank(string: Any?): Boolean {
         return !isBlank(string)
     }
 
@@ -45,29 +45,30 @@ object IsUtils {
 
     @JvmStatic
     fun isBlankDefaultResult(string: Any?): String {
-        return  if (isBlank(string)) {
-                    ""
-                } else {
-                    string.toString()
-                }
+        return if (isBlank(string)) {
+            ""
+        } else {
+            string.toString()
+        }
     }
 
     @JvmStatic
-	fun isNumeric(string: String): Boolean {
+    fun isNumeric(string: String): Boolean {
         return PATTERN.matcher(string).matches()
     }
+
     @JvmStatic
     fun isNumericNegative(string: String): Boolean {
         return PATTERNNegativeNumber.matcher(string).matches()
     }
 
     @JvmStatic
-	fun notIsNumeric(string: String): Boolean {
+    fun notIsNumeric(string: String): Boolean {
         return !isNumeric(string)
     }
 
     @JvmStatic
-	fun isTwoTimes(n: Int): Boolean {
+    fun isTwoTimes(n: Int): Boolean {
         return n > 0 && n and 1 == 0
     }
 
@@ -120,7 +121,7 @@ object IsUtils {
         }
 
         // 验证地址子组是否合法
-        for (i in 1..4) {
+        for (i in 1 .. 4) {
             val ipSegment = m.group(i)
             val iIpSegment = ipSegment.toInt()
             if (iIpSegment > IPV4_MAX_OCTET_VALUE) {

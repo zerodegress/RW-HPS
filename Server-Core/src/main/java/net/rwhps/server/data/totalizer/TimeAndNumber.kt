@@ -12,11 +12,12 @@ package net.rwhps.server.data.totalizer
 import net.rwhps.server.util.Time
 
 /**
+ * 指定时间 [timeOut] 内累加过 [conutMax] 即返回 false
+ *
  * @author RW-HPS/Dr
  */
-class TimeAndNumber(
-    private val timeOut: Int,
-    private val conutMax: Int
+open class TimeAndNumber(
+    private val timeOut: Int, private val conutMax: Int
 ) {
     private var startTime = 0
     var count: Int = 0

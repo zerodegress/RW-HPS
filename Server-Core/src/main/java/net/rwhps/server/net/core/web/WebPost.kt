@@ -18,7 +18,7 @@ import net.rwhps.server.util.log.exp.ImplementedException
 /**
  * @author RW-HPS/Dr
  */
-abstract class WebPost : WebFunction() {
+abstract class WebPost: WebFunction() {
     /**
      * 开发者不应该在类中缓存任何数据
      * 因为 GET/POST 不是长链接 只是一个短链接 当请求发送完毕 那么就会被 Close
@@ -33,12 +33,12 @@ abstract class WebPost : WebFunction() {
      */
     abstract fun post(accept: AcceptWeb, send: SendWeb)
 
-    protected fun stringPostDataResolveToJson(accept: AcceptWeb) : Json {
+    protected fun stringPostDataResolveToJson(accept: AcceptWeb): Json {
         if (accept.data.isEmpty()) {
             return Json(LinkedHashMap<String, String>())
         }
-        val hd = accept.getHeaders("Content-Type").ifNullResult("") { it.trim()}
-        return if (hd.contains("application/x-www-form-urlencoded",true)) {
+        val hd = accept.getHeaders("Content-Type").ifNullResult("") { it.trim() }
+        return if (hd.contains("application/x-www-form-urlencoded", true)) {
             val paramArray: Array<String> = accept.data.split("&".toRegex()).toTypedArray()
             val listMap = LinkedHashMap<String, String>()
             for (pam in paramArray) {
@@ -46,7 +46,7 @@ abstract class WebPost : WebFunction() {
                 listMap[keyValue[0]] = keyValue[1]
             }
             Json(listMap)
-        } else if (hd.contains("application/json",true)) {
+        } else if (hd.contains("application/json", true)) {
             Json(accept.data)
         } else {
             throw ImplementedException(accept.data)

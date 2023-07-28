@@ -13,7 +13,6 @@ package net.rwhps.server.func
  * @date  2023/6/11 20:27
  * @author  RW-HPS/Dr
  */
-data class KeyValue<K,V>(
-    val key: K,
-    val value: V
+data class KeyValue<K, V>(
+    val key: K, val value: V
 )

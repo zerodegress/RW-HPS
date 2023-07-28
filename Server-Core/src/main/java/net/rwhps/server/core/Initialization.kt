@@ -33,7 +33,10 @@ import net.rwhps.server.util.*
 import net.rwhps.server.util.algorithms.Aes
 import net.rwhps.server.util.algorithms.Rsa
 import net.rwhps.server.util.file.FileUtils
-import net.rwhps.server.util.inline.*
+import net.rwhps.server.util.inline.readBytes
+import net.rwhps.server.util.inline.readFileListString
+import net.rwhps.server.util.inline.toPrettyPrintingJson
+import net.rwhps.server.util.internal.*
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
 import java.io.FilterInputStream
@@ -59,17 +62,17 @@ class Initialization {
     }
 
     private fun loadLang() {
-        Data.i18NBundleMap.put("CN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
-        Data.i18NBundleMap.put("HK", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
-        Data.i18NBundleMap.put("RU", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
-        Data.i18NBundleMap.put("EN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
+        Data.i18NBundleMap["CN"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!)
+        Data.i18NBundleMap["HK"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!)
+        Data.i18NBundleMap["RU"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!)
+        Data.i18NBundleMap["EN"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!)
 
         // Default use EN
         Data.i18NBundle = Data.i18NBundleMap["EN"]!!
     }
 
     private fun initMaps() {
-        with (Data.MapsMap) {
+        with(Data.MapsMap) {
             put("Beachlanding(2p)[byhxyy]", "Beach landing (2p) [by hxyy]@[p2]")
             put("BigIsland(2p)", "Big Island (2p)@[p2]")
             put("DireStraight(2p)[byuber]", "Dire_Straight (2p) [by uber]@[p2]")
@@ -122,10 +125,9 @@ class Initialization {
     }
 
     private fun loadIpBin() {
-        if (!Data.config.IpCheckMultiLanguageSupport) {
+        if (!Data.config.ipCheckMultiLanguageSupport) {
             return
-        }
-        /*
+        }/*
 		try {
 			Data.ip2Location = new IP2Location();
 			Data.ip2Location.Open(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("IP.bin").getPath(), true);
@@ -145,39 +147,29 @@ class Initialization {
     }
 
     private fun initGetServerData() {
-        Threads.newTimedTask(CallTimeTask.ServerUpStatistics,0, 1, TimeUnit.MINUTES) {
+        Threads.newTimedTask(CallTimeTask.ServerUpStatistics, 0, 1, TimeUnit.MINUTES) {
             if (NetStaticData.ServerNetType != IRwHps.NetType.NullProtocol) {
                 try {
                     val data = when (NetStaticData.ServerNetType) {
                         IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
-                            BaseDataSend(
-                                IsServer = true,
-                                ServerData = BaseDataSend.Companion.ServerData(
-                                    IpPlayerCountry = mutableMapOf<String, Int>().also {
-                                        HessModuleManage.hps.room.playerManage.playerGroup.eachAll {  player ->
-                                            val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
-                                            if (it.containsKey(ipCountry)) {
-                                                it[ipCountry] = it[ipCountry]!! + 1
-                                            } else {
-                                                it[ipCountry] = 1
-                                            }
-                                        }
+                            BaseDataSend(IsServer = true, ServerData = BaseDataSend.Companion.ServerData(IpPlayerCountry = mutableMapOf<String, Int>().also {
+                                HessModuleManage.hps.room.playerManage.playerGroup.eachAll { player ->
+                                    val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
+                                    if (it.containsKey(ipCountry)) {
+                                        it[ipCountry] = it[ipCountry]!! + 1
+                                    } else {
+                                        it[ipCountry] = 1
                                     }
-                                )
-                            )
+                                }
+                            }))
                         }
 
                         IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
-                            BaseDataSend(
-                                IsServer = false,
-                                RelayData = BaseDataSend.Companion.RelayData()
-                            )
+                            BaseDataSend(IsServer = false, RelayData = BaseDataSend.Companion.RelayData())
                         }
+
                         else -> {
-                            BaseDataSend(
-                                IsServerRun = false,
-                                IsServer = false
-                            )
+                            BaseDataSend(IsServerRun = false, IsServer = false)
                         }
                     }
 
@@ -185,10 +177,14 @@ class Initialization {
                     val out = GameOutputStream()
                     out.writeString("RW-HPS Statistics Data")
                     out.writeString(Data.core.serverConnectUuid)
-                    out.writeBytesAndLength(Aes.aesEncryptToBytes(data.toPrettyPrintingJson().toByteArray(Data.UTF_8),"RW-HPS Statistics Data"))
+                    out.writeBytesAndLength(
+                            Aes.aesEncryptToBytes(
+                                    data.toPrettyPrintingJson().toByteArray(Data.UTF_8), "RW-HPS Statistics Data"
+                            )
+                    )
                     val packet = out.createPacket(PacketType.SERVER_DEBUG_RECEIVE)
                     Socket().use {
-                        it.connect(InetSocketAddress(InetAddress.getByName("relay.der.kim"), 6001), 3000)
+                        it.connect(InetSocketAddress(InetAddress.getByName("relay.der.kim"), 6001), 10000)
                         DataOutputStream(it.getOutputStream()).use { outputStream ->
                             outputStream.writeInt(packet.bytes.size)
                             outputStream.writeInt(packet.type.typeInt)
@@ -198,6 +194,7 @@ class Initialization {
                         it.close()
                     }
                 } catch (e: Exception) {
+                    // Ignored, should not be shown to the user
                 }
             }
         }
@@ -217,26 +214,25 @@ class Initialization {
          * Choose the language environment according to the country
          */
         internal fun initServerLanguage(pluginData: PluginData, country: String = "") {
-            serverCountry =
-                if (country.isBlank()) {
-                    pluginData.getData("serverCountry") {
-                        val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.Api.ServerLanguage.Bak"))
+            serverCountry = if (country.isBlank()) {
+                pluginData.getData("serverCountry") {
+                    val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.Api.ServerLanguage.Bak"))
 
-                        when {
-                            countryUrl.contains("香港") -> "HK"
-                            countryUrl.contains("中国") -> "CN"
-                            countryUrl.contains("俄罗斯") -> "RU"
-                            else -> "EN"
-                        }
-                    }
-                } else {
                     when {
-                        country.contains("HK") || country.contains("CN") || country.contains("RU") -> country
+                        countryUrl.contains("香港") -> "HK"
+                        countryUrl.contains("中国") -> "CN"
+                        countryUrl.contains("俄罗斯") -> "RU"
                         else -> "EN"
-                    }.also {
-                        pluginData.setData("serverCountry",it)
                     }
                 }
+            } else {
+                when {
+                    country.contains("HK") || country.contains("CN") || country.contains("RU") -> country
+                    else -> "EN"
+                }.also {
+                    pluginData.setData("serverCountry", it)
+                }
+            }
 
             Data.i18NBundle = Data.i18NBundleMap[serverCountry]!!
             Log.clog(Data.i18NBundle.getinput("server.language"))
@@ -244,18 +240,18 @@ class Initialization {
 
         private fun eula(pluginData: PluginData) {
             // Eula
-            if (pluginData.getData("eulaVersion","") != Data.SERVER_EULA_VERSION) {
+            if (pluginData.getData("eulaVersion", "") != Data.SERVER_EULA_VERSION) {
                 val eulaBytes = if (serverCountry == "CN") {
                     FileUtils.getInternalFileStream("/eula/China.md").readBytes()
                 } else {
                     FileUtils.getInternalFileStream("/eula/English.md").readBytes()
                 }
-                Log.clog(ExtractUtils.str(eulaBytes,Data.UTF_8))
+                Log.clog(StringUtils.str(eulaBytes, Data.UTF_8))
 
                 Log.clog("Agree to enter : Yes , Otherwise please enter : No")
                 Data.privateOut.print("Please Enter (Yes/No) > ")
 
-                Scanner(object : FilterInputStream(System.`in`) {
+                Scanner(object: FilterInputStream(System.`in`) {
                     @Throws(IOException::class)
                     override fun close() {
                         //do nothing
@@ -263,11 +259,11 @@ class Initialization {
                 }).use {
                     while (true) {
                         val text = it.nextLine()
-                        if (text.equals("Yes",ignoreCase = true)) {
-                            pluginData.setData("eulaVersion",Data.SERVER_EULA_VERSION)
+                        if (text.equals("Yes", ignoreCase = true)) {
+                            pluginData.setData("eulaVersion", Data.SERVER_EULA_VERSION)
                             Log.clog("Thanks !")
                             return
-                        } else if (text.equals("No",ignoreCase = true)) {
+                        } else if (text.equals("No", ignoreCase = true)) {
                             Log.clog("Thanks !")
                             Core.exit()
                         } else {
@@ -282,7 +278,7 @@ class Initialization {
         internal fun loadLib() {
             val libraryManager = LibraryManager()
 
-            val excludeImport: (String)->Unit = {
+            val excludeImport: (String) -> Unit = {
                 val libData = it.split(":")
                 if (libData[0] == "jar") {
                     libraryManager.implementation(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
@@ -293,7 +289,7 @@ class Initialization {
             FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/compileOnly.txt").readFileListString().eachAll(excludeImport)
 
 
-            val libImport: (String)->Unit = {
+            val libImport: (String) -> Unit = {
                 val libData = it.split(":")
                 if (libData[0] == "jar") {
                     libraryManager.exclude(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
@@ -308,46 +304,46 @@ class Initialization {
             FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll(libImport)
             FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/implementation.txt").readFileListString().eachAll(libImport)
 
-            libraryManager.customImportLib(FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("wasm.jar"))
+            //libraryManager.customImportLib(FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("wasm.jar"))
 
             libraryManager.loadToClassLoader()
         }
 
         internal fun loadService() {
-            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name,           TypeRelay::class.java)
-            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name,  TypeRelayRebroadcast::class.java)
-
-            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayProtocol.name,           GameVersionRelay::class.java)
-            ServiceLoader.addService(ServiceType.Protocol,     IRwHps.NetType.RelayMulticastProtocol.name,  GameVersionRelayRebroadcast::class.java)
-
-            ServiceLoader.addService(ServiceType.ProtocolPacket,IRwHps.NetType.ServerProtocol.name,         GameVersionPacket::class.java)
-
-            ServiceLoader.addService(ServiceType.IRwHps,"IRwHps", RwHps::class.java)
-
+            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name, TypeRelay::class.java)
+            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name, TypeRelayRebroadcast::class.java)
+            ServiceLoader.addService(ServiceType.Protocol, IRwHps.NetType.RelayProtocol.name, GameVersionRelay::class.java)
+            ServiceLoader.addService(ServiceType.Protocol, IRwHps.NetType.RelayMulticastProtocol.name, GameVersionRelayRebroadcast::class.java)
+            ServiceLoader.addService(ServiceType.ProtocolPacket, IRwHps.NetType.ServerProtocol.name, GameVersionPacket::class.java)
+            ServiceLoader.addService(ServiceType.IRwHps, "IRwHps", RwHps::class.java)
         }
 
         internal data class BaseDataSend(
-            val SendTime: Int                             = Time.concurrentSecond(),
-            val ServerRunPort: Int                        = Data.config.Port,
-            val ServerNetType: String                     = NetStaticData.ServerNetType.name,
-            val System: String                            = SystemUtils.osName,
-            val JavaVersion: String                       = SystemUtils.javaVersion,
-            val VersionCount: String                      = Data.SERVER_CORE_VERSION,
-            val IsServerRun: Boolean                      = true,
+            val SendTime: Int = Time.concurrentSecond(),
+            val ServerRunPort: Int = Data.config.port,
+            val ServerNetType: String = NetStaticData.ServerNetType.name,
+            val System: String = SystemUtils.osName,
+            val JavaVersion: String = SystemUtils.javaVersion,
+            val VersionCount: String = Data.SERVER_CORE_VERSION,
+            val IsServerRun: Boolean = true,
             val IsServer: Boolean,
             val ServerData: ServerData? = null,
             val RelayData: RelayData? = null,
         ) {
             companion object {
                 data class ServerData(
-                    val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
-                    val MaxPlayer: Int                      = Data.configServer.MaxPlayer,
-                    val PlayerVersion: Int                  = (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).supportedVersionInt,
-                    val IpPlayerCountry: Map<String,Int>,
+                    val PlayerSize: Int = AtomicInteger().also {
+                        NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) }
+                    }.get(),
+                    val MaxPlayer: Int = Data.configServer.maxPlayer,
+                    val PlayerVersion: Int = (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).supportedVersionInt,
+                    val IpPlayerCountry: Map<String, Int>,
                 )
 
                 data class RelayData(
-                    val PlayerSize: Int = AtomicInteger().also { NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) } }.get(),
+                    val PlayerSize: Int = AtomicInteger().also {
+                        NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) }
+                    }.get(),
                     val RoomAllSize: Int = Relay.roomAllSize,
                     val RoomNoStartSize: Int = Relay.roomNoStartSize,
                     val RoomPublicListSize: Int = 0,
@@ -359,7 +355,7 @@ class Initialization {
     }
 
     init {
-        Runtime.getRuntime().addShutdownHook(object : Thread("Exit Handler") {
+        Runtime.getRuntime().addShutdownHook(object: Thread("Exit Handler") {
             override fun run() {
                 if (!isClose) {
                     return

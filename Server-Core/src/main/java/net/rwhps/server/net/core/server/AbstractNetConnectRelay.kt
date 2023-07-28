@@ -78,7 +78,7 @@ interface AbstractNetConnectRelay {
     /**
      * Set up RELAY HOST
      */
-    fun sendRelayServerId()
+    fun sendRelayServerId(multicast: Boolean = false)
 
     /**
      * Accept language pack

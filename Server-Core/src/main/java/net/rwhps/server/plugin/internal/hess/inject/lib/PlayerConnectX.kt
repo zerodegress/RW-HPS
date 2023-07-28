@@ -23,7 +23,6 @@ import net.rwhps.server.game.event.game.PlayerJoinEvent
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
-import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.core.PrivateClass_Player
@@ -37,9 +36,8 @@ import com.corrodinggames.rts.gameFramework.j.c as PlayerConnect
  * @author RW-HPS/Dr
  */
 class PlayerConnectX(
-    val netEngine: ad,
-    val connectionAgreement: ConnectionAgreement
-) : PlayerConnect(netEngine, HessSocket(connectionAgreement)) {
+    val netEngine: ad, val connectionAgreement: ConnectionAgreement
+): PlayerConnect(netEngine, HessSocket(connectionAgreement)) {
 
     val netEnginePackaging: NetEnginePackaging = NetEnginePackaging(netEngine, this)
     var room: ServerRoom = HessModuleManage.hessLoaderMap[this.javaClass.classLoader.toString()]!!.room
@@ -81,7 +79,7 @@ class PlayerConnectX(
             }
         } else {
             // 在这里过滤走官方的包, 加入 RW-HPS 的一些修改
-            run change@ {
+            run change@{
                 when (packetHess.b) {
                     PacketType.START_GAME.typeInt -> room.isStartGame = true
                     // 修改, 使 客户端 显示 AdminUI
@@ -135,7 +133,7 @@ class PlayerConnectX(
                                                 if (player == null) {
                                                     teamIn.transferToFixedLength(team, 4)
                                                     // 过滤掉 AI
-                                                    if (name.contains("AI",ignoreCase = true)) {
+                                                    if (name.contains("AI", ignoreCase = true)) {
                                                         room.flagData.ai = true
                                                     }
                                                 } else {
@@ -157,16 +155,6 @@ class PlayerConnectX(
                             }
                             o.transferTo(it)
                             packetHess.c = o.getPacketBytes()
-                        }
-                    }
-                    //
-                    PacketType.TICK.typeInt -> {
-                        GameInputStream(packetHess.c).use {
-                            it.skip(4)
-                            val size = it.readInt()
-                            for (i in 0 until  size) {
-                                serverConnect.receiveCommand(Packet(PacketType.GAMECOMMAND_RECEIVE,it.getDecodeStream(false).readAllBytes()))
-                            }
                         }
                     }
                 }

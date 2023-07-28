@@ -17,17 +17,18 @@ import java.nio.charset.Charset
  * MD5算法
  */
 class MD5
-    /**
-     * 构造默认
-     */
-    () : Digester(DigestAlgorithm.MD5) {
+/**
+ * 构造默认
+ */
+(): Digester(DigestAlgorithm.MD5) {
     /**
      * 构造
      *
      * @param salt 盐值
      * @param digestCount 摘要次数，当此值小于等于1,默认为1。
      */
-    constructor(salt: ByteArray, digestCount: Int) : this(salt, 0, digestCount)
+    constructor(salt: ByteArray, digestCount: Int): this(salt, 0, digestCount)
+
     /**
      * 构造
      *
@@ -35,7 +36,7 @@ class MD5
      * @param saltPosition 加盐位置，即将盐值字符串放置在数据的index数，默认0
      * @param digestCount 摘要次数，当此值小于等于1,默认为1。
      */
-    constructor(salt: ByteArray, saltPosition: Int , digestCount: Int) : this() {
+    constructor(salt: ByteArray, saltPosition: Int, digestCount: Int): this() {
         this.salt = salt
         this.saltPosition = saltPosition
         this.digestCount = digestCount

@@ -8,12 +8,11 @@
  */
 
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
-inline fun <T> T?.ifNull(blockNotNull: (T) -> Unit, block: () -> Unit): T? {
+inline fun <T> T?.ifNull(blockNotNull: (T) -> Unit, block: () -> Unit = {}): T? {
     if (this == null) {
         block()
     } else {
@@ -22,7 +21,7 @@ inline fun <T> T?.ifNull(blockNotNull: (T) -> Unit, block: () -> Unit): T? {
     return this
 }
 
-inline fun <R,T> T?.ifNullResult(block: () -> R, blockNotNull: (T) -> R): R {
+inline fun <R, T> T?.ifNullResult(block: () -> R, blockNotNull: (T) -> R): R {
     return if (this == null) {
         block()
     } else {
@@ -30,7 +29,7 @@ inline fun <R,T> T?.ifNullResult(block: () -> R, blockNotNull: (T) -> R): R {
     }
 }
 
-inline fun <R,T> T?.ifNullResult(result: R, blockNotNull: (T) -> R): R {
+inline fun <R, T> T?.ifNullResult(result: R, blockNotNull: (T) -> R): R {
     return if (this == null) {
         result
     } else {
@@ -38,7 +37,7 @@ inline fun <R,T> T?.ifNullResult(result: R, blockNotNull: (T) -> R): R {
     }
 }
 
-inline fun <R,T> T.ifResult(find: (T) -> Boolean, blockNotNull: (T) -> R, block: () -> R): R {
+inline fun <R, T> T.ifResult(find: (T) -> Boolean, blockNotNull: (T) -> R, block: () -> R): R {
     return if (find(this)) {
         blockNotNull(this)
     } else {

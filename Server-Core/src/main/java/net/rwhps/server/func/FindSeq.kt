@@ -9,9 +9,9 @@
 
 package net.rwhps.server.func
 
-fun interface FindSeq<T,R> {
+fun interface FindSeq<T, R> {
     /**
      * @param t 内容
      */
-    operator fun invoke(t: T) : R
+    operator fun invoke(t: T): R
 }

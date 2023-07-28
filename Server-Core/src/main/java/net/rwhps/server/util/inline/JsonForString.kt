@@ -7,8 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("InlineUtils")
-@file:JvmMultifileClass
+@file:JvmName("InlineUtils") @file:JvmMultifileClass
 
 package net.rwhps.server.util.inline
 
@@ -22,14 +21,15 @@ val gsonToString: Gson = GsonBuilder().setPrettyPrinting().create()
 val gsonToStringNoPrettyPrinting: Gson = GsonBuilder().create()
 val stringToGson: Gson = Gson()
 
-fun Any.toJson() : String {
+fun Any.toJson(): String {
     return gsonToStringNoPrettyPrinting.toJson(this)
 }
-fun Any.toPrettyPrintingJson() : String {
+
+fun Any.toPrettyPrintingJson(): String {
     return gsonToString.toJson(this)
 }
 
-inline fun <reified T> Class<T>.toGson(classData: String) : T {
+inline fun <reified T> Class<T>.toGson(classData: String): T {
     return stringToGson.fromJson(classData.ifBlank { "{}" }, T::class.java)
 }
 
@@ -40,6 +40,7 @@ fun <R> JSONObject.getDataResult(defaultValue: R?, block: (JSONObject) -> R): R?
         defaultValue
     }
 }
+
 fun <R> JSONObject.getDataResultObject(defaultValue: () -> R, block: (JSONObject) -> R): R {
     return try {
         block(this)
@@ -55,6 +56,7 @@ fun <R> JSONArray.getDataResult(defaultValue: R?, block: (JSONArray) -> R): R? {
         defaultValue
     }
 }
+
 fun <R> JSONArray.getDataResultObject(defaultValue: () -> R, block: (JSONArray) -> R): R {
     return try {
         block(this)

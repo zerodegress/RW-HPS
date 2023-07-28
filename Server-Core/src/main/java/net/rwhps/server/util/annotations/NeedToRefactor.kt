@@ -17,12 +17,8 @@ package net.rwhps.server.util.annotations
  * @author RW-HPS/Dr
  */
 @MustBeDocumented
-@kotlin.annotation.Retention(AnnotationRetention.BINARY)
+@Retention(AnnotationRetention.BINARY)
 @Target(
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
+        AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER
 )
 internal annotation class NeedToRefactor

@@ -15,7 +15,7 @@ import net.rwhps.server.util.game.CommandHandler
 /**
  * @author RW-HPS/Dr
  */
-class BanUnitMain : Plugin() {
+class BanUnitMain: Plugin() {
     override fun registerServerCommands(handler: CommandHandler) {
 
     }
@@ -30,21 +30,24 @@ class BanUnitMain : Plugin() {
         }
 
         private fun help() {
-            loadCN("banunit","禁止玩家使用指定的单位")
-            loadCN("banunit.nofind","没有找到指定ID的数据")
+            loadCN("banunit", "禁止玩家使用指定的单位")
+            loadCN("banunit.nofind", "没有找到指定ID的数据")
         }
 
         private fun loadCN(k: String, v: String) {
-            plugin.loadLang("CN",k,v)
+            plugin.loadLang("CN", k, v)
         }
+
         private fun loadEN(k: String, v: String) {
-            plugin.loadLang("EN",k,v)
+            plugin.loadLang("EN", k, v)
         }
+
         private fun loadHK(k: String, v: String) {
-            plugin.loadLang("HK",k,v)
+            plugin.loadLang("HK", k, v)
         }
+
         private fun loadRU(k: String, v: String) {
-            plugin.loadLang("RU",k,v)
+            plugin.loadLang("RU", k, v)
         }
     }
 }

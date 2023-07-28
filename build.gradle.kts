@@ -55,11 +55,11 @@ allprojects {
         targetCompatibility = JavaVersion.VERSION_11.toString()
 
         options.encoding = "UTF-8"
-        options.compilerArgs.addAll(listOf(
-            "-Xlint:unchecked", "-Werror",
-            "-Xdiags:verbose", "-Werror",
-            "-Xlint:deprecation", "-Werror"
-        ))
+        options.compilerArgs.addAll(
+                listOf(
+                        "-Xlint:unchecked", "-Werror", "-Xdiags:verbose", "-Werror", "-Xlint:deprecation", "-Werror"
+                )
+        )
     }
 }
 
@@ -105,7 +105,7 @@ fun Project.configureDokka() {
     if (isRoot) {
         tasks.named<AbstractDokkaTask>("dokkaHtmlMultiModule").configure {
             outputDirectory.set(
-                rootProject.projectDir.resolve("Java-Doc/pages/snapshot")
+                    rootProject.projectDir.resolve("Java-Doc/pages/snapshot")
             )
         }
     }

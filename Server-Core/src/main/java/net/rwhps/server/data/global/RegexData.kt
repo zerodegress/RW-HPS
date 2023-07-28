@@ -16,10 +16,13 @@ package net.rwhps.server.data.global
 object RegexData {
     /** & */
     val and = "&".toRegex()
+
     /** = */
     val amount = "=".toRegex()
+
     /** : */
     val colon = ":".toRegex()
+
     /** ; */
     val semicolon = ";".toRegex()
 }

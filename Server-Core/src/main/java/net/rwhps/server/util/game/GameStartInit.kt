@@ -26,6 +26,7 @@ import java.lang.reflect.Method
  */
 object GameStartInit {
     private val gameCorePath = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path, true)
+
     private enum class ResMD5(val md5: String, val fileUtils: FileUtils) {
         Res("408aa02d8566a771c5ad97caf9f1f701", gameCorePath.toFile("Game-Res.7z")),
         Fonts("e27f86783a04bb6c7bc7b4388f8c8539", gameCorePath.toFile("Game-Fonts.7z")),
@@ -35,7 +36,7 @@ object GameStartInit {
 
     fun init(load: GameModularReusableLoadClass): Boolean {
         try {
-            val temp = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path,true)
+            val temp = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path, true)
 
             /* 鉴别两个文件的MD5, 不相同则删除 */
             ResMD5.values().forEach {
@@ -45,14 +46,14 @@ object GameStartInit {
                 }
             }
 
-            val resTask: (FileUtils, String, Boolean)->Unit = { file, resName, unzip ->
+            val resTask: (FileUtils, String, Boolean) -> Unit = { file, resName, unzip ->
                 if (!file.exists()) {
                     if (unzip) {
                         temp.toFolder(resName).file.delete()
                     }
 
-                    HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Core.ResDown")+file.name, file.file, true).also {
-                        Log.clog("$resName : {0}",it)
+                    HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Core.ResDown") + file.name, file.file, true).also {
+                        Log.clog("$resName : {0}", it)
                     }
                     file.setReadOnly()
                 }
@@ -101,11 +102,10 @@ object GameStartInit {
         CompressionDecoderUtils.zipAllReadStream(FileUtils.getMyCoreJarStream()).use {
             it.getZipAllBytes().eachAll { k, v ->
                 if (
-                    // 注入接口
+                // 注入接口
                     k.startsWith(HessClassPathProperties.path.replace(".", "/")) ||
                     // 覆写游戏
-                    k.startsWith(HessClassPathProperties.GameHessPath.replace(".","/"))
-                ) {
+                    k.startsWith(HessClassPathProperties.GameHessPath.replace(".", "/"))) {
                     val name = k.replace(".class", "")
                     load.addClassBytes(name.replace("/", "."), v)
                 }
@@ -114,6 +114,6 @@ object GameStartInit {
 
         val testAClass: Class<*> = load.findClass("com.corrodinggames.rts.java.Main")!!
         val mainMethod: Method = testAClass.getDeclaredMethod("main", Array<String>::class.java)
-        mainMethod.invoke(null, arrayOf("-disable_vbos","-disable_atlas","-nomusic","-nosound","-nodisplay"))
+        mainMethod.invoke(null, arrayOf("-disable_vbos", "-disable_atlas", "-nomusic", "-nosound", "-nodisplay"))
     }
 }

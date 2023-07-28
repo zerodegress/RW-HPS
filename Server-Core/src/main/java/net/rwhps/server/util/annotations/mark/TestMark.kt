@@ -24,9 +24,7 @@ class TestMark {
     @Retention(AnnotationRetention.SOURCE)
     @MustBeDocumented
     @Target(
-        AnnotationTarget.ANNOTATION_CLASS,
-        AnnotationTarget.CLASS,
-        AnnotationTarget.EXPRESSION
+            AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS, AnnotationTarget.EXPRESSION
     )
     internal annotation class NoTestingIsRequired(val reason: String)
 }

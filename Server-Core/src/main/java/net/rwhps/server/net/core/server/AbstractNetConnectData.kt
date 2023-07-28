@@ -16,7 +16,7 @@ package net.rwhps.server.net.core.server
  */
 interface AbstractNetConnectData {
     /** Player Name */
-    val name : String
+    val name: String
 
     /** Player UUID?  */
     val registerPlayerId: String?

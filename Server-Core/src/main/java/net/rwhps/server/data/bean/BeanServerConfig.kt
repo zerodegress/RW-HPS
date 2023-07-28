@@ -25,43 +25,44 @@ import java.lang.reflect.Field
  * @author RW-HPS/Dr
  */
 data class BeanServerConfig(
-    val EnterAd: String = "",
-    val StartAd: String = "",
-    val MaxPlayerAd: String = "",
-    val StartPlayerAd: String = "",
+    val enterAd: String = "",
+    val startAd: String = "",
+    val maxPlayerAd: String = "",
+    val startPlayerAd: String = "",
 
     /** 密码 */
-    val Passwd: String = "",
+    val passwd: String = "",
 
     /** 服务器最大人数 */
-    val MaxPlayer: Int = 10,
+    val maxPlayer: Int = 10,
     /** 服务器最大游戏时间 (s) 2*60*60 (-1 为禁用) */
-    val MaxGameIngTime: Int = 7200,
-    /** 当房间只有AI时, 多长时间后房间关闭 */
-    val MaxOnlyAIGameIngTime: Int = 3600,
+    val maxGameIngTime: Int = 7200,
+    val maxOnlyAIGameIngTime: Int = 3600,
     /** 服务器最小Start人数 (-1 为禁用) */
-    val StartMinPlayerSize: Int = -1,
+    val startMinPlayerSize: Int = -1,
     /** 服务器最小AutoStart人数 (-1 为禁用) */
-    val AutoStartMinPlayerSize: Int = 4,
+    val autoStartMinPlayerSize: Int = 4,
     /** 最大发言长度 */
-    val MaxMessageLen: Int = 40,
+    val maxMessageLen: Int = 40,
     /** 最大单位数 */
-    val MaxUnit: Int = 200,
+    val maxUnit: Int = 200,
     /** 默认倍率 */
-    val DefIncome: Float = 1f,
+    val defIncome: Float = 1f,
+    /** 点石成金 */
+    val turnStoneIntoGold: Boolean = false,
 
     /** only Admin */
-    val OneAdmin: Boolean = true,
+    val oneAdmin: Boolean = true,
     /** 是否保存 RePlay */
-    val SaveRePlayFile: Boolean = true,
+    val saveRePlayFile: Boolean = true,
 ) {
     private fun checkValue() {
         // 拒绝最大玩家数超过最小开始玩家数
-        if (MaxPlayer < StartMinPlayerSize) {
+        if (maxPlayer < startMinPlayerSize) {
             Log.warn("MaxPlayer < StartMinPlayerSize , Reset !")
-            coverField("StartMinPlayerSize",0)
+            coverField("StartMinPlayerSize", 0)
         }
-        if (MaxPlayer > 100) {
+        if (maxPlayer > 100) {
             Log.warn("MaxPlayer > GameMaxPlayerSize , Reset !")
             //coverField("MaxPlayer",100)
         }
@@ -71,14 +72,14 @@ data class BeanServerConfig(
         fileUtils.writeFile(this.toPrettyPrintingJson())
     }
 
-    fun coverField(name: String,value: Any): Boolean {
+    fun coverField(name: String, value: Any): Boolean {
         try {
-            val field: Field = ReflectionUtils.findField(this::class.java, name) ?:return false
+            val field: Field = ReflectionUtils.findField(this::class.java, name) ?: return false
             field.isAccessible = true
-            field.set(this,value)
+            field[this] = value
             field.isAccessible = false
         } catch (e: Exception) {
-            Log.error("Cover Gameover error", e)
+            Log.error("Cover $name error", e)
         }
         return true
     }
@@ -88,8 +89,7 @@ data class BeanServerConfig(
         val fields = this.javaClass.declaredFields
         for (field in fields) {
             // 过滤Kt生成的和不能被覆盖的
-            if (field.name != "Companion" && field.name != "fileUtil")
-                allName.add(field.name)
+            if (field.name != "Companion" && field.name != "fileUtil") allName.add(field.name)
         }
         return allName
     }
@@ -105,7 +105,7 @@ data class BeanServerConfig(
             config.allName().eachAll {
                 val data = System.getProperties().getProperty("rwhps.server.config.$it")
                 if (data != null) {
-                    if (config.coverField(it,data)) {
+                    if (config.coverField(it, data)) {
                         Log.debug("Set OK $it = $data")
                     } else {
                         Log.debug("Set ERROR $it = $data")

@@ -22,10 +22,9 @@ open class AgentAttachData {
 
     companion object {
         private var instPrivate: Instrumentation? = null
-            get() {
-                /* 避免Java没有初始化 Agent */
+            get() {/* 避免Java没有初始化 Agent */
                 if (field == null) {
-                    throw VariableException("[Angent Init Error] Use Jar mode to run")
+                    throw VariableException("[Agent Init Error] Use Jar mode to run")
                 }
                 return field
             }

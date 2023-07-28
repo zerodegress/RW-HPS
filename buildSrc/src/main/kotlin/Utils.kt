@@ -69,7 +69,7 @@ fun File.fuckGithub() {
 
     if (!this.exists()) {
         try {
-            Files.createFile(toPath());
+            Files.createFile(toPath())
         } catch (e: IOException) {
             println(path)
             println(canWrite())

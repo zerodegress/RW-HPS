@@ -58,7 +58,6 @@ import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
-import net.rwhps.server.net.http.WebData
 import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
@@ -163,10 +162,12 @@ object Main {
             clog("Please check the command , Unable to use StartCommand inside Config to start the server")
         }
 
-        if (Data.config.CmdTitle.isBlank()) {
-            CLITools.setWindowsCmdTitle("[RW-HPS] Port: ${Data.config.Port}, Run Server: ${NetStaticData.ServerNetType.name}")
+        val title = if (Data.config.CmdTitle.isBlank()) "[RW-HPS] Port: ${Data.config.Port}, Run Server: ${NetStaticData.ServerNetType.name}" else Data.config.CmdTitle
+
+        if (System.getProperty("os.name").contains("win")) {
+            CLITools.setWindowsCmdTitle(title)
         } else {
-            CLITools.setWindowsCmdTitle(Data.config.CmdTitle)
+            print("\u001B]30;$title\u0007") // VT100
         }
 
         newThreadCore {

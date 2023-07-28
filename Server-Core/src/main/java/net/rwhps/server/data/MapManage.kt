@@ -31,17 +31,17 @@ object MapManage {
             val postpone = original.substring(original.lastIndexOf("."))
             val name = original.substring(0, original.length - postpone.length)
             when (postpone) {
-                ".tmx" -> try {
+                "tmx" -> try {
                     mapsData.put(name, GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.file, name))
                 } catch (exception: Exception) {
                     Log.error("read tmx Maps", exception)
                 }
-                ".save" -> try {
+                "save" -> try {
                     mapsData.put(name, GameMaps.MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.file, name))
                 } catch (exception: Exception) {
                     Log.error("read save Maps", exception)
                 }
-                ".zip" -> try {
+                "zip" -> try {
                     CompressionDecoderUtils.zip(e).use {
                         val zipTmx = it.getTheFileNameOfTheSpecifiedSuffixInTheZip("tmx")
                         zipTmx.eachAll { zipMapName: String ->

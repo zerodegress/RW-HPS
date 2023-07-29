@@ -44,7 +44,7 @@ tasks.jar {
     exclude("about.html")
 
     // Fuck Graalvm!
-    exclude("META-INF/services/com.oracle.truffle.api.TruffleLanguage\$Provider")
+    //exclude("META-INF/services/com.oracle.truffle.api.TruffleLanguage\$Provider")
 
     exclude("META-INF/LWJGL.*")
 

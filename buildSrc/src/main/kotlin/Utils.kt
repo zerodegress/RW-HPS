@@ -17,7 +17,7 @@ import java.nio.file.Files
 fun Project.setRepositories() {
     repositories {
         maven(url = "https://maven.aliyun.com/repository/public")
-        maven(url = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public")
+//        maven(url = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public")
         maven(url = "https://repo.huaweicloud.com/repository/maven")
         maven(url = "https://jitpack.io")
         maven(url = "https://plugins.gradle.org/m2")
@@ -69,7 +69,7 @@ fun File.fuckGithub() {
 
     if (!this.exists()) {
         try {
-            Files.createFile(toPath());
+            Files.createFile(toPath())
         } catch (e: IOException) {
             println(path)
             println(canWrite())

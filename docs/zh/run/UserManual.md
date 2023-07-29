@@ -14,20 +14,22 @@ RW-HPS 用户手册
 
 第一次运行会初始化运行环境。下表说明了各个文件夹的用途。
 
-Config配置解释 : [Config.json](Config.md)
+Config配置解释 : [服务器配置](Config.md)
 
-|             文件夹名称             | 用途                   |
-|:-----------------------------:|:---------------------|
-|        `data/plugins`         | 存放插件                 |
-|          `data/maps`          | 存放地图                 |
-|          `data/mods`          | 存放Rwmod              |
-|         `data/cache`          | 存放缓存，一般不需要在意它们       |
-|          `data/libs`          | 存放依赖，一般不需要在意它们       |
-|        `data/CoreLib`         | 存放Hess核心依赖，一般不需要在意它们 |
-|          `data/log`           | 存放Log，一般不需要在意它们      |
-| data/[Config.json](Config.md) | 存放配置，可以打开并修改配置       |
-|       `data/Test.json`        | 存放测试选项               |
-|        `Settings.bin`         | 存放内部配置，一般不需要在意它们     |
+|             文件夹名称             | 用途                               |
+|:----------------------------------:|:-----------------------------------|
+|        `data/plugins`         | 存放插件                                |
+|          `data/maps`          | 存放地图                                |
+|          `data/mods`          | 存放Rwmod                               |
+|         `data/cache`          | 存放缓存，一般不需要在意它们            |
+|          `data/libs`          | 存放依赖，一般不需要在意它们            |
+|        `data/CoreLib`         | 存放Hess核心依赖，一般不需要在意它们    |
+|          `data/log`           | 存放Log，一般不需要在意它们             |
+|      `data/Config.json`       | 存放服务器配置，可以打开并修改配置      |
+|    `data/ConfigServer.json`   | 存放处于Server模式时的服务器配置        |
+|     `data/RelayConfig.json`   | 存放处于Relay模式时的服务器配置         |
+|       `data/Test.json`        | 存放测试选项                            |
+|      `data/Settings.bin`      | 存放内部配置，一般不需要在意它们        |
 
 ### 下载和安装插件
 

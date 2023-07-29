@@ -44,7 +44,7 @@
 
 #### Register
 
-用处: *在服务器中注册此cookie,通常用于已经失效了的cookie*
+用处: *在服务器中注册此cookie,参数使用上文所得到的cookie,注册完成后客户端无需继续携带此cookie*
 
 发送
 

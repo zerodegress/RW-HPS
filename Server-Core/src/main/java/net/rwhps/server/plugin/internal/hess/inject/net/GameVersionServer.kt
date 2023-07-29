@@ -282,7 +282,6 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
 
             commandPacket.c = GameEngine.data.gameHessData.tickNetHess + 10
             GameEngine.gameEngine.cf.b.add(commandPacket)
-            //GameEngine.netEngine.a(commandPacket)
         } catch (e: Exception) {
             Log.error(e)
         }

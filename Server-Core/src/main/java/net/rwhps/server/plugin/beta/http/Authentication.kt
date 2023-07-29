@@ -146,3 +146,20 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
         return true
     }
 }
+//{
+//    "cookie" : "5420dedf8f1829bc43d03843d26216523fe19e06ee253abcacd3a4ee5b9af12b",
+//    "type" : "register"
+//}
+
+//{
+//    "type" : "ping"
+//}
+
+//{
+//    "type" : "getConsole"
+//}
+
+//{
+//    "type" : "runCommand",
+//    "runCommand" : "version"
+//}

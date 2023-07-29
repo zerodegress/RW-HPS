@@ -29,7 +29,9 @@ class GameHeadlessEventGlobal: EventListenerHost {
     @EventListenerHandler
     fun registerGameLibLoadEvent(serverHessLoadEvent: ServerHessLoadEvent) {
         if (HessModuleManage.hpsLoader != serverHessLoadEvent.loadID) {
-            Log.clog("Run GameHeadless ID: ${serverHessLoadEvent.loadID} , This is not the first time to load, please customize the initialization")
+            Log.clog(
+                    "Run GameHeadless ID: ${serverHessLoadEvent.loadID} , This is not the first time to load, please customize the initialization"
+            )
             return
         }
 

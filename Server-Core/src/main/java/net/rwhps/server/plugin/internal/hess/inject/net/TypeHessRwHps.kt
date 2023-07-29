@@ -54,7 +54,6 @@ open class TypeHessRwHps: TypeConnect {
     @Throws(Exception::class)
     override fun typeConnect(packet: Packet) {
         try {
-            // 需要设计一个返回
             when (packet.type) {
                 PacketType.CHAT_RECEIVE -> {
                     con.receiveChat(packet)

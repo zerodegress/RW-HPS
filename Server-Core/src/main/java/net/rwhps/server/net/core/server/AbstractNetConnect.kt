@@ -109,6 +109,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
      * Send package
      * @param packet Data
      */
+    @Synchronized
     fun sendPacket(packet: Packet) {
         try {
             connectionAgreement.send(packet)

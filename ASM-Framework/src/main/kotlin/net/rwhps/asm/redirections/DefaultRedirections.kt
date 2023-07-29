@@ -14,28 +14,40 @@ import net.rwhps.asm.api.Redirection
 object DefaultRedirections {
     @JvmField
     val NULL = Redirection.of(null)
+
     @JvmField
     val BOOLEANF = Redirection.of(false)
+
     @JvmField
     val BOOLEANT = Redirection.of(true)
+
     @JvmField
     val BYTE = Redirection.of(0.toByte())
+
     @JvmField
     val SHORT = Redirection.of(0.toShort())
+
     @JvmField
     val INT = Redirection.of(0)
+
     @JvmField
     val LONG = Redirection.of(0L)
+
     @JvmField
     val FLOAT = Redirection.of(0.0f)
+
     @JvmField
     val DOUBLE = Redirection.of(0.0)
+
     @JvmField
     val CHAR = Redirection.of('a')
+
     @JvmField
     val STRING = Redirection.of("")
+
     @JvmField
     val EQUALS = Redirection { _: Any, _: String, _: Class<*>, args: Array<out Any?> -> args[0] === args[1] }
+
     @JvmField
     val HASHCODE = Redirection { _: Any, _: String, _: Class<*>, args: Array<out Any?> -> System.identityHashCode(args[0]) }
 

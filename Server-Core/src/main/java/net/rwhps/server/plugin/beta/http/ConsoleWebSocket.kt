@@ -29,6 +29,11 @@ class ConsoleWebSocket {
             "register" -> channel.writeAndFlush(TextWebSocketFrame("Register OK".toWebStatusJson()))
             "ping" -> channel.writeAndFlush(TextWebSocketFrame("pong".toWebStatusJson()))
             "getConsole" -> {
+                if (GetData.agentConsole.contains(channel.id().toString())) {
+                    channel.writeAndFlush(TextWebSocketFrame("Repeat".toWebStatusJson(403)))
+                    return
+                }
+                GetData.agentConsole.add(channel.id().toString())
                 channel.writeAndFlush(TextWebSocketFrame(GetData.consoleCache.data.joinToString(Data.LINE_SEPARATOR).toWebStatusJson()))
                 GetData.agentConsoleLog[channel.id().toString()] = {
                     channel.writeAndFlush(TextWebSocketFrame(it.toWebStatusJson(1000)))
@@ -41,6 +46,7 @@ class ConsoleWebSocket {
     }
 
     fun closeWs(ws: StartWebSocket, channel: Channel) {
+        GetData.agentConsole.remove(channel.id().toString())
         GetData.agentConsoleLog.remove(channel.id().toString())
     }
 

@@ -15,18 +15,22 @@ import org.quartz.CronScheduleBuilder.cronSchedule
 import org.quartz.impl.StdSchedulerFactory
 import java.util.*
 
+
 /**
  * 定时任务管理, 基于 Quartz
  *
  * @property scheduler Scheduler
  * @author RW-HPS/Dr
  */
+@Suppress("UNUSED")
 class TimeTaskManage {
+
     private val scheduler: Scheduler = StdSchedulerFactory().scheduler
 
     init {
         this.scheduler.start()
     }
+
 
     fun shutdownNow() {
         scheduler.shutdown()

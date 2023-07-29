@@ -154,12 +154,6 @@ object Main {
             clog("Please check the command , Unable to use StartCommand inside Config to start the server")
         }
 
-        if (Data.config.cmdTitle.isBlank()) {
-            CLITools.setConsoleTitle("[RW-HPS] Port: ${Data.config.port}, Run Server: ${NetStaticData.ServerNetType.name}")
-        } else {
-            CLITools.setConsoleTitle(Data.config.cmdTitle)
-        }
-
         Data.webData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
 
         newThreadCore(this::inputMonitor)

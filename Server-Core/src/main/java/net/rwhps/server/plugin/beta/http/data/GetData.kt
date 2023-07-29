@@ -13,6 +13,7 @@ import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.Seq
 import net.rwhps.server.struct.SeqSave
 import net.rwhps.server.util.SystemUtils
 
@@ -23,6 +24,7 @@ import net.rwhps.server.util.SystemUtils
 internal object GetData {
     const val ServerTypeClose = "{ \"Status\": \"Unsupported protocols, only Server is supported\" }"
     val consoleCache = SeqSave(20)
+    val agentConsole = Seq<String>()
     val agentConsoleLog = ObjectMap<String, (String) -> Unit>()
 
     data class GameOverPositive(

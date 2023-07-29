@@ -69,7 +69,7 @@ The game corresponds to the final server version collection
 |:------------:|:------------------:|:-------------:|
 |   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |    Delete     |
 | ~~1.15.P8~~  |     ~~6.0.1~~      |    Delete     |
-|     1.15     |      3.0.0-M1      |     BETA      |
+|     1.15     |      3.0.0-M2      |     BETA      |
 
 ## Sponsorship
 

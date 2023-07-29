@@ -1,8 +1,8 @@
 # 配置服务器
-RW-HPS提供了**3**个配置文件
-(Config.json)[#Config.json]为共用  
-(ServerConfig.json)[#ServerConfig.json]为Server模式配置  
-(ConfigRelay.json)[#ConfigRelay.json]为Relay模式配置  
+RW-HPS提供了**3**个配置文件  
+[Config.json](#Config.json)为共用  
+[ServerConfig.json](#ServerConfig.json)为Server模式配置  
+[ConfigRelay.json](#ConfigRelay.json)为Relay模式配置  
 注意: RW-HPS**不支持**热重载配置,每次修改配置请先关闭服务器!
 
 ## Config.json
@@ -224,6 +224,6 @@ Relay模式下的房间前置ID
 #### TODO(int)
 
 
-> 什么?你问我为什么是`TODO`  
+> 什么?你问我为什么是`TODO`?  
 > 其实我也不知道为什么是`TODO`呀  
 > ~~也许是Dr太懒了吧~~

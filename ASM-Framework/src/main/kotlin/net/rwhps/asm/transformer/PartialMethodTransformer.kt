@@ -83,7 +83,7 @@ open class PartialMethodTransformer: AllMethodsTransformer() {
         // TODO: super class containing lwjgl is no guarantee for it to
         //  have a default constructor!
         if (shouldAddNoArgsCtr && !isInterface && (cn.superName == null || cn.superName.lowercase(Locale.getDefault())
-                .contains("lwjgl") || cn.superName == Type.getInternalName(Any::class.java))) {
+            .contains("lwjgl") || cn.superName == Type.getInternalName(Any::class.java))) {
             // Add NoArgs Constructor for the ObjectRedirection
             val mn = MethodNode(Opcodes.ACC_PUBLIC, "<init>", "()V", null, arrayOfNulls(0))
             val il = InsnList()

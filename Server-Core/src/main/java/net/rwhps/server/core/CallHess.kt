@@ -97,7 +97,7 @@ class CallHess(private val serverRoom: ServerRoom) {
                     sendSystemMessageLocal("gameOver.ai")
                 }
                 if (serverRoom.playerManage.playerGroup.size == 0) {
-                    if (aiEndTime != 0) {
+                    if (aiEndTime == 0) {
                         aiEndTime = Time.concurrentSecond() + Data.configServer.maxOnlyAIGameIngTime
                     } else if (Data.configServer.maxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime) {
                         serverRoom.gr()

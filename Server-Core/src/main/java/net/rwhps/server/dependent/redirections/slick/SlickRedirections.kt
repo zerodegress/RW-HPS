@@ -9,7 +9,6 @@
 
 package net.rwhps.server.dependent.redirections.slick
 
-import net.rwhps.asm.agent.AsmCore
 import net.rwhps.asm.agent.AsmData
 import net.rwhps.asm.redirections.DefaultRedirections
 import net.rwhps.server.dependent.redirections.MainRedirections
@@ -21,6 +20,9 @@ import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.readAsClassBytes
 import net.rwhps.server.util.inline.toClass
 
+//关闭傻逼格式化
+//@formatter:off
+
 /**
  * @author RW-HPS/Dr
  */
@@ -28,8 +30,9 @@ import net.rwhps.server.util.inline.toClass
 @AsmMark.ClassLoaderCompatible
 class SlickRedirections: MainRedirections {
     override fun register() {
-        AsmData.addPartialMethod("org/newdawn/slick/AppGameContainer", arrayOf("start", "()V"))
-        redirect(AppGameContainerUpdate.DESC, AppGameContainerUpdate())
+        AsmData.addClassIgnore("org/newdawn/slick/opengl/renderer/VBORenderer")
+
+        AsmData.addPartialMethod("org/newdawn/slick/AppGameContainer", arrayOf("start", "()V"), AppGameContainerUpdate())
 
         // Remove game mouse cursor
         AsmData.addPartialMethod("org/newdawn/slick/AppGameContainer", arrayOf("setMouseCursor", "(Lorg/newdawn/slick/Image;II)V"), DefaultRedirections.NULL)
@@ -44,7 +47,7 @@ class SlickRedirections: MainRedirections {
         }
 
         // Disable sound loader
-        AsmCore.allMethod.add("org/newdawn/slick/Sound")
+        AsmData.addClassIgnore("org/newdawn/slick/Sound")
         redirect("Lorg/newdawn/slick/Sound;playing()Z", DefaultRedirections.BOOLEANT)
 
         // Replace default graphics processor
@@ -53,7 +56,9 @@ class SlickRedirections: MainRedirections {
             val classLoader = classIn.classLoader
             return@addPartialMethod SilckClassPathProperties.Graphics.toClass(classLoader)!!.cast(
                     if (classLoader is GameModularLoadClass) {
-                        classLoader.loadClassBytes(SilckClassPathProperties.DrGraphics, SilckClassPathProperties.DrGraphics.readAsClassBytes())!!
+                        classLoader.loadClassBytes(
+                                SilckClassPathProperties.DrGraphics, SilckClassPathProperties.DrGraphics.readAsClassBytes()
+                        )!!
                     } else {
                         SilckClassPathProperties.DrGraphics.toClass(classLoader)!!
                     }.accessibleConstructor(SilckClassPathProperties.Image.toClass(classLoader)!!).newInstance(args[0])

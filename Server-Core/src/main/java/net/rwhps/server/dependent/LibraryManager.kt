@@ -98,11 +98,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     @JvmOverloads
     fun implementation(
-        group: String,
-        module: String,
-        version: String,
-        classifier: String = "",
-        block: (LibraryManager.() -> Unit)? = null
+        group: String, module: String, version: String, classifier: String = "", block: (LibraryManager.() -> Unit)? = null
     ) {
         block?.run { this() }
         importLib0(group, module, version, classifier)
@@ -151,6 +147,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
         dependenciesDown.eachAll {
             val file = FileUtils.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
             if (!file.exists()) {
+                Log.track("Down Jar", it.getDownUrl())
                 HttpRequestOkHttp.downUrl(it.getDownUrl(), file, true).also { success ->
                     if (success) {
                         load.add(file)
@@ -218,7 +215,6 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
         val saveFileName = if (classifier.isBlank()) "$module-$version.jar" else "$module-$version-$classifier.jar"
         val groupLibData = ImportGroupData(group, module, version, classifier)
         if (tempGroup.contains(groupLibData)) {
-            //Log.debug("[Maven module]",module)
             return
         }
         tempGroup.add(groupLibData)
@@ -244,7 +240,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
                 }
 
                 if (!DigestUtils.md5Hex(it).equals(HttpRequestOkHttp.doGet(importData.getPomVerifyHash(pomUrl)), ignoreCase = true)) {
-                    Log.error("[Pom Verify Hash] Does not match", importData.getDownPom(pomUrl))
+                    Log.warn("[Pom Verify Hash] Does not match", importData.getDownPom(pomUrl))
                     return@let ""
                 } else {
                     pomCache[groupLibData.toString()] = it
@@ -321,7 +317,8 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
                             importLib0(group, name, version, "", down = down)
                         }
                     }
-                } catch (_: Exception) {
+                } catch (e: Exception) {
+                    Log.error("[POM parsing error]", e)
                 }
                 if (down) {
                     if (!dependenciesDown.contains(importData)) {
@@ -354,7 +351,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
         }
     }
 
-    private class ImportData(private val constructSource: String, private val classifier: String, val fileName: String) {
+    private class ImportData(private val constructSource: String, classifier: String, val fileName: String) {
         // The main Maven is used by default
         var mainSource: String = UrlData["Maven"]!!
         val downURLConstruct = if (classifier.isBlank()) constructSource else "$constructSource-$classifier"

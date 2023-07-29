@@ -15,6 +15,8 @@ import org.newdawn.slick.SlickException
 import org.newdawn.slick.util.Log
 
 /**
+ * 无头图形
+ *
  * @author RW-HPS/Dr
  */
 class DrGraphics(image: Image): Graphics(image.texture.textureWidth, image.texture.textureHeight) {

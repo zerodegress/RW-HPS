@@ -68,7 +68,7 @@ open class AllMethodsTransformer: Transformer {
         }
     }
 
-    protected fun injectRedirection(cn: ClassNode, mn: MethodNode, il: InsnList): Type {
+    protected open fun injectRedirection(cn: ClassNode, mn: MethodNode, il: InsnList): Type {
         val isStatic = Modifier.isStatic(mn.access)
         if (isStatic) {
             il.add(LdcInsnNode(Type.getType("L" + cn.name + ";")))
@@ -84,7 +84,7 @@ open class AllMethodsTransformer: Transformer {
         return returnType
     }
 
-    protected fun patchClass(cn: ClassNode, isInterface: Boolean) {
+    private fun patchClass(cn: ClassNode, isInterface: Boolean) {
         var shouldAddNoArgsCtr = true
         // TODO: while we can implement all abstract methods which are directly
         //  present in the class, methods inherited from an interface or another

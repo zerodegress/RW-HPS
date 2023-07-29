@@ -10,7 +10,6 @@
 package net.rwhps.server.dependent
 
 import net.rwhps.asm.agent.AsmAgent
-import net.rwhps.asm.agent.AsmCore
 import net.rwhps.asm.agent.AsmData
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
@@ -51,16 +50,18 @@ class HeadlessProxyClass: AgentAttachData() {
         NetPacketRedirections().register()
 
         // 直接空实现 因为意义不大
-        AsmCore.allMethod.add("org/newdawn/slick/util/DefaultLogSystem")
-        AsmCore.allMethod.add("com/LibRocket")
-        AsmCore.allMethod.add("com/corrodinggames/librocket/scripts/ScriptEngine")
+        AsmData.addClassIgnore("org/newdawn/slick/util/DefaultLogSystem")
+        AsmData.addClassIgnore("com/LibRocket")
+        AsmData.addClassIgnore("com/corrodinggames/librocket/scripts/ScriptEngine")
         // 这两个 因为 [LibRocket] 如果是空的话, 会被……游戏调用导致 NPE, 所以我们要覆盖掉方法
         //需要空实现
         AsmData.addPartialMethod("com/corrodinggames/librocket/b", arrayOf("closeDocument", "(Lcom/ElementDocument;)V"))
         AsmData.addPartialMethod("com/corrodinggames/librocket/b", arrayOf("closeActiveDocument", "()V"))
 
         /* 恢复-Root */
-        AsmData.addPartialMethod("com/corrodinggames/librocket/scripts/Root", arrayOf("resume", "()V")) { obj: Any?, _: String, _: Class<*>, _: Array<out Any?> ->
+        AsmData.addPartialMethod(
+                "com/corrodinggames/librocket/scripts/Root", arrayOf("resume", "()V")
+        ) { obj: Any?, _: String, _: Class<*>, _: Array<out Any?> ->
             val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj!!)
             ReflectionUtils.findField(rootClass, "guiEngine")!!.also {
                 ReflectionUtils.makeAccessible(it)
@@ -70,7 +71,9 @@ class HeadlessProxyClass: AgentAttachData() {
             }
             return@addPartialMethod null
         }/* 恢复-Root */
-        AsmData.addPartialMethod("com/corrodinggames/librocket/scripts/Root", arrayOf("resumeNonMenu", "()V")) { obj: Any?, _: String, _: Class<*>, _: Array<out Any?> ->
+        AsmData.addPartialMethod(
+                "com/corrodinggames/librocket/scripts/Root", arrayOf("resumeNonMenu", "()V")
+        ) { obj: Any?, _: String, _: Class<*>, _: Array<out Any?> ->
             val rootClass = "com.corrodinggames.librocket.scripts.Root".toClassAutoLoader(obj!!)
             ReflectionUtils.findField(rootClass, "guiEngine")!!.also {
                 ReflectionUtils.makeAccessible(it)
@@ -84,7 +87,9 @@ class HeadlessProxyClass: AgentAttachData() {
 
 
         /* 取代游戏自己打印的 */
-        AsmData.addPartialMethod("android/util/Log", arrayOf("a", "(ILjava/lang/String;Ljava/lang/String;)I")) { obj: Any?, _: String, _: Class<*>, args: Array<out Any?> ->
+        AsmData.addPartialMethod(
+                "android/util/Log", arrayOf("a", "(ILjava/lang/String;Ljava/lang/String;)I")
+        ) { obj: Any?, _: String, _: Class<*>, args: Array<out Any?> ->
             args[2]?.let {
                 val classIn = obj as Class<*>
 

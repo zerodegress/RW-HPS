@@ -73,7 +73,7 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
         }
         if (AsmData.allIgnore0.forFind(className)
             // 匹配 Class 并且替换全部方法
-            || allMethod.contains(className)) {
+            || AsmData.allMethod0.contains(className)) {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
             return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)

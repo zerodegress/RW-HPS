@@ -304,7 +304,12 @@ class Initialization {
             FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll(libImport)
             FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/implementation.txt").readFileListString().eachAll(libImport)
 
-            //libraryManager.customImportLib(FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("wasm.jar"))
+            val wasm = FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("Wasm.jar")
+            if (!wasm.exists() && !HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Core.ResDown") + "Wasm.zip", wasm.file, true)) {
+                Log.fatal("WASM Down Error")
+                return
+            }
+            libraryManager.customImportLib(wasm)
 
             libraryManager.loadToClassLoader()
         }

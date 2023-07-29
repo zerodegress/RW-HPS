@@ -9,6 +9,9 @@ import net.rwhps.server.util.annotations.NeedHelp
 import net.rwhps.server.util.annotations.mark.AsmMark
 import java.nio.*
 
+//关闭傻逼格式化
+//@formatter:off
+
 /**
  *
  * @author https://github.com/3arthqu4ke

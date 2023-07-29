@@ -29,7 +29,11 @@ enum class STBIImageRedirection: Redirection {
         val y = args[2] as IntBuffer
         val channels_in_file = args[3] as IntBuffer
         val desired_channels = args[4] as Int
-        val result = ByteBuffer.wrap(ByteArray(x[x.position()] * y[y.position()] * if (desired_channels != 0) desired_channels else channels_in_file[channels_in_file.position()]))
+        val result = ByteBuffer.wrap(
+                ByteArray(
+                        x[x.position()] * y[y.position()] * if (desired_channels != 0) desired_channels else channels_in_file[channels_in_file.position()]
+                )
+        )
         val image = readImage(buffer)
         x.put(0, image.width)
         y.put(0, image.height)

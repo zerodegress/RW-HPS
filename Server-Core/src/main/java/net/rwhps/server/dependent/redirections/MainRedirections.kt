@@ -1,6 +1,5 @@
 package net.rwhps.server.dependent.redirections
 
-import net.rwhps.asm.agent.AsmCore
 import net.rwhps.asm.agent.AsmData
 import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.redirections.AsmRedirections
@@ -17,7 +16,7 @@ interface MainRedirections {
     fun register()
 
     fun redirectClass(classPath: String) {
-        AsmCore.allMethod.add(classPath)
+        AsmData.addClassIgnore(classPath)
     }
 
     fun redirect(desc: String, redirection: Redirection = DefaultRedirections.NULL) {

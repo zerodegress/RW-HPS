@@ -13,6 +13,7 @@ import net.rwhps.server.data.EventGlobalManage
 import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.game.CommandHandler
 import java.util.*
 
@@ -31,8 +32,8 @@ abstract class Plugin {
      * @return 是否成功
      */
     @JvmOverloads
-    fun loadLang(lang: String, kv: Properties, cover: Boolean = false): Boolean {
-        return Data.i18NBundleMap[lang]?.addLang(kv, cover) == true
+    fun loadLang(lang: String, ini: LoadIni, cover: Boolean = false): Boolean {
+        return Data.i18NBundleMap[lang]?.addLang(ini, cover) == true
     }
 
     /**

@@ -31,7 +31,7 @@ object GameStartInit {
         Res("408aa02d8566a771c5ad97caf9f1f701", gameCorePath.toFile("Game-Res.7z")),
         Fonts("e27f86783a04bb6c7bc7b4388f8c8539", gameCorePath.toFile("Game-Fonts.7z")),
         Assets("768984542af2f3bbe1269aca2c8749ff", gameCorePath.toFile("Game-Assets.7z")),
-        GameModularReusableClass("81b24654be7578fdb56fecf5254a78cb", gameCorePath.toFile("GameModularReusableClass.bin"))
+        GameModularReusableClass("1ff43b0cdc2d756bc956ac014f3b438e", gameCorePath.toFile("GameModularReusableClass.bin"))
     }
 
     fun init(load: GameModularReusableLoadClass): Boolean {

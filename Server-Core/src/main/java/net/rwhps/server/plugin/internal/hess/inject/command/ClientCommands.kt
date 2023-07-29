@@ -193,7 +193,9 @@ internal class ClientCommands(handler: CommandHandler) {
                 GameEngine.data.gameDataLink.income = args[0].toFloat()
             }
         }
-        handler.register("addmoney", "<PlayerPositionNumber> <money>", "clientCommands.addmoney") { args: Array<String>, player: PlayerHess ->
+        handler.register(
+                "addmoney", "<PlayerPositionNumber> <money>", "clientCommands.addmoney"
+        ) { args: Array<String>, player: PlayerHess ->
             if (!room.isStartGame) {
                 player.sendSystemMessage(player.i18NBundle.getinput("err.noStartGame"))
                 return@register

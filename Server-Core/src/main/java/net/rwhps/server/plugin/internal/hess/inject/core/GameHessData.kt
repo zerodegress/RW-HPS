@@ -92,21 +92,21 @@ internal class GameHessData: AbstractGameHessData {
             val allPlayer = Seq<String>()
 
             val statusData = ObjectMap<String, ObjectMap<String, Int>>().apply {
-                    for (position in 0 until Data.configServer.maxPlayer) {
-                        val player: n = n.k(position) ?: continue
-                        put(player.v, PrivateClass_Player(player).let {
-                            ObjectMap<String, Int>().apply {
-                                put("unitsKilled", it.unitsKilled)
-                                put("buildingsKilled", it.buildingsKilled)
-                                put("experimentalsKilled", it.experimentalsKilled)
-                                put("unitsLost", it.unitsLost)
-                                put("buildingsLost", it.buildingsLost)
-                                put("experimentalsLost", it.experimentalsLost)
-                            }
-                        })
-                        allPlayer.add(player.v)
-                    }
+                for (position in 0 until Data.configServer.maxPlayer) {
+                    val player: n = n.k(position) ?: continue
+                    put(player.v, PrivateClass_Player(player).let {
+                        ObjectMap<String, Int>().apply {
+                            put("unitsKilled", it.unitsKilled)
+                            put("buildingsKilled", it.buildingsKilled)
+                            put("experimentalsKilled", it.experimentalsKilled)
+                            put("unitsLost", it.unitsLost)
+                            put("buildingsLost", it.buildingsLost)
+                            put("experimentalsLost", it.experimentalsLost)
+                        }
+                    })
+                    allPlayer.add(player.v)
                 }
+            }
 
             return GameOverData(
                     Time.concurrentSecond() - GameEngine.data.room.startTime, allPlayer, winPlayer, MapManage.maps.mapName, statusData, GameEngine.data.room.replayFileName
@@ -162,6 +162,8 @@ internal class GameHessData: AbstractGameHessData {
     }
 
     override fun getPlayerData(site: Int): AbstractPlayerData {
-        return PrivateClass_Player(WaitResultUtils.waitResult { n.k(site) } ?: throw ImplementedException.PlayerImplementedException("[PlayerData-New] Player is invalid"))
+        return PrivateClass_Player(WaitResultUtils.waitResult { n.k(site) } ?: throw ImplementedException.PlayerImplementedException(
+                "[PlayerData-New] Player is invalid"
+        ))
     }
 }

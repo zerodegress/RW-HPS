@@ -18,35 +18,42 @@ import java.lang.reflect.Proxy
 import java.util.*
 
 class ObjectRedirection(private val manager: RedirectionManager): Redirection {
-    override operator fun invoke(obj: Any, desc: String, typeIn: Class<*>, vararg args: Any?): Any? {
-        var type = typeIn
-        if (type.isInterface) {
-            return Proxy.newProxyInstance(type.classLoader, arrayOf(type), ProxyRedirection(manager, getDesc(type)))
-        } else if (type.isArray) {
-            var dimension = 0
+    override operator fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?): Any? {
+        var typePrivate = type
 
-            while (type.isArray) {
-                dimension++
-                type = type.componentType
+        return when {
+            typePrivate.isInterface -> {
+                return Proxy.newProxyInstance(typePrivate.classLoader, arrayOf(typePrivate), ProxyRedirection(manager, getDesc(typePrivate)))
             }
+            typePrivate.isArray -> {
+                var dimension = 0
 
-            val dimensions = IntArray(dimension)
-            Arrays.fill(dimensions, 0)
-            return Array.newInstance(type, *dimensions)
-        } else if (Modifier.isAbstract(type.modifiers)) {
-            System.err.println("Can't return abstract class: $desc")
-            return null
-        }
-        return try {
-            val constructor = type.getDeclaredConstructor()
-            constructor.isAccessible = true
-            constructor.newInstance()
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-            null
-        } catch (e: ReflectiveOperationException) {
-            e.printStackTrace()
-            null
+                while (typePrivate.isArray) {
+                    dimension++
+                    typePrivate = typePrivate.componentType
+                }
+
+                val dimensions = IntArray(dimension)
+                Arrays.fill(dimensions, 0)
+                Array.newInstance(typePrivate, *dimensions)
+            }
+            Modifier.isAbstract(typePrivate.modifiers) -> {
+                System.err.println("Can't return abstract class: $desc")
+                null
+            }
+            else -> {
+                try {
+                    val constructor = typePrivate.getDeclaredConstructor()
+                    constructor.isAccessible = true
+                    constructor.newInstance()
+                } catch (e: SecurityException) {
+                    e.printStackTrace()
+                    null
+                } catch (e: ReflectiveOperationException) {
+                    e.printStackTrace()
+                    null
+                }
+            }
         }
     }
 }

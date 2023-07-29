@@ -32,12 +32,12 @@ object MapManage {
             val name = original.substring(0, original.length - postpone.length)
             when (postpone) {
                 "tmx" -> try {
-                    mapsData.put(name, GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.file, name))
+                    mapsData[name] = GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.file, name)
                 } catch (exception: Exception) {
                     Log.error("read tmx Maps", exception)
                 }
                 "save" -> try {
-                    mapsData.put(name, GameMaps.MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.file, name))
+                    mapsData[name] = GameMaps.MapData(GameMaps.MapType.savedGames, GameMaps.MapFileType.file, name)
                 } catch (exception: Exception) {
                     Log.error("read save Maps", exception)
                 }
@@ -45,16 +45,12 @@ object MapManage {
                     CompressionDecoderUtils.zip(e).use {
                         val zipTmx = it.getTheFileNameOfTheSpecifiedSuffixInTheZip("tmx")
                         zipTmx.eachAll { zipMapName: String ->
-                            mapsData.put(
-                                    zipMapName, GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip, zipMapName, original)
-                            )
+                            mapsData[zipMapName] = GameMaps.MapData(GameMaps.MapType.customMap, GameMaps.MapFileType.zip, zipMapName, original)
                         }
                         val zipSave = it.getTheFileNameOfTheSpecifiedSuffixInTheZip("save")
                         zipSave.eachAll { zipSaveName: String ->
-                            mapsData.put(
-                                    zipSaveName, GameMaps.MapData(
+                            mapsData[zipSaveName] = GameMaps.MapData(
                                     GameMaps.MapType.savedGames, GameMaps.MapFileType.zip, zipSaveName, original
-                            )
                             )
                         }
                     }

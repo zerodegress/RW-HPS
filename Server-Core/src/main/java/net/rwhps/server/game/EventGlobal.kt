@@ -13,6 +13,7 @@ import net.rwhps.server.core.Initialization
 import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.event.core.EventListenerHost
@@ -21,6 +22,7 @@ import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.game.event.global.ServerStartTypeEvent
 import net.rwhps.server.net.Administration
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.annotations.core.EventListenerHandler
 import net.rwhps.server.util.log.Log
@@ -73,6 +75,12 @@ class EventGlobal: EventListenerHost {
                 }
             }
             else -> {}
+        }
+
+        if (Data.config.cmdTitle.isBlank()) {
+            CLITools.setConsoleTitle("[RW-HPS] Port: ${Data.config.port}, Run Server: ${NetStaticData.ServerNetType.name}")
+        } else {
+            CLITools.setConsoleTitle(Data.config.cmdTitle)
         }
     }
 }

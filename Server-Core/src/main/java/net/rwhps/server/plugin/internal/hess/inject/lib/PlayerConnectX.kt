@@ -152,16 +152,16 @@ class PlayerConnectX(
                                     }
                                     o.flushEncodeData(teamIn)
                                 }
+                                o.transferTo(it)
+                                packetHess.c = o.getPacketBytes()
                             }
-                            o.transferTo(it)
-                            packetHess.c = o.getPacketBytes()
                         }
                     }
                 }
             }
         }
 
-        connectionAgreement.send(netEnginePackaging.transformPacket(packetHess))
+        serverConnect.sendPacket(netEnginePackaging.transformPacket(packetHess))
     }
 
     override fun f(): String {

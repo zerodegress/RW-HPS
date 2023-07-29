@@ -55,7 +55,7 @@ internal class ServerCommands(handler: CommandHandler) {
         }
         handler.register("gametime", "serverCommands.gametime") { _: Array<String>, log: StrCons ->
             if (room.isStartGame) {
-                log("Gameing Time : {0}", Time.format(Time.getTimeSinceSecond(room.startTime).toLong(), 6))
+                log("Gameing Time : {0}", Time.format(Time.getTimeSinceSecond(room.startTime)*1000L, 6))
             } else {
                 log("No Start Game")
             }
@@ -70,7 +70,9 @@ internal class ServerCommands(handler: CommandHandler) {
                 log("No Start Game")
             }
         }
-        handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
+        handler.register(
+                "admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin"
+        ) { arg: Array<String>, log: StrCons ->
             if (room.isStartGame) {
                 log(localeUtil.getinput("err.startGame"))
                 return@register
@@ -249,7 +251,9 @@ internal class ServerCommands(handler: CommandHandler) {
             }
         }
 
-        handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
+        handler.register(
+                "textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild"
+        ) { arg: Array<String>, _: StrCons ->
             val cache = Seq<Array<ByteArray>>()
 
             arg[1].forEach {
@@ -283,7 +287,11 @@ internal class ServerCommands(handler: CommandHandler) {
 
                                 val out = GameOutputStream()
                                 out.flushEncodeData(CompressOutputStream.getGzipOutputStream("c", false).apply {
-                                    writeBytes(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index, arg[0], ((off + width) * 20).toFloat(), (height * 20).toFloat()).bytes)
+                                    writeBytes(
+                                            NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(
+                                                    index, arg[0], ((off + width) * 20).toFloat(), (height * 20).toFloat()
+                                            ).bytes
+                                    )
                                 })
 
                                 commandPacket.a(k(NetEnginePackaging.transformHessPacketNullSource(out.createPacket(PacketType.TICK))))

@@ -12,13 +12,15 @@ RW-HPS提供了**3**个配置文件
 Server模式为**start**  
 Relay模式为**startrelay**/**startrelaytest**
 > startrelay 直接转发消耗更多带宽，效果与使用 VPN 转发相同  
-> startrelaytest 使用多播, 减少宽带消耗  
+> startrelaytest 使用多播, 减少宽带消耗
+
 默认配置为**start**
 
 ### log
 #### log记录等级(str)
 决定log记录的级别,通常级别越高输出内容越多
 > OFF FATAL ERROR WARN INFO DEBUG TRACE ALL  
+
 默认配置为**ALL**
 
 ### cmdTitle
@@ -27,7 +29,8 @@ RW-HPS在启动完成时会更改终端标题
 在Windows上,使用native方法  
 在Linux上,使用vt100控制符  
 若未配置,则显示
-> [RW-HPS] Port: 5123, Run Server: ${NetStaticData.ServerNetType.name}  
+> [RW-HPS] Port: 5123, Run Server: ${NetStaticData.ServerNetType.name}
+
 默认**未配置**
 
 ### followBetaVersion

@@ -19,9 +19,10 @@ Relay模式为**startrelay**/**startrelaytest**
 ### log
 #### log记录等级(str)
 决定log记录的级别,通常级别越高输出内容越多
+> 输入错的则默认 ALL
 > OFF FATAL ERROR WARN INFO DEBUG TRACE ALL  
 
-默认配置为**ALL**
+默认配置为**WARN**
 
 ### cmdTitle
 #### 终端标题(str)
@@ -154,7 +155,7 @@ RW-HPS支持在服务器控制台处更新服务器,只需输入`tryupdate`即�
 
 ### maxOnlyAIGameIngTime
 #### 没有其他玩家的最长游戏时间(int)
-当服务器只有一个玩家时(也就是只有一个玩家和一群AI),若到达设定的时间,则关闭此房间(不关闭服务器)  
+当服务器只有AI时(也就是只有一群AI),若到达设定的时间,则关闭此房间(不关闭服务器)  
 配置为`-1`时则无限制  
 单位: 秒(sec)  
 默认配置为**3600**
@@ -174,7 +175,6 @@ RW-HPS支持在服务器控制台处更新服务器,只需输入`tryupdate`即�
 ### maxMessageLen
 #### 最大发言长度(int)
 服务器所允许的最大发言长度  
-注意: 在`UTF-8`中,一个中文字符占用**2**字节!  
 默认配置为**40**
 
 ### maxUnit
@@ -213,12 +213,15 @@ Relay模式下的房间前置ID
 默认**未配置**
 
 ### mainServer
-#### 允许跳转到RelayCN服务器(bool)
-服务器将识别`RA`开头的房间ID并自动将玩家跳转到RelayCN服务器  
+#### 是否是 RELAY 主节点(bool)
+> 主节点将可以分配分节点分ID, 例如
+> RCN 分配 RA, 那么如果是 true, RA就会被跳转, 如果是 false, 就会解析
 默认配置为**启用**
 
 ### upList
 #### TODO(bool)
+服务器是否支持 uplist
+默认配置为**禁用**
 
 ### mainServerIP
 #### TODO(str)

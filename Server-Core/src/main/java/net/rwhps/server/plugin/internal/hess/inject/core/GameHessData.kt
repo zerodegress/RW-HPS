@@ -109,7 +109,12 @@ internal class GameHessData: AbstractGameHessData {
             }
 
             return GameOverData(
-                    Time.concurrentSecond() - GameEngine.data.room.startTime, allPlayer, winPlayer, MapManage.maps.mapName, statusData, GameEngine.data.room.replayFileName
+                    Time.concurrentSecond() - GameEngine.data.room.startTime,
+                    allPlayer,
+                    winPlayer,
+                    MapManage.maps.mapName,
+                    statusData,
+                    GameEngine.data.room.replayFileName
             )
         } else {
             return null

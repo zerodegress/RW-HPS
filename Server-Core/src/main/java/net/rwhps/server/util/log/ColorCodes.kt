@@ -13,6 +13,9 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.BaseMap.Companion.toSeq
 import net.rwhps.server.struct.ObjectMap
 
+//关闭傻逼格式化
+//@formatter:off
+
 /**
  * @author RW-HPS/Dr
  */
@@ -47,13 +50,59 @@ internal object ColorCodes {
 
     init {
         //WIN :(
-        val map: ObjectMap<String, String> = if (System.getProperty("rwhps.log.color", "true").toBoolean()) {
+        val map: ObjectMap<String, String> = if (System.getProperty("rwhps.log.color","true").toBoolean()) {
             ObjectMap.of(
-                    "ff", FLUSH, "fr", RESET, "fb", BOLD, "fi", ITALIC, "fu", UNDERLINED, "bk", BLACK, "r", RED, "g", GREEN, "y", YELLOW, "b", BLUE, "p", PURPLE, "c", CYAN, "lr", LIGHT_RED, "lg", LIGHT_GREEN, "ly", LIGHT_YELLOW, "lm", LIGHT_MAGENTA, "lb", LIGHT_BLUE, "lc", LIGHT_CYAN, "w", WHITE, "bd", BACK_DEFAULT, "br", BACK_RED, "bg", BACK_GREEN, "by", BACK_YELLOW, "bb", BACK_BLUE
+                    "ff", FLUSH,
+                    "fr", RESET,
+                    "fb", BOLD,
+                    "fi", ITALIC,
+                    "fu", UNDERLINED,
+                    "bk", BLACK,
+                    "r", RED,
+                    "g", GREEN,
+                    "y", YELLOW,
+                    "b", BLUE,
+                    "p", PURPLE,
+                    "c", CYAN,
+                    "lr", LIGHT_RED,
+                    "lg", LIGHT_GREEN,
+                    "ly", LIGHT_YELLOW,
+                    "lm", LIGHT_MAGENTA,
+                    "lb", LIGHT_BLUE,
+                    "lc", LIGHT_CYAN,
+                    "w", WHITE,
+                    "bd", BACK_DEFAULT,
+                    "br", BACK_RED,
+                    "bg", BACK_GREEN,
+                    "by", BACK_YELLOW,
+                    "bb", BACK_BLUE
             )
         } else {
             ObjectMap.of(
-                    "ff", "", "fr", "", "fb", "", "fi", "", "fu", "", "bk", "", "r", "", "g", "", "y", "", "b", "", "p", "", "c", "", "lr", "", "lg", "", "ly", "", "lm", "", "lb", "", "lc", "", "w", "", "bd", "", "br", "", "bg", "", "by", "", "bb", ""
+                    "ff", "",
+                    "fr", "",
+                    "fb", "",
+                    "fi", "",
+                    "fu", "",
+                    "bk", "",
+                    "r", "",
+                    "g", "",
+                    "y", "",
+                    "b", "",
+                    "p", "",
+                    "c", "",
+                    "lr", "",
+                    "lg", "",
+                    "ly", "",
+                    "lm", "",
+                    "lb", "",
+                    "lc", "",
+                    "w", "",
+                    "bd", "",
+                    "br", "",
+                    "bg", "",
+                    "by", "",
+                    "bb", ""
             )
         }
 

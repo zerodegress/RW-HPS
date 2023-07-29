@@ -45,6 +45,7 @@ internal open class AbstractPluginData {
      * 这个 [PluginData] 保存时使用的文件.
      * @param fileUtils FileUtil
      */
+    @JvmOverloads
     fun setFileUtil(fileUtils: FileUtils, code: String = "gzip") {
         this.fileUtils = fileUtils
         fileUtils.createNewFile()

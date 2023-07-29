@@ -11,6 +11,7 @@ package net.rwhps.server.util
 
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.io.IoReadConversion
 import net.rwhps.server.util.log.Log
 import org.jetbrains.annotations.Nls
@@ -79,10 +80,10 @@ class I18NBundle {
      * @param cover 强制覆盖
      * @return 是否成功
      */
-    internal fun addLang(kv: Properties, cover: Boolean): Boolean {
+    internal fun addLang(kv: LoadIni, cover: Boolean): Boolean {
         var flag = cover
 
-        kv.forEach { key: Any, value: Any ->
+        kv.data.eachAll { key: Any, value: Any ->
             if (cover) {
                 languageData[key as String] = value as String
             } else {
@@ -136,16 +137,14 @@ class I18NBundle {
     }
 
     /**
-     * 传一数组
+     * 传多参
      *
-     * @param      input  语言目标
-     * @param      ps     Object替换组
+     * @param      input   localeKey
+     * @param      params  传入的参数, 永于替换 {0} {1}等
      * @return     文本
      */
     @Nls
-    fun getinputt(input: String, ps: Array<Any?>?): String {
-        return core(input, ps)
+    fun getinputt(input: String, params: Array<Any?>?): String {
+        return core(input, params)
     }
-
-
 }

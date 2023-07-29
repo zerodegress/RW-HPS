@@ -55,7 +55,7 @@ internal class ServerCommands(handler: CommandHandler) {
         }
         handler.register("gametime", "serverCommands.gametime") { _: Array<String>, log: StrCons ->
             if (room.isStartGame) {
-                log("Gameing Time : {0}", Time.format(Time.getTimeSinceSecond(room.startTime)*1000L, 6))
+                log("Gameing Time : {0}", Time.format(Time.getTimeSinceSecond(room.startTime) * 1000L, 6))
             } else {
                 log("No Start Game")
             }

@@ -26,7 +26,7 @@ object RedirectionApi {
      */
     // used by the transformer
     @JvmStatic
-    @Suppress("unused")
+    @Suppress("UNUSED")
     @Throws(Throwable::class)
     operator fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?): Any? {
         return redirectionManager.invoke(obj, desc, type, *args)

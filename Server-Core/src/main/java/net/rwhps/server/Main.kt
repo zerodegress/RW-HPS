@@ -33,6 +33,7 @@ package net.rwhps.server
 
 import net.rwhps.server.command.CoreCommands
 import net.rwhps.server.command.LogCommands
+import net.rwhps.server.core.Core
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
@@ -85,7 +86,7 @@ import kotlin.system.exitProcess
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {/* 设置Log 并开启拷贝 */
-        set("WARN")
+        set("TRACK")
 
         /* OFF WARN */
         System.setProperty("org.jline.terminal.dumb", "true")
@@ -164,12 +165,17 @@ object Main {
      * Win的CMD就是个垃圾
      */
     private fun inputMonitorInit() {
+        // 防止傻逼双击运行jar
+        if (System.`in` == null) {
+            Core.exit()
+        }
+
         val terminal = TerminalBuilder.builder().encoding(Data.DefaultEncoding).build()
 
         privateReader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
 
         System.setErr(DynamicPrintStream {
-            Log.debug(it)
+            Log.all(it)
         })
 
         System.setOut(DynamicPrintStream {

@@ -62,6 +62,10 @@ open class TypeHessRwHps: TypeConnect {
                 PacketType.GAMECOMMAND_RECEIVE -> {
                     con.receiveCommand(packet)
                 }
+                PacketType.RELAY_118_117_RETURN -> {
+                    packet.status = Control.EventNext.STOPPED
+                    con.sendRelayServerTypeReply(packet)
+                }
                 else -> {}
             }
             if (packet.status == Control.EventNext.CONTINUE) {

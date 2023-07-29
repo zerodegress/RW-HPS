@@ -20,7 +20,7 @@ import java.util.*
  * @author RW-HPS/Dr
  */
 class LoadIni {
-    private val data = OrderedMap<String, Any>()
+    internal val data = OrderedMap<String, Any>()
 
     constructor(fileUtils: FileUtils) {
         try {

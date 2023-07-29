@@ -9,7 +9,10 @@
 
 package net.rwhps.asm.agent
 
+import net.rwhps.asm.api.Redirection
 import net.rwhps.asm.func.Find
+import net.rwhps.asm.redirections.AsmRedirections
+import net.rwhps.asm.redirections.DefaultRedirections
 import java.security.ProtectionDomain
 
 open class AsmCore {

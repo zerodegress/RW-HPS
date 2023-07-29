@@ -23,9 +23,7 @@ import com.corrodinggames.rts.gameFramework.j.au as PacketHess
  *
  * @author RW-HPS/Dr
  */
-class NetEnginePackaging(
-    private val netEngine: ad, private val playerConnectX: PlayerConnectX
-) {
+class NetEnginePackaging(private val netEngine: ad, private val playerConnectX: PlayerConnectX) {
     /**
      * 将 Packet 扔进 Hess 内的处理器
      *
@@ -34,7 +32,7 @@ class NetEnginePackaging(
     fun addPacket(packet: Packet) {
         val packetHess = transformHessPacket(packet)
 
-        if (packetHess.b > 100) {
+        if (packet.type.typeInt > 100) {
             netEngine.c(packetHess)
         } else {
             netEngine.aN.add(packetHess)

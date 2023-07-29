@@ -67,7 +67,7 @@ object Log {
      */
     @JvmStatic
     fun set(log: String) {
-        LOG_GRADE = Logg.valueOf(log).getLogg()
+        LOG_GRADE = Logg.from(log).logg
     }
 
     /**
@@ -324,7 +324,7 @@ object Log {
         }
     }
 
-    private enum class Logg(private val logg: Int) {
+    private enum class Logg(val logg: Int) {
         /* Log level defaults to WARN *//* ALL during development */
         OFF(8),
         FATAL(7),
@@ -335,13 +335,11 @@ object Log {
         TRACK(2),
         ALL(1);
 
-        open fun getLogg(): Int {
-            return logg
+        companion object {
+            fun from(type: String): Logg = entries.find { it.name == type || it.name.lowercase() == type.lowercase() }.ifNullResult({
+                skipping("Log Level Set Error , In: $type")
+                ALL
+            }) { it }
         }
-
-        fun from(type: String): Logg = Logg.values().find { it.name == type || it.name.lowercase() == type.lowercase() }.ifNullResult({
-            skipping("Log Level Set Error , In: $type")
-            ALL
-        }) { it }
     }
 }

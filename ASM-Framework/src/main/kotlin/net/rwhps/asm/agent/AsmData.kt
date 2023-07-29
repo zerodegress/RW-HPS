@@ -19,12 +19,18 @@ import net.rwhps.asm.redirections.DefaultRedirections
  * @author RW-HPS/Dr
  */
 object AsmData {
+    internal val allMethod0 = ArrayList<String>()
     internal val allIgnore0 = ArrayList<Find<String, Boolean>>()
     internal val partialMethod0 = HashMap<String, ArrayList<Array<String>>>()
 
     @JvmStatic
     fun allIgnore(classFind: Find<String, Boolean>) {
         allIgnore0.add(classFind)
+    }
+
+    @JvmStatic
+    fun addClassIgnore(classPath: String) {
+        allMethod0.add(classPath)
     }
 
     /**

@@ -14,6 +14,9 @@ import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.annotations.GameSimulationLayer
 import net.rwhps.server.util.annotations.mark.AsmMark
 
+//关闭傻逼格式化
+//@formatter:off
+
 /**
  * Network blocking and proxy
  *
@@ -23,17 +26,20 @@ import net.rwhps.server.util.annotations.mark.AsmMark
 class NetPacketRedirections: MainRedirections {
     override fun register() {
         // Intercept packet processing (Ineffective, there are alternatives)
-        @GameSimulationLayer.GameSimulationLayer_KeyWords("filtered packet") redirect("com/corrodinggames/rts/gameFramework/j/ad00", arrayOf("b", "(Lcom/corrodinggames/rts/gameFramework/j/au;)Z")) { _: Any, _: String, _: Class<*>, args: Array<out Any?> ->
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("filtered packet")
+        redirect("com/corrodinggames/rts/gameFramework/j/ad00", arrayOf("b", "(Lcom/corrodinggames/rts/gameFramework/j/au;)Z")) { _: Any, _: String, _: Class<*>, args: Array<out Any?> ->
             return@redirect HessModuleManage.hps.gameFast.filteredPacket(args[0]!!)
         }
 
         // Invalidate the listing service that comes with the game
-        @GameSimulationLayer.GameSimulationLayer_KeyWords("StartCreateOnMasterServer") redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("b", "()V"))
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("StartCreateOnMasterServer")
+        redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("b", "()V"))
         redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("c", "()V"))
         redirect("com/corrodinggames/rts/gameFramework/j/n", arrayOf("d", "()V"))
 
         // Invalidate the RUDP service that comes with the game
-        @GameSimulationLayer.GameSimulationLayer_KeyWords("ReliableServerSocket") redirectClass("a/a/d")
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("ReliableServerSocket")
+        redirectClass("a/a/d")
 
         // Remove the official Socket Launcher
         redirectClass("com/corrodinggames/rts/gameFramework/j/ao")

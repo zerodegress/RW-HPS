@@ -30,6 +30,8 @@ import java.io.*
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 
+//关闭傻逼格式化
+//@formatter:off
 
 /**
  * 通过 ASM 来覆写 游戏的文件系统来达到自定义位置
@@ -72,10 +74,7 @@ class FileLoaderRedirections: MainRedirections {
 
             list.add(load.accessibleConstructor(OrderedMap::class.java).newInstance(font))
             list.add(SilckClassPathProperties.ClasspathLocation.toClass(classLoader)!!.accessibleConstructor().newInstance())
-            list.add(
-                    SilckClassPathProperties.FileSystemLocation.toClass(classLoader)!!.accessibleConstructor(File::class.java)
-                        .newInstance(fileSystemLocation)
-            )
+            list.add(SilckClassPathProperties.FileSystemLocation.toClass(classLoader)!!.accessibleConstructor(File::class.java).newInstance(fileSystemLocation))
             resourceLoader.findField("locations")!!.set(null, list)
             return@redirect null
         }
@@ -190,8 +189,8 @@ class FileLoaderRedirections: MainRedirections {
             val str3 = resAndAssetsPath + "assets/" + str2
             return@redirect try {
                 try {
+                    // AssetManager
                     findNewClass_AssetInputStream(obj, InputStream::class.java, String::class.java, String::class.java).newInstance(
-                            // AssetManager
                             FileInputStream("${resAndAssetsPath}assets/${str2}"), str3, str2
                     )
                 } catch (e: FileNotFoundException) {
@@ -206,22 +205,15 @@ class FileLoaderRedirections: MainRedirections {
 
 
     private fun run_FileSystem(obj: Any, method: String, vararg paramTypes: Class<*>): Method {
-        return ReflectionUtils.findMethod(Class.forName("com.corrodinggames.rts.gameFramework.e.c", true, obj::class.java.classLoader), method, *paramTypes)!!
-    }
-
-    private fun findClass_AssetManager(obj: Any): Any {
-        val handler = ReflectionUtils.findMethod(Class.forName("com.corrodinggames.rts.appFramework.c", true, obj::class.java.classLoader), "a")
-        val context = handler!!.invoke(null)
-        val context0 = ReflectionUtils.findMethod(Class.forName("android.content.Context", true, obj::class.java.classLoader), "d")
-        return context0!!.invoke(context)
-    }
-
-    private fun run_AssetManager(obj: Any, method: String, vararg paramTypes: Class<*>): Method {
-        return ReflectionUtils.findMethod(Class.forName("android.content.res.AssetManager", true, obj::class.java.classLoader), method, *paramTypes)!!
+        return ReflectionUtils.findMethod(
+                Class.forName("com.corrodinggames.rts.gameFramework.e.c", true, obj::class.java.classLoader), method, *paramTypes
+        )!!
     }
 
     // J
     private fun findNewClass_AssetInputStream(obj: Any, vararg paramTypes: Class<*>): Constructor<*> {
-        return ReflectionUtils.accessibleConstructor(Class.forName("com.corrodinggames.rts.gameFramework.utility.j", true, obj::class.java.classLoader), *paramTypes)
+        return ReflectionUtils.accessibleConstructor(
+                Class.forName("com.corrodinggames.rts.gameFramework.utility.j", true, obj::class.java.classLoader), *paramTypes
+        )
     }
 }

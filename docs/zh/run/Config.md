@@ -18,8 +18,8 @@ Relay模式为**startrelay**/**startrelaytest**
 
 ### log
 #### log记录等级(str)
-决定log记录的级别,通常级别越高输出内容越多
-> 输入错的则默认 ALL
+决定log记录的级别,通常级别越高输出内容越多  
+> 输入错的则默认 ALL  
 > OFF FATAL ERROR WARN INFO DEBUG TRACE ALL  
 
 默认配置为**WARN**

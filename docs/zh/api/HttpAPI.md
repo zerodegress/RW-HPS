@@ -20,17 +20,69 @@
 
 #### info
 
-// TODO
+##### SystemInfo
+
+路径: `/HttpApi/api/get/info/SystemInfo`(其他同理)
+
+返回
+
+```json
+{
+    "status": "OK",
+    "data": "{\"system\":\"Linux\",\"arch\":\"amd64\",\"jvmName\":\"OpenJDK 64-Bit Server VM\",\"jvmVersion\":\"11.0.20\"}"
+}
+```
+
+##### GameInfo
+
+返回
+
+```json
+{
+    "status": "OK",
+    "data": "{\"income\":1.0,\"noNukes\":false,\"credits\":0,\"sharedControl\":false,\"players\":[]}"
+}
+```
+
+##### ModsInfo
+
+返回
+
+```json
+{
+    "status": "OK",
+    "data": "[\"RW-HPS CoreUnits\"]"
+}
+```
 
 #### event
 
-// TODO
+##### GameOver
+
+返回
+
+```json
+{
+    "status": "OK",
+    "data": "[]"
+}
+```
 
 ### POST
 
 路径: `/HttpApi/api/post/xxx`
 
 #### run
+
+##### ServerCommand
+
+用处: *执行服务器命令,发送返回*
+
+// TODO
+
+##### ClientCommand
+
+用处: *执行客户端命令,发送返回*
 
 // TODO
 

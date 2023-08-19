@@ -20,41 +20,36 @@ import java.nio.charset.StandardCharsets
 object IoReadConversion {
     @JvmStatic
     @JvmOverloads
-    fun streamBuffer(
-        inputStream: InputStream,
-        charset: Charset = StandardCharsets.UTF_8
-    ): InputStreamReader = InputStreamReader(inputStream, charset)
+    fun streamBuffer(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): InputStreamReader = InputStreamReader(
+            inputStream, charset
+    )
 
     @JvmStatic
     @JvmOverloads
-    fun streamBufferRead(
-        inputStream: InputStream,
-        charset: Charset = StandardCharsets.UTF_8
-    ): BufferedReader = BufferedReader(InputStreamReader(inputStream, charset))
-
-    @JvmStatic
-    @JvmOverloads
-    @Throws(IOException::class)
-    fun fileToBufferReadStream(
-        file: File,
-        charset: Charset = StandardCharsets.UTF_8
-    ): BufferedReader = BufferedReader(fileToReadStream(file, charset))
+    fun streamBufferRead(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): BufferedReader = BufferedReader(
+            InputStreamReader(inputStream, charset)
+    )
 
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
-    fun fileToReadStream(
-        file: File,
-        charset: Charset = StandardCharsets.UTF_8
-    ): InputStreamReader = InputStreamReader(fileToStream(file), charset)
+    fun fileToBufferReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): BufferedReader = BufferedReader(
+            fileToReadStream(file, charset)
+    )
 
     @JvmStatic
     @JvmOverloads
     @Throws(IOException::class)
-    fun fileToReadStream(
-        inputStream: InputStream,
-        charset: Charset = StandardCharsets.UTF_8
-    ): InputStreamReader = InputStreamReader(inputStream, charset)
+    fun fileToReadStream(file: File, charset: Charset = StandardCharsets.UTF_8): InputStreamReader = InputStreamReader(
+            fileToStream(file), charset
+    )
+
+    @JvmStatic
+    @JvmOverloads
+    @Throws(IOException::class)
+    fun fileToReadStream(inputStream: InputStream, charset: Charset = StandardCharsets.UTF_8): InputStreamReader = InputStreamReader(
+            inputStream, charset
+    )
 
     @JvmStatic
     @Throws(IOException::class)

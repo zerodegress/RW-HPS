@@ -54,9 +54,11 @@ internal class GameNet: AbstractGameNet {
 //        }
 
         val netEngine = GameEngine.netEngine
-        GameEngine.settingsEngine.networkPort = port
-        GameEngine.settingsEngine.udpInMultiplayer = false
-        GameEngine.settingsEngine.saveMultiplayerReplays = Data.configServer.saveRePlayFile
+        GameEngine.settingsEngine.apply {
+            setValueDynamic("networkPort", port.toString())
+            setValueDynamic("udpInMultiplayer", false.toString())
+            setValueDynamic("saveMultiplayerReplays", Data.configServer.saveRePlayFile.toString())
+        }
 
         netEngine.m = port
         netEngine.y = name
@@ -88,7 +90,7 @@ internal class GameNet: AbstractGameNet {
 
                     // 不能在启动前设置, 因为每次会变
                     // 设置客户端UUID, 避免Admin/ban等不能持久化
-                    GameEngine.settingsEngine.networkServerId = Data.core.serverConnectUuid
+                    GameEngine.settingsEngine.setValueDynamic("networkServerId", Data.core.serverConnectUuid)
 
                     GameEngine.data.eventManage.fire(ServerHessStartPort())
                 } catch (e: Exception) {

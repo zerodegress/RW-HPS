@@ -11,7 +11,9 @@ package net.rwhps.server.net
 
 import io.netty.bootstrap.ServerBootstrap
 import io.netty.buffer.PooledByteBufAllocator
-import io.netty.channel.*
+import io.netty.channel.ChannelOption
+import io.netty.channel.EventLoopGroup
+import io.netty.channel.ServerChannel
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollServerSocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
@@ -107,8 +109,10 @@ class NetService {
         try {
             val serverBootstrapTcp = ServerBootstrap()
             serverBootstrapTcp.group(bossGroup, workerGroup).channel(runClass)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT).childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true).childHandler(start)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childHandler(start)
 
             clog(Data.i18NBundle.getinput("server.start.openPort"))
 
@@ -145,8 +149,6 @@ class NetService {
      * Start the Game Server in the specified port range
      *
      * @param port MainPort
-     * @param startPort Start Port
-     * @param endPort End Port
      */
     fun openPortRUDP(port: Int) {
         clog(Data.i18NBundle.getinput("server.start.open"))

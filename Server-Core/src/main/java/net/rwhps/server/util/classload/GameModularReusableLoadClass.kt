@@ -19,8 +19,7 @@ import net.rwhps.server.util.file.FileUtils
  * @author  RW-HPS/Dr
  */
 class GameModularReusableLoadClass(
-    mainClassLoader: ClassLoader,
-    jdkClassLoader: ClassLoader
+    mainClassLoader: ClassLoader, jdkClassLoader: ClassLoader
 ): GameModularLoadClass(mainClassLoader, jdkClassLoader) {
     /** 是否是缓存加载 */
     private var asmCacheFlag = false

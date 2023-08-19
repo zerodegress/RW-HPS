@@ -9,13 +9,13 @@
 
 package net.rwhps.server.data.player
 
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.func.Prov
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
-import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServer
+import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServerInternalPacket
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtils
@@ -103,6 +103,10 @@ open class PlayerHess(
             put("buildingsLost", buildingsLost)
             put("experimentalsLost", experimentalsLost)
         }
+
+    val playerInfo: String get() {
+        return "$name / Position: $site / IP: ${con!!.coverConnect().useConnectionAgreement} / Admin: $isAdmin"
+    }
 
     private val noBindError: () -> Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
 
@@ -205,7 +209,7 @@ open class PlayerHess(
         if (con == null) {
             throw NetException("[CONNECT_CLOSE] Connect disconnect")
         }
-        con!!.coverConnect().sendPacket(fromRelayJumpsToAnotherServer("$ip:$port"))
+        con!!.coverConnect().sendPacket(fromRelayJumpsToAnotherServerInternalPacket("$ip:$port"))
     }
 
     open fun clear() {

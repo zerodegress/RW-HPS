@@ -30,7 +30,9 @@ class SendWeb(
 
     /** 覆盖原header */
     private val replaceHeaders: ObjectMap<AsciiString, String> = mutableObjectMapOf(/* 默认头 使用 RW-HPS 自定义 */
-            HttpHeaderNames.SERVER to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)", HttpHeaderNames.CONTENT_TYPE to "${HttpHeaderValues.TEXT_HTML};charset=utf-8", HttpHeaderNames.ACCEPT_CHARSET to "UTF-8"
+            HttpHeaderNames.SERVER to "RW-HPS/${Data.SERVER_CORE_VERSION} (WebData)",
+            HttpHeaderNames.CONTENT_TYPE to "${HttpHeaderValues.TEXT_HTML};charset=utf-8",
+            HttpHeaderNames.ACCEPT_CHARSET to "UTF-8"
     )
 
     /** 附加的header,用于需要重复的header */
@@ -46,12 +48,9 @@ class SendWeb(
 
     fun setConnectType(type: AsciiString) = setConnectType(type.toString())
     fun setConnectType(type: String) = setHead(HttpHeaderNames.CONTENT_TYPE, "$type;charset=UTF-8")
-    fun setCookie(
-        cKey: String,
-        cValue: String,
-        maxAge: Int,
-        path: String
-    ) = customAppendHead(HttpHeaderNames.SET_COOKIE.toString(), "$cKey=$cValue; Max-Age=$maxAge; Path=$path")
+    fun setCookie(cKey: String, cValue: String, maxAge: Int, path: String) = customAppendHead(
+            HttpHeaderNames.SET_COOKIE.toString(), "$cKey=$cValue; Max-Age=$maxAge; Path=$path"
+    )
 
 
     fun setData(bytes: ByteArray) {

@@ -11,7 +11,6 @@ package net.rwhps.server.dependent
 
 import net.rwhps.asm.agent.AsmAgent
 import net.rwhps.asm.agent.AsmData
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.redirections.game.CustomRedirections
@@ -19,6 +18,7 @@ import net.rwhps.server.dependent.redirections.game.FileLoaderRedirections
 import net.rwhps.server.dependent.redirections.game.NetPacketRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.game.event.global.ServerHessLoadEvent
 import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
 import net.rwhps.server.struct.ObjectMap
@@ -115,7 +115,7 @@ class HeadlessProxyClass: AgentAttachData() {
                     // Enable the interface
                     "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(load)!!.findMethod("init")!!.invoke(null)
 
-                    PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!.eventManage))
+                    PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!))
                 }
 
                 if (msg.startsWith("Replay: Recording replay to:")) {

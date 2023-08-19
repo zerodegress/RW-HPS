@@ -9,8 +9,8 @@
 
 package net.rwhps.server.game.event.global
 
-import net.rwhps.server.data.EventManage
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
+import net.rwhps.server.game.simulation.core.AbstractGameModule
 
 /**
  * 服务器初始化事件
@@ -18,4 +18,4 @@ import net.rwhps.server.game.event.core.AbstractGlobalEvent
  * @date 2023/7/5 10:00
  * @author RW-HPS/Dr
  */
-class ServerHessLoadEvent(val loadID: String, val eventManage: EventManage): AbstractGlobalEvent
+class ServerHessLoadEvent(val loadID: String, val gameModule: AbstractGameModule): AbstractGlobalEvent

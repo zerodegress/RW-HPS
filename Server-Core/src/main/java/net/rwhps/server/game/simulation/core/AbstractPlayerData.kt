@@ -11,7 +11,9 @@ package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.util.annotations.GameSimulationLayer
 
-@GameSimulationLayer.GameSimulationLayer_KeyWords("Note to modifiers: Changing credits will not allow you to cheat in multiplayer games, but it will only break sync")
+@GameSimulationLayer.GameSimulationLayer_KeyWords(
+        "Note to modifiers: Changing credits will not allow you to cheat in multiplayer games, but it will only break sync"
+)
 interface AbstractPlayerData {
     fun updateDate()
 

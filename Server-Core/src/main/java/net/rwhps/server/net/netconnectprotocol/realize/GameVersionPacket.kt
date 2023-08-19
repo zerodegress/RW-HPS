@@ -11,7 +11,8 @@ package net.rwhps.server.net.netconnectprotocol.realize
 
 import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.player.PlayerHess
-import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.enums.GameCommandActions
+import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -95,12 +96,12 @@ open class GameVersionPacket: AbstractNetPacket {
         outStream.writeByte(index)
         outStream.writeBoolean(true)
         // 建造
-        outStream.writeInt(GameUnitType.GameActions.BUILD.ordinal)
+        outStream.writeInt(GameCommandActions.BUILD.ordinal)
 
 
         var unitID = -2
         if (IsUtils.notIsNumeric(unit)) {
-            GameUnitType.GameUnits.values().forEach {
+            GameInternalUnits.values().forEach {
                 if (it.name.equals(unit, ignoreCase = true)) {
                     unitID = it.ordinal
                     return@forEach
@@ -160,19 +161,13 @@ open class GameVersionPacket: AbstractNetPacket {
         outStream.writeInt(5)
         outStream.writeInt(0)
         outStream.writeBoolean(false)
-        return GameCommandPacket(index, outStream.getPacketBytes())
+        return GameCommandPacket(index, outStream.getByteArray())
     }
 
     @Throws(IOException::class)
     override fun getExitPacket(): Packet {
-        val cPacket: Packet? = Cache.packetCache["getExitPacket"]
-        if (IsUtils.notIsBlank(cPacket)) {
-            return cPacket!!
-        }
-
-        val cachePacket = playerExitPacketInternal()
-        Cache.packetCache.put("getExitPacket", cachePacket)
-
-        return cachePacket
+        return Cache.packetCache["getExitPacket", {
+            playerExitInternalPacket()
+        }]
     }
 }

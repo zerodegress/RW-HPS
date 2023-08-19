@@ -110,11 +110,9 @@ abstract class BaseMap<K, V>(private val map: java.util.Map<K, V>, private val t
     }
 
     fun eachFind(find: FindMapKV<K, V, Boolean>, block: ConsMap<K, V>) = find(find)?.let { block(it.key, it.value) }
-    fun eachAllFinds(
-        findA: FindMapKV<K, V, Boolean>,
-        findB: FindMapKV<K, V, Boolean>,
-        block: ConsMap<K, V>
-    ) = find(findA, findB)?.let { block(it.key, it.value) }
+    fun eachAllFinds(findA: FindMapKV<K, V, Boolean>, findB: FindMapKV<K, V, Boolean>, block: ConsMap<K, V>) = find(
+            findA, findB
+    )?.let { block(it.key, it.value) }
 
     override fun clear() = map.clear()
 

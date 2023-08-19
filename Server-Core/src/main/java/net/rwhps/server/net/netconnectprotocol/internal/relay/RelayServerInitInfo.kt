@@ -7,7 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("RelayPacket") @file:JvmMultifileClass
+//关闭傻逼格式化
+//@formatter:off
+
+@file:JvmName("RelayPacket")
+@file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.relay
 
@@ -24,13 +28,13 @@ import java.io.IOException
 /**
  * Let the client think this is the RELAY server
  *  Initialization with RELAY
- * @return Packet       : Generate a sendable package
+ * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  *
  * @author RW-HPS/Dr
  */
 @Throws(IOException::class)
-internal fun relayServerInitInfo(): Packet {
+internal fun relayServerInitInfoInternalPacket(): Packet {
     val o = GameOutputStream()
     o.writeByte(0)
     // RELAY Version

@@ -13,10 +13,10 @@ import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.game.units.am
 import com.corrodinggames.rts.gameFramework.j.al
 import com.corrodinggames.rts.gameFramework.l
-import net.rwhps.server.data.MapManage
-import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.game.MapManage
+import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.game.simulation.core.AbstractGameHessData
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.io.packet.Packet
@@ -34,7 +34,6 @@ import com.corrodinggames.rts.gameFramework.j.`as` as GameNetOutStream
  * @author RW-HPS/Dr
  */
 internal class GameHessData: AbstractGameHessData {
-
     override val tickHess: Int get() = GameEngine.gameEngine.bx
     override val tickNetHess: Int get() = GameEngine.netEngine.X
 

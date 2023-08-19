@@ -68,7 +68,8 @@ class PluginCenter {
                 log("Plugin version is not compatible Plugin name is: {0}", json.getString("name"))
             } else {
                 HttpRequestOkHttp.downUrl(
-                        url + json.getString("name") + ".jar", getFolder(Data.Plugin_Plugins_Path).toFile(json.getString("name") + ".jar").file
+                        url + json.getString("name") + ".jar",
+                        getFolder(Data.Plugin_Plugins_Path).toFile(json.getString("name") + ".jar").file
                 )
                 log("Installation is complete, please restart the server")
             }

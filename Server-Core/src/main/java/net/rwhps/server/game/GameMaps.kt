@@ -9,7 +9,6 @@
 
 package net.rwhps.server.game
 
-import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtils

@@ -23,7 +23,7 @@ class AsmMark {
     @Retention(AnnotationRetention.SOURCE)
     @MustBeDocumented
     @Target(
-            AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.EXPRESSION
+            AnnotationTarget.CLASS,
     )
     internal annotation class ClassLoaderCompatible
 }

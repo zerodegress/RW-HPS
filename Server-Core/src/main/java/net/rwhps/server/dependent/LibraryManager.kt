@@ -40,7 +40,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
         if (china) {
             source.add(UrlData["MavenAli"]!!)
             source.add(UrlData["MavenTencent"]!!)
-            source.add(UrlData["MavenNetease"]!!)
+            //source.add(UrlData["MavenNetease"]!!)
             source.add(UrlData["MavenHuaWei"]!!)
             source.add(UrlData["Maven"]!!)
             source.add(UrlData["JitPack"]!!)

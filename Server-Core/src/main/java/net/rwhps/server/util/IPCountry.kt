@@ -20,8 +20,9 @@ import org.lionsoul.ip2region.DbSearcher
  */
 object IPCountry {
     private val searcher: DbSearcher = DbSearcher(
-            DbConfig(), CompressionDecoderUtils.sevenAllReadStream(FileUtils.getInternalFileStream("/ip2region.7z"))
-        .getSpecifiedSuffixInThePackage("db", true)["ip2region.db"]
+            DbConfig(),
+            CompressionDecoderUtils.sevenAllReadStream(FileUtils.getInternalFileStream("/ip2region.7z"))
+                .getSpecifiedSuffixInThePackage("db", true)["ip2region.db"]
     )
 
     fun test() {

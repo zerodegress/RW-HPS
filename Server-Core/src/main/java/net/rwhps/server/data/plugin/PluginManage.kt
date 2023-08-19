@@ -9,10 +9,10 @@
 
 package net.rwhps.server.data.plugin
 
-import net.rwhps.server.data.EventGlobalManage
-import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.func.ConsSeq
+import net.rwhps.server.game.event.EventGlobalManage
+import net.rwhps.server.game.event.EventManage
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
 import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.plugin.Plugin
@@ -30,6 +30,7 @@ import java.io.IOException
  * Plugin Manager
  * @author RW-HPS/Dr
  */
+@Suppress("UNUSED", "UNUSED_PARAMETER")
 object PluginManage {
     private val pluginGlobalEventManage = EventGlobalManage()
     private var pluginData: Seq<PluginLoadData>? = null
@@ -57,13 +58,7 @@ object PluginManage {
     }
 
     fun addPluginClass(
-        name: String,
-        author: String,
-        description: String,
-        version: String,
-        main: Plugin,
-        mkdir: Boolean,
-        skip: Boolean = false
+        name: String, author: String, description: String, version: String, main: Plugin, mkdir: Boolean, skip: Boolean = false
     ) {
         addPluginClass(name, author, description, version, main, mkdir, skip, pluginData!!)
     }
@@ -83,23 +78,13 @@ object PluginManage {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerCommands(handler) }
     }
 
-    /** 注册要在服务器端使用的任何命令，例如从控制台-Relay */
-    fun runRegisterRelayCommands(handler: CommandHandler) {
-        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
-    }
-
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 */
     fun runRegisterServerClientCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
     }
 
-    /** 注册要在客户端使用的任何命令，例如来自RELAY内玩家 */
-    fun runRegisterRelayClientCommands(handler: CommandHandler) {
-        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
-    }
-
     /** 注册事件 -4  */
-    fun runRegisterEvents(eventManage: EventManage) {
+    fun runRegisterEvents(hessLoadID: String, eventManage: EventManage) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerEvents(eventManage) }
     }
 

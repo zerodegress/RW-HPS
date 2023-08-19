@@ -16,3 +16,5 @@ package net.rwhps.server.func
 data class KeyValue<K, V>(
     val key: K, val value: V
 )
+
+// “作为客人去批评主人总是不礼貌的 作为用户去批评开发者总是愚蠢的”

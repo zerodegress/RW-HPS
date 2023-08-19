@@ -31,6 +31,7 @@ open class AgentAttachData {
 
         /** JRE将在启动main()之前调用方法  */
         @JvmStatic
+        @Suppress("UNUSED_PARAMETER")
         fun agentmain(name: String?, inst: Instrumentation?) {
             instPrivate = inst
         }

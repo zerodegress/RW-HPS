@@ -10,14 +10,15 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.BeanPluginInfo
-import net.rwhps.server.data.event.GameOverData
+import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.func.ConsMap
 import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.func.Prov
 import net.rwhps.server.game.GameMaps
-import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.enums.GameCommandActions
+import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.game.simulation.core.AbstractPlayerData
 import net.rwhps.server.io.input.SyncByteArrayChannel
 import net.rwhps.server.io.output.CompressOutputStream
@@ -40,8 +41,8 @@ import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FakeFileSystem
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
+import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.Log
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
@@ -94,8 +95,8 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<FileUtils>()
         injectJavaClass<GameMaps.MapData>("MapData")
         injectJavaClass<GameOverData>()
-        injectJavaClass<GameUnitType.GameActions>("GameActions")
-        injectJavaClass<GameUnitType.GameUnits>("GameUnits")
+        injectJavaClass<GameCommandActions>("GameActions")
+        injectJavaClass<GameInternalUnits>("GameUnits")
         injectJavaClass<GroupNet>()
         injectJavaClass<I18NBundle>()
         injectJavaClass<IntMap<Any>>()
@@ -175,11 +176,15 @@ class JavaScriptPluginGlobalContext {
                 modules.eachAll { pluginInfo, v ->
                     this.add(
                             PluginLoadData(
-                                    pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, if (defaults.canExecute()) {
-                                defaults.getMember(v).execute().`as`(Plugin::class.java)
-                            } else {
-                                defaults.getMember(v).`as`(Plugin::class.java)
-                            }
+                                    pluginInfo.name,
+                                    pluginInfo.author,
+                                    pluginInfo.description,
+                                    pluginInfo.version,
+                                    if (defaults.canExecute()) {
+                                        defaults.getMember(v).execute().`as`(Plugin::class.java)
+                                    } else {
+                                        defaults.getMember(v).`as`(Plugin::class.java)
+                                    }
                             )
                     )
                 }
@@ -292,9 +297,7 @@ class JavaScriptPluginGlobalContext {
             }
 
             override fun newByteChannel(
-                path: Path,
-                options: MutableSet<out OpenOption>?,
-                vararg attrs: FileAttribute<*>?
+                path: Path, options: MutableSet<out OpenOption>?, vararg attrs: FileAttribute<*>?
             ): SeekableByteChannel {
                 var pathString = path.toString()
                 val reg = Regex("^(.+?)(/\\?[^?#]+)?(/#[^#]+)?\$")
@@ -318,41 +321,44 @@ class JavaScriptPluginGlobalContext {
                             null
                         }
                     }
-                    pathString.matches(Regex("^/plugins/[^/]+\$")) -> scriptFileSystem[moduleMap[pathString.removePrefix("/plugins/")].toString()]
+                    pathString.matches(Regex("^/plugins/[^/]+\$")) -> scriptFileSystem[moduleMap[pathString.removePrefix(
+                            "/plugins/"
+                    )].toString()]
                     else -> scriptFileSystem[pathString]
                 }
-                return SyncByteArrayChannel(when {
-                    pathString.startsWith("/web") -> bytes
-                    fragment.isBlank() -> when {
-                        query.isBlank() -> bytes
-                        query == "bytes" -> """
+                return SyncByteArrayChannel(
+                        when {
+                            pathString.startsWith("/web") -> bytes
+                            fragment.isBlank() -> when {
+                                query.isBlank() -> bytes
+                                query == "bytes" -> """
                             const bytes = new Uint8Array(RwHps.readRamBytes('$pathString'));
                             export default bytes;
                             export const url = 'ram://$pathString';
                             export const type = 'bytes';
                         """.trimIndent().encodeToByteArray()
-                        query == "text" -> """
+                                query == "text" -> """
                             const text = RwHps.readRamText('$pathString');
                             export default text;
                             export const url = 'ram://$pathString';
                             export const type = 'text';
                         """.trimIndent().encodeToByteArray()
-                        query == "json" -> """
+                                query == "json" -> """
                             const json = JSON.parse(RwHps.readRamText('$pathString'));
                             export default json;
                             export const url = 'ram://$pathString';
                             export const type = 'json';
                         """.trimIndent().encodeToByteArray()
-                        query == "wasm" -> """
+                                query == "wasm" -> """
                             const wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array(RwHps.readRamBytes('$pathString')),{}));
                             export default wasm
                             export const url = 'ram://$pathString';
                             export const type = 'wasm';
                         """.trimIndent().encodeToByteArray()
-                        else -> null
-                    }
-                    else -> null
-                }.ifNullResult(IOUtils.EMPTY_BYTE_ARRAY) { it }, true
+                                else -> null
+                            }
+                            else -> null
+                        }.ifNullResult(IOUtils.EMPTY_BYTE_ARRAY) { it }, true
                 )
             }
 

@@ -108,7 +108,7 @@ class FileLoaderRedirections: MainRedirections {
         }
 
         redirect("com/corrodinggames/rts/gameFramework/e/c", arrayOf("f", "(Ljava/lang/String;)Ljava/lang/String;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
-            var d: String = (run_FileSystem(obj!!, "d", String::class.java).invoke(obj, args[0].toString()) as String).replace("\\", "/")
+            var d: String = (run_FileSystem(obj, "d", String::class.java).invoke(obj, args[0].toString()) as String).replace("\\", "/")
 
             val path = args[0].toString().replace("\\", "/")
             // 跳过已经绝对路径的
@@ -121,13 +121,13 @@ class FileLoaderRedirections: MainRedirections {
                 val modFolder = "mods/units"
                 val mapFolder = "mods/maps"
 
-                val find: (String, String, String) -> String? = { pathIn, path, toPath ->
-                    if (pathIn.startsWith(path)) {
-                        if (pathIn == path) {
+                val find: (String, String, String) -> String? = { pathInA, pathInB, toPath ->
+                    if (pathInA.startsWith(pathInB)) {
+                        if (pathInA == pathInB) {
                             FileUtils.getPath(toPath)
                         } else {
                             // 一个小问题, 来自 splicePath , 他会默认在屁股后面加一个 /
-                            FileUtils.splicePath(FileUtils.getPath(toPath), pathIn.substring(path.length))
+                            FileUtils.splicePath(FileUtils.getPath(toPath), pathInA.substring(pathInB.length))
                         }
                     } else {
                         null
@@ -148,7 +148,7 @@ class FileLoaderRedirections: MainRedirections {
 
             val cc = ReflectionUtils.findField(Class.forName("com.corrodinggames.rts.gameFramework.l", true, obj::class.java.classLoader), "aU", Boolean::class.java)!!
 
-            return@redirect if (cc.get(null) as Boolean) {
+            return@redirect if (cc[null] as Boolean) {
                 if (d.startsWith("/SD/rusted_warfare_maps")) {
                     d = "/SD/mods/maps" + d.substring("/SD/rusted_warfare_maps".length)
                 }

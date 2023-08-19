@@ -7,7 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("ServerPacket") @file:JvmMultifileClass
+//关闭傻逼格式化
+//@formatter:off
+
+@file:JvmName("ServerPacket")
+@file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.server
 
@@ -26,7 +30,7 @@ import java.io.IOException
  * @param msg String    : Message
  * @param sendBy String : Sender Name
  * @param team Int      : Team (distinguishing color)
- * @return Packet       : Generate a sendable package
+ * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
@@ -48,7 +52,7 @@ internal fun chatMessagePacketInternal(msg: String, sendBy: String, team: Int): 
 /**
  * Sim player message
  * @param msg String    : Message
- * @return Packet       : Generate a sendable package
+ * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  */
 @Throws(IOException::class)

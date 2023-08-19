@@ -31,14 +31,13 @@
 
 package net.rwhps.server
 
+import net.rwhps.server.command.CommandsEx
 import net.rwhps.server.command.CoreCommands
 import net.rwhps.server.command.LogCommands
-import net.rwhps.server.core.Core
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
 import net.rwhps.server.data.bean.BeanCoreConfig
-import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
@@ -52,11 +51,14 @@ import net.rwhps.server.data.plugin.PluginManage.runOnEnable
 import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.dependent.HeadlessProxyClass
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.io.output.DynamicPrintStream
-import net.rwhps.server.net.api.WebGetRelayInfo
+import net.rwhps.server.net.NetService
+import net.rwhps.server.net.handler.tcp.StartHttp
+import net.rwhps.server.net.http.WebData
 import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
@@ -85,6 +87,7 @@ import kotlin.system.exitProcess
  */
 object Main {
     @JvmStatic
+    @Throws(Exception::class)
     fun main(args: Array<String>) {/* 设置Log 并开启拷贝 */
         set("TRACK")
 
@@ -107,7 +110,6 @@ object Main {
         Data.config = BeanCoreConfig.stringToClass()
         Data.configServer = BeanServerConfig.stringToClass()
 
-        Data.configRelay = BeanRelayConfig.stringToClass()
         Data.core.load()
         Initialization.loadLib()
 
@@ -116,14 +118,14 @@ object Main {
         clog(Data.i18NBundle.getinput("server.thanks"))
 
         // Test Block
-        run {}
+        run {
+        }
 
         /* 加载 ASM */
         HeadlessProxyClass()
 
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
-        LogCommands(Data.LOG_COMMAND)
         clog(Data.i18NBundle.getinput("server.load.command"))
 
         /* Event加载 */
@@ -138,7 +140,7 @@ object Main {
         runRegisterGlobalEvents()
         PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
         PluginManage.runRegisterServerCommands(Data.SERVER_COMMAND)
-        PluginManage.runRegisterServerClientCommands(Data.CLIENT_COMMAND)
+        CommandsEx(Data.PING_COMMAND)
 
         /* 加载完毕 */
         PluginManage.runGlobalEventManage(ServerLoadEvent())
@@ -150,12 +152,10 @@ object Main {
         set(Data.config.log)
 
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage("start", Data.defPrint)
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.defStartCommand, Data.defPrint)
         if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
             clog("Please check the command , Unable to use StartCommand inside Config to start the server")
         }
-
-        Data.webData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
 
         newThreadCore(this::inputMonitor)
     }
@@ -165,11 +165,6 @@ object Main {
      * Win的CMD就是个垃圾
      */
     private fun inputMonitorInit() {
-        // 防止傻逼双击运行jar
-        if (System.`in` == null) {
-            Core.exit()
-        }
-
         val terminal = TerminalBuilder.builder().encoding(Data.DefaultEncoding).build()
 
         privateReader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader

@@ -220,6 +220,7 @@ internal open class AbstractPluginData {
         pluginData.clear()
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> getObject(type: Class<T>, bytes: ByteArray): T? {
         if (!SERIALIZERS.containsKey(type)) {
             error(IllegalArgumentException("Type $type does not have a serializer registered!"))
@@ -229,7 +230,7 @@ internal open class AbstractPluginData {
         return try {
             byteInputStream.setBytes(bytes)
             val obj = serializer.read(GameInputStream(byteInputStream)) ?: return null
-            @Suppress("UNCHECKED_CAST") obj as T
+            obj as T
         } catch (e: Exception) {
             null
         }
@@ -257,8 +258,9 @@ internal open class AbstractPluginData {
             return SERIALIZERS[type]
         }
 
+        @Suppress("UNCHECKED_CAST")
         internal fun <T> setSerializer(type: Class<*>, ser: SerializerTypeAll.TypeSerializer<T>) {
-            @Suppress("UNCHECKED_CAST") SERIALIZERS[type] = (ser as SerializerTypeAll.TypeSerializer<Any?>)
+            SERIALIZERS[type] = (ser as SerializerTypeAll.TypeSerializer<Any?>)
         }
     }
 }

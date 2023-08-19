@@ -67,7 +67,6 @@ class Administration(pluginData: PluginData) {
         addSavePool {
             Data.config.save()
             Data.configServer.save()
-            Data.configRelay.save()
         }
     }
 

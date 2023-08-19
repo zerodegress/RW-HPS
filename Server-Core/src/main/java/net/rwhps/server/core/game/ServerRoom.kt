@@ -1,24 +1,28 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ *  * Copyright 2020-2023 RW-HPS Team and contributors.
+ *  *
+ *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  *
+ *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ *  
  */
 
-package net.rwhps.server.data.global
+package net.rwhps.server.core.game
 
 import net.rwhps.server.core.CallHess
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads.closeTimeTask
-import net.rwhps.server.data.MapManage
-import net.rwhps.server.data.event.GameOverData
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHessManage
 import net.rwhps.server.data.temp.ServerCacheFlag
+import net.rwhps.server.game.MapManage
 import net.rwhps.server.game.event.game.ServerGameOverEvent
+import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.game.simulation.core.AbstractGameModule
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.clog
 
 /**
@@ -27,8 +31,15 @@ import net.rwhps.server.util.log.Log.clog
 class ServerRoom(private val gameModule: AbstractGameModule) {
     lateinit var roomID: String
 
+    /**
+     * 服务器客户端的命令系统
+     *
+     * 为多端的准备
+     */
+    val clientHandler = CommandHandler("/")
+
     val playerManage = PlayerHessManage()
-    val call = CallHess(this)
+    val call = CallHess(gameModule)
 
     var isStartGame = false
         set(value) {
@@ -60,8 +71,8 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
 
     // FLAG
     var flagData = ServerCacheFlag()
-    var forcedReturn = false
-    var checkGameStatusFlag = true
+    private var forcedReturn = false
+    private var checkGameStatusFlag = true
 
 
     var mapName: String
@@ -86,39 +97,44 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
     var closeServer: () -> Unit = {}
     var startServer: () -> Unit = {}
 
-    internal fun gr() {
-        if (forcedReturn) {
-            return
-        }
-        forcedReturn = true
-
+    internal fun cleanThread() {
         if (Data.vote != null) {
             Data.vote!!.stopVote()
         }
         closeTimeTask(CallTimeTask.GameOverTask)
         closeTimeTask(CallTimeTask.AutoCheckTask)
+    }
 
-        clog("[$roomID] Gameover")
-
-        closeServer()
-        //
+    internal fun cleanData() {
         isStartGame = false
 
         flagData = ServerCacheFlag()
         checkGameStatusFlag = true
-
-        playerManage.cleanPlayerAllData()
-
-        //val file = FileUtil.getFolder(Data.Plugin_RePlays_Path).toFile(replayFileName)
-        //file.delete()
 
         startTime = 0
 
         forcedReturn = false
 
         gameModule.eventManage.fire(ServerGameOverEvent(gameOverData))
-
         gameOverData = null
+
+        MapManage.maps.mapData?.clean()
+    }
+
+    internal fun gr() {
+        if (forcedReturn) {
+            return
+        }
+        forcedReturn = true
+
+        cleanThread()
+
+        clog("[$roomID] Gameover")
+
+        closeServer()
+
+        cleanData()
+        playerManage.cleanPlayerAllData()
 
         startServer()
     }

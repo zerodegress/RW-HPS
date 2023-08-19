@@ -61,6 +61,8 @@ dependencies {
 
     compileOnlyAndTest("org.graalvm.js:js:${Versions.graalvmVersion}")
     compileOnlyAndTest("org.graalvm.sdk:graal-sdk:${Versions.graalvmVersion}")
+    // https://github.com/RW-HPS/graal-wasm/releases/tag/22.3.2
+    //testImplementation(fileTree(mapOf("dir" to "libs", "include" to "wasm.jar")))
 
     testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

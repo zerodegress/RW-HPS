@@ -52,7 +52,9 @@ object StringFilteringUtil {
                     + "(/(?:[GOO" + GOOD_IRI_CHAR + "D_IRI_CHA" // plus option query params
                     + "R;/?:@&=#~\\-.+!*'(),_]|%[a-fA-F0-9]{2})*)?" + "(?:\\b|$)"
     )
-    private val WEB_URL0 = Pattern.compile("([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://|[wW]{3}.|[wW][aA][pP].|[fF][tT][pP].|[fF][iI][lL][eE].)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]\n")
+    private val WEB_URL0 = Pattern.compile(
+            "([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://|[wW]{3}.|[wW][aA][pP].|[fF][tT][pP].|[fF][iI][lL][eE].)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]\n"
+    )
 
     private fun findFirstGroup(matcher: Matcher): String {
         matcher.find()

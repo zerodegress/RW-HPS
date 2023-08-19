@@ -9,17 +9,20 @@
 
 package net.rwhps.server.game.simulation.core
 
-import net.rwhps.server.data.EventManage
-import net.rwhps.server.data.global.ServerRoom
+import net.rwhps.server.core.game.ServerRoom
+import net.rwhps.server.game.event.EventManage
 
 /**
  * 通过这里的稳定接口来调用游戏内部实现
  *
  * @property useClassLoader 获取加载接口实现类的 [ClassLoader]]
+ * @property eventManage EventManage
  * @property gameHessData AbstractGameHessData
  * @property gameNet AbstractGameNet
  * @property gameUnitData AbstractGameUnitData
  * @property gameFast AbstractGameFast
+ * @property gameLinkFunction AbstractGameLinkFunction
+ * @property gameLinkData AbstractGameLinkData
  * @property room ServerRoom
  */
 interface AbstractGameModule {
@@ -32,8 +35,8 @@ interface AbstractGameModule {
     val gameUnitData: AbstractGameUnitData
     val gameFast: AbstractGameFast
 
-    val gameData: AbstractGameLinkFunction
-    val gameDataLink: AbstractGameLinkData
+    val gameLinkFunction: AbstractGameLinkFunction
+    val gameLinkData: AbstractGameLinkData
 
     val room: ServerRoom
 }

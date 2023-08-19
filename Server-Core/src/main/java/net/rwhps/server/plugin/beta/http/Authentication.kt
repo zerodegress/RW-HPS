@@ -86,7 +86,7 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
                         attr.setIfAbsent(type)
                     }
 
-                    type.ws(ws, channel, json)
+                    type.ws(channel, json)
                 } catch (e: Exception) {
                     channel.writeAndFlush(
                             msg(
@@ -104,7 +104,7 @@ class Authentication(private val messageForwardingCenter: MessageForwardingCente
             override fun closeWs(ws: StartWebSocket, channel: Channel) {
                 val attr = channel.attr(NETTY_CHANNEL_KEY)
                 val type = attr.get()
-                type?.closeWs(ws, channel)
+                type?.closeWs(channel)
             }
         })
     }

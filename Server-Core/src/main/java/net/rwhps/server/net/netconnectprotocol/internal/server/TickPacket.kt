@@ -7,7 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("ServerPacket") @file:JvmMultifileClass
+//关闭傻逼格式化
+//@formatter:off
+
+@file:JvmName("ServerPacket")
+@file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.server
 
@@ -27,7 +31,7 @@ import java.io.IOException
 /**
  * Update Tick packs to players
  * @param tick Int      : TICK
- * @return Packet       : Generate a sendable package
+ * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
@@ -45,7 +49,7 @@ internal fun gameTickPacketInternal(tick: Int): Packet {
  * Sends a single key pack (unit action pack) under the specified Tick to the player
  * @param tick Int              : TICK
  * @param cmd GameCommandPacket : GameCommand Packet
- * @return Packet               : Generate a sendable package
+ * @return Packet               : Generate a send package
  * @throws IOException          : Unknown
  */
 @Throws(IOException::class)
@@ -70,7 +74,7 @@ internal fun gameTickCommandPacketInternal(tick: Int, cmd: GameCommandPacket): P
  * Generate multiple key packs (unit action packs) under the specified Tick to the player
  * @param tick Int                      : TICK
  * @param cmd Seq<GameCommandPacket>    : GameCommand Packets
- * @return Packet                       : Generate a sendable package
+ * @return Packet                       : Generate a send package
  * @throws IOException                  : Unknown
  */
 @Throws(IOException::class)

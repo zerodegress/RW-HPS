@@ -24,7 +24,7 @@ import java.util.Random;
 
 /**
  * This class implements client sockets that use
- * the Simple Reliable UDP (RUDP) protocol for
+ * the Simple Reliable UDP (Reliable UDP) protocol for
  * end-to-end communication between two machines.
  *
  * @author Adrian Granados
@@ -61,7 +61,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
     }
 
     /**
-     * Creates a RUDP socket and attaches it to the underlying datagram socket.
+     * Creates a Reliable UDP socket and attaches it to the underlying datagram socket.
      *
      * @param sock the datagram socket.
      */
@@ -70,8 +70,8 @@ public class ReliableSocket extends Socket implements AbstractSelection {
     }
 
     /**
-     * Creates a RUDP socket and attaches it to the underlying
-     * datagram socket using the given RUDP parameters.
+     * Creates a Reliable UDP socket and attaches it to the underlying
+     * datagram socket using the given Reliable UDP parameters.
      *
      * @param sock    the datagram socket.
      * @param profile the socket profile.
@@ -103,7 +103,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
             Runtime.getRuntime().addShutdownHook(_shutdownHook);
         } catch (IllegalStateException xcp) {
             if (DEBUG) {
-                Log.error("[RUDP]", xcp);
+                Log.error("[Reliable UDP]", xcp);
             }
         }
 
@@ -175,7 +175,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                         }
                     }
                 } catch (InterruptedException xcp) {
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
             }
         }
@@ -296,7 +296,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                 Runtime.getRuntime().removeShutdownHook(_shutdownHook);
             } catch (IllegalStateException xcp) {
                 if (DEBUG) {
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
             }
 
@@ -546,7 +546,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                     try {
                         _unackedSentQueue.wait();
                     } catch (InterruptedException xcp) {
-                        Log.error("[RUDP]", xcp);
+                        Log.error("[Reliable UDP]", xcp);
                     }
                 }
             }
@@ -608,7 +608,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                     try {
                         _resetLock.wait();
                     } catch (InterruptedException xcp) {
-                        Log.error("[RUDP]", xcp);
+                        Log.error("[Reliable UDP]", xcp);
                     }
                 }
 
@@ -806,7 +806,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                 try {
                     _unackedSentQueue.wait();
                 } catch (InterruptedException xcp) {
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
             }
 
@@ -1031,7 +1031,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                     break;
             }
         } catch (IOException xcp) {
-            Log.error("[RUDP]", xcp);
+            Log.error("[Reliable UDP]", xcp);
         }
     }
 
@@ -1083,7 +1083,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                     try {
                         retransmitSegment(s);
                     } catch (IOException xcp) {
-                        Log.error("[RUDP]", xcp);
+                        Log.error("[Reliable UDP]", xcp);
                     }
                 }
             }
@@ -1230,7 +1230,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                 sendSegment(new EAKSegment(nextSequenceNumber(lastInSequence),
                         lastInSequence, acks));
             } catch (IOException xcp) {
-                Log.error("[RUDP]", xcp);
+                Log.error("[Reliable UDP]", xcp);
             }
 
         }
@@ -1249,7 +1249,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
             int lastInSequence = _counters.getLastInSequence();
             sendSegment(new ACKSegment(nextSequenceNumber(lastInSequence), lastInSequence));
         } catch (IOException xcp) {
-            Log.error("[RUDP]", xcp);
+            Log.error("[Reliable UDP]", xcp);
         }
     }
 
@@ -1330,7 +1330,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
             _sock.send(packet);
         } catch (IOException xcp) {
             if (!isClosed()) {
-                Log.error("[RUDP]", xcp);
+                Log.error("[Reliable UDP]", xcp);
             }
         }
     }
@@ -1347,7 +1347,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
             return Segment.parse(packet.getData(), 0, packet.getLength());
         } catch (IOException ioXcp) {
             if (!isClosed()) {
-                Log.error("[RUDP]", ioXcp);
+                Log.error("[Reliable UDP]", ioXcp);
             }
         }
 
@@ -1376,7 +1376,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
             try {
                 Thread.sleep(_profile.nullSegmentTimeout() * 2L);
             } catch (InterruptedException xcp) {
-                Log.error("[RUDP]", xcp);
+                Log.error("[Reliable UDP]", xcp);
             }
 
             _retransmissionTimer.destroy();
@@ -1446,7 +1446,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
 
     private ShutdownHook _shutdownHook;
 
-    /* RUDP connection parameters */
+    /* Reliable UDP connection parameters */
     private ReliableSocketProfile _profile = new ReliableSocketProfile();
 
     private final ArrayList<Segment> _unackedSentQueue = new ArrayList<>(); /* Unacknowledged segments send queue */
@@ -1541,7 +1541,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                     checkAndGetAck(segment);
                 }
             } catch (IOException xcp) {
-                Log.error("[RUDP]", xcp);
+                Log.error("[Reliable UDP]", xcp);
             }
         }
     }
@@ -1555,7 +1555,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                         sendAndQueueSegment(new NULSegment(_counters.nextSequenceNumber()));
                     } catch (IOException xcp) {
                         if (DEBUG) {
-                            Log.error("[RUDP]", xcp);
+                            Log.error("[Reliable UDP]", xcp);
                         }
                     }
                 }
@@ -1570,7 +1570,7 @@ public class ReliableSocket extends Socket implements AbstractSelection {
                     try {
                         retransmitSegment(s);
                     } catch (IOException xcp) {
-                        Log.error("[RUDP]", xcp);
+                        Log.error("[Reliable UDP]", xcp);
                     }
                 }
             }

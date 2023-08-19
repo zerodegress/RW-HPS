@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2020-2023 RW-HPS Team and contributors.
  *
@@ -15,12 +16,19 @@ import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import java.util.concurrent.*
 
+
 /**
  * @author RW-HPS/Dr
  */
 object GetNewThreadPool {
-    fun getNewFixedThreadPool(nThreads: Int, name: String): ThreadPoolExecutor {
-        return ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(), ThreadFactoryName.nameThreadFactory(name))
+    fun getNewFixedThreadPool(nThreads: Int, name: String): ExecutorService {
+        return ThreadPoolExecutor(
+                nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, LinkedBlockingQueue(), ThreadFactoryName.nameThreadFactory(name)
+        )
+    }
+
+    fun getNewSingleThreadExecutor(name: String): ExecutorService {
+        return Executors.newSingleThreadExecutor(ThreadFactoryName.nameThreadFactory(name))
     }
 
     fun getNewScheduledThreadPool(corePoolSize: Int, name: String): ScheduledExecutorService {

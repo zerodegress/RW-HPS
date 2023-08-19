@@ -12,7 +12,7 @@ package net.rwhps.server.command.ex
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
-import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.struct.Seq
@@ -120,7 +120,11 @@ class Vote {
      */
     private fun normalDistribution() {
         require = HessModuleManage.hps.room.playerManage.playerGroup.size
-        endNoMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require) }
+        endNoMsg = {
+            HessModuleManage.hps.room.call.sendSystemMessageLocal(
+                    "vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require
+            )
+        }
         endYesMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.ok") }
         votePlayerIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.y.ing", command, pass, this.require) }
         voteIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.ing", reciprocal) }
@@ -134,11 +138,23 @@ class Vote {
         val require = AtomicInteger(0)
         HessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == player.team }) { _: PlayerHess -> require.getAndIncrement() }
         this.require = require.get()
-        endNoMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require) }
+        endNoMsg = {
+            HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
+                    player.team, "vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require
+            )
+        }
         endYesMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
-        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.y.ing", command, pass, this.require) }
+        votePlayerIng = {
+            HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
+                    player.team, "vote.y.ing", command, pass, this.require
+            )
+        }
         voteIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ing", reciprocal) }
-        start { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?: "")) }
+        start {
+            HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
+                    player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?: "")
+            )
+        }
     }
 
     private fun start(run: () -> Unit) {

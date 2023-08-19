@@ -37,9 +37,7 @@ class PlayerHessManage {
     val playerAll = Seq<PlayerHess>(16, true)
 
     fun addAbstractPlayer(
-        con: AbstractNetConnectServer,
-        playerData: AbstractPlayerData,
-        i18NBundle: I18NBundle = Data.i18NBundle
+        con: AbstractNetConnectServer, playerData: AbstractPlayerData, i18NBundle: I18NBundle = Data.i18NBundle
     ): PlayerHess {
         var player: PlayerHess? = null
         var resultFlag = true
@@ -96,7 +94,7 @@ class PlayerHessManage {
                 }
             }
             if (count > 1) {
-                writeConsole("目标不止一个, 请使用 PlayerPositionIn")
+                writeConsole("目标不止一个, 请不要输入太短的玩家名")
                 return@let
             }
             if (conTg == null) {

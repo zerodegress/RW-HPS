@@ -94,11 +94,5 @@ internal class PacketDecoder: ByteToMessageDecoder() {
         } else {
             out.add(Packet(packetType, b))
         }
-
-        // Read Again
-        // Read clean in one go
-        if (bufferIn.readableBytes() > 0) {
-            decode(ctx, bufferIn, out)
-        }
     }
 }

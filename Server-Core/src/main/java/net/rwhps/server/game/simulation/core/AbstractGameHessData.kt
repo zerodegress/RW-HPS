@@ -9,13 +9,12 @@
 
 package net.rwhps.server.game.simulation.core
 
-import net.rwhps.server.data.event.GameOverData
+import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.util.annotations.GameSimulationLayer
 import net.rwhps.server.util.log.exp.ImplementedException
 
 interface AbstractGameHessData {
-
     @GameSimulationLayer.GameSimulationLayer_KeyWords("got remoteSyncFrame for")
     val tickHess: Int
     val tickNetHess: Int

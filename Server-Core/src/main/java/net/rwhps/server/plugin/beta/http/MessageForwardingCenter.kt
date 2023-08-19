@@ -10,9 +10,10 @@
 package net.rwhps.server.plugin.beta.http
 
 import io.netty.handler.codec.http.HttpHeaderValues
-import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
+import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.ModManage
 import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.net.core.web.WebPost
 import net.rwhps.server.net.http.AcceptWeb
@@ -56,7 +57,7 @@ class MessageForwardingCenter {
                 "run/ClientCommand" -> {
                     val result = StringBuilder()
                     checkStringPost(accept, send, "runCommand")?.let { command ->
-                        Data.CLIENT_COMMAND.handleMessage(command, StrCons { result.append(it) })
+                        HessModuleManage.hps.room.clientHandler.handleMessage(command, StrCons { result.append(it) })
                         send.setData(result.toString().toWebStatusJson())
                     }
                 }

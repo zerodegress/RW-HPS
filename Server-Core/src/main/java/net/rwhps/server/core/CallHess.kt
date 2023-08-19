@@ -11,10 +11,9 @@ package net.rwhps.server.core
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.game.simulation.core.AbstractGameModule
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -23,14 +22,14 @@ import java.util.concurrent.TimeUnit
 /**
  * @author RW-HPS/Dr
  */
-class CallHess(private val serverRoom: ServerRoom) {
+class CallHess(private val gameModule: AbstractGameModule) {
     /**
      * 向服务器玩家发送指定消息
      *
      * @param text String
      */
     fun sendSystemMessage(text: String) {
-        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(text) }
+        gameModule.room.playerManage.playerGroup.eachAll { e: PlayerHess -> e.sendSystemMessage(text) }
     }
 
     /**
@@ -40,7 +39,7 @@ class CallHess(private val serverRoom: ServerRoom) {
      * @param obj Array<out Any>
      */
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
+        gameModule.room.playerManage.playerGroup.eachAll { e: PlayerHess ->
             e.sendSystemMessage(
                     e.i18NBundle.getinput(
                             text, *obj
@@ -50,15 +49,19 @@ class CallHess(private val serverRoom: ServerRoom) {
     }
 
     fun sendSystemTeamMessageLocal(team: Int, text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == team }) { p: PlayerHess ->
+        gameModule.room.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == team }) { p: PlayerHess ->
             p.sendSystemMessage("[TEAM] " + p.i18NBundle.getinput(text, *obj))
         }
     }
 
     fun sendSystemMessage(text: String, vararg obj: Any) {
-        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
+        gameModule.room.playerManage.playerGroup.eachAll { e: PlayerHess ->
             e.sendSystemMessage(e.i18NBundle.getinput(text, *obj))
         }
+    }
+
+    fun syncAllPlayer() {
+        gameModule.gameLinkFunction.allPlayerSync()
     }
 
     /**
@@ -68,7 +71,7 @@ class CallHess(private val serverRoom: ServerRoom) {
      */
     @JvmOverloads
     fun killAllPlayer(msg: String = "Game Over") {
-        serverRoom.playerManage.playerGroup.eachAll { e: PlayerHess ->
+        gameModule.room.playerManage.playerGroup.eachAll { e: PlayerHess ->
             try {
                 e.kickPlayer(msg)
             } catch (err: IOException) {
@@ -80,57 +83,57 @@ class CallHess(private val serverRoom: ServerRoom) {
     fun startCheckThread() {
         var aiEndTime = 0
         Threads.newTimedTask(CallTimeTask.AutoCheckTask, 0, 1, TimeUnit.SECONDS) {
-            if ((Data.configServer.maxGameIngTime != -1 && Time.concurrentSecond() > serverRoom.endTime)) {
-                if (serverRoom.flagData.forcedCloseSendMsg) {
+            if ((Data.configServer.maxGameIngTime != -1 && Time.concurrentSecond() > gameModule.room.endTime)) {
+                if (gameModule.room.flagData.forcedCloseSendMsg) {
                     sendSystemMessageLocal("gameOver.forced")
                 }
-                serverRoom.flagData.forcedCloseSendMsg = false
-                if (Time.concurrentSecond() > serverRoom.endTime + 60) {
-                    serverRoom.gr()
+                gameModule.room.flagData.forcedCloseSendMsg = false
+                if (Time.concurrentSecond() > gameModule.room.endTime + 60) {
+                    gameModule.room.gr()
                     return@newTimedTask
                 }
             }
 
-            if (serverRoom.flagData.ai) {
-                if (serverRoom.flagData.aiWarn) {
-                    serverRoom.flagData.aiWarn = false
+            if (gameModule.room.flagData.ai) {
+                if (gameModule.room.flagData.aiWarn) {
+                    gameModule.room.flagData.aiWarn = false
                     sendSystemMessageLocal("gameOver.ai")
                 }
-                if (serverRoom.playerManage.playerGroup.size == 0) {
+                if (gameModule.room.playerManage.playerGroup.size == 0) {
                     if (aiEndTime == 0) {
                         aiEndTime = Time.concurrentSecond() + Data.configServer.maxOnlyAIGameIngTime
                     } else if (Data.configServer.maxOnlyAIGameIngTime != -1 && Time.concurrentSecond() > aiEndTime) {
-                        serverRoom.gr()
+                        gameModule.room.gr()
                         return@newTimedTask
                     }
                 } else {
                     aiEndTime = 0
                 }
             } else {
-                when (serverRoom.playerManage.playerGroup.size) {
-                    0 -> serverRoom.gr()
-                    1 -> if (serverRoom.flagData.oneSay) {
-                        serverRoom.flagData.oneSay = false
+                when (gameModule.room.playerManage.playerGroup.size) {
+                    0 -> gameModule.room.gr()
+                    1 -> if (gameModule.room.flagData.oneSay) {
+                        gameModule.room.flagData.oneSay = false
                         sendSystemMessageLocal("gameOver.oneMin")
-                        Threads.newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) { serverRoom.gr() }
+                        Threads.newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) { gameModule.room.gr() }
                     }
                     else -> {
                         if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
-                            serverRoom.flagData.oneSay = true
+                            gameModule.room.flagData.oneSay = true
                             Threads.closeTimeTask(CallTimeTask.GameOverTask)
                         }
                     }
                 }
             }
 
-            if (serverRoom.flagData.sendGameStatusFlag) {
-                serverRoom.gameOverData = HessModuleManage.hps.gameHessData.getGameOverData() ?: return@newTimedTask
+            if (gameModule.room.flagData.sendGameStatusFlag) {
+                gameModule.room.gameOverData = gameModule.gameHessData.getGameOverData() ?: return@newTimedTask
 
-                serverRoom.flagData.sendGameStatusFlag = false
+                gameModule.room.flagData.sendGameStatusFlag = false
 
-                val last = serverRoom.gameOverData!!.winPlayerList.toArray(String::class.java).contentToString()
+                val last = gameModule.room.gameOverData!!.winPlayerList.toArray(String::class.java).contentToString()
 
-                Log.clog("[${serverRoom.roomID}] Last Win Player: {0}", last)
+                Log.clog("[${gameModule.room.roomID}] Last Win Player: {0}", last)
                 sendSystemMessageLocal("survive.player", last)
             }
         }

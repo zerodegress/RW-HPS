@@ -42,21 +42,19 @@ object RandomUtils {
      * 根据所给 [charRange] 随机生成长度为 [length] 的 [String].
      */
     @JvmStatic
-    fun getRandomString(
-        length: Int,
-        charRange: CharRange,
-        random: Random = Random
-    ): String = CharArray(length) { charRange.random(random) }.concatToString()
+    fun getRandomString(length: Int, charRange: CharRange, random: Random = Random): String = CharArray(length) {
+        charRange.random(
+                random
+        )
+    }.concatToString()
 
     /**
      * 根据所给 [charRanges] 随机生成长度为 [length] 的 [String].
      */
     @JvmStatic
-    fun getRandomString(
-        length: Int,
-        vararg charRanges: CharRange,
-        random: Random = Random
-    ): String = CharArray(length) { charRanges[random.nextInt(0 .. charRanges.lastIndex)].random(random) }.concatToString()
+    fun getRandomString(length: Int, vararg charRanges: CharRange, random: Random = Random): String = CharArray(
+            length
+    ) { charRanges[random.nextInt(0 .. charRanges.lastIndex)].random(random) }.concatToString()
 
 
     /**

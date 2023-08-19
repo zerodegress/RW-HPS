@@ -15,6 +15,4 @@ import net.rwhps.server.util.game.CommandHandler;
  * @author RW-HPS/Dr
  */
 public class LogCommands {
-    public LogCommands(CommandHandler handler) {
-    }
 }

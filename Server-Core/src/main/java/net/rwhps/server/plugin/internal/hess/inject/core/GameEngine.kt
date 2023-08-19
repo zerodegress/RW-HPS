@@ -16,9 +16,9 @@ import com.corrodinggames.librocket.scripts.ScriptContext
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
 import net.rwhps.server.core.ServiceLoader
-import net.rwhps.server.data.EventManage
-import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.global.ServerRoom
+import net.rwhps.server.core.game.ServerRoom
+import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.event.EventManage
 import net.rwhps.server.game.simulation.core.*
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.plugin.internal.hess.HessMain
@@ -72,8 +72,8 @@ internal object GameEngine {
             override val gameNet: AbstractGameNet = GameNet()
             override val gameUnitData: AbstractGameUnitData = GameUnitData()
             override val gameFast: AbstractGameFast = GameFast()
-            override val gameData: AbstractGameLinkFunction = GameLinkFunction()
-            override val gameDataLink: AbstractGameLinkData = GameLinkData()
+            override val gameLinkFunction: AbstractGameLinkFunction = GameLinkFunction()
+            override val gameLinkData: AbstractGameLinkData = GameLinkData()
             override val room: ServerRoom = ServerRoom(this)
         }.also {
             data = it
@@ -83,6 +83,6 @@ internal object GameEngine {
 
         /* Register Server Protocol Command */
         ServerCommands(HessMain.serverServerCommands)
-        ClientCommands(HessMain.serverClientCommands)
+        ClientCommands(data.room.clientHandler)
     }
 }

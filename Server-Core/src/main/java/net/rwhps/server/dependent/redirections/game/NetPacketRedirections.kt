@@ -9,7 +9,7 @@
 
 package net.rwhps.server.dependent.redirections.game
 
-import net.rwhps.server.data.HessModuleManage
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.annotations.GameSimulationLayer
 import net.rwhps.server.util.annotations.mark.AsmMark

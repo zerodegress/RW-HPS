@@ -17,7 +17,7 @@ import java.nio.file.Files
 fun Project.setRepositories() {
     repositories {
         maven(url = "https://maven.aliyun.com/repository/public")
-//        maven(url = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public")
+        maven(url = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public")
         maven(url = "https://repo.huaweicloud.com/repository/maven")
         maven(url = "https://jitpack.io")
         maven(url = "https://plugins.gradle.org/m2")
@@ -27,36 +27,40 @@ fun Project.setRepositories() {
 }
 
 fun Project.makeDependTree() {
-    val project = this
+    try {
+        val project = this
 
-    val implementationFile = File("${project.rootDir}/${this.project.name}/${Data.mavenPath}/${this.project.name}/implementation.txt")
-    val compileOnlyFile = File("${project.rootDir}/${this.project.name}/${Data.mavenPath}/${this.project.name}/compileOnly.txt")
+        val implementationFile = File("${project.rootDir}/${this.project.name}/${Data.mavenPath}/${this.project.name}/implementation.txt")
+        val compileOnlyFile = File("${project.rootDir}/${this.project.name}/${Data.mavenPath}/${this.project.name}/compileOnly.txt")
 
-    implementationFile.fuckGithub()
-    compileOnlyFile.fuckGithub()
+        implementationFile.fuckGithub()
+        compileOnlyFile.fuckGithub()
 
-    var implementation = ""
-    var compileOnly = ""
-    val onlyList = ArrayList<String>()
+        var implementation = ""
+        var compileOnly = ""
+        val onlyList = ArrayList<String>()
 
-    project.configurations.findByName("compileOnly")!!.allDependencies.forEach {
-        val result = configurations.detachedConfiguration(it).resolvedConfiguration
-        result.firstLevelModuleDependencies.forEach { moduleDependency ->
-            moduleDependency.allModuleArtifacts.forEach { dependency ->
-                onlyList.add(dependency.moduleVersion.id.group + dependency.moduleVersion.id.name + dependency.classifier)
+        project.configurations.findByName("compileOnly")!!.allDependencies.forEach {
+            val result = configurations.detachedConfiguration(it).resolvedConfiguration
+            result.firstLevelModuleDependencies.forEach { moduleDependency ->
+                moduleDependency.allModuleArtifacts.forEach { dependency ->
+                    onlyList.add(dependency.moduleVersion.id.group + dependency.moduleVersion.id.name + dependency.classifier)
+                }
             }
         }
-    }
 
-    project.configurations.findByName("compileClasspath")!!.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
-        if (onlyList.contains(artifact.moduleVersion.id.group + artifact.moduleVersion.id.name + artifact.classifier)) {
-            compileOnly += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}${Data.lineSeparator}"
-        } else {
-            implementation += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}${Data.lineSeparator}"
+        project.configurations.findByName("compileClasspath")!!.resolvedConfiguration.resolvedArtifacts.forEach { artifact ->
+            if (onlyList.contains(artifact.moduleVersion.id.group + artifact.moduleVersion.id.name + artifact.classifier)) {
+                compileOnly += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}${Data.lineSeparator}"
+            } else {
+                implementation += "${artifact.type}:${artifact.moduleVersion.id.group}:${artifact.moduleVersion.id.name}:${artifact.moduleVersion.id.version}:${artifact.classifier}${Data.lineSeparator}"
+            }
         }
+        implementationFile.writeText(implementation)
+        compileOnlyFile.writeText(compileOnly)
+    } catch (_: Exception) {
+        // 忽略
     }
-    implementationFile.writeText(implementation)
-    compileOnlyFile.writeText(compileOnly)
 }
 
 fun File.fuckGithub() {
@@ -69,7 +73,7 @@ fun File.fuckGithub() {
 
     if (!this.exists()) {
         try {
-            Files.createFile(toPath())
+            Files.createFile(toPath());
         } catch (e: IOException) {
             println(path)
             println(canWrite())

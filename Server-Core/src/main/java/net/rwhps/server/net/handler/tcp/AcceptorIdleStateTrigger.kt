@@ -12,11 +12,14 @@ package net.rwhps.server.net.handler.tcp
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
+import io.netty.channel.unix.Errors
 import io.netty.handler.timeout.IdleState
 import io.netty.handler.timeout.IdleStateEvent
 import io.netty.util.AttributeKey
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.handler.TimeoutDetection
+import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.log.exp.ExceptionX
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -52,8 +55,11 @@ open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
 
     @Throws(Exception::class)
     override fun channelInactive(ctx: ChannelHandlerContext) {
-        //debug("break a link", ctx.channel().id().asLongText())
-        clear(ctx)
+        try {
+            super.channelInactive(ctx)
+        } finally {
+            clear(ctx)
+        }
     }
 
     @Throws(Exception::class)
@@ -75,10 +81,12 @@ open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
         // The remote host forcibly closed an existing connection
         if (cause is SocketException) {
             clear(ctx)
+        } else if (cause is Errors.NativeIoException) {
+            // 忽略
         } else {
-//            cause?.let {
-//                Log.error(Log.resolveTrace(it))
-//            }
+            cause?.let {
+                Log.error(ExceptionX.resolveTrace(it))
+            }
         }
     }
 
@@ -92,16 +100,12 @@ open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
      */
     internal fun clear(ctx: ChannelHandlerContext) {
         val channel = ctx.channel()
-        try {
-            val con = channel.attr(getAttributeKey()).get()
-            if (con != null) {
-                con.abstractNetConnect.disconnect()
-            } else {
-                channel.close()
-                ctx.close()
-            }
-        } finally {
-            //OVER_MAP.remove(channel.id().asLongText())
+        val con = channel.attr(getAttributeKey()).get()
+        if (con != null) {
+            con.abstractNetConnect.disconnect()
+        } else {
+            channel.close()
+            ctx.close()
         }
     }
 }

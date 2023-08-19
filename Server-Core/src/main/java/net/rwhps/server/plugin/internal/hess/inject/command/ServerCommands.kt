@@ -12,18 +12,17 @@ package net.rwhps.server.plugin.internal.hess.inject.command
 import com.corrodinggames.rts.game.n
 import com.corrodinggames.rts.gameFramework.j.NetEnginePackaging
 import com.corrodinggames.rts.gameFramework.j.k
-import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.MapManage
-import net.rwhps.server.data.ModManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.LINE_SEPARATOR
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.func.StrCons
+import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.MapManage
+import net.rwhps.server.game.ModManage
 import net.rwhps.server.game.event.game.PlayerBanEvent
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
-import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Font16
@@ -65,7 +64,7 @@ internal class ServerCommands(handler: CommandHandler) {
         }
         handler.register("save", "serverCommands.save") { _: Array<String>?, log: StrCons ->
             if (room.isStartGame) {
-                gameModule.gameData.saveGame()
+                gameModule.gameLinkFunction.saveGame()
             } else {
                 log("No Start Game")
             }
@@ -170,9 +169,11 @@ internal class ServerCommands(handler: CommandHandler) {
                 log(localeUtil.getinput("err.noNumber"))
                 return@register
             }
-            val playerPosition = arg[0].toInt() - 1
-            val newPosition = arg[1].toInt() - 1
-            n.k(playerPosition).r = newPosition
+            synchronized(gameModule.gameLinkData.teamOperationsSyncObject) {
+                val playerPosition = arg[0].toInt() - 1
+                val newPosition = arg[1].toInt() - 1
+                n.k(playerPosition).r = newPosition
+            }
         }
     }
 
@@ -184,10 +185,7 @@ internal class ServerCommands(handler: CommandHandler) {
                 log("Players: {0}", room.playerManage.playerGroup.size)
                 val data = StringBuilder()
                 for (player in room.playerManage.playerGroup) {
-                    data.append(LINE_SEPARATOR).append(player.name).append(" / ").append("Position: ").append(player.site).append(" / ")
-                        .append("IP: ").append((player.con!! as AbstractNetConnect).ip).append(" / ").append("Protocol: ")
-                        .append((player.con!! as AbstractNetConnect).useConnectionAgreement).append(" / ").append("Admin: ")
-                        .append(player.isAdmin)
+                    data.append(LINE_SEPARATOR).append(player.playerInfo)
                 }
                 log(data.toString())
             }
@@ -249,6 +247,7 @@ internal class ServerCommands(handler: CommandHandler) {
             if (player != null) {
                 player.credits += arg[1].toInt()
             }
+            gameModule.gameLinkFunction.allPlayerSync()
         }
 
         handler.register(

@@ -64,38 +64,38 @@ object FakeHessRes {
         FileUtils.getFile("Game-Assets-out.zip").writeFileByte(zip.flash())
         val zip0 = CompressionEncoderUtils.zipStream()
         FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).toFile("Game-Res.zip").zipDecoder.getZipAllBytes().eachAll { k, v ->
-                var bytes = v
-                when {
-                    k.endsWith(".png") -> {
-                        val image0 = ImageIO.read(DisableSyncByteArrayInputStream(v))
-                        val image = BufferedImage(image0.width, image0.height, BufferedImage.TYPE_INT_ARGB)
+            var bytes = v
+            when {
+                k.endsWith(".png") -> {
+                    val image0 = ImageIO.read(DisableSyncByteArrayInputStream(v))
+                    val image = BufferedImage(image0.width, image0.height, BufferedImage.TYPE_INT_ARGB)
 
-                        val g2d = image.createGraphics()
-                        g2d.color = Color(0, 0, 0, 0)
-                        g2d.fillRect(0, 0, image0.width, image0.height)
-                        g2d.dispose()
+                    val g2d = image.createGraphics()
+                    g2d.color = Color(0, 0, 0, 0)
+                    g2d.fillRect(0, 0, image0.width, image0.height)
+                    g2d.dispose()
 
-                        val outputFile = ByteArrayOutputStream()
-                        ImageIO.write(image, "png", outputFile)
-                        bytes = outputFile.toByteArray()
-                    }
-                    k.endsWith(".jpg") -> {
-                        val image0 = ImageIO.read(DisableSyncByteArrayInputStream(v))
-                        val image = BufferedImage(image0.width, image0.height, BufferedImage.TYPE_INT_ARGB)
-
-                        val g2d = image.createGraphics()
-                        g2d.color = Color(0, 0, 0, 0)
-                        g2d.fillRect(0, 0, image0.width, image0.height)
-                        g2d.dispose()
-
-                        val outputFile = ByteArrayOutputStream()
-                        ImageIO.write(image, "jpg", outputFile)
-                        bytes = outputFile.toByteArray()
-                    }
-                    k.endsWith(".ogg") -> bytes = ogg
+                    val outputFile = ByteArrayOutputStream()
+                    ImageIO.write(image, "png", outputFile)
+                    bytes = outputFile.toByteArray()
                 }
-                zip0.addCompressBytes(k, bytes)
+                k.endsWith(".jpg") -> {
+                    val image0 = ImageIO.read(DisableSyncByteArrayInputStream(v))
+                    val image = BufferedImage(image0.width, image0.height, BufferedImage.TYPE_INT_ARGB)
+
+                    val g2d = image.createGraphics()
+                    g2d.color = Color(0, 0, 0, 0)
+                    g2d.fillRect(0, 0, image0.width, image0.height)
+                    g2d.dispose()
+
+                    val outputFile = ByteArrayOutputStream()
+                    ImageIO.write(image, "jpg", outputFile)
+                    bytes = outputFile.toByteArray()
+                }
+                k.endsWith(".ogg") -> bytes = ogg
             }
+            zip0.addCompressBytes(k, bytes)
+        }
         FileUtils.getFile("Game-Res-out.zip").writeFileByte(zip0.flash())
     }
 }

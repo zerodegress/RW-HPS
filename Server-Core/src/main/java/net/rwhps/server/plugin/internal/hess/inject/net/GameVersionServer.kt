@@ -16,7 +16,9 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.func.Control
-import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.enums.GameCommandActions
+import net.rwhps.server.game.enums.GameInternalUnits
+import net.rwhps.server.game.enums.GamePingActions
 import net.rwhps.server.game.event.game.PlayerChatEvent
 import net.rwhps.server.game.event.game.PlayerLeaveEvent
 import net.rwhps.server.game.event.game.PlayerOperationUnitEvent
@@ -29,7 +31,7 @@ import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
-import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
+import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternalPacket
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.util.PacketType
@@ -147,9 +149,9 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
                 val strEnd = min(message.length, 3)
                 // 提取出消息前三位 判定是否为QC命令
                 response = if ("qc" == message.substring(1, strEnd)) {
-                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(5), player)
+                    GameEngine.data.room.clientHandler.handleMessage("/" + message.substring(5), player)
                 } else {
-                    Data.CLIENT_COMMAND.handleMessage("/" + message.substring(1), player)
+                    GameEngine.data.room.clientHandler.handleMessage("/" + message.substring(1), player)
                 }
             }
 
@@ -181,74 +183,82 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
     }
 
     @Throws(IOException::class)
-    override fun receiveCommand(packet: Packet) {
-        try {
-            GameInputStream(GameInputStream(packet).getDecodeBytes()).use { inStream ->
-                inStream.skip(1)
-                val boolean1 = inStream.readBoolean()
-                if (boolean1) {
-                    // 操作类型
-                    val status = inStream.readInt()
-                    var nameUnit = ""
-                    // 单位类型
-                    val unitType = inStream.readInt()
-                    if (unitType == -2) {
-                        nameUnit = inStream.readString()
-                    }
-                    val x = inStream.readFloat()
-                    val y = inStream.readFloat()
+    override fun receiveCommand(packet: Packet) = try {
+        GameInputStream(GameInputStream(packet).getDecodeBytes()).use { inStream ->
+            inStream.skip(1)
+            val boolean1 = inStream.readBoolean()
+            if (boolean1) {
+                // 操作类型
+                val status = inStream.readInt()
+                var nameUnit = ""
+                // 单位类型
+                val unitType = inStream.readInt()
+                if (unitType == -2) {
+                    nameUnit = inStream.readString()
+                }
+                val x = inStream.readFloat()
+                val y = inStream.readFloat()
 
-                    // 玩家操作
-                    val gameActions = GameUnitType.GameActions.from(status)
-                    // 操作单位
-                    val gameUnits: GameUnitType.GameUnits = GameUnitType.GameUnits.from(unitType)
-                    // 玩家操作单位事件
-                    val playerOperationUnitEvent = PlayerOperationUnitEvent(player, gameActions, gameUnits, x, y)
+                // 玩家操作
+                val gameCommandActions = GameCommandActions.from(status)
+                // 操作单位
+                val gameInternalUnits: GameInternalUnits = GameInternalUnits.from(unitType)
+                // 玩家操作单位事件
+                val playerOperationUnitEvent = PlayerOperationUnitEvent(player, gameCommandActions, gameInternalUnits, x, y)
 
-                    if (Data.configServer.turnStoneIntoGold && gameActions == GameUnitType.GameActions.BUILD) {
-                        gameSummon(if (unitType == -2) nameUnit else gameUnits.name, x, y)
+                if (Data.configServer.turnStoneIntoGold && gameCommandActions == GameCommandActions.BUILD) {
+                    gameSummon(if (unitType == -2) nameUnit else gameInternalUnits.name, x, y)
+                    packet.status = Control.EventNext.STOPPED
+                    return
+                } else {
+                    GameEngine.data.eventManage.fire(playerOperationUnitEvent)
+                    if (!playerOperationUnitEvent.resultStatus) {
                         packet.status = Control.EventNext.STOPPED
                         return
-                    } else {
-                        GameEngine.data.eventManage.fire(playerOperationUnitEvent)
-                        if (!playerOperationUnitEvent.resultStatus) {
-                            packet.status = Control.EventNext.STOPPED
-                            return
-                        }
-                    }
-                    inStream.skip(20)
-                    inStream.readIsString()
-                }
-                inStream.skip(10)
-                val boolean3 = inStream.readBoolean()
-                if (boolean3) {
-                    // float float
-                    inStream.skip(8)
-                }
-                inStream.skip(1)
-
-                val int2 = inStream.readInt()
-                for (i in 0 until int2) {
-                    inStream.skip(8)
-                }
-                val boolean4 = inStream.readBoolean()
-                if (boolean4) {
-                    inStream.skip(1)
-                }
-                // Map Ping
-                val mapPing = inStream.readBoolean()
-                if (mapPing) {
-                    if (player.getData<String>("Summon") != null) {
-                        // 单位生成
-                        gameSummon(player.getData<String>("Summon")!!, inStream.readFloat(), inStream.readFloat())
-                        player.removeData("Summon")
-                        return
                     }
                 }
+                inStream.skip(20)
+                inStream.readIsString()
             }
-        } catch (e: Exception) {
-            Log.error(e)
+            inStream.skip(10)
+            val boolean3 = inStream.readBoolean()
+            if (boolean3) {
+                // float float
+                inStream.skip(8)
+            }
+            inStream.skip(1)
+
+            val int2 = inStream.readInt()
+            for (i in 0 until int2) {
+                inStream.skip(8)
+            }
+            val boolean4 = inStream.readBoolean()
+            if (boolean4) {
+                inStream.skip(1)
+            }
+            // Map Ping
+            val mapPing = inStream.readBoolean()
+            val x: Float
+            val y: Float
+            if (mapPing) {
+                x = inStream.readFloat()
+                y = inStream.readFloat()
+            } else {
+                return
+            }
+            inStream.skip(8)
+
+            val action = GamePingActions.from(inStream.readString())
+
+            val lambda = player.getData<(AbstractNetConnectServer, GamePingActions, Float, Float)->Unit>("Ping")
+            if (lambda != null) {
+                lambda(this, action, x, y)
+                player.removeData("Ping")
+                return
+            }
         }
+    } catch (e: Exception) {
+        Log.error(e)
     }
 
     @Throws(IOException::class)
@@ -303,7 +313,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
         try {
             inputPassword = false
 
-            val id = relayServerTypeReplyInternal(packet)
+            val id = relayServerTypeReplyInternalPacket(packet)
             if (relaySelect != null) {
                 relaySelect!!(id)
                 relaySelect = null
@@ -336,7 +346,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
     override fun sendGameSave(packet: Packet) {
     }
 
-    override fun recivePacket(packet: Packet) {
+    override fun receivePacket(packet: Packet) {
         playerConnectX.netEnginePackaging.addPacket(packet)
     }
 

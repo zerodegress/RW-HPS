@@ -30,4 +30,6 @@ class README {
         内部 API, 不保证 二进制兼容, 如果插件使用请注意 !
         Internal API, not guaranteed to be binary compatible, please be careful if using plugins !
     """.trimIndent()
+
+    // Success is not final, failure is not fatal, it is the courage to continue that counts.
 }

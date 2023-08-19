@@ -29,6 +29,12 @@ import java.lang.reflect.Field
  * @author RW-HPS/Dr
  */
 data class BeanCoreConfig(
+    val noteEnglish: String = """
+        Different protocols use different configuration files, please go to the corresponding file ConfigServer
+    """.trimIndent(), val noteChina: String = """
+        不同协议使用的配置文件不同, 请自行前往对应文件 ConfigServer
+    """.trimIndent(),
+
     /** Default startup command */
     val defStartCommand: String = "start",
 
@@ -42,7 +48,8 @@ data class BeanCoreConfig(
     /** Port */
     val port: Int = 5123,
 
-    val serverName: String = "RW-HPS", val subtitle: String = "",
+    /** 服务器名称 */
+    val serverName: String = "RW-HPS",
     /** Automatically after starting UPLIST */
     val autoUpList: Boolean = false,
 

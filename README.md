@@ -15,6 +15,8 @@ Provide players with the same gaming experience as the official server
 _**生命不息，折腾不止**_
 </div>
 
+# 不会进行任何更新, 直到解决平行
+
 #### Currently to be completed
 
 - [ ] GamePanel

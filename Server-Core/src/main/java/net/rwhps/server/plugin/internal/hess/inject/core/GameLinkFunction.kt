@@ -17,6 +17,26 @@ import net.rwhps.server.util.log.Log
  * @author RW-HPS/Dr
  */
 internal class GameLinkFunction: AbstractGameLinkFunction {
+    override fun allPlayerSync() {
+        try {
+            synchronized(GameEngine.gameEngine) {
+                GameEngine.netEngine.a(false, false, true)
+            }
+        } catch (e: Exception) {
+            Log.error(e.cause!!)
+        }
+    }
+
+    override fun pauseGame(pause: Boolean) {
+        GameEngine.netEngine.e(pause)
+    }
+
+    override fun battleRoom(time: Int) {
+        GameEngine.netEngine.d(time.toFloat())
+        GameEngine.data.room.cleanThread()
+        GameEngine.data.room.cleanData()
+    }
+
     override fun saveGame() {
         GameEngine.gameEngine.ca.b(getFileNameNoSuffix(GameEngine.data.room.replayFileName), false)
         Log.clog("Save: ${getFileNameNoSuffix(GameEngine.data.room.replayFileName)}.rwsave")

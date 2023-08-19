@@ -117,7 +117,9 @@ internal open class SevenZipFileDecoder: AbstractDecoder {
                     Log.clog(nameCache)
                     //val name = nameCache.split("/").toTypedArray()[nameCache.split("/").toTypedArray().size - 1]
                     if (nameIn == nameCache) {
-                        return DisableSyncByteArrayInputStream(multiplexingReadStream.readInputStreamBytes(sevenZipFile.getInputStream(sevenZipEntry)))
+                        return DisableSyncByteArrayInputStream(
+                                multiplexingReadStream.readInputStreamBytes(sevenZipFile.getInputStream(sevenZipEntry))
+                        )
                     }
                 }
             }

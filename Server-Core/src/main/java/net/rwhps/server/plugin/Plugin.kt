@@ -9,15 +9,17 @@
 
 package net.rwhps.server.plugin
 
-import net.rwhps.server.data.EventGlobalManage
-import net.rwhps.server.data.EventManage
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.game.event.EventGlobalManage
+import net.rwhps.server.game.event.EventManage
+import net.rwhps.server.util.annotations.mark.PrivateMark
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.game.CommandHandler
 import java.util.*
 
 /**
+ *
  * @author RW-HPS/Dr
  */
 @Suppress("UNUSED")
@@ -60,7 +62,6 @@ abstract class Plugin {
     open fun registerCoreCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
-
     /**
      * 注册要在服务器端使用的Server命令，例如从控制台-Server
      * 这里注册的命令只有启动Server协议 才会存在
@@ -70,21 +71,14 @@ abstract class Plugin {
     }
 
     /**
-     * 注册要在服务器端使用的Relay命令，例如从控制台-Relay
-     * 这里注册的命令只有启动Relay协议 才会存在
+     * 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3
+     *
+     * ## 使用
+     * 这里不会多次调用
+     *
+     * 默认只会调用服务器主 Hess 的 Command
      */
-    open fun registerRelayCommands(handler: CommandHandler) {
-        // Plugin inheritance, we should not implement
-    }
-
-
-    /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3  */
     open fun registerServerClientCommands(handler: CommandHandler) {
-        // Plugin inheritance, we should not implement
-    }
-
-    /** 注册要在客户端使用的RELAY命令，例如来自RELAY内玩家 -3  */
-    open fun registerRelayClientCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
 

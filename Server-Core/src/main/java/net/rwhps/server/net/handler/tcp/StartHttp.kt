@@ -50,7 +50,9 @@ internal class StartHttp: AbstractNet(), AbstractNetWeb {
     }
 
     private fun isHttpReq(head: String): Boolean {
-        return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith("HEAD ") || head.startsWith(
+        return head.startsWith("GET ") || head.startsWith("POST ") || head.startsWith("DELETE ") || head.startsWith(
+                "HEAD "
+        ) || head.startsWith(
                 "PUT "
         )
     }
@@ -75,7 +77,10 @@ internal class StartHttp: AbstractNet(), AbstractNetWeb {
                         firstData.retain()
                         val head = headS.split("\\R")[0].split(" ")[1]
                         ctx.channel().pipeline().addLast(
-                                HttpServerCodec(), ChunkedWriteHandler(), HttpObjectAggregator(1048576), WebSocketServerProtocolHandler(head)
+                                HttpServerCodec(),
+                                ChunkedWriteHandler(),
+                                HttpObjectAggregator(1048576),
+                                WebSocketServerProtocolHandler(head)
                         )
                         ctx.channel().pipeline().addFirst(IdleStateHandler(10, 0, 0), object: ChannelDuplexHandler() {
                             @Throws(Exception::class)

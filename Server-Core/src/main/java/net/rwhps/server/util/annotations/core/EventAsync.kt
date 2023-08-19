@@ -13,6 +13,7 @@ package net.rwhps.server.util.annotations.core
 
 /**
  * 注解在 AbstractEvent/AbstractGlobalEvent 类上 : 表明事件是使用异步
+ * 使用本注解也内涵: 这个事件对应接收器是只读的, 你不应该在接收器中干重型操作
  *
  * @author RW-HPS/Dr
  */

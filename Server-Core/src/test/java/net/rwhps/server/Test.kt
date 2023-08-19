@@ -9,14 +9,29 @@
 
 package net.rwhps.server
 
-import org.junit.jupiter.api.Test
+import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.plugin.Plugin
+import net.rwhps.server.util.ReflectionUtils
+import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.CommandHandler.Command
 
 /**
  * @date 2023/7/27 11:01
  * @author RW-HPS/Dr
  */
-class Test {
-    @Test
-    fun test() {
+class Test : Plugin() {
+    override fun registerServerCommands(handler: CommandHandler) {
+        val command = handler.commandList.find {
+            // 找到命令为 start 的 Command 实例
+            it.text == "start"
+        }
+        handler.removeCommand("start")
+
+
+        handler.register("start", "clientCommands.start") { args: Array<String>?, player: PlayerHess? ->
+            val runStart = ReflectionUtils.findField(Command::class.java, "runner", CommandHandler.CommandRunner::class.java)!!.get(command)
+                    as CommandHandler.CommandRunner<PlayerHess?>
+            runStart.accept(args, player)
+        }
     }
 }

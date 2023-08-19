@@ -12,6 +12,7 @@ package net.rwhps.server.util.game;
 import net.rwhps.server.func.ConsSeq;
 import net.rwhps.server.struct.ObjectMap;
 import net.rwhps.server.struct.Seq;
+import net.rwhps.server.util.log.Log;
 
 /**
  * @author RW-HPS/Dr

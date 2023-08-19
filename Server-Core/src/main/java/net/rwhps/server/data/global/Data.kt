@@ -12,10 +12,8 @@ package net.rwhps.server.data.global
 import net.rwhps.server.command.ex.Vote
 import net.rwhps.server.core.Application
 import net.rwhps.server.data.bean.BeanCoreConfig
-import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.Rules
 import net.rwhps.server.net.http.WebData
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
@@ -72,6 +70,7 @@ object Data {
     val DefaultEncoding: Charset = SystemUtils.defaultEncoding/*
 	 * 插件默认变量
 	 */
+
     /** 自定义包名  */
     const val SERVER_ID = "net.rwhps.server"
 
@@ -82,7 +81,7 @@ object Data {
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
 
     /** 服务器主版本 */
-    const val SERVER_CORE_VERSION = "3.0.0-M3"
+    const val SERVER_CORE_VERSION = "3.0.0-M4"
 
     /** 服务器Topt密码  */
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
@@ -101,17 +100,11 @@ object Data {
     @JvmField
     val SERVER_COMMAND = CommandHandler("")
 
-    /** 服务端 客户端命令  */
-    @JvmField
-    val CLIENT_COMMAND = CommandHandler("/")
-
     /** 服务端 Log命令  */
     @JvmField
     val LOG_COMMAND = CommandHandler("!")
 
-    /** 服务端 Relay命令  */
-    @JvmField
-    val RELAY_COMMAND = CommandHandler(".")
+    internal val PING_COMMAND = CommandHandler("")
 
     /** Map */
     @JvmField
@@ -119,8 +112,10 @@ object Data {
 
     @JvmField
     val core = Application()
+
     @JvmField
     val i18NBundleMap = ObjectMap<String, I18NBundle>(8)
+
     @JvmField
     val urlData: LoadIni = LoadIni(Data::class.java.getResourceAsStream("/URL.ini")!!)
 
@@ -130,9 +125,6 @@ object Data {
     /** 服务端 Server配置  */
     lateinit var configServer: BeanServerConfig
 
-    /** 服务端 Relay配置  */
-    lateinit var configRelay: BeanRelayConfig
-
     /** 服务器默认 WebData 数据 */
     val webData = WebData()
 
@@ -141,10 +133,6 @@ object Data {
      */
     lateinit var i18NBundle: I18NBundle
 
-    @Deprecated("Hess 替代")
-    val game: Rules by lazy {
-        Rules(config, configServer)
-    }
     @JvmField
     var vote: Vote? = null
 
@@ -153,6 +141,7 @@ object Data {
 
     @Volatile
     var startServer = false
+
     @Volatile
     var exitFlag = false
 

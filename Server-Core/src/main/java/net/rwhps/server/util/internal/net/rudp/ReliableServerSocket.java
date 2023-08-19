@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 /**
  * This class implements server sockets that use
- * the Simple Reliable UDP (RUDP) protocol.
+ * the Simple Reliable UDP (Reliable UDP) protocol.
  *
  * @author Adrian Granados
  * @author RW-HPS/Dr
@@ -30,7 +30,7 @@ public class ReliableServerSocket extends ServerSocket {
     public final RUDPHeadProcessor selector = new RUDPHeadProcessor();
 
     /**
-     * Creates an unbound RUDP server socket.
+     * Creates an unbound Reliable UDP server socket.
      *
      * @throws IOException if an I/O error occurs when opening
      *                     the underlying UDP socket.
@@ -41,7 +41,7 @@ public class ReliableServerSocket extends ServerSocket {
     }
 
     /**
-     * Creates a RUDP server socket, bound to the specified port. A port
+     * Creates a Reliable UDP server socket, bound to the specified port. A port
      * of <code>0</code> creates a socket on any free port.
      * </p>
      * The maximum queue length for incoming connection indications (a
@@ -58,7 +58,7 @@ public class ReliableServerSocket extends ServerSocket {
     }
 
     /**
-     * Creates a RUDP server socket and binds it to the specified local port, with
+     * Creates a Reliable UDP server socket and binds it to the specified local port, with
      * the specified backlog. A port of <code>0</code> creates a socket on any
      * free port.
      *
@@ -73,7 +73,7 @@ public class ReliableServerSocket extends ServerSocket {
     }
 
     /**
-     * Creates a RUDP server socket and binds it to the specified local port and
+     * Creates a Reliable UDP server socket and binds it to the specified local port and
      * IP address, with the specified backlog. The <i>bindAddr</i> argument
      * can be used on a multi-homed host for a ReliableServerSocket that
      * will only accept connect requests to one of its addresses.
@@ -93,7 +93,7 @@ public class ReliableServerSocket extends ServerSocket {
     }
 
     /**
-     * Creates a RUDP server socket attached to the specified UDP socket, with
+     * Creates a Reliable UDP server socket attached to the specified UDP socket, with
      * the specified backlog.
      *
      * @param sock    the underlying UDP socket.
@@ -136,7 +136,7 @@ public class ReliableServerSocket extends ServerSocket {
                     }
 
                 } catch (InterruptedException xcp) {
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
 
                 if (isClosed()) {
@@ -234,7 +234,7 @@ public class ReliableServerSocket extends ServerSocket {
                     sock.addStateListener(_stateListener);
                     clientSockTable.put(endpoint, sock);
                 } catch (IOException xcp) {
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
             }
 
@@ -321,7 +321,7 @@ public class ReliableServerSocket extends ServerSocket {
                     if (isClosed()) {
                         break;
                     }
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
             }
         }
@@ -335,7 +335,7 @@ public class ReliableServerSocket extends ServerSocket {
                         try {
                             _backlog.wait();
                         } catch (InterruptedException xcp) {
-                            Log.error("[RUDP]", xcp);
+                            Log.error("[Reliable UDP]", xcp);
                         }
                     }
 

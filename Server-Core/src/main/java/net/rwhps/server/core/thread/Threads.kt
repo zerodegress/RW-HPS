@@ -120,15 +120,14 @@ object Threads {
      */
     @JvmStatic
     fun newCountdown(
-        taskFlagName: String,
-        taskFlagGroup: String,
-        taskFlagDescription: String,
-        endTime: Int,
-        timeUnit: TimeUnit,
-        run: Runnable
+        taskFlagName: String, taskFlagGroup: String, taskFlagDescription: String, endTime: Int, timeUnit: TimeUnit, run: Runnable
     ) {
         SERVICE.addCountdown(
-                taskFlagName, taskFlagGroup, taskFlagDescription, Time.concurrentMillis() + TimeUnit.MILLISECONDS.convert(endTime.toLong(), timeUnit), run
+                taskFlagName,
+                taskFlagGroup,
+                taskFlagDescription,
+                Time.concurrentMillis() + TimeUnit.MILLISECONDS.convert(endTime.toLong(), timeUnit),
+                run
         )
     }
 
@@ -167,7 +166,12 @@ object Threads {
         run: Runnable
     ) {
         SERVICE.addTimedTask(
-                taskFlagName, taskFlagGroup, taskFlagDescription, Time.concurrentMillis() + TimeUnit.MILLISECONDS.convert(startTime.toLong(), timeUnit), TimeUnit.MILLISECONDS.convert(intervalTime.toLong(), timeUnit), run
+                taskFlagName,
+                taskFlagGroup,
+                taskFlagDescription,
+                Time.concurrentMillis() + TimeUnit.MILLISECONDS.convert(startTime.toLong(), timeUnit),
+                TimeUnit.MILLISECONDS.convert(intervalTime.toLong(), timeUnit),
+                run
         )
     }
 

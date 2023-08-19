@@ -9,8 +9,8 @@
 
 package net.rwhps.server.plugin.beta.http
 
-import net.rwhps.server.data.EventGlobalManage
-import net.rwhps.server.data.EventManage
+import net.rwhps.server.game.event.EventGlobalManage
+import net.rwhps.server.game.event.EventManage
 import net.rwhps.server.data.bean.BeanPluginInfo
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.core.EventListenerHost
@@ -50,7 +50,11 @@ class RwHpsWebApiMain: Plugin() {
 
     companion object {
         val pluginInfo = BeanPluginInfo(
-                name = "RW-HPS API", author = "RW-HPS/Dr", description = "API interface for RW-HPS", version = "0.0.2", supportedVersions = "= ${Data.SERVER_CORE_VERSION}"
+                name = "RW-HPS API",
+                author = "RW-HPS/Dr",
+                description = "API interface for RW-HPS",
+                version = "0.0.2",
+                supportedVersions = "= ${Data.SERVER_CORE_VERSION}"
         )
 
         const val name = "HttpApi"

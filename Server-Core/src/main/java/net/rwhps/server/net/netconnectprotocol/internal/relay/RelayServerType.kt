@@ -7,7 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("RelayPacket") @file:JvmMultifileClass
+//关闭傻逼格式化
+//@formatter:off
+
+@file:JvmName("RelayPacket")
+@file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.relay
 
@@ -23,10 +27,10 @@ import java.io.IOException
  */
 
 /**
- * Make the player client pop up an inputable window
+ * Make the player client pop up an input window
  *   The input data is returned in plaintext
  * @param msg String    : Prompt Information
- * @return Packet       : Generate a sendable package
+ * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
@@ -47,7 +51,7 @@ fun relayServerTypeInternal(msg: String): Packet {
  * @throws IOException  : Unknown
  */
 @Throws(IOException::class)
-fun relayServerTypeReplyInternal(packet: Packet): String {
+fun relayServerTypeReplyInternalPacket(packet: Packet): String {
     GameInputStream(packet).use { inStream ->
         // Skip the previously useless data
         inStream.skip(5)

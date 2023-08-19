@@ -1,5 +1,6 @@
 package net.rwhps.server.plugin
 
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 /**

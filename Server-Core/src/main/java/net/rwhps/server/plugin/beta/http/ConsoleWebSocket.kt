@@ -15,7 +15,6 @@ import io.netty.channel.Channel
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
-import net.rwhps.server.net.handler.tcp.StartWebSocket
 import net.rwhps.server.plugin.beta.http.data.GetData
 import net.rwhps.server.util.inline.toJson
 
@@ -24,7 +23,7 @@ import net.rwhps.server.util.inline.toJson
  * @author RW-HPS/Dr
  */
 class ConsoleWebSocket {
-    fun ws(ws: StartWebSocket, channel: Channel, json: Json) {
+    fun ws(channel: Channel, json: Json) {
         when (json.getString("type", "")) {
             "register" -> channel.writeAndFlush(TextWebSocketFrame("Register OK".toWebStatusJson()))
             "ping" -> channel.writeAndFlush(TextWebSocketFrame("pong".toWebStatusJson()))
@@ -45,7 +44,7 @@ class ConsoleWebSocket {
         }
     }
 
-    fun closeWs(ws: StartWebSocket, channel: Channel) {
+    fun closeWs(channel: Channel) {
         GetData.agentConsole.remove(channel.id().toString())
         GetData.agentConsoleLog.remove(channel.id().toString())
     }

@@ -29,7 +29,7 @@ import java.lang.reflect.Method
 internal class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = getTime()): Redirection {
 
     override fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?) {
-        val classAppGameContainer = SilckClassPathProperties.AppGameContainer.toClassAutoLoader(obj!!)!!
+        val classAppGameContainer = SilckClassPathProperties.AppGameContainer.toClassAutoLoader(obj)!!
         val methodSetup: Method = classAppGameContainer.findMethod("setup").also { ReflectionUtils.makeAccessible(it) }!!
         val methodGetDelta: Method = classAppGameContainer.findMethod("getDelta").also { ReflectionUtils.makeAccessible(it) }!!
         val methodGameLoop: Method = classAppGameContainer.findMethod("gameLoop").also { ReflectionUtils.makeAccessible(it) }!!
@@ -40,7 +40,11 @@ internal class AppGameContainerUpdate @JvmOverloads constructor(private val time
 
             while (!Data.exitFlag) {
                 Thread.sleep(time)
-                methodGameLoop.invoke(obj)
+                try {
+                    methodGameLoop.invoke(obj)
+                } catch (_: Exception) {
+                    // 忽略, 防止游戏主线程去世
+                }
             }
         } finally {
             classAppGameContainer.findMethod("destroy")!!.invoke(obj)

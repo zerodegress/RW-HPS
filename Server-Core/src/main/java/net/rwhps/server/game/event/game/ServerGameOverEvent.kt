@@ -9,8 +9,9 @@
 
 package net.rwhps.server.game.event.game
 
-import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.game.event.core.AbstractEvent
+import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.annotations.core.EventAsync
 
 /**
@@ -20,4 +21,26 @@ import net.rwhps.server.util.annotations.core.EventAsync
  * @author RW-HPS/Dr
  */
 @EventAsync
-class ServerGameOverEvent(val gameOverData: GameOverData?): AbstractEvent
+class ServerGameOverEvent(val gameOverData: GameOverData?): AbstractEvent {
+    /**
+     * @author RW-HPS/Dr
+     */
+    data class GameOverData(
+        val gameTime: Int,
+        val allPlayerList: Seq<String>,
+        val winPlayerList: Seq<String>,
+        val mapName: String,
+        val playerData: ObjectMap<String, ObjectMap<String, Int>>,
+        val replayName: String
+    ) {
+        override fun toString(): String {
+            return """
+            allPlayerList=$allPlayerList
+            winPlayerList=$winPlayerList
+            mapName=$mapName
+            playerData=$playerData
+            replayName=$replayName
+            """.trimMargin()
+        }
+    }
+}

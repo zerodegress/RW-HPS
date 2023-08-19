@@ -22,10 +22,9 @@ object IoOutConversion {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun fileToOutStream(
-        file: File,
-        cover: Boolean
-    ): OutputStreamWriter = OutputStreamWriter(fileToStream(file, cover), StandardCharsets.UTF_8)
+    fun fileToOutStream(file: File, cover: Boolean): OutputStreamWriter = OutputStreamWriter(
+            fileToStream(file, cover), StandardCharsets.UTF_8
+    )
 
     @JvmStatic
     @Throws(IOException::class)

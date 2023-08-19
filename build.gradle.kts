@@ -55,58 +55,66 @@ allprojects {
         targetCompatibility = JavaVersion.VERSION_11.toString()
 
         options.encoding = "UTF-8"
-        options.compilerArgs.addAll(
-                listOf(
-                        "-Xlint:unchecked", "-Werror", "-Xdiags:verbose", "-Werror", "-Xlint:deprecation", "-Werror"
-                )
-        )
+        options.compilerArgs.addAll(listOf(
+            "-Xlint:unchecked", "-Werror",
+            "-Xdiags:verbose", "-Werror",
+            "-Xlint:deprecation", "-Werror"
+        ))
     }
 }
 
 subprojects {
     afterEvaluate {
-        if (project.path == ":ASM-Framework") configureDokka()
-        if (project.path == ":TimeTaskQuartz") configureDokka()
-        if (project.path == ":Server-Core") configureDokka()
+        if (
+            project.path == ":ASM-Framework" ||
+            project.path == ":TimeTaskQuartz" ||
+            project.path == ":Server-Core"
+            ) {
+            configureDokka()
+        }
     }
 }
 rootProject.configureDokka()
 
 fun Project.configureDokka() {
-    val isRoot = (this@configureDokka == rootProject)
-    if (!isRoot) {
-        this@configureDokka.apply(plugin = "org.jetbrains.dokka")
-    }
+    try {
+        val isRoot = (this@configureDokka == rootProject)
+        if (!isRoot) {
+            this@configureDokka.apply(plugin = "org.jetbrains.dokka")
+        }
 
-    dependencies {
-        dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:${Versions.dokkaVersion}")
-        dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:${Versions.dokkaVersion}")
-    }
+        dependencies {
+            dokkaPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:${Versions.dokkaVersion}")
+            dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:${Versions.dokkaVersion}")
+        }
 
-    tasks.withType<AbstractDokkaTask>().configureEach {
-        pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
-            this.footerMessage = """Copyright 2020-${
-                LocalDateTime.now().year
-            } <a href="https://github.com/RW-HPS">RW-HPS Technologies</a> and contributors.
+        tasks.withType<AbstractDokkaTask>().configureEach {
+            pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
+                this.footerMessage = """Copyright 2020-${
+                    LocalDateTime.now().year
+                } <a href="https://github.com/RW-HPS">RW-HPS Technologies</a> and contributors.
             Source code:
             <a href="https://github.com/RW-HPS/RW-HPS">GitHub</a>
             """.trimIndent()
-        }
-    }
-
-    tasks.withType<DokkaTask>().configureEach {
-        dokkaSourceSets.configureEach {
-            perPackageOption {
-                //skipDeprecated.set(true)
             }
         }
-    }
 
-    if (isRoot) {
-        tasks.named<AbstractDokkaTask>("dokkaHtmlMultiModule").configure {
-            outputDirectory.set(
-                    rootProject.projectDir.resolve("Java-Doc/pages/snapshot")
-            )
+        tasks.withType<DokkaTask>().configureEach {
+            dokkaSourceSets.configureEach {
+                perPackageOption {
+                    skipDeprecated.set(true)
+                }
+            }
         }
+
+        if (isRoot) {
+            tasks.named<AbstractDokkaTask>("dokkaHtmlMultiModule").configure {
+                outputDirectory.set(
+                        rootProject.projectDir.resolve("Java-Doc/pages/snapshot")
+                )
+            }
+        }
+    } catch (_: Exception) {
+        println("导入项目时可忽略错误, 如果在编译时发生, 请检查")
     }
 }

@@ -14,13 +14,12 @@ import net.rwhps.server.Main
 import net.rwhps.server.core.ServiceLoader.ServiceType
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.serverCountry
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.dependent.LibraryManager
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.NetService
@@ -152,20 +151,19 @@ class Initialization {
                 try {
                     val data = when (NetStaticData.ServerNetType) {
                         IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> {
-                            BaseDataSend(IsServer = true, ServerData = BaseDataSend.Companion.ServerData(IpPlayerCountry = mutableMapOf<String, Int>().also {
-                                HessModuleManage.hps.room.playerManage.playerGroup.eachAll { player ->
-                                    val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
-                                    if (it.containsKey(ipCountry)) {
-                                        it[ipCountry] = it[ipCountry]!! + 1
-                                    } else {
-                                        it[ipCountry] = 1
-                                    }
-                                }
-                            }))
-                        }
-
-                        IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
-                            BaseDataSend(IsServer = false, RelayData = BaseDataSend.Companion.RelayData())
+                            BaseDataSend(
+                                    IsServer = true,
+                                    ServerData = BaseDataSend.Companion.ServerData(IpPlayerCountry = mutableMapOf<String, Int>().also {
+                                        HessModuleManage.hps.room.playerManage.playerGroup.eachAll { player ->
+                                            val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
+                                            if (it.containsKey(ipCountry)) {
+                                                it[ipCountry] = it[ipCountry]!! + 1
+                                            } else {
+                                                it[ipCountry] = 1
+                                            }
+                                        }
+                                    })
+                            )
                         }
 
                         else -> {
@@ -178,9 +176,7 @@ class Initialization {
                     out.writeString("RW-HPS Statistics Data")
                     out.writeString(Data.core.serverConnectUuid)
                     out.writeBytesAndLength(
-                            Aes.aesEncryptToBytes(
-                                    data.toPrettyPrintingJson().toByteArray(Data.UTF_8), "RW-HPS Statistics Data"
-                            )
+                            Aes.aesEncryptToBytes(data.toPrettyPrintingJson().toByteArray(Data.UTF_8), "RW-HPS Statistics Data")
                     )
                     val packet = out.createPacket(PacketType.SERVER_DEBUG_RECEIVE)
                     Socket().use {
@@ -281,7 +277,11 @@ class Initialization {
             val excludeImport: (String) -> Unit = {
                 val libData = it.split(":")
                 if (libData[0] == "jar") {
-                    libraryManager.implementation(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
+                    libraryManager.implementation(
+                            libData[1],
+                            libData[2],
+                            libData[3],
+                            libData[4].let { classifier -> if (classifier == "null") "" else classifier })
                 }
             }
             FileUtils.getInternalFileStream("/maven/ASM-Framework/compileOnly.txt").readFileListString().eachAll(excludeImport)
@@ -292,7 +292,11 @@ class Initialization {
             val libImport: (String) -> Unit = {
                 val libData = it.split(":")
                 if (libData[0] == "jar") {
-                    libraryManager.exclude(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
+                    libraryManager.exclude(
+                            libData[1],
+                            libData[2],
+                            libData[3],
+                            libData[4].let { classifier -> if (classifier == "null") "" else classifier })
                 }
             }
             FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll {
@@ -315,10 +319,6 @@ class Initialization {
         }
 
         internal fun loadService() {
-            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name, TypeRelay::class.java)
-            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name, TypeRelayRebroadcast::class.java)
-            ServiceLoader.addService(ServiceType.Protocol, IRwHps.NetType.RelayProtocol.name, GameVersionRelay::class.java)
-            ServiceLoader.addService(ServiceType.Protocol, IRwHps.NetType.RelayMulticastProtocol.name, GameVersionRelayRebroadcast::class.java)
             ServiceLoader.addService(ServiceType.ProtocolPacket, IRwHps.NetType.ServerProtocol.name, GameVersionPacket::class.java)
             ServiceLoader.addService(ServiceType.IRwHps, "IRwHps", RwHps::class.java)
         }
@@ -333,7 +333,7 @@ class Initialization {
             val IsServerRun: Boolean = true,
             val IsServer: Boolean,
             val ServerData: ServerData? = null,
-            val RelayData: RelayData? = null,
+            val RelayData: Any? = null,
         ) {
             companion object {
                 data class ServerData(
@@ -343,17 +343,6 @@ class Initialization {
                     val MaxPlayer: Int = Data.configServer.maxPlayer,
                     val PlayerVersion: Int = (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).supportedVersionInt,
                     val IpPlayerCountry: Map<String, Int>,
-                )
-
-                data class RelayData(
-                    val PlayerSize: Int = AtomicInteger().also {
-                        NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) }
-                    }.get(),
-                    val RoomAllSize: Int = Relay.roomAllSize,
-                    val RoomNoStartSize: Int = Relay.roomNoStartSize,
-                    val RoomPublicListSize: Int = 0,
-                    val PlayerVersion: Map<Int, Int> = Relay.getAllRelayVersion(),
-                    val IpPlayerCountry: Map<String, Int> = Relay.getAllRelayIpCountry(),
                 )
             }
         }

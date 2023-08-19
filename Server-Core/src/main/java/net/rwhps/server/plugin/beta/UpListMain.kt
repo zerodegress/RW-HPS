@@ -11,17 +11,16 @@ package net.rwhps.server.plugin.beta
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.func.StrCons
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.IpUtils
-import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.game.CommandHandler
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeUnit
  * @author RW-HPS/Dr
  */
 internal class UpListMain: Plugin() {
-    private val version = "Version=HPS#1"
+    private val version = "Version=HPS#2"
     private val privateIp: String
         get() {
             var privateIpTemp = IpUtils.getPrivateIp()
@@ -71,7 +70,7 @@ internal class UpListMain: Plugin() {
         handler.removeCommand("upserverlistnew")
 
         handler.register("uplist", "[command...]", "serverCommands.upserverlist") { args: Array<String>?, log: StrCons ->
-            if (args != null && args.isNotEmpty()) {
+            if (!args.isNullOrEmpty()) {
                 when (args[0]) {
                     "add" -> NetStaticData.checkServerStartNet { if (args.size > 1) add(log, args[1]) else add(log) }
                     "update" -> NetStaticData.checkServerStartNet { update() }
@@ -128,6 +127,8 @@ internal class UpListMain: Plugin() {
             } else {
                 initUpListData(newUrl)
             }
+        } else if (resultUpList.startsWith("[-5]")) {
+            Log.error(resultUpList)
         }
 
         val json = Json(resultUpList)
@@ -156,17 +157,13 @@ internal class UpListMain: Plugin() {
         addData0 = addData0.replace("{RW-HPS.RW.VERSION.INT}", versionGameInt.toString())
         addData0 = addData0.replace("{RW-HPS.RW.IS.VERSION}", versionBeta.toString())
         addData0 = addData0.replace("{RW-HPS.RW.IS.PASSWD}", Data.configServer.passwd.isNotBlank().toString())
-        addData0 = addData0.replace("{RW-HPS.S.NAME}", cutting(Data.config.serverName, 10))
+        addData0 = addData0.replace("{RW-HPS.S.NAME}", cutting(Data.config.serverName, 15))
         addData0 = addData0.replace("{RW-HPS.S.PRIVATE.IP}", privateIp)
         addData0 = addData0.replace("{RW-HPS.S.PORT}", port)
 
-        if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal .. IRwHps.NetType.ServerTestProtocol.ordinal) {
-            addData0 = addData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtils.isBlank(Data.config.subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.subtitle, 20))
-            addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE}", HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
-        } else {
-            addData0 = addData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtils.isBlank(Data.config.subtitle)) "RW-HPS RELAY" else cutting(Data.config.subtitle, 20))
-            addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE}", "0")
-        }
+
+        addData0 = addData0.replace("{RW-HPS.RW.MAP.NAME}", HessModuleManage.hps.room.mapName)
+        addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE}", HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
 
         addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}", Data.configServer.maxPlayer.toString())
 
@@ -202,19 +199,15 @@ internal class UpListMain: Plugin() {
 
     private fun update() {
         var updateData0 = updateData.replace("{RW-HPS.RW.IS.PASSWD}", Data.configServer.passwd.isNotBlank().toString())
-        updateData0 = updateData0.replace("{RW-HPS.S.NAME}", cutting(Data.config.serverName, 10))
+        updateData0 = updateData0.replace("{RW-HPS.S.NAME}", cutting(Data.config.serverName, 15))
         updateData0 = updateData0.replace("{RW-HPS.S.PRIVATE.IP}", privateIp)
         updateData0 = updateData0.replace("{RW-HPS.S.PORT}", port)
 
-        if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal .. IRwHps.NetType.ServerTestProtocol.ordinal) {
-            updateData0 = updateData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtils.isBlank(Data.config.subtitle)) HessModuleManage.hps.room.mapName else cutting(Data.config.subtitle, 20))
-            updateData0 = updateData0.replace("{RW-HPS.S.STATUS}", if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
-            updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE}", HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
-        } else {
-            updateData0 = updateData0.replace("{RW-HPS.RW.MAP.NAME}", if (IsUtils.isBlank(Data.config.subtitle)) "RW-HPS RELAY" else cutting(Data.config.subtitle, 20))
-            updateData0 = updateData0.replace("{RW-HPS.S.STATUS}", "battleroom")
-            updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE}", "0")
-        }
+
+        updateData0 = updateData0.replace("{RW-HPS.RW.MAP.NAME}", HessModuleManage.hps.room.mapName)
+        updateData0 = updateData0.replace("{RW-HPS.S.STATUS}", if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
+        updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE}", HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+
 
         updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}", Data.configServer.maxPlayer.toString())
 
@@ -251,8 +244,7 @@ internal class UpListMain: Plugin() {
 
         private fun help() {
             loadCN(
-                    "uplist.help", """
-        
+                    "uplist.help", """       
         [uplist add] 服务器上传到列表 显示配置文件端口
         [uplist add (port)] 服务器上传到列表 服务器运行配置文件端口 显示自定义端口
         [uplist update] 立刻更新列表服务器信息
@@ -262,7 +254,6 @@ internal class UpListMain: Plugin() {
             )
             loadEN(
                     "uplist.help", """
-        
         [uplist add] Server upload to list Show profile port
         [uplist add (port)] Server upload to list Server running profile port Display custom port
         [uplist update] Update list server information immediately
@@ -271,8 +262,7 @@ internal class UpListMain: Plugin() {
         """.trimIndent()
             )
             loadHK(
-                    "uplist.help", """
-        
+                    "uplist.help", """        
         [uplist add] 服务器上传到列表 显示配置文件端口
         [uplist add (port)] 服务器上传到列表 服务器运行配置文件端口 显示自定义端口
         [uplist update] 立刻更新列表服务器信息
@@ -282,7 +272,6 @@ internal class UpListMain: Plugin() {
             )
             loadRU(
                     "uplist.help", """
-        
         [uplist add] Загрузка сервера в список Показать порт профиля
         [uplist add (port)] Загрузка сервера в список Порт запущенного профиля сервера Показать пользовательские порты
         [uplist update] Немедленное обновление информации сервера списка

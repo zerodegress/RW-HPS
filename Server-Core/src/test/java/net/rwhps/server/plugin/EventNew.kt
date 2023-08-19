@@ -11,7 +11,7 @@
 
 package net.rwhps.server.plugin
 
-import net.rwhps.server.data.EventGlobalManage
+import net.rwhps.server.game.event.EventGlobalManage
 import org.junit.jupiter.api.Test
 
 class EventNew {

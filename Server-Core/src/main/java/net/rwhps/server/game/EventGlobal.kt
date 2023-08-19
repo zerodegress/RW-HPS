@@ -10,8 +10,6 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.core.Initialization
-import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerHess
@@ -31,15 +29,17 @@ import net.rwhps.server.util.log.Log
 /**
  * @author RW-HPS/Dr
  */
-@Suppress("UNUSED")
+@Suppress("UNUSED", "UNUSED_PARAMETER")
 class EventGlobal: EventListenerHost {
     @EventListenerHandler
     fun registerServerHessLoadEvent(serverHessLoadEvent: ServerHessLoadEvent) {
         if (serverHessLoadEvent.loadID == HessModuleManage.hpsLoader) {
             // 不支持多端 :(
             // 多端请自行兼容
-            serverHessLoadEvent.eventManage.registerListener(Event())
-            PluginManage.runRegisterEvents(serverHessLoadEvent.eventManage)
+            serverHessLoadEvent.gameModule.eventManage.registerListener(Event())
+            PluginManage.runRegisterEvents(serverHessLoadEvent.loadID, serverHessLoadEvent.gameModule.eventManage)
+
+            PluginManage.runRegisterServerClientCommands(serverHessLoadEvent.gameModule.room.clientHandler)
         }
     }
 

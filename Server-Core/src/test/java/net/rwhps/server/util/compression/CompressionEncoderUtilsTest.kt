@@ -42,7 +42,7 @@ class CompressionEncoderUtilsTest {
 
             val unzip = CompressionDecoderUtils.zipAllReadStream(DisableSyncByteArrayInputStream(zipNew.flash()))
 
-            zip.addCompressBytes("zip_New", unzip)
+            zip.addCompressBytes(unzip)
 
 //            val file = FileUtil.getFile("CompressionEncoderUtilsTest.zip")
 //            file.writeFileByte(zip.flash())
@@ -75,7 +75,7 @@ class CompressionEncoderUtilsTest {
 
             val unzip = CompressionDecoderUtils.sevenAllReadStream(DisableSyncByteArrayInputStream(sevenNew.flash()))
 
-            seven.addCompressBytes("7z_New", unzip)
+            seven.addCompressBytes(unzip)
 
 //            val file = FileUtil.getFile("CompressionEncoderUtilsTest.7z")
 //            file.writeFileByte(seven.flash())

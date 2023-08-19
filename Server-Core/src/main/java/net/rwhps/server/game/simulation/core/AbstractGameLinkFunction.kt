@@ -10,6 +10,28 @@
 package net.rwhps.server.game.simulation.core
 
 
+/**
+ * 链接游戏内的方法
+ *
+ * @author RW-HPS/Dr
+ */
 interface AbstractGameLinkFunction {
+    /**
+     * 全局同步
+     */
+    fun allPlayerSync()
+
+    fun pauseGame(pause: Boolean)
+
+    /**
+     * 返回战役室
+     *
+     * @param time 倒计时
+     */
+    fun battleRoom(time: Int = 5)
+
+    /**
+     * 保存游戏到 save
+     */
     fun saveGame()
 }

@@ -7,7 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("ServerPacket") @file:JvmMultifileClass
+//关闭傻逼格式化
+//@formatter:off
+
+@file:JvmName("ServerPacket")
+@file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.server
 
@@ -27,7 +31,7 @@ import java.io.IOException
  * @throws IOException
  */
 @Throws(IOException::class)
-internal fun playerExitPacketInternal(): Packet {
+internal fun playerExitInternalPacket(): Packet {
     val o = GameOutputStream()
     o.writeString("exited")
     return o.createPacket(PacketType.DISCONNECT)

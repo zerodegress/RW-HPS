@@ -58,20 +58,6 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
         }
     }
 
-    fun getPacketBytes(): ByteArray {
-        try {
-            stream.use {
-                buffer.use {
-                    stream.flush()
-                    buffer.flush()
-                    return buffer.toByteArray()!!
-                }
-            }
-        } catch (e: IOException) {
-            throw RuntimeException(e)
-        }
-    }
-
     fun getByteBuf(type: Int): ByteBuf {
         try {
             stream.use {
@@ -92,9 +78,17 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
     }
 
     fun getByteArray(): ByteArray {
-        stream.flush()
-        buffer.flush()
-        return buffer.toByteArray()!!
+        try {
+            stream.use {
+                buffer.use {
+                    stream.flush()
+                    buffer.flush()
+                    return buffer.toByteArray()!!
+                }
+            }
+        } catch (e: IOException) {
+            throw RuntimeException(e)
+        }
     }
 
     fun size(): Int {
@@ -304,7 +298,10 @@ open class GameOutputStream @JvmOverloads constructor(private var buffer: Abstra
         @JvmStatic
         fun intToBytes(value: Int): ByteArray {
             return byteArrayOf(
-                    (value ushr 24 and 0xFF).toByte(), (value ushr 16 and 0xFF).toByte(), (value ushr 8 and 0xFF).toByte(), (value ushr 0 and 0xFF).toByte()
+                    (value ushr 24 and 0xFF).toByte(),
+                    (value ushr 16 and 0xFF).toByte(),
+                    (value ushr 8 and 0xFF).toByte(),
+                    (value ushr 0 and 0xFF).toByte()
             )
         }
     }

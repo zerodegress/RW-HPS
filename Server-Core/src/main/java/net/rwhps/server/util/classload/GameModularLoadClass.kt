@@ -39,7 +39,7 @@ open class GameModularLoadClass(
     private val jdkClassLoader: ClassLoader,
     private val classPathMap: OrderedMap<String, ByteArray> = OrderedMap()
 ): ClassLoader() {
-    private val hashCode = Integer.toHexString(this.hashCode())
+    private val hashCode = Integer.toHexString(super.hashCode())
 
     /**
      * Get all the Bytes of this loader, for the next reuse, and at the same time make each loader share the byte pool

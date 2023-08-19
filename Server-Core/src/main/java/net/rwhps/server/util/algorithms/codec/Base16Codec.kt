@@ -37,13 +37,13 @@ class Base16Codec(lowerCase: Boolean): Encoder<ByteArray, CharArray>, Decoder<Ch
         return out
     }
 
-    override fun decode(encodedIn: CharSequence): ByteArray {
-        var encoded = encodedIn.replace("\\s".toRegex(), "")
-        var len = encoded.length
+    override fun decode(encoded: CharSequence): ByteArray {
+        var encodedPrivate = encoded.replace("\\s".toRegex(), "")
+        var len = encodedPrivate.length
         if (len and 0x01 != 0) {
             // 如果提供的数据是奇数长度，则前面补0凑偶数
-            encoded = "0$encoded"
-            len = encoded.length
+            encodedPrivate = "0$encodedPrivate"
+            len = encodedPrivate.length
         }
         val out = ByteArray(len shr 1)
 
@@ -51,9 +51,9 @@ class Base16Codec(lowerCase: Boolean): Encoder<ByteArray, CharArray>, Decoder<Ch
         var i = 0
         var j = 0
         while (j < len) {
-            var f = toDigit(encoded[j], j) shl 4
+            var f = toDigit(encodedPrivate[j], j) shl 4
             j++
-            f = f or toDigit(encoded[j], j)
+            f = f or toDigit(encodedPrivate[j], j)
             j++
             out[i] = (f and 0xFF).toByte()
             i++

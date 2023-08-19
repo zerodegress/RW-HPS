@@ -69,7 +69,7 @@ open class TypeHessRwHps: TypeConnect {
                 else -> {}
             }
             if (packet.status == Control.EventNext.CONTINUE) {
-                con.recivePacket(packet)
+                con.receivePacket(packet)
             }
         } catch (_: Exception) {
         }

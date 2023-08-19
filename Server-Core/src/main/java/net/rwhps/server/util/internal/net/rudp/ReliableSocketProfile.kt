@@ -10,7 +10,7 @@
 package net.rwhps.server.util.internal.net.rudp
 
 /**
- * This class specifies the RUDP parameters of a socket.
+ * This class specifies the Reliable UDP parameters of a socket.
  *
  * @author Adrian Granados
  * @see ReliableSocket
@@ -40,7 +40,7 @@ class ReliableSocketProfile @JvmOverloads constructor(
     private val _retransmissionTimeout: Int
     private val _cumulativeAckTimeout: Int
     /**
-     * Creates an profile with the specified RUDP parameter values.
+     * Creates an profile with the specified Reliable UDP parameter values.
      *
      * @param maxSendQueueSize      maximum send queue size (packets).
      * @param maxRecvQueueSize      maximum receive queue size (packets).
@@ -55,9 +55,9 @@ class ReliableSocketProfile @JvmOverloads constructor(
      * @param cumulativeAckTimeout  cumulative acknowledge timeout (ms).
      */
     /**
-     * Creates a profile with the default RUDP parameter values.
+     * Creates a profile with the default Reliable UDP parameter values.
      *
-     * Note: According to the RUDP protocol's draft, the default
+     * Note: According to the Reliable UDP protocol's draft, the default
      * maximum number of retransmissions is 3. However, if packet
      * drops are too high, the connection may get stall unless
      * the sender continues to retransmit packets that have not been

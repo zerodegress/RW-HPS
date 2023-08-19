@@ -32,8 +32,10 @@ enum class CallTimeTask(
     UpServerListNewTask("UpList", "Core"),
 
 
-    BlackListCheckTask("[Netx]", "超时去除"),
+    BlackListCheckTask("[BlackList]", "超时去除"),
+
     ServerUploadDataTask("[RCN]", "列表更新"),
+    ServerHostKeepAlive("[RCN]", "保活"),
     ServerUploadData_CheckTimeTask("[RCN]", "超时"),
     RelayRoom_CheckTimeTask("[RCN]", "房间超时机制"),
     ServerStatusUpdate("[RCN]", "状态更新"),

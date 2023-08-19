@@ -10,6 +10,7 @@
 package net.rwhps.server.plugin.internal.hess.inject.core
 
 import net.rwhps.server.game.simulation.core.AbstractGameLinkData
+import net.rwhps.server.util.inline.findField
 
 /**
  * Link The game comes with settings to avoid some of the distractions caused by confusion
@@ -17,6 +18,8 @@ import net.rwhps.server.game.simulation.core.AbstractGameLinkData
  * @author RW-HPS/Dr
  */
 class GameLinkData: AbstractGameLinkData {
+    override val teamOperationsSyncObject: Any get() = GameEngine.netEngine::class.java.findField("bC")!!.get(GameEngine.netEngine)
+
     override var maxUnit: Int
         set(value) {
             GameEngine.netEngine.ax = value

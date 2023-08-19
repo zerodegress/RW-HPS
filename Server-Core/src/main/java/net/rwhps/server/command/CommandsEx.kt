@@ -9,10 +9,9 @@
 
 package net.rwhps.server.command
 
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.global.Relay
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps.NetType.*
@@ -46,10 +45,10 @@ class CommandsEx(handler: CommandHandler) {
                     out.writeString("MapName")
                     out.writeString(HessModuleManage.hps.room.mapName)
                     out.writeString("Income")
-                    out.writeFloat(HessModuleManage.hps.gameDataLink.income)
+                    out.writeFloat(HessModuleManage.hps.gameLinkData.income)
                     out.writeString("Credits")
                     out.writeInt(
-                            when (HessModuleManage.hps.gameDataLink.credits) {
+                            when (HessModuleManage.hps.gameLinkData.credits) {
                                 1 -> 0
                                 2 -> 1000
                                 3 -> 2000
@@ -63,30 +62,17 @@ class CommandsEx(handler: CommandHandler) {
                             }
                     )
                     out.writeString("NoNukes")
-                    out.writeBoolean(HessModuleManage.hps.gameDataLink.nukes)
+                    out.writeBoolean(HessModuleManage.hps.gameLinkData.nukes)
                     out.writeString("InitUnit")
-                    out.writeInt(HessModuleManage.hps.gameDataLink.startingunits)
+                    out.writeInt(HessModuleManage.hps.gameLinkData.startingunits)
                     out.writeString("Mist")
-                    out.writeInt(HessModuleManage.hps.gameDataLink.fog)
+                    out.writeInt(HessModuleManage.hps.gameLinkData.fog)
                     out.writeString("SharedControl")
-                    out.writeBoolean(HessModuleManage.hps.gameDataLink.sharedcontrol)
+                    out.writeBoolean(HessModuleManage.hps.gameLinkData.sharedcontrol)
                 }
-                RelayProtocol, RelayMulticastProtocol -> {
-                    out.writeString("PlayerSize")
-                    val size = AtomicInteger()
-                    NetStaticData.netService.eachAll { e: NetService -> size.addAndGet(e.getConnectSize()) }
-                    out.writeInt(size.get())
-
-                    out.writeString("RoomAllSize")
-                    out.writeInt(Relay.roomAllSize)
-                    out.writeString("RoomPublicListSize")
-                    out.writeInt(0)
-                    out.writeString("RoomNoStartSize")
-                    out.writeInt(Relay.roomNoStartSize)
-                }
-                NullProtocol, DedicatedToTheBackend -> {}
+                else -> {}
             }
-            con.sendExCommand(out.createPacket(PacketType.GET_SERVER_INFO))
+            con.sendPacket(out.createPacket(PacketType.GET_SERVER_INFO))
         }
     }
 

@@ -101,7 +101,7 @@ class SYNSegment: Segment {
         super.parseBytes(buffer, off, len)
         require(len >= SYN_HEADER_LEN) { "Invalid SYN segment" }
         version = buffer[off + 4].toInt() and 0xFF ushr 4
-        require(version == RUDP_VERSION) { "Invalid RUDP version" }
+        require(version == RUDP_VERSION) { "Invalid Reliable UDP version" }
         maxOutstandingSegments = buffer[off + 5].toInt() and 0xFF
         optionFlags = buffer[off + 6].toInt() and 0xFF
         // spare     =  (buffer[off+ 7] & 0xFF);

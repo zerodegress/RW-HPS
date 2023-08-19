@@ -52,7 +52,9 @@ class Application {
 
         Initialization.startInit(settings)
 
-        serverConnectUuid = settings.getData("serverConnectUuid") { UUID.randomUUID().toString() }
+        serverConnectUuid = settings.getData("serverConnectUuid") {
+            UUID.randomUUID().toString()
+        }
         serverHessUuid = settings.getData("serverHessUuid") {
             BigInteger(1, DigestUtils.sha256(serverConnectUuid + UUID.randomUUID().toString())).toString(16).uppercase()
         }

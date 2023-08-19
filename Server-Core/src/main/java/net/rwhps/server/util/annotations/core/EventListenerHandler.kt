@@ -19,6 +19,7 @@ package net.rwhps.server.util.annotations.core
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
 @Target(
-        AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION
+        AnnotationTarget.ANNOTATION_CLASS,
+        AnnotationTarget.FUNCTION
 )
 annotation class EventListenerHandler

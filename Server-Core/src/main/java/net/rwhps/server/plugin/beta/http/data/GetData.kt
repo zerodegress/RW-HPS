@@ -9,9 +9,8 @@
 
 package net.rwhps.server.plugin.beta.http.data
 
-import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.event.GameOverData
-import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.struct.SeqSave
@@ -43,10 +42,14 @@ internal object GetData {
     )
 
     data class GameInfo(
-        val income: Float = HessModuleManage.hps.gameDataLink.income,
-        val noNukes: Boolean = HessModuleManage.hps.gameDataLink.nukes,
-        val credits: Int = HessModuleManage.hps.gameDataLink.credits,
-        val sharedControl: Boolean = HessModuleManage.hps.gameDataLink.sharedcontrol,
-        val players: List<PlayerHess> = HessModuleManage.hps.room.playerManage.playerAll.toList()
+        val income: Float = HessModuleManage.hps.gameLinkData.income,
+        val noNukes: Boolean = HessModuleManage.hps.gameLinkData.nukes,
+        val credits: Int = HessModuleManage.hps.gameLinkData.credits,
+        val sharedControl: Boolean = HessModuleManage.hps.gameLinkData.sharedcontrol,
+        val players: List<String> = Seq<String>().apply {
+            HessModuleManage.hps.room.playerManage.playerAll.eachAll {
+                add(it.playerInfo)
+            }
+        }
     )
 }

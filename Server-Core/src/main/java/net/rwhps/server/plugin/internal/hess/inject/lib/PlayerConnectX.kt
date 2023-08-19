@@ -13,12 +13,12 @@ import com.corrodinggames.rts.gameFramework.j.NetEnginePackaging
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.au
 import com.corrodinggames.rts.gameFramework.j.c
+import net.rwhps.server.core.game.ServerRoom
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.global.ServerRoom
 import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.game.event.game.PlayerJoinEvent
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
@@ -81,7 +81,17 @@ class PlayerConnectX(
             // 在这里过滤走官方的包, 加入 RW-HPS 的一些修改
             run change@{
                 when (packetHess.b) {
-                    PacketType.START_GAME.typeInt -> room.isStartGame = true
+                    PacketType.PREREGISTER_INFO.typeInt -> {
+                        GameInputStream(packetHess.c).use {
+                            val o = GameOutputStream()
+                            o.writeString(it.readString())
+                            o.transferToFixedLength(it, 12)
+                            o.writeString(Data.SERVER_ID)
+                            it.skip(it.readShort().toLong())
+                            o.transferTo(it)
+                            packetHess.c = o.getByteArray()
+                        }
+                    }
                     // 修改, 使 客户端 显示 AdminUI
                     PacketType.SERVER_INFO.typeInt -> {
                         GameInputStream(packetHess.c).use {
@@ -101,7 +111,7 @@ class PlayerConnectX(
                             it.skip(1)
                             o.writeBoolean(player!!.isAdmin)
                             o.transferTo(it)
-                            packetHess.c = o.getPacketBytes()
+                            packetHess.c = o.getByteArray()
                         }
                     }
                     // 修改, 使 客户端 显示 HOST
@@ -153,10 +163,12 @@ class PlayerConnectX(
                                     o.flushEncodeData(teamIn)
                                 }
                                 o.transferTo(it)
-                                packetHess.c = o.getPacketBytes()
+                                packetHess.c = o.getByteArray()
                             }
                         }
                     }
+                    //
+                    PacketType.START_GAME.typeInt -> room.isStartGame = true
                 }
             }
         }

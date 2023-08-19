@@ -22,16 +22,6 @@ import net.rwhps.server.util.log.exp.ImplementedException
  */
 object NetStaticData {
     @JvmField
-    val groupNet = GroupNet()
-
-    /** Single Room Mode No ID required */
-    val relay = Relay("RW-HPS Beta Relay", groupNet)
-        get() {
-            field.closeRoom = false
-            return field
-        }
-
-    @JvmField
     val blackList = BlackList()
 
     var ServerNetType: IRwHps.NetType = IRwHps.NetType.NullProtocol

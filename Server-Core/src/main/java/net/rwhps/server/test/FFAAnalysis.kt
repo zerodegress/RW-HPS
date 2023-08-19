@@ -9,7 +9,7 @@
 
 package net.rwhps.server.test
 
-import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.util.compression.CompressionDecoderUtils
@@ -29,7 +29,7 @@ class FFAAnalysis {
                 }
             }
 
-        val read = GameInputStream(bytes.getPacketBytes())
+        val read = GameInputStream(bytes.getByteArray())
         while (read.getSize() > 0) {
             val leghtSkip = read.readInt()
             if (read.readInt() != 10) {
@@ -49,9 +49,9 @@ class FFAAnalysis {
                                 if (it) {
                                     c.readInt()
                                     // Log.debug("Build GameActions", c.readEnum(GameUnitType.GameActions::class.java)!!.name)
-                                    val em = c.readEnum(GameUnitType.GameUnits::class.java)
+                                    val em = c.readEnum(GameInternalUnits::class.java)
 
-                                    if (em == GameUnitType.GameUnits.damagingBorder || em == GameUnitType.GameUnits.zoneMarker) {
+                                    if (em == GameInternalUnits.damagingBorder || em == GameInternalUnits.zoneMarker) {
                                         Log.debug("Build GameUnits", em.name)
                                         Log.debug("Get Size", c.getSize())
 

@@ -7,7 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-@file:JvmName("RelayPacket") @file:JvmMultifileClass
+//关闭傻逼格式化
+//@formatter:off
+
+@file:JvmName("RelayPacket")
+@file:JvmMultifileClass
 
 package net.rwhps.server.net.netconnectprotocol.internal.relay
 
@@ -25,13 +29,13 @@ import java.io.IOException
  * Jump to a new server using the official protocol
  *  Client actively connects
  * @param ip String     : IP
- * @return Packet       : Generate a sendable package
+ * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  *
  * @author RW-HPS/Dr
  */
 @Throws(IOException::class)
-internal fun fromRelayJumpsToAnotherServer(ip: String): Packet {
+internal fun fromRelayJumpsToAnotherServerInternalPacket(ip: String): Packet {
     val o = GameOutputStream()
     // The message contained in the package
     o.writeByte(0)

@@ -22,6 +22,7 @@ class SafetyConnect {
     fun receivePacket(packet: Packet) {
         if (exCommandStatus.ordinal < DataPermissionStatus.DevConnectStatus.Master.ordinal) {
             // Initial Connection
+            packet.status
         }
     }
 }

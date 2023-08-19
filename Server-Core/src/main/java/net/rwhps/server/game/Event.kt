@@ -11,8 +11,6 @@ package net.rwhps.server.game
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.HessModuleManage
-import net.rwhps.server.data.MapManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.game.*
@@ -28,12 +26,12 @@ import java.util.concurrent.TimeUnit
 /**
  * @author RW-HPS/Dr
  */
-@Suppress("UNUSED")
+@Suppress("UNUSED", "UNUSED_PARAMETER")
 class Event: EventListenerHost {
     @EventListenerHandler
     fun registerServerHessStartPort(serverHessStartPort: ServerHessStartPort) {
-        HessModuleManage.hps.gameDataLink.maxUnit = Data.configServer.maxUnit
-        HessModuleManage.hps.gameDataLink.income = Data.configServer.defIncome
+        HessModuleManage.hps.gameLinkData.maxUnit = Data.configServer.maxUnit
+        HessModuleManage.hps.gameLinkData.income = Data.configServer.defIncome
 
         if (Data.config.autoUpList) {
             Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
@@ -74,7 +72,9 @@ class Event: EventListenerHost {
         HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
         Log.clog("&c" + Data.i18NBundle.getinput("player.ent", player.name))
 
-        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.autoStartMinPlayerSize && !Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
+        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.autoStartMinPlayerSize && !Threads.containsTimeTask(
+                    CallTimeTask.AutoStartTask
+            )) {
             var flagCount = 60
             Threads.newTimedTask(CallTimeTask.AutoStartTask, 0, 1, TimeUnit.SECONDS) {
                 if (HessModuleManage.hps.room.isStartGame) {
@@ -94,7 +94,7 @@ class Event: EventListenerHost {
                 Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
 
-                Data.CLIENT_COMMAND.handleMessage("start", null)
+                HessModuleManage.hps.room.clientHandler.handleMessage("start", null)
             }
         }
 
@@ -126,7 +126,9 @@ class Event: EventListenerHost {
         }
         Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
 
-        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.autoStartMinPlayerSize && Threads.containsTimeTask(CallTimeTask.AutoStartTask)) {
+        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.autoStartMinPlayerSize && Threads.containsTimeTask(
+                    CallTimeTask.AutoStartTask
+            )) {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask)
         }
     }
@@ -144,8 +146,6 @@ class Event: EventListenerHost {
 
     @EventListenerHandler
     fun registerGameOverEvent(serverGameOverEvent: ServerGameOverEvent) {
-        MapManage.maps.mapData?.clean()
-
         System.gc()
     }
 

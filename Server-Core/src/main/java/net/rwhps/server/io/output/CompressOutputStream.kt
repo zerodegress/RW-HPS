@@ -47,12 +47,12 @@ class CompressOutputStream(val head: String, outputStream: DisableSyncByteArrayO
                 object: DisableSyncByteArrayOutputStream() {
                     override fun toByteArray(): ByteArray {
                         val out = DisableSyncByteArrayOutputStream()
-                        ZipOutputStream(out).use { out ->
+                        ZipOutputStream(out).use { zipOneFileOut ->
                             val oze = ZipArchiveEntry("file")
-                            out.putNextEntry(oze)
-                            out.write(super.toByteArray())
-                            out.closeEntry()
-                            out.flush()
+                            zipOneFileOut.putNextEntry(oze)
+                            zipOneFileOut.write(super.toByteArray())
+                            zipOneFileOut.closeEntry()
+                            zipOneFileOut.flush()
                         }
                         return out.toByteArray()
                     }
@@ -67,16 +67,16 @@ class CompressOutputStream(val head: String, outputStream: DisableSyncByteArrayO
                 object: DisableSyncByteArrayOutputStream() {
                     override fun toByteArray(): ByteArray {
                         val out = SeekableInMemoryByteChannel()
-                        SevenZOutputFile(out).use { out ->
+                        SevenZOutputFile(out).use { sevenOneFileOut ->
                             val oze = SevenZArchiveEntry().apply {
                                 name = "file"
                                 // 文件最后修改时间
                                 accessDate = Date(Time.concurrentMillis())
                             }
-                            out.putArchiveEntry(oze)
-                            out.write(super.toByteArray())
-                            out.closeArchiveEntry()
-                            out.finish()
+                            sevenOneFileOut.putArchiveEntry(oze)
+                            sevenOneFileOut.write(super.toByteArray())
+                            sevenOneFileOut.closeArchiveEntry()
+                            sevenOneFileOut.finish()
                         }
                         return out.array()
                     }

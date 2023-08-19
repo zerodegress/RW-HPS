@@ -22,6 +22,16 @@ object Control {
         CONTINUE
     }
 
+    enum class ControlSync {
+        ASync,
+        Sync
+    }
+
+    enum class ControlListening {
+        LISTENING,
+        STOPPED
+    }
+
     enum class EventNext {
         CONTINUE,
         STOPPED

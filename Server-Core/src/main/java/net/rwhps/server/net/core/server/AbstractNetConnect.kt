@@ -62,7 +62,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
 
     /**
      * Set up try
-     * Get try status
+     * To Get try status
      * @return Boolean
      */
     var tryBoolean: Boolean = false
@@ -122,12 +122,12 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
     }
 
     /**
-     * Recive package
+     * Receive package
      * 选择向下传递
      *
      * @param packet Data
      */
-    open fun recivePacket(packet: Packet) {
+    open fun receivePacket(packet: Packet) {
         //
     }
 
@@ -166,15 +166,14 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
     /**
      * @param packet Packet
      */
-    fun exCommand(packet: Packet) {
-
-    }
-
-    /**
-     * @param packet Packet
-     */
-    fun sendExCommand(packet: Packet) {
-        sendPacket(packet)
+    fun exCommand(packet: Packet): Boolean {
+        val read = GameInputStream(packet)
+        when (packet.type) {
+            PacketType.SERVER_DEBUG_RECEIVE -> debug(packet)
+            PacketType.GET_SERVER_INFO_RECEIVE -> Data.PING_COMMAND.handleMessage(read.readString(), this)
+            else -> return false
+        }
+        return true
     }
 
     protected fun close(groupNet: GroupNet?) {

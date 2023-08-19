@@ -80,7 +80,7 @@ public class ReliableClientSocket extends ReliableSocket {
                 try {
                     queue.wait();
                 } catch (InterruptedException xcp) {
-                    Log.error("[RUDP]", xcp);
+                    Log.error("[Reliable UDP]", xcp);
                 }
             }
 

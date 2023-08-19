@@ -69,7 +69,9 @@ object FileCheck {
     @Throws(IOException::class)
     internal fun requireEqualSizes(srcFile: File, destFile: File, srcLen: Long, dstLen: Long) {
         if (srcLen != dstLen) {
-            throw IOException("Failed to copy full contents from '" + srcFile + "' to '" + destFile + "' Expected length: " + srcLen + " Actual: " + dstLen)
+            throw IOException(
+                    "Failed to copy full contents from '" + srcFile + "' to '" + destFile + "' Expected length: " + srcLen + " Actual: " + dstLen
+            )
         }
     }
 

@@ -19,7 +19,7 @@ import kotlin.math.min
  * Creates a new ReliableSocketOutputStream.
  * This method can only be called by a ReliableSocket.
  *
- * @param sock    the actual RUDP socket to writes bytes on.
+ * @param sock    the actual Reliable UDP socket to writes bytes on.
  * @throws IOException if an I/O error occurs.
  *
  * @author Adrian Granados

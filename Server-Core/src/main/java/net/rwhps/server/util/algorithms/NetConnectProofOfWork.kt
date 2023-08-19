@@ -177,8 +177,16 @@ internal class NetConnectProofOfWork {
                 return when (authenticateType.toInt()) {
                     0 -> NetConnectProofOfWork(authenticateType, paramDataInput.readInt(), 0)
                     1 -> NetConnectProofOfWork(authenticateType, 0, paramDataInput.readInt())
-                    3, 4 -> NetConnectProofOfWork(authenticateType, paramDataInput.readInt(), paramDataInput.readInt(), paramDataInput.readString())
-                    5, 6 -> NetConnectProofOfWork(authenticateType, paramDataInput.readString(), paramDataInput.readInt(), paramDataInput.readInt(), paramDataInput.readString())
+                    3, 4 -> NetConnectProofOfWork(
+                            authenticateType, paramDataInput.readInt(), paramDataInput.readInt(), paramDataInput.readString()
+                    )
+                    5, 6 -> NetConnectProofOfWork(
+                            authenticateType,
+                            paramDataInput.readString(),
+                            paramDataInput.readInt(),
+                            paramDataInput.readInt(),
+                            paramDataInput.readString()
+                    )
                     else -> NetConnectProofOfWork()
                 }
             }

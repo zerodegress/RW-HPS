@@ -16,4 +16,6 @@ package net.rwhps.server.data.global
 object ArrayData {
     val stringArray = emptyArray<String>()
     val intArray = emptyArray<Int>()
+    val bytes: ByteArray = byteArrayOf()
+
 }

@@ -9,10 +9,10 @@
 
 package net.rwhps.server.plugin.internal.hess
 
-import net.rwhps.server.data.EventGlobalManage
-import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
+import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.event.EventGlobalManage
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.internal.hess.service.event.GameHeadlessEventGlobal
 import net.rwhps.server.util.classload.GameModularReusableLoadClass
@@ -51,16 +51,9 @@ class HessMain: Plugin() {
 
     override fun registerServerCommands(handler: CommandHandler) {
         serverServerCommands = handler
-
     }
-
-    override fun registerServerClientCommands(handler: CommandHandler) {
-        serverClientCommands = handler
-    }
-
 
     companion object {
         internal lateinit var serverServerCommands: CommandHandler
-        internal lateinit var serverClientCommands: CommandHandler
     }
 }

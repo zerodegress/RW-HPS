@@ -20,11 +20,14 @@ import net.rwhps.server.util.IPCountry
 import net.rwhps.server.util.IpUtils
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.threads.GetNewThreadPool
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketException
 import java.util.*
+import java.util.concurrent.ExecutorService
+
 
 /**
  * @author RW-HPS/Dr
@@ -44,21 +47,14 @@ class ConnectionAgreement {
     internal val localPort: Int
     val id: String = UUID.randomUUID().toString()
 
+    private val sendThread: ExecutorService?
+
     /**
      * TCP Send
      * @param channelHandlerContext Netty-ChannelHandlerContext
      */
     internal constructor(channelHandlerContext: ChannelHandlerContext) {
         val channel = channelHandlerContext.channel()
-
-        protocolType = { packet: Packet ->
-            if (channel.isActive) {
-                // 扔进Netty的线程处理, 不让netty包装成 Task, 避免有的是Task有的直接写入而导致的包顺序错误
-                channel.eventLoop().execute {
-                    channelHandlerContext.writeAndFlush(packet)
-                }
-            }
-        }
         objectOutStream = channelHandlerContext
         udpDataOutputStream = null
         useAgreement = "TCP-NIO"
@@ -74,6 +70,17 @@ class ConnectionAgreement {
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = (channel.localAddress() as InetSocketAddress).port
+
+        sendThread = GetNewThreadPool.getNewSingleThreadExecutor(ip)
+
+        protocolType = { packet: Packet ->
+            if (channel.isActive) {
+                sendThread.execute {
+                    // 同步发送解决 100% 傻逼问题
+                    channelHandlerContext.writeAndFlush(packet).await()
+                }
+            }
+        }
     }
 
     /**
@@ -99,6 +106,8 @@ class ConnectionAgreement {
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = socket.localPort
+
+        sendThread = null
     }
 
     constructor() {
@@ -113,6 +122,8 @@ class ConnectionAgreement {
         ipCountry = ""
         ipCountryAll = ""
         localPort = 0
+
+        sendThread = null
     }
 
     fun add(groupNet: GroupNet) {
@@ -158,6 +169,8 @@ class ConnectionAgreement {
 
         remove(groupNet)
 
+        sendThread?.shutdown()
+
         if (objectOutStream is ChannelHandlerContext) {
             objectOutStream.channel().close()
             objectOutStream.close()
@@ -166,7 +179,7 @@ class ConnectionAgreement {
                 udpDataOutputStream!!.close()
                 objectOutStream.close()
             } catch (e: SocketException) {
-                Log.error("[RUDP Close] Passive")
+                Log.error("[Reliable UDP Close] Passive")
             }
         }
     }

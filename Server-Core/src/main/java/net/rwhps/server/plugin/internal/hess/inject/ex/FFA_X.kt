@@ -12,7 +12,7 @@ import com.corrodinggames.rts.gameFramework.j.NetEnginePackaging
 import com.corrodinggames.rts.gameFramework.j.k
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
@@ -61,7 +61,7 @@ class FFA_X {
 
     fun onLoad() {
         Log.debug("ClosingBorder module ready")
-        val section = "closingBorder"
+        //val section = "closingBorder"
         conf_shrinkByPercent = 30f
         conf_shrinkByAmount = 100f
         conf_firstShrinkTime = 10
@@ -127,15 +127,15 @@ class FFA_X {
 
     fun setCircle(x: Float, y: Float, size: Float) {
         Log.debug("ClosingBorder: moving border to: $x, $y size:$size")
-        queueUnitSpawnCommand(GameUnitType.GameUnits.damagingBorder, x, y, (size / 100).toInt())
+        queueUnitSpawnCommand(GameInternalUnits.damagingBorder, x, y, (size / 100).toInt())
     }
 
     fun showSafeZone(x: Float, y: Float, size: Float) {
         Log.debug("ClosingBorder: showing safe zone at: $x, $y size:$size")
-        queueUnitSpawnCommand(GameUnitType.GameUnits.zoneMarker, x, y, (size / 100).toInt())
+        queueUnitSpawnCommand(GameInternalUnits.zoneMarker, x, y, (size / 100).toInt())
     }
 
-    fun queueUnitSpawnCommand(unit: GameUnitType.GameUnits, x: Float, y: Float, size: Int) {
+    fun queueUnitSpawnCommand(unit: GameInternalUnits, x: Float, y: Float, size: Int) {
         try {
             val commandPacket = GameEngine.gameEngine.cf.b()
 

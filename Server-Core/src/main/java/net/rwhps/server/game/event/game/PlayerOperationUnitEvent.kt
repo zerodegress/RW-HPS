@@ -10,7 +10,8 @@
 package net.rwhps.server.game.event.game
 
 import net.rwhps.server.data.player.PlayerHess
-import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.enums.GameCommandActions
+import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.game.event.core.AbstractEvent
 
 /**
@@ -20,7 +21,7 @@ import net.rwhps.server.game.event.core.AbstractEvent
  * @author RW-HPS/Dr
  */
 class PlayerOperationUnitEvent(
-    val player: PlayerHess, val gameActions: GameUnitType.GameActions, val gameUnits: GameUnitType.GameUnits, val x: Float, val y: Float
+    val player: PlayerHess, val gameCommandActions: GameCommandActions, val gameInternalUnits: GameInternalUnits, val x: Float, val y: Float
 ): AbstractEvent {
     // 操作是否有效
     @JvmField

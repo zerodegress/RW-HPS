@@ -21,11 +21,17 @@ object Core {
      * Exit and save data
      */
     @JvmStatic
-    fun exit() {
-        NetServer.closeServer()
-        Data.core.save()
-        close()
-        exitProcess(0)
+    @JvmOverloads
+    inline fun exit(run: () -> Unit = {}) {
+        try {
+            NetServer.closeServer()
+            Data.core.save()
+            close()
+            Thread.setDefaultUncaughtExceptionHandler(null)
+            exitProcess(0)
+        } finally {
+            run()
+        }
     }
 
     /**

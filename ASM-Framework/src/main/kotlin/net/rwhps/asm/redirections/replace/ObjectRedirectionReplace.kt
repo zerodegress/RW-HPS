@@ -1,29 +1,31 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  * Copyright 2020-2023 RW-HPS Team and contributors.
+ *  *
+ *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  *
+ *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.redirections
+package net.rwhps.asm.redirections.replace
 
-import net.rwhps.asm.api.Redirection
-import net.rwhps.asm.api.RedirectionManager
+import net.rwhps.asm.api.replace.RedirectionReplace
+import net.rwhps.asm.api.replace.RedirectionReplaceManager
 import net.rwhps.asm.util.DescriptionUtil.getDesc
 import java.lang.reflect.Array
 import java.lang.reflect.Modifier
 import java.lang.reflect.Proxy
 import java.util.*
 
-class ObjectRedirection(private val manager: RedirectionManager): Redirection {
+class ObjectRedirectionReplace(private val manager: RedirectionReplaceManager): RedirectionReplace {
     override operator fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?): Any? {
         var typePrivate = type
 
         return when {
             typePrivate.isInterface -> {
-                return Proxy.newProxyInstance(typePrivate.classLoader, arrayOf(typePrivate), ProxyRedirection(manager, getDesc(typePrivate)))
+                return Proxy.newProxyInstance(typePrivate.classLoader, arrayOf(typePrivate), ProxyRedirectionReplace(manager, getDesc(typePrivate)))
             }
             typePrivate.isArray -> {
                 var dimension = 0

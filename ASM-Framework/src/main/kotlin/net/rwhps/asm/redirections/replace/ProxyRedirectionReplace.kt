@@ -1,26 +1,29 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  * Copyright 2020-2023 RW-HPS Team and contributors.
+ *  *
+ *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  *
+ *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.redirections
+package net.rwhps.asm.redirections.replace
 
-import net.rwhps.asm.api.Redirection
-import net.rwhps.asm.api.RedirectionManager
+import net.rwhps.asm.api.replace.RedirectionReplace
+import net.rwhps.asm.api.replace.RedirectionReplaceManager
+import net.rwhps.asm.redirections.DefaultRedirections
 import net.rwhps.asm.util.DescriptionUtil.getDesc
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.util.function.Supplier
 
-class ProxyRedirection(private val manager: RedirectionManager, private val internalName: String): InvocationHandler {
+class ProxyRedirectionReplace(private val manager: RedirectionReplaceManager, private val internalName: String): InvocationHandler {
     @Throws(Throwable::class)
     override fun invoke(proxy: Any, method: Method, argsIn: Array<Any>?): Any {
         val desc = internalName + getDesc(method)
-        var fb = Supplier<Redirection> { manager }
+        var fb = Supplier<RedirectionReplace> { manager }
 
         if (desc.endsWith(";equals(Ljava/lang/Object;)Z")) {
             fb = Supplier { DefaultRedirections.EQUALS }

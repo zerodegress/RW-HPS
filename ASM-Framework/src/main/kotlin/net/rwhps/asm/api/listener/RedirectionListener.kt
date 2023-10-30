@@ -7,15 +7,9 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.api
+package net.rwhps.asm.api.listener
 
-import net.rwhps.asm.data.MethodTypeInfoValue
-import org.objectweb.asm.tree.ClassNode
-
-fun interface Transformer {
-    fun transform(classNode: ClassNode) {
-        transform(classNode, null)
-    }
-
-    fun transform(classNode: ClassNode, methodTypeInfoValueList: ArrayList<MethodTypeInfoValue>?)
+fun interface RedirectionListener {
+    @Throws(Throwable::class)
+    operator fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?)
 }

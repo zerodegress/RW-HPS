@@ -7,13 +7,13 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.api
+package net.rwhps.asm.api.listener
 
 import java.util.function.Supplier
 
-interface RedirectionManager: Redirection {
+interface RedirectionListenerManager: RedirectionListener {
     @Throws(Throwable::class)
-    operator fun invoke(desc: String, type: Class<*>, obj: Any, fallback: Supplier<Redirection>, vararg args: Any?): Any?
+    operator fun invoke(desc: String, type: Class<*>, obj: Any, fallback: Supplier<RedirectionListener>, vararg args: Any?)
 
-    fun redirect(desc: String, redirection: Redirection)
+    fun redirect(desc: String, redirection: RedirectionListener)
 }

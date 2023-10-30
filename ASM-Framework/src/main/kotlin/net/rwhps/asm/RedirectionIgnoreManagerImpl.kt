@@ -11,13 +11,12 @@ package net.rwhps.asm
 
 import net.rwhps.asm.api.replace.RedirectionReplace
 import net.rwhps.asm.api.replace.RedirectionReplaceManager
-import net.rwhps.asm.data.RedirectionsDataManager
 import net.rwhps.asm.redirections.DefaultRedirections.fallback
 import net.rwhps.asm.redirections.replace.CastRedirectionReplace
 import net.rwhps.asm.redirections.replace.ObjectRedirectionReplace
 import java.util.function.Supplier
 
-class RedirectionManagerImpl: RedirectionReplaceManager {
+class RedirectionIgnoreManagerImpl: RedirectionReplaceManager {
     private val objectRedirectionListener: RedirectionReplace = ObjectRedirectionReplace(this)
     private val cast: RedirectionReplace = CastRedirectionReplace(this)
 
@@ -28,11 +27,7 @@ class RedirectionManagerImpl: RedirectionReplaceManager {
 
     @Throws(Throwable::class)
     override fun invoke(desc: String, type: Class<*>, obj: Any, fallback: Supplier<RedirectionReplace>, vararg args: Any?): Any? {
-        var redirection = RedirectionsDataManager.descData[desc]
-        if (redirection == null) {
-            redirection = fallback.get()
-        }
-        return redirection.invoke(obj, desc, type, *args)
+        return fallback.get().invoke(obj, desc, type, *args)
     }
 
     private fun getFallback(desc: String, type: Class<*>): RedirectionReplace {

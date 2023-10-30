@@ -7,12 +7,12 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.redirections
+package net.rwhps.asm.redirections.replace
 
-import net.rwhps.asm.api.Redirection
-import net.rwhps.asm.api.RedirectionManager
+import net.rwhps.asm.api.replace.RedirectionReplace
+import net.rwhps.asm.api.replace.RedirectionReplaceManager
 
-class CastRedirection(private val manager: RedirectionManager): Redirection {
+class CastRedirectionReplace(private val manager: RedirectionReplaceManager): RedirectionReplace {
     @Throws(Throwable::class)
     override fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?): Any? {
         return if (type.isInstance(obj)) {

@@ -7,15 +7,11 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.asm.api
+package net.rwhps.asm.api.replace
 
-import net.rwhps.asm.data.MethodTypeInfoValue
-import org.objectweb.asm.tree.ClassNode
+import java.util.function.Supplier
 
-fun interface Transformer {
-    fun transform(classNode: ClassNode) {
-        transform(classNode, null)
-    }
-
-    fun transform(classNode: ClassNode, methodTypeInfoValueList: ArrayList<MethodTypeInfoValue>?)
+interface RedirectionReplaceManager: RedirectionReplace {
+    @Throws(Throwable::class)
+    operator fun invoke(desc: String, type: Class<*>, obj: Any, fallback: Supplier<RedirectionReplace>, vararg args: Any?): Any?
 }

@@ -9,49 +9,49 @@
 
 package net.rwhps.asm.redirections
 
-import net.rwhps.asm.api.Redirection
+import net.rwhps.asm.api.replace.RedirectionReplace
 
 object DefaultRedirections {
     @JvmField
-    val NULL = Redirection.of(null)
+    val NULL = RedirectionReplace.of(null)
 
     @JvmField
-    val BOOLEANF = Redirection.of(false)
+    val BOOLEANF = RedirectionReplace.of(false)
 
     @JvmField
-    val BOOLEANT = Redirection.of(true)
+    val BOOLEANT = RedirectionReplace.of(true)
 
     @JvmField
-    val BYTE = Redirection.of(0.toByte())
+    val BYTE = RedirectionReplace.of(0.toByte())
 
     @JvmField
-    val SHORT = Redirection.of(0.toShort())
+    val SHORT = RedirectionReplace.of(0.toShort())
 
     @JvmField
-    val INT = Redirection.of(0)
+    val INT = RedirectionReplace.of(0)
 
     @JvmField
-    val LONG = Redirection.of(0L)
+    val LONG = RedirectionReplace.of(0L)
 
     @JvmField
-    val FLOAT = Redirection.of(0.0f)
+    val FLOAT = RedirectionReplace.of(0.0f)
 
     @JvmField
-    val DOUBLE = Redirection.of(0.0)
+    val DOUBLE = RedirectionReplace.of(0.0)
 
     @JvmField
-    val CHAR = Redirection.of('a')
+    val CHAR = RedirectionReplace.of('a')
 
     @JvmField
-    val STRING = Redirection.of("")
+    val STRING = RedirectionReplace.of("")
 
     @JvmField
-    val EQUALS = Redirection { _: Any, _: String, _: Class<*>, args: Array<out Any?> -> args[0] === args[1] }
+    val EQUALS = RedirectionReplace { _: Any, _: String, _: Class<*>, args: Array<out Any?> -> args[0] === args[1] }
 
     @JvmField
-    val HASHCODE = Redirection { _: Any, _: String, _: Class<*>, args: Array<out Any?> -> System.identityHashCode(args[0]) }
+    val HASHCODE = RedirectionReplace { _: Any, _: String, _: Class<*>, args: Array<out Any?> -> System.identityHashCode(args[0]) }
 
-    private val DEFAULTS = HashMap<Class<*>?, Redirection>().apply {
+    private val DEFAULTS = HashMap<Class<*>?, RedirectionReplace>().apply {
         this[Void.TYPE] = NULL
         this[Boolean::class.javaPrimitiveType] = BOOLEANF
         this[Byte::class.javaPrimitiveType] = BYTE
@@ -66,7 +66,7 @@ object DefaultRedirections {
     }
 
     @JvmStatic
-    fun fallback(type: Class<*>?, redirection: Redirection): Redirection {
-        return DEFAULTS.getOrDefault(type, redirection)
+    fun fallback(type: Class<*>?, redirectionReplace: RedirectionReplace): RedirectionReplace {
+        return DEFAULTS.getOrDefault(type, redirectionReplace)
     }
 }

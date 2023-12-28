@@ -9,7 +9,16 @@
 
 package net.rwhps.asm.api.listener
 
+/**
+ * @author Dr (dr@der.kim)
+ */
 fun interface RedirectionListener {
     @Throws(Throwable::class)
-    operator fun invoke(obj: Any, desc: String, type: Class<*>, vararg args: Any?)
+    operator fun invoke(obj: Any, desc: String, vararg args: Any?)
+
+    companion object {
+        const val CAST_PREFIX = "<cast> "
+        const val METHOD_NAME = "invoke"
+        const val METHOD_DESC = "(Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Object;)V"
+    }
 }

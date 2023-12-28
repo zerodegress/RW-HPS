@@ -11,12 +11,12 @@
 
 package net.rwhps.asm.transformer
 
+import net.rwhps.asm.api.replace.RedirectionReplace
+import net.rwhps.asm.api.replace.RedirectionReplaceApi
 import net.rwhps.asm.data.MethodTypeInfoValue
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
-import org.objectweb.asm.tree.ClassNode
-import org.objectweb.asm.tree.InsnList
-import org.objectweb.asm.tree.MethodNode
-import org.objectweb.asm.tree.TypeInsnNode
+import org.objectweb.asm.tree.*
 
 /**
  *
@@ -25,7 +25,31 @@ import org.objectweb.asm.tree.TypeInsnNode
  * @author Dr (dr@der.kim)
  */
 class AllReplaceImpl {
-    internal class AllMethodsTransformer: AbstractReplace() {
+    internal open class AbstractReplacePrivate : AbstractReplace() {
+        override fun addMethodInsnNode(il: InsnList, methodTypeInfoValue: MethodTypeInfoValue?) {
+            if (methodTypeInfoValue?.replaceClass == null) {
+                il.add(MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(RedirectionReplaceApi::class.java), RedirectionReplace.METHOD_NAME, RedirectionReplace.METHOD_DESC))
+            } else {
+                il.insertBefore(il.first,
+                        FieldInsnNode(
+                                Opcodes.GETSTATIC,
+                                Type.getInternalName(methodTypeInfoValue.replaceClass),
+                                "INSTANCE",
+                                "L"+Type.getInternalName(methodTypeInfoValue.replaceClass)+";")
+                )
+                il.add(
+                        MethodInsnNode(
+                                Opcodes.INVOKEVIRTUAL,
+                                Type.getInternalName(methodTypeInfoValue.replaceClass),
+                                RedirectionReplace.METHOD_NAME,
+                                RedirectionReplace.METHOD_DESC
+                        )
+                )
+            }
+        }
+    }
+
+    internal class AllMethodsTransformer: AbstractReplacePrivate() {
         override fun redirectCast(cast: TypeInsnNode, methodTypeInfoValue: MethodTypeInfoValue?): InsnList {
             return InsnList()
         }
@@ -36,7 +60,12 @@ class AllReplaceImpl {
             }
             return super.injectRedirection(cn, mn, il, methodTypeInfoValue)
         }
+
+        override fun addMethodInsnNode(il: InsnList, methodTypeInfoValue: MethodTypeInfoValue?) {
+            il.add(MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(RedirectionReplaceApi::class.java), RedirectionReplace.METHOD_SPACE_NAME, RedirectionReplace.METHOD_DESC))
+        }
     }
 
-    internal class PartialMethodTransformer: AbstractReplace()
+    internal class PartialMethodTransformer: AbstractReplacePrivate() {
+    }
 }

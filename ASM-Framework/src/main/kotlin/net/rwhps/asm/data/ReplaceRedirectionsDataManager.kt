@@ -13,6 +13,7 @@ package net.rwhps.asm.data
 
 import net.rwhps.asm.api.replace.RedirectionReplace
 import net.rwhps.asm.func.Find
+import net.rwhps.asm.util.fast.DefaultValueClass
 
 
 /**
@@ -21,7 +22,7 @@ import net.rwhps.asm.func.Find
  * @date 2023/10/22 9:48
  * @author Dr (dr@der.kim)
  */
-object RedirectionsDataManager {
+object ReplaceRedirectionsDataManager {
     /** All Class Path缓存 建少查询 */
     internal val allClassPathCache = ArrayList<String>()
     /** 全替换 自定义过滤包名 */
@@ -61,6 +62,10 @@ object RedirectionsDataManager {
             throw NullPointerException("Parameter error")
         }
 
+        if (methodTypeInfoValue.listenerClass != null) {
+            throw NullPointerException("It should not be passed in : ListenerClass")
+        }
+
         if (partialReplaceMethodName.containsKey(methodTypeInfoValue.classPath)) {
             val list = partialReplaceMethodName[methodTypeInfoValue.classPath]!!
             if (list.contains(methodTypeInfoValue)) {
@@ -69,6 +74,12 @@ object RedirectionsDataManager {
             list.add(methodTypeInfoValue)
         } else {
             partialReplaceMethodName[methodTypeInfoValue.classPath] = ArrayList<MethodTypeInfoValue>().also { it.add(methodTypeInfoValue) }
+        }
+
+        if (redirection != null) {
+            DefaultValueClass.coverPrivateValueClass(redirection)?.let {
+                methodTypeInfoValue.replaceClass = it
+            }
         }
 
         // 如果 ReplaceClass 为 null, 那么即证明是默认替换, 才需要加入redirection

@@ -133,7 +133,7 @@ internal abstract class AbstractReplace : Transformer {
      * @param cn ClassNode
      * @param methodTypeInfoValue 修改的目标方法信息和需要指向的 Class 方法, null时为不指向, 为全局
      */
-    protected fun redirect(mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
+    private fun redirect(mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
         if ("<init>" == mn.name && mn.desc.endsWith(")V")) {
             // There's not really a way to determine when this() or super()
             // is called in a constructor, because of that we'll just inject
@@ -149,14 +149,18 @@ internal abstract class AbstractReplace : Transformer {
                 }
             }
         } else {
-            val il = InsnList()
-            il.add(InstructionUtil.makeReturn(injectRedirection(cn, mn, il, methodTypeInfoValue)))
-            mn.instructions = il
+            redirectMain(mn, cn, methodTypeInfoValue)
         }
         mn.tryCatchBlocks = ArrayList()
         mn.localVariables = ArrayList()
         mn.parameters = ArrayList()
         mn.access = mn.access and Opcodes.ACC_NATIVE.inv() and Opcodes.ACC_ABSTRACT.inv()
+    }
+
+    protected open fun redirectMain(mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
+        val il = InsnList()
+        il.add(InstructionUtil.makeReturn(injectRedirection(cn, mn, il, methodTypeInfoValue)))
+        mn.instructions = il
     }
 
     /**
@@ -207,22 +211,15 @@ internal abstract class AbstractReplace : Transformer {
         return returnType
     }
 
-    private fun addMethodInsnNode(il: InsnList, methodTypeInfoValue: MethodTypeInfoValue?) {
-        if (methodTypeInfoValue == null) {
-            il.add(MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(RedirectionReplaceApi::class.java), RedirectionReplace.METHOD_SPACE_NAME, RedirectionReplace.METHOD_DESC))
-        } else {
-            val classType = methodTypeInfoValue.replaceClass ?: RedirectionReplaceApi::class.java
-            il.add(MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(classType), RedirectionReplace.METHOD_NAME, RedirectionReplace.METHOD_DESC))
-        }
-    }
+    protected abstract fun addMethodInsnNode(il: InsnList, methodTypeInfoValue: MethodTypeInfoValue?)
 
-    private fun loadArgArray(desc: String?, il: InsnList, isStatic: Boolean) {
+    protected fun loadArgArray(desc: String?, il: InsnList, isStatic: Boolean) {
         val args = Type.getArgumentTypes(desc)
         il.add(LdcInsnNode(args.size))
         il.add(TypeInsnNode(Opcodes.ANEWARRAY, Type.getInternalName(Any::class.java)))
-        var i = 0
+
         var v = if (isStatic) 0 else 1
-        while (i < args.size) {
+        for (i in args.indices) {
             il.add(InsnNode(Opcodes.DUP))
             val type = args[i]
             il.add(LdcInsnNode(i))
@@ -236,7 +233,6 @@ internal abstract class AbstractReplace : Transformer {
                 il.add(boxing)
             }
             il.add(InsnNode(Opcodes.AASTORE))
-            i++
             v++
         }
     }

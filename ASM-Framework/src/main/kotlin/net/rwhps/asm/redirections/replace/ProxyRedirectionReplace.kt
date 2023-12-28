@@ -13,7 +13,7 @@ package net.rwhps.asm.redirections.replace
 
 import net.rwhps.asm.api.replace.RedirectionReplace
 import net.rwhps.asm.api.replace.RedirectionReplaceManager
-import net.rwhps.asm.redirections.DefaultRedirections
+import net.rwhps.asm.redirections.replace.def.BasicDataRedirections
 import net.rwhps.asm.util.DescriptionUtil.getDesc
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -26,9 +26,9 @@ class ProxyRedirectionReplace(private val manager: RedirectionReplaceManager, pr
         var fb = Supplier<RedirectionReplace> { manager }
 
         if (desc.endsWith(";equals(Ljava/lang/Object;)Z")) {
-            fb = Supplier { DefaultRedirections.EQUALS }
+            fb = Supplier { BasicDataRedirections.EQUALS }
         } else if (desc.endsWith(";hashCode()I")) {
-            fb = Supplier { DefaultRedirections.HASHCODE }
+            fb = Supplier { BasicDataRedirections.HASHCODE }
         }
         val args = arrayOfNulls<Any>(if (argsIn == null) 1 else argsIn.size + 1)
 

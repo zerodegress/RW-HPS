@@ -12,23 +12,27 @@
 package net.rwhps.asm.agent
 
 import net.rwhps.asm.api.Transformer
-import net.rwhps.asm.data.RedirectionsDataManager
+import net.rwhps.asm.data.ListenerRedirectionsDataManager
+import net.rwhps.asm.data.ReplaceRedirectionsDataManager
 import net.rwhps.asm.func.Find
+import net.rwhps.asm.transformer.AllListenerImpl
 import net.rwhps.asm.transformer.AllReplaceImpl
 import net.rwhps.asm.util.transformer.AsmUtil
 import org.objectweb.asm.ClassWriter
+import java.io.FileOutputStream
 import java.lang.instrument.ClassFileTransformer
 import java.lang.instrument.IllegalClassFormatException
 import java.lang.instrument.Instrumentation
 import java.security.ProtectionDomain
 
 /**
- * A JavaAgent calling the [AllMethodsTransformer] and [PartialMethodTransformer].
+ * A JavaAgent calling the [AllReplaceImpl.AllMethodsTransformer] and [AllReplaceImpl.PartialMethodTransformer].
  */
 class AsmAgent: ClassFileTransformer, AsmCore() {
 
     private val transformer: Transformer = AllReplaceImpl.AllMethodsTransformer()
     private val partialMethodTransformer: Transformer = AllReplaceImpl.PartialMethodTransformer()
+    private val listenerMethodTransformer: Transformer = AllListenerImpl.ListenerPartialMethodsTransformer()
 
     init {
         setAgent(this)
@@ -36,7 +40,7 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
 
     /**
      * Transforms the given class file and returns a new replacement class file.
-     * This method is invoked when the {@link Module Module} bearing {@link
+     * This method is invoked when the {@link Module} bearing {@link
      * ClassFileTransformer#transform(Module,ClassLoader,String,Class,ProtectionDomain,byte[])
      * transform} is not overridden.
      *
@@ -65,34 +69,52 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
         protectionDomain: ProtectionDomain?,
         classfileBuffer: ByteArray
     ): ByteArray {
-        if (RedirectionsDataManager.allClassPathCache.contains(className) ||
-            RedirectionsDataManager.allReplaceFindPacketName.forFind(className)
+        if (ReplaceRedirectionsDataManager.allClassPathCache.contains(className) ||
+            ReplaceRedirectionsDataManager.allReplaceFindPacketName.forFind(className)
         ) {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
-            if (RedirectionsDataManager.partialClassPathCache.contains(className)) {
-                partialMethodTransformer.transform(node, RedirectionsDataManager.partialReplaceMethodName[className])
+            if (ReplaceRedirectionsDataManager.partialClassPathCache.contains(className)) {
+                partialMethodTransformer.transform(node, ReplaceRedirectionsDataManager.partialReplaceMethodName[className])
             }
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
+            if (ListenerRedirectionsDataManager.partialClassPathCache.contains(className)) {
+                listenerMethodTransformer.transform(node, ListenerRedirectionsDataManager.partialListenerMethodName[className])
+            }
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
 
-        if (RedirectionsDataManager.partialClassPathCache.contains(className)) {
+        if (ReplaceRedirectionsDataManager.partialClassPathCache.contains(className)) {
             val node = AsmUtil.read(classfileBuffer)
-            partialMethodTransformer.transform(node, RedirectionsDataManager.partialReplaceMethodName[className])
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
+            partialMethodTransformer.transform(node, ReplaceRedirectionsDataManager.partialReplaceMethodName[className])
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
+        }
+        if (ListenerRedirectionsDataManager.partialClassPathCache.contains(className)) {
+            val node = AsmUtil.read(classfileBuffer)
+            listenerMethodTransformer.transform(node, ListenerRedirectionsDataManager.partialListenerMethodName[className])
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
         return classfileBuffer
     }
 
     private fun ArrayList<Find<String, Boolean>>.forFind(value: String): Boolean {
-        var result = false
+        var result: Boolean
         this.forEach {
             result = it(value)
             if (result) {
-                return result
+                return true
             }
         }
-        return result
+        return false
+    }
+
+    private fun ByteArray.save(name: String): ByteArray {
+        if (name == "org/newdawn/slick/Graphics") {
+            FileOutputStream("a.class").let {
+                it.write(this)
+                it.flush()
+            }
+        }
+        return this
     }
 
     companion object {

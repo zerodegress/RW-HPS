@@ -13,7 +13,5 @@ import java.util.function.Supplier
 
 interface RedirectionListenerManager: RedirectionListener {
     @Throws(Throwable::class)
-    operator fun invoke(desc: String, type: Class<*>, obj: Any, fallback: Supplier<RedirectionListener>, vararg args: Any?)
-
-    fun redirect(desc: String, redirection: RedirectionListener)
+    operator fun invoke(desc: String, obj: Any, fallback: Supplier<RedirectionListener>, vararg args: Any?)
 }

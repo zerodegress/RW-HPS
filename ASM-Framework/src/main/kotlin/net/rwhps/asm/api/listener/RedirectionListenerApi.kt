@@ -11,10 +11,32 @@
 
 package net.rwhps.asm.api.listener
 
+import net.rwhps.asm.manager.listener.RedirectionListenerManagerImpl
+
 /**
  * 方法重定向-监听, 在方法前或方法后添加一个监听
  *
  * @date 2023/10/22 9:26
  * @author Dr (dr@der.kim)
  */
-object RedirectionListenerApi {}
+object RedirectionListenerApi {
+    /**
+     *  Not using a ServiceLoader for now, modularized environments with
+     *  multiple ClassLoaders cause some issues.
+     *
+     * @return an implementation of the [RedirectionManager].
+     */
+    private val redirectionManager: RedirectionListenerManager = RedirectionListenerManagerImpl()
+
+    /**
+     *
+     * @see Redirection
+     */
+    // used by the transformer
+    @JvmStatic
+    @Suppress("UNUSED")
+    @Throws(Throwable::class)
+    operator fun invoke(obj: Any, desc: String, vararg args: Any?) {
+        redirectionManager.invoke(obj, desc, *args)
+    }
+}

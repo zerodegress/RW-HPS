@@ -24,12 +24,12 @@ buildscript {
     }
 }
 
+setRepositories()
+
 plugins {
     id("org.jetbrains.kotlin.jvm") version Versions.kotlinVersion
     id("org.jetbrains.dokka") version Versions.dokkaVersion
 }
-
-setRepositories()
 
 allprojects {
     apply(plugin = "java")

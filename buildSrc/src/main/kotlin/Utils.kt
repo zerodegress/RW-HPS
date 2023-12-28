@@ -15,7 +15,7 @@ import java.io.IOException
 import java.nio.file.Files
 
 fun Project.setRepositories() {
-    repositories {
+    this.repositories {
         maven(url = "https://maven.aliyun.com/repository/public")
         maven(url = "https://mirrors.cloud.tencent.com/nexus/repository/maven-public")
         maven(url = "https://repo.huaweicloud.com/repository/maven")
@@ -64,20 +64,26 @@ fun Project.makeDependTree() {
 }
 
 fun File.fuckGithub() {
-    this.parentFile?.delete()
-    this.parentFile?.mkdirs()
-
-    if (this.isDirectory) {
-        return
-    }
-
-    if (!this.exists()) {
-        try {
-            Files.createFile(toPath());
-        } catch (e: IOException) {
-            println(path)
-            println(canWrite())
-            error(e)
+    try {
+        if (this.parentFile == null || this.parentFile!!.delete()) {
+            return
         }
+        this.parentFile?.mkdirs()
+
+        if (this.isDirectory) {
+            return
+        }
+
+        if (!this.exists()) {
+            try {
+                Files.createFile(toPath())
+            } catch (e: IOException) {
+                println(path)
+                println(canWrite())
+                error(e)
+            }
+        }
+    } catch (_: Exception) {
+        println("remove Files Error???")
     }
 }

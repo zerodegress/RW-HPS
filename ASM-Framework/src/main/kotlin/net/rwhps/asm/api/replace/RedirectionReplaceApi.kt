@@ -11,8 +11,8 @@
 
 package net.rwhps.asm.api.replace
 
-import net.rwhps.asm.RedirectionIgnoreManagerImpl
-import net.rwhps.asm.RedirectionManagerImpl
+import net.rwhps.asm.manager.replace.RedirectionIgnoreManagerImpl
+import net.rwhps.asm.manager.replace.RedirectionManagerImpl
 
 
 /**

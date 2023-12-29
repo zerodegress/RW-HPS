@@ -22,7 +22,7 @@ import java.io.IOException
 
 /**
  * RELAY Jump Server
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 
 /**
@@ -32,7 +32,7 @@ import java.io.IOException
  * @return Packet       : Generate a send package
  * @throws IOException  : Unknown
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Throws(IOException::class)
 internal fun fromRelayJumpsToAnotherServerInternalPacket(ip: String): Packet {

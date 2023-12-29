@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * @date 2023/7/27 8:56
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class GetVersionTest {
     @Test

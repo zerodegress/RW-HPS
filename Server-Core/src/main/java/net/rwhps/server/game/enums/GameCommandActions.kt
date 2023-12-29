@@ -17,7 +17,7 @@ import net.rwhps.server.util.log.exp.VariableException
 
 /**
  * @date 2023/8/19 11:02
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 enum class GameCommandActions {
     MOVE,

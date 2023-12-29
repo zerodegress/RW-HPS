@@ -16,6 +16,6 @@ import net.rwhps.server.game.simulation.core.AbstractGameModule
  * 服务器初始化事件
  *
  * @date 2023/7/5 10:00
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ServerHessLoadEvent(val loadID: String, val gameModule: AbstractGameModule): AbstractGlobalEvent

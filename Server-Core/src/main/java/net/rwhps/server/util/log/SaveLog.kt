@@ -16,10 +16,10 @@ import net.rwhps.server.util.file.FileUtils
 /**
  * 保存 Log 部分
  * 只保存十次, 在每次启动时保存
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class SaveLog {
-    private val archiveLog = FileUtils.getFolder(Data.Plugin_Log_Path).toFile("archive-10.zip")
+    private val archiveLog = FileUtils.getFolder(Data.ServerLogPath).toFile("archive-10.zip")
     private var count = 0
 
     init {

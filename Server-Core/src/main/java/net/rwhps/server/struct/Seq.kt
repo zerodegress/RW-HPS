@@ -26,7 +26,7 @@ import java.io.IOException
  *
  * @param T Type
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Seq<T>: BaseSeq<T> {
     @JvmOverloads

@@ -12,14 +12,15 @@
 package net.rwhps.server.util.annotations.core
 
 /**
- * 注解在 AbstractEvent/AbstractGlobalEvent 类上 : 表明事件是使用异步
- * 使用本注解也内涵: 这个事件对应接收器是只读的, 你不应该在接收器中干重型操作
+ * 注解在 AbstractEvent/AbstractGlobalEvent 类上 :
+ * 表明事件是同时交给多个监听器, 而不是按顺序
+ * 所以这个事件对应接收器是只读的, 你的操作不能影响后续
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
 @Target(
         AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS
 )
-annotation class EventAsync
+annotation class EventOnlyRead

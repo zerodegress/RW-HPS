@@ -23,7 +23,7 @@ import kotlin.math.min
  * @throws IOException if an I/O error occurs.
  *
  * @author Adrian Granados
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal open class ReliableSocketOutputStream(sock: ReliableSocket?): OutputStream() {
     @Synchronized

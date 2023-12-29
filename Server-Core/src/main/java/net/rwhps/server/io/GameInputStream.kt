@@ -17,7 +17,7 @@ import java.io.*
 
 /**
  * Read Bytes
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED")
 open class GameInputStream: Closeable {

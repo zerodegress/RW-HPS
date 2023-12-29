@@ -25,7 +25,7 @@ import net.rwhps.server.util.log.exp.ImplementedException
  * @property netType NetType                        : 使用的Net协议类型
  * @property typeConnect TypeConnect                : 连接解析器
  * @property abstractNetPacket AbstractNetPacket    : NetPacket
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class RwHps(private val netType: IRwHps.NetType): IRwHps {
     override val typeConnect: TypeConnect = try {
@@ -37,7 +37,7 @@ open class RwHps(private val netType: IRwHps.NetType): IRwHps {
                 TODO("Not yet implemented")
             }
 
-            override fun typeConnect(packet: Packet) {
+            override fun processConnect(packet: Packet) {
                 TODO("Not yet implemented")
             }
 

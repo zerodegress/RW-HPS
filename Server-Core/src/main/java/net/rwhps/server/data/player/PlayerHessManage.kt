@@ -11,7 +11,7 @@ package net.rwhps.server.data.player
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.simulation.core.AbstractPlayerData
+import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.I18NBundle
@@ -25,7 +25,7 @@ import net.rwhps.server.util.IsUtils
  * RW-HPS 单例下使用(java) :
  * HessModuleManage.INSTANCE.getHps().getRoom().getPlayerManage()
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PlayerHessManage {
     /** Online players   */
@@ -37,7 +37,7 @@ class PlayerHessManage {
     val playerAll = Seq<PlayerHess>(16, true)
 
     fun addAbstractPlayer(
-        con: AbstractNetConnectServer, playerData: AbstractPlayerData, i18NBundle: I18NBundle = Data.i18NBundle
+        con: AbstractNetConnectServer, playerData: AbstractLinkPlayerData, i18NBundle: I18NBundle = Data.i18NBundle
     ): PlayerHess {
         var player: PlayerHess? = null
         var resultFlag = true

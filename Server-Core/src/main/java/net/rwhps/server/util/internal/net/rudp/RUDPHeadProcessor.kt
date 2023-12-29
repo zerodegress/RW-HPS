@@ -17,7 +17,7 @@ import net.rwhps.server.util.log.Log
 
 /**
  * @date 2023/7/17 12:31
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class RUDPHeadProcessor {
     fun registerRead(socket: ReliableClientSocket) {
@@ -36,7 +36,7 @@ class RUDPHeadProcessor {
         }
 
         try {
-            socket.type.typeConnect(Packet(socket.needType, bytes))
+            socket.type.processConnect(Packet(socket.needType, bytes))
         } catch (e: Exception) {
             Log.debug(e = e)
         }

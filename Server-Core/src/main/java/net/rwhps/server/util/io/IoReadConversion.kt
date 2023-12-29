@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets
 
 /**
  * 流转换
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object IoReadConversion {
     @JvmStatic

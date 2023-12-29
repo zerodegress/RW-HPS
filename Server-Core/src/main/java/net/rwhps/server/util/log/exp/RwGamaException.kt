@@ -10,7 +10,7 @@
 package net.rwhps.server.util.log.exp
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class RwGamaException {
     class ModsException(type: String): Exception(type)

@@ -15,7 +15,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter
 import io.netty.channel.unix.Errors
 import io.netty.handler.timeout.IdleState
 import io.netty.handler.timeout.IdleStateEvent
-import io.netty.util.AttributeKey
+import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.handler.TimeoutDetection
 import net.rwhps.server.util.log.Log
@@ -24,10 +24,12 @@ import java.net.SocketException
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Sharable
-open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
+open class AcceptorIdleStateTrigger(
+    private val abstractNet: AbstractNet
+): ChannelInboundHandlerAdapter() {
     val connectNum: AtomicInteger = AtomicInteger()
 
     @Throws(Exception::class)
@@ -66,7 +68,7 @@ open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
     override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
         if (evt is IdleStateEvent) {
             if (evt.state() == IdleState.WRITER_IDLE) {
-                val con: TypeConnect? = ctx.channel().attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
+                val con: TypeConnect? = abstractNet.getTypeConnect(ctx.channel()).get()
                 if (TimeoutDetection.checkTimeoutDetection(con)) {
                     clear(ctx)
                 }
@@ -79,19 +81,19 @@ open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
     @Throws(Exception::class)
     override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable?) {
         // The remote host forcibly closed an existing connection
-        if (cause is SocketException) {
-            clear(ctx)
-        } else if (cause is Errors.NativeIoException) {
-            // 忽略
-        } else {
-            cause?.let {
-                Log.error(ExceptionX.resolveTrace(it))
+        when (cause) {
+            is SocketException -> {
+                clear(ctx)
+            }
+            is Errors.NativeIoException -> {
+                // 忽略
+            }
+            else -> {
+                cause?.let {
+                    Log.error(ExceptionX.resolveTrace(it))
+                }
             }
         }
-    }
-
-    protected open fun getAttributeKey(): AttributeKey<TypeConnect> {
-        return NewServerHandler.NETTY_CHANNEL_KEY
     }
 
     /**
@@ -100,7 +102,7 @@ open class AcceptorIdleStateTrigger: ChannelInboundHandlerAdapter() {
      */
     internal fun clear(ctx: ChannelHandlerContext) {
         val channel = ctx.channel()
-        val con = channel.attr(getAttributeKey()).get()
+        val con = abstractNet.getTypeConnect(channel).get()
         if (con != null) {
             con.abstractNetConnect.disconnect()
         } else {

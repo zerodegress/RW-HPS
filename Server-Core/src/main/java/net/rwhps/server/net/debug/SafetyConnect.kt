@@ -13,7 +13,7 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.DataPermissionStatus
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class SafetyConnect {
     /** */

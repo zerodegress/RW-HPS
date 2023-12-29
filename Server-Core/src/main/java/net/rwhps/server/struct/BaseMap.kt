@@ -24,7 +24,7 @@ import net.rwhps.server.util.ExtractUtils
  * @property values MutableCollection<V>
  * @constructor
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 abstract class BaseMap<K, V>(private val map: java.util.Map<K, V>, private val threadSafety: Boolean): MutableMap<K, V>, Map<K, V> {

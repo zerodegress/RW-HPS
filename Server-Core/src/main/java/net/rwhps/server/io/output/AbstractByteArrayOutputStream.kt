@@ -29,7 +29,7 @@ import kotlin.math.min
  * 与[java.io.ByteArrayOutputStream]不同的是它没有重新分配整个内存块，但分配额外的缓冲区
  * 这样就不需要对缓冲区进行垃圾收集，而且内容也没有复制到新得到缓冲区
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class AbstractByteArrayOutputStream: OutputStream() {
     /** 缓冲区列表，它会增长并且永远不会减少  */

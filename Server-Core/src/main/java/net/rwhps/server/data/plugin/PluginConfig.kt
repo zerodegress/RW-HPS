@@ -10,6 +10,6 @@
 package net.rwhps.server.data.plugin
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PluginConfig 

@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadLocalRandom
  * @property off Int
  * @property maximumNumberOfCalculations Int
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class NetConnectProofOfWork {
     // Uniqueness

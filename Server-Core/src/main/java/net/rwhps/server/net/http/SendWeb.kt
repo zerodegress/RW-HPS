@@ -18,7 +18,7 @@ import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.inline.mutableObjectMapOf
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class SendWeb(
     private val channel: Channel, private val request: HttpRequest

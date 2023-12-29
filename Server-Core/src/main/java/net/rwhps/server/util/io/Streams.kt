@@ -12,7 +12,7 @@ package net.rwhps.server.util.io
 import java.io.Closeable
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Streams {
     /** Close and ignore all errors.  */

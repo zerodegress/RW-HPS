@@ -18,7 +18,7 @@ import net.rwhps.server.net.core.web.WebSocket
 import java.util.function.Consumer
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @ChannelHandler.Sharable
 class StartWebSocket(private val webSocket: WebSocket): SimpleChannelInboundHandler<TextWebSocketFrame>() {

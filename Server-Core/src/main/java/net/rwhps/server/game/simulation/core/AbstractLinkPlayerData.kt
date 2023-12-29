@@ -9,12 +9,12 @@
 
 package net.rwhps.server.game.simulation.core
 
-import net.rwhps.server.util.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 
 @GameSimulationLayer.GameSimulationLayer_KeyWords(
         "Note to modifiers: Changing credits will not allow you to cheat in multiplayer games, but it will only break sync"
 )
-interface AbstractPlayerData {
+interface AbstractLinkPlayerData {
     fun updateDate()
 
     @GameSimulationLayer.GameSimulationLayer_KeyWords("is victorious!")

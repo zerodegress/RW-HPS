@@ -13,7 +13,7 @@ package net.rwhps.server.io.input
  * 这个是为ByteArrayInputStream做出的特殊改造
  * 你可以直接为Stream加入数据 并清除以前读取过的数据(防止Stream越来越大)
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class ClearableAndReusableByteArrayInputStream: ByteArrayInputStream(ByteArray(0)) {
     /**

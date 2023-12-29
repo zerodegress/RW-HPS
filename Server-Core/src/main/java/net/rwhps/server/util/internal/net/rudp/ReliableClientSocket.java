@@ -23,7 +23,7 @@ import java.util.ArrayList;
 /**
  * ReliableClientSocket
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2023/7/17 8:41
  */
 public class ReliableClientSocket extends ReliableSocket {

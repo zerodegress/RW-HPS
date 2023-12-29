@@ -13,7 +13,7 @@ import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.game.CommandHandler
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class BanUnitMain: Plugin() {
     override fun registerServerCommands(handler: CommandHandler) {
@@ -22,7 +22,7 @@ class BanUnitMain: Plugin() {
 
     /**
      * Inject multiple languages into the server
-     * @author RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     private class AddLang(val plugin: Plugin) {
         init {

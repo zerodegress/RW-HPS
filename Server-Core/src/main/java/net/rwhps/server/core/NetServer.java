@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static net.rwhps.server.net.HttpRequestOkHttp.doPostRw;
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @SuppressWarnings("deprecation")
 public class NetServer {

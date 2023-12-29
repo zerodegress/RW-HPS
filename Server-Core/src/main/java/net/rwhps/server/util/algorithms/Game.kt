@@ -12,7 +12,7 @@ package net.rwhps.server.util.algorithms
 /**
  * 验证客户端有效性
  *
- * @author RW-HPS/Dr.
+ * @author Dr (dr@der.kim).
  * @Data 2020/6/25 9:28
  */
 object Game {

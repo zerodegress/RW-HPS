@@ -14,7 +14,7 @@ import net.rwhps.server.util.Time
 /**
  * 指定时间 [timeOut] 内累加过 [conutMax] 即返回 false
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class TimeAndNumber(
     private val timeOut: Int, private val conutMax: Int

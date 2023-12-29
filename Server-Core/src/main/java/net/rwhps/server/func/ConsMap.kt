@@ -11,7 +11,7 @@ package net.rwhps.server.func
 
 /**
  * Cons 轮循 Map专用
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 fun interface ConsMap<K, V> {
     /**

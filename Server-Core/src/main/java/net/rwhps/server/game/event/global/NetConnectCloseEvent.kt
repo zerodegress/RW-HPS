@@ -11,11 +11,13 @@ package net.rwhps.server.game.event.global
 
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.util.annotations.core.EventAsync
+import net.rwhps.server.util.annotations.core.EventBlockCurrentThread
+import net.rwhps.server.util.annotations.core.EventOnlyRead
 
 /**
  * @date 2023/7/5 10:15
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-@EventAsync
+@EventOnlyRead
+@EventBlockCurrentThread
 class NetConnectCloseEvent(val connectionAgreement: ConnectionAgreement): AbstractGlobalEvent

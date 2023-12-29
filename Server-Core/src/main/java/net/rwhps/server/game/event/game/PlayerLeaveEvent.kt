@@ -16,6 +16,6 @@ import net.rwhps.server.game.event.core.AbstractEvent
  * 玩家离开服务器事件
  *
  * @date 2023/7/5 13:43
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PlayerLeaveEvent(val player: PlayerHess): AbstractEvent

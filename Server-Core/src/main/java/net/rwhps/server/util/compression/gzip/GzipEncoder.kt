@@ -14,7 +14,7 @@ import java.io.OutputStream
 import java.util.zip.GZIPOutputStream
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object GzipEncoder {
     @JvmStatic

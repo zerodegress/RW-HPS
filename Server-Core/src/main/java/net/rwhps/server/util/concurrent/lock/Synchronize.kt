@@ -1,13 +1,15 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ *  * Copyright 2020-2023 RW-HPS Team and contributors.
+ *  *
+ *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  *
+ *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
+ *  
  */
 
-package net.rwhps.server.util.lock
+package net.rwhps.server.util.concurrent.lock
 
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -25,7 +27,7 @@ import kotlin.reflect.KProperty
  * @constructor
  *
  * @date  2023/6/23 8:29
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Synchronize<T>(
     defaultValue: T, private val get: (T) -> T = { it }, private val set: (T) -> T = { it }

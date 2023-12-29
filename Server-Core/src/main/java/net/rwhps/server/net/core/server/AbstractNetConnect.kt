@@ -10,6 +10,7 @@
 package net.rwhps.server.net.core.server
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.data.temp.ConnectReceiveData
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
@@ -25,7 +26,7 @@ import java.nio.charset.StandardCharsets
 /**
  * Realize basic network information packaging
  * The game protocol compulsory inheritance of this class
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2021/12/16 08:55:26
  */
 abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionAgreement) {
@@ -67,13 +68,9 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
      */
     var tryBoolean: Boolean = false
 
-    /**
-     * Get whether you are entering a password
-     * @return Boolean
-     */
-    var inputPassword: Boolean = false
-
     var isDis: Boolean = false
+
+    val connectReceiveData: ConnectReceiveData = ConnectReceiveData()
 
     /**
      * last time to Received Packet
@@ -85,6 +82,7 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
 
     fun lastReceivedTime() {
         lastReceivedTime = Time.concurrentMillis()
+        connectReceiveData.receiveBigPacket = false
     }
 
     /**
@@ -109,13 +107,12 @@ abstract class AbstractNetConnect(protected val connectionAgreement: ConnectionA
      * Send package
      * @param packet Data
      */
-    @Synchronized
     fun sendPacket(packet: Packet) {
         try {
             connectionAgreement.send(packet)
         } catch (e: Exception) {
             disconnect()
-            if (connectionAgreement.useAgreement != "UDP") {
+            if (connectionAgreement.useAgreement == "UDP") {
                 Log.error("[${connectionAgreement.useAgreement}] SendError - 本消息单独出现无妨 连续多次出现请debug", e)
             }
         }

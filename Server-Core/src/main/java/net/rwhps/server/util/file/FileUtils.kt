@@ -68,7 +68,7 @@ import java.nio.file.attribute.PosixFilePermission
  *
  * 欢迎提交修改
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class FileUtils {
     /** 内部的File  */
@@ -395,12 +395,12 @@ open class FileUtils {
 
         @JvmStatic
         fun getTempFile(prefix: String): FileUtils {
-            return getFolder(Data.Plugin_Cache_Path).toFile(prefix)
+            return getFolder(Data.ServerCachePath).toFile(prefix)
         }
 
         @JvmStatic
         fun getTempDirectory(prefix: String): FileUtils {
-            return getFolder(Data.Plugin_Cache_Path).toFolder(prefix)
+            return getFolder(Data.ServerCachePath).toFolder(prefix)
         }
 
         @JvmStatic

@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMaps
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ObjectIntMap<K>: BaseMap<K, Int> {
     @JvmOverloads

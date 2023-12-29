@@ -13,7 +13,7 @@ import net.rwhps.server.util.file.FileName
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object GameOtherUtils {
     @JvmStatic

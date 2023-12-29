@@ -15,7 +15,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object IsUtils {
     private val PATTERN = Pattern.compile("[-+]?\\d+(?:\\.\\d+)?")

@@ -34,10 +34,10 @@ import java.util.concurrent.TimeUnit
  *
  * DEV 保证 :
  * V5开始将不会进行较大版本更新 一切由 [-4] 错误码 解决
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class UpListMain: Plugin() {
-    private val version = "Version=HPS#2"
+    private val version = "Version=HPS#1"
     private val privateIp: String
         get() {
             var privateIpTemp = IpUtils.getPrivateIp()
@@ -235,7 +235,7 @@ internal class UpListMain: Plugin() {
 
     /**
      * Inject multiple languages into the server
-     * @author RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     private class AddLang(val plugin: Plugin) {
         init {

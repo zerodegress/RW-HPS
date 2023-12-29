@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @date  2023/6/14 20:36
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ObjectMap<K, V>: BaseMap<K, V> {
     @JvmOverloads

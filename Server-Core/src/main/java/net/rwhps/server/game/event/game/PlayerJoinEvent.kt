@@ -11,13 +11,13 @@ package net.rwhps.server.game.event.game
 
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.game.event.core.AbstractEvent
-import net.rwhps.server.util.annotations.core.EventAsync
+import net.rwhps.server.util.annotations.core.EventOnlyRead
 
 /**
  * 玩家加入服务器事件
  *
  * @date 2023/7/5 13:43
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-@EventAsync
+@EventOnlyRead
 class PlayerJoinEvent(val player: PlayerHess): AbstractEvent

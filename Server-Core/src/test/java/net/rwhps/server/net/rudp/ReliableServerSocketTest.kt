@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 import java.io.DataInputStream
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2023/7/16 20:48
  */
 internal class ReliableServerSocketTest {

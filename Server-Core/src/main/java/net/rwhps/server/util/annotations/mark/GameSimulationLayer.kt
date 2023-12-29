@@ -7,10 +7,10 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.annotations
+package net.rwhps.server.util.annotations.mark
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class GameSimulationLayer {
     @Retention(AnnotationRetention.SOURCE)

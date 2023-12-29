@@ -22,7 +22,7 @@ import javax.imageio.ImageIO
  * 处理 游戏资源文件, 适配无头
  *
  * @date  2023/6/17 19:47
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object FakeHessRes {
     fun fuck() {

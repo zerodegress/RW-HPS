@@ -17,7 +17,7 @@ import net.rwhps.server.struct.ObjectMap
 //@formatter:off
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object ColorCodes {
     private const val FLUSH = "\u001b[H\u001b[2J"

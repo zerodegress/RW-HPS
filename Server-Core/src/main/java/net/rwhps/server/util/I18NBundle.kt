@@ -22,7 +22,7 @@ import java.text.MessageFormat
 import java.util.*
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @Date ?
  */
 class I18NBundle {

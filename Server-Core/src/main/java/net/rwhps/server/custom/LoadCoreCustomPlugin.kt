@@ -22,7 +22,7 @@ import net.rwhps.server.plugin.internal.hess.HessMain
  * @property coreEx String
  * @property amusement String
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class LoadCoreCustomPlugin {
     private val core = "[Core Plugin]"
@@ -31,9 +31,11 @@ internal class LoadCoreCustomPlugin {
     private val example = "[Example Plugin]"
 
     init {
-        PluginManage.addPluginClass("HessServer", "RW-HPS/Dr", "$core HessServer", Data.SERVER_CORE_VERSION, HessMain(), mkdir = false, skip = true)
+        PluginManage.addPluginClass(
+                "HessServer", "Dr", "$core HessServer", Data.SERVER_CORE_VERSION, HessMain(), mkdir = false, skip = true
+        )
 
-        PluginManage.addPluginClass("UpList", "Dr", "$core UpList", "1.0", UpListMain(), mkdir = false, skip = true)
+        PluginManage.addPluginClass("UpList","Dr","$core UpList","1.0", UpListMain(), mkdir = false, skip = true)
         PluginManage.addPluginClass(RwHpsWebApiMain.pluginInfo, RwHpsWebApiMain(), mkdir = true, skip = true)
     }
 }

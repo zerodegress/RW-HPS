@@ -13,9 +13,9 @@ package net.rwhps.server.game.simulation.core
 /**
  * 链接游戏内的方法
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-interface AbstractGameLinkFunction {
+interface AbstractLinkGameFunction {
     /**
      * 全局同步
      */

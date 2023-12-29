@@ -14,7 +14,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object SecureUtils {
     /**

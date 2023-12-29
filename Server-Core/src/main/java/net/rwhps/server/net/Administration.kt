@@ -20,7 +20,7 @@ import net.rwhps.server.util.Time.millis
 /**
  * Server Management (Player)
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Administration(pluginData: PluginData) {
     private val chatFilters = Seq<ChatFilter>()
@@ -67,6 +67,7 @@ class Administration(pluginData: PluginData) {
         addSavePool {
             Data.config.save()
             Data.configServer.save()
+            Data.configRelay.save()
         }
     }
 

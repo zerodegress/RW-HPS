@@ -21,7 +21,7 @@ import java.lang.reflect.Constructor
 /**
  * Service loader module for RW-HPS
  * SIP without Java
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 /**
  * TODO

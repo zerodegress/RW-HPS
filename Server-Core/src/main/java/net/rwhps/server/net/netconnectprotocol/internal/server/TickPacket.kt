@@ -25,7 +25,7 @@ import java.io.IOException
 
 /**
  * Game Tick
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 
 /**

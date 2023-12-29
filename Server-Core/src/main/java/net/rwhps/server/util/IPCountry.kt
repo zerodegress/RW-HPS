@@ -16,7 +16,7 @@ import org.lionsoul.ip2region.DbConfig
 import org.lionsoul.ip2region.DbSearcher
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object IPCountry {
     private val searcher: DbSearcher = DbSearcher(

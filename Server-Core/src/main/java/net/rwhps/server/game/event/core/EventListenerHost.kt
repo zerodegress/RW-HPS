@@ -16,7 +16,7 @@ import net.rwhps.server.util.log.Log
  * 服务器事件监听, 每一个实现的监听类都应该继承本方法
  *
  * @date 2023/7/5 10:23
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface EventListenerHost {
     /**

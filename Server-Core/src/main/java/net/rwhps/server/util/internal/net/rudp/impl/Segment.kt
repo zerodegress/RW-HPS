@@ -13,7 +13,7 @@ package net.rwhps.server.util.internal.net.rudp.impl
  * Segment
  *
  * @author Adrian Granados (agranados@ihmc.us)
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class Segment protected constructor() {
 

@@ -10,7 +10,7 @@
 package net.rwhps.server.util.algorithms
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Algorithms {
     /**

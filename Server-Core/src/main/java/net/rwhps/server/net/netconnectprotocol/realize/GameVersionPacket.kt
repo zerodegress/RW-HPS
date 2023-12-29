@@ -29,7 +29,7 @@ import java.io.IOException
 /**
  * Provides support for most common packages for the server
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @MainProtocolImplementation
 open class GameVersionPacket: AbstractNetPacket {

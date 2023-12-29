@@ -14,6 +14,7 @@ import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.ProgressBar
 import net.rwhps.server.util.log.exp.NetException
+import net.rwhps.server.util.log.exp.VariableException
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request.Builder
@@ -24,7 +25,7 @@ import java.net.HttpURLConnection
 
 /**
  * HTTP
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object HttpRequestOkHttp {
     private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51"
@@ -59,13 +60,7 @@ object HttpRequestOkHttp {
      */
     @JvmStatic
     fun doPost(url: String?, param: String): String {
-        val formBody = FormBody.Builder()
-        val paramArray = param.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        for (pam in paramArray) {
-            val keyValue = pam.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            formBody.add(keyValue[0], keyValue[1])
-        }
-        return doPost(url, formBody)
+        return doPost(url, parameterConversion(param))
     }
 
     /**
@@ -103,55 +98,14 @@ object HttpRequestOkHttp {
         return getHttpResultString(request)
     }
 
-    /**
-     * Request and Return
-     * @param request     Request
-     * @return            Result
-     */
-    private fun getHttpResultString(request: Request): String {
-        return try {
-            getHttpResultString(request, false)
-        } catch (e: Exception) {
-            error("[HttpResult]", e)
-            ""
-        }
-    }
-
-    /**
-     * Request and Return
-     * @param request     Request
-     * @param resultError Print Error
-     * @return            Result
-     */
-    @Throws(IOException::class)
-    private fun getHttpResultString(request: Request, resultError: Boolean): String {
-        var result = ""
-        try {
-            CLIENT.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    error("Unexpected code", IOException())
-                }
-                result = response.body?.string() ?: ""
-                response.body?.close()
-            }
-        } catch (e: Exception) {
-            if (resultError) {
-                throw e
-            }
-        }
-        return result
-    }
-
     @JvmStatic
     fun doPostRw(url: String, param: String): String {
-        val formBody = FormBody.Builder()
-        val paramArray = param.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        for (pam in paramArray) {
-            val keyValue = pam.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            formBody.add(keyValue[0], keyValue[1])
-        }
-        val request: Request = Builder().url(url).addHeader("User-Agent", "rw android 151 zh").addHeader("Language", "zh")
-            .addHeader("Connection", "close").post(formBody.build()).build()
+        val request: Request = Builder()
+            .url(url)
+            .addHeader("User-Agent", "rw android 151 zh")
+            .addHeader("Language", "zh")
+            .addHeader("Connection", "close")
+            .post(parameterConversion(param).build()).build()
         try {
             return getHttpResultString(request, true)
         } catch (e: Exception) {
@@ -234,5 +188,61 @@ object HttpRequestOkHttp {
             }
         }
         return false
+    }
+
+    private fun parameterConversion(param: String): FormBody.Builder {
+        val formBody = FormBody.Builder()
+        val paramArray = param.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        for (pam in paramArray) {
+            val keyValue = pam.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            if (param.length < 2) {
+                throw VariableException.ArrayRuntimeException("""
+                    Error ArrayIndexOutOfBoundsException
+                    In : $pam
+                    Source : $param
+                """.trimIndent())
+            }
+            formBody.add(keyValue[0], keyValue[1])
+        }
+        return formBody
+    }
+
+    /**
+     * Request and Return
+     * @param request     Request
+     * @return            Result
+     */
+    private fun getHttpResultString(request: Request): String {
+        return try {
+            getHttpResultString(request, false)
+        } catch (e: Exception) {
+            error("[HttpResult]", e)
+            ""
+        }
+    }
+
+    /**
+     * Request and Return
+     * @param request     Request
+     * @param resultError Print Error
+     * @return            Result
+     */
+    @Throws(IOException::class)
+    private fun getHttpResultString(request: Request, resultError: Boolean): String {
+        var result = ""
+        try {
+            CLIENT.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    error("Unexpected code", IOException())
+                }
+                result = response.body?.string() ?: ""
+                response.body?.close()
+            }
+        } catch (e: Exception) {
+            if (resultError) {
+                throw e
+            }
+        }
+        return result
     }
 }

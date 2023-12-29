@@ -18,7 +18,7 @@ import org.json.JSONArray
  * 解析数组
  *
  * @property jsonObject JSONArray
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class JsonArray {
     private val jsonObject: JSONArray

@@ -14,7 +14,7 @@ import java.text.MessageFormat;
 /**
  * Log使用
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 public interface StrCons {
     /**

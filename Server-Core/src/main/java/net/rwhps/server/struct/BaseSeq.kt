@@ -16,7 +16,7 @@ import net.rwhps.server.util.ExtractUtils
 
 /**
  * @date  2023/5/26 13:55
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  *
  * @param T Type
  * @property list ObjectList<T>

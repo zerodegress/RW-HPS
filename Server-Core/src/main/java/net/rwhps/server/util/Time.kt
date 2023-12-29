@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Time {
     /** Efficiency improvement under high concurrency  */
@@ -35,6 +35,11 @@ object Time {
     @JvmStatic
     fun millis(): Long {
         return System.currentTimeMillis()
+    }
+
+    @JvmStatic
+    fun second(): Long {
+        return System.currentTimeMillis()/1000
     }
 
     /**

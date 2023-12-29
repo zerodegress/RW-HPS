@@ -14,10 +14,15 @@ import io.netty.channel.socket.SocketChannel
 import net.rwhps.server.net.core.AbstractNet
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Sharable
 internal class StartGameNetTcp: AbstractNet() {
+
+    init {
+        init()
+    }
+
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
         rwinit(socketChannel.pipeline())

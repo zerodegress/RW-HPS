@@ -10,9 +10,9 @@
 package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.util.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 
-interface AbstractGameNet {
+interface AbstractLinkGameNet {
     /**
      * 加入一个新服务器
      *

@@ -21,7 +21,7 @@ import java.io.InputStream
  *
  * 不支持 网络流 , 需要本地全部读取成 bytes
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object CompressionDecoderUtils {
 

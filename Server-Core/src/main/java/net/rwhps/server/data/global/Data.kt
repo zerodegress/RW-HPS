@@ -12,12 +12,15 @@ package net.rwhps.server.data.global
 import net.rwhps.server.command.ex.Vote
 import net.rwhps.server.core.Application
 import net.rwhps.server.data.bean.BeanCoreConfig
+import net.rwhps.server.data.bean.BeanNetConfig
+import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.http.WebData
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.SystemUtils
+import net.rwhps.server.util.annotations.mark.PrivateMark
 import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
@@ -28,29 +31,29 @@ import java.nio.charset.StandardCharsets
 /**
  * 别问我为什么要把@JvmField和val并排
  * 问就是好看
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Data {
     /** 服务器主目录 */
-    const val Plugin_Data_Path = "/data"
+    const val ServerDataPath = "/data"
 
     /** 服务器save保存目录 */
-    const val Plugin_Save_Path = "/data/save"
+    const val ServerSavePath = "/data/save"
 
     /** 服务器缓存目录 */
-    const val Plugin_Cache_Path = "/data/cache"
+    const val ServerCachePath = "/data/cache"
 
     /** 服务器依赖目录 */
-    const val Plugin_Lib_Path = "/data/libs"
+    const val ServerLibPath = "/data/libs"
 
     /** 服务器日志目录 */
-    const val Plugin_Log_Path = "/data/log"
+    const val ServerLogPath = "/data/log"
 
     /** 服务器地图目录 */
-    const val Plugin_Maps_Path = "/data/maps"
+    const val ServerMapsPath = "/data/maps"
 
     /** 服务器插件目录 */
-    const val Plugin_Plugins_Path = "/data/plugins"
+    const val ServerPluginsPath = "/data/plugins"
 
     /** 服务器无头数据目录 */
     const val Plugin_GameCore_Data_Path = "/data/gameData"
@@ -81,7 +84,7 @@ object Data {
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
 
     /** 服务器主版本 */
-    const val SERVER_CORE_VERSION = "3.0.0-M4"
+    const val SERVER_CORE_VERSION = "3.0.0-DEV5"
 
     /** 服务器Topt密码  */
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
@@ -104,6 +107,11 @@ object Data {
     @JvmField
     val LOG_COMMAND = CommandHandler("!")
 
+    /** 服务端 Relay命令  */
+    @JvmField
+    @PrivateMark
+    val RELAY_COMMAND = CommandHandler(".")
+
     internal val PING_COMMAND = CommandHandler("")
 
     /** Map */
@@ -121,9 +129,14 @@ object Data {
 
     /** 服务端 核心配置  */
     lateinit var config: BeanCoreConfig
+    val configNet: BeanNetConfig = BeanNetConfig()
 
     /** 服务端 Server配置  */
     lateinit var configServer: BeanServerConfig
+
+    /** 服务端 Relay配置  */
+    @PrivateMark
+    lateinit var configRelay: BeanRelayConfig
 
     /** 服务器默认 WebData 数据 */
     val webData = WebData()
@@ -143,7 +156,11 @@ object Data {
     var startServer = false
 
     @Volatile
-    var exitFlag = false
+    var running = true
+        set(value) {
+            running = value
+
+        }
 
     val headlessName: String = "RW-HPS Core Headless"
 

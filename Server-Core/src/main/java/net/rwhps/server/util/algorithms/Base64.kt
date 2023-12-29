@@ -13,7 +13,7 @@ import net.rwhps.server.data.global.Data
 import java.util.Base64
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Base64 {
     /**

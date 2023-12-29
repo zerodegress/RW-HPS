@@ -9,12 +9,12 @@
 
 package net.rwhps.server.command
 
+import net.rwhps.server.command.relay.RelayCommands
 import net.rwhps.server.core.Core
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.NetServer
 import net.rwhps.server.core.thread.Threads
-import net.rwhps.server.data.bean.BeanCoreConfig
-import net.rwhps.server.data.bean.GithubReleasesApi
+import net.rwhps.server.data.bean.internal.BeanGithubReleasesApi
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
@@ -42,7 +42,7 @@ import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class CoreCommands(handler: CommandHandler) {
     private fun registerCore(handler: CommandHandler) {
@@ -108,7 +108,6 @@ class CoreCommands(handler: CommandHandler) {
             Initialization.initServerLanguage(Data.core.settings, arg[0])
         }
 
-        handler.register("reloadconfig", "serverCommands.reloadconfig") { Data.config = BeanCoreConfig.stringToClass() }
         handler.register("exit", "serverCommands.exit") { Core.exit() }
     }
 
@@ -126,13 +125,13 @@ class CoreCommands(handler: CommandHandler) {
         }
 
         handler.register("tryupdate", "serverCommands.tryUpdate") { _: Array<String>, log: StrCons ->
-            val jsonAll = Array<GithubReleasesApi>::class.java.toGson(
+            val jsonAll = Array<BeanGithubReleasesApi>::class.java.toGson(
                     HttpRequestOkHttp.doGet(Data.urlData.readString("Get.Core.Update.AllVersion"))
             )
             val nowVersion = GetVersion(Data.SERVER_CORE_VERSION)
 
-            val updateFunction = fun(update: List<GithubReleasesApi>, beta: Boolean) {
-                val sleepUpdate = Seq<GithubReleasesApi.AssetsDTO>()
+            val updateFunction = fun(update: List<BeanGithubReleasesApi>, beta: Boolean) {
+                val sleepUpdate = Seq<BeanGithubReleasesApi.AssetsDTO>()
                 update.reversed().forEach {
                     it.assets!!.forEach {
                         if ((!beta && it.name.endsWith(".last.patch")) || (beta && it.name.endsWith(".beta.patch"))) {
@@ -163,7 +162,7 @@ class CoreCommands(handler: CommandHandler) {
 
             if (Data.config.followBetaVersion) {
                 if (nowVersion.getIfVersion("< ${jsonAll[0].tagName}")) {
-                    updateFunction(Seq<GithubReleasesApi>().apply {
+                    updateFunction(Seq<BeanGithubReleasesApi>().apply {
                         jsonAll.forEach {
                             if (nowVersion.getIfVersion("< ${it.tagName}")) {
                                 add(it)
@@ -176,7 +175,7 @@ class CoreCommands(handler: CommandHandler) {
                 val lastVersion = jsonAll.find { !it.prerelease }!!
                 if (nowVersion.getIfVersion("< ${lastVersion.tagName}")) {
                     if (nowVersion.formalEdition) {
-                        updateFunction(Seq<GithubReleasesApi>().apply {
+                        updateFunction(Seq<BeanGithubReleasesApi>().apply {
                             jsonAll.forEach {
                                 if (!it.prerelease && nowVersion.getIfVersion("< ${it.tagName}")) {
                                     add(it)
@@ -184,7 +183,7 @@ class CoreCommands(handler: CommandHandler) {
                             }
                         }, false)
                     } else {
-                        updateFunction(Seq<GithubReleasesApi>().apply {
+                        updateFunction(Seq<BeanGithubReleasesApi>().apply {
                             jsonAll.forEach {
                                 if (GetVersion(it.tagName).getIfVersion("<= ${lastVersion.tagName}") && nowVersion.getIfVersion(
                                             "< ${it.tagName}"
@@ -202,10 +201,48 @@ class CoreCommands(handler: CommandHandler) {
     }
 
     private fun registerStartServer(handler: CommandHandler) {
+        handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
+            if (NetStaticData.netService.size > 0) {
+                log("The server is not closed, please close")
+                return@register
+            }
+
+            /* Register Relay Protocol Command */
+            RelayCommands(handler)
+
+            Log.set(Data.config.log.uppercase(Locale.getDefault()))
+
+            NetStaticData.ServerNetType = IRwHps.NetType.RelayProtocol
+
+            handler.handleMessage("startnetservice true 5201 5500") //5200 6500
+        }
+        handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
+            if (NetStaticData.netService.size > 0) {
+                log("The server is not closed, please close")
+                return@register
+            }
+
+            /* Register Relay Protocol Command */
+            RelayCommands(handler)
+
+            Log.set(Data.config.log.uppercase(Locale.getDefault()))
+
+            NetStaticData.ServerNetType = IRwHps.NetType.RelayMulticastProtocol
+
+            handler.handleMessage("startnetservice true 5200 5500")
+        }
+
         handler.register("startnetservice", "<isPort> [sPort] [ePort]", "HIDE") { arg: Array<String>?, _: StrCons? ->
             if (arg != null) {
                 if (arg[0].toBoolean()) {
                     val netServiceTcp = NetService()
+
+                    if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
+                        netServiceTcp.workThreadCount = 3000
+                    } else {
+                        netServiceTcp.workThreadCount = Data.configServer.maxPlayer
+                    }
+
                     Threads.newThreadCoreNet {
                         if (arg.size > 2) {
                             netServiceTcp.openPort(Data.config.port, arg[1].toInt(), arg[2].toInt())

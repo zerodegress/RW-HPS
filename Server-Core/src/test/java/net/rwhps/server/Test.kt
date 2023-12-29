@@ -17,7 +17,7 @@ import net.rwhps.server.util.game.CommandHandler.Command
 
 /**
  * @date 2023/7/27 11:01
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Test : Plugin() {
     override fun registerServerCommands(handler: CommandHandler) {

@@ -15,7 +15,7 @@ import java.io.StringWriter
 
 /**
  * @date  2023/6/1 12:46
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object ExceptionX {
     /**

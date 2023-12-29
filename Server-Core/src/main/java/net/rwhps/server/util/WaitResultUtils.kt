@@ -11,7 +11,7 @@ package net.rwhps.server.util
 
 /**
  * 等待并且获取 直到得到有效值
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object WaitResultUtils {
     @Throws(NullPointerException::class)

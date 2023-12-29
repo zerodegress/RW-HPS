@@ -10,7 +10,7 @@
 package net.rwhps.server.util.algorithms.digest
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 enum class DigestAlgorithm(val type: String) {
     MD2("MD2"),

@@ -7,14 +7,14 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.util.threads
+package net.rwhps.server.util.concurrent.threads
 
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object ThreadFactoryName {
     /**

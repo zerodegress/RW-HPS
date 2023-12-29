@@ -12,7 +12,7 @@ package net.rwhps.server.net.core.server
 /**
  * Only provide interface but not implement
  * As the interface of game CoreNet, it provides various data support for GameServer and GameRelay
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractNetConnectData {
     /** Player Name */

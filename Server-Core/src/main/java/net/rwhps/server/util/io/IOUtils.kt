@@ -10,7 +10,7 @@
 package net.rwhps.server.util.io
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object IOUtils {
     /**

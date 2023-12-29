@@ -9,7 +9,7 @@
 
 package net.rwhps.server.plugin
 
-import net.rwhps.server.data.bean.BeanPluginInfo
+import net.rwhps.server.data.bean.internal.BeanPluginInfo
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.dependent.LibraryManager
@@ -27,7 +27,7 @@ import java.net.URLClassLoader
 
 /**
  * 在这里完成 插件的加载
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PluginsLoad {
     private fun loadPlugin(fileList: Seq<File>): Seq<PluginLoadData> {

@@ -9,8 +9,6 @@
 
 package net.rwhps.server.command;
 
-import net.rwhps.server.util.game.CommandHandler;
-
 /**
  * @author RW-HPS/Dr
  */

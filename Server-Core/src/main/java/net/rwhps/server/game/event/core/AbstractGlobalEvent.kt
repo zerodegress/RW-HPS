@@ -13,6 +13,6 @@ package net.rwhps.server.game.event.core
  * 服务器全局事件
  *
  * @date 2023/7/5 10:09
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractGlobalEvent: AbstractEventCore

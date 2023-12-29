@@ -18,7 +18,7 @@ import java.lang.reflect.Method
 
 /**
  * Reflection
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 
 /**

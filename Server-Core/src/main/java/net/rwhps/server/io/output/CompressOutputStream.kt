@@ -22,7 +22,7 @@ import java.util.zip.ZipOutputStream
 /**
  * 提供压缩流支持
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class CompressOutputStream(val head: String, outputStream: DisableSyncByteArrayOutputStream): GameOutputStream(outputStream) {
     companion object {

@@ -22,7 +22,7 @@ import java.io.IOException
 
 /**
  * Chat
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 
 /**

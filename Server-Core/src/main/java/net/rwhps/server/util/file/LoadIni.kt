@@ -17,7 +17,7 @@ import java.io.InputStreamReader
 import java.util.*
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class LoadIni {
     internal val data = OrderedMap<String, Any>()

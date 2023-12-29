@@ -16,7 +16,7 @@ import net.rwhps.server.util.inline.toJson
 
 /**
  * @date  2023/6/27 16:12
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class HttpApiEvent: EventListenerHost {
     @EventListenerHandler

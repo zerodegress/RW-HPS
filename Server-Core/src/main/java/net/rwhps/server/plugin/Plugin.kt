@@ -20,7 +20,7 @@ import java.util.*
 
 /**
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED")
 abstract class Plugin {
@@ -69,6 +69,15 @@ abstract class Plugin {
     open fun registerServerCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
+    /**
+     * 注册要在服务器端使用的Relay命令，例如从控制台-Relay
+     * 这里注册的命令只有启动Relay协议 才会存在
+     */
+    @PrivateMark
+    open fun registerRelayCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
+
 
     /**
      * 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3
@@ -79,6 +88,12 @@ abstract class Plugin {
      * 默认只会调用服务器主 Hess 的 Command
      */
     open fun registerServerClientCommands(handler: CommandHandler) {
+        // Plugin inheritance, we should not implement
+    }
+
+    /** 注册要在客户端使用的RELAY命令，例如来自RELAY内玩家 -3  */
+    @PrivateMark
+    open fun registerRelayClientCommands(handler: CommandHandler) {
         // Plugin inheritance, we should not implement
     }
 

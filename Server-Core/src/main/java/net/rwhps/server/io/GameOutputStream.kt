@@ -23,7 +23,7 @@ import java.io.IOException
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED")
 open class GameOutputStream @JvmOverloads constructor(private var buffer: AbstractByteArrayOutputStream = DisableSyncByteArrayOutputStream()): Closeable {

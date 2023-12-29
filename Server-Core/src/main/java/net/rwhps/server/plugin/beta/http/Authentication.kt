@@ -29,7 +29,7 @@ import net.rwhps.server.util.algorithms.digest.DigestUtils
 
 /**
  * @date  2023/6/27 11:07
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Authentication(private val messageForwardingCenter: MessageForwardingCenter) {
     private val cookiesData = ObjectIntMap<String>()

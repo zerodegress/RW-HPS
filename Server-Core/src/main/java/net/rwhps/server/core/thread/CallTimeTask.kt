@@ -13,7 +13,7 @@ import net.rwhps.server.core.thread.CallGroupData.coreExpandServer
 import net.rwhps.server.core.thread.CallGroupData.coreServer
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 enum class CallTimeTask(
     val group: String, val description: String

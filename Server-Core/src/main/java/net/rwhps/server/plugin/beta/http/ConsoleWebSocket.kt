@@ -20,7 +20,7 @@ import net.rwhps.server.util.inline.toJson
 
 /**
  * @date 2023/7/16 14:51
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ConsoleWebSocket {
     fun ws(channel: Channel, json: Json) {
@@ -52,7 +52,7 @@ class ConsoleWebSocket {
 
     /**
      * @date  2023/7/1 16:30
-     * @author  RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     private data class WebStatus(
         val code: Int, val data: String

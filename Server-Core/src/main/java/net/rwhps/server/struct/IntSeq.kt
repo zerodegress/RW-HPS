@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.ints.IntLists
 
 /**
  * @date  2023/5/26 14:28
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class IntSeq: BaseSeq<Int> {
     @JvmOverloads

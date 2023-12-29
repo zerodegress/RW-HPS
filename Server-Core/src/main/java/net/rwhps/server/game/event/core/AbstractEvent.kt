@@ -10,6 +10,6 @@ package net.rwhps.server.game.event.core
 
 /**
  * @date 2023/7/5 10:09
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractEvent: AbstractEventCore

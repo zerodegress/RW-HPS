@@ -18,7 +18,7 @@ import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.error
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class LoadConfig {
     private val data = OrderedMap<String, Any>()

@@ -11,11 +11,13 @@ package net.rwhps.server.game.event.game
 
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.game.event.core.AbstractEvent
+import net.rwhps.server.util.annotations.core.EventOnlyRead
 
 /**
  * 玩家被服务区封禁事件
  *
  * @date 2023/7/5 13:47
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
+@EventOnlyRead
 class PlayerBanEvent(val player: PlayerHess): AbstractEvent

@@ -11,25 +11,23 @@ package net.rwhps.server.net.handler.tcp
 
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
-import io.netty.channel.SimpleChannelInboundHandler
-import io.netty.util.AttributeKey
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.event.global.NetConnectNewEvent
 import net.rwhps.server.io.packet.Packet
+import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.net.core.TypeConnect
+import net.rwhps.server.net.core.INetServerHandler
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.exp.ExceptionX
 
 /**
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Sharable
-internal class NewServerHandler: SimpleChannelInboundHandler<Any?>() {
+internal class NewServerHandler(abstractNet: AbstractNet): INetServerHandler(abstractNet) {
 
     @Throws(Exception::class)
     override fun channelRead0(ctx: ChannelHandlerContext, msg: Any?) {
@@ -39,29 +37,23 @@ internal class NewServerHandler: SimpleChannelInboundHandler<Any?>() {
 
         try {
             if (msg is Packet) {
-                val attr = ctx.channel().attr(NETTY_CHANNEL_KEY)
+                val attr = abstractNet.getTypeConnect(ctx.channel())
                 var type = attr.get()
 
                 if (type == null) {
-                    val connectionAgreement = ConnectionAgreement(ctx)
+                    val connectionAgreement = ConnectionAgreement(ctx, abstractNet.nettyChannelData)
                     type = NetStaticData.RwHps.typeConnect.getTypeConnect(connectionAgreement)
                     attr.setIfAbsent(type)
 
-                    if (Data.core.admin.bannedIP24.contains(connectionAgreement.ipLong24)) {
-                        type.abstractNetConnect.disconnect()
-                        return
-                    }
-
                     val newConnectEvent = NetConnectNewEvent(connectionAgreement)
-                    PluginManage.runGlobalEventManage(newConnectEvent)
+                    PluginManage.runGlobalEventManage(newConnectEvent).await()
                     if (newConnectEvent.result) {
                         type.abstractNetConnect.disconnect()
                         return
                     }
                 }
-
                 try {
-                    type.typeConnect(msg)
+                    type.processConnect(msg)
                 } catch (e: Exception) {
                     debug(e)
                 }
@@ -78,10 +70,5 @@ internal class NewServerHandler: SimpleChannelInboundHandler<Any?>() {
         cause?.let {
             error(ExceptionX.resolveTrace(it))
         }
-    }
-
-    companion object {
-        @JvmField
-        val NETTY_CHANNEL_KEY = AttributeKey.valueOf<TypeConnect>("User-Net")!!
     }
 }

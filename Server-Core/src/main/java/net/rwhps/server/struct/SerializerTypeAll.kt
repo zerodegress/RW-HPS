@@ -15,7 +15,7 @@ import java.io.IOException
 /**
  * 序列化/反序列化使用的读取与写入
  * 用在DefaultSerializers.java中
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class SerializerTypeAll {
     interface TypeSerializer<T> {

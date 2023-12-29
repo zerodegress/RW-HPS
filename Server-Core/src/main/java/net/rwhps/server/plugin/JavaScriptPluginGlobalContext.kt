@@ -9,8 +9,7 @@
 
 package net.rwhps.server.plugin
 
-import net.rwhps.server.data.bean.BeanPluginInfo
-import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
+import net.rwhps.server.data.bean.internal.BeanPluginInfo
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.func.ConsMap
@@ -19,7 +18,8 @@ import net.rwhps.server.func.Prov
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.enums.GameCommandActions
 import net.rwhps.server.game.enums.GameInternalUnits
-import net.rwhps.server.game.simulation.core.AbstractPlayerData
+import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
+import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 import net.rwhps.server.io.input.SyncByteArrayChannel
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
@@ -41,8 +41,8 @@ import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FakeFileSystem
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.inline.ifNullResult
+import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
@@ -63,9 +63,9 @@ import kotlin.io.path.Path
  * 主要用于JS插件加载
  *
  * @author RW-HPS/ZeroDegress
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-class JavaScriptPluginGlobalContext {
+internal class JavaScriptPluginGlobalContext {
     private val moduleMap = ObjectMap<String, Path>()
     private val javaMap = ObjectMap<String, Path>()
     private val scriptFileSystem = OrderedMap<String, ByteArray>()
@@ -78,7 +78,7 @@ class JavaScriptPluginGlobalContext {
         injectJavaClass<AbstractDecoder>()
         injectJavaClass<AbstractNetConnectServer>()
         injectJavaClass<PlayerHess>()
-        injectJavaClass<AbstractPlayerData>()
+        injectJavaClass<AbstractLinkPlayerData>()
         injectJavaClass<ConnectionAgreement>()
         injectJavaClass<CompressOutputStream>()
         injectJavaClass<CommandHandler>()

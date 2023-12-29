@@ -26,7 +26,7 @@ import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.clog
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ServerRoom(private val gameModule: AbstractGameModule) {
     lateinit var roomID: String
@@ -115,7 +115,7 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
 
         forcedReturn = false
 
-        gameModule.eventManage.fire(ServerGameOverEvent(gameOverData))
+        gameModule.eventManage.fire(ServerGameOverEvent(gameOverData)).await()
         gameOverData = null
 
         MapManage.maps.mapData?.clean()

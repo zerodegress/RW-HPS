@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMaps
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class LongMap<V>: BaseMap<Long, V> {
 

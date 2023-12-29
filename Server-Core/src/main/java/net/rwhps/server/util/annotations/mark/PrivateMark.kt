@@ -13,8 +13,10 @@ package net.rwhps.server.util.annotations.mark
 /**
  * ONLY PRIVATE SERVER (RELAY-CN Team)
  *
+ * This category does not provide major technical support
+ *
  * @date  2023/8/19 8:21
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
@@ -22,8 +24,7 @@ package net.rwhps.server.util.annotations.mark
         AnnotationTarget.CLASS,
         AnnotationTarget.CONSTRUCTOR,
         AnnotationTarget.FUNCTION,
-        AnnotationTarget.EXPRESSION,
-        AnnotationTarget.PROPERTY
+        AnnotationTarget.EXPRESSION, AnnotationTarget.PROPERTY
 )
 @Suppress("UNINITIALIZED_VARIABLE")
 annotation class PrivateMark

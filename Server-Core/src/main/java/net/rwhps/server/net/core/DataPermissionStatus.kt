@@ -13,7 +13,7 @@ package net.rwhps.server.net.core
  * 安全认证
  * Permission Connect Status
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object DataPermissionStatus {
     enum class RelayStatus {

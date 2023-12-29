@@ -14,7 +14,7 @@ import net.rwhps.server.io.input.ClearableAndReusableByteArrayInputStream
  * This class extends InputStream to implement a ReliableSocketInputStream.
  * Note that this class should **NOT** be public.
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class ReliableSocketInputStream(
     private val socket: ReliableSocket

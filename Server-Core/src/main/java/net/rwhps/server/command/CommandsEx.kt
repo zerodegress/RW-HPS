@@ -11,6 +11,7 @@ package net.rwhps.server.command
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
+import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.NetService
@@ -21,7 +22,7 @@ import net.rwhps.server.util.game.CommandHandler
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class CommandsEx(handler: CommandHandler) {
     private fun registerCore(handler: CommandHandler) {
@@ -70,7 +71,20 @@ class CommandsEx(handler: CommandHandler) {
                     out.writeString("SharedControl")
                     out.writeBoolean(HessModuleManage.hps.gameLinkData.sharedcontrol)
                 }
-                else -> {}
+                RelayProtocol, RelayMulticastProtocol -> {
+                    out.writeString("PlayerSize")
+                    val size = AtomicInteger()
+                    NetStaticData.netService.eachAll { e: NetService -> size.addAndGet(e.getConnectSize()) }
+                    out.writeInt(size.get())
+
+                    out.writeString("RoomAllSize")
+                    out.writeInt(RelayRoom.roomAllSize)
+                    out.writeString("RoomPublicListSize")
+                    out.writeInt(0)
+                    out.writeString("RoomNoStartSize")
+                    out.writeInt(RelayRoom.roomNoStartSize)
+                }
+                NullProtocol, DedicatedToTheBackend -> {}
             }
             con.sendPacket(out.createPacket(PacketType.GET_SERVER_INFO))
         }

@@ -22,7 +22,7 @@ import net.rwhps.server.util.algorithms.NetConnectProofOfWork
 import java.io.IOException
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object DefaultSerializers {
     fun register() {

@@ -18,7 +18,7 @@ package net.rwhps.server.util.annotations.mark
  * 表面使用了 [net.rwhps.server.util.Synchronize] 来通过 Kotlin 的委托代理完成 Get/Set 的同步方案
  *
  * @date  2023/6/23 9:55
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented

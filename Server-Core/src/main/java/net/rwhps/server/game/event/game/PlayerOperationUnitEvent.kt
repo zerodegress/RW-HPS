@@ -18,7 +18,7 @@ import net.rwhps.server.game.event.core.AbstractEvent
  * 玩家操作单位事件
  *
  * @date 2023/7/5 16:15
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PlayerOperationUnitEvent(
     val player: PlayerHess, val gameCommandActions: GameCommandActions, val gameInternalUnits: GameInternalUnits, val x: Float, val y: Float

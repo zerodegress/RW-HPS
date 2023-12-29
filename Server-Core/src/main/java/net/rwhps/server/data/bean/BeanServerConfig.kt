@@ -22,7 +22,7 @@ import java.lang.reflect.Field
  * Server-Protocol configuration file
  *
  * Save data for serialization and deserialization
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 data class BeanServerConfig(
     val enterAd: String = "",
@@ -50,6 +50,9 @@ data class BeanServerConfig(
     val defIncome: Float = 1f,
     /** 点石成金 */
     val turnStoneIntoGold: Boolean = false,
+
+    /** Mod 加载的错误信息 */
+    val modsLoadErrorPrint: Boolean = false,
 
     /** only Admin */
     val oneAdmin: Boolean = true,
@@ -95,7 +98,7 @@ data class BeanServerConfig(
     }
 
     companion object {
-        val fileUtils = FileUtils.getFolder(Data.Plugin_Data_Path).toFile("ConfigServer.json")
+        val fileUtils = FileUtils.getFolder(Data.ServerDataPath).toFile("ConfigServer.json")
 
         @JvmStatic
         fun stringToClass(): BeanServerConfig {

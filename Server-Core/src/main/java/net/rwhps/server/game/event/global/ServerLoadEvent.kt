@@ -10,13 +10,5 @@
 package net.rwhps.server.game.event.global
 
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
-import net.rwhps.server.util.annotations.core.EventAsync
 
-/**
- * 服务器初始化结束事件
- *
- * @date 2023/7/5 10:01
- * @author RW-HPS/Dr
- */
-@EventAsync
 class ServerLoadEvent: AbstractGlobalEvent

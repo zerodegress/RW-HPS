@@ -14,7 +14,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame
 import net.rwhps.server.net.handler.tcp.StartWebSocket
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class WebSocket {
     abstract fun ws(ws: StartWebSocket, channel: Channel, msg: String)

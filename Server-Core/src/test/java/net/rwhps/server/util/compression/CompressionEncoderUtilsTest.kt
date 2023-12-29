@@ -9,7 +9,7 @@ import java.io.ByteArrayInputStream
 
 /**
  * @date  2023/5/27 11:40
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class CompressionEncoderUtilsTest {
     init {
@@ -42,7 +42,7 @@ class CompressionEncoderUtilsTest {
 
             val unzip = CompressionDecoderUtils.zipAllReadStream(DisableSyncByteArrayInputStream(zipNew.flash()))
 
-            zip.addCompressBytes(unzip)
+            zip.addCompressBytes("zip_New", unzip)
 
 //            val file = FileUtil.getFile("CompressionEncoderUtilsTest.zip")
 //            file.writeFileByte(zip.flash())
@@ -75,7 +75,7 @@ class CompressionEncoderUtilsTest {
 
             val unzip = CompressionDecoderUtils.sevenAllReadStream(DisableSyncByteArrayInputStream(sevenNew.flash()))
 
-            seven.addCompressBytes(unzip)
+            seven.addCompressBytes("7z_New", unzip)
 
 //            val file = FileUtil.getFile("CompressionEncoderUtilsTest.7z")
 //            file.writeFileByte(seven.flash())

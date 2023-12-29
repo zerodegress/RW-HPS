@@ -24,7 +24,7 @@ import java.util.concurrent.Executors
 /**
  * Bulk support for connections
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class GroupNet {
     private val channelGroup: ChannelGroup = DefaultChannelGroup(GlobalEventExecutor.INSTANCE)

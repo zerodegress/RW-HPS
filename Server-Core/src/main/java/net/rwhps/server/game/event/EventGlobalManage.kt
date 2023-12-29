@@ -12,13 +12,14 @@
 package net.rwhps.server.game.event
 
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
+import net.rwhps.server.util.concurrent.AbstractFuture
 import java.util.function.Consumer
 
 /**
  * 在 `RW-HPS` 上的全局事件管理器
  *
  * @date 2023/7/5 10:00
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("EXPOSED_SUPER_CLASS")
 class EventGlobalManage: AbstractEventManage(AbstractGlobalEvent::class.java) {
@@ -27,9 +28,7 @@ class EventGlobalManage: AbstractEventManage(AbstractGlobalEvent::class.java) {
      *
      * @param type 全局事件
      */
-    fun fire(type: AbstractGlobalEvent) {
-        eventData.fire(type::class.java, type)
-    }
+    fun fire(type: AbstractGlobalEvent): AbstractFuture<*> = fire0(type)
 
     fun <T: AbstractGlobalEvent> registerListener(eventClass: Class<T>, consumer: Consumer<T>) {
         eventData.addEvent(eventClass) { value ->

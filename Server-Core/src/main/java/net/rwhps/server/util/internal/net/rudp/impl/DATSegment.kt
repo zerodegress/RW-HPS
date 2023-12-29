@@ -24,7 +24,7 @@ package net.rwhps.server.util.internal.net.rudp.impl
  *  +-------------------------------+
  *
  * @author Adrian Granados (agranados@ihmc.us)
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class DATSegment: Segment {
     lateinit var data: ByteArray

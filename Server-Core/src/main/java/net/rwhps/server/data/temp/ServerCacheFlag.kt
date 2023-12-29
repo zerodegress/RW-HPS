@@ -10,7 +10,7 @@
 package net.rwhps.server.data.temp
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ServerCacheFlag {
     var sendGameStatusFlag = true

@@ -13,7 +13,7 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object FileScan {
     @JvmStatic

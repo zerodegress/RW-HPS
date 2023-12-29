@@ -23,7 +23,7 @@ import java.io.IOException
 
 /**
  * RELAY verification
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 
 /**

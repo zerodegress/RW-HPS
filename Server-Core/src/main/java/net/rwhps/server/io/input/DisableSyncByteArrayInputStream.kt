@@ -16,7 +16,7 @@ import java.io.OutputStream
 import kotlin.math.min
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class DisableSyncByteArrayInputStream: InputStream {
     /**

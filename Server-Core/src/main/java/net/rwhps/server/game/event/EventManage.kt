@@ -12,24 +12,23 @@
 package net.rwhps.server.game.event
 
 import net.rwhps.server.game.event.core.AbstractEvent
+import net.rwhps.server.util.concurrent.AbstractFuture
 import java.util.function.Consumer
 
 /**
  * 在 Hess 上的 Event 管理器实现
  *
  * @date 2023/7/5 10:00
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("EXPOSED_SUPER_CLASS")
 open class EventManage: AbstractEventManage(AbstractEvent::class.java) {
     /**
      * 执行新事件
      *
-     * @param type Hess 事件
+     * @param type 全局事件
      */
-    open fun fire(type: AbstractEvent) {
-        eventData.fire(type::class.java, type)
-    }
+    fun fire(type: AbstractEvent): AbstractFuture<*> = fire0(type)
 
     open fun <T: AbstractEvent> registerListener(eventClass: Class<T>, consumer: Consumer<T>) {
         eventData.addEvent(eventClass) { value ->

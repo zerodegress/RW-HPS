@@ -13,7 +13,7 @@ import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class WebGet: WebFunction() {
     /**

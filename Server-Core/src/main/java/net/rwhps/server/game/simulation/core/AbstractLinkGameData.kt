@@ -9,14 +9,14 @@
 
 package net.rwhps.server.game.simulation.core
 
-import net.rwhps.server.util.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 
 /**
  * Link The game comes with settings to avoid some of the distractions caused by confusion
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-interface AbstractGameLinkData {
+interface AbstractLinkGameData {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("overrideTeamLayout: unhandled layout:")
     val teamOperationsSyncObject: Any
 

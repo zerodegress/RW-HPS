@@ -18,7 +18,7 @@ import net.rwhps.server.util.inline.mutableObjectMapOf
 
 /**
  * @date  2023/7/1 16:05
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class WebFunction {
     protected fun stringUrlDataResolveToJson(accept: AcceptWeb): Json {

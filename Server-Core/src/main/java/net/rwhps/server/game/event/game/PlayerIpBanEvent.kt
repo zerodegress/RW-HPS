@@ -16,6 +16,6 @@ import net.rwhps.server.game.event.core.AbstractEvent
  * 玩家被Ban IP时事件
  *
  * @date 2023/7/5 13:47
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PlayerIpBanEvent(val player: PlayerHess): AbstractEvent

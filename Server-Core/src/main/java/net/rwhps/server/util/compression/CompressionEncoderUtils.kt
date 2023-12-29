@@ -16,7 +16,7 @@ import net.rwhps.server.util.compression.zip.ZipEncoder
 /**
  * 获取压缩构造器
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object CompressionEncoderUtils {
     /**

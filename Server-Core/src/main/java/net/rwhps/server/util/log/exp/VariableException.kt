@@ -10,7 +10,7 @@
 package net.rwhps.server.util.log.exp
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class VariableException(info: String): RuntimeException(info) {
     class ArrayRuntimeException(info: String): VariableException(info)

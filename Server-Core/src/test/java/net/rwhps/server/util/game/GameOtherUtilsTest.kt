@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * @date 2023/7/21 9:35
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class GameOtherUtilsTest {
 

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * @date  2023/5/27 11:40
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @TestMark.NoTestingIsRequired("The CompressionEncoderUtils.kt Test has been completed")
 class ZipEncoderTest {

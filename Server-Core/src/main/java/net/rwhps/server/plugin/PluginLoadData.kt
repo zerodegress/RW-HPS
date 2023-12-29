@@ -14,7 +14,7 @@ import net.rwhps.server.util.file.FileUtils
 import java.util.*
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PluginLoadData(
     @JvmField
@@ -30,7 +30,7 @@ class PluginLoadData(
 ) {
     init {
         if (mkdir) {
-            main.pluginDataFileUtils = FileUtils.getFolder(Data.Plugin_Plugins_Path, true).toFolder(this.name)
+            main.pluginDataFileUtils = FileUtils.getFolder(Data.ServerPluginsPath, true).toFolder(this.name)
         }
     }
 

@@ -11,6 +11,6 @@ package net.rwhps.server.data.plugin
 
 /**
  * Plugin's Data Proxy
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class Value<T>(var data: T)

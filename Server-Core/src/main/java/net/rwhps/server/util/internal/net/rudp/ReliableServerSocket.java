@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * the Simple Reliable UDP (Reliable UDP) protocol.
  *
  * @author Adrian Granados
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @see java.net.ServerSocket
  */
 public class ReliableServerSocket extends ServerSocket {

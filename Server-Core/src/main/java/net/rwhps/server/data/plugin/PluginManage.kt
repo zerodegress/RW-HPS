@@ -9,7 +9,7 @@
 
 package net.rwhps.server.data.plugin
 
-import net.rwhps.server.data.bean.BeanPluginInfo
+import net.rwhps.server.data.bean.internal.BeanPluginInfo
 import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.game.event.EventGlobalManage
 import net.rwhps.server.game.event.EventManage
@@ -21,6 +21,8 @@ import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.annotations.DidNotFinish
+import net.rwhps.server.util.annotations.mark.PrivateMark
+import net.rwhps.server.util.concurrent.AbstractFuture
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.error
@@ -28,7 +30,7 @@ import java.io.IOException
 
 /**
  * Plugin Manager
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED", "UNUSED_PARAMETER")
 object PluginManage {
@@ -37,8 +39,8 @@ object PluginManage {
     val loadSize: Int
         get() = pluginData!!.size
 
-    internal fun runGlobalEventManage(abstractGlobalEvent: AbstractGlobalEvent) {
-        pluginGlobalEventManage.fire(abstractGlobalEvent)
+    internal fun runGlobalEventManage(abstractGlobalEvent: AbstractGlobalEvent): AbstractFuture<*> {
+        return pluginGlobalEventManage.fire(abstractGlobalEvent)
     }
 
     internal fun addGlobalEventManage(eventListenerHost: EventListenerHost) {
@@ -53,7 +55,7 @@ object PluginManage {
         pluginData = resultPluginData(fileUtils)
     }
 
-    fun addPluginClass(pluginInfo: BeanPluginInfo, main: Plugin, mkdir: Boolean, skip: Boolean) {
+    internal fun addPluginClass(pluginInfo: BeanPluginInfo, main: Plugin, mkdir: Boolean, skip: Boolean) {
         addPluginClass(pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, main, mkdir, skip)
     }
 
@@ -78,9 +80,21 @@ object PluginManage {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerCommands(handler) }
     }
 
+    /** 注册要在服务器端使用的任何命令，例如从控制台-Relay */
+    @PrivateMark
+    fun runRegisterRelayCommands(handler: CommandHandler) {
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayCommands(handler) }
+    }
+
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 */
     fun runRegisterServerClientCommands(handler: CommandHandler) {
         pluginData!!.eachAll { e: PluginLoadData -> e.main.registerServerClientCommands(handler) }
+    }
+
+    /** 注册要在客户端使用的任何命令，例如来自RELAY内玩家 */
+    @PrivateMark
+    fun runRegisterRelayClientCommands(handler: CommandHandler) {
+        pluginData!!.eachAll { e: PluginLoadData -> e.main.registerRelayClientCommands(handler) }
     }
 
     /** 注册事件 -4  */

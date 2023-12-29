@@ -28,7 +28,7 @@ import java.util.zip.ZipOutputStream
  *
  * 线程不安全
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ZipEncoder: AbstractEncoder() {
     private val outputStream = DisableSyncByteArrayOutputStream()

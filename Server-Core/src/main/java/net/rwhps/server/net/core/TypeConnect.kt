@@ -17,7 +17,7 @@ import net.rwhps.server.net.core.server.AbstractNetConnect
  * [NewServerHandler.kt] Only provide network support. This method is needed to parse the data packet call
  *
  * Each Type Connect is bound to an Abstract Net Connect
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2021/12/16 07:40:35
  */
 interface TypeConnect {
@@ -43,7 +43,7 @@ interface TypeConnect {
      * @throws Exception Error
      */
     @Throws(Exception::class)
-    fun typeConnect(packet: Packet)
+    fun processConnect(packet: Packet)
 
 
     val abstractNetConnect: AbstractNetConnect

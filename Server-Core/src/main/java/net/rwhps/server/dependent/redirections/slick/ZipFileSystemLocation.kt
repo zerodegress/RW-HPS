@@ -21,7 +21,7 @@ import java.net.URL
  * @property compressionDecoder CompressionDecoder
  * @property a OrderedMap<String, ByteArray>
  * @constructor
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ZipFileSystemLocation(private val data: OrderedMap<String, ByteArray>): ResourceLocation {
     override fun getResourceAsStream(ref: String): InputStream? {

@@ -9,10 +9,11 @@
 
 package net.rwhps.server.dependent.redirections.game
 
+import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.MainRedirections
-import net.rwhps.server.util.annotations.GameSimulationLayer
 import net.rwhps.server.util.annotations.mark.AsmMark
+import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
@@ -22,32 +23,33 @@ import net.rwhps.server.util.log.Log
 //@formatter:off
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @AsmMark.ClassLoaderCompatible
 class CustomRedirections: MainRedirections {
-    override fun register() {/* 屏蔽游戏错误捕获 */
+    override fun register() {
+        /* 屏蔽游戏错误捕获 */
         @GameSimulationLayer.GameSimulationLayer_KeyWords("setDefaultUncaughtExceptionHandler")
-        redirect("com/corrodinggames/rts/gameFramework/l", arrayOf("aq", "()V"))
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/l", "aq", "()V"))
 
         /* 屏蔽游戏设置保存 */
         @GameSimulationLayer.GameSimulationLayer_KeyWords("preferences.ini")
-        redirect("com/corrodinggames/rts/gameFramework/SettingsEngine", arrayOf("saveToFileSystem", "()Z")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/SettingsEngine", "saveToFileSystem", "()Z")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             "com.corrodinggames.rts.gameFramework.l".toClassAutoLoader(obj)!!.findMethod("b", String::class.java)!!
                 .invoke(null, "Saving settings: RW-HPS(ASM)")
-            return@redirect true
+            return@redirectR true
         }
-        redirect("com/corrodinggames/rts/gameFramework/SettingsEngine", arrayOf("loadFromFileSystem", "()V"))
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/SettingsEngine", "loadFromFileSystem", "()V"))
 
         /* UUID 覆盖 */
         @GameSimulationLayer.GameSimulationLayer_KeyWords("serverUUID==null")
-        redirect("com/corrodinggames/rts/gameFramework/j/ad", arrayOf("Z", "()Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> ->
-            return@redirect Data.core.serverHessUuid
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/j/ad", "Z", "()Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+            return@redirectR Data.core.serverHessUuid
         }
 
         /* MOD启用器覆盖(强制启用除自带以外) */
         @GameSimulationLayer.GameSimulationLayer_KeyWords("Loading mod selection")
-        redirect("com/corrodinggames/rts/gameFramework/i/a", arrayOf("f", "()V")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/i/a", "f", "()V")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             Log.debug("[Hess] Try Loading mod selection")
             val modDataClass = "com.corrodinggames.rts.gameFramework.i.b".toClassAutoLoader(obj)!!
 

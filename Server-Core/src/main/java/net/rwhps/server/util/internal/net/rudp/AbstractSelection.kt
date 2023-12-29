@@ -13,7 +13,7 @@ import net.rwhps.server.util.internal.net.rudp.impl.Segment
 
 /**
  * @date 2023/7/17 12:25
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractSelection {
     fun handleSegment(segment: Segment)

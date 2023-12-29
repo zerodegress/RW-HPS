@@ -27,7 +27,7 @@ import java.io.InputStream
 /**
  * 7z
  * @property sevenZipFile SevenZFile
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal open class SevenZipFileDecoder: AbstractDecoder {
     private val sevenZipFile: SevenZFile

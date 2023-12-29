@@ -1,6 +1,6 @@
 package net.rwhps.server.plugin
 
-import net.rwhps.server.data.bean.BeanPluginInfo
+import net.rwhps.server.data.bean.internal.BeanPluginInfo
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.StringUtils
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
  * @date 2023/6/21 11:00 想骂人
  * @date 2023/6/21 13:09 更想骂人
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class JavaScriptPluginTest {
     init {

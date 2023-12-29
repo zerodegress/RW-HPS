@@ -26,13 +26,13 @@ import java.lang.reflect.Field
  * The server is primarily controlled
  *
  * Save data for serialization and deserialization
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 data class BeanCoreConfig(
     val noteEnglish: String = """
-        Different protocols use different configuration files, please go to the corresponding file ConfigServer
+        Different protocols use different configuration files, please go to the corresponding file ConfigServer/ConfigRelay
     """.trimIndent(), val noteChina: String = """
-        不同协议使用的配置文件不同, 请自行前往对应文件 ConfigServer
+        不同协议使用的配置文件不同, 请自行前往对应文件 ConfigServer/ConfigRelay
     """.trimIndent(),
 
     /** Default startup command */
@@ -50,6 +50,8 @@ data class BeanCoreConfig(
 
     /** 服务器名称 */
     val serverName: String = "RW-HPS",
+    /** 标题, 留空使用地图名 */
+    val subtitle: String = "",
     /** Automatically after starting UPLIST */
     val autoUpList: Boolean = false,
 
@@ -99,7 +101,7 @@ data class BeanCoreConfig(
     }
 
     companion object {
-        val fileUtils = FileUtils.getFolder(Data.Plugin_Data_Path).toFile("Config.json")
+        val fileUtils = FileUtils.getFolder(Data.ServerDataPath).toFile("Config.json")
 
         @JvmStatic
         fun stringToClass(): BeanCoreConfig {

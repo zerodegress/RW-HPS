@@ -23,7 +23,7 @@ import java.io.IOException
  *
  * @property type 包的类型
  * @property bytes 这个包包含的字节
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Packet {
     val type: PacketType
@@ -42,7 +42,6 @@ class Packet {
         this.type = type0
         this.bytes = bytes
     }
-
 
     private fun check(type0: Int) {
         if (type == PacketType.NOT_RESOLVED) {

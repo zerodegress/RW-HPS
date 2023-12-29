@@ -10,13 +10,14 @@
 package net.rwhps.server.net.code.tcp
 
 import io.netty.buffer.ByteBuf
+import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandlerContext
 import io.netty.handler.codec.MessageToByteEncoder
 import net.rwhps.server.io.packet.Packet
 
 /**
  * Format data
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 /**
  *    1 2 3 4  5  6  7  8  ...
@@ -27,6 +28,7 @@ import net.rwhps.server.io.packet.Packet
  *   |    Packet Head    | Data
  *   +---------------+---------------+
  */
+@ChannelHandler.Sharable
 internal class PacketEncoder: MessageToByteEncoder<Packet>() {
     @Throws(Exception::class)
     override fun encode(p1: ChannelHandlerContext, msg: Packet, out: ByteBuf) {

@@ -55,7 +55,7 @@ import com.corrodinggames.rts.gameFramework.j.k as GameNetInputStream
  * @constructor
  *
  * @date 2020/9/5 17:02:33
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @MainProtocolImplementation
 open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetConnect(playerConnectX.connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
@@ -211,7 +211,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
                     packet.status = Control.EventNext.STOPPED
                     return
                 } else {
-                    GameEngine.data.eventManage.fire(playerOperationUnitEvent)
+                    GameEngine.data.eventManage.fire(playerOperationUnitEvent).await()
                     if (!playerOperationUnitEvent.resultStatus) {
                         packet.status = Control.EventNext.STOPPED
                         return
@@ -303,7 +303,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
 
             relaySelect = run
 
-            inputPassword = true
+            connectReceiveData.inputPassword = true
         } catch (e: Exception) {
             Log.error(e)
         }
@@ -311,7 +311,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
 
     override fun sendRelayServerTypeReply(packet: Packet) {
         try {
-            inputPassword = false
+            connectReceiveData.inputPassword = false
 
             val id = relayServerTypeReplyInternalPacket(packet)
             if (relaySelect != null) {
@@ -336,7 +336,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
             if (!playerConnectX.room.isStartGame) {
                 playerConnectX.room.playerManage.playerAll.remove(player)
             }
-            GameEngine.data.eventManage.fire(PlayerLeaveEvent(player))
+            GameEngine.data.eventManage.fire(PlayerLeaveEvent(player)).await()
 
             player.clear()
         }

@@ -11,7 +11,7 @@ package net.rwhps.server.struct
 
 /**
  * @date  2023/6/10 10:48
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class SeqSave {
     val data = Seq<String>()

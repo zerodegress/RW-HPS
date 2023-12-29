@@ -31,7 +31,7 @@ import java.util.jar.JarFile
 /**
  * 热加载依赖
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachData() {
     private val source = Seq<String>()
@@ -145,7 +145,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
      */
     private fun load() {
         dependenciesDown.eachAll {
-            val file = FileUtils.getFolder(Data.Plugin_Lib_Path).toFile(it.fileName).file
+            val file = FileUtils.getFolder(Data.ServerLibPath).toFile(it.fileName).file
             if (!file.exists()) {
                 Log.track("Down Jar", it.getDownUrl())
                 HttpRequestOkHttp.downUrl(it.getDownUrl(), file, true).also { success ->
@@ -228,7 +228,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
      * @param down Boolean
      * @throws LibraryManagerError
      *
-     * @author RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      * @author way-zer
      */
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
@@ -417,7 +417,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
 
         init {
             val pomCacheBin = PluginData().apply {
-                setFileUtil(FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("libData.bin"), "7z")
+                setFileUtil(FileUtils.getFolder(Data.ServerLibPath).toFile("libData.bin"), "7z")
             }
 
             pomCache = pomCacheBin.getData("pomCache", ObjectMap())
@@ -426,7 +426,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
                 pomCacheBin.setData("pomCache", pomCache)
                 pomCacheBin.save()
 
-                FileUtils.getFolder(Data.Plugin_Lib_Path).fileListNotNullSize.eachAll {
+                FileUtils.getFolder(Data.ServerLibPath).fileListNotNullSize.eachAll {
                     if (it.name.endsWith("jar") && !loadEnd.contains(it)) {
                         it.delete()
                     }

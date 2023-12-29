@@ -18,7 +18,7 @@ import net.rwhps.server.util.SystemUtils
 
 /**
  * @date  2023/6/27 16:03
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object GetData {
     const val ServerTypeClose = "{ \"Status\": \"Unsupported protocols, only Server is supported\" }"
@@ -46,6 +46,7 @@ internal object GetData {
         val noNukes: Boolean = HessModuleManage.hps.gameLinkData.nukes,
         val credits: Int = HessModuleManage.hps.gameLinkData.credits,
         val sharedControl: Boolean = HessModuleManage.hps.gameLinkData.sharedcontrol,
+        val startGame: Boolean = HessModuleManage.hps.room.isStartGame,
         val players: List<String> = Seq<String>().apply {
             HessModuleManage.hps.room.playerManage.playerAll.eachAll {
                 add(it.playerInfo)

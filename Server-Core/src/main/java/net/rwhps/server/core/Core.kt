@@ -14,7 +14,7 @@ import net.rwhps.server.data.global.Data
 import kotlin.system.exitProcess
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Core {
     /**

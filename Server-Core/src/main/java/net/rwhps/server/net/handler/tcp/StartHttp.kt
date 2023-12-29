@@ -38,12 +38,16 @@ import javax.net.ssl.SSLEngine
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class StartHttp: AbstractNet(), AbstractNetWeb {
     var socketChannel: SocketChannel? = null
     private var sslContext: SSLContext? = null
     private lateinit var webData: WebData
+
+    init {
+        init()
+    }
 
     override fun setWebData(data: WebData) {
         webData = data

@@ -16,7 +16,7 @@ import net.rwhps.server.util.file.FileUtils
  * Reusable class loader
  *
  * @date  2023/5/26 15:14
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class GameModularReusableLoadClass(
     mainClassLoader: ClassLoader, jdkClassLoader: ClassLoader

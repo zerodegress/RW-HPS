@@ -17,7 +17,7 @@ import net.rwhps.server.data.global.Data
  * 操作控制台
  *
  * @date  2023/6/23 11:40
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object CLITools {
     /**

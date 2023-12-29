@@ -30,7 +30,7 @@ import java.text.MessageFormat
  * 替换后只检测 `/n` `/r/n` 来输出
  *
  * @date 2020年3月8日星期日 3:54
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @version 1.1
  */
 @Suppress("UNUSED")
@@ -49,7 +49,7 @@ object Log {
     }
 
     init {
-        val logLogFile = FileUtils.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
+        val logLogFile = FileUtils.getFolder(Data.ServerLogPath).toFile("Log.txt")
         outLog = logLogFile.writeByteOutputStream(logLogFile.file.length() <= 512 * 1024)
 
         // 设置默认的线程异常捕获处理器
@@ -276,16 +276,13 @@ object Log {
         val lines = e.toString().split(Data.LINE_SEPARATOR).toTypedArray()
         if (error) {
             val stack = Throwable().stackTrace
-            var i1 = 0
-            while (i1 < stack.size) {
-                val ste = stack[i1]
-                val className = ste.className + "." + ste.methodName
+            for (ste in stack) {
+                val className = "${ste.className}.${ste.methodName}"
                 if (!className.contains("net.rwhps.server.util.log.Log")) {
                     sb.append("[").append(ste.fileName).append("] : ").append(ste.methodName).append(" : ").append(ste.lineNumber)
                         .append(Data.LINE_SEPARATOR)
                     break
                 }
-                i1++
             }
         }
 

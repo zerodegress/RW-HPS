@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * @date  2023/6/15 13:08
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class ObjectMapTest {
 

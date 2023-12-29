@@ -11,11 +11,13 @@ package net.rwhps.server.game.event.global
 
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.util.annotations.core.EventBlockCurrentThread
 
 /**
  * 服务器新协议启动事件
  *
  * @date 2023/7/5 10:02
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
+@EventBlockCurrentThread
 class ServerStartTypeEvent(val serverNetType: IRwHps.NetType): AbstractGlobalEvent

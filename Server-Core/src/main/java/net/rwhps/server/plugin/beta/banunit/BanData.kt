@@ -10,7 +10,7 @@
 package net.rwhps.server.plugin.beta.banunit
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 data class BanData(
     val banID: String, val banUnitData: List<String>

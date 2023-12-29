@@ -10,7 +10,7 @@
 package net.rwhps.server.core.thread
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object CallGroupData {
     const val coreServer = "[Core]Server"

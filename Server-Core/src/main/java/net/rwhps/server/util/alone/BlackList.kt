@@ -17,7 +17,7 @@ import net.rwhps.server.util.Time.millis
 import java.util.concurrent.TimeUnit
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class BlackList {
     private val blackList = Seq<BlackData>(16)

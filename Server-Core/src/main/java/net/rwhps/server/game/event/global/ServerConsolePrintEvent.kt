@@ -10,11 +10,11 @@
 package net.rwhps.server.game.event.global
 
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
-import net.rwhps.server.util.annotations.core.EventAsync
+import net.rwhps.server.util.annotations.core.EventOnlyRead
 
 /**
  * @date 2023/7/16 13:29
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-@EventAsync
+@EventOnlyRead
 class ServerConsolePrintEvent(val print: String): AbstractGlobalEvent

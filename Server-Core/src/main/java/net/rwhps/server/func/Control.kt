@@ -14,7 +14,7 @@ package net.rwhps.server.func
  * 对于自定义的 eachAll, 有时候我们需要返回, 或者是类似于 Find, 但不需要返回
  *
  * @date  2023/6/22 17:24
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Control {
     enum class ControlFind {

@@ -16,6 +16,6 @@ import net.rwhps.server.game.event.core.AbstractEvent
  * 玩家被服务区解禁事件
  *
  * @date 2023/7/5 13:47
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PlayerUnBanEvent(val player: PlayerHess): AbstractEvent

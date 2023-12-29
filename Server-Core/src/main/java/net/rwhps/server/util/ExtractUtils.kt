@@ -14,7 +14,7 @@ import net.rwhps.server.util.log.Log
 
 /**
  * @date 2023/7/19 11:29
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object ExtractUtils {
     fun tryRunTest(tag: String? = null, run: () -> Unit) {

@@ -14,7 +14,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object SystemUtils {
     /** 获取服务器默认编码 */

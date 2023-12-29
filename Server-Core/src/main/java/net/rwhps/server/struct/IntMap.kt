@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class IntMap<V>: BaseMap<Int, V> {
     @JvmOverloads

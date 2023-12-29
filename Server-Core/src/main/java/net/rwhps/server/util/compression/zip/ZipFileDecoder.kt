@@ -28,7 +28,7 @@ import java.io.InputStream
 /**
  * Zip
  * @property zipFile ZipFile
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class ZipFileDecoder: AbstractDecoder {
     private val zipFile: ZipFile

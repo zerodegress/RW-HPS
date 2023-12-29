@@ -20,7 +20,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class CallHess(private val gameModule: AbstractGameModule) {
     /**
@@ -40,11 +40,7 @@ class CallHess(private val gameModule: AbstractGameModule) {
      */
     fun sendSystemMessageLocal(text: String, vararg obj: Any) {
         gameModule.room.playerManage.playerGroup.eachAll { e: PlayerHess ->
-            e.sendSystemMessage(
-                    e.i18NBundle.getinput(
-                            text, *obj
-                    )
-            )
+            e.sendSystemMessage(e.i18NBundle.getinput(text, *obj))
         }
     }
 

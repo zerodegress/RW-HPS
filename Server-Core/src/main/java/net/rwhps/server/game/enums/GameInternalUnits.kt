@@ -17,7 +17,7 @@ import net.rwhps.server.util.log.exp.VariableException
 
 /**
  * @date 2023/8/19 12:06
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 enum class GameInternalUnits {
     extractor,

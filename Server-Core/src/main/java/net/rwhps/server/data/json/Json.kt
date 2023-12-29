@@ -21,7 +21,7 @@ import org.json.JSONObject
 /**
  * Json 模块
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Json {
     private val jsonObject: JSONObject

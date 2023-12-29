@@ -22,7 +22,7 @@ import net.rwhps.server.util.log.Log
 import java.util.*
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class HessMain: Plugin() {
     override fun registerGlobalEvents(eventManage: EventGlobalManage) = eventManage.registerListener(GameHeadlessEventGlobal())

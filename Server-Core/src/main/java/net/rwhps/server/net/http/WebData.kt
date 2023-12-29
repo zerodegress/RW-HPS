@@ -19,7 +19,7 @@ import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.log.exp.VariableException
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class WebData {
     private val getData: ObjectMap<String, WebGet> = ObjectMap()

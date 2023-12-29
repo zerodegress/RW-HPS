@@ -10,19 +10,13 @@
 package net.rwhps.server.game.simulation.core
 
 import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
-import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.util.annotations.GameSimulationLayer
+import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 import net.rwhps.server.util.log.exp.ImplementedException
 
 interface AbstractGameHessData {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("got remoteSyncFrame for")
     val tickHess: Int
     val tickNetHess: Int
-
-    var useMod: Boolean
-
-    @GameSimulationLayer.GameSimulationLayer_KeyWords("30")
-    fun getGameCheck(): Packet
 
     /**
      * 获取位子上玩家是否存活
@@ -49,8 +43,8 @@ interface AbstractGameHessData {
     @GameSimulationLayer.GameSimulationLayer_KeyWords("exited!")
     fun clean()
 
-    fun getDefPlayerData(): AbstractPlayerData {
-        return object: AbstractPlayerData {
+    fun getDefPlayerData(): AbstractLinkPlayerData {
+        return object: AbstractLinkPlayerData {
             private val error: () -> Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound PlayerData")
 
             override fun updateDate() {}
@@ -72,5 +66,5 @@ interface AbstractGameHessData {
     }
 
     @Throws(ImplementedException.PlayerImplementedException::class)
-    fun getPlayerData(site: Int): AbstractPlayerData
+    fun getPlayerData(site: Int): AbstractLinkPlayerData
 }

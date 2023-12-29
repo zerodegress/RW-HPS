@@ -86,7 +86,7 @@ import net.rwhps.server.util.annotations.NeedHelp
  *     }
  * ```
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface IRwHps {
     /**

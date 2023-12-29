@@ -19,7 +19,7 @@ import java.io.IOException
 /**
  * Only provide interface but not implement
  * As the interface of game CoreNet, it provides various version support for GameServer
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2021/7/31/ 14:14
  */
 interface AbstractNetConnectServer {

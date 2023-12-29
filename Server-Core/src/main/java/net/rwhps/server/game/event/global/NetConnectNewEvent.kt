@@ -12,14 +12,18 @@ package net.rwhps.server.game.event.global
 import net.rwhps.server.func.Control
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.util.lock.Synchronize
+import net.rwhps.server.util.annotations.core.EventBlockCurrentThread
+import net.rwhps.server.util.annotations.core.EventOnlyRead
+import net.rwhps.server.util.concurrent.lock.Synchronize
 
 /**
  * 新连接创建事件
  *
  * @date 2023/7/5 10:02
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
+@EventOnlyRead
+@EventBlockCurrentThread
 class NetConnectNewEvent(val connectionAgreement: ConnectionAgreement): AbstractGlobalEvent {
     var result by Synchronize(false)
 

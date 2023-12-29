@@ -13,7 +13,7 @@ import net.rwhps.server.net.http.WebData
 
 /**
  * @date  2023/6/27 11:53
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractNetWeb {
     fun setWebData(data: WebData)

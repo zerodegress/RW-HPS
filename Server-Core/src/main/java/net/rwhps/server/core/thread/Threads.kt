@@ -11,14 +11,14 @@ package net.rwhps.server.core.thread
 
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.threads.GetNewThreadPool
+import net.rwhps.server.util.concurrent.threads.GetNewThreadPool
 import net.rwhps.timetask.task.TimeTaskManage
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
 /**
  * TimeTask / Thread Core
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Threads {
     private val CORE_THREAD: ExecutorService = GetNewThreadPool.getNewFixedThreadPool(3, "Core-")

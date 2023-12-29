@@ -11,7 +11,7 @@ package net.rwhps.server.util.log.exp
 
 /**
  * @date  2023/5/26 15:34
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class CompressionException(type: String): Exception(type) {
     class CryptographicException(type: String): CompressionException(type)

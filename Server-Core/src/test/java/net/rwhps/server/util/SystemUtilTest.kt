@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
  * No Test
  *
  * @date  2023/5/26 15:00
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class SystemUtilTest {
 

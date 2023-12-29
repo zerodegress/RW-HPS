@@ -17,7 +17,7 @@ import java.io.InputStream
 
 /**
  * 解压 通用接口
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractDecoder: Closeable {
     fun setPhysicalOrder(value: Boolean) {

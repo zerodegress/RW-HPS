@@ -36,7 +36,7 @@ import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class ServerCommands(handler: CommandHandler) {
     private fun registerPlayerCommand(handler: CommandHandler) {

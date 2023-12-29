@@ -10,7 +10,7 @@
 package net.rwhps.server.plugin.internal.hess.service.data
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object HessClassPathProperties {
     const val path = "net.rwhps.server.plugin.internal.hess.inject"

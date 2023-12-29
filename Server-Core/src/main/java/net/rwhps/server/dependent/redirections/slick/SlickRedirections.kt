@@ -9,8 +9,8 @@
 
 package net.rwhps.server.dependent.redirections.slick
 
-import net.rwhps.asm.agent.AsmData
-import net.rwhps.asm.redirections.DefaultRedirections
+import net.rwhps.asm.data.MethodTypeInfoValue
+import net.rwhps.asm.redirections.replace.def.BasicDataRedirections
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.util.annotations.NeedHelp
 import net.rwhps.server.util.annotations.mark.AsmMark
@@ -24,22 +24,20 @@ import net.rwhps.server.util.inline.toClass
 //@formatter:off
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @NeedHelp
 @AsmMark.ClassLoaderCompatible
 class SlickRedirections: MainRedirections {
     override fun register() {
-        AsmData.addClassIgnore("org/newdawn/slick/opengl/renderer/VBORenderer")
-
-        AsmData.addPartialMethod("org/newdawn/slick/AppGameContainer", arrayOf("start", "()V"), AppGameContainerUpdate())
+        addAllReplace("org/newdawn/slick/opengl/renderer/VBORenderer")
 
         // Remove game mouse cursor
-        AsmData.addPartialMethod("org/newdawn/slick/AppGameContainer", arrayOf("setMouseCursor", "(Lorg/newdawn/slick/Image;II)V"), DefaultRedirections.NULL)
-        AsmData.addPartialMethod("org/newdawn/slick/AppletGameContainer", arrayOf("setMouseCursor", "(Lorg/newdawn/slick/Image;II)V"), DefaultRedirections.NULL)
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/AppGameContainer", "setMouseCursor", "(Lorg/newdawn/slick/Image;II)V"), BasicDataRedirections.NULL)
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/AppletGameContainer", "setMouseCursor", "(Lorg/newdawn/slick/Image;II)V"), BasicDataRedirections.NULL)
 
         // Replace version number
-        AsmData.addPartialMethod("org/newdawn/slick/GameContainer", arrayOf("getBuildVersion", "()I")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/GameContainer", "getBuildVersion", "()I")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             val classIn = obj as Class<*>
             SilckClassPathProperties.SlickLog.toClass(classIn.classLoader)!!.findMethod("info", String::class.java)!!
                 .invoke(null, "Slick Build : RW-HPS-Headless-Slick RwGame#84")
@@ -47,14 +45,14 @@ class SlickRedirections: MainRedirections {
         }
 
         // Disable sound loader
-        AsmData.addClassIgnore("org/newdawn/slick/Sound")
-        redirect("Lorg/newdawn/slick/Sound;playing()Z", DefaultRedirections.BOOLEANT)
+        addAllReplace("org/newdawn/slick/Sound")
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/Sound", "playing", "()Z"), BasicDataRedirections.BOOLEANT)
 
         // Replace default graphics processor
-        AsmData.addPartialMethod("org/newdawn/slick/opengl/pbuffer/GraphicsFactory", arrayOf("createGraphics", "(Lorg/newdawn/slick/Image;)Lorg/newdawn/slick/Graphics;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/opengl/pbuffer/GraphicsFactory", "createGraphics", "(Lorg/newdawn/slick/Image;)Lorg/newdawn/slick/Graphics;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
             val classIn = obj as Class<*>
             val classLoader = classIn.classLoader
-            return@addPartialMethod SilckClassPathProperties.Graphics.toClass(classLoader)!!.cast(
+            return@redirectR SilckClassPathProperties.Graphics.toClass(classLoader)!!.cast(
                     if (classLoader is GameModularLoadClass) {
                         classLoader.loadClassBytes(
                                 SilckClassPathProperties.DrGraphics, SilckClassPathProperties.DrGraphics.readAsClassBytes()
@@ -66,7 +64,7 @@ class SlickRedirections: MainRedirections {
         }
 
         // Set the texture length and width
-        AsmData.addPartialMethod("org/newdawn/slick/opengl/TextureImpl", arrayOf("getTextureHeight", "()I"), DefaultRedirections.INT)
-        AsmData.addPartialMethod("org/newdawn/slick/opengl/TextureImpl", arrayOf("getTextureWidth", "()I"), DefaultRedirections.INT)
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/opengl/TextureImpl", "getTextureHeight", "()I"), BasicDataRedirections.INT)
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/opengl/TextureImpl", "getTextureWidth", "()I"), BasicDataRedirections.INT)
     }
 }

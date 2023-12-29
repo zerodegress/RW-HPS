@@ -22,7 +22,7 @@ import net.rwhps.server.util.annotations.DidNotFinish
  * Mods 加载管理器
  * 这里加载的 Mod 默认启用
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object ModManage {
     /** 游戏核心单位的命名(便于分辨) */
@@ -53,7 +53,7 @@ object ModManage {
         modList = enabledMods.keys.toSeq()
 
         return (enabledMods.size - 1).also {
-            HessModuleManage.hps.gameHessData.useMod = (it > 0)
+            HessModuleManage.hps.gameUnitData.useMod = (it > 0)
         }
     }
 

@@ -19,7 +19,7 @@ import io.netty.util.AsciiString
  * @property data     POST 发送的数据
  * @constructor
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  *
  * 请注意 在 GET 内 您获取的 data 为 空("") , 您需要使用 urlData 来得到数据
  */

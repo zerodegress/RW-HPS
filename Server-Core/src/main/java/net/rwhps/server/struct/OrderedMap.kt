@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
 
 /**
  * @date  2023/6/14 20:38
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class OrderedMap<K, V>: BaseMap<K, V> {
     @JvmOverloads

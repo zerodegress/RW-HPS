@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 
 /**
  * IP 工具类
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object IpUtils {
     private val IPV4_PATTERN = Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})$")

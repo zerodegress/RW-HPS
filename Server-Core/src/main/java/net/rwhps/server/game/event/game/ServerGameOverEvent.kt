@@ -12,18 +12,18 @@ package net.rwhps.server.game.event.game
 import net.rwhps.server.game.event.core.AbstractEvent
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.annotations.core.EventAsync
+import net.rwhps.server.util.annotations.core.EventOnlyRead
 
 /**
  * 服务器结束游戏时事件
  *
  * @date 2023/7/5 13:46
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-@EventAsync
+@EventOnlyRead
 class ServerGameOverEvent(val gameOverData: GameOverData?): AbstractEvent {
     /**
-     * @author RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     data class GameOverData(
         val gameTime: Int,

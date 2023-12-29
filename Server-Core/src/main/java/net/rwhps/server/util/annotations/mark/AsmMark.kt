@@ -10,7 +10,7 @@
 package net.rwhps.server.util.annotations.mark
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class AsmMark {
     /**
@@ -18,7 +18,7 @@ class AsmMark {
      * Specifies that the class is Class Loader compatible.
      * In general, this doesn't change the behavior of the idea - it's just a token that indicates that the specified method is incomplete。
      *
-     * @author RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     @Retention(AnnotationRetention.SOURCE)
     @MustBeDocumented

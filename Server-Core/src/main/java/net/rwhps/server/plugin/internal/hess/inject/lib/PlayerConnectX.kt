@@ -25,7 +25,7 @@ import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
-import net.rwhps.server.plugin.internal.hess.inject.core.PrivateClass_Player
+import net.rwhps.server.plugin.internal.hess.inject.core.PrivateClass_LinkPlayer
 import net.rwhps.server.plugin.internal.hess.inject.net.GameVersionServer
 import net.rwhps.server.plugin.internal.hess.inject.net.socket.HessSocket
 import net.rwhps.server.util.PacketType
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
 import com.corrodinggames.rts.gameFramework.j.c as PlayerConnect
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class PlayerConnectX(
     val netEngine: ad, val connectionAgreement: ConnectionAgreement
@@ -65,7 +65,7 @@ class PlayerConnectX(
     override fun a(packetHess: au) {
         if (player == null) {
             if (this.e() != "<null>") {
-                player = room.playerManage.addAbstractPlayer(serverConnect, PrivateClass_Player(z))
+                player = room.playerManage.addAbstractPlayer(serverConnect, PrivateClass_LinkPlayer(z))
                 serverConnect.player = player!!
 
                 GameEngine.data.eventManage.fire(PlayerJoinEvent(player!!))

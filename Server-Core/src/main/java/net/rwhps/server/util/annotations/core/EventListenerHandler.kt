@@ -14,7 +14,7 @@ package net.rwhps.server.util.annotations.core
 /**
  * 表明方法是 Event 监听
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)

@@ -32,7 +32,7 @@ import java.io.InputStream
  * @property jdkClassLoader ClassLoader (Load Java.lang.* class)
  * @property classPathMap OrderedMap<String, ByteArray>
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class GameModularLoadClass(
     private val mainClassLoader: ClassLoader,

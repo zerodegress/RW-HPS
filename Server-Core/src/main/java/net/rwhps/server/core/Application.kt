@@ -24,7 +24,7 @@ import java.util.*
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Application {
     /** 服务器 Setting 主数据 */
@@ -47,7 +47,7 @@ class Application {
      * 加载并读取 Setting 主数据
      */
     fun load() {
-        settings.setFileUtil(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
+        settings.setFileUtil(FileUtils.getFolder(Data.ServerDataPath).toFile("Settings.bin"))
         admin = Administration(settings)
 
         Initialization.startInit(settings)

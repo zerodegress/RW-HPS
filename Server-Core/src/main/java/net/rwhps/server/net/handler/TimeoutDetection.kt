@@ -14,7 +14,7 @@ import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.Time.concurrentMillis
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object TimeoutDetection {
     internal fun checkTimeoutDetection(typeConnect: TypeConnect?): Boolean {
@@ -25,12 +25,16 @@ internal object TimeoutDetection {
         return checkTimeoutDetection(typeConnect.abstractNetConnect)
     }
 
-    internal fun checkTimeoutDetection(abstractNetConnect: AbstractNetConnect?): Boolean {
+    private fun checkTimeoutDetection(abstractNetConnect: AbstractNetConnect?): Boolean {
         if (abstractNetConnect == null) {
             return true
         }
 
-        return if (abstractNetConnect.inputPassword) {/* 3min No response judgmentclose */
+        if (abstractNetConnect.connectReceiveData.receiveBigPacket) {
+            return false
+        }
+
+        return if (abstractNetConnect.connectReceiveData.inputPassword) {/* 3min No response judgmentclose */
             concurrentMillis() > (abstractNetConnect.lastReceivedTime + 300 * 1000L)
         } else {
             concurrentMillis() > (abstractNetConnect.lastReceivedTime + 180 * 1000L)

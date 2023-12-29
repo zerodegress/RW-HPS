@@ -14,7 +14,7 @@ package net.rwhps.server.util.annotations
  * The specified method is defective and needs to be overridden.
  * In general, this doesn't change the behavior of the idea - it's just a token that indicates that the specified method is incomplete。
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)

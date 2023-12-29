@@ -13,6 +13,7 @@ package net.rwhps.server.util.inline
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -31,6 +32,13 @@ fun Any.toPrettyPrintingJson(): String {
 
 inline fun <reified T> Class<T>.toGson(classData: String): T {
     return stringToGson.fromJson(classData.ifBlank { "{}" }, T::class.java)
+}
+
+fun <T> toGson(classData: String, type: Class<T>): T {
+    return stringToGson.fromJson(classData.ifBlank { "{}" }, type)
+}
+inline fun <reified T> toGson(classData: String, type: TypeToken<T>): T {
+    return stringToGson.fromJson(classData.ifBlank { "{}" }, type.type)
 }
 
 fun <R> JSONObject.getDataResult(defaultValue: R?, block: (JSONObject) -> R): R? {

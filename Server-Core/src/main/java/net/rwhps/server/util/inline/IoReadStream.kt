@@ -19,7 +19,7 @@ import java.io.InputStream
 
 /**
  * IoReadStream
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 fun InputStream.readBytes(): ByteArray {
     return IoRead.readInputStreamBytes(this)

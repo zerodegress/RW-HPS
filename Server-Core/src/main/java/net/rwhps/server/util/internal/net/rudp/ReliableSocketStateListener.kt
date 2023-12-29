@@ -14,7 +14,7 @@ package net.rwhps.server.util.internal.net.rudp
  * event implements this interface.
  *
  * @author Adrian Granados
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface ReliableSocketStateListener {
     /**

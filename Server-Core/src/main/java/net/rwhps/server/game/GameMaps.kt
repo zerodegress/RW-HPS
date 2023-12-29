@@ -17,7 +17,7 @@ import net.rwhps.server.util.log.Log.error
 
 /**
  * 游戏的地图数据
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class GameMaps {
     /** 地图类型  */
@@ -93,7 +93,7 @@ class GameMaps {
          * 读取地图到内部bytes
          */
         fun readMap(): FileUtils {
-            val fileUtil = getFolder(Data.Plugin_Maps_Path)
+            val fileUtil = getFolder(Data.ServerMapsPath)
             when (mapFileType) {
                 MapFileType.file -> try {
                     bytesMap = fileUtil.toFile(mapFileName + type).readFileByte()
@@ -113,7 +113,7 @@ class GameMaps {
             }
 
             mapClean = true
-            mapFile = getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
+            mapFile = getFolder(Data.ServerMapsPath).toFile(MapManage.maps.mapName + ".tmx")
             mapFile!!.writeFileByte(bytesMap!!)
             return mapFile!!
         }

@@ -15,7 +15,7 @@ import net.rwhps.server.util.compression.gzip.GzipDecoder
 /**
  * 提供压缩流支持
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object CompressInputStream {
     @JvmStatic

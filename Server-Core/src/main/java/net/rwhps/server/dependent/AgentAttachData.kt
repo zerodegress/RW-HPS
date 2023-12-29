@@ -14,11 +14,11 @@ import java.lang.instrument.Instrumentation
 
 /**
  * Agent Core
- * @author RW-HPS/Dr
+ * 所有依赖于 [Instrumentation] 的, 都需要继承此类使用
+ * @author Dr (dr@der.kim)
  */
 open class AgentAttachData {
     protected val instrumentation: Instrumentation = instPrivate!!
-
 
     companion object {
         private var instPrivate: Instrumentation? = null

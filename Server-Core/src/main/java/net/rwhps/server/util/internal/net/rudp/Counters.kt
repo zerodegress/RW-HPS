@@ -9,7 +9,7 @@
 package net.rwhps.server.util.internal.net.rudp
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2023/7/17 8:42
  */
 internal class Counters {

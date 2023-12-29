@@ -12,6 +12,7 @@ package net.rwhps.server.core
 import com.sun.jna.NativeLibrary
 import net.rwhps.server.Main
 import net.rwhps.server.core.ServiceLoader.ServiceType
+import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
@@ -31,6 +32,7 @@ import net.rwhps.server.net.netconnectprotocol.realize.*
 import net.rwhps.server.util.*
 import net.rwhps.server.util.algorithms.Aes
 import net.rwhps.server.util.algorithms.Rsa
+import net.rwhps.server.util.annotations.mark.PrivateMark
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.inline.readBytes
 import net.rwhps.server.util.inline.readFileListString
@@ -49,7 +51,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Initialization {
     private fun checkEnvironment() {
@@ -164,6 +166,11 @@ class Initialization {
                                         }
                                     })
                             )
+                        }
+
+                        IRwHps.NetType.RelayProtocol, IRwHps.NetType.RelayMulticastProtocol -> {
+                            @PrivateMark
+                            BaseDataSend(IsServer = false, RelayData = BaseDataSend.Companion.RelayData())
                         }
 
                         else -> {
@@ -308,7 +315,7 @@ class Initialization {
             FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll(libImport)
             FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/implementation.txt").readFileListString().eachAll(libImport)
 
-            val wasm = FileUtils.getFolder(Data.Plugin_Lib_Path).toFile("Wasm.jar")
+            val wasm = FileUtils.getFolder(Data.ServerLibPath).toFile("Wasm.jar")
             if (!wasm.exists() && !HttpRequestOkHttp.downUrl(Data.urlData.readString("Get.Core.ResDown") + "Wasm.zip", wasm.file, true)) {
                 Log.fatal("WASM Down Error")
                 return
@@ -319,6 +326,15 @@ class Initialization {
         }
 
         internal fun loadService() {
+            @PrivateMark
+            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayProtocol.name, TypeRelay::class.java)
+            @PrivateMark
+            ServiceLoader.addService(ServiceType.ProtocolType, IRwHps.NetType.RelayMulticastProtocol.name, TypeRelayRebroadcast::class.java)
+            @PrivateMark
+            ServiceLoader.addService(ServiceType.Protocol, IRwHps.NetType.RelayProtocol.name, GameVersionRelay::class.java)
+            @PrivateMark
+            ServiceLoader.addService(ServiceType.Protocol, IRwHps.NetType.RelayMulticastProtocol.name, GameVersionRelayRebroadcast::class.java)
+
             ServiceLoader.addService(ServiceType.ProtocolPacket, IRwHps.NetType.ServerProtocol.name, GameVersionPacket::class.java)
             ServiceLoader.addService(ServiceType.IRwHps, "IRwHps", RwHps::class.java)
         }
@@ -333,7 +349,7 @@ class Initialization {
             val IsServerRun: Boolean = true,
             val IsServer: Boolean,
             val ServerData: ServerData? = null,
-            val RelayData: Any? = null,
+            val RelayData: RelayData? = null,
         ) {
             companion object {
                 data class ServerData(
@@ -343,6 +359,18 @@ class Initialization {
                     val MaxPlayer: Int = Data.configServer.maxPlayer,
                     val PlayerVersion: Int = (NetStaticData.RwHps.typeConnect.abstractNetConnect as AbstractNetConnectServer).supportedVersionInt,
                     val IpPlayerCountry: Map<String, Int>,
+                )
+
+                @PrivateMark
+                data class RelayData(
+                    val PlayerSize: Int = AtomicInteger().also {
+                        NetStaticData.netService.eachAll { e: NetService -> it.addAndGet(e.getConnectSize()) }
+                    }.get(),
+                    val RoomAllSize: Int = RelayRoom.roomAllSize,
+                    val RoomNoStartSize: Int = RelayRoom.roomNoStartSize,
+                    val RoomPublicListSize: Int = 0,
+                    val PlayerVersion: Map<Int, Int> = RelayRoom.getAllRelayVersion(),
+                    val IpPlayerCountry: Map<String, Int> = RelayRoom.getAllRelayIpCountry(),
                 )
             }
         }

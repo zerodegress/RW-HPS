@@ -12,7 +12,7 @@
  */
 dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlinVersion}")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
     implementation(project(":TimeTaskQuartz"))
     implementation(project(":ASM-Framework"))
@@ -27,6 +27,8 @@ dependencies {
     api("io.netty:netty-transport:${Versions.nettyVersion}")
     api("io.netty:netty-transport-native-epoll:${Versions.nettyVersion}:linux-aarch_64")
     api("io.netty:netty-transport-native-epoll:${Versions.nettyVersion}:linux-x86_64")
+    api("com.lmax:disruptor:3.4.4")
+
 
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to "game-lib.jar")))
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to "slick.jar")))
@@ -40,7 +42,7 @@ dependencies {
     implementation("org.tukaani:xz:1.9")
     compileOnlyAndTest("com.github.lucasbru:jbsdiff:9810fdcbfd")
 
-    implementation("com.squareup.okhttp3:okhttp:4.11.0") {
+    implementation("com.squareup.okhttp3:okhttp:4.12.0") {
         exclude("org.jetbrains.kotlin")
     }
     api("com.vdurmont:emoji-java:5.1.1") {
@@ -62,7 +64,7 @@ dependencies {
     compileOnlyAndTest("org.graalvm.js:js:${Versions.graalvmVersion}")
     compileOnlyAndTest("org.graalvm.sdk:graal-sdk:${Versions.graalvmVersion}")
     // https://github.com/RW-HPS/graal-wasm/releases/tag/22.3.2
-    //testImplementation(fileTree(mapOf("dir" to "libs", "include" to "wasm.jar")))
+    testImplementation(fileTree(mapOf("dir" to "libs", "include" to "wasm.jar")))
 
     testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

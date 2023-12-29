@@ -26,7 +26,7 @@ import java.net.Socket
  * @constructor
  *
  * @date 2023/7/17 8:23
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class PackagingSocket(private val socket: Socket) {
     val remoteSocketAddressString = socket.remoteSocketAddress.toString()

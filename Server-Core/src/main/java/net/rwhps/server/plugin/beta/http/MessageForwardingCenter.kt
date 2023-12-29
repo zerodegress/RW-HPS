@@ -23,7 +23,7 @@ import net.rwhps.server.util.inline.toJson
 
 /**
  * @date  2023/6/27 10:49
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class MessageForwardingCenter {
     val getCategorize = object: WebGet() {
@@ -79,7 +79,7 @@ class MessageForwardingCenter {
 
     /**
      * @date  2023/7/1 16:30
-     * @author  RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     private data class WebStatus(
         val status: String, val data: String

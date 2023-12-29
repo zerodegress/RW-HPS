@@ -26,7 +26,7 @@ object MapManage {
     val mapsData = OrderedMap<String, GameMaps.MapData>(8)
 
     fun checkMaps() {
-        val list = FileUtils.getFolder(Data.Plugin_Maps_Path).fileListNotNullSizeSort
+        val list = FileUtils.getFolder(Data.ServerMapsPath).fileListNotNullSizeSort
         list.eachAll { e: File ->
             val original = if (Base64.isBase64(e.name)) Base64.decodeString(e.name) else e.name
             val postpone = original.substring(original.lastIndexOf("."))

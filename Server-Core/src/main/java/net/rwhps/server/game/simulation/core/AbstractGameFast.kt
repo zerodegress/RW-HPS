@@ -14,7 +14,7 @@ package net.rwhps.server.game.simulation.core
  *
  * 避免反射
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractGameFast {
     fun filteredPacket(packet: Any): Boolean

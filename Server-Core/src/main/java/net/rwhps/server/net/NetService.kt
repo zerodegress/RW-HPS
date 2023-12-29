@@ -10,12 +10,13 @@
 package net.rwhps.server.net
 
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.buffer.PooledByteBufAllocator
 import io.netty.channel.ChannelOption
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.ServerChannel
 import io.netty.channel.epoll.Epoll
+import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
+import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
@@ -25,24 +26,27 @@ import net.rwhps.server.net.handler.tcp.StartGameNetTcp
 import net.rwhps.server.net.http.WebData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.SystemUtils
+import net.rwhps.server.util.concurrent.threads.GetNewThreadPool.getEventLoopGroup
 import net.rwhps.server.util.internal.net.rudp.ReliableServerSocket
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.error
-import net.rwhps.server.util.threads.GetNewThreadPool.getEventLoopGroup
 import java.net.BindException
+
 
 /**
  * NetGameServer Service
  * Open interfaces at least to the outside world, and try to integrate internally as much as possible
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class NetService {
     private val closeSeq = Seq<() -> Unit>(4)
     private val start: AbstractNet
     private var errorIgnore = false
+
+    /** 工作线程数 */
+    var workThreadCount = 0
 
     constructor(abstractNet: AbstractNet = StartGameNetTcp()) {
         this.start = abstractNet
@@ -71,7 +75,6 @@ class NetService {
         return this
     }
 
-
     /**
      * Start the Game Server on the specified port
      * @param port Port
@@ -90,29 +93,35 @@ class NetService {
     fun openPort(port: Int, startPort: Int, endPort: Int) {
         Data.config.save()
 
-        val threadCount = if (startPort < endPort) {
-            SystemUtils.availableProcessors * 4
-        } else {
-            0
-        }
-
         clog(Data.i18NBundle.getinput("server.start.open"))
-        val bossGroup: EventLoopGroup = getEventLoopGroup()
-        val workerGroup: EventLoopGroup = getEventLoopGroup(threadCount)
-        val runClass: Class<out ServerChannel>
+        val bossGroup: EventLoopGroup = getEventLoopGroup(0)
+        val workerGroup: EventLoopGroup = getEventLoopGroup(workThreadCount)
 
-        if (Epoll.isAvailable()) {
-            runClass = EpollServerSocketChannel::class.java
+        val runClass: Class<out ServerChannel> = if (Epoll.isAvailable()) {
+            EpollServerSocketChannel::class.java
         } else {
-            runClass = NioServerSocketChannel::class.java
+            NioServerSocketChannel::class.java
         }
+
+        if (workerGroup is NioEventLoopGroup) {
+            workerGroup.setIoRatio(Data.configNet.nettyIoRatio)
+        } else if (workerGroup is EpollEventLoopGroup) {
+            workerGroup.setIoRatio(Data.configNet.nettyIoRatio)
+        }
+
         try {
             val serverBootstrapTcp = ServerBootstrap()
             serverBootstrapTcp.group(bossGroup, workerGroup).channel(runClass)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(start)
+
+            with (serverBootstrapTcp) {
+                childOption(ChannelOption.TCP_NODELAY, true)
+
+                childOption(ChannelOption.SO_KEEPALIVE, true)
+
+                option(ChannelOption.MAX_MESSAGES_PER_READ, 4)
+            }
+
+            serverBootstrapTcp.childHandler(start)
 
             clog(Data.i18NBundle.getinput("server.start.openPort"))
 
@@ -123,7 +132,9 @@ class NetService {
 
             val start = channelFutureTcp.channel()
             closeSeq.add {
-                start.close().sync()
+                channelFutureTcp.channel().close()
+                bossGroup.shutdownGracefully()
+                workerGroup.shutdownGracefully()
             }
             clog(Data.i18NBundle.getinput("server.start.end"))
 
@@ -190,7 +201,7 @@ class NetService {
         const val minLowWaterMark = 512 * 1024
 
         /** Maximum accepted single package size */
-        const val maxPacketSizt = 50 * 1024 * 1024
+        const val maxPacketSizt = 50000000
 
         /** Packet header data length */
         const val headerSize = 8

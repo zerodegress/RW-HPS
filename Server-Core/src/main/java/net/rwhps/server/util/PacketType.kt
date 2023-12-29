@@ -25,7 +25,7 @@ import net.rwhps.server.util.log.exp.VariableException
  *
  *
  * @author RukkitDev/Miku
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 enum class PacketType(val typeInt: Int, val typeIntBytes: ByteArray = GameOutputStream.intToBytes(typeInt)) {
     /**

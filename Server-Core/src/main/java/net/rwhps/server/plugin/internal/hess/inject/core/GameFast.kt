@@ -14,7 +14,7 @@ import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import com.corrodinggames.rts.gameFramework.j.au as Packet
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class GameFast: AbstractGameFast {
     override fun filteredPacket(packet: Any): Boolean {

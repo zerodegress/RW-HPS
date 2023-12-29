@@ -28,7 +28,7 @@ import java.util.Random;
  * end-to-end communication between two machines.
  *
  * @author Adrian Granados
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @see java.net.Socket
  */
 public class ReliableSocket extends Socket implements AbstractSelection {

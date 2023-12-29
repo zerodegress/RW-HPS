@@ -18,7 +18,7 @@ import java.io.OutputStream
 
 /**
  * @date 2023/7/26 13:25
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object DiffUpdate {
     @JvmStatic

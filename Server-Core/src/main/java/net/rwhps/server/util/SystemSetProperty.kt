@@ -11,7 +11,7 @@ package net.rwhps.server.util
 
 /**
  * @date  2023/5/25 12:00
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object SystemSetProperty {
     fun setOnlyIpv4() {

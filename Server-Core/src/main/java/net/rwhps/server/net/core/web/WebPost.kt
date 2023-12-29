@@ -16,7 +16,7 @@ import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.exp.ImplementedException
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class WebPost: WebFunction() {
     /**

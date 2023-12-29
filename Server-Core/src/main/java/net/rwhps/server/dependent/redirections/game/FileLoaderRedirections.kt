@@ -9,14 +9,15 @@
 
 package net.rwhps.server.dependent.redirections.game
 
+import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
 import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.annotations.GameSimulationLayer
 import net.rwhps.server.util.annotations.mark.AsmMark
+import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileName
@@ -38,7 +39,7 @@ import java.lang.reflect.Method
  * 不要骂了 只能这样写了
  *
  * @property font 把字体放在ZIP内来减少大小
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @AsmMark.ClassLoaderCompatible
 @GameSimulationLayer.GameSimulationLayer_KeyWords("FileLoader: ")
@@ -55,11 +56,11 @@ class FileLoaderRedirections: MainRedirections {
         // 清理Hess的数据, 避免启用安全模式
         FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).toFile("preferences.ini").delete()
         // 清除无用缓存
-        FileUtils.getFolder(Data.Plugin_Cache_Path).delete()
+        FileUtils.getFolder(Data.ServerCachePath).delete()
     }
 
     override fun register() {/* 修改 每个加载器下 [ResourceLoader] 的初始化实现, 来为 [ResourceLoader] 实现自定义内容 */
-        redirect("org/newdawn/slick/util/ResourceLoader", arrayOf("<clinit>", "()V")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/util/ResourceLoader", "<clinit>", "()V")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             val classIn = obj as Class<*>
             val classLoader = classIn.classLoader
 
@@ -76,44 +77,44 @@ class FileLoaderRedirections: MainRedirections {
             list.add(SilckClassPathProperties.ClasspathLocation.toClass(classLoader)!!.accessibleConstructor().newInstance())
             list.add(SilckClassPathProperties.FileSystemLocation.toClass(classLoader)!!.accessibleConstructor(File::class.java).newInstance(fileSystemLocation))
             resourceLoader.findField("locations")!!.set(null, list)
-            return@redirect null
+            return@redirectR null
         }
 
         // 重定向部分文件系统 (mods maps replay)
-        val filePath = FileUtils.getPath(Data.Plugin_Data_Path) + "/"
+        val filePath = FileUtils.getPath(Data.ServerDataPath) + "/"
         // 设置 重定向文件PATH类
-        redirect("com/corrodinggames/rts/gameFramework/e/c", arrayOf("f", "()Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/e/c", "f", "()Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             filePath
         }
-        redirect("com/corrodinggames/rts/gameFramework/e/c", arrayOf("b", "()Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/e/c", "b", "()Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             filePath
         }
 
         // 重定向资源文件系统 (Res FileSystem)
         val resAndAssetsPath = FileUtils.getPath(Data.Plugin_GameCore_Data_Path) + "/"
-        redirect("com/corrodinggames/rts/gameFramework/e/c", arrayOf("a", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, args: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/e/c", "a", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;")) { _: Any, _: String, _: Class<*>, args: Array<out Any?> ->
             val listFiles: Seq<File> = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path).toFolder(args[0].toString()).fileList
             for (file in listFiles) {
                 val name: String = FileName.getFileNameNoSuffix(file.name)
                 if (name == args[1]) {
-                    return@redirect "${resAndAssetsPath}${args[0]}/${file.name}"
+                    return@redirectR "${resAndAssetsPath}${args[0]}/${file.name}"
                 }
             }
-            return@redirect null
+            return@redirectR null
         }
 
         // 重定向资源文件系统 (Assets FileSystem)
-        redirect("android/content/res/AssetManager", arrayOf("a", "(Ljava/lang/String;I)Ljava/io/InputStream;")) { _: Any, _: String, _: Class<*>, args: Array<out Any?> ->
-            return@redirect FileInputStream("${resAndAssetsPath}assets/${args[0]}")
+        redirectR(MethodTypeInfoValue("android/content/res/AssetManager", "a", "(Ljava/lang/String;I)Ljava/io/InputStream;")) { _: Any, _: String, _: Class<*>, args: Array<out Any?> ->
+            return@redirectR FileInputStream("${resAndAssetsPath}assets/${args[0]}")
         }
 
-        redirect("com/corrodinggames/rts/gameFramework/e/c", arrayOf("f", "(Ljava/lang/String;)Ljava/lang/String;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/e/c", "f", "(Ljava/lang/String;)Ljava/lang/String;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
             var d: String = (run_FileSystem(obj, "d", String::class.java).invoke(obj, args[0].toString()) as String).replace("\\", "/")
 
             val path = args[0].toString().replace("\\", "/")
             // 跳过已经绝对路径的
             if (path.contains(filePath)) {
-                return@redirect path
+                return@redirectR path
             }
 
             /* 覆写 MOD 加载器路径 */
@@ -137,7 +138,7 @@ class FileLoaderRedirections: MainRedirections {
                 find(path, modFolder, Data.Plugin_Mods_Path)?.run {
                     return this
                 }
-                find(path, mapFolder, Data.Plugin_Maps_Path)?.run {
+                find(path, mapFolder, Data.ServerMapsPath)?.run {
                     // Luke奇怪的方案, 只能手动加个 / 来触发读取, 不然就成了资源路径 (Assets)
                     return "/$this"
                 }
@@ -148,7 +149,7 @@ class FileLoaderRedirections: MainRedirections {
 
             val cc = ReflectionUtils.findField(Class.forName("com.corrodinggames.rts.gameFramework.l", true, obj::class.java.classLoader), "aU", Boolean::class.java)!!
 
-            return@redirect if (cc[null] as Boolean) {
+            return@redirectR if (cc[null] as Boolean) {
                 if (d.startsWith("/SD/rusted_warfare_maps")) {
                     d = "/SD/mods/maps" + d.substring("/SD/rusted_warfare_maps".length)
                 }
@@ -179,7 +180,7 @@ class FileLoaderRedirections: MainRedirections {
         }
 
         // 重定向 流系统
-        redirect("com/corrodinggames/rts/gameFramework/e/c", arrayOf("i", "(Ljava/lang/String;)Lcom/corrodinggames/rts/gameFramework/utility/j;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/e/c", "i", "(Ljava/lang/String;)Lcom/corrodinggames/rts/gameFramework/utility/j;")) { obj: Any, _: String, _: Class<*>, args: Array<out Any?> ->
             var str = args[0].toString().replace(resAndAssetsPath, "").replace("\\", "/")
 
             if (str.startsWith("assets/") || str.startsWith("assets\\")) {
@@ -187,7 +188,7 @@ class FileLoaderRedirections: MainRedirections {
             }
             val str2: String = str
             val str3 = resAndAssetsPath + "assets/" + str2
-            return@redirect try {
+            return@redirectR try {
                 try {
                     // AssetManager
                     findNewClass_AssetInputStream(obj, InputStream::class.java, String::class.java, String::class.java).newInstance(

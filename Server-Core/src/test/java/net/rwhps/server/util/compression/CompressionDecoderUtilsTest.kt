@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * @date  2023/6/28 16:47
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @TestMark.NoTestingIsRequired("在 CompressionEncoderUtils 中已经完成测试")
 class CompressionDecoderUtilsTest {

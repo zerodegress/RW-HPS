@@ -13,7 +13,7 @@ import java.io.IOException
 import java.io.OutputStream
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class ByteArrayInputStream: DisableSyncByteArrayInputStream {
 

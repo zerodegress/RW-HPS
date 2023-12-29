@@ -12,7 +12,7 @@ package net.rwhps.server.data.player
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.func.Prov
 import net.rwhps.server.game.HessModuleManage
-import net.rwhps.server.game.simulation.core.AbstractPlayerData
+import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServerInternalPacket
@@ -20,6 +20,7 @@ import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.concurrent.lock.Synchronize
 import net.rwhps.server.util.inline.coverConnect
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.NetException
@@ -27,19 +28,21 @@ import org.jetbrains.annotations.Nls
 import java.util.*
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED")
 open class PlayerHess(
-    open var con: AbstractNetConnectServer?,
+    conIn: AbstractNetConnectServer?,
     /**   */
     open val i18NBundle: I18NBundle,
         //
-    var playerPrivateData: AbstractPlayerData = HessModuleManage.hps.gameHessData.getDefPlayerData()
+    var playerPrivateData: AbstractLinkPlayerData = HessModuleManage.hps.gameHessData.getDefPlayerData()
 ) {
+    var con: AbstractNetConnectServer? by Synchronize(conIn)
+
     /** is Admin  */
     @Volatile
-    var isAdmin: Boolean = false
+    var isAdmin = false
 
     // 自动分配的 ADMIN 标记
     var autoAdmin: Boolean = false
@@ -51,7 +54,6 @@ open class PlayerHess(
     /** Team number  */
     open var team by playerPrivateData::team
 
-    /** Last move time  */
     @Volatile
     var lastMoveTime: Int = 0
 
@@ -105,7 +107,7 @@ open class PlayerHess(
         }
 
     val playerInfo: String get() {
-        return "$name / Position: $site / IP: ${con!!.coverConnect().useConnectionAgreement} / Admin: $isAdmin"
+        return "$name / Position: $site / IP: ${con!!.coverConnect().ip} / Use: ${con!!.coverConnect().useConnectionAgreement} / Admin: $isAdmin"
     }
 
     private val noBindError: () -> Nothing get() = throw ImplementedException.PlayerImplementedException("[Player] No Bound Connection")
@@ -152,14 +154,16 @@ open class PlayerHess(
         con?.sendRelayServerType(msg, run) ?: noBindError()
     }
 
-    @Throws(ImplementedException.PlayerImplementedException::class)
     @JvmOverloads
     fun kickPlayer(
         @Nls
         text: String, time: Int = 0
     ) {
+        if (con == null) {
+            return
+        }
         kickTime = Time.getTimeFutureMillis(time * 1000L)
-        con?.sendKick(text) ?: noBindError()
+        con!!.sendKick(text)
     }
 
 

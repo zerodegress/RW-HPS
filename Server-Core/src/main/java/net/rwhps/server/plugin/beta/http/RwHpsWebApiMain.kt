@@ -9,10 +9,10 @@
 
 package net.rwhps.server.plugin.beta.http
 
+import net.rwhps.server.data.bean.internal.BeanPluginInfo
+import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.EventGlobalManage
 import net.rwhps.server.game.event.EventManage
-import net.rwhps.server.data.bean.BeanPluginInfo
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.global.ServerConsolePrintEvent
 import net.rwhps.server.plugin.Plugin
@@ -22,7 +22,7 @@ import net.rwhps.server.util.annotations.core.EventListenerHandler
 
 /**
  * @date  2023/6/27 11:11
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class RwHpsWebApiMain: Plugin() {
 
@@ -49,9 +49,9 @@ class RwHpsWebApiMain: Plugin() {
     }
 
     companion object {
-        val pluginInfo = BeanPluginInfo(
+        internal val pluginInfo = BeanPluginInfo(
                 name = "RW-HPS API",
-                author = "RW-HPS/Dr",
+                author = "Dr (dr@der.kim)",
                 description = "API interface for RW-HPS",
                 version = "0.0.2",
                 supportedVersions = "= ${Data.SERVER_CORE_VERSION}"

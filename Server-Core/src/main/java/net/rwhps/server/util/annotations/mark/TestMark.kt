@@ -11,7 +11,7 @@ package net.rwhps.server.util.annotations.mark
 
 /**
  * @date  2023/5/27 11:41
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class TestMark {
     /**
@@ -19,7 +19,7 @@ class TestMark {
      * Specifying a class or method does not require testing.
      * In general, this does not change the behavior of IDEA — it is just a flag indicating that the specified method does not need to be tested.
      *
-     * @author RW-HPS/Dr
+     * @author Dr (dr@der.kim)
      */
     @Retention(AnnotationRetention.SOURCE)
     @MustBeDocumented

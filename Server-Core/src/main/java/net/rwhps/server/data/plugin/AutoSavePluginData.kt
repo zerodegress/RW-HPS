@@ -9,7 +9,7 @@
 package net.rwhps.server.data.plugin
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("EXPOSED_SUPER_CLASS")
 open class AutoSavePluginData: AbstractPluginData()

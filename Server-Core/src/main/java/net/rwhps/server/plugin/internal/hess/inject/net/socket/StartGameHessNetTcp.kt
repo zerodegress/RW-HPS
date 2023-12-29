@@ -12,22 +12,17 @@ package net.rwhps.server.plugin.internal.hess.inject.net.socket
 import com.corrodinggames.rts.gameFramework.j.ad
 import io.netty.channel.ChannelHandler
 import io.netty.channel.socket.SocketChannel
-import io.netty.util.AttributeKey
 import net.rwhps.server.net.core.AbstractNet
-import net.rwhps.server.net.core.TypeConnect
-import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @ChannelHandler.Sharable
-class StartGameHessNetTcp(netEngine: ad): AbstractNet(
-        object: AcceptorIdleStateTrigger() {
-            override fun getAttributeKey(): AttributeKey<TypeConnect> {
-                return NewServerHessHandler.nettyChannelData
-            }
-        }, NewServerHessHandler(netEngine)
-) {
+class StartGameHessNetTcp(private val netEngine: ad): AbstractNet() {
+    init {
+        init(NewServerHessHandler(netEngine, this))
+    }
+
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
         rwinit(socketChannel.pipeline())

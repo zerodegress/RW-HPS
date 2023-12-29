@@ -15,6 +15,7 @@ import com.corrodinggames.librocket.scripts.Root
 import com.corrodinggames.librocket.scripts.ScriptContext
 import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.l
+import com.corrodinggames.rts.java.Main
 import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.core.game.ServerRoom
 import net.rwhps.server.game.HessModuleManage
@@ -32,7 +33,7 @@ import net.rwhps.server.util.inline.findField
  * RW-HPS 的 Hess 实现内部接口
  * 内部实现通过 [GameEngine] 来减少一些混淆 也可以参见 (RW-AC项目)
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal object GameEngine {
     lateinit var data: AbstractGameModule
@@ -59,6 +60,11 @@ internal object GameEngine {
 
     val gameStatistics get() = gameEngine.bY!!
 
+    val mainObject by lazy {
+        val mainClass = data.useClassLoader.loadClass("com.corrodinggames.rts.java.Main")
+        mainClass.findField("m", mainClass)!!.get(null) as Main
+    }
+
     /**
      * 通过这里完成 [AbstractGameModule] 通用接口实现
      */
@@ -69,11 +75,12 @@ internal object GameEngine {
             override val useClassLoader: ClassLoader = loader
             override val eventManage: EventManage = EventManage()
             override val gameHessData: AbstractGameHessData = GameHessData()
-            override val gameNet: AbstractGameNet = GameNet()
+            override val gameNet: AbstractLinkGameNet = LinkGameNet()
             override val gameUnitData: AbstractGameUnitData = GameUnitData()
             override val gameFast: AbstractGameFast = GameFast()
-            override val gameLinkFunction: AbstractGameLinkFunction = GameLinkFunction()
-            override val gameLinkData: AbstractGameLinkData = GameLinkData()
+            override val gameLinkFunction: AbstractLinkGameFunction = LinkGameFunction()
+            override val gameLinkData: AbstractLinkGameData = LinkGameData()
+            override val gameFunction: AbstractGameFunction = GameFunction()
             override val room: ServerRoom = ServerRoom(this)
         }.also {
             data = it

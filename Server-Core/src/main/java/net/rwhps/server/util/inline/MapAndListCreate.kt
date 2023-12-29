@@ -16,7 +16,7 @@ import net.rwhps.server.struct.ObjectMap
 
 /**
  * @date  2023/6/27 10:27
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 
 fun <K, V> mutableObjectMapOf(vararg pairs: Pair<K, V>): ObjectMap<K, V> = ObjectMap<K, V>(mapCapacity(pairs.size)).apply { putAll(pairs) }

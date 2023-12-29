@@ -22,7 +22,7 @@ import java.lang.reflect.Method
 /**
  * 游戏 资源文件 初始化
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object GameStartInit {
     private val gameCorePath = FileUtils.getFolder(Data.Plugin_GameCore_Data_Path, true)
@@ -31,7 +31,7 @@ object GameStartInit {
         Res("408aa02d8566a771c5ad97caf9f1f701", gameCorePath.toFile("Game-Res.7z")),
         Fonts("e27f86783a04bb6c7bc7b4388f8c8539", gameCorePath.toFile("Game-Fonts.7z")),
         Assets("768984542af2f3bbe1269aca2c8749ff", gameCorePath.toFile("Game-Assets.7z")),
-        GameModularReusableClass("1ff43b0cdc2d756bc956ac014f3b438e", gameCorePath.toFile("GameModularReusableClass.bin"))
+        GameModularReusableClass("6594fd5d83efe562d6db0341f3cef815", gameCorePath.toFile("GameModularReusableClass.bin"))
     }
 
     fun init(load: GameModularReusableLoadClass): Boolean {
@@ -86,7 +86,8 @@ object GameStartInit {
                         load.addSourceJar(v)
                     }
                 }
-                load.saveData(FileUtils.getFolder(Data.Plugin_Data_Path).toFile("GameModularReusableClass.bin"))
+                //TODO Save GameModularReusableClass
+                load.saveData(FileUtils.getFolder(Data.ServerDataPath).toFile("GameModularReusableClass.bin"))
             }
         } catch (e: Exception) {
             Log.fatal(e)
@@ -114,6 +115,7 @@ object GameStartInit {
 
         val testAClass: Class<*> = load.findClass("com.corrodinggames.rts.java.Main")!!
         val mainMethod: Method = testAClass.getDeclaredMethod("main", Array<String>::class.java)
+        // 禁用软件加速/关声音/关音乐/不渲染
         mainMethod.invoke(null, arrayOf("-disable_vbos", "-disable_atlas", "-nomusic", "-nosound", "-nodisplay"))
     }
 }

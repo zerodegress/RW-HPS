@@ -31,12 +31,14 @@ interface AbstractGameModule {
     val eventManage: EventManage
 
     val gameHessData: AbstractGameHessData
-    val gameNet: AbstractGameNet
+    val gameNet: AbstractLinkGameNet
     val gameUnitData: AbstractGameUnitData
     val gameFast: AbstractGameFast
 
-    val gameLinkFunction: AbstractGameLinkFunction
-    val gameLinkData: AbstractGameLinkData
+    val gameLinkFunction: AbstractLinkGameFunction
+    val gameLinkData: AbstractLinkGameData
+
+    val gameFunction: AbstractGameFunction
 
     val room: ServerRoom
 }

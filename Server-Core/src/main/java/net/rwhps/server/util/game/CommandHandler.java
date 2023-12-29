@@ -15,7 +15,7 @@ import net.rwhps.server.struct.Seq;
 import net.rwhps.server.util.log.Log;
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @SuppressWarnings("unchecked")
 public class CommandHandler {

@@ -10,17 +10,17 @@
 package net.rwhps.server.net.core
 
 import io.netty.channel.ChannelHandlerContext
+import io.netty.util.AttributeKey
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.event.global.NetConnectCloseEvent
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.handler.bio.PackagingSocket
-import net.rwhps.server.net.handler.tcp.NewServerHandler
 import net.rwhps.server.util.IPCountry
 import net.rwhps.server.util.IpUtils
+import net.rwhps.server.util.concurrent.threads.GetNewThreadPool
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.threads.GetNewThreadPool
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  * @date 2021年2月2日星期二 06:31:11
  */
 class ConnectionAgreement {
@@ -53,13 +53,13 @@ class ConnectionAgreement {
      * TCP Send
      * @param channelHandlerContext Netty-ChannelHandlerContext
      */
-    internal constructor(channelHandlerContext: ChannelHandlerContext) {
+    internal constructor(channelHandlerContext: ChannelHandlerContext, attributeKey: AttributeKey<TypeConnect>) {
         val channel = channelHandlerContext.channel()
         objectOutStream = channelHandlerContext
         udpDataOutputStream = null
         useAgreement = "TCP-NIO"
         isClosed = {
-            val typeConnect = channel.attr(NewServerHandler.NETTY_CHANNEL_KEY).get()
+            val typeConnect = channel.attr(attributeKey).get()
             typeConnect.ifNullResult(false) {
                 it.abstractNetConnect.isDis
             }
@@ -74,12 +74,20 @@ class ConnectionAgreement {
         sendThread = GetNewThreadPool.getNewSingleThreadExecutor(ip)
 
         protocolType = { packet: Packet ->
-            if (channel.isActive) {
-                sendThread.execute {
-                    // 同步发送解决 100% 傻逼问题
-                    channelHandlerContext.writeAndFlush(packet).await()
-                }
-            }
+            channel.eventLoop().execute {
+                channelHandlerContext.writeAndFlush(packet)
+            };
+
+//             防止Close后继续添加
+//            if (channel.isActive) {
+//                sendThread.execute {
+//                    // 防止添加后在阻塞时连接Close
+//                    if (channel.isActive) {
+//                        // 同步发送解决 100% 傻逼问题
+//                        channelHandlerContext.writeAndFlush(packet).await()
+//                    }
+//                }
+//            }
         }
     }
 
@@ -151,7 +159,6 @@ class ConnectionAgreement {
      * @throws IOException Error
      */
     @Throws(IOException::class)
-    @Synchronized
     fun send(packet: Packet) {
         // 保持包顺序
         protocolType(packet)
@@ -165,7 +172,7 @@ class ConnectionAgreement {
      */
     @Throws(IOException::class)
     fun close(groupNet: GroupNet?) {
-        PluginManage.runGlobalEventManage(NetConnectCloseEvent(this))
+        PluginManage.runGlobalEventManage(NetConnectCloseEvent(this)).await()
 
         remove(groupNet)
 

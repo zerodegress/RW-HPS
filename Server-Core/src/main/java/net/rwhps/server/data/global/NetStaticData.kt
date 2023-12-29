@@ -10,6 +10,7 @@
 package net.rwhps.server.data.global
 
 import net.rwhps.server.core.ServiceLoader
+import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
@@ -18,9 +19,19 @@ import net.rwhps.server.util.alone.BlackList
 import net.rwhps.server.util.log.exp.ImplementedException
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object NetStaticData {
+    @JvmField
+    val groupNet = GroupNet()
+
+    /** Single Room Mode No ID required */
+    val relayRoom = RelayRoom("RW-HPS Beta Relay", groupNet)
+        get() {
+            field.closeRoom = false
+            return field
+        }
+
     @JvmField
     val blackList = BlackList()
 
@@ -30,7 +41,7 @@ object NetStaticData {
             if (value != IRwHps.NetType.NullProtocol) {/* 设置协议后会自动初始化IRwHps */
                 RwHps = try {
                     // 默认用对应协议
-                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, ServerNetType.name, IRwHps.NetType::class.java)
+                    ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps, value.name, IRwHps.NetType::class.java)
                         .newInstance(value) as IRwHps
                 } catch (e: ImplementedException) {
                     // 找不到就使用全局默认
@@ -51,5 +62,13 @@ object NetStaticData {
             return true
         }
         return false
+    }
+
+    @JvmStatic
+    fun checkProtocolIsServer(): Boolean {
+        return when (ServerNetType) {
+            IRwHps.NetType.ServerProtocol, IRwHps.NetType.ServerProtocolOld, IRwHps.NetType.ServerTestProtocol -> true
+            else -> false
+        }
     }
 }

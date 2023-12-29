@@ -11,7 +11,7 @@ package net.rwhps.server.util.game
 
 /**
  * @date  2023/5/28 18:07
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object CommonUtils {
     fun rnd(min: Float, max: Float): Float {

@@ -9,14 +9,14 @@
 
 /**
  * @date  2023/7/1 18:56
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Versions {
     // Netty Version
-    const val nettyVersion = "4.1.95.Final"
+    const val nettyVersion = "4.1.101.Final"
 
     // Kotlin Version
-    const val kotlinVersion = "1.9.0"
+    const val kotlinVersion = "1.9.10"
 
     // Graalvm Version
     const val graalvmVersion = "22.3.2"

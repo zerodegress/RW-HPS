@@ -15,7 +15,7 @@ import java.nio.charset.Charset
 
 /**
  * @date 2023/7/19 11:29
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object StringUtils {
     private val defCharset: Charset = Charset.defaultCharset()

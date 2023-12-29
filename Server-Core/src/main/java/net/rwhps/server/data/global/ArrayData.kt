@@ -11,7 +11,7 @@ package net.rwhps.server.data.global
 
 /**
  * @date  2023/6/28 9:33
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object ArrayData {
     val stringArray = emptyArray<String>()

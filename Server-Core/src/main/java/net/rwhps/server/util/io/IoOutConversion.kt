@@ -13,7 +13,7 @@ import java.io.*
 import java.nio.charset.StandardCharsets
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object IoOutConversion {
     @JvmStatic

@@ -13,15 +13,15 @@ import net.rwhps.server.func.Control
 import net.rwhps.server.game.event.core.AbstractEventCore
 import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.annotations.core.EventAsync
+import net.rwhps.server.util.annotations.core.EventOnlyRead
 import net.rwhps.server.util.inline.ifNull
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Events {
     private val eventData = ObjectMap<Any, Seq<(Any) -> Any?>>()
-    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val eventMonitorScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun <T> addEvent(type: Class<T>, listener: (T) -> Unit) {
         addEvent(false, type, listener)
@@ -29,9 +29,9 @@ class Events {
 
     @Suppress("UNCHECKED_CAST")
     fun <T> addEvent(async: Boolean, type: Class<T>, listener: (T) -> Unit) {
-        if (async || type.getAnnotation(EventAsync::class.java) != null) {
+        if (async || type.getAnnotation(EventOnlyRead::class.java) != null) {
             eventData[type, { Seq() }].add { value ->
-                return@add mainScope.launch {
+                return@add eventMonitorScope.launch {
                     listener(value as T)
                 }
             }

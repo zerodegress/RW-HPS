@@ -13,4 +13,6 @@ open class ImplementedException(string: String): Exception(string) {
     class VoteImplementedException(type: String): ImplementedException(type)
 
     class PlayerImplementedException(type: String): ImplementedException(type)
+
+    class EventImplementedException(type: String): ImplementedException(type)
 }

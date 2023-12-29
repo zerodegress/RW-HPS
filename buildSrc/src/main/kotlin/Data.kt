@@ -9,7 +9,7 @@
 
 /**
  * @date  2023/7/3 12:59
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Data {
     val lineSeparator = System.getProperty("line.separator")!!

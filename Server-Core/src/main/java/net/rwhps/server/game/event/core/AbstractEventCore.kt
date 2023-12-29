@@ -15,7 +15,7 @@ import net.rwhps.server.func.Control
  * 全部事件的父方法, 提供一个判断接口
  *
  * @date 2023/7/16 12:56
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 interface AbstractEventCore {
     /**

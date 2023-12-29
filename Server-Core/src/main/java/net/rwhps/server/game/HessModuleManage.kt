@@ -18,7 +18,7 @@ import net.rwhps.server.struct.ObjectMap
  * 多 Hess 管理器
  * 通过 [ClassLoader.toString] 来分别不同的实例
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object HessModuleManage {
     // RW-HPS 默认使用

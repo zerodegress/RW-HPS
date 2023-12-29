@@ -38,10 +38,10 @@ import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
 import net.rwhps.server.data.bean.BeanCoreConfig
+import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.data.plugin.PluginManage.addGlobalEventManage
 import net.rwhps.server.data.plugin.PluginManage.init
@@ -54,13 +54,9 @@ import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.global.ServerLoadEvent
-import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.io.output.DynamicPrintStream
-import net.rwhps.server.net.NetService
-import net.rwhps.server.net.handler.tcp.StartHttp
-import net.rwhps.server.net.http.WebData
-import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
+import net.rwhps.server.util.console.TabCompleter
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
@@ -83,7 +79,7 @@ import kotlin.system.exitProcess
  */
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 object Main {
     @JvmStatic
@@ -96,7 +92,8 @@ object Main {
         Logger.getLogger("io.netty").level = Level.OFF
 
         /* Fix Idea */
-        System.setProperty("jansi.passthrough", "true")/* 覆盖输入输出流 */
+        System.setProperty("jansi.passthrough", "true")
+        /* 覆盖输入输出流 */
         inputMonitorInit()
 
         SystemSetProperty.setOnlyIpv4()
@@ -110,16 +107,15 @@ object Main {
         Data.config = BeanCoreConfig.stringToClass()
         Data.configServer = BeanServerConfig.stringToClass()
 
+        Data.configRelay = BeanRelayConfig.stringToClass()
+        Data.configRelay.bindCustom["BindCode"] = arrayOf("-1", "123456", "战队")
+
         Data.core.load()
         Initialization.loadLib()
 
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
-
-        // Test Block
-        run {
-        }
 
         /* 加载 ASM */
         HeadlessProxyClass()
@@ -134,7 +130,7 @@ object Main {
         clog(Data.i18NBundle.getinput("server.load.events"))
 
         /* 初始化Plugin */
-        init(getFolder(Data.Plugin_Plugins_Path))
+        init(getFolder(Data.ServerPluginsPath))
         LoadCoreCustomPlugin()
         runOnEnable()
         runRegisterGlobalEvents()
@@ -143,7 +139,7 @@ object Main {
         CommandsEx(Data.PING_COMMAND)
 
         /* 加载完毕 */
-        PluginManage.runGlobalEventManage(ServerLoadEvent())
+        PluginManage.runGlobalEventManage(ServerLoadEvent()).await()
 
         /* 初始化Plugin Init */
         runInit()
@@ -152,7 +148,7 @@ object Main {
         set(Data.config.log)
 
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage(Data.config.defStartCommand, Data.defPrint)
+        val response = Data.SERVER_COMMAND.handleMessage(Data.config.defStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
             clog("Please check the command , Unable to use StartCommand inside Config to start the server")
         }
@@ -167,7 +163,7 @@ object Main {
     private fun inputMonitorInit() {
         val terminal = TerminalBuilder.builder().encoding(Data.DefaultEncoding).build()
 
-        privateReader = LineReaderBuilder.builder().terminal(terminal).completer(ConsoleStream.TabCompleter).build() as LineReader
+        privateReader = LineReaderBuilder.builder().terminal(terminal).completer(TabCompleter()).build() as LineReader
 
         System.setErr(DynamicPrintStream {
             Log.all(it)

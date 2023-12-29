@@ -22,7 +22,7 @@ import net.rwhps.server.util.game.CommandHandler
 /**
  * 插件中心, 好像没什么用
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @NeedToRefactor
 class PluginCenter {
@@ -69,7 +69,7 @@ class PluginCenter {
             } else {
                 HttpRequestOkHttp.downUrl(
                         url + json.getString("name") + ".jar",
-                        getFolder(Data.Plugin_Plugins_Path).toFile(json.getString("name") + ".jar").file
+                        getFolder(Data.ServerPluginsPath).toFile(json.getString("name") + ".jar").file
                 )
                 log("Installation is complete, please restart the server")
             }

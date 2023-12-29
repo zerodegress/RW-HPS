@@ -10,16 +10,22 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.core.Initialization
+import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.event.core.EventListenerHost
+import net.rwhps.server.game.event.global.NetConnectNewEvent
 import net.rwhps.server.game.event.global.ServerHessLoadEvent
 import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.game.event.global.ServerStartTypeEvent
 import net.rwhps.server.net.Administration
+import net.rwhps.server.net.NetService
+import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.core.IRwHps
+import net.rwhps.server.net.handler.tcp.StartHttp
+import net.rwhps.server.net.http.WebData
 import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.annotations.core.EventListenerHandler
@@ -27,7 +33,7 @@ import net.rwhps.server.util.log.Log
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED", "UNUSED_PARAMETER")
 class EventGlobal: EventListenerHost {
@@ -73,6 +79,12 @@ class EventGlobal: EventListenerHost {
                 if (Data.config.autoUpList) {
                     Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
                 }
+
+                Threads.newThreadCore {
+                    val webData = WebData()
+                    webData.addWebGetInstance("/api/getRelayInfo", WebGetRelayInfo())
+                    NetService(StartHttp::class.java).setWebData(webData).openPort(4994)
+                }
             }
             else -> {}
         }
@@ -81,6 +93,13 @@ class EventGlobal: EventListenerHost {
             CLITools.setConsoleTitle("[RW-HPS] Port: ${Data.config.port}, Run Server: ${NetStaticData.ServerNetType.name}")
         } else {
             CLITools.setConsoleTitle(Data.config.cmdTitle)
+        }
+    }
+
+    @EventListenerHandler
+    fun registerNetConnectNewEvent(netConnectNewEvent: NetConnectNewEvent) {
+        if (Data.core.admin.bannedIP24.contains(netConnectNewEvent.connectionAgreement.ipLong24)) {
+            netConnectNewEvent.result = true
         }
     }
 }

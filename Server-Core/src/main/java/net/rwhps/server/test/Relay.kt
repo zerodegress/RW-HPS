@@ -17,7 +17,7 @@ import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Relay {
     fun test() {

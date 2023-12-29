@@ -14,14 +14,14 @@ import java.io.InputStream
 
 /**
  * 压缩 通用接口
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 abstract class AbstractEncoder {
     @Throws(CompressionException.UnsupportedRatingsException::class)
 
     abstract fun setCompressibility(level: Int)
 
-    fun addCompressBytes(compressionDecoder: AbstractDecoder) {
+    fun addCompressBytes(name: String = "", compressionDecoder: AbstractDecoder) {
         compressionDecoder.use {
             it.getZipAllBytes().forEach { addCompressBytes(it.key, it.value) }
         }

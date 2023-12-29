@@ -11,7 +11,7 @@ package net.rwhps.server.util.compression
 
 /**
  * @date  2023/6/21 17:10
- * @author  RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 enum class CompressionAlgorithm {
     Gzip,

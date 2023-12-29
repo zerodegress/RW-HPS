@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock
 /**
  * Timer
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class Timer(private val name: String, private val task: Runnable) {
     private val lock = ReentrantLock()

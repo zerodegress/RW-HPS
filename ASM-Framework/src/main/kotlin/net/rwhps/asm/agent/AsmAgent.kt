@@ -1,19 +1,23 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  * Copyright 2020-2023 RW-HPS Team and contributors.
+ *  *
+ *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
+ *  *
+ *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  *
- * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
 package net.rwhps.asm.agent
 
 import net.rwhps.asm.api.Transformer
+import net.rwhps.asm.data.ListenerRedirectionsDataManager
+import net.rwhps.asm.data.ReplaceRedirectionsDataManager
 import net.rwhps.asm.func.Find
-import net.rwhps.asm.transformer.AllMethodsTransformer
-import net.rwhps.asm.transformer.AsmUtil
-import net.rwhps.asm.transformer.PartialMethodTransformer
+import net.rwhps.asm.transformer.AllListenerImpl
+import net.rwhps.asm.transformer.AllReplaceImpl
+import net.rwhps.asm.util.transformer.AsmUtil
 import org.objectweb.asm.ClassWriter
 import java.io.FileOutputStream
 import java.lang.instrument.ClassFileTransformer
@@ -22,12 +26,13 @@ import java.lang.instrument.Instrumentation
 import java.security.ProtectionDomain
 
 /**
- * A JavaAgent calling the [AllMethodsTransformer] and [PartialMethodTransformer].
+ * A JavaAgent calling the [AllReplaceImpl.AllMethodsTransformer] and [AllReplaceImpl.PartialMethodTransformer].
  */
 class AsmAgent: ClassFileTransformer, AsmCore() {
 
-    private val transformer: Transformer = AllMethodsTransformer()
-    private val partialMethodTransformer: Transformer = PartialMethodTransformer()
+    private val transformer: Transformer = AllReplaceImpl.AllMethodsTransformer()
+    private val partialMethodTransformer: Transformer = AllReplaceImpl.PartialMethodTransformer()
+    private val listenerMethodTransformer: Transformer = AllListenerImpl.ListenerPartialMethodsTransformer()
 
     init {
         setAgent(this)
@@ -35,7 +40,7 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
 
     /**
      * Transforms the given class file and returns a new replacement class file.
-     * This method is invoked when the {@link Module Module} bearing {@link
+     * This method is invoked when the {@link Module} bearing {@link
      * ClassFileTransformer#transform(Module,ClassLoader,String,Class,ProtectionDomain,byte[])
      * transform} is not overridden.
      *
@@ -64,39 +69,52 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
         protectionDomain: ProtectionDomain?,
         classfileBuffer: ByteArray
     ): ByteArray {
-        // 这个是单纯的 Debug 用的
-        if (className.contains("andr000oid/util/Log")) {
+        if (ReplaceRedirectionsDataManager.allClassPathCache.contains(className) ||
+            ReplaceRedirectionsDataManager.allReplaceFindPacketName.forFind(className)
+        ) {
             val node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
-                .also { a -> FileOutputStream("a.class").also { it.write(a); it.flush() } }
+            if (ReplaceRedirectionsDataManager.partialClassPathCache.contains(className)) {
+                partialMethodTransformer.transform(node, ReplaceRedirectionsDataManager.partialReplaceMethodName[className])
+            }
+            if (ListenerRedirectionsDataManager.partialClassPathCache.contains(className)) {
+                listenerMethodTransformer.transform(node, ListenerRedirectionsDataManager.partialListenerMethodName[className])
+            }
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
-        if (AsmData.allIgnore0.forFind(className)
-            // 匹配 Class 并且替换全部方法
-            || AsmData.allMethod0.contains(className)) {
+
+        if (ReplaceRedirectionsDataManager.partialClassPathCache.contains(className)) {
             val node = AsmUtil.read(classfileBuffer)
-            transformer.transform(node)
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
+            partialMethodTransformer.transform(node, ReplaceRedirectionsDataManager.partialReplaceMethodName[className])
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
-        // 匹配指定 Class 的指定方法
-        if (AsmData.partialMethod0.containsKey(className)) {
+        if (ListenerRedirectionsDataManager.partialClassPathCache.contains(className)) {
             val node = AsmUtil.read(classfileBuffer)
-            partialMethodTransformer.transform(node, AsmData.partialMethod0[className])
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES)
-            //.also { a -> FileOutputStream("${className.replace("/","")}.class").also { it.write(a); it.flush() }}
+            listenerMethodTransformer.transform(node, ListenerRedirectionsDataManager.partialListenerMethodName[className])
+            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
         return classfileBuffer
     }
 
     private fun ArrayList<Find<String, Boolean>>.forFind(value: String): Boolean {
-        var result = false
+        var result: Boolean
         this.forEach {
             result = it(value)
             if (result) {
-                return result
+                return true
             }
         }
-        return result
+        return false
+    }
+
+    private fun ByteArray.save(name: String): ByteArray {
+        if (name == "org/newdawn/slick/Graphics") {
+            FileOutputStream("a.class").let {
+                it.write(this)
+                it.flush()
+            }
+        }
+        return this
     }
 
     companion object {

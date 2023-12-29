@@ -19,9 +19,15 @@ import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.log.Log
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class GameUnitData: AbstractGameUnitData {
+    override var useMod: Boolean
+        get() = GameEngine.netEngine.o
+        set(value) {
+            GameEngine.netEngine.o = value
+        }
+
     override fun reloadUnitData() {
         ag.h()
     }

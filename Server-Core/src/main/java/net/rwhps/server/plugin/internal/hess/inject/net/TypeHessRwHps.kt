@@ -24,7 +24,7 @@ import net.rwhps.server.util.ReflectionUtils
  * @property conClass           Initialize
  * @property abstractNetConnect AbstractNetConnect
  * @property version            Parser version
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 open class TypeHessRwHps: TypeConnect {
     val con: GameVersionServer
@@ -52,7 +52,7 @@ open class TypeHessRwHps: TypeConnect {
     }
 
     @Throws(Exception::class)
-    override fun typeConnect(packet: Packet) {
+    override fun processConnect(packet: Packet) {
         try {
             when (packet.type) {
                 PacketType.CHAT_RECEIVE -> {

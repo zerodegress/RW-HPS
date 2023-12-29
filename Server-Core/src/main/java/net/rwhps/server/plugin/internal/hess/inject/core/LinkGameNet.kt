@@ -15,16 +15,16 @@ import com.corrodinggames.rts.gameFramework.j.ad
 import com.corrodinggames.rts.gameFramework.j.c
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.game.ServerHessStartPort
-import net.rwhps.server.game.simulation.core.AbstractGameNet
+import net.rwhps.server.game.simulation.core.AbstractLinkGameNet
 import net.rwhps.server.util.inline.findField
 import net.rwhps.server.util.log.Log
 import java.io.IOException
 import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-internal class GameNet: AbstractGameNet {
+internal class LinkGameNet: AbstractLinkGameNet {
     override fun newConnect(ip: String, name: String) {
         try {
             //val settingsEngine = GameEngine.settingsEngine
@@ -46,12 +46,16 @@ internal class GameNet: AbstractGameNet {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun startHessPort(port: Int, passwd: String?, name: String) {
-//        for (a in (GameEngine.gameEngine.bZ::class.java.findField("e")!![GameEngine.gameEngine.bZ] as ArrayList<com.corrodinggames.rts.gameFramework.i.b>)) {
-//            a.U.iterator().forEach {
-//                Log.clog(it.toString())
-//            }
-//        }
+        if (Data.configServer.modsLoadErrorPrint) {
+            for (a in (GameEngine.gameEngine.bZ::class.java.findField("e")!![GameEngine.gameEngine.bZ]
+                    as ArrayList<com.corrodinggames.rts.gameFramework.i.b>)) {
+                a.U.iterator().forEach {
+                    Log.clog(it.toString())
+                }
+            }
+        }
 
         val netEngine = GameEngine.netEngine
         GameEngine.settingsEngine.apply {
@@ -96,6 +100,7 @@ internal class GameNet: AbstractGameNet {
                 } catch (e: Exception) {
                     Log.error(e)
                 }
+                Unit
             }.also { it() }
         }
     }

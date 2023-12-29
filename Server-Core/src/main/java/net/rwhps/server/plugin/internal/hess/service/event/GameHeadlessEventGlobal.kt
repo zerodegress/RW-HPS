@@ -21,7 +21,7 @@ import net.rwhps.server.util.annotations.core.EventListenerHandler
 import net.rwhps.server.util.log.Log
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED")
 class GameHeadlessEventGlobal: EventListenerHost {

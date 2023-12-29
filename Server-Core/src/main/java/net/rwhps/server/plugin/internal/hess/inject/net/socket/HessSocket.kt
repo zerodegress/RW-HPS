@@ -19,7 +19,7 @@ import java.nio.channels.SocketChannel
 
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class HessSocket(private val connect: ConnectionAgreement): Socket() {
     @Volatile

@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 internal class ClientCommands(handler: CommandHandler) {
     private val localeUtil = Data.i18NBundle
@@ -175,7 +175,7 @@ internal class ClientCommands(handler: CommandHandler) {
             }
 
             if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
-                val file = FileUtils.getFolder(Data.Plugin_Maps_Path).toFile(MapManage.maps.mapName + ".tmx")
+                val file = FileUtils.getFolder(Data.ServerMapsPath).toFile(MapManage.maps.mapName + ".tmx")
                 if (file.notExists()) {
                     MapManage.maps.mapData!!.readMap()
                 }

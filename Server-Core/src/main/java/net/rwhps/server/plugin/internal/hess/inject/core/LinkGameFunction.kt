@@ -9,14 +9,14 @@
 
 package net.rwhps.server.plugin.internal.hess.inject.core
 
-import net.rwhps.server.game.simulation.core.AbstractGameLinkFunction
+import net.rwhps.server.game.simulation.core.AbstractLinkGameFunction
 import net.rwhps.server.util.file.FileName.getFileNameNoSuffix
 import net.rwhps.server.util.log.Log
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-internal class GameLinkFunction: AbstractGameLinkFunction {
+internal class LinkGameFunction: AbstractLinkGameFunction {
     override fun allPlayerSync() {
         try {
             synchronized(GameEngine.gameEngine) {

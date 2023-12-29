@@ -17,7 +17,7 @@ import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class HessRwHps(netType: IRwHps.NetType): RwHps(netType) {
     override val typeConnect: TypeConnect = TypeHessRwHps(GameVersionServer(PlayerConnectX(GameEngine.netEngine, ConnectionAgreement())))

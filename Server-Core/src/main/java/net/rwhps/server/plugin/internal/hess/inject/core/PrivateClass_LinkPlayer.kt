@@ -10,12 +10,12 @@
 package net.rwhps.server.plugin.internal.hess.inject.core
 
 import com.corrodinggames.rts.game.n
-import net.rwhps.server.game.simulation.core.AbstractPlayerData
+import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 
 /**
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-internal class PrivateClass_Player(private val playerData: n): AbstractPlayerData {
+internal class PrivateClass_LinkPlayer(private val playerData: n): AbstractLinkPlayerData {
     private var gameStatistics = GameEngine.gameStatistics.a(playerData)
 
     override fun updateDate() {

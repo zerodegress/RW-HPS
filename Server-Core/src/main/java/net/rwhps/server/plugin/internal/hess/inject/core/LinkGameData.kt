@@ -9,15 +9,15 @@
 
 package net.rwhps.server.plugin.internal.hess.inject.core
 
-import net.rwhps.server.game.simulation.core.AbstractGameLinkData
+import net.rwhps.server.game.simulation.core.AbstractLinkGameData
 import net.rwhps.server.util.inline.findField
 
 /**
  * Link The game comes with settings to avoid some of the distractions caused by confusion
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
-class GameLinkData: AbstractGameLinkData {
+class LinkGameData: AbstractLinkGameData {
     override val teamOperationsSyncObject: Any get() = GameEngine.netEngine::class.java.findField("bC")!!.get(GameEngine.netEngine)
 
     override var maxUnit: Int

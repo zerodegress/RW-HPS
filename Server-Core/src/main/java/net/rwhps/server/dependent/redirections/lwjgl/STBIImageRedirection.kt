@@ -9,7 +9,8 @@
 
 package net.rwhps.server.dependent.redirections.lwjgl
 
-import net.rwhps.asm.api.Redirection
+import net.rwhps.asm.api.replace.RedirectionReplace
+import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.asm.util.ByteBufferInputStream
 import net.rwhps.server.util.annotations.mark.AsmMark
 import java.awt.image.BufferedImage
@@ -19,7 +20,7 @@ import java.nio.IntBuffer
 import javax.imageio.ImageIO
 
 @AsmMark.ClassLoaderCompatible
-enum class STBIImageRedirection: Redirection {
+enum class STBIImageRedirection: RedirectionReplace {
     INSTANCE;
 
     @Throws(Throwable::class)
@@ -55,7 +56,7 @@ enum class STBIImageRedirection: Redirection {
     }
 
     companion object {
-        const val DESC = "Lorg/lwjgl/stb/STBImage;stbi_load_from_memory(Ljava/nio/ByteBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;I)Ljava/nio/ByteBuffer;"
+        val DESC = MethodTypeInfoValue("org/lwjgl/stb/STBImage", "stbi_load_from_memory", "(Ljava/nio/ByteBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;Ljava/nio/IntBuffer;I)Ljava/nio/ByteBuffer;")
 
         private val DUMMY = BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB)
     }

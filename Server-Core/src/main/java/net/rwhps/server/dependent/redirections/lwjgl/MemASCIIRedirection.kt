@@ -9,12 +9,13 @@
 
 package net.rwhps.server.dependent.redirections.lwjgl
 
-import net.rwhps.asm.api.Redirection
+import net.rwhps.asm.api.replace.RedirectionReplace
+import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.server.util.annotations.mark.AsmMark
 import java.nio.ByteBuffer
 
 @AsmMark.ClassLoaderCompatible
-enum class MemASCIIRedirection: Redirection {
+enum class MemASCIIRedirection: RedirectionReplace {
     INSTANCE;
 
     @Throws(Throwable::class)
@@ -29,6 +30,6 @@ enum class MemASCIIRedirection: Redirection {
     }
 
     companion object {
-        const val DESC = "Lorg/lwjgl/system/MemoryUtil;memASCII(Ljava/nio/ByteBuffer;I)Ljava/lang/String;"
+        val DESC = MethodTypeInfoValue("org/lwjgl/system/MemoryUtil", "memASCII", "(Ljava/nio/ByteBuffer;I)Ljava/lang/String;")
     }
 }

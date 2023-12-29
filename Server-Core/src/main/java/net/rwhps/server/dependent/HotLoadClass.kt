@@ -16,7 +16,7 @@ import java.lang.instrument.ClassDefinition
 /**
  * 提供热加载
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @DidNotFinish
 internal class HotLoadClass: AgentAttachData() {

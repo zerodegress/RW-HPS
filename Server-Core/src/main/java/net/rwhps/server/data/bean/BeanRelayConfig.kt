@@ -34,7 +34,6 @@ data class BeanRelayConfig(
     val upList: Boolean = true,
     val mainServerIP: String = "relay.der.kim",
     val mainServerPort: Int = 4993,
-    val bindCustom: MutableMap<String, Array<String>> = mutableMapOf(),
 ) {
 
     fun save() {

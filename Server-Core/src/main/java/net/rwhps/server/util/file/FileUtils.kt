@@ -159,10 +159,10 @@ open class FileUtils {
         get() {
             val array = file.listFiles()
             val fileList = Seq<File>()
-            if (IsUtils.isBlank(array)) {
+            if (array == null || array.isEmpty()) {
                 return fileList
             }
-            for (value in array!!) {
+            for (value in array) {
                 if (!value.isDirectory && value.isFile) {
                     fileList.add(value)
                 }
@@ -174,10 +174,10 @@ open class FileUtils {
         get() {
             val array = file.listFiles()
             val fileList = OrderedMap<String, File>()
-            if (IsUtils.isBlank(array)) {
+            if (array == null || array.isEmpty()) {
                 return fileList
             }
-            for (value in array!!) {
+            for (value in array) {
                 if (!value.isDirectory) {
                     if (value.isFile) {
                         fileList[value.name] = value

@@ -59,15 +59,6 @@ class EventGlobal: EventListenerHost {
                 return message
             }
         })
-
-        try {
-            MapManage.checkMaps()
-            Log.clog(Data.i18NBundle.getinput("server.load.maps"))
-        } catch (exp: Exception) {
-            Log.debug("Read Error", exp)
-        }
-
-        Initialization.loadService()
     }
 
     @EventListenerHandler

@@ -108,7 +108,7 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
     }
 
     private fun ByteArray.save(name: String): ByteArray {
-        if (name == "org/newdawn/slick/Graphics") {
+        if (name == "000DRDRDR") {
             FileOutputStream("a.class").let {
                 it.write(this)
                 it.flush()

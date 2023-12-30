@@ -47,7 +47,6 @@ class GameHeadlessEventGlobal: EventListenerHost {
             passwd = Data.configServer.passwd
         }
         HessModuleManage.hps.gameNet.startHessPort(Data.config.port, passwd)
-        Log.clog(Data.i18NBundle.getinput("server.load.end"))
         Log.clog("Run GameHeadless ID: ${serverHessLoadEvent.loadID}")
     }
 }

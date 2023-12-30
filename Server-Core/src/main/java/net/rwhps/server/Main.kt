@@ -33,7 +33,6 @@ package net.rwhps.server
 
 import net.rwhps.server.command.CommandsEx
 import net.rwhps.server.command.CoreCommands
-import net.rwhps.server.command.LogCommands
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
@@ -43,22 +42,22 @@ import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
 import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.data.plugin.PluginManage.addGlobalEventManage
 import net.rwhps.server.data.plugin.PluginManage.init
 import net.rwhps.server.data.plugin.PluginManage.loadSize
 import net.rwhps.server.data.plugin.PluginManage.runInit
-import net.rwhps.server.data.plugin.PluginManage.runOnEnable
 import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.EventGlobal
+import net.rwhps.server.game.MapManage
 import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.console.TabCompleter
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.log.LoadLogUtils
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import net.rwhps.server.util.log.Log.set
@@ -92,8 +91,7 @@ object Main {
         Logger.getLogger("io.netty").level = Level.OFF
 
         /* Fix Idea */
-        System.setProperty("jansi.passthrough", "true")
-        /* 覆盖输入输出流 */
+        System.setProperty("jansi.passthrough", "true")/* 覆盖输入输出流 */
         inputMonitorInit()
 
         SystemSetProperty.setOnlyIpv4()
@@ -108,7 +106,6 @@ object Main {
         Data.configServer = BeanServerConfig.stringToClass()
 
         Data.configRelay = BeanRelayConfig.stringToClass()
-        Data.configRelay.bindCustom["BindCode"] = arrayOf("-1", "123456", "战队")
 
         Data.core.load()
         Initialization.loadLib()
@@ -121,31 +118,47 @@ object Main {
         HeadlessProxyClass()
 
         /* 命令加载 */
-        CoreCommands(Data.SERVER_COMMAND)
-        clog(Data.i18NBundle.getinput("server.load.command"))
+        LoadLogUtils.loadStatusLog("server.load.command") {
+            CoreCommands(Data.SERVER_COMMAND)
+            CommandsEx(Data.PING_COMMAND)
+        }
+
+        /* 加载Plugin */
+        LoadLogUtils.loadStatusLog("server.load.plugin") {
+            init(getFolder(Data.ServerPluginsPath))
+            LoadCoreCustomPlugin()
+        }
+        clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
 
         /* Event加载 */
-        addGlobalEventManage(EventGlobal())
+        LoadLogUtils.loadStatusLog("server.load.events") {
+            PluginManage.addGlobalEventManage(EventGlobal())
+            runRegisterGlobalEvents()
+        }
 
-        clog(Data.i18NBundle.getinput("server.load.events"))
+        PluginManage.runOnEnable()
 
-        /* 初始化Plugin */
-        init(getFolder(Data.ServerPluginsPath))
-        LoadCoreCustomPlugin()
-        runOnEnable()
-        runRegisterGlobalEvents()
-        PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
-        PluginManage.runRegisterServerCommands(Data.SERVER_COMMAND)
-        CommandsEx(Data.PING_COMMAND)
-
-        /* 加载完毕 */
-        PluginManage.runGlobalEventManage(ServerLoadEvent()).await()
+        LoadLogUtils.loadStatusLog("server.load.plugin.command") {
+            PluginManage.runRegisterCoreCommands(Data.SERVER_COMMAND)
+            PluginManage.runRegisterServerCommands(Data.SERVER_COMMAND)
+        }
 
         /* 初始化Plugin Init */
         runInit()
-        clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
-
         set(Data.config.log)
+
+        LoadLogUtils.loadStatusLog("server.load.maps") {
+            MapManage.checkMaps()
+        }
+
+        LoadLogUtils.loadStatusLog("server.load.service") {
+            Initialization.loadService()
+        }
+
+        /* 加载完毕 */
+        LoadLogUtils.loadStatusLog("server.load.end") {
+            PluginManage.runGlobalEventManage(ServerLoadEvent()).await()
+        }
 
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.defStartCommand, StrCons { obj: String -> clog(obj) })

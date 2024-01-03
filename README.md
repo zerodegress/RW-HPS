@@ -58,8 +58,8 @@ _**生命不息，折腾不止**_
 
 | Configuration 		 | CPU                     | RAM 	 | System 			 | Disk 	   | Java Version |
 |:-----------------|:------------------------|:------|:-----------|:---------|:-------------|
-| Recommended 	    | ARMv7 Processor rev 5 + | 512MB | Linux      | 256M HDD | Java 11      |
-| Minimum 	        | Any                     | 256M  | Linux      | 128M HDD | Java 11      |
+| Recommended 	    | ARMv7 Processor rev 5 + | 1G | Linux      | 256M SSD | Java 17      |
+| Minimum 	        | Any                     | 512MB  | Linux      | 128M SSD | Java 11      |
 
 ## version collection
 
@@ -69,7 +69,7 @@ The game corresponds to the final server version collection
 |:------------:|:------------------:|:-------------:|
 |   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |    Delete     |
 | ~~1.15.P8~~  |     ~~6.0.1~~      |    Delete     |
-|     1.15     |      3.0.0-M2      |     BETA      |
+|     1.15     |      DEV      |     BETA      |
 
 ## Sponsorship
 

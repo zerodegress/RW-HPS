@@ -39,7 +39,7 @@ class GameMainRedirections: MainRedirections {
         addAllReplace("com/LibRocket")
         addAllReplace("com/corrodinggames/librocket/scripts/ScriptEngine")
         // 这两个 因为 [LibRocket] 如果是空的话, 会被……游戏调用导致 NPE, 所以我们要覆盖掉方法
-        //需要空实现
+        // 需要空实现
         redirectR(MethodTypeInfoValue("com/corrodinggames/librocket/b", "closeDocument", "(Lcom/ElementDocument;)V"))
         redirectR(MethodTypeInfoValue("com/corrodinggames/librocket/b", "closeActiveDocument", "()V"))
 
@@ -79,10 +79,10 @@ class GameMainRedirections: MainRedirections {
         redirectR(
                 MethodTypeInfoValue("android/util/Log", "a", "(ILjava/lang/String;Ljava/lang/String;)I")
         ) { obj: Any?, _: String, _: Class<*>, args: Array<out Any?> ->
-            args[2]?.let {
-                val classIn = obj as Class<*>
-                val msg = it.toString()
-                if (Data.config.log == "ALL") {
+            if (Data.config.log == "ALL") {
+                args[2]?.let {
+                    val classIn = obj as Class<*>
+                    val msg = it.toString()
                     println("[${classIn.classLoader}]  :  " + msg)
                 }
             }
@@ -90,12 +90,14 @@ class GameMainRedirections: MainRedirections {
         }
 
         @GameSimulationLayer.GameSimulationLayer_KeyWords("Game init finished in")
-        redirectL(MethodTypeInfoValue("com/corrodinggames/rts/java/Main", "h", "()V", false)) { obj: Any?, _: String, args: Array<out Any?> ->
+        redirectL(MethodTypeInfoValue("com/corrodinggames/rts/java/Main", "h", "()V", false)) { obj: Any?, _: String, _: Array<out Any?> ->
             // Enable the interface
             "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(obj!!)!!.findMethod("init")!!.invoke(null)
 
-            val loadID = obj::class.java.classLoader.toString()
-            PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!))
+            obj::class.java.classLoader.toString().let { loadID ->
+                PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!))
+            }
+
         }
 
         @GameSimulationLayer.GameSimulationLayer_KeyWords("Recording replay to:")

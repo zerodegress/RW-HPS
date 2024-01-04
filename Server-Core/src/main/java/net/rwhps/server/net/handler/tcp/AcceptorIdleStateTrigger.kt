@@ -67,7 +67,7 @@ open class AcceptorIdleStateTrigger(
     @Throws(Exception::class)
     override fun userEventTriggered(ctx: ChannelHandlerContext, evt: Any) {
         if (evt is IdleStateEvent) {
-            if (evt.state() == IdleState.WRITER_IDLE) {
+            if (evt.state() == IdleState.READER_IDLE) {
                 val con: TypeConnect? = abstractNet.getTypeConnect(ctx.channel()).get()
                 if (TimeoutDetection.checkTimeoutDetection(con)) {
                     clear(ctx)

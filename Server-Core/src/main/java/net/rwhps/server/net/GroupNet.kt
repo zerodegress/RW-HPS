@@ -106,5 +106,7 @@ class GroupNet {
      */
     fun disconnect() {
         channelGroup.disconnect()
+        singleTcpThreadExecutor.shutdownNow()
+        singleUdpThreadExecutor.shutdownNow()
     }
 }

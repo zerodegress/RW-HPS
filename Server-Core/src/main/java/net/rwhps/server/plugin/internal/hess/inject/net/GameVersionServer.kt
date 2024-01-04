@@ -32,6 +32,7 @@ import net.rwhps.server.net.core.server.AbstractNetConnectData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternalPacket
+import net.rwhps.server.net.netconnectprotocol.internal.server.playerExitInternalPacket
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
 import net.rwhps.server.plugin.internal.hess.inject.lib.PlayerConnectX
 import net.rwhps.server.util.PacketType
@@ -337,6 +338,8 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
                 playerConnectX.room.playerManage.playerAll.remove(player)
             }
             GameEngine.data.eventManage.fire(PlayerLeaveEvent(player)).await()
+
+            playerConnectX.netEnginePackaging.addPacket(playerExitInternalPacket())
 
             player.clear()
         }

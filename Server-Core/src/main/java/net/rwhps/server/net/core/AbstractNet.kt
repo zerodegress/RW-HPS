@@ -48,7 +48,7 @@ abstract class AbstractNet: ChannelInitializer<SocketChannel>() {
     }
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {
-        channelPipeline.addLast(IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
+        channelPipeline.addLast(IdleStateHandler(0, 10, 0, TimeUnit.SECONDS))
         channelPipeline.addLast(idleStateTrigger)
     }
 

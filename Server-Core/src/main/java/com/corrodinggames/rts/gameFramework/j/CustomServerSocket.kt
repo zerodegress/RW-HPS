@@ -48,14 +48,11 @@ class CustomServerSocket(var1: ad): ServerAcceptRunnable(var1), Closeable {
         GameEngine.data.room.closeServer = {
             GameEngine.data.room.call.killAllPlayer()
 
-            val site = GameEngine.data.room.playerManage.playerAll.ifResult({ it.size > 0 }, { it[0].site }, { 0 })
             // 恢复
-            GameEngine.netEngine.z.k = site
+            GameEngine.netEngine.z = null
 
-            GameEngine.root.multiplayer.disconnect("closeServer")
-            GameEngine.root.multiplayer.disconnect("closeServer")
+            GameEngine.root.multiplayer.disconnect("close Server")
         }
-
         netService!!.openPort(port)
     }
 

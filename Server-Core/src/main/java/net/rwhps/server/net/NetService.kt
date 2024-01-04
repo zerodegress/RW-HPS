@@ -117,8 +117,6 @@ class NetService {
                 childOption(ChannelOption.TCP_NODELAY, true)
 
                 childOption(ChannelOption.SO_KEEPALIVE, true)
-
-                option(ChannelOption.MAX_MESSAGES_PER_READ, 4)
             }
 
             serverBootstrapTcp.childHandler(start)

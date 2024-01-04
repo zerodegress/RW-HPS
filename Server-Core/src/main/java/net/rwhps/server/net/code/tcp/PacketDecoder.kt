@@ -42,16 +42,26 @@ internal class PacketDecoder: ByteToMessageDecoder() {
 
     private var readPacketLengthCache = headerSize
     private var readPacketTypeCache = -1
+    private var stopRead = false
 
     @Throws(Exception::class)
     override fun decode(ctx: ChannelHandlerContext, bufferIn: ByteBuf?, out: MutableList<Any>) {
-        if (bufferIn == null) {
+        if (bufferIn == null || stopRead) {
             return
         }
 
-        val readableBytes = bufferIn.readableBytes()
-        if (readableBytes < readPacketLengthCache) {
+        /**
+         * Insufficient data length, reset the identification bit and read again
+         * 重新使用 [io.netty.buffer.ByteBuf#readableBytes()] 读取, 避免出现 头部被算进数据内
+         */
+        if (bufferIn.readableBytes() < readPacketLengthCache) {
             return
+        }
+
+        fun stopReadAndClose() {
+            stopRead = true
+            bufferIn.clear()
+            ctx.close()
         }
 
         /**
@@ -66,9 +76,7 @@ internal class PacketDecoder: ByteToMessageDecoder() {
              */
             if (readPacketLengthCache < 0 || readPacketTypeCache < 0) {
                 debug("Exception Packets, Close")
-                //ReferenceCountUtil.release(bufferIn)
-                bufferIn.readerIndex(bufferIn.writerIndex())
-                ctx.close()
+                stopReadAndClose()
                 return
             }
 
@@ -80,44 +88,27 @@ internal class PacketDecoder: ByteToMessageDecoder() {
              */
             if (readPacketLengthCache > NetService.maxPacketSizt) {
                 debug("Package size exceeds maximum")
-                //ReferenceCountUtil.release(bufferIn)
-                bufferIn.readerIndex(bufferIn.writerIndex())
-                ctx.close()
+                stopReadAndClose()
+                return
+            }
+
+            /**
+             * 我相信, 长度不可能够
+             */
+            if (bufferIn.readableBytes() < readPacketLengthCache) {
                 return
             }
         }
 
-        /**
-         * Insufficient data length, reset the identification bit and read again
-         * 重新使用 [io.netty.buffer.ByteBuf#readableBytes()] 读取, 避免出现 头部被算进数据内
-         */
-        if (bufferIn.readableBytes() < readPacketLengthCache) {
-//            if (readPacketLengthCache > 20000) {
-//                val typeConnect = initTypeConnect(ctx)
-//                if (typeConnect?.abstractNetConnect != null) {
-//                    typeConnect.abstractNetConnect.let {
-//                        it.connectReceiveData.let { connectReceiveData ->
-//                            if (connectReceiveData.receiveBigPacketCount.checkStatus()) {
-//                                connectReceiveData.receiveBigPacket = true
-//                                connectReceiveData.receiveBigPacketCount.count++
-//                                it.sendPacket(receivingStatusInternalPacket(bufferIn.readableBytes(), readPacketLengthCache))
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-            return
-        }
-
-        val b = ByteArray(readPacketLengthCache)
-        bufferIn.readBytes(b)
-
         val packetType = PacketType.from(readPacketTypeCache)
         if (packetType == PacketType.NOT_RESOLVED) {
             warn("[PacketDecoder] Unknown Protocol", "Type : $readPacketTypeCache")
+            stopReadAndClose()
             return
         } else {
             try {
+                val b = ByteArray(readPacketLengthCache)
+                bufferIn.readBytes(b)
                 out.add(Packet(packetType, b))
             } finally {
                 readPacketLengthCache = headerSize

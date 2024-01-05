@@ -11,18 +11,17 @@
 
 package net.rwhps.server.game.event
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.annotations.core.EventListenerHandler
-import net.rwhps.server.util.concurrent.AbstractFuture
+import net.rwhps.server.util.concurrent.fature.AbstractFuture
+import net.rwhps.server.util.concurrent.fature.EventFuture
 import net.rwhps.server.util.game.Events
 import java.lang.reflect.Modifier
-import java.util.concurrent.*
-import java.util.concurrent.CancellationException
-import java.util.concurrent.locks.Condition
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
 /**
  * EventManage 的分别实现
@@ -60,98 +59,13 @@ internal abstract class AbstractEventManage(private val eventClass: Class<*>) {
     }
 
     protected fun fire0(type: Any): AbstractFuture<*> {
-        val lock = ReentrantLock()
-        val condition = lock.newCondition()
-        var errorObject: Throwable? = null
-
-        return EventFuture(lock, condition, eventRunScope.async {
-            lock.withLock {
-                try {
-                    eventData.fire(type::class.java, type)
-                } catch (e: Exception) {
-                    errorObject = e
-                }
-                condition.signalAll()
+        return EventFuture(eventRunScope.async<Throwable?> {
+            try {
+                eventData.fire(type::class.java, type)
+            } catch (error: Exception) {
+                return@async error
             }
-        }).apply {
-            this.errorObject = errorObject
-        }
-    }
-
-    /**
-     * 为 Event 提供同步支持
-     *
-     * 默认的 Event 运行在独立的线程中, 为了预防Plugin卡死Main/Net
-     *
-     * @date 2023/9/2 15:18
-     * @author Dr (dr@der.kim)
-     */
-    protected class EventFuture<V>(
-        private val lock: ReentrantLock,
-        private val condition: Condition,
-        private val future: Deferred<V>
-    ) : AbstractFuture<V> {
-        var errorObject: Throwable? = null
-
-        override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
-            future.cancel(CancellationException("Cancel"))
-            return true
-        }
-
-        override fun isCancelled(): Boolean {
-            return future.isCancelled
-        }
-
-        override fun isDone(): Boolean {
-            return future.isCompleted
-        }
-
-        @OptIn(ExperimentalCoroutinesApi::class)
-        override fun get(): V {
-            return future.getCompleted()
-        }
-
-        @Throws(TimeoutException::class)
-        override fun get(timeout: Long, unit: TimeUnit): V {
-            if (await(timeout, unit)) {
-                return get()
-            }
-            throw TimeoutException("Get Value TimeOut")
-        }
-
-        override fun cause(): Throwable? {
-            return errorObject
-        }
-
-        @Throws(ExecutionException::class)
-        override fun sync(): Future<V> {
-            await()
-            if (cause() != null) {
-                throw ExecutionException(cause()!!)
-            }
-            return this
-        }
-
-        @Throws(InterruptedException::class)
-        override fun await(): Future<V> {
-            lock.withLock {
-                condition.await()
-            }
-            return this
-        }
-
-        override fun awaitUninterruptible(): Future<V> {
-            lock.withLock {
-                condition.awaitUninterruptibly()
-            }
-            return this
-        }
-
-        @Throws(InterruptedException::class)
-        override fun await(timeout: Long, unit: TimeUnit?): Boolean {
-            lock.withLock {
-                return condition.await(timeout, unit)
-            }
-        }
+             return@async null
+        })
     }
 }

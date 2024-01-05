@@ -12,7 +12,7 @@
 package net.rwhps.server.game.event
 
 import net.rwhps.server.game.event.core.AbstractGlobalEvent
-import net.rwhps.server.util.concurrent.AbstractFuture
+import net.rwhps.server.util.concurrent.fature.AbstractFuture
 import java.util.function.Consumer
 
 /**

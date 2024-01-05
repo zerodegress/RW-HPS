@@ -9,7 +9,7 @@
  *  
  */
 
-package net.rwhps.server.util.concurrent
+package net.rwhps.server.util.concurrent.fature
 
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -38,7 +38,7 @@ interface AbstractFuture<V> : Future<V> {
      * failed.
      */
     @Throws(InterruptedException::class)
-    fun sync(): Future<V>
+    fun sync()
 
     /**
      * Waits for this future to be completed.
@@ -47,14 +47,14 @@ interface AbstractFuture<V> : Future<V> {
      * if the current thread was interrupted
      */
     @Throws(InterruptedException::class)
-    fun await(): Future<V>
+    fun await()
 
     /**
      * Waits for this future to be completed without
      * interruption.  This method catches an [InterruptedException] and
      * discards it silently.
      */
-    fun awaitUninterruptible(): Future<V>
+    fun awaitUninterruptible()
 
     /**
      * Waits for this future to be completed within the

@@ -15,7 +15,7 @@ import org.quartz.JobExecutionContext
 /**
  * 基于Runnable的任务器
  *
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 class RunnableRun: Job {
     override fun execute(context: JobExecutionContext) {

@@ -22,7 +22,7 @@ import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.annotations.DidNotFinish
 import net.rwhps.server.util.annotations.mark.PrivateMark
-import net.rwhps.server.util.concurrent.AbstractFuture
+import net.rwhps.server.util.concurrent.fature.AbstractFuture
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.error

@@ -20,7 +20,7 @@ import java.util.*
  * 定时任务管理, 基于 Quartz
  *
  * @property scheduler Scheduler
- * @author RW-HPS/Dr
+ * @author Dr (dr@der.kim)
  */
 @Suppress("UNUSED")
 class TimeTaskManage {
@@ -121,12 +121,35 @@ class TimeTaskManage {
     }
 
     /**
+     * 暂停对应的任务
+     *
+     * @param jobKey 任务 [JobKey] 实例
+     * @return 是否取消
+     */
+    fun pause(jobKey: JobKey) {
+        scheduler.pauseJob(jobKey)
+    }
+
+    /**
+     * 暂停对应的任务
+     *
+     * @param name 任务名字
+     * @param group 任务组
+     * @return 是否取消
+     */
+    fun pause(name: String, group: String) {
+        pause(JobKey(name, group))
+    }
+
+    /**
      * 取消对应的任务
      *
      * @param jobKey 任务 [JobKey] 实例
      * @return 是否取消
      */
     fun remove(jobKey: JobKey): Boolean {
+        pause(jobKey)
+        scheduler.unscheduleJob(TriggerKey.triggerKey(jobKey.name, jobKey.group))
         return scheduler.deleteJob(jobKey)
     }
 

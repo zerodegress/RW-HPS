@@ -82,13 +82,9 @@ internal class LinkGameNet: AbstractLinkGameNet {
                     GameEngine.netEngine::class.java.findField("aD", Thread::class.java)!!
                         .set(GameEngine.netEngine, Thread(tcpRunnable).apply { start() })
 
+                    n.F()
                     n.b(Data.configServer.maxPlayer, true)
 
-                    // 隐藏 Hess(HOST)
-                    n.k(0).run {
-                        netEngine.a(this, -3)
-                        I()
-                    }
                     // 避免同步爆炸
                     GameEngine.netEngine.z.k = -3
 

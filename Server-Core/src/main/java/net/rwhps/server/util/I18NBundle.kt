@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util
 
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.file.LoadIni
 import net.rwhps.server.util.io.IoReadConversion

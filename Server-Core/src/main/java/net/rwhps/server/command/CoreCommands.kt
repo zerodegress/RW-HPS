@@ -30,7 +30,7 @@ import net.rwhps.server.net.handler.tcp.StartHttp
 import net.rwhps.server.plugin.GetVersion
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.center.PluginCenter
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.alone.DiffUpdate
 import net.rwhps.server.util.annotations.NeedHelp

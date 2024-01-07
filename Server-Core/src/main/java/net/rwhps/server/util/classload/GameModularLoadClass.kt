@@ -10,7 +10,7 @@
 package net.rwhps.server.util.classload
 
 import net.rwhps.asm.agent.AsmCore
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.inline.toClass
 import java.io.ByteArrayInputStream

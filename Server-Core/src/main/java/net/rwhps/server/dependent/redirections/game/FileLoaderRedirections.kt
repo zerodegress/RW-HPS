@@ -13,8 +13,8 @@ import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.annotations.mark.AsmMark
 import net.rwhps.server.util.annotations.mark.GameSimulationLayer

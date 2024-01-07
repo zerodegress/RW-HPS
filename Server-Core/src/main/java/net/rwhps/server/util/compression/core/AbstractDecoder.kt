@@ -10,8 +10,8 @@
 package net.rwhps.server.util.compression.core
 
 import net.rwhps.server.game.GameMaps
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import java.io.Closeable
 import java.io.InputStream
 

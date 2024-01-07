@@ -28,6 +28,7 @@ import net.rwhps.server.plugin.internal.hess.inject.command.ServerCommands
 import net.rwhps.server.plugin.internal.hess.inject.net.HessRwHps
 import net.rwhps.server.util.inline.accessibleConstructor
 import net.rwhps.server.util.inline.findField
+import net.rwhps.server.util.inline.toClass
 
 /**
  * RW-HPS 的 Hess 实现内部接口
@@ -61,8 +62,14 @@ internal object GameEngine {
     val gameStatistics get() = gameEngine.bY!!
 
     val mainObject by lazy {
-        val mainClass = data.useClassLoader.loadClass("com.corrodinggames.rts.java.Main")
+        val mainClass = "com.corrodinggames.rts.java.Main".toClass(data.useClassLoader)!!
         mainClass.findField("m", mainClass)!!.get(null) as Main
+    }
+
+    val appGameContainerObject by lazy {
+        val mainClass = "com.corrodinggames.rts.java.Main".toClass(data.useClassLoader)!!
+        val appGameContainerClass = "com.corrodinggames.rts.java.b".toClass(data.useClassLoader)!!
+        mainClass.findField("k", appGameContainerClass)!!.get(mainObject) as com.corrodinggames.rts.java.b
     }
 
     /**

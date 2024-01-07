@@ -9,7 +9,7 @@
 
 package net.rwhps.server.io.output
 
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.io.IOUtils.EOF
 import java.io.IOException

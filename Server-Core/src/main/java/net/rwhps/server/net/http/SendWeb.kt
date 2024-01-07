@@ -14,7 +14,7 @@ import io.netty.channel.ChannelFutureListener
 import io.netty.handler.codec.http.*
 import io.netty.util.AsciiString
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.inline.mutableObjectMapOf
 
 /**

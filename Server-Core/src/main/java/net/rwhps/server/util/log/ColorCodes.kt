@@ -10,8 +10,8 @@
 package net.rwhps.server.util.log
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.BaseMap.Companion.toSeq
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.BaseMap.Companion.toSeq
+import net.rwhps.server.struct.map.ObjectMap
 
 //关闭傻逼格式化
 //@formatter:off

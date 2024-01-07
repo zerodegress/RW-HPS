@@ -15,7 +15,7 @@ import net.rwhps.server.net.core.web.WebGet
 import net.rwhps.server.net.core.web.WebPost
 import net.rwhps.server.net.core.web.WebSocket
 import net.rwhps.server.net.handler.tcp.StartWebSocket
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.log.exp.VariableException
 
 /**

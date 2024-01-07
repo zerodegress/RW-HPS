@@ -12,10 +12,10 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.BaseMap.Companion.toSeq
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.BaseMap.Companion.toSeq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.annotations.DidNotFinish
 
 /**

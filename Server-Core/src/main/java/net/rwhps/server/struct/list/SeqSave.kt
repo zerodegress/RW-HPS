@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.struct
+package net.rwhps.server.struct.list
 
 /**
  * @date  2023/6/10 10:48

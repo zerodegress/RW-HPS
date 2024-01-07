@@ -12,8 +12,8 @@ import net.rwhps.server.core.thread.Threads.addSavePool
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.plugin.PluginData
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.Time.getTimeSinceMillis
 import net.rwhps.server.util.Time.millis
 

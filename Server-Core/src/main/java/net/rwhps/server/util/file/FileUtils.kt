@@ -11,9 +11,8 @@ package net.rwhps.server.util.file
 
 import net.rwhps.server.core.Core
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
-import net.rwhps.server.util.IsUtils
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.algorithms.digest.DigestUtils
 import net.rwhps.server.util.compression.CompressionDecoderUtils

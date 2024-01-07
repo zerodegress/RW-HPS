@@ -15,8 +15,8 @@ import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import net.rwhps.server.net.HttpRequestOkHttp
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.algorithms.digest.DigestUtils
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log

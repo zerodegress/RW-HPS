@@ -11,8 +11,8 @@ package net.rwhps.server.util.compression.zip
 
 import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.game.GameMaps
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FileName
 import net.rwhps.server.util.io.IoRead

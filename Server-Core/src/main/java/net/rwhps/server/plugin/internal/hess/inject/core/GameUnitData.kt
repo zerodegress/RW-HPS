@@ -14,8 +14,8 @@ import com.corrodinggames.rts.game.units.custom.l
 import com.corrodinggames.rts.game.units.y
 import com.corrodinggames.rts.gameFramework.w
 import net.rwhps.server.game.simulation.core.AbstractGameUnitData
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.log.Log
 
 /**

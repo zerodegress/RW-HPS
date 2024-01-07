@@ -19,7 +19,7 @@ import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.plugin.PluginLoadData
 import net.rwhps.server.plugin.PluginsLoad.Companion.addPluginClass
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.annotations.DidNotFinish
 import net.rwhps.server.util.annotations.mark.PrivateMark
 import net.rwhps.server.util.concurrent.fature.AbstractFuture

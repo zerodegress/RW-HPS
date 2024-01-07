@@ -17,7 +17,7 @@ import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.http.WebData
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.annotations.mark.PrivateMark
@@ -84,7 +84,7 @@ object Data {
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
 
     /** 服务器主版本 */
-    const val SERVER_CORE_VERSION = "3.0.0-DEV8"
+    const val SERVER_CORE_VERSION = "3.0.0-DEV9"
 
     /** 服务器Topt密码  */
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"

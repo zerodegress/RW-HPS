@@ -7,9 +7,10 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.struct
+package net.rwhps.server.struct.map
 
 import net.rwhps.server.func.*
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.ExtractUtils
 
 /**

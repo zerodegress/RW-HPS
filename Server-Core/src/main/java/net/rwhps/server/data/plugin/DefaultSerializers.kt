@@ -14,9 +14,9 @@ import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.Administration.PlayerAdminInfo
 import net.rwhps.server.net.Administration.PlayerInfo
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.struct.SerializerTypeAll.TypeSerializer
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork
 import java.io.IOException

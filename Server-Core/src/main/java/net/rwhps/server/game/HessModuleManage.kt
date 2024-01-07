@@ -12,7 +12,7 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.game.simulation.core.AbstractGameModule
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 
 /**
  * 多 Hess 管理器

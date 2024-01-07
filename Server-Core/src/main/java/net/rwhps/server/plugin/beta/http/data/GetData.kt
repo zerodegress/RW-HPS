@@ -11,9 +11,9 @@ package net.rwhps.server.plugin.beta.http.data
 
 import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
-import net.rwhps.server.struct.SeqSave
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
+import net.rwhps.server.struct.list.SeqSave
 import net.rwhps.server.util.SystemUtils
 
 /**

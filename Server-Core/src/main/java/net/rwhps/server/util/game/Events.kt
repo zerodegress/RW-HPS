@@ -11,8 +11,8 @@ package net.rwhps.server.util.game
 import kotlinx.coroutines.*
 import net.rwhps.server.func.Control
 import net.rwhps.server.game.event.core.AbstractEventCore
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.annotations.core.EventOnlyRead
 import net.rwhps.server.util.inline.ifNull
 

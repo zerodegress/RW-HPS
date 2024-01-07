@@ -12,7 +12,7 @@
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.io.IoRead
 import java.io.InputStream

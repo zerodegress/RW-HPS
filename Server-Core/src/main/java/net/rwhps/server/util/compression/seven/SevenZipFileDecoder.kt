@@ -11,8 +11,8 @@ package net.rwhps.server.util.compression.seven
 
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
-import net.rwhps.server.struct.OrderedMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.OrderedMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.io.IoRead
 import net.rwhps.server.util.log.Log

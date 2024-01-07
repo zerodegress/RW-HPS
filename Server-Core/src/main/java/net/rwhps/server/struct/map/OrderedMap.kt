@@ -7,26 +7,26 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.struct
+package net.rwhps.server.struct.map
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMaps
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
+import it.unimi.dsi.fastutil.objects.Object2ObjectMaps
 
 /**
+ * @date  2023/6/14 20:38
  * @author Dr (dr@der.kim)
  */
-class LongMap<V>: BaseMap<Long, V> {
-
+class OrderedMap<K, V>: BaseMap<K, V> {
     @JvmOverloads
     constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     @JvmOverloads
-    constructor(capacity: Int, threadSafety: Boolean = false): super(Long2ObjectOpenHashMap<V>(capacity).let {
+    constructor(capacity: Int, threadSafety: Boolean = false): super(Object2ObjectLinkedOpenHashMap<K, V>(capacity).let {
         if (threadSafety) {
-            Long2ObjectMaps.synchronize(it, it)
+            Object2ObjectMaps.synchronize<K, V>(it, it)
         } else {
             it
         }
-    } as java.util.Map<Long, V>, threadSafety)
+    } as java.util.Map<K, V>, threadSafety)
 }

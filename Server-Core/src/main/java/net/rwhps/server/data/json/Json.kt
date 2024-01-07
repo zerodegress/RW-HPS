@@ -9,8 +9,8 @@
 
 package net.rwhps.server.data.json
 
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.inline.getDataResult
 import net.rwhps.server.util.inline.getDataResultObject
 import net.rwhps.server.util.inline.toPrettyPrintingJson

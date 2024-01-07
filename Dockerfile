@@ -1,12 +1,12 @@
-# https://hub.docker.com/_/openjdk?tab=tags&page=1&name=11.0.4
+# https://hub.docker.com/_/openjdk?tab=tags&page=1&name=17
 
-FROM openjdk:11.0.16-jre AS base
+FROM openjdk:17 AS base
 ENV TZ=Asia/Shanghai
 WORKDIR /app
 EXPOSE 5123
 
 # build
-FROM openjdk:11.0.16 AS build
+FROM openjdk:17 AS build
 WORKDIR /src
 COPY . .
 RUN chmod +x gradlew

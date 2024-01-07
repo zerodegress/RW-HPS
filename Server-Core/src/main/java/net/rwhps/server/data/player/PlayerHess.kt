@@ -16,7 +16,7 @@ import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServerInternalPacket
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.Time

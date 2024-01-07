@@ -122,20 +122,22 @@ class ServerRoom(private val gameModule: AbstractGameModule) {
     }
 
     internal fun gr() {
-        if (forcedReturn) {
-            return
+        gameModule.gameFunction.suspendMainThreadOperations {
+            if (forcedReturn) {
+                return@suspendMainThreadOperations
+            }
+            forcedReturn = true
+
+            cleanThread()
+
+            clog("[$roomID] Gameover")
+
+            closeServer()
+
+            cleanData()
+            playerManage.cleanPlayerAllData()
+
+            startServer()
         }
-        forcedReturn = true
-
-        cleanThread()
-
-        clog("[$roomID] Gameover")
-
-        closeServer()
-
-        cleanData()
-        playerManage.cleanPlayerAllData()
-
-        startServer()
     }
 }

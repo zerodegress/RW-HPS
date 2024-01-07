@@ -10,7 +10,7 @@
 package net.rwhps.server.data.global
 
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 
 /**
  * @author Dr (dr@der.kim)

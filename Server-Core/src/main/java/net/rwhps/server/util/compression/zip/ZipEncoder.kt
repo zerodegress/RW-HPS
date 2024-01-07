@@ -11,7 +11,7 @@ package net.rwhps.server.util.compression.zip
 
 import net.rwhps.server.io.output.ByteArrayOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.compression.core.AbstractEncoder
 import net.rwhps.server.util.io.IoRead.copyInputStream
 import net.rwhps.server.util.log.exp.CompressionException

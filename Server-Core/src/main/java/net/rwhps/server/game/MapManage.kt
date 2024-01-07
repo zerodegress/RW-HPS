@@ -12,7 +12,7 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.algorithms.Base64
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtils

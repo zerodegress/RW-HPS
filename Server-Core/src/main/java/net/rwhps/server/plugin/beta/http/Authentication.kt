@@ -21,8 +21,8 @@ import net.rwhps.server.net.core.web.WebSocket
 import net.rwhps.server.net.handler.tcp.StartWebSocket
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.net.http.SendWeb
-import net.rwhps.server.struct.ObjectIntMap
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectIntMap
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.RandomUtils
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.algorithms.digest.DigestUtils

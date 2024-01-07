@@ -20,7 +20,7 @@ import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.server.packet.AbstractNetPacket
 import net.rwhps.server.net.netconnectprotocol.internal.server.*
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.annotations.MainProtocolImplementation

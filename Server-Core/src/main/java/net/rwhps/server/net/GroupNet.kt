@@ -16,7 +16,7 @@ import io.netty.util.concurrent.GlobalEventExecutor
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.concurrent.Executors

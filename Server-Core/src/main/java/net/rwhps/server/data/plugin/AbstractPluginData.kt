@@ -14,8 +14,8 @@ import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.input.ReusableDisableSyncByteArrayInputStream
 import net.rwhps.server.io.output.ByteArrayOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.IsUtils.isBlank
 import net.rwhps.server.util.compression.CompressionDecoderUtils

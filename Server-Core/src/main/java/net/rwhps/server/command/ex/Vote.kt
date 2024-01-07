@@ -15,7 +15,7 @@ import net.rwhps.server.core.thread.Threads.newTimedTask
 import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
 import java.util.concurrent.TimeUnit

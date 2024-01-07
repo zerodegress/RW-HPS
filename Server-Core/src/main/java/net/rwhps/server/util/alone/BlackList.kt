@@ -11,7 +11,7 @@ package net.rwhps.server.util.alone
 
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads.newTimedTask
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.Time.getTimeFutureMillis
 import net.rwhps.server.util.Time.millis
 import java.util.concurrent.TimeUnit

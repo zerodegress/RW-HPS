@@ -23,13 +23,13 @@ import net.rwhps.server.util.log.Log
  */
 class GameFunction : AbstractGameFunction {
     override fun suspendMainThreadOperations(run: Runnable) {
-        val running = GameEngine.mainObject::class.java.findField("pause", Boolean::class.javaPrimitiveType)!!
-        running.setBoolean(GameEngine.mainObject, true)
+        val running = GameEngine.appGameContainerObject::class.java.findField("paused", Boolean::class.javaPrimitiveType)!!
+        running.setBoolean(GameEngine.appGameContainerObject, true)
         try {
             run.run()
         } catch (e: Exception) {
             Log.error("Hess MainThreadOperations", e)
         }
-        running.setBoolean(GameEngine.mainObject, false)
+        running.setBoolean(GameEngine.appGameContainerObject, false)
     }
 }

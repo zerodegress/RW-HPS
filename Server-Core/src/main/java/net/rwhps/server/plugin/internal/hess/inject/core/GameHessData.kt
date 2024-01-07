@@ -19,8 +19,8 @@ import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.game.simulation.core.AbstractGameHessData
 import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 import net.rwhps.server.net.core.IRwHps
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.WaitResultUtils
 import net.rwhps.server.util.log.Log

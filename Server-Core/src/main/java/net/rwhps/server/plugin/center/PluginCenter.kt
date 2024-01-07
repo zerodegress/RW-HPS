@@ -14,7 +14,7 @@ import net.rwhps.server.data.json.Json
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.plugin.GetVersion
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.annotations.NeedToRefactor
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler

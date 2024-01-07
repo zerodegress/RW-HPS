@@ -10,8 +10,8 @@
 package net.rwhps.server.game.event.game
 
 import net.rwhps.server.game.event.core.AbstractEvent
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.annotations.core.EventOnlyRead
 
 /**

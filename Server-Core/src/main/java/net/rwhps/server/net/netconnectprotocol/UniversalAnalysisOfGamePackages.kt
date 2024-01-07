@@ -11,7 +11,7 @@ package net.rwhps.server.net.netconnectprotocol
 
 import net.rwhps.server.data.player.PlayerRelay
 import net.rwhps.server.io.GameInputStream
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.log.exp.ParseException
 import java.io.IOException

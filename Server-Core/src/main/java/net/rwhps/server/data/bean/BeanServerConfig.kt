@@ -10,7 +10,7 @@
 package net.rwhps.server.data.bean
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.inline.toGson

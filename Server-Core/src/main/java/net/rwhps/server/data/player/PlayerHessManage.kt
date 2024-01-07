@@ -13,7 +13,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtils
 

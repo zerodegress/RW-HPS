@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.struct
+package net.rwhps.server.struct.list
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectLists
@@ -15,6 +15,7 @@ import net.rwhps.server.data.plugin.AbstractPluginData
 import net.rwhps.server.data.plugin.DefaultSerializers
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
+import net.rwhps.server.struct.SerializerTypeAll
 import java.io.IOException
 
 /**

@@ -9,7 +9,7 @@
 
 package net.rwhps.server.core.thread
 
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.concurrent.threads.GetNewThreadPool
 import net.rwhps.timetask.task.TimeTaskManage

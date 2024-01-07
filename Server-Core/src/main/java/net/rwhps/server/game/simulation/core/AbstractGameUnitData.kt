@@ -9,8 +9,8 @@
 
 package net.rwhps.server.game.simulation.core
 
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.annotations.mark.GameSimulationLayer
 
 interface AbstractGameUnitData {

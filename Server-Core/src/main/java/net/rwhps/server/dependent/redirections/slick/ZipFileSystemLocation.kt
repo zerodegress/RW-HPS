@@ -10,7 +10,7 @@
 package net.rwhps.server.dependent.redirections.slick
 
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.OrderedMap
 import org.newdawn.slick.util.ResourceLocation
 import java.io.InputStream
 import java.net.URL

@@ -12,7 +12,7 @@
 package net.rwhps.server.util.console
 
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import org.jline.reader.Candidate
 import org.jline.reader.Completer
 import org.jline.reader.LineReader

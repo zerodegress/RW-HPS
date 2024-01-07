@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util.file
 
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import java.net.URI
 import java.nio.file.*
 import java.nio.file.attribute.UserPrincipalLookupService

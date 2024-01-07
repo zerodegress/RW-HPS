@@ -21,9 +21,9 @@ import net.rwhps.server.math.Rand
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
-import net.rwhps.server.struct.IntMap
-import net.rwhps.server.struct.ObjectMap
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.map.IntMap
+import net.rwhps.server.struct.map.ObjectMap
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.IsUtils.isNumeric
 import net.rwhps.server.util.Time.concurrentSecond
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork

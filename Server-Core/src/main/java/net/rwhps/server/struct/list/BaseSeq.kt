@@ -7,7 +7,7 @@
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
-package net.rwhps.server.struct
+package net.rwhps.server.struct.list
 
 import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.func.Control.ControlFind

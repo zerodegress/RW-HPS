@@ -24,7 +24,7 @@ import net.rwhps.server.game.event.game.PlayerBanEvent
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.Font16
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType

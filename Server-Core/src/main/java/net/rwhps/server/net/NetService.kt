@@ -24,7 +24,7 @@ import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.core.web.AbstractNetWeb
 import net.rwhps.server.net.handler.tcp.StartGameNetTcp
 import net.rwhps.server.net.http.WebData
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.concurrent.threads.GetNewThreadPool.getEventLoopGroup
 import net.rwhps.server.util.internal.net.rudp.ReliableServerSocket

@@ -12,7 +12,7 @@
 
 package net.rwhps.server.util.inline
 
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 
 /**
  * @date  2023/6/27 10:27

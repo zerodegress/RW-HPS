@@ -25,7 +25,7 @@ import net.rwhps.server.game.enums.GamePingActions
 import net.rwhps.server.game.event.game.ServerGameStartEvent
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
 import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
-import net.rwhps.server.struct.BaseMap.Companion.toSeq
+import net.rwhps.server.struct.map.BaseMap.Companion.toSeq
 import net.rwhps.server.util.IsUtils.isNumeric
 import net.rwhps.server.util.IsUtils.notIsNumeric
 import net.rwhps.server.util.file.FileUtils
@@ -175,13 +175,13 @@ internal class ClientCommands(handler: CommandHandler) {
             }
 
             if (MapManage.maps.mapType != GameMaps.MapType.defaultMap) {
-                val file = FileUtils.getFolder(Data.ServerMapsPath).toFile(MapManage.maps.mapName + ".tmx")
+                val file = FileUtils.getFolder(Data.ServerMapsPath).toFile(MapManage.maps.mapName)
                 if (file.notExists()) {
                     MapManage.maps.mapData!!.readMap()
                 }
-                GameEngine.netEngine.az = "/SD/rusted_warfare_maps/${MapManage.maps.mapName}.tmx"
-                GameEngine.netEngine.ay.b = "${MapManage.maps.mapName}.tmx"
-                GameEngine.netEngine.ay.a = ai.b
+                GameEngine.netEngine.az = "/SD/rusted_warfare_maps/${MapManage.maps.mapName}"
+                GameEngine.netEngine.ay.b = MapManage.maps.mapName
+                GameEngine.netEngine.ay.a = ai.entries.toTypedArray()[MapManage.maps.mapType.ordinal]
             }
 
             GameEngine.root.multiplayer.multiplayerStart()
@@ -348,18 +348,23 @@ internal class ClientCommands(handler: CommandHandler) {
                         player.sendSystemMessage(localeUtil.getinput("err.noNumber"))
                         return@register
                     }
-                    val name = MapManage.mapsData.keys.toSeq()[inputMapName.toInt()]
-                    val data = MapManage.mapsData[name]!!
+                    val nameNoPx = MapManage.mapsData.keys.toSeq()[inputMapName.toInt()]
+                    val data = MapManage.mapsData[nameNoPx]!!
+                    val name = if (data.mapType == GameMaps.MapType.savedGames) {
+                        "$nameNoPx.rwsave"
+                    } else {
+                        "$nameNoPx.tmx"
+                    }
                     MapManage.maps.mapData = data
                     MapManage.maps.mapType = data.mapType
                     MapManage.maps.mapName = name
                     MapManage.maps.mapPlayer = ""
 
                     name.let {
-                        GameEngine.netEngine.az = "$it.tmx"
+                        //GameEngine.netEngine.az = if (data.mapType == GameMaps.MapType.savedGames) null else it
                         GameEngine.netEngine.ay.b = it
                         room.mapName = it
-                        GameEngine.netEngine.ay.a = ai.b
+                        GameEngine.netEngine.ay.a = ai.entries.toTypedArray()[data.mapType.ordinal]
                     }
                     player.sendSystemMessage(player.i18NBundle.getinput("map.custom.info"))
                 }
@@ -494,13 +499,15 @@ internal class ClientCommands(handler: CommandHandler) {
             if (player.isAdmin) {
                 player.sendSystemMessage("Ping map to nuke")
                 player.addData<(AbstractNetConnectServer, GamePingActions, Float, Float)->Unit>("Ping") { _, _, x, y ->
-                    val obj = com.corrodinggames.rts.game.units.h::class.java.findField("n", com.corrodinggames.rts.game.units.a.s::class.java)!!.get(null) as com.corrodinggames.rts.game.units.a.s
-                    val no = com.corrodinggames.rts.game.units.h(false)
-                    no.a(obj, false, PointF(x, y), null)
-                    no.b(n.k(player.site))
-                    //no.bX = n.k(player.site)
-                    GameEngine.gameEngine.bS.j(no)
-                    gameModule.gameLinkFunction.allPlayerSync()
+                    GameEngine.data.gameFunction.suspendMainThreadOperations {
+                        val obj = com.corrodinggames.rts.game.units.h::class.java.findField("n", com.corrodinggames.rts.game.units.a.s::class.java)!!.get(null) as com.corrodinggames.rts.game.units.a.s
+                        val no = com.corrodinggames.rts.game.units.h(false)
+                        no.a(obj, false, PointF(x, y), null)
+                        no.b(n.k(player.site))
+                        //no.bX = n.k(player.site)
+                        GameEngine.gameEngine.bS.j(no)
+                        gameModule.gameLinkFunction.allPlayerSync()
+                    }
                 }
             }
         }

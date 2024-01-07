@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util.file
 
-import net.rwhps.server.struct.OrderedMap
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.io.IoReadConversion
 import net.rwhps.server.util.log.Log
 import java.io.InputStream

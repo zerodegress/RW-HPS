@@ -14,7 +14,7 @@ import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.alone.BlackList
 import net.rwhps.server.util.log.exp.ImplementedException
 

@@ -13,7 +13,7 @@ import io.netty.handler.codec.http.HttpHeaderNames
 import net.rwhps.server.data.global.RegexData
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.net.http.AcceptWeb
-import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.inline.mutableObjectMapOf
 
 /**

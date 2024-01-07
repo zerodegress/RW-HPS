@@ -11,7 +11,7 @@ package net.rwhps.server.util
 
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.struct.IntMap
+import net.rwhps.server.struct.map.IntMap
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.exp.VariableException
 

@@ -9,7 +9,7 @@
 
 package net.rwhps.server.data.json
 
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.inline.getDataResult
 import net.rwhps.server.util.inline.toJson
 import org.json.JSONArray

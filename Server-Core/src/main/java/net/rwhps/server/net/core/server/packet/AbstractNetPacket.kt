@@ -12,7 +12,7 @@ package net.rwhps.server.net.core.server.packet
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.struct.Seq
+import net.rwhps.server.struct.list.Seq
 import java.io.IOException
 
 /**

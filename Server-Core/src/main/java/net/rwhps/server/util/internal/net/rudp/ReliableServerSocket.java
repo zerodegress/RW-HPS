@@ -9,7 +9,7 @@
 
 package net.rwhps.server.util.internal.net.rudp;
 
-import net.rwhps.server.struct.ObjectMap;
+import net.rwhps.server.struct.map.ObjectMap;
 import net.rwhps.server.util.internal.net.rudp.impl.SYNSegment;
 import net.rwhps.server.util.internal.net.rudp.impl.Segment;
 import net.rwhps.server.util.log.Log;

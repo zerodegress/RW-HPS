@@ -141,7 +141,7 @@ git clone git@github.com:RW-HPS/RW-HPS.git
 在命令行输入
 
 ```bash
-./gwadlew jar
+./gradlew jar
 ```
 
 等待完毕即可

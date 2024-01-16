@@ -47,7 +47,6 @@ import net.rwhps.server.util.log.Log
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.PolyglotAccess
-import org.graalvm.polyglot.PolyglotException
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.io.FileSystem
 import java.io.*
@@ -165,7 +164,7 @@ internal class JavaScriptPluginGlobalContext {
 
         try {
             val cxBuilder = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
-                .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true");
+                .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true")
             if(enableWasm) {
                 cxBuilder.option("js.webassembly", "true")
             }
@@ -407,6 +406,7 @@ internal class JavaScriptPluginGlobalContext {
     class RwHpsJS(
         private val context: JavaScriptPluginGlobalContext
     ) {
+        @SuppressWarnings("unused")
         fun readRamBytes(path: String): ByteArray? {
             return if (path.startsWith("/")) {
                 context.scriptFileSystem[path]
@@ -415,6 +415,7 @@ internal class JavaScriptPluginGlobalContext {
             }
         }
 
+        @SuppressWarnings("unused")
         fun readRamText(path: String): String? {
             return if (path.startsWith("/")) {
                 context.scriptFileSystem[path]

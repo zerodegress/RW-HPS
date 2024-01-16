@@ -47,6 +47,7 @@ import net.rwhps.server.util.log.Log
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.HostAccess
 import org.graalvm.polyglot.PolyglotAccess
+import org.graalvm.polyglot.PolyglotException
 import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.io.FileSystem
 import java.io.*
@@ -153,10 +154,22 @@ internal class JavaScriptPluginGlobalContext {
      * @return 插件加载数据
      */
     fun loadESMPlugins(): Seq<PluginLoadData> {
+        // 试加载来检测WASM特性是否启用
+        val enableWasm = try {
+            Context.newBuilder().allowExperimentalOptions(true).option("js.webassembly", "true").build().getBindings("js")
+            true
+        } catch (e: Exception) {
+            Log.warn("Wasm language load failed, wasm feature disabled.")
+            false
+        }
+
         try {
-            val cx = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
-                .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true")
-                .option("js.webassembly", "true").allowHostAccess(
+            val cxBuilder = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
+                .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true");
+            if(enableWasm) {
+                cxBuilder.option("js.webassembly", "true")
+            }
+            val cx = cxBuilder.allowHostAccess(
                         HostAccess.newBuilder().allowAllClassImplementations(true).allowAllImplementations(true).allowPublicAccess(true)
                             .allowArrayAccess(true).allowListAccess(true).allowIterableAccess(true).allowIteratorAccess(true)
                             .allowMapAccess(true).build()

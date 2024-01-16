@@ -176,29 +176,41 @@ internal class JavaScriptPluginGlobalContext {
             cx.getBindings("js").putMember("RwHps", rwhpsObject)
             cx.enter()
 
-            var loadScript = ""
-            modules.eachAll { pluginInfo, v ->
-                loadScript += "export { default as $v } from '${pluginInfo.name}';"
-                loadScript += Data.LINE_SEPARATOR
-            }
-
-            val defaults = cx.eval(Source.newBuilder("js", loadScript, "/work/load.mjs").build())
+            val loadedPlugins = mapOf(*modules.map {
+                try {
+                    val jsPlugin = cx.eval(
+                        Source.newBuilder(
+                            "js",
+                            "export { default as plugin } from '${it.key.name}';",
+                            "__load${it.value}.js"
+                        ).mimeType("application/javascript+module").build()
+                    ).getMember("plugin")
+                    Pair(
+                        it.value,
+                        if(jsPlugin.canExecute()) {
+                            jsPlugin.execute()
+                        } else { jsPlugin }.`as`(Plugin::class.java)
+                    )
+                } catch (e: Exception) {
+                    Log.error("Load JS Plugin '${it.key.name}' failed: ", e)
+                    Pair(it.value, null)
+                }
+            }.toTypedArray())
 
             return Seq<PluginLoadData>().apply {
                 modules.eachAll { pluginInfo, v ->
-                    this.add(
+                    val plugin = loadedPlugins[v]
+                    if(plugin != null) {
+                        this.add(
                             PluginLoadData(
-                                    pluginInfo.name,
-                                    pluginInfo.author,
-                                    pluginInfo.description,
-                                    pluginInfo.version,
-                                    if (defaults.canExecute()) {
-                                        defaults.getMember(v).execute().`as`(Plugin::class.java)
-                                    } else {
-                                        defaults.getMember(v).`as`(Plugin::class.java)
-                                    }
+                                pluginInfo.name,
+                                pluginInfo.author,
+                                pluginInfo.description,
+                                pluginInfo.version,
+                                plugin
                             )
-                    )
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {

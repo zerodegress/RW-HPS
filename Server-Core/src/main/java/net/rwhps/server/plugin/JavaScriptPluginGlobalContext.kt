@@ -10,7 +10,6 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.internal.BeanPluginInfo
-import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.func.ConsMap
 import net.rwhps.server.func.ConsSeq
@@ -418,7 +417,6 @@ internal class JavaScriptPluginGlobalContext {
     class RwHpsJS(
         private val context: JavaScriptPluginGlobalContext
     ) {
-        @SuppressWarnings("unused")
         fun readRamBytes(path: String): ByteArray? {
             return if (path.startsWith("/")) {
                 context.scriptFileSystem[path]
@@ -427,7 +425,6 @@ internal class JavaScriptPluginGlobalContext {
             }
         }
 
-        @SuppressWarnings("unused")
         fun readRamText(path: String): String? {
             return if (path.startsWith("/")) {
                 context.scriptFileSystem[path]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -124,7 +124,6 @@ class TimeTaskManage {
      * 暂停对应的任务
      *
      * @param jobKey 任务 [JobKey] 实例
-     * @return 是否取消
      */
     fun pause(jobKey: JobKey) {
         scheduler.pauseJob(jobKey)
@@ -135,10 +134,28 @@ class TimeTaskManage {
      *
      * @param name 任务名字
      * @param group 任务组
-     * @return 是否取消
      */
     fun pause(name: String, group: String) {
         pause(JobKey(name, group))
+    }
+
+    /**
+     * 取消暂停对应的任务
+     *
+     * @param jobKey 任务 [JobKey] 实例
+     */
+    fun unPause(jobKey: JobKey) {
+        scheduler.resumeJob(jobKey)
+    }
+
+    /**
+     * 取消暂停对应的任务
+     *
+     * @param name 任务名字
+     * @param group 任务组
+     */
+    fun unPause(name: String, group: String) {
+        unPause(JobKey(name, group))
     }
 
     /**

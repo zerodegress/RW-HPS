@@ -41,7 +41,6 @@ import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
-import net.rwhps.server.data.global.NetStaticData.initPx
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.func.StrCons
@@ -165,8 +164,6 @@ object Main {
         if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
             clog(Data.i18NBundle.getinput("server.start.defCommand"))
         }
-
-        initPx()
 
         newThreadCore(this::inputMonitor)
     }

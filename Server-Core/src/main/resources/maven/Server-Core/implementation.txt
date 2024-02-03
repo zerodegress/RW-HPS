@@ -1,5 +1,5 @@
-jar:RustedwarfareServer:TimeTaskQuartz:unspecified:null
-jar:RustedwarfareServer:ASM-Framework:unspecified:null
+jar:RW-HPS:TimeTaskQuartz:unspecified:null
+jar:RW-HPS:ASM-Framework:unspecified:null
 jar:org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3:null
 jar:org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20:null
 jar:org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20:null
@@ -21,7 +21,6 @@ jar:org.apache.commons:commons-compress:1.25.0:null
 jar:org.tukaani:xz:1.9:null
 jar:com.squareup.okhttp3:okhttp:4.12.0:null
 jar:org.lionsoul:ip2region:1.7.2:null
-jar:com.maxmind.db:maxmind-db:3.1.0:null
 jar:org.jline:jline-terminal-jna:3.25.1:null
 jar:net.java.dev.jna:jna:5.14.0:null
 jar:org.jline:jline-reader:3.25.1:null

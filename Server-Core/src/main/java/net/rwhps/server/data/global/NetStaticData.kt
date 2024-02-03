@@ -17,7 +17,6 @@ import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.alone.BlackList
 import net.rwhps.server.util.log.exp.ImplementedException
-import net.rwhps.server.util.pool.HttpSynchronize
 
 /**
  * @author Dr (dr@der.kim)
@@ -35,9 +34,6 @@ object NetStaticData {
 
     @JvmField
     val blackList = BlackList()
-
-    @JvmField
-    val httpSynchronize = HttpSynchronize()
 
     var ServerNetType: IRwHps.NetType = IRwHps.NetType.NullProtocol
         set(value) {
@@ -58,14 +54,6 @@ object NetStaticData {
 
     @JvmField
     var netService = Seq<NetService>(4)
-
-    @JvmStatic
-    fun initPx() {
-        httpSynchronize.setUser("test", "relaycn123456")
-        httpSynchronize.addUrl("http://gs1.corrodinggames.com/masterserver/1.4/interface")
-        httpSynchronize.addUrl("http://gs4.corrodinggames.net/masterserver/1.4/interface")
-        httpSynchronize.addProxy(20)
-    }
 
     @JvmStatic
     fun checkServerStartNet(run: (() -> Unit)?): Boolean {

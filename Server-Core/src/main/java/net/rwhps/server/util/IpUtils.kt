@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,10 +11,8 @@ package net.rwhps.server.util
 
 import net.rwhps.server.data.global.ArrayData
 import net.rwhps.server.data.global.RegexData
-import java.net.Inet4Address
-import java.net.InetAddress
-import java.net.NetworkInterface
-import java.net.UnknownHostException
+import net.rwhps.server.util.log.exp.VariableException
+import java.net.*
 import java.util.*
 import java.util.regex.Pattern
 
@@ -40,35 +38,54 @@ object IpUtils {
      * @author RW-HPS/fgsqme
      */
     @JvmStatic
+    @JvmOverloads
     @Throws(UnknownHostException::class)
-    fun getPrivateIp(): String? {
+    fun getPrivateIp(ipv4: Boolean = true): String? {
         val allNetInterfaces = NetworkInterface.getNetworkInterfaces()
-        var ip: InetAddress?
-        while (allNetInterfaces.hasMoreElements()) {
-            val netInterface: NetworkInterface = allNetInterfaces.nextElement()
+        for (netInterface in allNetInterfaces) {
             if (netInterface.isLoopback || netInterface.isVirtual || !netInterface.isUp) {
                 continue
-            } else {
-                val addresses = netInterface.inetAddresses
-                while (addresses.hasMoreElements()) {
-                    ip = addresses.nextElement()
+            }
+            val addresses = netInterface.inetAddresses
+            for (ip in addresses) {
+                if (ipv4) {
                     if (ip is Inet4Address) {
+                        return ip.hostAddress
+                    }
+                } else {
+                    if (ip is Inet6Address) {
                         return ip.hostAddress
                     }
                 }
             }
+
         }
         return null
     }
 
     @JvmStatic
+    @JvmOverloads
     fun ipToLong24(strIp: String, separateAddress: Boolean = true): String {
-        return ipToLong(strIp, separateAddress)
+        return if (isIPv4Address(strIp)) {
+            "[IPV4]-"+ipv4ToLongs(strIp, separateAddress)
+        } else if (isIPv6Address(strIp)) {
+            "[IPV6]-"+ipv6ToLongs(ipv6Format(strIp), separateAddress)
+        } else {
+            throw VariableException("[IP-Check IPV4-IPV6 Unknown]: $strIp")
+        }
     }
 
     @JvmStatic
     fun longToIp(strLong: String): String {
-        return longToIP(strLong.toLong())
+        val v4Flag = "[IPV4]-"
+        val v6Flag = "[IPV6]-"
+        return if (strLong.startsWith(v4Flag)) {
+            longToIP(strLong.removePrefix(v4Flag).toLong())
+        } else if (strLong.startsWith(v6Flag)) {
+            longsToIpv6(strLong.removePrefix(v6Flag))
+        } else {
+            longToIP(strLong.toLong())
+        }
     }
 
     /**
@@ -81,13 +98,39 @@ object IpUtils {
      * @param strIp
      * @return
      */
-    private fun ipToLong(strIp: String, separateAddress: Boolean): String {
+    private fun ipv4ToLongs(strIp: String, separateAddress: Boolean): String {
         if (strIp == "0") {
             return strIp
         }
-        val ip = strIp.split(".").toTypedArray()
-        return (((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)) + if (separateAddress) ip[3].toLong() else 0).toString()
+        val ipv4Array0 = strIp.split(".")
+        val ipv4Array = LongArray(4) {
+            ipv4Array0[it].toLong()
+        }
+        return (((ipv4Array[0] shl 24) + (ipv4Array[1] shl 16) + (ipv4Array[2] shl 8)) + if (separateAddress) ipv4Array[3] else 0).toString()
     }
+
+    /**
+     * 将 IPv6 地址转为 long 数组，只支持冒分十六进制表示法
+     */
+    private fun ipv6ToLongs(ipv6: String, separateAddress: Boolean): String {
+        val ipSlices = ipv6.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val ipv6Array = LongArray(2)
+        for (i in 0 .. 7) {
+            val slice = ipSlices[i]
+            // 以 16 进制解析
+            val num = slice.toLong(16).let {
+                if (separateAddress) 0 else it
+            }
+            // 每组 16 位
+            val right = num shl (16 * i)
+            // 每个 long 保存四组，i >> 2 等于 i / 4
+            val length = i shr 2 //即int length=i / 4;
+            ipv6Array[length] = ipv6Array[length] or right
+        }
+
+        return "${ipv6Array[0]}@${ipv6Array[1]}"
+    }
+
 
     /**
      * 将十进制整数形式转换成127.0.0.1形式的ip地址
@@ -103,14 +146,40 @@ object IpUtils {
         val sb = StringBuffer("")
         // 直接右移24位
         sb.append((longIp ushr 24).toString()).append(".")
-        // 将高8位置0，然后右移16位
+        // 将高位8 位置0，然后右移16位
         sb.append((longIp and 0x00FFFFFF ushr 16).toString()).append(".")
-        // 将高16位置0，然后右移8位
+        // 将高位16 位置0，然后右移8位
         sb.append((longIp and 0x0000FFFF ushr 8).toString()).append(".")
-        // 将高24位置0
+        // 将高位24 位置0
         sb.append((longIp and 0x000000FF).toString())
         return sb.toString()
     }
+
+    /**
+     * 将 long 数组转为冒分十六进制表示法的 IPv6 地址
+     */
+    private fun longsToIpv6(numbers: String): String {
+        val sb = java.lang.StringBuilder(32)
+
+        val ipv6Array = LongArray(2) {
+            numbers.split("@")[it].toLong()
+        }
+        for (numSlice0 in ipv6Array) {
+            var numSlice = numSlice0
+            // 每个 long 保存四组
+            for (j in 0 .. 3) {
+                // 取最后 16 位
+                val current = numSlice and 0xFFFFL
+                sb.append(current.toString(16)).append(":")
+                // 右移 16 位，即去除掉已经处理过的 16 位
+                numSlice = numSlice shr 16
+            }
+        }
+
+        // 去掉最后的 :
+        return sb.substring(0, sb.length - 1)
+    }
+
 
     /**
      * Checks whether a given string is a valid host name according to
@@ -128,7 +197,7 @@ object IpUtils {
      */
     @JvmStatic
     fun isValidHostName(name: String): Boolean {
-        return isIPv6Address(name) || isRFC3986HostName(name)
+        return isIPv4Address(name) || isIPv6Address(name) || isRFC3986HostName(name)
     }
 
     /**
@@ -221,6 +290,62 @@ object IpUtils {
             validOctets++
         }
         return validOctets <= IPV6_MAX_HEX_GROUPS && (validOctets >= IPV6_MAX_HEX_GROUPS || containsCompressedZeroes)
+    }
+
+    private fun ipv6Format(ipv6: String): String {
+        val ipmat = ipv6.replace("::", "&")
+        var ipv6No0 = ipv6
+        val index = ipmat.indexOf("&")
+
+        //判断是否有::
+        if (ipmat.contains("&")) {
+            //判断：的数量
+            val n = ipmat.length - ipmat.replace(":".toRegex(), "").length
+            //如果出现:: 在第一个的位置 或者 最后的位置
+            if (index == 0 || index == ipmat.length - 1) {
+                //需要补0的数量
+                val i = 8 - n
+                val str = StringBuilder()
+                var bj = ""
+                //如果出现:: 在第一个的位置
+                bj = if (index == 0) {
+                    "0:"
+                } else { //如果出现:: 在最后的位置
+                    ":0"
+                }
+                for (j in 0 until i) {
+                    str.append(bj)
+                }
+                ipv6No0 = ipmat.replace("&", str.toString())
+            } else { // 如果出现:: 中间位置
+                val split = ipmat.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                //需要补0的数量
+                val i = 8 - (n + 2)
+                val str = StringBuilder()
+                for (j in 0 until i) {
+                    str.append(":0")
+                }
+                str.append(":")
+                ipv6No0 = split[0] + str.toString() + split[1]
+            }
+        }
+        val split = ipv6No0.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+        val ipv6s = StringBuilder()
+
+        //补0
+        for (i in split.indices) {
+            val s = split[i]
+            when (s.length) {
+                1 -> ipv6s.append("000$s")
+                2 -> ipv6s.append("00$s")
+                3 -> ipv6s.append("0$s")
+                4 -> ipv6s.append(s)
+            }
+            if (i != split.size - 1) {
+                ipv6s.append(":")
+            }
+        }
+        return ipv6s.toString()
     }
 
     /**

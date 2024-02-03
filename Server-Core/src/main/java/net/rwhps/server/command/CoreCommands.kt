@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -17,11 +17,10 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.bean.internal.BeanGithubReleasesApi
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.HotLoadClass
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.game.event.global.ServerStartTypeEvent
+import net.rwhps.server.game.manage.HeadlessModuleManage
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.NetService
@@ -35,7 +34,8 @@ import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.alone.DiffUpdate
 import net.rwhps.server.util.annotations.NeedHelp
 import net.rwhps.server.util.file.FileUtils
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.file.plugin.PluginManage
+import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.log.Log
 import java.util.*
@@ -86,11 +86,11 @@ class CoreCommands(handler: CommandHandler) {
                     )
             )
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal .. IRwHps.NetType.ServerTestProtocol.ordinal) {
-                HessModuleManage.hessLoaderMap.values.forEach {
+                HeadlessModuleManage.hessLoaderMap.values.forEach {
                     log(
                             localeUtil.getinput(
                                     "status.versionS.server",
-                                    it.room.mapName,
+                                    it.room.maps.mapName,
                                     it.room.playerManage.playerAll.size,
                                     NetStaticData.ServerNetType.name,
                                     it.useClassLoader,
@@ -229,7 +229,7 @@ class CoreCommands(handler: CommandHandler) {
 
             NetStaticData.ServerNetType = IRwHps.NetType.RelayMulticastProtocol
 
-            handler.handleMessage("startnetservice true 5200 5500")
+            handler.handleMessage("startnetservice true 7000 8000")
         }
 
         handler.register("startnetservice", "<isPort> [sPort] [ePort]", "HIDE") { arg: Array<String>?, _: StrCons? ->
@@ -240,7 +240,8 @@ class CoreCommands(handler: CommandHandler) {
                     if (NetStaticData.ServerNetType == IRwHps.NetType.RelayProtocol || NetStaticData.ServerNetType == IRwHps.NetType.RelayMulticastProtocol) {
                         netServiceTcp.workThreadCount = 3000
                     } else {
-                        netServiceTcp.workThreadCount = Data.configServer.maxPlayer
+                        // 用户 CPU 并没有那么强悍
+                        //netServiceTcp.workThreadCount = Data.configServer.maxPlayer
                     }
 
                     Threads.newThreadCoreNet {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -27,21 +27,27 @@ import java.lang.reflect.Field
 data class BeanServerConfig(
     val enterAd: String = "",
     val startAd: String = "",
-    val maxPlayerAd: String = "",
-    val startPlayerAd: String = "",
+    val maxPlayerJoinAd: String = "",
+    val startPlayerJoinAd: String = "",
 
     /** 密码 */
     val passwd: String = "",
 
     /** 服务器最大人数 */
     val maxPlayer: Int = 10,
-    /** 服务器最大游戏时间 (s) 2*60*60 (-1 为禁用) */
-    val maxGameIngTime: Int = 7200,
-    val maxOnlyAIGameIngTime: Int = 3600,
+    /** only Admin (Auto) */
+    val oneAdmin: Boolean = true,
+
     /** 服务器最小Start人数 (-1 为禁用) */
     val startMinPlayerSize: Int = -1,
     /** 服务器最小AutoStart人数 (-1 为禁用) */
     val autoStartMinPlayerSize: Int = 4,
+    /** 服务器最大游戏时间 (s) 2Hour (-1 为禁用) */
+    val maxGameIngTime: Int = 7200,
+    /** 服务器最大仅AI游戏时间 (s) 1Hour (-1 为禁用) */
+    val maxOnlyAIGameIngTime: Int = 3600,
+
+
     /** 最大发言长度 */
     val maxMessageLen: Int = 40,
     /** 最大单位数 */
@@ -54,10 +60,13 @@ data class BeanServerConfig(
     /** Mod 加载的错误信息 */
     val modsLoadErrorPrint: Boolean = false,
 
-    /** only Admin */
-    val oneAdmin: Boolean = true,
     /** 是否保存 RePlay */
     val saveRePlayFile: Boolean = true,
+
+    /** 无头下的游戏帧率锁定, 可以减缓CPU占用 */
+    val headlessFPS: Int = 60,
+
+    /***/
 ) {
     private fun checkValue() {
         // 拒绝最大玩家数超过最小开始玩家数

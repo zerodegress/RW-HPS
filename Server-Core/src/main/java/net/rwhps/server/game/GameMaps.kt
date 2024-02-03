@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,6 +10,7 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.game.GameMaps.MapFileType.*
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
@@ -21,7 +22,7 @@ import net.rwhps.server.util.log.Log.error
  */
 class GameMaps {
     /** 地图类型  */
-    var mapType = MapType.defaultMap
+    var mapType = MapType.DefaultMap
 
     /** 地图数据  */
     var mapData: MapData? = null
@@ -32,38 +33,40 @@ class GameMaps {
     /** 地图人数  */
     var mapPlayer = "[z;p10]"
 
-    /** 地图的类型  */
-    enum class MapType {
+    /**
+     * 地图的类型
+     * @property fileType 地图文件后缀
+     * @constructor
+     */
+    enum class MapType(val fileType: String) {
         /**
-         * defaultMap : 官方地图
+         * DefaultMap : 官方地图
          * customMap  : 自定义的地图
-         * savedGames : 游戏里保存的进度
+         * SavedGames : 游戏里保存的进度
          */
-        defaultMap,
-        customMap,
-        savedGames
+        DefaultMap(".tmx"),
+        CustomMap(".tmx"),
+        SavedGames(".rwsave");
     }
 
     enum class MapFileType {
         /**
-         * file : 以文件的形式提供
-         * zip  : 以ZIP提供(文件在ZIP内)
-         * web  : 以WebFile的形式提供(需要下载)
+         * File         : 以文件的形式提供
+         * Zip          : 以ZIP提供(文件在ZIP内)
+         * WebDownLoad  : 以WebFile的形式提供(需要下载)
          */
-        file,
-        zip,
-        web
+        File,
+        Zip,
+        WebDownLoad;
     }
 
     class MapData {
         val mapType: MapType
-        val mapFileType: MapFileType
         val mapFileName: String
-        val zipFileName: String?
-        var mapSize = 0
-        var bytesMap: ByteArray? = null
 
-        var mapClean = false
+        private val mapFileType: MapFileType
+        private val zipFileName: String?
+        private var mapClean = false
         private var mapFile: FileUtils? = null
 
 
@@ -82,49 +85,43 @@ class GameMaps {
         }
 
         /**
-         * 根据地图类型获取文件后缀
-         * @return 后缀
-         */
-        val type: String
-            get() = if ("savedGames" == mapType.name) ".save" else ".tmx"
-
-        /**
          * 懒加载
          * 读取地图到内部bytes
          */
-        fun readMap(): FileUtils {
-            val fileUtil = getFolder(Data.ServerMapsPath)
+        fun readMap() {
+            val fileUtil = if (mapType == MapType.SavedGames) {
+                getFolder(Data.ServerSavePath, true)
+            } else {
+                getFolder(Data.ServerMapsPath, true)
+            }
+            if (fileUtil.toFile(mapFileName+mapType.fileType).exists()) {
+                return
+            }
+            var bytesMap: ByteArray? = null
             when (mapFileType) {
-                MapFileType.file -> try {
-                    bytesMap = fileUtil.toFile(mapFileName + type).readFileByte()
-                    mapSize = bytesMap!!.size
-                } catch (e: Exception) {
-                    error("Read Map Bytes Error", e)
+                File -> {
+                    // 忽略, 因为File不需要再次加载
                 }
-                MapFileType.zip -> try {
+                Zip -> try {
                     bytesMap = CompressionDecoderUtils.zip(fileUtil.toFile(zipFileName!!).file)
                         .use { it.getTheFileBytesOfTheSpecifiedSuffixInTheZip(this) }
-                    mapSize = bytesMap!!.size
                 } catch (e: Exception) {
                     error("Read Map Bytes Error", e)
                 }
-                MapFileType.web -> {
+                WebDownLoad -> {
                 }
             }
 
             mapClean = true
-            mapFile = getFolder(Data.ServerMapsPath).toFile(MapManage.maps.mapName + ".tmx")
+
+            mapFile = fileUtil.toFile(mapFileName+mapType.fileType)
             mapFile!!.writeFileByte(bytesMap!!)
-            return mapFile!!
         }
 
         /**
          * 清理服务器使用的地图数据
          */
         fun clean() {
-            mapSize = 0
-            bytesMap = null
-
             if (mapClean) {
                 mapFile!!.delete()
                 mapFile = null

@@ -4,6 +4,7 @@ import net.rwhps.asm.api.listener.RedirectionListener
 import net.rwhps.asm.api.replace.RedirectionReplace
 import net.rwhps.asm.data.ListenerRedirectionsDataManager
 import net.rwhps.asm.data.MethodTypeInfoValue
+import net.rwhps.asm.data.RemoveRedirectionsDataManager
 import net.rwhps.asm.data.ReplaceRedirectionsDataManager
 import net.rwhps.asm.func.Find
 import net.rwhps.asm.redirections.replace.def.BasicDataRedirections
@@ -22,6 +23,10 @@ interface MainRedirections {
         ReplaceRedirectionsDataManager.addAllMethodReplace(classPath)
     }
 
+    fun addAllReplace(classPath: String, removeSync: Boolean) {
+        ReplaceRedirectionsDataManager.addAllMethodReplace(classPath, removeSync)
+    }
+
     fun addAllReplace(classFind: Find<String, Boolean>) {
         ReplaceRedirectionsDataManager.addAllMethodReplace(classFind)
     }
@@ -34,7 +39,15 @@ interface MainRedirections {
         ReplaceRedirectionsDataManager.addPartialMethodReplace(methodTypeInfoValue, redirection)
     }
 
+    fun redirectL(methodTypeInfoValue: MethodTypeInfoValue) {
+        ListenerRedirectionsDataManager.addPartialMethodListener(methodTypeInfoValue, null)
+    }
+
     fun redirectL(methodTypeInfoValue: MethodTypeInfoValue, redirection: RedirectionListener?) {
         ListenerRedirectionsDataManager.addPartialMethodListener(methodTypeInfoValue, redirection)
+    }
+
+    fun redirectRemove(methodTypeInfoValue: MethodTypeInfoValue) {
+        RemoveRedirectionsDataManager.addPartialMethodRemove(methodTypeInfoValue)
     }
 }

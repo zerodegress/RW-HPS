@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -12,15 +12,14 @@ package net.rwhps.server.core
 import com.sun.jna.NativeLibrary
 import net.rwhps.server.Main
 import net.rwhps.server.core.ServiceLoader.ServiceType
-import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.serverCountry
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.dependent.LibraryManager
-import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.manage.HeadlessModuleManage
+import net.rwhps.server.game.room.RelayRoom
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.NetService
@@ -34,6 +33,8 @@ import net.rwhps.server.util.algorithms.Aes
 import net.rwhps.server.util.algorithms.Rsa
 import net.rwhps.server.util.annotations.mark.PrivateMark
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.file.load.I18NBundle
+import net.rwhps.server.util.file.plugin.PluginData
 import net.rwhps.server.util.inline.readBytes
 import net.rwhps.server.util.inline.readFileListString
 import net.rwhps.server.util.inline.toPrettyPrintingJson
@@ -63,10 +64,10 @@ class Initialization {
     }
 
     private fun loadLang() {
-        Data.i18NBundleMap["CN"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!)
-        Data.i18NBundleMap["HK"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!)
-        Data.i18NBundleMap["RU"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!)
-        Data.i18NBundleMap["EN"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!)
+        Data.i18NBundleMap["CN"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/HPS_zh_CN.properties")!!)
+        Data.i18NBundleMap["HK"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/HPS_zh_HK.properties")!!)
+        Data.i18NBundleMap["RU"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/HPS_ru_RU.properties")!!)
+        Data.i18NBundleMap["EN"] = I18NBundle(Main::class.java.getResourceAsStream("/bundles/HPS_en_US.properties")!!)
 
         // Default use EN
         Data.i18NBundle = Data.i18NBundleMap["EN"]!!
@@ -156,7 +157,7 @@ class Initialization {
                             BaseDataSend(
                                     IsServer = true,
                                     ServerData = BaseDataSend.Companion.ServerData(IpPlayerCountry = mutableMapOf<String, Int>().also {
-                                        HessModuleManage.hps.room.playerManage.playerGroup.eachAll { player ->
+                                        HeadlessModuleManage.hps.room.playerManage.playerGroup.eachAll { player ->
                                             val ipCountry = (player.con!! as AbstractNetConnect).ipCountry
                                             if (it.containsKey(ipCountry)) {
                                                 it[ipCountry] = it[ipCountry]!! + 1
@@ -284,11 +285,7 @@ class Initialization {
             val excludeImport: (String) -> Unit = {
                 val libData = it.split(":")
                 if (libData[0] == "jar") {
-                    libraryManager.implementation(
-                            libData[1],
-                            libData[2],
-                            libData[3],
-                            libData[4].let { classifier -> if (classifier == "null") "" else classifier })
+                    libraryManager.implementation(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
                 }
             }
             FileUtils.getInternalFileStream("/maven/ASM-Framework/compileOnly.txt").readFileListString().eachAll(excludeImport)
@@ -299,18 +296,10 @@ class Initialization {
             val libImport: (String) -> Unit = {
                 val libData = it.split(":")
                 if (libData[0] == "jar") {
-                    libraryManager.exclude(
-                            libData[1],
-                            libData[2],
-                            libData[3],
-                            libData[4].let { classifier -> if (classifier == "null") "" else classifier })
+                    libraryManager.exclude(libData[1], libData[2], libData[3], libData[4].let { classifier -> if (classifier == "null") "" else classifier })
                 }
             }
-            FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll {
-                if (!it.contains("RustedwarfareServer:TimeTaskQuartz") && !it.contains("RustedwarfareServer:ASM-Framework")) {
-                    libImport(it)
-                }
-            }
+            FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll { libImport(it) }
             FileUtils.getInternalFileStream("/maven/ASM-Framework/implementation.txt").readFileListString().eachAll(libImport)
             FileUtils.getInternalFileStream("/maven/Server-Core/implementation.txt").readFileListString().eachAll(libImport)
             FileUtils.getInternalFileStream("/maven/TimeTaskQuartz/implementation.txt").readFileListString().eachAll(libImport)
@@ -368,7 +357,7 @@ class Initialization {
                     }.get(),
                     val RoomAllSize: Int = RelayRoom.roomAllSize,
                     val RoomNoStartSize: Int = RelayRoom.roomNoStartSize,
-                    val RoomPublicListSize: Int = 0,
+                    val RoomPublicListSize: Int = RelayRoom.roomPublicSize,
                     val PlayerVersion: Map<Int, Int> = RelayRoom.getAllRelayVersion(),
                     val IpPlayerCountry: Map<String, Int> = RelayRoom.getAllRelayIpCountry(),
                 )

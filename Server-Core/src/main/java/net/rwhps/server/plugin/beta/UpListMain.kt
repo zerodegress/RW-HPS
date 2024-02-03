@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -13,9 +13,8 @@ import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.json.Json
 import net.rwhps.server.func.StrCons
-import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.manage.HeadlessModuleManage
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
@@ -23,7 +22,8 @@ import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.IpUtils
 import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.algorithms.Base64
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.file.json.Json
+import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
 
@@ -162,8 +162,8 @@ internal class UpListMain: Plugin() {
         addData0 = addData0.replace("{RW-HPS.S.PORT}", port)
 
 
-        addData0 = addData0.replace("{RW-HPS.RW.MAP.NAME}", HessModuleManage.hps.room.mapName)
-        addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE}", HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+        addData0 = addData0.replace("{RW-HPS.RW.MAP.NAME}", HeadlessModuleManage.hps.room.maps.mapName)
+        addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE}", HeadlessModuleManage.hps.room.playerManage.playerGroup.size.toString())
 
         addData0 = addData0.replace("{RW-HPS.PLAYER.SIZE.MAX}", Data.configServer.maxPlayer.toString())
 
@@ -204,9 +204,9 @@ internal class UpListMain: Plugin() {
         updateData0 = updateData0.replace("{RW-HPS.S.PORT}", port)
 
 
-        updateData0 = updateData0.replace("{RW-HPS.RW.MAP.NAME}", HessModuleManage.hps.room.mapName)
-        updateData0 = updateData0.replace("{RW-HPS.S.STATUS}", if (HessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
-        updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE}", HessModuleManage.hps.room.playerManage.playerGroup.size.toString())
+        updateData0 = updateData0.replace("{RW-HPS.RW.MAP.NAME}", HeadlessModuleManage.hps.room.maps.mapName)
+        updateData0 = updateData0.replace("{RW-HPS.S.STATUS}", if (HeadlessModuleManage.hps.room.isStartGame) "ingame" else "battleroom")
+        updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE}", HeadlessModuleManage.hps.room.playerManage.playerGroup.size.toString())
 
 
         updateData0 = updateData0.replace("{RW-HPS.PLAYER.SIZE.MAX}", Data.configServer.maxPlayer.toString())

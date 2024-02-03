@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,12 +10,8 @@
 package net.rwhps.server.dependent
 
 import net.rwhps.asm.agent.AsmAgent
-import net.rwhps.server.dependent.redirections.game.CustomRedirections
-import net.rwhps.server.dependent.redirections.game.FileLoaderRedirections
 import net.rwhps.server.dependent.redirections.game.GameMainRedirections
-import net.rwhps.server.dependent.redirections.game.NetPacketRedirections
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglRedirections
-import net.rwhps.server.dependent.redirections.slick.AppGameContainerRedirection
 import net.rwhps.server.dependent.redirections.slick.SlickRedirections
 import net.rwhps.server.util.annotations.mark.AsmMark
 
@@ -38,14 +34,9 @@ class HeadlessProxyClass: AgentAttachData() {
         LwjglRedirections().register()
         /* Register headless Slick */
         SlickRedirections().register()
-        AppGameContainerRedirection().register()
+        /* Game */
         GameMainRedirections().register()
-        /* Register headless FileSystem */
-        FileLoaderRedirections().register()
-        /* Register some dependent features */
-        CustomRedirections().register()
-        /* Register for network blocking */
-        NetPacketRedirections().register()
+
 
         AsmAgent.agentmain(this.instrumentation)
     }

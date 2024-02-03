@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -12,9 +12,9 @@ package net.rwhps.server.command.ex
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.core.thread.Threads.newTimedTask
-import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.game.manage.HeadlessModuleManage
+import net.rwhps.server.game.player.PlayerHess
 import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.ImplementedException
@@ -119,16 +119,16 @@ class Vote {
      * 正常投票
      */
     private fun normalDistribution() {
-        require = HessModuleManage.hps.room.playerManage.playerGroup.size
+        require = HeadlessModuleManage.hps.room.playerManage.playerGroup.size
         endNoMsg = {
-            HessModuleManage.hps.room.call.sendSystemMessageLocal(
+            HeadlessModuleManage.hps.room.call.sendSystemMessageLocal(
                     "vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require
             )
         }
-        endYesMsg = { HessModuleManage.hps.room.call.sendSystemMessageLocal("vote.ok") }
-        votePlayerIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.y.ing", command, pass, this.require) }
-        voteIng = { HessModuleManage.hps.room.call.sendSystemMessage("vote.ing", reciprocal) }
-        start { HessModuleManage.hps.room.call.sendSystemMessage("vote.start", player.name, command + " " + (targetPlayer?.name ?: "")) }
+        endYesMsg = { HeadlessModuleManage.hps.room.call.sendSystemMessageLocal("vote.ok") }
+        votePlayerIng = { HeadlessModuleManage.hps.room.call.sendSystemMessage("vote.y.ing", command, pass, this.require) }
+        voteIng = { HeadlessModuleManage.hps.room.call.sendSystemMessage("vote.ing", reciprocal) }
+        start { HeadlessModuleManage.hps.room.call.sendSystemMessage("vote.start", player.name, command + " " + (targetPlayer?.name ?: "")) }
     }
 
     /**
@@ -136,22 +136,22 @@ class Vote {
      */
     private fun teamOnly() {
         val require = AtomicInteger(0)
-        HessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == player.team }) { _: PlayerHess -> require.getAndIncrement() }
+        HeadlessModuleManage.hps.room.playerManage.playerGroup.eachAllFind({ e: PlayerHess -> e.team == player.team }) { _: PlayerHess -> require.getAndIncrement() }
         this.require = require.get()
         endNoMsg = {
-            HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
+            HeadlessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
                     player.team, "vote.done.no", command + " " + (targetPlayer?.name ?: ""), pass, this.require
             )
         }
-        endYesMsg = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
+        endYesMsg = { HeadlessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ok") }
         votePlayerIng = {
-            HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
+            HeadlessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
                     player.team, "vote.y.ing", command, pass, this.require
             )
         }
-        voteIng = { HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ing", reciprocal) }
+        voteIng = { HeadlessModuleManage.hps.room.call.sendSystemTeamMessageLocal(player.team, "vote.ing", reciprocal) }
         start {
-            HessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
+            HeadlessModuleManage.hps.room.call.sendSystemTeamMessageLocal(
                     player.team, "vote.start", player.name, command + " " + (targetPlayer?.name ?: "")
             )
         }
@@ -244,7 +244,7 @@ class Vote {
         init {
             commandStartData["gameover"] = { it.normalDistribution() }
 
-            commandEndData["gameover"] = { HessModuleManage.hps.room.gr() }
+            commandEndData["gameover"] = { HeadlessModuleManage.hps.room.gr() }
         }
 
         @JvmStatic

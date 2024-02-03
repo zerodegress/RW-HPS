@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -24,7 +24,15 @@ import net.rwhps.server.util.ExtractUtils
  * @property size Int
  */
 @Suppress("UNUSED", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threadSafety: Boolean): MutableList<T>, List<T> {
+abstract class BaseSeq<T>(
+    protected val listObject: java.util.List<T>,
+    listLock: (java.util.List<T>)->java.util.List<T>,
+    protected val threadSafety: Boolean
+): MutableList<T>, List<T> {
+
+    private val list = if (threadSafety) listLock(listObject) else listObject
+
+    abstract fun elements(): Any
 
     override val size: Int get() = list.size
     override fun isEmpty(): Boolean = list.isEmpty()
@@ -73,33 +81,41 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
     override fun contains(element: T): Boolean = list.contains(element)
     override fun containsAll(elements: Collection<T>): Boolean = list.containsAll(elements)
 
+    override fun clear() = list.clear()
+
+    abstract fun <E> toArray(classJava: Class<E>): Any
+
+    abstract fun clone(): Any
+
+    override fun toString(): String = list.toString()
+
     fun find(findA: FindSeq<T, Boolean>): T? {
-        var result: T? = null
         ExtractUtils.synchronizedX(threadSafety, list) {
             list.forEach {
                 if (findA(it)) {
-                    result = it
+                    return it
                 }
             }
         }
-        return result
+        return null
     }
 
     fun find(findA: FindSeq<T, Boolean>, findB: FindSeq<T, Boolean>): T? {
-        var result: T? = null
         ExtractUtils.synchronizedX(threadSafety, list) {
             list.forEach {
                 if (findA(it) && findB(it)) {
-                    result = it
+                    return it
                 }
             }
         }
-        return result
+        return null
     }
 
     fun eachAll(block: ConsSeq<T>) {
         ExtractUtils.synchronizedX(threadSafety, list) {
-            list.forEach { block(it) }
+            list.forEach {
+                block(it)
+            }
         }
     }
 
@@ -107,7 +123,7 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
         ExtractUtils.synchronizedX(threadSafety, list) {
             list.forEach {
                 if (findA(it) == ControlFind.BREAK) {
-                    return@synchronizedX
+                    return
                 }
             }
         }
@@ -121,11 +137,4 @@ abstract class BaseSeq<T>(private val list: java.util.List<T>, private val threa
 
     fun eachFind(find: FindSeq<T, Boolean>, block: ConsSeq<T>) = find(find)?.let { block(it) }
     fun eachAllFinds(findA: FindSeq<T, Boolean>, findB: FindSeq<T, Boolean>, block: ConsSeq<T>) = find(findA, findB)?.let { block(it) }
-
-    override fun clear() = list.clear()
-
-    @Suppress("UNCHECKED_CAST")
-    fun <E> toArray(classJava: Class<E>): Array<E> = list.toArray(java.lang.reflect.Array.newInstance(classJava, size) as Array<out E>)
-
-    override fun toString(): String = list.toString()
 }

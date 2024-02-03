@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -14,6 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.game.event.core.EventListenerHost
 import net.rwhps.server.game.event.game.*
+import net.rwhps.server.game.manage.HeadlessModuleManage
 import net.rwhps.server.net.Administration.PlayerInfo
 import net.rwhps.server.util.Time.millis
 import net.rwhps.server.util.annotations.core.EventListenerHandler
@@ -30,8 +31,8 @@ import java.util.concurrent.TimeUnit
 class Event: EventListenerHost {
     @EventListenerHandler
     fun registerServerHessStartPort(serverHessStartPort: ServerHessStartPort) {
-        HessModuleManage.hps.gameLinkData.maxUnit = Data.configServer.maxUnit
-        HessModuleManage.hps.gameLinkData.income = Data.configServer.defIncome
+        HeadlessModuleManage.hps.gameLinkData.maxUnit = Data.configServer.maxUnit
+        HeadlessModuleManage.hps.gameLinkData.income = Data.configServer.defIncome
 
         if (Data.config.autoUpList) {
             Data.SERVER_COMMAND.handleMessage("uplist add", Data.defPrint)
@@ -69,15 +70,15 @@ class Event: EventListenerHost {
             }
         }
 
-        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
+        HeadlessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("player.ent", player.name))
         Log.clog("&c" + Data.i18NBundle.getinput("player.ent", player.name))
 
-        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.autoStartMinPlayerSize && !Threads.containsTimeTask(
+        if (Data.configServer.autoStartMinPlayerSize != -1 && HeadlessModuleManage.hps.room.playerManage.playerGroup.size >= Data.configServer.autoStartMinPlayerSize && !Threads.containsTimeTask(
                     CallTimeTask.AutoStartTask
             )) {
             var flagCount = 60
             Threads.newTimedTask(CallTimeTask.AutoStartTask, 0, 1, TimeUnit.SECONDS) {
-                if (HessModuleManage.hps.room.isStartGame) {
+                if (HeadlessModuleManage.hps.room.isStartGame) {
                     Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                     return@newTimedTask
                 }
@@ -86,7 +87,7 @@ class Event: EventListenerHost {
 
                 if (flagCount > 0) {
                     if ((flagCount - 5) > 0) {
-                        HessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start", flagCount))
+                        HeadlessModuleManage.hps.room.call.sendSystemMessage(Data.i18NBundle.getinput("auto.start", flagCount))
                     }
                     return@newTimedTask
                 }
@@ -94,7 +95,7 @@ class Event: EventListenerHost {
                 Threads.closeTimeTask(CallTimeTask.AutoStartTask)
                 Threads.closeTimeTask(CallTimeTask.PlayerAfkTask)
 
-                HessModuleManage.hps.room.clientHandler.handleMessage("start", null)
+                HeadlessModuleManage.hps.room.clientHandler.handleMessage("start", null)
             }
         }
 
@@ -107,26 +108,26 @@ class Event: EventListenerHost {
     @EventListenerHandler
     fun registerPlayerLeaveEvent(playerLeaveEvent: PlayerLeaveEvent) {
         val player = playerLeaveEvent.player
-        if (Data.configServer.oneAdmin && player.isAdmin && player.autoAdmin && HessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
-            HessModuleManage.hps.room.playerManage.playerGroup.eachFind({ !it.isAdmin }) {
+        if (Data.configServer.oneAdmin && player.isAdmin && player.autoAdmin && HeadlessModuleManage.hps.room.playerManage.playerGroup.size > 0) {
+            HeadlessModuleManage.hps.room.playerManage.playerGroup.eachFind({ !it.isAdmin }) {
                 it.isAdmin = true
                 it.autoAdmin = true
                 player.isAdmin = false
                 player.autoAdmin = false
-                HessModuleManage.hps.room.call.sendSystemMessage("give.ok", it.name)
+                HeadlessModuleManage.hps.room.call.sendSystemMessage("give.ok", it.name)
             }
         }
 
         Data.core.admin.playerDataCache[player.connectHexID] = PlayerInfo(player.connectHexID, player.kickTime, player.muteTime)
 
-        if (HessModuleManage.hps.room.isStartGame) {
-            HessModuleManage.hps.room.call.sendSystemMessage("player.dis", player.name)
+        if (HeadlessModuleManage.hps.room.isStartGame) {
+            HeadlessModuleManage.hps.room.call.sendSystemMessage("player.dis", player.name)
         } else {
-            HessModuleManage.hps.room.call.sendSystemMessage("player.disNoStart", player.name)
+            HeadlessModuleManage.hps.room.call.sendSystemMessage("player.disNoStart", player.name)
         }
         Log.clog("&c" + Data.i18NBundle.getinput("player.dis", player.name))
 
-        if (Data.configServer.autoStartMinPlayerSize != -1 && HessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.autoStartMinPlayerSize && Threads.containsTimeTask(
+        if (Data.configServer.autoStartMinPlayerSize != -1 && HeadlessModuleManage.hps.room.playerManage.playerGroup.size <= Data.configServer.autoStartMinPlayerSize && Threads.containsTimeTask(
                     CallTimeTask.AutoStartTask
             )) {
             Threads.closeTimeTask(CallTimeTask.AutoStartTask)
@@ -138,7 +139,7 @@ class Event: EventListenerHost {
         Data.core.admin.playerDataCache.clear()
 
         if (Data.configServer.startAd.isNotBlank()) {
-            HessModuleManage.hps.room.call.sendSystemMessage(Data.configServer.startAd)
+            HeadlessModuleManage.hps.room.call.sendSystemMessage(Data.configServer.startAd)
         }
 
         Log.clog("[Start New Game]")
@@ -159,7 +160,7 @@ class Event: EventListenerHost {
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
-        HessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
+        HeadlessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
     }
 
     @EventListenerHandler
@@ -167,10 +168,10 @@ class Event: EventListenerHost {
         val player = serverIpBanEvent.player
         Data.core.admin.bannedIPs.add(player.con!!.coverConnect().ip)
         try {
-            player.kickPlayer("kick.ban")
+            player.kickPlayer(player.i18NBundle.getinput("kick.ban"))
         } catch (ioException: IOException) {
             error("[Player] Send Kick Player Error", ioException)
         }
-        HessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
+        HeadlessModuleManage.hps.room.call.sendSystemMessage("ban.yes", player.name)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -18,11 +18,12 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus.*
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServerInternalPacket
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.PacketType.*
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.annotations.mark.PrivateMark
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.command.CommandHandler
 
 /**
  * Parse the [net.rwhps.server.net.core.IRwHps.NetType.RelayProtocol] protocol
@@ -64,10 +65,12 @@ open class TypeRelay: TypeConnect {
             return
         }
 
-        if (con.permissionStatus == HostPermission) {
-            hostProcessing(packet)
+        if (packet.type.typeInt < 100) {
+            con.relayRoom!!.addPacketProcess {
+                packetProcessing(packet)
+            }
         } else {
-            normalProcessing(packet)
+            packetProcessing(packet)
         }
     }
 
@@ -110,6 +113,14 @@ open class TypeRelay: TypeConnect {
                 // Relay HOST should no longer send any more packets for the server to process
                 // Ignore
             }
+        }
+    }
+
+    private fun packetProcessing(packet: Packet) {
+        if (con.permissionStatus == HostPermission) {
+            hostProcessing(packet)
+        } else {
+            normalProcessing(packet)
         }
     }
 
@@ -190,19 +201,7 @@ open class TypeRelay: TypeConnect {
                     if (con.receiveVerifyClientValidity(packet)) {
                         // Certified End
                         con.permissionStatus = CertifiedEnd
-                        if (!Data.config.singleUserRelay) {
-                            con.relayDirectInspection()
-                        } else {
-                            NetStaticData.relayRoom.setAddSize()
-                            // No HOST
-                            if (NetStaticData.relayRoom.admin == null) {
-                                // Set This is HOST
-                                con.sendRelayServerId()
-                            } else {
-                                // Join RELAY
-                                con.addRelayConnect()
-                            }
-                        }
+                        con.relayDirectInspection()
                     } else {
                         con.sendVerifyClientValidity()
                     }

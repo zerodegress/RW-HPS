@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,13 +10,14 @@
 package net.rwhps.server.data.global
 
 import net.rwhps.server.core.ServiceLoader
-import net.rwhps.server.core.game.RelayRoom
+import net.rwhps.server.game.room.RelayRoom
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.alone.BlackList
 import net.rwhps.server.util.log.exp.ImplementedException
+import net.rwhps.server.util.pool.HttpSynchronize
 
 /**
  * @author Dr (dr@der.kim)
@@ -34,6 +35,9 @@ object NetStaticData {
 
     @JvmField
     val blackList = BlackList()
+
+    @JvmField
+    val httpSynchronize = HttpSynchronize()
 
     var ServerNetType: IRwHps.NetType = IRwHps.NetType.NullProtocol
         set(value) {
@@ -54,6 +58,14 @@ object NetStaticData {
 
     @JvmField
     var netService = Seq<NetService>(4)
+
+    @JvmStatic
+    fun initPx() {
+        httpSynchronize.setUser("test", "relaycn123456")
+        httpSynchronize.addUrl("http://gs1.corrodinggames.com/masterserver/1.4/interface")
+        httpSynchronize.addUrl("http://gs4.corrodinggames.net/masterserver/1.4/interface")
+        httpSynchronize.addProxy(20)
+    }
 
     @JvmStatic
     fun checkServerStartNet(run: (() -> Unit)?): Boolean {

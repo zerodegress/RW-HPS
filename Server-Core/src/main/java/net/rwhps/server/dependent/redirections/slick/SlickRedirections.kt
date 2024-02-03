@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -31,6 +31,13 @@ import net.rwhps.server.util.inline.toClass
 class SlickRedirections: MainRedirections {
     override fun register() {
         addAllReplace("org/newdawn/slick/opengl/renderer/VBORenderer")
+        addAllReplace("org/newdawn/slick/AngelCodeFont")
+        // 干掉渲染引擎
+        addAllReplace("org/newdawn/slick/Graphics")
+
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/Input","poll", "(II)V"), BasicDataRedirections.NULL)
+        redirectR(MethodTypeInfoValue("org/newdawn/slick/Music","poll", "(I)V"), BasicDataRedirections.NULL)
+
 
         // Remove game mouse cursor
         redirectR(MethodTypeInfoValue("org/newdawn/slick/AppGameContainer", "setMouseCursor", "(Lorg/newdawn/slick/Image;II)V"), BasicDataRedirections.NULL)
@@ -62,9 +69,5 @@ class SlickRedirections: MainRedirections {
                     }.accessibleConstructor(SilckClassPathProperties.Image.toClass(classLoader)!!).newInstance(args[0])
             )
         }
-
-        // Set the texture length and width
-        redirectR(MethodTypeInfoValue("org/newdawn/slick/opengl/TextureImpl", "getTextureHeight", "()I"), BasicDataRedirections.INT)
-        redirectR(MethodTypeInfoValue("org/newdawn/slick/opengl/TextureImpl", "getTextureWidth", "()I"), BasicDataRedirections.INT)
     }
 }

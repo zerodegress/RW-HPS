@@ -69,7 +69,10 @@ class JavaScriptPluginTest {
         }
         scriptPluginGlobalContext.addESMPlugin(
                 BeanPluginInfo(
-                        name = "JsScriptBaseTest", author = "Dr", main = "main.mjs"
+                        name = "JsScriptBaseTest",
+                        internalName = "JsScriptBaseTest",
+                        author = "Dr",
+                        main = "main.mjs"
                 ), baseTest
         )
 
@@ -125,7 +128,10 @@ class JavaScriptPluginTest {
         }
         scriptPluginGlobalContext.addESMPlugin(
                 BeanPluginInfo(
-                        name = "JsScriptExtendedTest", author = "Dr", main = "main.mjs"
+                        name = "JsScriptExtendedTest",
+                        internalName = "JsScriptExtendedTest",
+                        author = "Dr",
+                        main = "main.mjs"
                 ), extendedTest
         )
 
@@ -214,17 +220,26 @@ class JavaScriptPluginTest {
         // 这个是模块化, 可以使用import/export
         scriptPluginGlobalContext.addESMPlugin(
                 BeanPluginInfo(
-                        name = "a", author = "zerodegress", main = "index.js"
+                        name = "aaaaaa",
+                        internalName = "a",
+                        author = "zerodegress",
+                        main = "index.js"
                 ), plugin1
         )
         scriptPluginGlobalContext.addESMPlugin(
                 BeanPluginInfo(
-                        name = "b", author = "zerodegress", main = "index.js"
+                        name = "b",
+                        internalName = "b",
+                        author = "zerodegress",
+                        main = "index.js"
                 ), plugin2
         )
         scriptPluginGlobalContext.addESMPlugin(
                 BeanPluginInfo(
-                        name = "c", author = "zerodegress", main = "index.js"
+                        name = "cxxxx",
+                        internalName = "c",
+                        author = "zerodegress",
+                        main = "index.js"
                 ), plugin3
         )
         scriptPluginGlobalContext.loadESMPlugins().eachAll {

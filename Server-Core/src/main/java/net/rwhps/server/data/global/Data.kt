@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -18,11 +18,11 @@ import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.http.WebData
 import net.rwhps.server.struct.map.ObjectMap
-import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.annotations.mark.PrivateMark
-import net.rwhps.server.util.file.LoadIni
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.file.load.I18NBundle
+import net.rwhps.server.util.file.load.LoadIni
+import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.log.Log
 import org.jline.reader.LineReader
 import java.nio.charset.Charset
@@ -38,7 +38,7 @@ object Data {
     const val ServerDataPath = "/data"
 
     /** 服务器save保存目录 */
-    const val ServerSavePath = "/data/save"
+    const val ServerSavePath = "/data/saves"
 
     /** 服务器缓存目录 */
     const val ServerCachePath = "/data/cache"
@@ -70,7 +70,9 @@ object Data {
 
     /** 服务器默认编码缓存 */
     @JvmField
-    val DefaultEncoding: Charset = SystemUtils.defaultEncoding/*
+    val DefaultEncoding: Charset = SystemUtils.defaultEncoding
+
+    /*
 	 * 插件默认变量
 	 */
 
@@ -84,7 +86,7 @@ object Data {
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
 
     /** 服务器主版本 */
-    const val SERVER_CORE_VERSION = "3.0.0-DEV9"
+    const val SERVER_CORE_VERSION = "3.0.0-DEV10"
 
     /** 服务器Topt密码  */
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"

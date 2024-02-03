@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -21,6 +21,7 @@ import okhttp3.Request.Builder
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.*
 import java.net.HttpURLConnection
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -30,6 +31,13 @@ import java.net.HttpURLConnection
 object HttpRequestOkHttp {
     private const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51"
     private val CLIENT = OkHttpClient()
+    private val RwClient = OkHttpClient.Builder().also { builder ->
+        builder.retryOnConnectionFailure(true)
+        builder.addInterceptor(MyOkHttpRetryInterceptor.Builder().executionCount(5).retryInterval(2500).build())
+        builder.connectTimeout(10, TimeUnit.SECONDS)
+        builder.readTimeout(10, TimeUnit.SECONDS)
+        builder.writeTimeout(10, TimeUnit.SECONDS)
+    }.build()
 
     /**
      * Send a GET request and get back
@@ -107,7 +115,7 @@ object HttpRequestOkHttp {
             .addHeader("Connection", "close")
             .post(parameterConversion(param).build()).build()
         try {
-            return getHttpResultString(request, true)
+            return getRwHttpResultString(request, true)
         } catch (e: Exception) {
             error("[UpList Error] CF CDN Error? (Ignorable)")
         }
@@ -232,6 +240,31 @@ object HttpRequestOkHttp {
         var result = ""
         try {
             CLIENT.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    error("Unexpected code", IOException())
+                }
+                result = response.body?.string() ?: ""
+                response.body?.close()
+            }
+        } catch (e: Exception) {
+            if (resultError) {
+                throw e
+            }
+        }
+        return result
+    }
+
+    /**
+     * Request and Return
+     * @param request     Request
+     * @param resultError Print Error
+     * @return            Result
+     */
+    @Throws(IOException::class)
+    private fun getRwHttpResultString(request: Request, resultError: Boolean): String {
+        var result = ""
+        try {
+            RwClient.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
                     error("Unexpected code", IOException())
                 }

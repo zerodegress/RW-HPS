@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -13,8 +13,8 @@ import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.MainRedirections
 import net.rwhps.server.dependent.redirections.slick.SilckClassPathProperties
-import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.struct.list.Seq
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.annotations.mark.AsmMark
 import net.rwhps.server.util.annotations.mark.GameSimulationLayer
@@ -22,10 +22,7 @@ import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileName
 import net.rwhps.server.util.file.FileUtils
-import net.rwhps.server.util.inline.accessibleConstructor
-import net.rwhps.server.util.inline.findField
-import net.rwhps.server.util.inline.readAsClassBytes
-import net.rwhps.server.util.inline.toClass
+import net.rwhps.server.util.inline.*
 import net.rwhps.server.util.log.Log
 import java.io.*
 import java.lang.reflect.Constructor
@@ -59,7 +56,8 @@ class FileLoaderRedirections: MainRedirections {
         FileUtils.getFolder(Data.ServerCachePath).delete()
     }
 
-    override fun register() {/* 修改 每个加载器下 [ResourceLoader] 的初始化实现, 来为 [ResourceLoader] 实现自定义内容 */
+    override fun register() {
+        /* 修改 每个加载器下 [ResourceLoader] 的初始化实现, 来为 [ResourceLoader] 实现自定义内容 */
         redirectR(MethodTypeInfoValue("org/newdawn/slick/util/ResourceLoader", "<clinit>", "()V")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
             val classIn = obj as Class<*>
             val classLoader = classIn.classLoader
@@ -79,6 +77,15 @@ class FileLoaderRedirections: MainRedirections {
             resourceLoader.findField("locations")!!.set(null, list)
             return@redirectR null
         }
+
+        /* 屏蔽游戏设置保存 */
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("preferences.ini")
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/SettingsEngine", "saveToFileSystem", "()Z")) { obj: Any, _: String, _: Class<*>, _: Array<out Any?> ->
+            "com.corrodinggames.rts.gameFramework.l".toClassAutoLoader(obj)!!.findMethod("b", String::class.java)!!
+                .invoke(null, "Saving settings: RW-HPS(ASM)")
+            return@redirectR true
+        }
+        redirectR(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/SettingsEngine", "loadFromFileSystem", "()V"))
 
         // 重定向部分文件系统 (mods maps replay)
         val filePath = FileUtils.getPath(Data.ServerDataPath) + "/"

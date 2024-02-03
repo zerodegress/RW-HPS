@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,15 +10,16 @@
 package net.rwhps.server.dependent.redirections.game
 
 import net.rwhps.asm.data.MethodTypeInfoValue
+import net.rwhps.asm.redirections.replace.def.BasicDataRedirections
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.redirections.MainRedirections
-import net.rwhps.server.game.HessModuleManage
 import net.rwhps.server.game.event.global.ServerHessLoadEvent
-import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
+import net.rwhps.server.game.manage.HeadlessModuleManage
+import net.rwhps.server.plugin.internal.headless.service.data.HessClassPathProperties
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.annotations.mark.AsmMark
 import net.rwhps.server.util.annotations.mark.GameSimulationLayer
+import net.rwhps.server.util.file.plugin.PluginManage
 import net.rwhps.server.util.inline.findMethod
 import net.rwhps.server.util.inline.toClassAutoLoader
 import net.rwhps.server.util.log.Log
@@ -34,6 +35,21 @@ import net.rwhps.server.util.log.Log
 @AsmMark.ClassLoaderCompatible
 class GameMainRedirections: MainRedirections {
     override fun register() {
+        /* Register headless FileSystem */
+        FileLoaderRedirections().register()
+        /* Register some dependent features */
+        CustomRedirections().register()
+        /* Register for network blocking */
+        NetPacketRedirections().register()
+        CleanRedirections().register()
+
+
+        // Remove Main-Loop
+        redirectRemove(MethodTypeInfoValue("com/corrodinggames/rts/java/b", "gameLoop", "()V"))
+
+        redirectL(MethodTypeInfoValue("com/corrodinggames/rts/java/b", "updateAndRender", "(I)V", true, FPSSleepRedirections::class.java))
+
+
         // 直接空实现 因为意义不大
         addAllReplace("org/newdawn/slick/util/DefaultLogSystem")
         addAllReplace("com/LibRocket")
@@ -42,9 +58,16 @@ class GameMainRedirections: MainRedirections {
         // 需要空实现
         redirectR(MethodTypeInfoValue("com/corrodinggames/librocket/b", "closeDocument", "(Lcom/ElementDocument;)V"))
         redirectR(MethodTypeInfoValue("com/corrodinggames/librocket/b", "closeActiveDocument", "()V"))
+        // 会被高频调用, 所以设置一个默认返回, 避免走 ASM 默认
+        redirectR(MethodTypeInfoValue("com/corrodinggames/librocket/b", "b", "()Z"), BasicDataRedirections.BOOLEANF)
 
         // 关闭MusicController
-        addAllReplace("com/corrodinggames/rts/gameFramework/am")
+        @GameSimulationLayer.GameSimulationLayer_KeyWords("startNewFrame() not supported on SlickLibRocket")
+        addAllReplace("com/corrodinggames/rts/java/d/a")
+        addAllReplace("com/corrodinggames/rts/java/s")
+        addAllReplace("com/corrodinggames/rts/gameFramework/am", true)
+        // 渲染
+        addAllReplace("com/corrodinggames/rts/java/e", true)
 
         /* 恢复-Root */
         redirectR(
@@ -95,7 +118,7 @@ class GameMainRedirections: MainRedirections {
             "${HessClassPathProperties.CorePath}.GameEngine".toClassAutoLoader(obj!!)!!.findMethod("init")!!.invoke(null)
 
             obj::class.java.classLoader.toString().let { loadID ->
-                PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HessModuleManage.hessLoaderMap[loadID]!!))
+                PluginManage.runGlobalEventManage(ServerHessLoadEvent(loadID, HeadlessModuleManage.hessLoaderMap[loadID]!!))
             }
 
         }
@@ -103,7 +126,7 @@ class GameMainRedirections: MainRedirections {
         @GameSimulationLayer.GameSimulationLayer_KeyWords("Recording replay to:")
         redirectL(MethodTypeInfoValue("com/corrodinggames/rts/gameFramework/ba", "d", "(Ljava/lang/String;)V", true)) { obj: Any?, _: String, args: Array<out Any?> ->
             Log.clog("Save Replay to: {0}", args[0].also { replayFileName ->
-                HessModuleManage.hessLoaderMap[obj!!::class.java.classLoader.toString()]!!.room.replayFileName = replayFileName.toString()
+                HeadlessModuleManage.hessLoaderMap[obj!!::class.java.classLoader.toString()]!!.room.replayFileName = replayFileName.toString()
             })
         }
     }

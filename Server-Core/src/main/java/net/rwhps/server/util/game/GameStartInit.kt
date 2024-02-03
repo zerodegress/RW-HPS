@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,13 +11,14 @@ package net.rwhps.server.util.game
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.net.HttpRequestOkHttp
-import net.rwhps.server.plugin.internal.hess.service.data.HessClassPathProperties
+import net.rwhps.server.plugin.internal.headless.service.data.HessClassPathProperties
 import net.rwhps.server.util.classload.GameModularLoadClass
 import net.rwhps.server.util.classload.GameModularReusableLoadClass
 import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log
 import java.lang.reflect.Method
+import kotlin.concurrent.thread
 
 /**
  * 游戏 资源文件 初始化
@@ -31,7 +32,7 @@ object GameStartInit {
         Res("408aa02d8566a771c5ad97caf9f1f701", gameCorePath.toFile("Game-Res.7z")),
         Fonts("e27f86783a04bb6c7bc7b4388f8c8539", gameCorePath.toFile("Game-Fonts.7z")),
         Assets("768984542af2f3bbe1269aca2c8749ff", gameCorePath.toFile("Game-Assets.7z")),
-        GameModularReusableClass("6594fd5d83efe562d6db0341f3cef815", gameCorePath.toFile("GameModularReusableClass.bin"))
+        GameModularReusableClass("1ff43b0cdc2d756bc956ac014f3b438e", gameCorePath.toFile("GameModularReusableClass.bin"))
     }
 
     fun init(load: GameModularReusableLoadClass): Boolean {
@@ -87,7 +88,7 @@ object GameStartInit {
                     }
                 }
                 //TODO Save GameModularReusableClass
-                load.saveData(FileUtils.getFolder(Data.ServerDataPath).toFile("GameModularReusableClass.bin"))
+                //load.saveData(FileUtils.getFolder(Data.ServerDataPath).toFile("GameModularReusableClass.bin"))
             }
         } catch (e: Exception) {
             Log.fatal(e)
@@ -97,25 +98,27 @@ object GameStartInit {
     }
 
     fun start(load: GameModularLoadClass) {
-        // Here, several intermediate signal transmission modules are directly injected into this loader
-        // Because this loader only has Game-lib.jar
-        // 注入 接口
-        CompressionDecoderUtils.zipAllReadStream(FileUtils.getMyCoreJarStream()).use {
-            it.getZipAllBytes().eachAll { k, v ->
-                if (
-                // 注入接口
-                    k.startsWith(HessClassPathProperties.path.replace(".", "/")) ||
-                    // 覆写游戏
-                    k.startsWith(HessClassPathProperties.GameHessPath.replace(".", "/"))) {
-                    val name = k.replace(".class", "")
-                    load.addClassBytes(name.replace("/", "."), v)
+        thread(name = "Start Hess Game", contextClassLoader = load, priority = Thread.MIN_PRIORITY) {
+            // Here, several intermediate signal transmission modules are directly injected into this loader
+            // Because this loader only has Game-lib.jar
+            // 注入 接口
+            CompressionDecoderUtils.zipAllReadStream(FileUtils.getMyCoreJarStream()).use {
+                it.getZipAllBytes().eachAll { k, v ->
+                    if (
+                    // 注入接口
+                        k.startsWith(HessClassPathProperties.path.replace(".", "/")) ||
+                        // 覆写游戏
+                        k.startsWith(HessClassPathProperties.GameHessPath.replace(".", "/"))) {
+                        val name = k.replace(".class", "")
+                        load.addClassBytes(name.replace("/", "."), v)
+                    }
                 }
             }
-        }
 
-        val testAClass: Class<*> = load.findClass("com.corrodinggames.rts.java.Main")!!
-        val mainMethod: Method = testAClass.getDeclaredMethod("main", Array<String>::class.java)
-        // 禁用软件加速/关声音/关音乐/不渲染
-        mainMethod.invoke(null, arrayOf("-disable_vbos", "-disable_atlas", "-nomusic", "-nosound", "-nodisplay"))
+            val testAClass: Class<*> = load.findClass("com.corrodinggames.rts.java.Main")!!
+            val mainMethod: Method = testAClass.getDeclaredMethod("main", Array<String>::class.java)
+            // 禁用软件加速/关声音/关音乐/不渲染
+            mainMethod.invoke(null, arrayOf("-disable_vbos", "-disable_atlas", "-nomusic", "-nosound", "-nodisplay", "-noresources"))
+        }
     }
 }

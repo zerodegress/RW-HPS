@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *  
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -12,10 +12,10 @@ package net.rwhps.server.core
 import net.rwhps.server.core.thread.Threads.addSavePool
 import net.rwhps.server.core.thread.Threads.runSavePool
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.plugin.PluginData
-import net.rwhps.server.data.plugin.PluginManage.runOnDisable
+import net.rwhps.server.util.file.plugin.PluginData
+import net.rwhps.server.util.file.plugin.PluginManage.runOnDisable
 import net.rwhps.server.net.Administration
-import net.rwhps.server.util.RandomUtils.getRandomString
+import net.rwhps.server.util.math.RandomUtils.getRandomString
 import net.rwhps.server.util.algorithms.digest.DigestUtils
 import net.rwhps.server.util.file.FileUtils
 import net.rwhps.server.util.log.Log

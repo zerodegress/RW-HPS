@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,10 +10,8 @@
 package com.corrodinggames.rts.gameFramework.j
 
 import net.rwhps.server.net.NetService
-import net.rwhps.server.plugin.internal.hess.inject.core.GameEngine
-import net.rwhps.server.plugin.internal.hess.inject.net.socket.StartGameHessNetTcp
+import net.rwhps.server.plugin.internal.headless.inject.net.socket.StartGameHessNetTcp
 import net.rwhps.server.util.inline.findField
-import net.rwhps.server.util.inline.ifResult
 import net.rwhps.server.util.log.Log
 import java.io.Closeable
 import com.corrodinggames.rts.gameFramework.j.ao as ServerAcceptRunnable
@@ -44,15 +42,6 @@ class CustomServerSocket(var1: ad): ServerAcceptRunnable(var1), Closeable {
         }
         GameEe.aq()
         Thread.currentThread().name = "NewConnectionWorker-" + (if (f) "udp" else "tcp") + " - " + this.e
-
-        GameEngine.data.room.closeServer = {
-            GameEngine.data.room.call.killAllPlayer()
-
-            // 恢复
-            GameEngine.netEngine.z = null
-
-            GameEngine.root.multiplayer.disconnect("close Server")
-        }
         netService!!.openPort(port)
     }
 

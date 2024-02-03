@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -9,11 +9,11 @@
 
 package net.rwhps.server
 
-import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.game.player.PlayerHess
 import net.rwhps.server.plugin.Plugin
 import net.rwhps.server.util.ReflectionUtils
-import net.rwhps.server.util.game.CommandHandler
-import net.rwhps.server.util.game.CommandHandler.Command
+import net.rwhps.server.util.game.command.CommandHandler
+import net.rwhps.server.util.game.command.CommandHandler.Command
 
 /**
  * @date 2023/7/27 11:01

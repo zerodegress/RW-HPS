@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,13 +11,13 @@ package net.rwhps.server.command.relay
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAnotherServerInternalPacket
+import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.annotations.mark.PrivateMark
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.file.plugin.PluginManage
+import net.rwhps.server.util.game.command.CommandHandler
 
 /**
  * @author Dr (dr@der.kim)
@@ -54,14 +54,6 @@ internal class RelayClientCommands(handler: CommandHandler) {
             sendMsg(con, str.toString())
         }
 
-        handler.register("jump", "<ip/id>", "#jump Server") { args: Array<String>, con: GameVersionRelay ->
-            if (!isAdmin(con, false)) {
-                con.sendPacket(fromRelayJumpsToAnotherServerInternalPacket(args[0]))
-            } else {
-                sendMsg(con, "You Is ADMIN !")
-            }
-        }
-
         handler.register("sync", "<on/off>", "#同步") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con, false)) {
                 con.relayRoom!!.syncFlag = "on" == args[0]
@@ -91,17 +83,17 @@ internal class RelayClientCommands(handler: CommandHandler) {
             }
         }
 
-//        handler.register("am", "<on/off>", "#混战") { args: Array<String>, con: GameVersionRelay ->
-//            con.relay!!.dogfightLock = "on" == args[0]
-//            if (con.relay!!.dogfightLock) {
-//                con.relay!!.abstractNetConnectIntMap.forEach {
-//                    if (it.value.playerRelay != null) {
-//                        it.value.sendPackageToHOST(chatUserMessagePacketInternal("-qc -self_team ${it.value.playerRelay!!.site + 1}"))
-//                    }
-//                }
-//            }
-//            sendMsg(con, localeUtil.getinput("server.amTeam", if (con.relay!!.dogfightLock) "开启" else "关闭"))
-//        }
+        handler.register("am", "<on/off>", "#混战") { args: Array<String>, con: GameVersionRelay ->
+            con.relayRoom!!.battleRoyalLock = "on" == args[0]
+            if (con.relayRoom!!.battleRoyalLock) {
+                con.relayRoom!!.abstractNetConnectIntMap.forEach {
+                    if (it.value.playerRelay != null) {
+                        it.value.sendPackageToHOST(chatUserMessagePacketInternal("-qc -self_team ${it.value.playerRelay!!.site + 1}"))
+                    }
+                }
+            }
+            sendMsg(con, localeUtil.getinput("server.amTeam", if (con.relayRoom!!.battleRoyalLock) "开启" else "关闭"))
+        }
 
         handler.register("kickx", "<Name/Position>", "#Kick Player") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -9,14 +9,14 @@
 
 package net.rwhps.server.command.relay
 
-import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.func.StrCons
+import net.rwhps.server.game.room.RelayRoom
 import net.rwhps.server.util.IpUtils
 import net.rwhps.server.util.IsUtils.isBlank
 import net.rwhps.server.util.annotations.mark.PrivateMark
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.file.plugin.PluginManage
+import net.rwhps.server.util.game.command.CommandHandler
 
 /**
  * @author Dr (dr@der.kim)

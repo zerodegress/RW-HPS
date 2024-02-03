@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,7 +11,6 @@ package net.rwhps.server.data.bean
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.list.Seq
-import net.rwhps.server.util.RandomUtils
 import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.SystemUtils
 import net.rwhps.server.util.file.FileUtils
@@ -19,6 +18,7 @@ import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
+import net.rwhps.server.util.math.RandomUtils
 import java.lang.reflect.Field
 
 
@@ -56,7 +56,7 @@ data class BeanCoreConfig(
     val autoUpList: Boolean = false,
 
     /** ip多语言支持 */
-    val ipCheckMultiLanguageSupport: Boolean = false,
+    val ipCheckMultiLanguageSupport: Boolean = true,
 
     /** Single user relay disable pop-up selection */
     val singleUserRelay: Boolean = false,
@@ -69,7 +69,9 @@ data class BeanCoreConfig(
     val webHOST: String = "",
 
     /** Web的 Port, 不为 0 时启用对应服务 */
-    val webPort: Int = 0, val ssl: Boolean = false, val sslPasswd: String = "RW-HPS",
+    val webPort: Int = 0,
+    val ssl: Boolean = false,
+    val sslPasswd: String = "RW-HPS",
 
     var runPid: Long = 0
 ) {

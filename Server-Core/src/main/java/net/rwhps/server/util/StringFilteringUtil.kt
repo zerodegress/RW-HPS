@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -56,7 +56,7 @@ object StringFilteringUtil {
             "([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://|[wW]{3}.|[wW][aA][pP].|[fF][tT][pP].|[fF][iI][lL][eE].)[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]\n"
     )
 
-    private fun findFirstGroup(matcher: Matcher): String {
+    private fun findFirstGroup(matcher: Matcher): String? {
         matcher.find()
         return matcher.group(0)
     }
@@ -66,7 +66,7 @@ object StringFilteringUtil {
         return try {
             val pattern = Pattern.compile(regEx)
             val matcher = pattern.matcher(str)
-            findFirstGroup(matcher)
+            findFirstGroup(matcher) ?:""
         } catch (e: java.lang.Exception) {
             Log.error("[Find Match] Error", e)
             ""

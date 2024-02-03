@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -36,9 +36,9 @@ dependencies {
     // Json 解析
     // 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
     api("com.google.code.gson:gson:2.10.1")
-    api("org.json:json:20230227")
+    api("org.json:json:20231013")
 
-    implementation("org.apache.commons:commons-compress:1.21")
+    implementation("org.apache.commons:commons-compress:1.25.0")
     implementation("org.tukaani:xz:1.9")
     compileOnlyAndTest("com.github.lucasbru:jbsdiff:9810fdcbfd")
 
@@ -51,22 +51,21 @@ dependencies {
 
     implementation("org.lionsoul:ip2region:1.7.2")
 
-    implementation("net.java.dev.jna:jna:5.13.0")
+    implementation("net.java.dev.jna:jna:5.14.0")
 
-    implementation("org.jline:jline-reader:3.23.0")
-    implementation("org.jline:jline-terminal:3.23.0") {
+    implementation("org.jline:jline-reader:${Versions.jLineVersion}")
+    implementation("org.jline:jline-terminal:${Versions.jLineVersion}") {
         exclude("org.jline", "jline-native")
     }
-    implementation("org.jline:jline-terminal-jna:3.23.0")
+    implementation("org.jline:jline-terminal-jna:${Versions.jLineVersion}")
 
     implementation("it.unimi.dsi:fastutil-core:8.5.12")
 
     compileOnlyAndTest("org.graalvm.js:js:${Versions.graalvmVersion}")
     compileOnlyAndTest("org.graalvm.sdk:graal-sdk:${Versions.graalvmVersion}")
-    // https://github.com/RW-HPS/graal-wasm/releases/tag/22.3.2
     testImplementation(fileTree(mapOf("dir" to "libs", "include" to "wasm.jar")))
 
-    testApi("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testApi("org.junit.jupiter:junit-jupiter-engine:5.10.1")
 }
 
 tasks.jar {

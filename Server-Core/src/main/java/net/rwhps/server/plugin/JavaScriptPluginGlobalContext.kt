@@ -153,8 +153,17 @@ internal class JavaScriptPluginGlobalContext {
      * @return 插件加载数据
      */
     fun loadESMPlugins(): Seq<PluginLoadData> {
+        // 试加载来检测WASM特性是否启用
+        val enableWasm = try {
+            Context.newBuilder().allowExperimentalOptions(true).option("js.webassembly", "true").build().getBindings("js")
+            true
+        } catch (e: Exception) {
+            Log.warn("Wasm language load failed, wasm feature disabled.")
+            false
+        }
+
         try {
-            val cx = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
+            val cxBuilder = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
                 .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true")
                 .option("js.webassembly", "true").allowHostAccess(
                         HostAccess.newBuilder()
@@ -165,6 +174,12 @@ internal class JavaScriptPluginGlobalContext {
                             .allowListAccess(true)
                             .allowIterableAccess(true)
                             .allowIteratorAccess(true)
+            if(enableWasm) {
+                cxBuilder.option("js.webassembly", "true")
+            }
+            val cx = cxBuilder.allowHostAccess(
+                        HostAccess.newBuilder().allowAllClassImplementations(true).allowAllImplementations(true).allowPublicAccess(true)
+                            .allowArrayAccess(true).allowListAccess(true).allowIterableAccess(true).allowIteratorAccess(true)
                             .allowMapAccess(true).build()
                 )
                 .allowHostClassLookup { _ -> true }
@@ -191,23 +206,46 @@ internal class JavaScriptPluginGlobalContext {
             }
 
             val defaults = cx.eval(Source.newBuilder("js", loadScript, "/work/load.mjs").build())
+            val loadedPlugins = mapOf(*modules.map {
+                try {
+                    val jsPlugin = cx.eval(
+                        Source.newBuilder(
+                            "js",
+                            "export { default as plugin } from '${it.key.name}';",
+                            "__load${it.value}.js"
+                        ).mimeType("application/javascript+module").build()
+                    ).getMember("plugin")
+                    Pair(
+                        it.value,
+                        if(jsPlugin.canExecute()) {
+                            jsPlugin.execute()
+                        } else { jsPlugin }.`as`(Plugin::class.java)
+                    )
+                } catch (e: Exception) {
+                    Log.error("Load JS Plugin '${it.key.name}' failed: ", e)
+                    Pair(it.value, null)
+                }
+            }.toTypedArray())
 
             return Seq<PluginLoadData>().apply {
                 modules.eachAll { pluginInfo, v ->
-                    this.add(
+                    val plugin = loadedPlugins[v]
+                    if(plugin != null) {
+                        this.add(
                             PluginLoadData(
-                                    pluginInfo.name,
-                                    pluginInfo.internalName,
-                                    pluginInfo.author,
-                                    pluginInfo.description,
-                                    pluginInfo.version,
-                                    if (defaults.canExecute()) {
-                                        defaults.getMember(v).execute().`as`(Plugin::class.java)
-                                    } else {
-                                        defaults.getMember(v).`as`(Plugin::class.java)
-                                    }
+                                pluginInfo.name,
+                                pluginInfo.internalName,
+                                pluginInfo.author,
+                                pluginInfo.description,
+                                pluginInfo.version,
+                                if (defaults.canExecute()) {
+                                    defaults.getMember(v).execute().`as`(Plugin::class.java)
+                                } else {
+                                    defaults.getMember(v).`as`(Plugin::class.java)
+                                }
                             )
-                    )
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {

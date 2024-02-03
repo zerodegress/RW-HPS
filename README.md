@@ -58,8 +58,9 @@ _**生命不息，折腾不止**_
 
 | Configuration 		 | CPU                     | RAM 	 | System 			 | Disk 	   | Java Version |
 |:-----------------|:------------------------|:------|:-----------|:---------|:-------------|
-| Recommended 	    | ARMv7 Processor rev 5 + | 1G | Linux      | 256M SSD | Java 17      |
-| Minimum 	        | Any                     | 512MB  | Linux      | 128M SSD | Java 11      |
+| Recommended 	    | AMD 3990X | 4G | Linux      | 1G SSD | Java 17 (Azul JDK)      |
+| Minimum 	        | E5-2696 V2 (4C +)  | 1G  | Linux      | 512M SSD | Java 17 (Azul JDK)      |
+| Test Environment 	        | i7-13700HX          | 32G  | Windows      | 2T SSD | Java 17 (Azul JDK)    |
 
 ## version collection
 
@@ -67,9 +68,8 @@ The game corresponds to the final server version collection
 
 | Game Version |   RW-HPS version   | Download Link |
 |:------------:|:------------------:|:-------------:|
-|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |    Delete     |
-| ~~1.15.P8~~  |     ~~6.0.1~~      |    Delete     |
 |     1.15     |      DEV      |     BETA      |
+|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |    Delete     |
 
 ## Sponsorship
 

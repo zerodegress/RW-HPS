@@ -1,24 +1,25 @@
 /*
+ * Copyright 2020-2024 RW-HPS Team and contributors.
+ *  
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
- *  * Copyright 2020-2023 RW-HPS Team and contributors.
- *  *
- *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *  *
- *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
 package net.rwhps.asm.agent
 
 import net.rwhps.asm.api.Transformer
 import net.rwhps.asm.data.ListenerRedirectionsDataManager
+import net.rwhps.asm.data.RemoveRedirectionsDataManager
 import net.rwhps.asm.data.ReplaceRedirectionsDataManager
 import net.rwhps.asm.func.Find
-import net.rwhps.asm.transformer.AllListenerImpl
-import net.rwhps.asm.transformer.AllReplaceImpl
+import net.rwhps.asm.transformer.ListenerImpl
+import net.rwhps.asm.transformer.OperationImpl
+import net.rwhps.asm.transformer.ReplaceImpl
 import net.rwhps.asm.util.transformer.AsmUtil
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.tree.ClassNode
 import java.io.FileOutputStream
 import java.lang.instrument.ClassFileTransformer
 import java.lang.instrument.IllegalClassFormatException
@@ -26,13 +27,15 @@ import java.lang.instrument.Instrumentation
 import java.security.ProtectionDomain
 
 /**
- * A JavaAgent calling the [AllReplaceImpl.AllMethodsTransformer] and [AllReplaceImpl.PartialMethodTransformer].
+ * A JavaAgent calling the [ReplaceImpl.AllMethodsTransformer] and [ReplaceImpl.PartialMethodTransformer].
  */
 class AsmAgent: ClassFileTransformer, AsmCore() {
 
-    private val transformer: Transformer = AllReplaceImpl.AllMethodsTransformer()
-    private val partialMethodTransformer: Transformer = AllReplaceImpl.PartialMethodTransformer()
-    private val listenerMethodTransformer: Transformer = AllListenerImpl.ListenerPartialMethodsTransformer()
+    private val transformer: Transformer = ReplaceImpl.AllMethodsTransformer()
+    private val partialMethodTransformer: Transformer = ReplaceImpl.PartialMethodTransformer()
+    private val listenerMethodTransformer: Transformer = ListenerImpl.ListenerPartialMethodsTransformer()
+    private val removeMethodTransformer: Transformer = OperationImpl.RemoveMethod()
+    private val removeMethodSynchronizedTransformer: Transformer = OperationImpl.RemoveMethodSynchronized()
 
     init {
         setAgent(this)
@@ -69,31 +72,46 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
         protectionDomain: ProtectionDomain?,
         classfileBuffer: ByteArray
     ): ByteArray {
+        // 使用中文
+        var node: ClassNode? = null
+
         if (ReplaceRedirectionsDataManager.allClassPathCache.contains(className) ||
             ReplaceRedirectionsDataManager.allReplaceFindPacketName.forFind(className)
         ) {
-            val node = AsmUtil.read(classfileBuffer)
+            node = AsmUtil.read(classfileBuffer)
             transformer.transform(node)
-            if (ReplaceRedirectionsDataManager.partialClassPathCache.contains(className)) {
-                partialMethodTransformer.transform(node, ReplaceRedirectionsDataManager.partialReplaceMethodName[className])
-            }
-            if (ListenerRedirectionsDataManager.partialClassPathCache.contains(className)) {
-                listenerMethodTransformer.transform(node, ListenerRedirectionsDataManager.partialListenerMethodName[className])
-            }
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
+        }
+
+        if (ReplaceRedirectionsDataManager.allRemoveSyncClassPathCache.contains(className)) {
+            removeMethodSynchronizedTransformer.transform(node!!)
         }
 
         if (ReplaceRedirectionsDataManager.partialClassPathCache.contains(className)) {
-            val node = AsmUtil.read(classfileBuffer)
+            if (node == null) {
+                node = AsmUtil.read(classfileBuffer)
+            }
             partialMethodTransformer.transform(node, ReplaceRedirectionsDataManager.partialReplaceMethodName[className])
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
+
         if (ListenerRedirectionsDataManager.partialClassPathCache.contains(className)) {
-            val node = AsmUtil.read(classfileBuffer)
+            if (node == null) {
+                node = AsmUtil.read(classfileBuffer)
+            }
             listenerMethodTransformer.transform(node, ListenerRedirectionsDataManager.partialListenerMethodName[className])
-            return AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
         }
-        return classfileBuffer
+
+        if (RemoveRedirectionsDataManager.partialClassPathCache.contains(className)) {
+            if (node == null) {
+                node = AsmUtil.read(classfileBuffer)
+            }
+            removeMethodTransformer.transform(node, RemoveRedirectionsDataManager.partialListenerMethodName[className])
+        }
+
+        return if (node == null) {
+            classfileBuffer
+        } else {
+            AsmUtil.write(loader, node, ClassWriter.COMPUTE_FRAMES).save(className)
+        }
     }
 
     private fun ArrayList<Find<String, Boolean>>.forFind(value: String): Boolean {
@@ -108,7 +126,7 @@ class AsmAgent: ClassFileTransformer, AsmCore() {
     }
 
     private fun ByteArray.save(name: String): ByteArray {
-        if (name == "000DRDRDR") {
+        if (name == "DR@RW-HPS@DR#DER.KIM") {
             FileOutputStream("a.class").let {
                 it.write(this)
                 it.flush()

@@ -9,40 +9,31 @@
 
 package net.rwhps.asm.data
 
-import net.rwhps.asm.api.listener.RedirectionListener
-
 /**
  *
  *
  * @date 2023/10/22 9:48
  * @author Dr (dr@der.kim)
  */
-object ListenerRedirectionsDataManager {
+object RemoveRedirectionsDataManager {
     /** Partial Class Path缓存 建少查询 */
     internal val partialClassPathCache = ArrayList<String>()
     /** 替代指定方法 */
     internal val partialListenerMethodName = HashMap<String, ArrayList<MethodTypeInfoValue>>()
 
-    internal val descData = HashMap<String, RedirectionListener>()
-
     /**
      * 加入 指定 Class 的指定方法代理
      *
      *
-     * @param methodTypeInfoValue 方法数据
+     * @param desc String
+     * @param p Array<String>
      * @param redirection Redirection
      */
     @JvmStatic
-    fun addPartialMethodListener(methodTypeInfoValue: MethodTypeInfoValue, redirection: RedirectionListener?) {
-        if (methodTypeInfoValue.listenerClass == null && redirection == null) {
+    fun addPartialMethodRemove(methodTypeInfoValue: MethodTypeInfoValue) {
+        if (methodTypeInfoValue.replaceClass != null || methodTypeInfoValue.listenerClass != null) {
             throw NullPointerException("Parameter error")
         }
-
-        if (methodTypeInfoValue.replaceClass != null) {
-            throw NullPointerException("It should not be passed in : ReplaceClass")
-        }
-
-        methodTypeInfoValue.listenerOrReplace = true
 
         if (partialListenerMethodName.containsKey(methodTypeInfoValue.classPath)) {
             val list = partialListenerMethodName[methodTypeInfoValue.classPath]!!
@@ -54,12 +45,6 @@ object ListenerRedirectionsDataManager {
             partialListenerMethodName[methodTypeInfoValue.classPath] = ArrayList<MethodTypeInfoValue>().also { it.add(methodTypeInfoValue) }
         }
 
-        // 如果 ReplaceClass 为 null, 那么即证明是默认替换, 才需要加入redirection
-        if (methodTypeInfoValue.listenerClass == null) {
-            // 这里构造 Desc 并且 加入对应的 取代
-            val desc = methodTypeInfoValue.desc + if (methodTypeInfoValue.listenerBefore) "LS" else "LE"
-            descData[desc] = redirection!!
-        }
         addPartialClassPathCache(methodTypeInfoValue.classPath)
     }
 

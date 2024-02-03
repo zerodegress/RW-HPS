@@ -68,9 +68,8 @@ The game corresponds to the final server version collection
 
 | Game Version |   RW-HPS version   | Download Link |
 |:------------:|:------------------:|:-------------:|
-|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |    Delete     |
-| ~~1.15.P8~~  |     ~~6.0.1~~      |    Delete     |
 |     1.15     |      DEV      |     BETA      |
+|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |    Delete     |
 
 ## Sponsorship
 

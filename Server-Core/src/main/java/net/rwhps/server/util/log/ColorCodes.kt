@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -106,7 +106,6 @@ internal object ColorCodes {
             )
         }
 
-
         CODES = map.keys.toSeq().toArray(String::class.java)
         VALUES = map.values.toSeq().toArray(String::class.java)
     }
@@ -116,12 +115,12 @@ internal object ColorCodes {
         if (!empty) {
             for (i in CODES.indices) {
                 textCache = textCache.replace("&${CODES[i]}", VALUES[i])
-                textCache = textCache.replace("[${CODES[i]}]", VALUES[i])
+                //textCache = textCache.replace("[${CODES[i]}]", VALUES[i])
             }
         } else {
             for (i in CODES.indices) {
                 textCache = textCache.replace("&${CODES[i]}", "")
-                textCache = textCache.replace("[${CODES[i]}]", "")
+                //textCache = textCache.replace("[${CODES[i]}]", "")
             }
         }
         return textCache

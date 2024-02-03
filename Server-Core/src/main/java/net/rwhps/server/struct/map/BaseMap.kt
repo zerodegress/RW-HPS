@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *  
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -117,8 +117,9 @@ abstract class BaseMap<K, V>(private val map: java.util.Map<K, V>, private val t
 
     override fun clear() = map.clear()
 
-    fun toArrayKey(): Seq<K> = Seq<K>(size).also { keys.forEach { value -> it.add(value) } }
-    fun toArrayValues(): Seq<V> = Seq<V>(size).also { values.forEach { value -> it.add(value) } }
+    fun toArrayKey(): Seq<K> = keys.toSeq()
+    fun toArrayValues(): Seq<V> = values.toSeq()
+
 
     override fun toString(): String = map.toString()
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,7 +11,7 @@ package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.internal.BeanPluginInfo
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.json.Json
+import net.rwhps.server.util.file.json.Json
 import net.rwhps.server.dependent.LibraryManager
 import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.IsUtils
@@ -58,21 +58,28 @@ class PluginsLoad {
                     continue
                 }
                 if (IsUtils.isBlank(pluginInfo.import)) {
-                    val mainPlugin = if (pluginInfo.main.endsWith("js", true)) {
+                    val mainPlugin: Plugin
+                    if (pluginInfo.main.endsWith("js", true)) {
                         val mainJs = zip.getZipNameInputStream(pluginInfo.main)
                         if (mainJs == null) {
                             error("Invalid JavaScriptPlugin Main", pluginInfo.main)
                             continue
                         }
+                        if (pluginInfo.internalName.isBlank() ||
+                            pluginInfo.internalName.replace("^[a-z0-9A-Z]+\$".toRegex(), "").isNotBlank()
+                            ) {
+                            error("Invalid Internal Name Main", pluginInfo.main)
+                            continue
+                        }
                         scriptContext.addESMPlugin(pluginInfo, zip.getZipAllBytes())
                         continue
                     } else {
-                        loadClass(file, pluginInfo.main)
+                        mainPlugin = loadClass(file, pluginInfo.main)
                     }
 
                     data.add(
                             PluginLoadData(
-                                    pluginInfo.name, pluginInfo.author, pluginInfo.description, pluginInfo.version, mainPlugin
+                                    pluginInfo.name, pluginInfo.internalName, pluginInfo.author, pluginInfo.description, pluginInfo.version, mainPlugin
                             )
                     )
                     dataName.add(pluginInfo.name)
@@ -96,7 +103,7 @@ class PluginsLoad {
                         val mainPlugin = loadClass(e.file, e.pluginData.main)
                         data.add(
                                 PluginLoadData(
-                                        e.pluginData.name, e.pluginData.author, e.pluginData.description, e.pluginData.version, mainPlugin
+                                        e.pluginData.name, e.pluginData.internalName, e.pluginData.author, e.pluginData.description, e.pluginData.version, mainPlugin
                                 )
                         )
                         dataName.add(e.pluginData.name)
@@ -178,6 +185,7 @@ class PluginsLoad {
         @JvmStatic
         internal fun addPluginClass(
             name: String,
+            internalName: String,
             author: String,
             description: String,
             version: String,
@@ -186,7 +194,7 @@ class PluginsLoad {
             skip: Boolean,
             list: Seq<PluginLoadData>
         ) {
-            list.add(PluginLoadData(name, author, description, version, main, mkdir, skip))
+            list.add(PluginLoadData(name, internalName, author, description, version, main, mkdir, skip))
         }
     }
 }

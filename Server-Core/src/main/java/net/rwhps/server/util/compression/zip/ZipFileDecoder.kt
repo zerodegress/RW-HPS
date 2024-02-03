@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,8 +11,8 @@ package net.rwhps.server.util.compression.zip
 
 import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.game.GameMaps
-import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.struct.list.Seq
+import net.rwhps.server.struct.map.OrderedMap
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FileName
 import net.rwhps.server.util.io.IoRead
@@ -97,7 +97,7 @@ internal class ZipFileDecoder: AbstractDecoder {
 
         zipUtils { zipEntry, _ ->
             val name = zipEntry.name
-            if (name.endsWith(mapData.type) && name.contains(mapData.mapFileName)) {
+            if (name.endsWith(mapData.mapType.fileType) && FileName.getFileNameNoSuffix(name).contains(mapData.mapFileName)) {
                 result = IoRead.readInputStreamBytes(zipFile.getInputStream(zipEntry))
                 return@zipUtils ControlFind.BREAK
             }

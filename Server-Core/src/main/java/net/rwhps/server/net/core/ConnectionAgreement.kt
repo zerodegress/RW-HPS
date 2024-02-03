@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,14 +11,13 @@ package net.rwhps.server.net.core
 
 import io.netty.channel.ChannelHandlerContext
 import io.netty.util.AttributeKey
-import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.game.event.global.NetConnectCloseEvent
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.handler.bio.PackagingSocket
 import net.rwhps.server.util.IPCountry
 import net.rwhps.server.util.IpUtils
-import net.rwhps.server.util.concurrent.threads.GetNewThreadPool
+import net.rwhps.server.util.file.plugin.PluginManage
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.Log
 import java.io.DataOutputStream
@@ -26,7 +25,6 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.SocketException
 import java.util.*
-import java.util.concurrent.ExecutorService
 
 
 /**
@@ -46,8 +44,6 @@ class ConnectionAgreement {
     val ipCountryAll: String
     internal val localPort: Int
     val id: String = UUID.randomUUID().toString()
-
-    private val sendThread: ExecutorService?
 
     /**
      * TCP Send
@@ -71,23 +67,10 @@ class ConnectionAgreement {
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = (channel.localAddress() as InetSocketAddress).port
 
-        sendThread = GetNewThreadPool.getNewSingleThreadExecutor(ip)
-
         protocolType = { packet: Packet ->
             channel.eventLoop().execute {
                 channelHandlerContext.writeAndFlush(packet)
-            };
-
-//             防止Close后继续添加
-//            if (channel.isActive) {
-//                sendThread.execute {
-//                    // 防止添加后在阻塞时连接Close
-//                    if (channel.isActive) {
-//                        // 同步发送解决 100% 傻逼问题
-//                        channelHandlerContext.writeAndFlush(packet).await()
-//                    }
-//                }
-//            }
+            }
         }
     }
 
@@ -114,8 +97,21 @@ class ConnectionAgreement {
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
         localPort = socket.localPort
+    }
 
-        sendThread = null
+    internal constructor(ignore: Boolean) {
+        objectOutStream = ""
+        udpDataOutputStream = null
+        useAgreement = "Headless"
+        isClosed = { false }
+
+        ip = "127.0.0.1"
+        ipLong24 = IpUtils.ipToLong24(ip, false)
+        ipCountry = IPCountry.getIpCountry(ip)
+        ipCountryAll = IPCountry.getIpCountryAll(ip)
+        localPort = 0
+
+        protocolType = { }
     }
 
     constructor() {
@@ -130,8 +126,6 @@ class ConnectionAgreement {
         ipCountry = ""
         ipCountryAll = ""
         localPort = 0
-
-        sendThread = null
     }
 
     fun add(groupNet: GroupNet) {
@@ -175,8 +169,6 @@ class ConnectionAgreement {
         PluginManage.runGlobalEventManage(NetConnectCloseEvent(this)).await()
 
         remove(groupNet)
-
-        sendThread?.shutdown()
 
         if (objectOutStream is ChannelHandlerContext) {
             objectOutStream.channel().close()

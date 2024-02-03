@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -9,7 +9,7 @@
 
 package net.rwhps.server.plugin.beta.http.data
 
-import net.rwhps.server.game.HessModuleManage
+import net.rwhps.server.game.manage.HeadlessModuleManage
 import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.struct.list.Seq
@@ -42,13 +42,13 @@ internal object GetData {
     )
 
     data class GameInfo(
-        val income: Float = HessModuleManage.hps.gameLinkData.income,
-        val noNukes: Boolean = HessModuleManage.hps.gameLinkData.nukes,
-        val credits: Int = HessModuleManage.hps.gameLinkData.credits,
-        val sharedControl: Boolean = HessModuleManage.hps.gameLinkData.sharedcontrol,
-        val startGame: Boolean = HessModuleManage.hps.room.isStartGame,
+        val income: Float = HeadlessModuleManage.hps.gameLinkData.income,
+        val noNukes: Boolean = HeadlessModuleManage.hps.gameLinkData.nukes,
+        val credits: Int = HeadlessModuleManage.hps.gameLinkData.credits,
+        val sharedControl: Boolean = HeadlessModuleManage.hps.gameLinkData.sharedcontrol,
+        val startGame: Boolean = HeadlessModuleManage.hps.room.isStartGame,
         val players: List<String> = Seq<String>().apply {
-            HessModuleManage.hps.room.playerManage.playerAll.eachAll {
+            HeadlessModuleManage.hps.room.playerManage.playerAll.eachAll {
                 add(it.playerInfo)
             }
         }

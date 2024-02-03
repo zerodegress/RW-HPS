@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,7 +10,8 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.internal.BeanPluginInfo
-import net.rwhps.server.data.player.PlayerHess
+import net.rwhps.server.data.global.Data
+import net.rwhps.server.game.player.PlayerHess
 import net.rwhps.server.func.ConsMap
 import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.func.Prov
@@ -18,10 +19,11 @@ import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.enums.GameCommandActions
 import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
-import net.rwhps.server.game.simulation.core.AbstractLinkPlayerData
+import net.rwhps.server.game.headless.core.link.AbstractLinkPlayerData
 import net.rwhps.server.io.input.SyncByteArrayChannel
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
+import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.GroupNet
 import net.rwhps.server.net.HttpRequestOkHttp
@@ -29,17 +31,16 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.DataPermissionStatus
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.server.AbstractNetConnectServer
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.struct.map.IntMap
 import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.struct.map.OrderedMap
-import net.rwhps.server.struct.list.Seq
-import net.rwhps.server.util.I18NBundle
+import net.rwhps.server.util.file.load.I18NBundle
 import net.rwhps.server.util.PacketType
-import net.rwhps.server.util.RandomUtils
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FakeFileSystem
 import net.rwhps.server.util.file.FileUtils
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
 import net.rwhps.server.util.log.Log
@@ -133,7 +134,7 @@ internal class JavaScriptPluginGlobalContext {
      * @param pluginData ESM插件模块所在压缩包的Map格式
      */
     fun addESMPlugin(pluginInfo: BeanPluginInfo, pluginData: OrderedMap<String, ByteArray>) {
-        val pluginName = pluginInfo.name
+        val pluginName = pluginInfo.internalName
         val mainPath = this.fakeFileSystem.getPath("/plugins", pluginName, pluginInfo.main)
         registerModule(pluginName, mainPath)
 
@@ -143,7 +144,7 @@ internal class JavaScriptPluginGlobalContext {
             fakeFileSystem.addFile(path)
         }
 
-        modules[pluginInfo, RandomUtils.getRandomIetterString(10)]
+        modules[pluginInfo, pluginName]
     }
 
     /**
@@ -164,6 +165,15 @@ internal class JavaScriptPluginGlobalContext {
         try {
             val cxBuilder = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
                 .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true")
+                .option("js.webassembly", "true").allowHostAccess(
+                        HostAccess.newBuilder()
+                            .allowAllClassImplementations(true)
+                            .allowAllImplementations(true)
+                            .allowPublicAccess(true)
+                            .allowArrayAccess(true)
+                            .allowListAccess(true)
+                            .allowIterableAccess(true)
+                            .allowIteratorAccess(true)
             if(enableWasm) {
                 cxBuilder.option("js.webassembly", "true")
             }
@@ -171,10 +181,31 @@ internal class JavaScriptPluginGlobalContext {
                         HostAccess.newBuilder().allowAllClassImplementations(true).allowAllImplementations(true).allowPublicAccess(true)
                             .allowArrayAccess(true).allowListAccess(true).allowIterableAccess(true).allowIteratorAccess(true)
                             .allowMapAccess(true).build()
-                ).allowHostClassLookup { _ -> true }.fileSystem(this.truffleFileSystem).allowIO(true).build()
+                )
+                .allowHostClassLookup { _ -> true }
+                .fileSystem(this.truffleFileSystem)
+                .allowIO(true)
+                .out(DynamicPrintStream {
+                    if (it.isNotBlank()) {
+                        Log.clog(it)
+                    }
+                })
+                .err(DynamicPrintStream {
+                    if (it.isNotBlank()) {
+                        Log.clog(it)
+                    }
+                })
+                .build()
             cx.getBindings("js").putMember("RwHps", rwhpsObject)
             cx.enter()
 
+            var loadScript = ""
+            modules.eachAll { pluginInfo, v ->
+                loadScript += "export { default as $v } from '${pluginInfo.internalName}';"
+                loadScript += Data.LINE_SEPARATOR
+            }
+
+            val defaults = cx.eval(Source.newBuilder("js", loadScript, "/work/load.mjs").build())
             val loadedPlugins = mapOf(*modules.map {
                 try {
                     val jsPlugin = cx.eval(
@@ -203,10 +234,15 @@ internal class JavaScriptPluginGlobalContext {
                         this.add(
                             PluginLoadData(
                                 pluginInfo.name,
+                                pluginInfo.internalName,
                                 pluginInfo.author,
                                 pluginInfo.description,
                                 pluginInfo.version,
-                                plugin
+                                if (defaults.canExecute()) {
+                                    defaults.getMember(v).execute().`as`(Plugin::class.java)
+                                } else {
+                                    defaults.getMember(v).`as`(Plugin::class.java)
+                                }
                             )
                         )
                     }

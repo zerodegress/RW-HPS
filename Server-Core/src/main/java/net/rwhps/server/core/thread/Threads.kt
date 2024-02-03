@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -194,6 +194,48 @@ object Threads {
     @JvmStatic
     fun containsTimeTask(taskFlagName: String, taskFlagGroup: String): Boolean {
         return SERVICE.contains(taskFlagName, taskFlagGroup)
+    }
+
+    /**
+     * 暂停对应的任务
+     *
+     * @param taskFlag NameID
+     */
+    @JvmStatic
+    internal fun pause(taskFlag: CallTimeTask) {
+        pause(taskFlag.name, taskFlag.group)
+    }
+
+    /**
+     * 暂停对应的任务
+     *
+     * @param name 任务名字
+     * @param group 任务组
+     */
+    @JvmStatic
+    fun pause(name: String, group: String) {
+        SERVICE.pause(name, group)
+    }
+
+    /**
+     * 取消暂停对应的任务
+     *
+     * @param taskFlag NameID
+     */
+    @JvmStatic
+    internal fun unPause(taskFlag: CallTimeTask) {
+        unPause(taskFlag.name, taskFlag.group)
+    }
+
+    /**
+     * 取消暂停对应的任务
+     *
+     * @param name 任务名字
+     * @param group 任务组
+     */
+    @JvmStatic
+    fun unPause(name: String, group: String) {
+        SERVICE.unPause(name, group)
     }
 
     /**

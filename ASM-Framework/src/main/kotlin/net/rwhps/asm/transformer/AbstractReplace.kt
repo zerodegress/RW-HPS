@@ -1,12 +1,10 @@
 /*
+ * Copyright 2020-2024 RW-HPS Team and contributors.
+ *  
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
- *  * Copyright 2020-2023 RW-HPS Team and contributors.
- *  *
- *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *  *
- *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
 package net.rwhps.asm.transformer
@@ -50,12 +48,12 @@ import java.util.*
  */
 internal abstract class AbstractReplace : Transformer {
     override fun transform(classNode: ClassNode, methodTypeInfoValueList: ArrayList<MethodTypeInfoValue>?) {
-        try {
-            transformModule(classNode)
-        } catch (_: NoSuchFieldError) {
-            // If we run this Transformer via the LaunchWrapper we could be on
-            // an older ASM version which doesnt have the module field yet.
+        // transformModule
+        if (classNode.module != null) {
+            classNode.module.visitRequire("rwhps.asm", Opcodes.ACC_MANDATED, null)
+            classNode.module.access = classNode.module.access or Opcodes.ACC_OPEN
         }
+
         if (classNode.access and Opcodes.ACC_MODULE == 0) {
             patchClass(classNode, classNode.access and Opcodes.ACC_INTERFACE != 0, methodTypeInfoValueList)
             // make all non-static fields non-final
@@ -64,13 +62,6 @@ internal abstract class AbstractReplace : Transformer {
                     fn.access = fn.access and Opcodes.ACC_FINAL.inv()
                 }
             }
-        }
-    }
-
-    private fun transformModule(cn: ClassNode) {
-        if (cn.module != null) {
-            cn.module.visitRequire("rwhps.asm", Opcodes.ACC_MANDATED, null)
-            cn.module.access = cn.module.access or Opcodes.ACC_OPEN
         }
     }
 
@@ -84,7 +75,9 @@ internal abstract class AbstractReplace : Transformer {
         if (!isInterface) {
             cn.access = cn.access and Opcodes.ACC_ABSTRACT.inv()
         }
-        for (mn in cn.methods) {
+
+        val iterator = cn.methods.listIterator()
+        for (mn in iterator) {
             if (mn.name == "<init>" && mn.desc == "()V") {
                 // TODO: check this
                 mn.access = mn.access or Opcodes.ACC_PUBLIC
@@ -94,12 +87,12 @@ internal abstract class AbstractReplace : Transformer {
             if (!isInterface || mn.access and Opcodes.ACC_STATIC != 0 || mn.access and Opcodes.ACC_ABSTRACT == 0) {
                 if (methodTypeInfoValueList.isNullOrEmpty()) {
                     // Filter out the all method
-                    redirect(mn, cn, null)
+                    redirect(iterator, mn, cn, null)
                 } else {
                     // Filter out the specified method
                     for (parameter in methodTypeInfoValueList) {
                         if (mn.name == parameter.methodName && mn.desc == parameter.methodParamsInfo) {
-                            redirect(mn, cn, parameter)
+                            redirect(iterator, mn, cn, parameter)
                         }
                     }
                 }
@@ -133,7 +126,7 @@ internal abstract class AbstractReplace : Transformer {
      * @param cn ClassNode
      * @param methodTypeInfoValue 修改的目标方法信息和需要指向的 Class 方法, null时为不指向, 为全局
      */
-    private fun redirect(mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
+    private fun redirect(iterator: MutableListIterator<MethodNode>, mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
         if ("<init>" == mn.name && mn.desc.endsWith(")V")) {
             // There's not really a way to determine when this() or super()
             // is called in a constructor, because of that we'll just inject
@@ -149,7 +142,7 @@ internal abstract class AbstractReplace : Transformer {
                 }
             }
         } else {
-            redirectMain(mn, cn, methodTypeInfoValue)
+            redirectMain(iterator, mn, cn, methodTypeInfoValue)
         }
         mn.tryCatchBlocks = ArrayList()
         mn.localVariables = ArrayList()
@@ -157,7 +150,7 @@ internal abstract class AbstractReplace : Transformer {
         mn.access = mn.access and Opcodes.ACC_NATIVE.inv() and Opcodes.ACC_ABSTRACT.inv()
     }
 
-    protected open fun redirectMain(mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
+    protected open fun redirectMain(iterator: MutableListIterator<MethodNode>, mn: MethodNode, cn: ClassNode, methodTypeInfoValue: MethodTypeInfoValue?) {
         val il = InsnList()
         il.add(InstructionUtil.makeReturn(injectRedirection(cn, mn, il, methodTypeInfoValue)))
         mn.instructions = il

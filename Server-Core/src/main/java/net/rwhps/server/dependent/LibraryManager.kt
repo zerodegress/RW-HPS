@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,14 +11,14 @@ package net.rwhps.server.dependent
 
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.data.plugin.PluginData
 import net.rwhps.server.func.Control.ControlFind
 import net.rwhps.server.io.input.DisableSyncByteArrayInputStream
 import net.rwhps.server.net.HttpRequestOkHttp
-import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.struct.list.Seq
+import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.algorithms.digest.DigestUtils
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.file.plugin.PluginData
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.exp.LibraryManagerError
 import org.w3c.dom.Node
@@ -186,7 +186,7 @@ class LibraryManager(china: Boolean = Data.serverCountry == "CN"): AgentAttachDa
                     Log.debug("Load Lib Jar", file.name)
                     true
                 } catch (classLoad: Exception) {
-                    Log.fatal("Jar 1.8+ Load", classLoad)
+                    Log.fatal("Jar 1.8+ Load : (${file.name})", classLoad)
                     false
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -10,12 +10,12 @@
 package net.rwhps.server.net.netconnectprotocol.realize
 
 import com.vdurmont.emoji.EmojiManager
-import net.rwhps.server.core.game.RelayRoom
 import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.data.player.PlayerRelay
 import net.rwhps.server.game.GameMaps
+import net.rwhps.server.game.player.PlayerRelay
+import net.rwhps.server.game.room.RelayRoom
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -31,19 +31,22 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInf
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternalPacket
 import net.rwhps.server.net.netconnectprotocol.internal.server.chatUserMessagePacketInternal
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.IsUtils
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.algorithms.NetConnectProofOfWork
+import net.rwhps.server.util.alone.BadWord
 import net.rwhps.server.util.annotations.MainProtocolImplementation
 import net.rwhps.server.util.annotations.mark.PrivateMark
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.game.GameOtherUtils.getBetaVersion
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
+import java.net.InetAddress
 import java.util.*
 
 /**
@@ -117,7 +120,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
         cachePacket = packet
     }
 
-    override fun setlastSentPacket(packet: Packet) {/* 此协议下不被使用 */
+    override fun setlastSentPacket(packet: Packet) {
+        /* 此协议下不被使用 */
     }
 
     override val version: String
@@ -389,8 +393,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
              * 禁止玩家使用 Server/Relay 做玩家名
              */
             if (name.equals("SERVER", ignoreCase = true) || name.equals("RELAY", ignoreCase = true)) {
-                relayRoom!!.groupNet.disconnect() // Close Room
-                disconnect() // Close Connect & Reset Room
+                relayRoom!!.re() // Close Room
             }
         } catch (e: Exception) {
             error(e)
@@ -471,7 +474,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
                             Data.i18NBundle.getinput("relay", Data.configRelay.mainID + relayRoom!!.id), "RELAY_CN-ADMIN", 5
                     )
             )
-
+            this.relayRoom!!.setAddSize()
         } catch (e: Exception) {
             permissionStatus = RelayStatus.CertifiedEnd
 
@@ -484,8 +487,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
         } finally {
             //cachePacket = null;
         }
-
-        this.relayRoom!!.setAddSize()
     }
 
     override fun relayRegisterConnection(packet: Packet) {
@@ -795,14 +796,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
         }
 
 
-        if (id.startsWith("RA")) {
-            if (Data.configRelay.mainServer) {
-                sendPacket(fromRelayJumpsToAnotherServerInternalPacket("${id[1]}.relay.der.kim/$id"))
-                return
-            } else {
-                id = id.substring(2)
-            }
-        } else if ("R".equals(id[0].toString(), ignoreCase = true)) {
+        if ("R".equals(id[0].toString(), ignoreCase = true)) {
             id = id.substring(1)
         }
 
@@ -836,7 +830,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
                 if (!checkLength(customId)) {
                     return
                 }
-                if (RelayRoom.getCheckRelay(customId) || customId.startsWith("A", true)) {
+                if (RelayRoom.getCheckRelay(customId)) {
                     sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
                     return
                 }
@@ -845,7 +839,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
                 if (!checkLength(customId)) {
                     return
                 }
-                if (RelayRoom.getCheckRelay(customId) || customId.startsWith("A", true)) {
+                if (RelayRoom.getCheckRelay(customId)) {
                     sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
                     return
                 }
@@ -908,8 +902,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
                 return
             }
 
-
             newRelayId(customId, mod = mods, customRelayData = custom)
+
             if (custom.maxPlayerSize != -1 || custom.maxUnitSizt != 200) {
                 sendPacket(
                         NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(
@@ -994,7 +988,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement): AbstractN
         val o2 = GameOutputStream()
         o2.writeString(Data.SERVER_ID_RELAY)
         o2.writeInt(clientVersion)
-        o2.writeInt(GameMaps.MapType.customMap.ordinal)
+        o2.writeInt(GameMaps.MapType.CustomMap.ordinal)
         o2.writeString("RW-HPS RELAY Custom Mode")
         // credits
         o2.writeInt(0)

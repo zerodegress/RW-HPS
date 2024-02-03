@@ -1,12 +1,10 @@
 /*
+ * Copyright 2020-2024 RW-HPS Team and contributors.
+ *  
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
- *  * Copyright 2020-2023 RW-HPS Team and contributors.
- *  *
- *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *  *
- *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
 package net.rwhps.asm.data
@@ -29,6 +27,8 @@ object ReplaceRedirectionsDataManager {
     internal val allReplacePacketName = ArrayList<String>()
     /** 全替换 自定义匹配规则*/
     internal val allReplaceFindPacketName = ArrayList<Find<String, Boolean>>()
+    /***/
+    internal val allRemoveSyncClassPathCache = ArrayList<String>()
 
     /** Partial Class Path缓存 建少查询 */
     internal val partialClassPathCache = ArrayList<String>()
@@ -38,9 +38,13 @@ object ReplaceRedirectionsDataManager {
     internal val descData = HashMap<String, RedirectionReplace>()
 
     @JvmStatic
-    fun addAllMethodReplace(classPath: String) {
+    @JvmOverloads
+    fun addAllMethodReplace(classPath: String, removeSync: Boolean = false) {
         allReplacePacketName.add(classPath)
         addClassPathCache(classPath)
+        if (removeSync) {
+            allRemoveSyncClassPathCache.add(classPath)
+        }
     }
 
     @JvmStatic
@@ -66,6 +70,8 @@ object ReplaceRedirectionsDataManager {
             throw NullPointerException("It should not be passed in : ListenerClass")
         }
 
+        methodTypeInfoValue.listenerOrReplace = false
+
         if (partialReplaceMethodName.containsKey(methodTypeInfoValue.classPath)) {
             val list = partialReplaceMethodName[methodTypeInfoValue.classPath]!!
             if (list.contains(methodTypeInfoValue)) {
@@ -76,14 +82,13 @@ object ReplaceRedirectionsDataManager {
             partialReplaceMethodName[methodTypeInfoValue.classPath] = ArrayList<MethodTypeInfoValue>().also { it.add(methodTypeInfoValue) }
         }
 
-        if (redirection != null) {
-            DefaultValueClass.coverPrivateValueClass(redirection)?.let {
-                methodTypeInfoValue.replaceClass = it
-            }
-        }
-
         // 如果 ReplaceClass 为 null, 那么即证明是默认替换, 才需要加入redirection
         if (methodTypeInfoValue.replaceClass == null) {
+            if (redirection != null) {
+                DefaultValueClass.coverPrivateValueClass(redirection)?.let {
+                    methodTypeInfoValue.replaceClass = it
+                }
+            }
             // 这里构造 Desc 并且 加入对应的 取代
             descData[methodTypeInfoValue.desc] = redirection!!
         }

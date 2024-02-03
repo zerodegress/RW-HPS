@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *  
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -41,22 +41,22 @@ import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
-import net.rwhps.server.data.plugin.PluginManage
-import net.rwhps.server.data.plugin.PluginManage.init
-import net.rwhps.server.data.plugin.PluginManage.loadSize
-import net.rwhps.server.data.plugin.PluginManage.runInit
-import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.dependent.HeadlessProxyClass
 import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.EventGlobal
-import net.rwhps.server.game.MapManage
 import net.rwhps.server.game.event.global.ServerLoadEvent
+import net.rwhps.server.game.manage.MapManage
 import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.console.TabCompleter
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
-import net.rwhps.server.util.game.CommandHandler
+import net.rwhps.server.util.file.plugin.PluginManage
+import net.rwhps.server.util.file.plugin.PluginManage.init
+import net.rwhps.server.util.file.plugin.PluginManage.loadSize
+import net.rwhps.server.util.file.plugin.PluginManage.runInit
+import net.rwhps.server.util.file.plugin.PluginManage.runRegisterGlobalEvents
+import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.log.LoadLogUtils
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
@@ -84,17 +84,15 @@ object Main {
     @JvmStatic
     @Throws(Exception::class)
     fun main(args: Array<String>) {/* 设置Log 并开启拷贝 */
-        set("TRACK")
+        SystemSetProperty.setJlineIdea()
 
         /* OFF WARN */
-        System.setProperty("org.jline.terminal.dumb", "true")
+        set("TRACK")
         Logger.getLogger("io.netty").level = Level.OFF
 
-        /* Fix Idea */
-        System.setProperty("jansi.passthrough", "true")/* 覆盖输入输出流 */
+        /* 覆盖输入输出流 */
         inputMonitorInit()
 
-        SystemSetProperty.setOnlyIpv4()
         SystemSetProperty.setAwtHeadless()
 
         Initialization()
@@ -114,6 +112,7 @@ object Main {
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
 
+        // Test Block
         /* 加载 ASM */
         HeadlessProxyClass()
 
@@ -148,7 +147,7 @@ object Main {
         set(Data.config.log)
 
         LoadLogUtils.loadStatusLog("server.load.maps") {
-            MapManage.checkMaps()
+            MapManage.readMapAndSave()
         }
 
         LoadLogUtils.loadStatusLog("server.load.service") {
@@ -163,7 +162,7 @@ object Main {
         /* 默认直接启动服务器 */
         val response = Data.SERVER_COMMAND.handleMessage(Data.config.defStartCommand, StrCons { obj: String -> clog(obj) })
         if (response != null && response.type != CommandHandler.ResponseType.noCommand && response.type != CommandHandler.ResponseType.valid) {
-            clog("Please check the command , Unable to use StartCommand inside Config to start the server")
+            clog(Data.i18NBundle.getinput("server.start.defCommand"))
         }
 
         newThreadCore(this::inputMonitor)
@@ -201,7 +200,7 @@ object Main {
                 continue
             } catch (e: UserInterruptException) {
                 if (last != 1) {
-                    privateReader.printAbove("Interrupt again to force exit application")
+                    privateReader.printAbove(Data.i18NBundle.getinput("server.exit.ctrl"))
                     last = 1
                     continue
                 }

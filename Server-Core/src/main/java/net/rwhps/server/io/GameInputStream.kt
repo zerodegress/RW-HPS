@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -200,13 +200,13 @@ open class GameInputStream: Closeable {
     }
 
     @Throws(IOException::class)
-    fun readEnum(clazz: Class<*>): Enum<*>? {
+    fun <T: Enum<T>> readEnum(clazz: Class<T>): T? {
         return readInt().let {
             if (it < 0) {
                 null
             } else {
                 clazz.enumConstants[it].ifNullResult(null) {
-                    it as Enum<*>
+                    it
                 }
             }
         }
@@ -262,7 +262,7 @@ open class GameInputStream: Closeable {
 
 
     override fun toString(): String {
-        return "GameInputStream{" + "buffer=" + buffer + ", stream=" + stream + '}'
+        return "GameInputStream{buffer=$buffer, stream=$stream}"
     }
 
     @Throws(IOException::class)

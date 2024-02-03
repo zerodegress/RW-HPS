@@ -1,6 +1,6 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
- *
+ * Copyright 2020-2024 RW-HPS Team and contributors.
+ *  
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
@@ -11,12 +11,13 @@ package net.rwhps.server.struct.list
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList
 import it.unimi.dsi.fastutil.objects.ObjectLists
-import net.rwhps.server.data.plugin.AbstractPluginData
-import net.rwhps.server.data.plugin.DefaultSerializers
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.struct.SerializerTypeAll
+import net.rwhps.server.util.file.plugin.AbstractPluginData
+import net.rwhps.server.util.file.plugin.DefaultSerializers
 import java.io.IOException
+import java.util.List
 
 /**
  * 可调整大小，有序的对象数组
@@ -30,28 +31,42 @@ import java.io.IOException
  * @author Dr (dr@der.kim)
  */
 class Seq<T>: BaseSeq<T> {
+    @Suppress("UNCHECKED_CAST")
+    private val listFastUtil = listObject as ObjectArrayList<T>
+
     @JvmOverloads
     constructor(threadSafety: Boolean = false): this(16, threadSafety)
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     @JvmOverloads
-    constructor(capacity: Int, threadSafety: Boolean = false): super(ObjectArrayList<T>(capacity).let {
-        if (threadSafety) {
-            ObjectLists.synchronize<T>(it, it)
-        } else {
-            it
-        }
-    } as java.util.List<T>, threadSafety)
+    constructor(capacity: Int, threadSafety: Boolean = false): super(
+            ObjectArrayList<T>(capacity) as List<T>,
+            { i -> ObjectLists.synchronize<T>(i as ObjectArrayList<T>,i) as List<T> },
+            threadSafety
+            )
 
     @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     @JvmOverloads
-    constructor(array: Array<T>, threadSafety: Boolean = false): super(ObjectArrayList<T>(array).let {
-        if (threadSafety) {
-            ObjectLists.synchronize<T>(it, it)
-        } else {
-            it
-        }
-    } as java.util.List<T>, threadSafety)
+    constructor(array: Array<T>, threadSafety: Boolean = false): super(
+            ObjectArrayList<T>(array) as List<T>,
+            { i -> ObjectLists.synchronize<T>(i as ObjectArrayList<T>,i) as List<T> },
+            threadSafety
+    )
+
+    @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+    @JvmOverloads
+    constructor(array: Array<T>, length: Int, threadSafety: Boolean = false): super(
+            ObjectArrayList<T>(array, 0, length) as List<T>,
+            { i -> ObjectLists.synchronize<T>(i as ObjectArrayList<T>,i) as List<T> },
+            threadSafety
+    )
+
+    override fun elements(): Array<T> = listFastUtil.elements()
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <E> toArray(classJava: Class<E>): Array<E> = listFastUtil.toArray(java.lang.reflect.Array.newInstance(classJava, size) as Array<E>) as Array<E>
+
+    override fun clone(): Seq<T> = Seq(listFastUtil.elements(), size, threadSafety)
 
     companion object {
         /*

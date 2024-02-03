@@ -3,7 +3,12 @@ package net.rwhps.server.dependent.redirections.lwjgl
 import net.rwhps.asm.api.replace.RedirectionReplace
 import net.rwhps.asm.data.MethodTypeInfoValue
 import net.rwhps.asm.redirections.replace.def.BasicDataRedirections
+import net.rwhps.asm.redirections.replace.def.BasicFunctionRedirections
 import net.rwhps.server.dependent.redirections.MainRedirections
+import net.rwhps.server.dependent.redirections.fast.FastLongValueClass
+import net.rwhps.server.dependent.redirections.fast.LwjglFastValueClass
+import net.rwhps.server.dependent.redirections.fast.LwjglFastValueClass.screenHeight
+import net.rwhps.server.dependent.redirections.fast.LwjglFastValueClass.screenWidth
 import net.rwhps.server.util.annotations.NeedHelp
 import net.rwhps.server.util.annotations.mark.AsmMark
 import java.nio.*
@@ -19,10 +24,6 @@ import java.nio.*
 @NeedHelp(info_EN = "redirect Keyboard and Mouse")
 @AsmMark.ClassLoaderCompatible
 class LwjglRedirections: MainRedirections {
-    private val textureSize = System.getProperty(LwjglClassProperties.TEXTURE_SIZE, "1024").toInt()
-    private val fullScreen = System.getProperty(LwjglClassProperties.FULLSCREEN, "true").toBoolean()
-    private val screenWidth = System.getProperty(LwjglClassProperties.SCREEN_WIDTH, "1920").toInt()
-    private val screenHeight = System.getProperty(LwjglClassProperties.SCREEN_HEIGHT, "1080").toInt()
     private val refreshRate = System.getProperty(LwjglClassProperties.REFRESH_RATE, "100").toInt()
     private val bitsPerPixel = System.getProperty(LwjglClassProperties.BITS_PER_PIXEL, "32").toInt()
     private val jniVersion = System.getProperty(LwjglClassProperties.JNI_VERSION, "24").toInt()
@@ -60,27 +61,28 @@ class LwjglRedirections: MainRedirections {
             null
         }
 
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "getWidth", "()I"), RedirectionReplace.of(screenWidth))
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "getHeight", "()I"), RedirectionReplace.of(screenHeight))
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "isFullscreen", "()Z"), RedirectionReplace.of(fullScreen))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "getWidth", "()I", LwjglFastValueClass.ScreenWidth::class.java))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "getHeight", "()I", LwjglFastValueClass.ScreenHeight::class.java))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "isFullscreen", "()Z", LwjglFastValueClass.FullScreen::class.java))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "isCloseRequested", "()Z"), BasicDataRedirections.BOOLEANF)
+
         redirectR(MethodTypeInfoValue("org/lwjgl/DefaultSysImplementation", "getJNIVersion", "()I"), RedirectionReplace.of(jniVersion))
 
         // TODO: make this configurable?
         redirectR(MethodTypeInfoValue("org/lwjgl/opengl/Display", "isActive", "()Z"), BasicDataRedirections.BOOLEANT)
 
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "isFullscreenCapable", "()Z"), RedirectionReplace.of(fullScreen))
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "getWidth", "()I"), RedirectionReplace.of(screenWidth))
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "getHeight", "()I"), RedirectionReplace.of(screenHeight))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "isFullscreenCapable", "()Z", LwjglFastValueClass.FullScreen::class.java))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "getWidth", "()I", LwjglFastValueClass.ScreenWidth::class.java))
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "getHeight", "()I", LwjglFastValueClass.ScreenHeight::class.java))
         redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "getFrequency", "()I"), RedirectionReplace.of(refreshRate))
         redirectR(MethodTypeInfoValue("org/lwjgl/opengl/DisplayMode", "getBitsPerPixel", "()I"), RedirectionReplace.of(bitsPerPixel))
         redirectR(MethodTypeInfoValue("org/lwjgl/glfw/GLFW", "glfwInit", "()Z"), BasicDataRedirections.BOOLEANT)
-        redirectR(MethodTypeInfoValue("org/lwjgl/Sys", "getVersion", "()Ljava/lang/String"), RedirectionReplace.of("RW-HPS-Headless-Lwjgl"))
-        redirectR(MethodTypeInfoValue("org/lwjgl/Sys", "getTimerResolution", "()J"), RedirectionReplace.of(1000L))
-        redirectR(MethodTypeInfoValue("org/lwjgl/Sys", "getTime", "()J")) { _: Any, _: String, _: Class<*>, _: Array<out Any?> -> System.nanoTime() / 1000000L }
-        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/GL11", "glGetTexLevelParameteri","(III)I"), RedirectionReplace.of(textureSize))
+        redirectR(MethodTypeInfoValue("org/lwjgl/Sys", "getVersion", "()Ljava/lang/String;"), RedirectionReplace.of("RW-HPS-Headless-Lwjgl"))
+        redirectR(MethodTypeInfoValue("org/lwjgl/Sys", "getTimerResolution", "()J", FastLongValueClass.Long_1000_Value::class.java))
+        redirectR(MethodTypeInfoValue("org/lwjgl/Sys", "getTime", "()J"), BasicFunctionRedirections.NanosToMillis)
+        redirectR(MethodTypeInfoValue("org/lwjgl/opengl/GL11", "glGetTexLevelParameteri","(III)I", LwjglFastValueClass.TextureSize::class.java))
         redirectR(MethodTypeInfoValue("org/lwjgl/opengl/GL11", "glGenLists","(I)I"), RedirectionReplace.of(-1))
         redirectR(MethodTypeInfoValue("org/lwjgl/system/MemoryUtil\$MemoryAllocator", "malloc", "(J)J"), RedirectionReplace.of(1L))
-        redirectR(MethodTypeInfoValue("org/lwjgl/system/MemoryUtil\$MemoryAllocator", "realloc", "(J)J"), RedirectionReplace.of(1L))
         redirectR(MethodTypeInfoValue("org/lwjgl/system/MemoryUtil\$MemoryAllocator", "calloc", "(J)J"), RedirectionReplace.of(1L))
         redirectR(MethodTypeInfoValue("org/lwjgl/system/MemoryUtil\$MemoryAllocator", "realloc", "(J)J"), RedirectionReplace.of(1L))
         redirectR(MethodTypeInfoValue("org/lwjgl/system/MemoryUtil\$MemoryAllocator", "realloc", "(JJ)J"), RedirectionReplace.of(1L))

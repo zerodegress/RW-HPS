@@ -1,12 +1,10 @@
 /*
+ * Copyright 2020-2024 RW-HPS Team and contributors.
+ *  
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
- *  * Copyright 2020-2023 RW-HPS Team and contributors.
- *  *
- *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *  *
- *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
 package net.rwhps.asm.data
@@ -31,8 +29,7 @@ object ListenerRedirectionsDataManager {
      * 加入 指定 Class 的指定方法代理
      *
      *
-     * @param desc String
-     * @param p Array<String>
+     * @param methodTypeInfoValue 方法数据
      * @param redirection Redirection
      */
     @JvmStatic
@@ -44,6 +41,8 @@ object ListenerRedirectionsDataManager {
         if (methodTypeInfoValue.replaceClass != null) {
             throw NullPointerException("It should not be passed in : ReplaceClass")
         }
+
+        methodTypeInfoValue.listenerOrReplace = true
 
         if (partialListenerMethodName.containsKey(methodTypeInfoValue.classPath)) {
             val list = partialListenerMethodName[methodTypeInfoValue.classPath]!!
@@ -58,7 +57,8 @@ object ListenerRedirectionsDataManager {
         // 如果 ReplaceClass 为 null, 那么即证明是默认替换, 才需要加入redirection
         if (methodTypeInfoValue.listenerClass == null) {
             // 这里构造 Desc 并且 加入对应的 取代
-            descData[methodTypeInfoValue.desc] = redirection!!
+            val desc = methodTypeInfoValue.desc + if (methodTypeInfoValue.listenerBefore) "LS" else "LE"
+            descData[desc] = redirection!!
         }
         addPartialClassPathCache(methodTypeInfoValue.classPath)
     }

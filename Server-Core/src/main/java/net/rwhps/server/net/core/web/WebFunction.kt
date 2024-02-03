@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 RW-HPS Team and contributors.
+ * Copyright 2020-2024 RW-HPS Team and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -11,7 +11,7 @@ package net.rwhps.server.net.core.web
 
 import io.netty.handler.codec.http.HttpHeaderNames
 import net.rwhps.server.data.global.RegexData
-import net.rwhps.server.data.json.Json
+import net.rwhps.server.util.file.json.Json
 import net.rwhps.server.net.http.AcceptWeb
 import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.util.inline.mutableObjectMapOf

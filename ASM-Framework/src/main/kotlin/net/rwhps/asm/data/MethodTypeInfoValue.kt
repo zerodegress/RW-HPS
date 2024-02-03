@@ -1,12 +1,10 @@
 /*
+ * Copyright 2020-2024 RW-HPS Team and contributors.
+ *  
+ * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
- *  * Copyright 2020-2023 RW-HPS Team and contributors.
- *  *
- *  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- *  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
- *  *
- *  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
- *
+ * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
 
 package net.rwhps.asm.data
@@ -32,6 +30,8 @@ class MethodTypeInfoValue {
     val methodName: String
     val methodParamsInfo: String
 
+    var listenerOrReplace: Boolean = false
+
     var replaceClass: Class<out RedirectionReplace>?
         internal set
 
@@ -54,6 +54,7 @@ class MethodTypeInfoValue {
         this.classPath = classPath
         this.methodName = methodName
         this.methodParamsInfo = methodParamsInfo
+        this.listenerOrReplace = false
         this.replaceClass = replaceClass
         this.listenerBefore = false
         this.listenerClass = null
@@ -63,6 +64,7 @@ class MethodTypeInfoValue {
         this.classPath = classPath
         this.methodName = methodName
         this.methodParamsInfo = methodParamsInfo
+        this.listenerOrReplace = true
         this.replaceClass = null
         this.listenerBefore = before
         this.listenerClass = listenerClass
@@ -72,8 +74,12 @@ class MethodTypeInfoValue {
         if (this === other) {
             return true
         }
-        if (other is MethodTypeInfoValue && methodName == other.methodName && methodParamsInfo == other.methodParamsInfo) {
-            return false
+        if (other is MethodTypeInfoValue) {
+            return if (other.listenerOrReplace) {
+                classPath == other.classPath && methodName == other.methodName && methodParamsInfo == other.methodParamsInfo && listenerBefore == other.listenerBefore
+            } else {
+                classPath == other.classPath && methodName == other.methodName && methodParamsInfo == other.methodParamsInfo
+            }
         }
 
         return false

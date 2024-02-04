@@ -10,8 +10,6 @@
 package net.rwhps.server.plugin
 
 import net.rwhps.server.data.bean.internal.BeanPluginInfo
-import net.rwhps.server.data.global.Data
-import net.rwhps.server.game.player.PlayerHess
 import net.rwhps.server.func.ConsMap
 import net.rwhps.server.func.ConsSeq
 import net.rwhps.server.func.Prov
@@ -20,6 +18,7 @@ import net.rwhps.server.game.enums.GameCommandActions
 import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.game.event.game.ServerGameOverEvent.GameOverData
 import net.rwhps.server.game.headless.core.link.AbstractLinkPlayerData
+import net.rwhps.server.game.player.PlayerHess
 import net.rwhps.server.io.input.SyncByteArrayChannel
 import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.output.DisableSyncByteArrayOutputStream
@@ -35,11 +34,11 @@ import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.struct.map.IntMap
 import net.rwhps.server.struct.map.ObjectMap
 import net.rwhps.server.struct.map.OrderedMap
-import net.rwhps.server.util.file.load.I18NBundle
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.compression.core.AbstractDecoder
 import net.rwhps.server.util.file.FakeFileSystem
 import net.rwhps.server.util.file.FileUtils
+import net.rwhps.server.util.file.load.I18NBundle
 import net.rwhps.server.util.game.command.CommandHandler
 import net.rwhps.server.util.inline.ifNullResult
 import net.rwhps.server.util.io.IOUtils
@@ -153,10 +152,24 @@ internal class JavaScriptPluginGlobalContext {
      * @return 插件加载数据
      */
     fun loadESMPlugins(): Seq<PluginLoadData> {
+        // 试加载来检测WASM特性是否启用
+        val enableWasm = try {
+            Context.newBuilder().allowExperimentalOptions(true).option("js.webassembly", "true").build().getBindings("js")
+            true
+        } catch (e: Exception) {
+            Log.warn("Wasm language load failed, wasm feature disabled.")
+            false
+        }
+
         try {
             val cx = Context.newBuilder().allowExperimentalOptions(true).allowPolyglotAccess(PolyglotAccess.ALL)
                 .option("engine.WarnInterpreterOnly", "false").option("js.esm-eval-returns-exports", "true")
-                .option("js.webassembly", "true").allowHostAccess(
+                .also {
+                    if (enableWasm) {
+                        it.option("js.webassembly", "true")
+                    }
+                }
+                .allowHostAccess(
                         HostAccess.newBuilder()
                             .allowAllClassImplementations(true)
                             .allowAllImplementations(true)
@@ -184,30 +197,43 @@ internal class JavaScriptPluginGlobalContext {
             cx.getBindings("js").putMember("RwHps", rwhpsObject)
             cx.enter()
 
-            var loadScript = ""
-            modules.eachAll { pluginInfo, v ->
-                loadScript += "export { default as $v } from '${pluginInfo.internalName}';"
-                loadScript += Data.LINE_SEPARATOR
-            }
-
-            val defaults = cx.eval(Source.newBuilder("js", loadScript, "/work/load.mjs").build())
+            val loadedPlugins = mapOf(*modules.map {
+                try {
+                    val jsPlugin = cx.eval(
+                            Source.newBuilder(
+                                    "js",
+                                    "export { default as plugin } from '${it.key.internalName}';",
+                                    "__load${it.value}.js"
+                            ).mimeType("application/javascript+module").build()
+                    ).getMember("plugin")
+                    Pair(
+                            it.value,
+                            if(jsPlugin.canExecute()) {
+                                jsPlugin.execute()
+                            } else {
+                                jsPlugin
+                            }.`as`(Plugin::class.java)
+                    )
+                } catch (e: Exception) {
+                    Log.error("Load JS Plugin '${it.key.name}' failed: ", e)
+                    Pair(it.value, null)
+                }
+            }.toTypedArray())
 
             return Seq<PluginLoadData>().apply {
                 modules.eachAll { pluginInfo, v ->
-                    this.add(
-                            PluginLoadData(
-                                    pluginInfo.name,
-                                    pluginInfo.internalName,
-                                    pluginInfo.author,
-                                    pluginInfo.description,
-                                    pluginInfo.version,
-                                    if (defaults.canExecute()) {
-                                        defaults.getMember(v).execute().`as`(Plugin::class.java)
-                                    } else {
-                                        defaults.getMember(v).`as`(Plugin::class.java)
-                                    }
-                            )
-                    )
+                    loadedPlugins[v]?.let {
+                        this.add(
+                                PluginLoadData(
+                                        pluginInfo.name,
+                                        pluginInfo.internalName,
+                                        pluginInfo.author,
+                                        pluginInfo.description,
+                                        pluginInfo.version,
+                                        it
+                                )
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {

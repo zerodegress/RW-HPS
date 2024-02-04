@@ -84,7 +84,7 @@ internal class LinkGameNet: AbstractLinkGameNet {
                 // 进行扩展
                 n.b(Data.configServer.maxPlayer, true)
                 // 避免同步爆炸, 给自身设置一个隐藏队伍
-                GameEngine.netEngine.z.k = -1
+                GameEngine.netEngine.z = n.k(-1)
 
                 // 不能在启动前设置, 因为每次会变
                 // 设置客户端UUID, 避免Admin/ban等不能持久化

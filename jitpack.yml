@@ -1,8 +1,8 @@
 jdk:
-  - openjdk17
+  - openjdk16
 before_install:
-  - wget https://github.com/sormuras/bach/raw/releases/11/install-jdk.sh
-  - source install-jdk.sh --feature 17
+  - wget https://github.com/deng-rui/Tools-Bash/raw/main/Java-Install/install.sh
+  - source install-jdk.sh --feature 21
   - jshell --version
 install:
   - ./gradlew publishToMavenLocal

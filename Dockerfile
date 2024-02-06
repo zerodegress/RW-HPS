@@ -41,11 +41,9 @@ RUN ls -l
 
 RUN set -ex; \
     \
-    apk update; \
     apk -U --no-cache add\
         supervisor
     ; \
-    rm -rf /var/cache/apk/*;
 
 RUN mkdir -p \
     /var/log/supervisord \

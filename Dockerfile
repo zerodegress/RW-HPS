@@ -40,10 +40,7 @@ RUN mv Config.json data/Config.json
 RUN ls -l
 
 RUN set -ex; \
-    \
-    apk -U --no-cache add\
-        supervisor
-    ; \
+    apk -U --no-cache add supervisor
 
 RUN mkdir -p \
     /var/log/supervisord \

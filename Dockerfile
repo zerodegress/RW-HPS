@@ -41,11 +41,11 @@ RUN ls -l
 
 RUN set -ex; \
     \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        supervisor \
+    apk update; \
+    apk -U --no-cache add\
+        supervisor
     ; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/apk/*
 
 RUN mkdir -p \
     /var/log/supervisord \

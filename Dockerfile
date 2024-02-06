@@ -40,7 +40,12 @@ RUN mv Config.json data/Config.json
 RUN ls -l
 
 RUN set -ex; \
-    apk -U --no-cache add supervisor
+    \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        supervisor \
+    ; \
+    rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p \
     /var/log/supervisord \

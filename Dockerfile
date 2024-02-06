@@ -45,7 +45,7 @@ RUN set -ex; \
     apk -U --no-cache add\
         supervisor
     ; \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/*;
 
 RUN mkdir -p \
     /var/log/supervisord \

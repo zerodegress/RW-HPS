@@ -1,12 +1,12 @@
 # https://hub.docker.com/_/openjdk?tab=tags&page=1&name=17
 
-FROM openjdk:21 AS base
+FROM azul/zulu-openjdk:21 AS base
 ENV TZ=Asia/Shanghai
 WORKDIR /app
 EXPOSE 5123
 
 # build
-FROM openjdk:21 AS build
+FROM azul/zulu-openjdk:21 AS build
 WORKDIR /src
 COPY . .
 RUN chmod +x gradlew
